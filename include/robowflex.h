@@ -13,37 +13,15 @@ namespace robowflex
     // Resolves `package://` URLs and returns canonical absolute path if path exists, otherwise ""
     const std::string resolvePath(const std::string &path);
     const std::string loadFileToXML(const std::string &path);
-
     const YAML::Node loadFileToYAML(const std::string &path);
-    void loadYAMLParams(const YAML::Node &node, const std::string &prefix);
 
-    class RobotDescription
-    {
-    public:
-        RobotDescription(const std::string &description, const std::string &urdf_file, const std::string &srdf_file,
-                         const std::string &limits_file, const std::string &kinematics_file);
-    };
+    void loadYAMLtoROS(const YAML::Node &node, const std::string &prefix);
 
-    class RobotModel
-    {
-    public:
-        RobotModel(const std::string &description);
+    void loadRobotDescription(const std::string &description, const std::string &urdf_file,
+                              const std::string &srdf_file, const std::string &limits_file,
+                              const std::string &kinematics_file);
 
-    private:
-        robot_model::RobotModelPtr robot_;
-    };
-
-    class Planner
-    {
-    public:
-        Planner();
-    };
-
-    class MoveItPlanner : public Planner
-    {
-    public:
-        MoveItPlanner();
-    };
+    robot_model::RobotModelPtr loadRobotModel(const std::string &description);
 
 }  // namespace robowflex
 

@@ -205,14 +205,14 @@ namespace
     }
 }  // namespace
 
-void robowflex::loadYAMLParams(const YAML::Node &node, const std::string &prefix)
+void robowflex::loadYAMLtoROS(const YAML::Node &node, const std::string &prefix)
 {
     switch (node.Type())
     {
         case YAML::NodeType::Map:
         {
             for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
-                loadYAMLParams(it->second, prefix + "/" + it->first.as<std::string>());
+                loadYAMLtoROS(it->second, prefix + "/" + it->first.as<std::string>());
 
             break;
         }

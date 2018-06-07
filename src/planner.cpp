@@ -4,9 +4,8 @@
 
 using namespace robowflex;
 
-RobotDescription::RobotDescription(const std::string &description, const std::string &urdf_file,
-                                   const std::string &srdf_file, const std::string &limits_file,
-                                   const std::string &kinematics_file)
+void robowflex::loadRobotDescription(const std::string &description, const std::string &urdf_file, const std::string &srdf_file,
+                          const std::string &limits_file, const std::string &kinematics_file)
 {
     const std::string urdf_string = loadFileToXML(urdf_file);
     const std::string srdf_string = loadFileToXML(srdf_file);
@@ -19,25 +18,17 @@ RobotDescription::RobotDescription(const std::string &description, const std::st
     }
 
     const YAML::Node &limits = loadFileToYAML(limits_file);
-    loadYAMLParams(limits, description + "_planning");
+    loadYAMLtoROS(limits, description + "_planning");
 
     const YAML::Node &kinematics = loadFileToYAML(kinematics_file);
-    loadYAMLParams(kinematics, description + "_kinematics");
+    loadYAMLtoROS(kinematics, description + "_kinematics");
 }
 
-RobotModel::RobotModel(const std::string &description)
+robot_model::RobotModelPtr robowflex::loadRobotModel(const std::string &description)
 {
     robot_model_loader::RobotModelLoader::Options options(description);
     options.load_kinematics_solvers_ = true;
 
     robot_model_loader::RobotModelLoader model_loader(options);
-    robot_ = model_loader.getModel();
-}
-
-Planner::Planner()
-{
-}
-
-MoveItPlanner::MoveItPlanner() : Planner()
-{
+    return model_loader.getModel();
 }
