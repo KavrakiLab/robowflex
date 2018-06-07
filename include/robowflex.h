@@ -84,12 +84,14 @@ namespace robowflex
     class Scene
     {
     public:
-        Scene(const robot_model::RobotModelConstPtr model);
+        Scene(Robot &robot);
 
         planning_scene::PlanningScenePtr &getScene()
         {
             return scene_;
         }
+
+        robot_state::RobotState &getCurrentState();
 
     private:
         planning_scene::PlanningScenePtr scene_;

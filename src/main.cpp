@@ -1,6 +1,8 @@
 #include <ros/ros.h>
 #include <signal.h>
 
+#include <moveit/kinematic_constraints/utils.h>
+
 #include "robowflex.h"
 
 void shutdown(int sig)
@@ -21,12 +23,12 @@ int main(int argc, char **argv)
                    "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
                    );
 
+    robowflex::Scene scene(ur5);
+
     robowflex::OMPLPlanner planner(ur5);
     planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
                        );
 
-    // planning_interface::MotionPlanRequest req;
-    // planning_interface::MotionPlanResponse res;
     // geometry_msgs::PoseStamped pose;
     // pose.header.frame_id = "torso_lift_link";
     // pose.pose.position.x = 0.75;
@@ -46,27 +48,19 @@ int main(int argc, char **argv)
     // // Now, call the pipeline and check whether planning was successful.
     // planning_pipeline->generatePlan(planning_scene, req, res);
 
-    // robot_state::RobotState& robot_state = planning_scene->getCurrentStateNonConst();
-    //   planning_scene->setCurrentState(response.trajectory_start);
-    //   const robot_model::JointModelGroup* joint_model_group = robot_state.getJointModelGroup("right_arm");
-    //   robot_state.setJointGroupPositions(joint_model_group,
-    //   response.trajectory.joint_trajectory.points.back().positions);
+    robot_state::RobotState &start_state = scene.getCurrentState();
 
-    //   // Now, setup a joint space goal
-    //   robot_state::RobotState goal_state(robot_model);
-    //   std::vector<double> joint_values(7, 0.0);
-    //   joint_values[0] = -2.0;
-    //   joint_values[3] = -0.2;
-    //   joint_values[5] = -0.15;
-    //   goal_state.setJointGroupPositions(joint_model_group, joint_values);
-    //   moveit_msgs::Constraints joint_goal = kinematic_constraints::constructGoalConstraints(goal_state,
-    //   joint_model_group);
+    const robot_model::JointModelGroup *jmg = start_state.getJointModelGroup("manipulator");
+    start_state.setJointGroupPositions(jmg, {0, 0, 0, 0, 0, 0, 0});
 
-    //   req.goal_constraints.clear();
-    //   req.goal_constraints.push_back(joint_goal);
+    robot_state::RobotState goal_state(ur5.getModel());
+    goal_state.setJointGroupPositions(jmg, {-0.39, -0.69, -2.12, 2.82, -0.39, 0});
+    moveit_msgs::Constraints joint_goal = kinematic_constraints::constructGoalConstraints(goal_state, jmg);
 
-    //   // Call the pipeline and visualize the trajectory
-    //   planning_pipeline->generatePlan(planning_scene, req, res);
+    planning_interface::MotionPlanRequest request;
+    request.goal_constraints.push_back(joint_goal);
+
+    planning_interface::MotionPlanResponse res = planner.plan(scene, request);
 
     ros::spin();
     return 0;
