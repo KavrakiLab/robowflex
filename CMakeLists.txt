@@ -29,7 +29,7 @@ catkin_package(
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(${LIBRARY_NAME} src/planner.cpp src/util.cpp)
+add_library(${LIBRARY_NAME} src/planner.cpp src/scene.cpp src/robot.cpp src/util.cpp)
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 

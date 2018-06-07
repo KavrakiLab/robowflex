@@ -21,8 +21,9 @@ int main(int argc, char **argv)
                    "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
                    );
 
-    ur5.loadOMPLPipeline("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
-                         );
+    robowflex::OMPLPlanner planner(ur5);
+    planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
+                       );
 
     // planning_interface::MotionPlanRequest req;
     // planning_interface::MotionPlanResponse res;

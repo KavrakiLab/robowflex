@@ -53,6 +53,67 @@ namespace robowflex
     class Robot
     {
     public:
+        Robot(const std::string &name);
+        bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
+                        const std::string &kinematics_file);
+
+        robot_model::RobotModelPtr &getModel()
+        {
+            return model_;
+        }
+
+        IO::Handler &getHandler()
+        {
+            return handler_;
+        }
+
+    protected:
+        // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server under
+        // "description".
+        // Returns false when failure.
+        bool loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
+                                  const std::string &limits_file, const std::string &kinematics_file);
+        void loadRobotModel();
+
+        const std::string name_;
+        IO::Handler handler_;
+
+        robot_model::RobotModelPtr model_;
+    };
+
+    class Scene
+    {
+    public:
+        Scene(const robot_model::RobotModelConstPtr model);
+
+        planning_scene::PlanningScenePtr &getScene()
+        {
+            return scene_;
+        }
+
+    private:
+        planning_scene::PlanningScenePtr scene_;
+    };
+
+    class Planner
+    {
+    public:
+        Planner(Robot &robot) : robot_(robot), handler_(robot_.getHandler())
+        {
+        }
+
+        virtual planning_interface::MotionPlanResponse plan(Scene &scene,
+                                                            const planning_interface::MotionPlanRequest &request);
+
+    protected:
+        Robot &robot_;
+        IO::Handler &handler_;
+        planning_pipeline::PlanningPipelinePtr pipeline_;
+    };
+
+    class OMPLPlanner : public Planner
+    {
+    public:
         class OMPLSettings
         {
         public:
@@ -81,28 +142,11 @@ namespace robowflex
             void setParam(IO::Handler &handler) const;
         };
 
-        Robot(const std::string &name);
-        bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
-                        const std::string &kinematics_file);
+        OMPLPlanner(Robot &robot);
 
-        void loadOMPLPipeline(const std::string &config_file, const OMPLSettings settings = OMPLSettings(),
-                              const std::string &plugin = "ompl_interface/OMPLPlanner",
-                              const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
-
-    protected:
-        // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server under
-        // "description".
-        // Returns false when failure.
-        bool loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
-                                  const std::string &limits_file, const std::string &kinematics_file);
-        robot_model::RobotModelPtr loadRobotModel();
-
-        const std::string name_;
-        IO::Handler handler_;
-
-        robot_model::RobotModelPtr model_;
-        planning_scene::PlanningScenePtr scene_;
-        planning_pipeline::PlanningPipelinePtr pipeline_;
+        bool initialize(const std::string &config_file, const OMPLSettings settings = OMPLSettings(),
+                        const std::string &plugin = "ompl_interface/OMPLPlanner",
+                        const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
     private:
         static const std::vector<std::string> DEFAULT_ADAPTERS;
