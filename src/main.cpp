@@ -27,10 +27,10 @@ int main(int argc, char **argv)
     robot_model::RobotModelPtr model_(robowflex::loadRobotModel("ur5"));
     planning_scene::PlanningScene ps(model_);
 
-    planning_interface::PlannerManager pm();
-    pm.initialize();
+    // planning_interface::PlannerManager pm();
+    // pm.initialize();
 
-    auto pc = pm.getPlanningContext();
+    // auto pc = pm.getPlanningContext();
 
     return 0;
 }

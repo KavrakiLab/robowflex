@@ -10,40 +10,43 @@
 
 #include "robowflex.h"
 
-boost::filesystem::path expandHome(const boost::filesystem::path &in)
+namespace
 {
-    const char *home = getenv("HOME");
-    if (home == NULL)
+    boost::filesystem::path expandHome(const boost::filesystem::path &in)
     {
-        ROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
-        return in;
+        const char *home = getenv("HOME");
+        if (home == NULL)
+        {
+            ROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
+            return in;
+        }
+
+        boost::filesystem::path out;
+        for (auto p : in)
+            out /= (p.string() == "~") ? home : p;
+
+        return out;
     }
 
-    boost::filesystem::path out;
-    for (auto p : in)
-        out /= (p.string() == "~") ? home : p;
-
-    return out;
-}
-
-boost::filesystem::path expandSymlinks(const boost::filesystem::path &in)
-{
-    boost::filesystem::path out;
-    for (auto p : in)
+    boost::filesystem::path expandSymlinks(const boost::filesystem::path &in)
     {
-        auto tmp = out / p;
-        if (boost::filesystem::is_symlink(tmp))
-            out = boost::filesystem::read_symlink(tmp);
-        else
-            out /= p;
+        boost::filesystem::path out;
+        for (auto p : in)
+        {
+            auto tmp = out / p;
+            if (boost::filesystem::is_symlink(tmp))
+                out = boost::filesystem::read_symlink(tmp);
+            else
+                out /= p;
+        }
+
+        return out;
     }
 
-    return out;
-}
-
-bool isPrefix(const std::string &lhs, const std::string &rhs)
-{
-    return std::equal(lhs.begin(), lhs.begin() + std::min(lhs.size(), rhs.size()), rhs.begin());
+    bool isPrefix(const std::string &lhs, const std::string &rhs)
+    {
+        return std::equal(lhs.begin(), lhs.begin() + std::min(lhs.size(), rhs.size()), rhs.begin());
+    }
 }
 
 const std::string robowflex::resolvePath(const std::string &path)
@@ -89,7 +92,7 @@ const std::string robowflex::loadFileToXML(const std::string &path)
         return "";
 
     std::string buffer;
-    if (!rdf_loader::RDFLoader::loadXmlFileToString(buffer, full_path, {}))
+    if (!rdf_loader::RDFLoader::loadXmlFileToString(buffer, full_path, {"--inorder"}))
     {
         ROS_ERROR("Failed to load file `%s` to XML", path.c_str());
         return "";
@@ -98,14 +101,22 @@ const std::string robowflex::loadFileToXML(const std::string &path)
     return buffer;
 }
 
-const YAML::Node robowflex::loadFileToYAML(const std::string &path)
+const std::pair<bool, YAML::Node> robowflex::loadFileToYAML(const std::string &path)
 {
     YAML::Node file;
     const std::string full_path = robowflex::resolvePath(path);
     if (full_path.empty())
-        return file;
+        return std::make_pair(false, file);
 
-    return YAML::LoadFile(full_path);
+    try
+    {
+        return std::make_pair(true, YAML::LoadFile(full_path));
+    }
+    catch (std::exception &e)
+    {
+        return std::make_pair(false, file);
+    }
+
 }
 
 namespace
