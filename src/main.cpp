@@ -51,17 +51,21 @@ int main(int argc, char **argv)
     robot_state::RobotState &start_state = scene.getCurrentState();
 
     const robot_model::JointModelGroup *jmg = start_state.getJointModelGroup("manipulator");
-    start_state.setJointGroupPositions(jmg, {0, 0, 0, 0, 0, 0, 0});
+    start_state.setJointGroupPositions(jmg, {0, 0, 0, 0, 0, 0});
 
     robot_state::RobotState goal_state(ur5.getModel());
     goal_state.setJointGroupPositions(jmg, {-0.39, -0.69, -2.12, 2.82, -0.39, 0});
     moveit_msgs::Constraints joint_goal = kinematic_constraints::constructGoalConstraints(goal_state, jmg);
 
     planning_interface::MotionPlanRequest request;
+    request.group_name = "manipulator";
     request.goal_constraints.push_back(joint_goal);
 
-    planning_interface::MotionPlanResponse res = planner.plan(scene, request);
+    while (true)
+    {
+        planning_interface::MotionPlanResponse res = planner.plan(scene, request);
+        sleep(1);
+    }
 
-    ros::spin();
     return 0;
 }
