@@ -3,6 +3,9 @@
 
 #include <yaml-cpp/yaml.h>
 #include <moveit/robot_model/robot_model.h>
+#include <moveit/planning_scene/planning_scene.h>
+#include <moveit/planning_pipeline/planning_pipeline.h>
+#include <moveit/planning_interface/planning_interface.h>
 
 namespace robowflex
 {
@@ -16,15 +19,36 @@ namespace robowflex
     const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
     // Loads an YAML node to the ROS parameter server.
-    void loadYAMLtoROS(const YAML::Node &node, const std::string &prefix);
+    void loadYAMLtoROS(const YAML::Node &node, const std::string &prefix, const ros::NodeHandle &nh);
 
-    // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server under "description".
-    // Returns false when failure.
-    bool loadRobotDescription(const std::string &description, const std::string &urdf_file,
-                              const std::string &srdf_file, const std::string &limits_file,
-                              const std::string &kinematics_file);
+    class Robot
+    {
+    public:
+        Robot(const std::string &name);
+        bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
+                        const std::string &kinematics_file);
 
-    robot_model::RobotModelPtr loadRobotModel(const std::string &description);
+        void loadOMPLPipeline(const std::string &config_file, const std::string &plugin = "ompl_interface/OMPLPlanner",
+                              const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+    protected:
+        // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server under
+        // "description".
+        // Returns false when failure.
+        bool loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
+                                  const std::string &limits_file, const std::string &kinematics_file);
+        robot_model::RobotModelPtr loadRobotModel();
+
+        const std::string name_;
+        ros::NodeHandle nh_;
+
+        robot_model::RobotModelPtr model_;
+        planning_scene::PlanningScenePtr scene_;
+        planning_pipeline::PlanningPipelinePtr pipeline_;
+
+    private:
+        static const std::vector<std::string> DEFAULT_ADAPTERS;
+    };
 
 }  // namespace robowflex
 

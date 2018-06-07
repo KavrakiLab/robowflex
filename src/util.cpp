@@ -116,7 +116,6 @@ const std::pair<bool, YAML::Node> robowflex::loadFileToYAML(const std::string &p
     {
         return std::make_pair(false, file);
     }
-
 }
 
 namespace
@@ -216,21 +215,21 @@ namespace
     }
 }  // namespace
 
-void robowflex::loadYAMLtoROS(const YAML::Node &node, const std::string &prefix)
+void robowflex::loadYAMLtoROS(const YAML::Node &node, const std::string &prefix, const ros::NodeHandle &nh)
 {
     switch (node.Type())
     {
         case YAML::NodeType::Map:
         {
             for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
-                loadYAMLtoROS(it->second, prefix + "/" + it->first.as<std::string>());
+                loadYAMLtoROS(it->second, prefix + "/" + it->first.as<std::string>(), nh);
 
             break;
         }
         case YAML::NodeType::Sequence:
         case YAML::NodeType::Scalar:
         {
-            ros::param::set(prefix, YAMLToXmlRpc(node));
+            nh.setParam(prefix, YAMLToXmlRpc(node));
             break;
         }
         default:
