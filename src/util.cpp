@@ -10,6 +10,8 @@
 
 #include "robowflex.h"
 
+using namespace robowflex;
+
 namespace
 {
     boost::filesystem::path expandHome(const boost::filesystem::path &in)
@@ -49,7 +51,7 @@ namespace
     }
 }
 
-const std::string robowflex::resolvePath(const std::string &path)
+const std::string IO::resolvePath(const std::string &path)
 {
     const std::string prefix = "package://";
 
@@ -85,9 +87,9 @@ const std::string robowflex::resolvePath(const std::string &path)
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
 }
 
-const std::string robowflex::loadFileToXML(const std::string &path)
+const std::string IO::loadFileToXML(const std::string &path)
 {
-    const std::string full_path = robowflex::resolvePath(path);
+    const std::string full_path = resolvePath(path);
     if (full_path.empty())
         return "";
 
@@ -101,10 +103,10 @@ const std::string robowflex::loadFileToXML(const std::string &path)
     return buffer;
 }
 
-const std::pair<bool, YAML::Node> robowflex::loadFileToYAML(const std::string &path)
+const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
 {
     YAML::Node file;
-    const std::string full_path = robowflex::resolvePath(path);
+    const std::string full_path = resolvePath(path);
     if (full_path.empty())
         return std::make_pair(false, file);
 
@@ -215,21 +217,31 @@ namespace
     }
 }  // namespace
 
-void robowflex::loadYAMLtoROS(const YAML::Node &node, const std::string &prefix, const ros::NodeHandle &nh)
+IO::Handler::Handler(const std::string &name) : name_(name), nh_(name)
+{
+}
+
+IO::Handler::~Handler()
+{
+    for (auto key : params_)
+        nh_.deleteParam(key);
+}
+
+void IO::Handler::loadYAMLtoROS(const YAML::Node &node, const std::string &prefix)
 {
     switch (node.Type())
     {
         case YAML::NodeType::Map:
         {
             for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
-                loadYAMLtoROS(it->second, prefix + "/" + it->first.as<std::string>(), nh);
+                loadYAMLtoROS(it->second, prefix + "/" + it->first.as<std::string>());
 
             break;
         }
         case YAML::NodeType::Sequence:
         case YAML::NodeType::Scalar:
         {
-            nh.setParam(prefix, YAMLToXmlRpc(node));
+            setParam(prefix, YAMLToXmlRpc(node));
             break;
         }
         default:
