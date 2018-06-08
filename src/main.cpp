@@ -13,7 +13,7 @@ void shutdown(int sig)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
+    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler | ros::init_options::AnonymousName);
     signal(SIGINT, shutdown);
 
     robowflex::Robot ur5("ur5");
@@ -21,13 +21,14 @@ int main(int argc, char **argv)
                    "package://ur5_robotiq85_moveit_config/config/ur5_robotiq85.srdf",     // srdf
                    "package://ur5_robotiq85_moveit_config/config/joint_limits.yaml",      // joint limits
                    "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
-                   );
+    );
 
     robowflex::Scene scene(ur5);
 
     robowflex::OMPLPlanner planner(ur5);
-    planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
-                       );
+    planner.initialize();  // Don't need to by default
+    // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
+    //                    );
 
     // geometry_msgs::PoseStamped pose;
     // pose.header.frame_id = "torso_lift_link";
@@ -61,7 +62,7 @@ int main(int argc, char **argv)
     request.group_name = "manipulator";
     request.goal_constraints.push_back(joint_goal);
 
-    ros::Rate rate(10);
+    ros::Rate rate(1);
     while (ros::ok())
     {
         planning_interface::MotionPlanResponse res = planner.plan(scene, request);

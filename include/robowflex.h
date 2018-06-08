@@ -176,7 +176,7 @@ namespace robowflex
 
         OMPLPlanner(Robot &robot);
 
-        bool initialize(const std::string &config_file, const OMPLSettings settings = OMPLSettings(),
+        bool initialize(const std::string &config_file = "", const OMPLSettings settings = OMPLSettings(),
                         const std::string &plugin = "ompl_interface/OMPLPlanner",
                         const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
