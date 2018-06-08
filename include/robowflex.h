@@ -112,6 +112,12 @@ namespace robowflex
         IO::Handler handler_;
 
         robot_model::RobotModelPtr model_;
+
+    private:
+        static const std::string ROBOT_DESCRIPTION;
+        static const std::string ROBOT_SEMANTIC;
+        static const std::string ROBOT_PLANNING;
+        static const std::string ROBOT_KINEMATICS;
     };
 
     class Scene
