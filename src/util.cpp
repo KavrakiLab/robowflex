@@ -281,10 +281,10 @@ namespace
     }
 }  // namespace
 
-std::string IO::Handler::UUID(generateUUID());
+const std::string IO::Handler::UUID(generateUUID());
 
 IO::Handler::Handler(const std::string &name)
-  : name_(name), namespace_("robowflex_" + UUID + +"/" + name_), nh_(namespace_)
+  : name_(name), namespace_("robowflex_" + UUID + "/" + name_), nh_(namespace_)
 {
 }
 
@@ -320,9 +320,6 @@ void IO::Handler::loadYAMLtoROS(const YAML::Node &node, const std::string &prefi
 
 const std::string IO::Handler::generateUUID()
 {
-    if (!UUID.empty())
-        return UUID;
-
     boost::uuids::random_generator gen;
     boost::uuids::uuid u = gen();
 

@@ -73,7 +73,7 @@ namespace robowflex
         private:
             // Generates a UUID
             static const std::string generateUUID();
-            static std::string UUID;
+            static const std::string UUID;
 
             const std::string name_;
             const std::string namespace_;
