@@ -99,6 +99,8 @@ namespace robowflex
         geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
         Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
         geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
+        Eigen::Quaterniond quaternionMsgToEigen(const geometry_msgs::Quaternion &msg);
+        geometry_msgs::Quaternion quaternionEigenToMsg(const Eigen::Quaterniond &quaternion);
     }  // namespace TF
 
     class Geometry

@@ -359,3 +359,17 @@ geometry_msgs::Pose TF::poseEigenToMsg(const Eigen::Affine3d& pose)
     tf::poseEigenToMsg(pose, msg);
     return msg;
 }
+
+Eigen::Quaterniond TF::quaternionMsgToEigen(const geometry_msgs::Quaternion& msg)
+{
+    Eigen::Quaterniond quaternion;
+    tf::quaternionMsgToEigen(msg, quaternion);
+    return quaternion;
+}
+
+geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond& quaternion)
+{
+    geometry_msgs::Quaternion msg;
+    tf::quaternionEigenToMsg(quaternion, msg);
+    return msg;
+}
