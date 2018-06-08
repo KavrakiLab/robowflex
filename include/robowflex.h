@@ -142,13 +142,13 @@ namespace robowflex
         }
 
     private:
-        std::shared_ptr<shapes::Shape> loadShape() const;
+        shapes::Shape *loadShape() const;
 
         ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
         std::string resource_{""};                                   // Resource locator for MESH types.
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
         const Eigen::Affine3d offset_;                               // Offset of geometry from base frame.
-        const std::shared_ptr<shapes::Shape> shape_{nullptr};        // Loaded mesh.
+        const shapes::ShapePtr shape_{nullptr};                      // Loaded mesh.
     };
 
     class Robot
@@ -211,13 +211,10 @@ namespace robowflex
         }
 
         moveit_msgs::PlanningScene getMessage();
-
         robot_state::RobotState &getCurrentState();
-
         collision_detection::AllowedCollisionMatrix &getACM();
 
         void addCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
-
         void removeCollisionObject(const std::string &name);
 
     private:

@@ -42,42 +42,39 @@ const std::string &Geometry::ShapeType::toString(Type type)
 
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
                    const Eigen::Affine3d &offset)
-  : type_(type)
-  , dimensions_(dimensions)
-  , offset_(offset)
-  , resource_(IO::resolvePath(resource))
-  , shape_(std::move(loadShape()))
+  : type_(type), dimensions_(dimensions), offset_(offset), resource_(IO::resolvePath(resource)), shape_(loadShape())
 {
 }
 
-std::shared_ptr<shapes::Shape> Geometry::loadShape() const
+shapes::Shape *Geometry::loadShape() const
 {
     switch (type_)
     {
         case ShapeType::BOX:
-            return std::make_shared<shapes::Box>(dimensions_[0], dimensions_[1], dimensions_[2]);
+            return new shapes::Box(dimensions_[0], dimensions_[1], dimensions_[2]);
             break;
 
         case ShapeType::SPHERE:
-            return std::make_shared<shapes::Sphere>(dimensions_[0]);
+            return new shapes::Sphere(dimensions_[0]);
             break;
 
         case ShapeType::CYLINDER:
-            return std::make_shared<shapes::Cylinder>(dimensions_[0], dimensions_[1]);
+            return new shapes::Cylinder(dimensions_[0], dimensions_[1]);
             break;
 
         case ShapeType::CONE:
-            return std::make_shared<shapes::Cone>(dimensions_[0], dimensions_[1]);
+            return new shapes::Cone(dimensions_[0], dimensions_[1]);
             break;
 
         case ShapeType::MESH:
-            return std::shared_ptr<shapes::Mesh>(shapes::createMeshFromResource(resource_, dimensions_));
+            return shapes::createMeshFromResource(resource_, dimensions_);
             break;
 
         default:
-            // TODO:throw
             break;
     }
+
+    return nullptr;
 }
 
 const bool Geometry::isMesh() const
