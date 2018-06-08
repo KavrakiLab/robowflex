@@ -4,7 +4,6 @@
 #include <moveit/kinematic_constraints/utils.h>
 
 #include "robowflex.h"
-#include "motion_plan_request_builder.h"
 
 void shutdown(int sig)
 {

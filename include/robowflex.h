@@ -260,6 +260,21 @@ namespace robowflex
         static const std::vector<std::string> DEFAULT_ADAPTERS;
     };
 
+    class MotionRequestBuilder
+    {
+    public:
+        MotionRequestBuilder(const Robot &robot, const std::string &group_name, robot_state::RobotState &start_state);
+        planning_interface::MotionPlanRequest buildRequest(const moveit_msgs::Constraints &joint_goal);
+
+    private:
+        const Robot &robot_;
+        const std::string group_name_;
+        robot_state::RobotState &start_state_;
+        const robot_model::JointModelGroup *jmg_;
+
+        planning_interface::MotionPlanRequest request_;
+    };
+
 }  // namespace robowflex
 
 #endif

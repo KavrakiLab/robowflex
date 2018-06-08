@@ -1,6 +1,22 @@
+#include <moveit/kinematic_constraints/utils.h>
+
 #include "robowflex.h"
 
 using namespace robowflex;
+
+MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string &group_name,
+                                           robot_state::RobotState &start_state)
+  : robot_(robot), group_name_(group_name), start_state_(start_state), jmg_(start_state.getJointModelGroup(group_name))
+{
+}
+
+planning_interface::MotionPlanRequest MotionRequestBuilder::buildRequest(const moveit_msgs::Constraints &joint_goal)
+{
+    planning_interface::MotionPlanRequest request;
+    request.group_name = group_name_;
+    request.goal_constraints.push_back(joint_goal);
+    return request;
+}
 
 planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
                                                              const planning_interface::MotionPlanRequest &request)
