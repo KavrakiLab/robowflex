@@ -129,15 +129,28 @@ namespace robowflex
         }
 
         virtual planning_interface::MotionPlanResponse plan(Scene &scene,
-                                                            const planning_interface::MotionPlanRequest &request);
+                                                            const planning_interface::MotionPlanRequest &request) = 0;
 
     protected:
         Robot &robot_;
         IO::Handler &handler_;
+    };
+
+    class PipelinePlanner : public Planner
+    {
+    public:
+        PipelinePlanner(Robot &robot) : Planner(robot)
+        {
+        }
+
+        planning_interface::MotionPlanResponse plan(Scene &scene,
+                                                    const planning_interface::MotionPlanRequest &request) override;
+
+    protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;
     };
 
-    class OMPLPlanner : public Planner
+    class OMPLPlanner : public PipelinePlanner
     {
     public:
         class OMPLSettings

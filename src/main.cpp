@@ -30,6 +30,7 @@ int main(int argc, char **argv)
     // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     //                    );
 
+
     // geometry_msgs::PoseStamped pose;
     // pose.header.frame_id = "torso_lift_link";
     // pose.pose.position.x = 0.75;

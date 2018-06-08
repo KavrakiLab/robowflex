@@ -2,7 +2,7 @@
 
 using namespace robowflex;
 
-planning_interface::MotionPlanResponse Planner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
@@ -34,7 +34,7 @@ void OMPLPlanner::OMPLSettings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
-OMPLPlanner::OMPLPlanner(Robot &robot) : Planner(robot)
+OMPLPlanner::OMPLPlanner(Robot &robot) : PipelinePlanner(robot)
 {
 }
 
