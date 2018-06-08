@@ -4,6 +4,7 @@
 #include <moveit/kinematic_constraints/utils.h>
 
 #include "robowflex.h"
+#include "motion_plan_request_builder.h"
 
 void shutdown(int sig)
 {
@@ -29,7 +30,6 @@ int main(int argc, char **argv)
     planner.initialize();  // Don't need to by default
     // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     //                    );
-
 
     // geometry_msgs::PoseStamped pose;
     // pose.header.frame_id = "torso_lift_link";
@@ -59,9 +59,8 @@ int main(int argc, char **argv)
     goal_state.setJointGroupPositions(jmg, {-0.39, -0.69, -2.12, 2.82, -0.39, 0});
     moveit_msgs::Constraints joint_goal = kinematic_constraints::constructGoalConstraints(goal_state, jmg);
 
-    planning_interface::MotionPlanRequest request;
-    request.group_name = "manipulator";
-    request.goal_constraints.push_back(joint_goal);
+    robowflex::MotionRequestBuilder my_req_builder(ur5, "manipulator", start_state);
+    planning_interface::MotionPlanRequest request = my_req_builder.buildRequest(joint_goal);
 
     ros::Rate rate(1);
     while (ros::ok())

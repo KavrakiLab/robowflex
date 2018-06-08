@@ -2,7 +2,8 @@
 
 using namespace robowflex;
 
-planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
+                                                             const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
