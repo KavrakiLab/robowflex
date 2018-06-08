@@ -2,10 +2,13 @@
 #define ROBOWFLEX_
 
 #include <yaml-cpp/yaml.h>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/planning_scene/planning_scene.h>
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
+
+#include <moveit_msgs/PlanningScene.h>
 
 namespace robowflex
 {
@@ -127,13 +130,33 @@ namespace robowflex
 
         planning_scene::PlanningScenePtr &getScene()
         {
+            scene_->setPlanningSceneMsg(msg_);
             return scene_;
+        }
+
+        moveit_msgs::PlanningScene &getMessage()
+        {
+            return msg_;
         }
 
         robot_state::RobotState &getCurrentState();
 
+        collision_detection::AllowedCollisionMatrix getACM()
+        {
+            return collision_detection::AllowedCollisionMatrix(msg_.allowed_collision_matrix);
+        }
+
+        void setACM(const collision_detection::AllowedCollisionMatrix &acm)
+        {
+            moveit_msgs::AllowedCollisionMatrix acm_msg;
+            acm.getMessage(acm_msg);
+
+            msg_.allowed_collision_matrix = acm_msg;
+        }
+
     private:
         planning_scene::PlanningScenePtr scene_;
+        moveit_msgs::PlanningScene msg_;
     };
 
     class Planner

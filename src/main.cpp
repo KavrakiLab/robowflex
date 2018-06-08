@@ -14,7 +14,7 @@ void shutdown(int sig)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler | ros::init_options::AnonymousName);
+    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
 
     robowflex::Robot ur5("ur5");
