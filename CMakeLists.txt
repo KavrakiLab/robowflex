@@ -22,7 +22,7 @@ find_package(Eigen3 REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   geometric_shapes
-  tf2
+  eigen_conversions
   roscpp
 )
 
@@ -31,7 +31,7 @@ catkin_package(
   CATKIN_DEPENDS
     moveit_ros_planning
     geometric_shapes
-    tf2
+    eigen_conversions
     roscpp
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
