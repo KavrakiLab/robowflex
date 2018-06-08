@@ -90,6 +90,10 @@ namespace robowflex
     {
     public:
         Robot(const std::string &name);
+
+        Robot(Robot const &) = delete;
+        void operator=(Robot const &) = delete;
+
         bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
                         const std::string &kinematics_file);
 
@@ -126,7 +130,19 @@ namespace robowflex
     class Scene
     {
     public:
+        class CollisionObject
+        {
+        public:
+            CollisionObject();
+
+        private:
+            moveit_msgs::CollisionObject msg_;
+        };
+
         Scene(Robot &robot);
+
+        Scene(Scene const &) = delete;
+        void operator=(Scene const &) = delete;
 
         planning_scene::PlanningScenePtr &getScene()
         {
@@ -166,6 +182,9 @@ namespace robowflex
         {
         }
 
+        Planner(Planner const &) = delete;
+        void operator=(Planner const &) = delete;
+
         virtual planning_interface::MotionPlanResponse plan(Scene &scene,
                                                             const planning_interface::MotionPlanRequest &request) = 0;
 
@@ -180,6 +199,9 @@ namespace robowflex
         PipelinePlanner(Robot &robot) : Planner(robot)
         {
         }
+
+        PipelinePlanner(PipelinePlanner const &) = delete;
+        void operator=(PipelinePlanner const &) = delete;
 
         planning_interface::MotionPlanResponse plan(Scene &scene,
                                                     const planning_interface::MotionPlanRequest &request) override;
@@ -226,6 +248,9 @@ namespace robowflex
         };
 
         OMPLPlanner(Robot &robot);
+
+        OMPLPlanner(OMPLPlanner const &) = delete;
+        void operator=(OMPLPlanner const &) = delete;
 
         bool initialize(const std::string &config_file = "", const OMPLSettings settings = OMPLSettings(),
                         const std::string &plugin = "ompl_interface/OMPLPlanner",
