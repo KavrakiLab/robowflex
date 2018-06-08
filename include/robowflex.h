@@ -3,6 +3,9 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/planning_scene/planning_scene.h>
 #include <moveit/planning_pipeline/planning_pipeline.h>
@@ -85,6 +88,55 @@ namespace robowflex
             std::vector<std::string> params_;
         };
     }  // namespace IO
+
+    namespace Geometry
+    {
+        Eigen::Vector3d vectorMsgToEigen(const geometry_msgs::Vector3 &msg);
+        geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
+        Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
+        geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
+
+        class Geometry
+        {
+        public:
+            class ShapeType
+            {
+            public:
+                enum Type
+                {
+                    BOX = 0,
+                    SPHERE = 1,
+                    CYLINDER = 2,
+                    CONE = 3,
+                    MESH = 4
+                };
+
+                static const unsigned int MAX;
+                static const std::vector<std::string> STRINGS;
+
+                static Type toType(const std::string &str);
+                static const std::string &toString(Type type);
+            };
+
+            Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const Eigen::Affine3d &offset,
+                     const std::string &resource = "");
+
+            Geometry(ShapeType::Type type, const geometry_msgs::Vector3 &dimensions, const geometry_msgs::Pose &offset,
+                     const std::string &resource = "");
+
+            Geometry(const Geometry &) = delete;             // non construction-copyable
+            Geometry &operator=(const Geometry &) = delete;  // non copyable
+
+            std::shared_ptr<shapes::Shape> loadShape() const;
+
+        private:
+            ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
+            std::string resource_{""};                                   // Resource locator for MESH types.
+            const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
+            const Eigen::Affine3d offset_{Eigen::Affine3d::Identity()};  // Offset of geometry from base frame.
+            const std::shared_ptr<shapes::Shape> shape_{nullptr};        // Loaded mesh.
+        };
+    }  // namespace Geometry
 
     class Robot
     {

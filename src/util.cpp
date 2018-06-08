@@ -15,6 +15,9 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
+#include <geometric_shapes/shape_operations.h>
+#include <tf2_eigen/tf2_eigen.h>
+
 #include "robowflex.h"
 
 using namespace robowflex;
@@ -327,4 +330,37 @@ const std::string IO::Handler::generateUUID()
     std::replace(s.begin(), s.end(), '-', '_');
 
     return s;
+}
+
+Eigen::Vector3d Geometry::vectorMsgToEigen(const geometry_msgs::Vector3& msg)
+{
+    Eigen::Vector3d vector;
+    vector[0] = msg.x;
+    vector[1] = msg.y;
+    vector[2] = msg.z;
+
+    return vector;
+}
+
+geometry_msgs::Vector3 Geometry::vectorEigenToMsg(const Eigen::Vector3d& vector)
+{
+    geometry_msgs::Vector3 msg;
+    msg.x = vector[0];
+    msg.y = vector[1];
+    msg.z = vector[2];
+
+    return msg;
+}
+
+Eigen::Affine3d Geometry::poseMsgToEigen(const geometry_msgs::Pose& msg)
+{
+    Eigen::Affine3d pose;
+    tf2::fromMsg(msg, pose);
+    return pose;
+}
+
+geometry_msgs::Pose Geometry::poseEigenToMsg(const Eigen::Affine3d& pose)
+{
+    geometry_msgs::Pose msg = tf2::toMsg(pose);
+    return msg;
 }
