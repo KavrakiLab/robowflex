@@ -61,10 +61,12 @@ int main(int argc, char **argv)
     request.group_name = "manipulator";
     request.goal_constraints.push_back(joint_goal);
 
-    while (true)
+    ros::Rate rate(10);
+    while (ros::ok())
     {
         planning_interface::MotionPlanResponse res = planner.plan(scene, request);
-        sleep(1);
+        ros::spinOnce();
+        rate.sleep();
     }
 
     return 0;

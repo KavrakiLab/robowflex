@@ -14,6 +14,8 @@
   <depend>yaml-cpp</depend>
   <depend>moveit_ros_planning</depend>
 
+  <exec_depend>moveit_planners_ompl</exec_depend>
+
   <export>
   </export>
 </package>
