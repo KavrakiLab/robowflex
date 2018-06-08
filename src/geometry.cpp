@@ -40,9 +40,8 @@ const std::string &Geometry::ShapeType::toString(Type type)
     return STRINGS[type];
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const Eigen::Affine3d &offset)
-  : type_(type), dimensions_(dimensions), offset_(offset), resource_(IO::resolvePath(resource)), shape_(loadShape())
+Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
+  : type_(type), dimensions_(dimensions), resource_(IO::resolvePath(resource)), shape_(loadShape())
 {
 }
 

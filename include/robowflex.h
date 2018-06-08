@@ -125,8 +125,7 @@ namespace robowflex
             static const std::string &toString(Type type);
         };
 
-        Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
-                 const Eigen::Affine3d &offset = Eigen::Affine3d::Identity());
+        Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "");
 
         Geometry(const Geometry &) = delete;             // non construction-copyable
         Geometry &operator=(const Geometry &) = delete;  // non copyable
@@ -147,8 +146,7 @@ namespace robowflex
         ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
         std::string resource_{""};                                   // Resource locator for MESH types.
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
-        const Eigen::Affine3d offset_;                               // Offset of geometry from base frame.
-        const shapes::ShapePtr shape_{nullptr};                      // Loaded mesh.
+        const shapes::ShapePtr shape_{nullptr};                      // Loaded shape.
     };
 
     class Robot
@@ -161,6 +159,11 @@ namespace robowflex
 
         bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
                         const std::string &kinematics_file);
+
+        const std::string &getName() const
+        {
+            return name_;
+        }
 
         const robot_model::RobotModelPtr &getModel() const
         {
@@ -178,8 +181,7 @@ namespace robowflex
         }
 
     protected:
-        // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server under
-        // "description".
+        // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server
         // Returns false when failure.
         bool loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
                                   const std::string &limits_file, const std::string &kinematics_file);
