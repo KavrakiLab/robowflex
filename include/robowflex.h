@@ -11,8 +11,6 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
 
-#include <moveit_msgs/PlanningScene.h>
-
 namespace robowflex
 {
     namespace IO

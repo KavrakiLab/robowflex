@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <array>
 
@@ -12,7 +11,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <ros/ros.h>
 #include <ros/package.h>
 
 #include <eigen_conversions/eigen_msg.h>

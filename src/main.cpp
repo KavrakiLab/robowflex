@@ -37,12 +37,12 @@ int main(int argc, char **argv)
     scene.addCollisionObject("box", box, pose);
 
     MotionRequestBuilder request(ur5, "manipulator");
-    request.setStartConfiguration({0, 0, 0, 0, 0, 0});
+    request.setStartConfiguration({0, -0.2, 0, 0, 0, 0});
     request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0});
 
     RVIZHelper rviz(ur5, scene);
 
-    ros::Rate rate(1);
+    ros::Rate rate(0.5);
     while (ros::ok())
     {
         planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
