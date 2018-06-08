@@ -40,15 +40,19 @@ const std::string &Geometry::ShapeType::toString(Type type)
     return STRINGS[type];
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const Eigen::Affine3d &offset,
-                   const std::string &resource)
-  : type_(type), dimensions_(dimensions), offset_(offset), resource_(resource), shape_(std::move(loadShape()))
+Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
+                   const Eigen::Affine3d &offset)
+  : type_(type)
+  , dimensions_(dimensions)
+  , offset_(offset)
+  , resource_(IO::resolvePath(resource))
+  , shape_(std::move(loadShape()))
 {
 }
 
-Geometry::Geometry(ShapeType::Type type, const geometry_msgs::Vector3 &dimensions,
-                   const geometry_msgs::Pose &offset, const std::string &resource)
-  : Geometry(type, vectorMsgToEigen(dimensions), poseMsgToEigen(offset), resource)
+Geometry::Geometry(ShapeType::Type type, const geometry_msgs::Vector3 &dimensions, const std::string &resource,
+                   const geometry_msgs::Pose &offset)
+    : Geometry(type, vectorMsgToEigen(dimensions), resource, poseMsgToEigen(offset))
 {
 }
 
@@ -80,4 +84,27 @@ std::shared_ptr<shapes::Shape> Geometry::loadShape() const
             // TODO:throw
             break;
     }
+}
+
+const bool Geometry::isMesh() const
+{
+    return type_ == ShapeType::Type::MESH;
+}
+
+const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
+{
+    shapes::ShapeMsg msg;
+    if (type_ != ShapeType::Type::MESH)
+        shapes::constructMsgFromShape(shape_.get(), msg);
+
+    return boost::get<shape_msgs::SolidPrimitive>(msg);
+}
+
+const shape_msgs::Mesh Geometry::getMeshMsg() const
+{
+    shapes::ShapeMsg msg;
+    if (type_ == ShapeType::Type::MESH)
+        shapes::constructMsgFromShape(shape_.get(), msg);
+
+    return boost::get<shape_msgs::Mesh>(msg);
 }

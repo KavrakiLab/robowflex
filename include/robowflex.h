@@ -118,22 +118,27 @@ namespace robowflex
                 static const std::string &toString(Type type);
             };
 
-            Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const Eigen::Affine3d &offset,
-                     const std::string &resource = "");
+            Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
+                     const Eigen::Affine3d &offset = Eigen::Affine3d::Identity());
 
-            Geometry(ShapeType::Type type, const geometry_msgs::Vector3 &dimensions, const geometry_msgs::Pose &offset,
-                     const std::string &resource = "");
+            Geometry(ShapeType::Type type, const geometry_msgs::Vector3 &dimensions, const std::string &resource,
+                     const geometry_msgs::Pose &offset);
 
             Geometry(const Geometry &) = delete;             // non construction-copyable
             Geometry &operator=(const Geometry &) = delete;  // non copyable
 
-            std::shared_ptr<shapes::Shape> loadShape() const;
+            const bool isMesh() const;
+
+            const shape_msgs::SolidPrimitive getSolidMsg() const;
+            const shape_msgs::Mesh getMeshMsg() const;
 
         private:
+            std::shared_ptr<shapes::Shape> loadShape() const;
+
             ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
             std::string resource_{""};                                   // Resource locator for MESH types.
             const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
-            const Eigen::Affine3d offset_{Eigen::Affine3d::Identity()};  // Offset of geometry from base frame.
+            const Eigen::Affine3d offset_;                               // Offset of geometry from base frame.
             const std::shared_ptr<shapes::Shape> shape_{nullptr};        // Loaded mesh.
         };
     }  // namespace Geometry
