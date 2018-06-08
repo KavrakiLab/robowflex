@@ -323,6 +323,7 @@ namespace robowflex
         MotionRequestBuilder(const Robot &robot, const std::string &group_name, robot_state::RobotState &start_state);
 
         void setGoalConfiguration(const std::vector<double> joint_goal);
+        void setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose, std::string ee_name);
         const planning_interface::MotionPlanRequest &getRequest();
 
     private:

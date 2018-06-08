@@ -20,6 +20,19 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> joint_
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(goal_state, jmg_));
 }
 
+void MotionRequestBuilder::setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose,
+                                                const std::string ee_name)
+{
+    // robot_state::RobotState goal_state(robot_.getModel());
+    // goal_state.setJointGroupPositions(jmg_, joint_goal);
+
+    request_.goal_constraints.clear();
+    std::vector<double> tolerance_pose(3, 0.1);
+    std::vector<double> tolerance_angle(3, 0.1);
+    request_.goal_constraints.push_back(
+                                        kinematic_constraints::constructGoalConstraints(ee_name, goal_pose, tolerance_pose, tolerance_angle));
+}
+
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 {
     return request_;
