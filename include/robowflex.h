@@ -97,6 +97,11 @@ namespace robowflex
         bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
                         const std::string &kinematics_file);
 
+        const robot_model::RobotModelPtr &getModel() const
+        {
+            return model_;
+        }
+
         robot_model::RobotModelPtr &getModel()
         {
             return model_;
@@ -264,7 +269,9 @@ namespace robowflex
     {
     public:
         MotionRequestBuilder(const Robot &robot, const std::string &group_name, robot_state::RobotState &start_state);
-        planning_interface::MotionPlanRequest buildRequest(const moveit_msgs::Constraints &joint_goal);
+
+        void setGoalConfiguration(const std::vector<double> joint_goal);
+        const planning_interface::MotionPlanRequest &getRequest();
 
     private:
         const Robot &robot_;

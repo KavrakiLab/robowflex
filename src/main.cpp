@@ -54,17 +54,13 @@ int main(int argc, char **argv)
     const robot_model::JointModelGroup *jmg = start_state.getJointModelGroup("manipulator");
     start_state.setJointGroupPositions(jmg, {0, 0, 0, 0, 0, 0});
 
-    robot_state::RobotState goal_state(ur5.getModel());
-    goal_state.setJointGroupPositions(jmg, {-0.39, -0.69, -2.12, 2.82, -0.39, 0});
-    moveit_msgs::Constraints joint_goal = kinematic_constraints::constructGoalConstraints(goal_state, jmg);
-
     robowflex::MotionRequestBuilder my_req_builder(ur5, "manipulator", start_state);
-    planning_interface::MotionPlanRequest request = my_req_builder.buildRequest(joint_goal);
+    my_req_builder.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0});
 
     ros::Rate rate(1);
     while (ros::ok())
     {
-        planning_interface::MotionPlanResponse res = planner.plan(scene, request);
+        planning_interface::MotionPlanResponse res = planner.plan(scene, my_req_builder.getRequest());
         ros::spinOnce();
         rate.sleep();
     }

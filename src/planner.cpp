@@ -8,14 +8,21 @@ MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string
                                            robot_state::RobotState &start_state)
   : robot_(robot), group_name_(group_name), start_state_(start_state), jmg_(start_state.getJointModelGroup(group_name))
 {
+    request_.group_name = group_name_;
 }
 
-planning_interface::MotionPlanRequest MotionRequestBuilder::buildRequest(const moveit_msgs::Constraints &joint_goal)
+void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> joint_goal)
 {
-    planning_interface::MotionPlanRequest request;
-    request.group_name = group_name_;
-    request.goal_constraints.push_back(joint_goal);
-    return request;
+    robot_state::RobotState goal_state(robot_.getModel());
+    goal_state.setJointGroupPositions(jmg_, joint_goal);
+
+    request_.goal_constraints.clear();
+    request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(goal_state, jmg_));
+}
+
+const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
+{
+    return request_;
 }
 
 planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
