@@ -1,9 +1,9 @@
 #include <ros/ros.h>
 #include <signal.h>
 
-#include <moveit/kinematic_constraints/utils.h>
-
 #include "robowflex.h"
+
+using namespace robowflex;
 
 void shutdown(int sig)
 {
@@ -16,59 +16,37 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
 
-    robowflex::Robot ur5("ur5");
+    Robot ur5("ur5");
     ur5.initialize("package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
                    "package://ur5_robotiq85_moveit_config/config/ur5_robotiq85.srdf",     // srdf
                    "package://ur5_robotiq85_moveit_config/config/joint_limits.yaml",      // joint limits
                    "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
     );
 
-    robowflex::Scene scene(ur5);
+    Scene scene(ur5);
 
-    robowflex::OMPLPlanner planner(ur5);
+    OMPLPlanner planner(ur5);
     planner.initialize();  // Don't need to by default
     // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     //                    );
 
-    // geometry_msgs::PoseStamped pose;
-    // pose.header.frame_id = "torso_lift_link";
-    // pose.pose.position.x = 0.75;
-    // pose.pose.position.y = 0.0;
-    // pose.pose.position.z = 0.0;
-    // pose.pose.orientation.w = 1.0;
-
-    // std::vector<double> tolerance_pose(3, 0.01);
-    // std::vector<double> tolerance_angle(3, 0.01);
-
-    // req.group_name = "right_arm";
-    // moveit_msgs::Constraints pose_goal =
-    //     kinematic_constraints::constructGoalConstraints("r_wrist_roll_link", pose, tolerance_pose, tolerance_angle);
-
-    // req.goal_constraints.push_back(pose_goal);
-
-    // // Now, call the pipeline and check whether planning was successful.
-    // planning_pipeline->generatePlan(planning_scene, req, res);
-
-    robowflex::Geometry box(robowflex::Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
+    Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
     Eigen::Affine3d pose = Eigen::Affine3d::Identity();
     pose.translate(Eigen::Vector3d{1, 1, 1});
 
     scene.addCollisionObject("box", box, "world", pose);
 
-    robot_state::RobotState &start_state = scene.getCurrentState();
 
-    const robot_model::JointModelGroup *jmg = start_state.getJointModelGroup("manipulator");
-    start_state.setJointGroupPositions(jmg, {0, 0, 0, 0, 0, 0});
+    MotionRequestBuilder request(ur5, "manipulator");
+    request.setStartConfiguration({0, 0, 0, 0, 0, 0});
+    request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0});
 
-    robowflex::MotionRequestBuilder my_req_builder(ur5, "manipulator", start_state);
-    my_req_builder.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0});
+    RVIZHelper rviz(ur5, scene);
 
-    robowflex::RVIZHelper rviz(ur5, scene);
-
-    ros::Rate rate(0.1);
+    ros::Rate rate(1);
     while (ros::ok())
     {
-        planning_interface::MotionPlanResponse res = planner.plan(scene, my_req_builder.getRequest());
+        planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
 
         rviz.update(res);
 

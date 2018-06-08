@@ -1,27 +1,34 @@
 #include <moveit/kinematic_constraints/utils.h>
+#include <moveit/robot_state/conversions.h>
 
 #include "robowflex.h"
 
 using namespace robowflex;
 
-MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string &group_name,
-                                           robot_state::RobotState &start_state)
-  : robot_(robot), group_name_(group_name), start_state_(start_state), jmg_(start_state.getJointModelGroup(group_name))
+MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string &group_name)
+  : robot_(robot), group_name_(group_name), jmg_(robot.getModel()->getJointModelGroup(group_name))
 {
     request_.group_name = group_name_;
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> joint_goal)
+void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
+{
+    robot_state::RobotState start_state(robot_.getModel());
+    start_state.setJointGroupPositions(jmg_, joints);
+
+    moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
     robot_state::RobotState goal_state(robot_.getModel());
-    goal_state.setJointGroupPositions(jmg_, joint_goal);
+    goal_state.setJointGroupPositions(jmg_, joints);
 
     request_.goal_constraints.clear();
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(goal_state, jmg_));
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose,
-                                                const std::string ee_name)
+void MotionRequestBuilder::setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose, const std::string ee_name)
 {
     // robot_state::RobotState goal_state(robot_.getModel());
     // goal_state.setJointGroupPositions(jmg_, joint_goal);
@@ -30,7 +37,7 @@ void MotionRequestBuilder::setGoalConfiguration(const geometry_msgs::PoseStamped
     std::vector<double> tolerance_pose(3, 0.1);
     std::vector<double> tolerance_angle(3, 0.1);
     request_.goal_constraints.push_back(
-                                        kinematic_constraints::constructGoalConstraints(ee_name, goal_pose, tolerance_pose, tolerance_angle));
+        kinematic_constraints::constructGoalConstraints(ee_name, goal_pose, tolerance_pose, tolerance_angle));
 }
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
