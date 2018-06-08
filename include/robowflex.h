@@ -136,6 +136,11 @@ namespace robowflex
         const shape_msgs::SolidPrimitive getSolidMsg() const;
         const shape_msgs::Mesh getMeshMsg() const;
 
+        const shapes::ShapePtr &getShape() const
+        {
+            return shape_;
+        }
+
     private:
         std::shared_ptr<shapes::Shape> loadShape() const;
 
@@ -202,32 +207,16 @@ namespace robowflex
 
         planning_scene::PlanningScenePtr &getScene()
         {
-            scene_->setPlanningSceneMsg(msg_);
             return scene_;
         }
 
-        moveit_msgs::PlanningScene &getMessage()
-        {
-            return msg_;
-        }
+        moveit_msgs::PlanningScene getMessage();
 
         robot_state::RobotState &getCurrentState();
 
-        collision_detection::AllowedCollisionMatrix getACM()
-        {
-            return collision_detection::AllowedCollisionMatrix(msg_.allowed_collision_matrix);
-        }
+        collision_detection::AllowedCollisionMatrix &getACM();
 
-        void setACM(const collision_detection::AllowedCollisionMatrix &acm)
-        {
-            moveit_msgs::AllowedCollisionMatrix acm_msg;
-            acm.getMessage(acm_msg);
-
-            msg_.allowed_collision_matrix = acm_msg;
-        }
-
-        void addCollisionObject(const std::string &name, const Geometry &geometry, const std::string &base_frame,
-                                const Eigen::Affine3d &pose);
+        void addCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
 
         void removeCollisionObject(const std::string &name);
 

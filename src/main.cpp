@@ -26,16 +26,15 @@ int main(int argc, char **argv)
     Scene scene(ur5);
 
     OMPLPlanner planner(ur5);
-    planner.initialize();  // Don't need to by default
-    // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
-    //                    );
+    // planner.initialize();  // Don't need to by default
+    planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
+                       );
 
     Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
     Eigen::Affine3d pose = Eigen::Affine3d::Identity();
     pose.translate(Eigen::Vector3d{1, 1, 1});
 
-    scene.addCollisionObject("box", box, "world", pose);
-
+    scene.addCollisionObject("box", box, pose);
 
     MotionRequestBuilder request(ur5, "manipulator");
     request.setStartConfiguration({0, 0, 0, 0, 0, 0});
@@ -47,7 +46,6 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
         planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-
         rviz.update(res);
 
         ros::spinOnce();
