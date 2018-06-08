@@ -192,15 +192,6 @@ namespace robowflex
     class Scene
     {
     public:
-        class CollisionObject
-        {
-        public:
-            CollisionObject();
-
-        private:
-            moveit_msgs::CollisionObject msg_;
-        };
-
         Scene(Robot &robot);
 
         Scene(Scene const &) = delete;
@@ -231,6 +222,11 @@ namespace robowflex
 
             msg_.allowed_collision_matrix = acm_msg;
         }
+
+        void addCollisionObject(const std::string &name, Geometry::Geometry &geometry, const std::string &base_frame,
+                                const Eigen::Affine3d &pose);
+
+        void removeCollisionObject(const std::string &name);
 
     private:
         planning_scene::PlanningScenePtr scene_;
