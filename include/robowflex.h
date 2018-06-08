@@ -316,7 +316,12 @@ namespace robowflex
 
         void setStartConfiguration(const std::vector<double> &joints);
         void setGoalConfiguration(const std::vector<double> &joints);
-        void setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose, std::string ee_name);
+        void setGoalConfiguration(const std::string &ee_name,
+                                  const std::string &base_name,
+                                  const Eigen::Affine3d &pose,
+                                  const Geometry &geom,
+                                  const Eigen::Quaterniond &ee_orientation,
+                                  const Eigen::Vector3d angle_tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
 
     private:

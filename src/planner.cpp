@@ -28,16 +28,42 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(goal_state, jmg_));
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const geometry_msgs::PoseStamped goal_pose, const std::string ee_name)
+void MotionRequestBuilder::setGoalConfiguration(const std::string &ee_name,
+                          const std::string &base_name,
+                          const Eigen::Affine3d &pose,
+                          const Geometry &geom,
+                          const Eigen::Quaterniond &ee_orientation,
+                          const Eigen::Vector3d angle_tolerances)
 {
-    // robot_state::RobotState goal_state(robot_.getModel());
-    // goal_state.setJointGroupPositions(jmg_, joint_goal);
+    moveit_msgs::Constraints constraints;
+
+    moveit_msgs::PositionConstraint position;
+    moveit_msgs::OrientationConstraint orientation;
+
+    position.header.frame_id = base_name;
+    position.link_name = ee_name;
+    if(geom.isMesh()) {
+      position.constraint_region.meshes.push_back(geom.getMeshMsg());
+      position.constraint_region.mesh_poses.push_back(TF::poseEigenToMsg(pose));
+    } else {
+      position.constraint_region.primitives.push_back(geom.getSolidMsg());
+      position.constraint_region.primitive_poses.push_back(TF::poseEigenToMsg(pose));
+    }
+
+
+    orientation.header.frame_id = base_name;
+    orientation.link_name = ee_name;
+    orientation.absolute_x_axis_tolerance = angle_tolerances[0];
+    orientation.absolute_y_axis_tolerance = angle_tolerances[1];
+    orientation.absolute_z_axis_tolerance = angle_tolerances[2];
+    orientation.orientation = TF::quaternionEigenToMsg(ee_orientation);
+
+
+    constraints.position_constraints.push_back(position);
+    constraints.orientation_constraints.push_back(orientation);
 
     request_.goal_constraints.clear();
-    std::vector<double> tolerance_pose(3, 0.1);
-    std::vector<double> tolerance_angle(3, 0.1);
-    request_.goal_constraints.push_back(
-        kinematic_constraints::constructGoalConstraints(ee_name, goal_pose, tolerance_pose, tolerance_angle));
+    request_.goal_constraints.push_back(constraints);
 }
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
