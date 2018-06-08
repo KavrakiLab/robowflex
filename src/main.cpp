@@ -49,6 +49,12 @@ int main(int argc, char **argv)
     // // Now, call the pipeline and check whether planning was successful.
     // planning_pipeline->generatePlan(planning_scene, req, res);
 
+    robowflex::Geometry box(robowflex::Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose.translate(Eigen::Vector3d{1, 1, 1});
+
+    scene.addCollisionObject("box", box, "world", pose);
+
     robot_state::RobotState &start_state = scene.getCurrentState();
 
     const robot_model::JointModelGroup *jmg = start_state.getJointModelGroup("manipulator");
@@ -57,10 +63,15 @@ int main(int argc, char **argv)
     robowflex::MotionRequestBuilder my_req_builder(ur5, "manipulator", start_state);
     my_req_builder.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0});
 
-    ros::Rate rate(1);
+    robowflex::RVIZHelper rviz(ur5, scene);
+
+    ros::Rate rate(0.1);
     while (ros::ok())
     {
         planning_interface::MotionPlanResponse res = planner.plan(scene, my_req_builder.getRequest());
+
+        rviz.update(res);
+
         ros::spinOnce();
         rate.sleep();
     }

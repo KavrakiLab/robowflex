@@ -76,6 +76,9 @@ namespace
 
 const std::string IO::resolvePath(const std::string &path)
 {
+    if (path.empty())
+        return "";
+
     const std::string prefix = "package://";
 
     boost::filesystem::path file;
@@ -331,28 +334,28 @@ const std::string IO::Handler::generateUUID()
     return s;
 }
 
-Eigen::Vector3d Geometry::vectorMsgToEigen(const geometry_msgs::Vector3& msg)
+Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3& msg)
 {
     Eigen::Vector3d vector;
     tf::vectorMsgToEigen(msg, vector);
     return vector;
 }
 
-geometry_msgs::Vector3 Geometry::vectorEigenToMsg(const Eigen::Vector3d& vector)
+geometry_msgs::Vector3 TF::vectorEigenToMsg(const Eigen::Vector3d& vector)
 {
     geometry_msgs::Vector3 msg;
     tf::vectorEigenToMsg(vector, msg);
     return msg;
 }
 
-Eigen::Affine3d Geometry::poseMsgToEigen(const geometry_msgs::Pose& msg)
+Eigen::Affine3d TF::poseMsgToEigen(const geometry_msgs::Pose& msg)
 {
     Eigen::Affine3d pose;
     tf::poseMsgToEigen(msg, pose);
     return pose;
 }
 
-geometry_msgs::Pose Geometry::poseEigenToMsg(const Eigen::Affine3d& pose)
+geometry_msgs::Pose TF::poseEigenToMsg(const Eigen::Affine3d& pose)
 {
     geometry_msgs::Pose msg;
     tf::poseEigenToMsg(pose, msg);
