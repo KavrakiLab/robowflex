@@ -15,7 +15,16 @@ namespace robowflex
         const std::string resolvePath(const std::string &path);
 
         // Loads an XML (or xacro) file to a string. If path does not exist or bad format, ""
-        const std::string loadFileToXML(const std::string &path);
+        const std::string loadXMLToString(const std::string &path);
+
+        // Loads a xacro file to a string. If path does not exist or bad format, ""
+        const std::string loadXacroToString(const std::string &path);
+
+        // Loads a file to a string. If path does not exist or bad format, ""
+        const std::string loadFileToString(const std::string &path);
+
+        // Runs a command and grabs stdout to a string., If fail ""
+        const std::string runCommand(const std::string &cmd);
 
         // Loads an YAML file to a YAML node. If path does not exist or bad format, false in first.
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);

@@ -1,5 +1,10 @@
+#include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 
 #include <boost/filesystem.hpp>
 
@@ -9,8 +14,6 @@
 
 #include <ros/ros.h>
 #include <ros/package.h>
-
-#include <moveit/rdf_loader/rdf_loader.h>
 
 #include "robowflex.h"
 
@@ -49,9 +52,23 @@ namespace
         return out;
     }
 
+    // is lhs a prefix of rhs?
     bool isPrefix(const std::string &lhs, const std::string &rhs)
     {
         return std::equal(lhs.begin(), lhs.begin() + std::min(lhs.size(), rhs.size()), rhs.begin());
+    }
+
+    // is lhs a suffix? of rhs?
+    bool isSuffix(const std::string &lhs, const std::string &rhs)
+    {
+        return std::equal(lhs.rbegin(), lhs.rbegin() + std::min(lhs.size(), rhs.size()), rhs.rbegin());
+    }
+
+    bool isXacro(const std::string &path_string)
+    {
+        boost::filesystem::path path(path_string);
+        const std::string extension = boost::filesystem::extension(path);
+        return isSuffix("xacro", extension);
     }
 }  // namespace
 
@@ -91,20 +108,63 @@ const std::string IO::resolvePath(const std::string &path)
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
 }
 
-const std::string IO::loadFileToXML(const std::string &path)
+const std::string IO::loadFileToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
         return "";
 
-    std::string buffer;
-    if (!rdf_loader::RDFLoader::loadXmlFileToString(buffer, full_path, {"--inorder"}))
+    std::ifstream ifs(full_path.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+
+    std::ifstream::pos_type size = ifs.tellg();
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<char> bytes(size);
+    ifs.read(bytes.data(), size);
+
+    return std::string(bytes.data(), size);
+}
+
+const std::string IO::runCommand(const std::string &cmd)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+    if (!pipe)
     {
-        ROS_ERROR("Failed to load file `%s` to XML", path.c_str());
+        ROS_ERROR("Failed to run command `%s`!", cmd.c_str());
         return "";
     }
 
-    return buffer;
+    while (!feof(pipe.get()))
+    {
+        if (fgets(buffer.data(), 128, pipe.get()) != nullptr)
+            result += buffer.data();
+    }
+
+    return result;
+}
+
+const std::string IO::loadXacroToString(const std::string &path)
+{
+    const std::string full_path = resolvePath(path);
+    if (full_path.empty())
+        return "";
+
+    const std::string cmd = "rosrun xacro xacro --inorder " + full_path;
+    return runCommand(cmd);
+}
+
+const std::string IO::loadXMLToString(const std::string &path)
+{
+    const std::string full_path = resolvePath(path);
+    if (full_path.empty())
+        return "";
+
+    if (isXacro(full_path))
+        return loadXacroToString(full_path);
+    else
+        return loadFileToString(full_path);
 }
 
 const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
@@ -224,7 +284,7 @@ namespace
 std::string IO::Handler::UUID(generateUUID());
 
 IO::Handler::Handler(const std::string &name)
-  : name_(name), namespace_("robowflex_" + UUID + + "/" + name_), nh_(namespace_)
+  : name_(name), namespace_("robowflex_" + UUID + +"/" + name_), nh_(namespace_)
 {
 }
 

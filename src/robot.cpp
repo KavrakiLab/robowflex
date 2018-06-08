@@ -23,7 +23,7 @@ bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string
 {
     if (!handler_.hasParam("robot_description"))
     {
-        const std::string urdf_string = IO::loadFileToXML(urdf_file);
+        const std::string urdf_string = IO::loadXMLToString(urdf_file);
         if (urdf_string.empty())
         {
             ROS_ERROR("Failed to load URDF.");
@@ -34,7 +34,7 @@ bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string
 
     if (!handler_.hasParam("robot_description_semantic"))
     {
-        const std::string srdf_string = IO::loadFileToXML(srdf_file);
+        const std::string srdf_string = IO::loadXMLToString(srdf_file);
         if (srdf_string.empty())
         {
             ROS_ERROR("Failed to load SRDF.");
