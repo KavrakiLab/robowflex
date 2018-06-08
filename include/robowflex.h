@@ -25,6 +25,9 @@ namespace robowflex
         public:
             Handler(const std::string &name);
 
+            Handler(Handler const &) = delete;
+            void operator=(Handler const &) = delete;
+
             ~Handler();
 
             // Loads an YAML node to the ROS parameter server.
@@ -37,18 +40,39 @@ namespace robowflex
                 params_.emplace_back(key);
             }
 
+            bool hasParam(const std::string &key)
+            {
+                return nh_.hasParam(key);
+            }
+
+            template <typename T>
+            bool getParam(const std::string &key, const T &value)
+            {
+                return nh_.getParam(key, value);
+            }
+
             const ros::NodeHandle &getHandle()
             {
                 return nh_;
             }
 
+            const std::string &getNamespace()
+            {
+                return namespace_;
+            }
+
         private:
+            // Generates a UUID
+            static const std::string generateUUID();
+            static std::string UUID;
+
             const std::string name_;
+            const std::string namespace_;
             const ros::NodeHandle nh_;
 
             std::vector<std::string> params_;
         };
-    }
+    }  // namespace IO
 
     class Robot
     {
@@ -129,6 +153,9 @@ namespace robowflex
               , minimum_waypoint_count(10)
               , simplify_solutions(true)
               , use_constraints_approximations(false)
+              , display_random_valid_states(false)
+              , link_for_exploration_tree("")
+              , maximum_waypoint_distance(0.0)
             {
             }
 
@@ -140,6 +167,9 @@ namespace robowflex
             int minimum_waypoint_count;
             bool simplify_solutions;
             bool use_constraints_approximations;
+            bool display_random_valid_states;
+            std::string link_for_exploration_tree;
+            double maximum_waypoint_distance;
 
             void setParam(IO::Handler &handler) const;
         };

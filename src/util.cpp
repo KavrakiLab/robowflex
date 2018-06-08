@@ -3,6 +3,10 @@
 
 #include <boost/filesystem.hpp>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <ros/ros.h>
 #include <ros/package.h>
 
@@ -49,7 +53,7 @@ namespace
     {
         return std::equal(lhs.begin(), lhs.begin() + std::min(lhs.size(), rhs.size()), rhs.begin());
     }
-}
+}  // namespace
 
 const std::string IO::resolvePath(const std::string &path)
 {
@@ -217,7 +221,10 @@ namespace
     }
 }  // namespace
 
-IO::Handler::Handler(const std::string &name) : name_(name), nh_(name)
+std::string IO::Handler::UUID(generateUUID());
+
+IO::Handler::Handler(const std::string &name)
+  : name_(name), namespace_("robowflex_" + UUID + + "/" + name_), nh_(namespace_)
 {
 }
 
@@ -249,4 +256,18 @@ void IO::Handler::loadYAMLtoROS(const YAML::Node &node, const std::string &prefi
             // TODO: throw
         }
     }
+}
+
+const std::string IO::Handler::generateUUID()
+{
+    if (!UUID.empty())
+        return UUID;
+
+    boost::uuids::random_generator gen;
+    boost::uuids::uuid u = gen();
+
+    std::string s = boost::lexical_cast<std::string>(u);
+    std::replace(s.begin(), s.end(), '-', '_');
+
+    return s;
 }

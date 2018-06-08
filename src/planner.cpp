@@ -29,6 +29,9 @@ void OMPLPlanner::OMPLSettings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "minimum_waypoint_count", minimum_waypoint_count);
     handler.setParam(prefix + "simplify_solutions", simplify_solutions);
     handler.setParam(prefix + "use_constraints_approximations", use_constraints_approximations);
+    handler.setParam(prefix + "display_random_valid_states", display_random_valid_states);
+    handler.setParam(prefix + "link_for_exploration_tree", link_for_exploration_tree);
+    handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
 OMPLPlanner::OMPLPlanner(Robot &robot) : Planner(robot)
