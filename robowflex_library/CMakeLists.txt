@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(robowflex)
+project(robowflex_library)
 
-set(LIBRARY_NAME robowflex)
+set(LIBRARY_NAME robowflex_library)
 
 set(CMAKE_MODULE_PATH
     "${CMAKE_MODULE_PATH}"

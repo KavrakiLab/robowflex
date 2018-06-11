@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robowflex</name>
+  <name>tmpack</name>
   <version>0.0.1</version>
-  <description>The Better Benchmarking Package</description>
+  <description>TMPack</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
@@ -11,12 +11,8 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>roscpp</depend>
-  <depend>yaml-cpp</depend>
-  <depend>geometric_shapes</depend>
-  <depend>eigen_conversions</depend>
-  <depend>eigen</depend>
-  <depend>moveit_ros_planning</depend>
-  <depend>moveit_planners_ompl</depend>
+  <depend>robowflex_library</depend>
+
 
   <export>
   </export>

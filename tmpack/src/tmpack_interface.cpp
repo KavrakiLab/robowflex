@@ -9,11 +9,11 @@ namespace robowflex
 {
     class TMPackInterface
     {
-        const robowflex::Robot &robot;
+        const Robot &robot;
         const std::string &group_name;
-        robowflex::OMPLPlanner &planner;
-        robowflex::Scene &scene;
-        robowflex::MotionRequestBuilder &request;
+        OMPL::OMPLPipelinePlanner &planner;
+        Scene &scene;
+        MotionRequestBuilder &request;
         std::vector<double> &real_start_state;
 
         virtual std::vector<std::vector<double>> getTaskPlan() = 0;
@@ -36,8 +36,8 @@ namespace robowflex
         }
 
     public:
-        TMPackInterface(const robowflex::Robot &robot, const std::string &group_name, robowflex::OMPLPlanner &planner,
-                        robowflex::Scene &scene, robowflex::MotionRequestBuilder &request, std::vector<double> &start)
+        TMPackInterface(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
+                        Scene &scene, MotionRequestBuilder &request, std::vector<double> &start)
           : robot(robot)
           , group_name(group_name)
           , planner(planner)
