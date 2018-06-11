@@ -27,10 +27,16 @@ namespace robowflex
         }
 
     public:
-        TMPackToy(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
+
+        int start_index, int goal_index;
+
+        TMPackToy(const std::string &handrail_filename, const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
                   Scene &scene, MotionRequestBuilder &request, std::vector<double> &start)
           : TMPackInterface(robot, group_name, planner, scene, request, start)
         {
+          //parse file
+          //build graph
+          //
         }
     };
 

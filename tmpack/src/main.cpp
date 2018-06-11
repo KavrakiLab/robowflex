@@ -49,10 +49,6 @@ int main(int argc, char **argv)
     ros::Rate rate(0.5);
     while (ros::ok())
     {
-        // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        // if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-        //     break;
-
         auto res = toy.plan();
 
         // rviz.update(res);
