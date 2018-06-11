@@ -25,14 +25,13 @@ int main(int argc, char **argv)
 
     Scene scene(ur5);
 
-    // OMPL::OMPLPipelinePlanner planner(ur5);
-    // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
-    // );
-
-    OMPL::OMPLInterfacePlanner planner(ur5);
-    // planner.initialize();
+    OMPL::OMPLPipelinePlanner planner(ur5);
     planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     );
+
+    // OMPL::OMPLInterfacePlanner planner(ur5);
+    // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
+    // );
 
     // Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
     // Eigen::Affine3d pose = Eigen::Affine3d::Identity();
@@ -41,8 +40,8 @@ int main(int argc, char **argv)
     // scene.addCollisionObject("box", box, pose);
 
     MotionRequestBuilder request(ur5, "manipulator");
-    request.setStartConfiguration({   0.0,  -0.3,  -2.0,   0.0,   0.0,   0.0});
-    request.setGoalConfiguration( { -0.39, -0.69, -2.12,  2.82, -0.39,   0.0});
+    request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
+    request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
 
     // RVIZHelper rviz(ur5, scene);
 

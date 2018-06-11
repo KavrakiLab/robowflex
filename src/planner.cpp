@@ -14,8 +14,8 @@ MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string
 
     // Default workspace
     moveit_msgs::WorkspaceParameters &wp = request_.workspace_parameters;
-    wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -10;
-    wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 10;
+    wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -1;
+    wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 1;
 
     // Default planning time
     request_.allowed_planning_time = 5.0;
@@ -29,6 +29,7 @@ void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParame
 void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
 {
     robot_state::RobotState start_state(robot_.getModel());
+    start_state.setToDefaultValues();
     start_state.setJointGroupPositions(jmg_, joints);
 
     moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);

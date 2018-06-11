@@ -242,8 +242,13 @@ namespace robowflex
     public:
         Scene(Robot &robot);
 
-        Scene(Scene const &) = delete;
-        void operator=(Scene const &) = delete;
+        Scene(const Scene &);
+        void operator=(const Scene &);
+
+        const planning_scene::PlanningScenePtr &getSceneConst() const
+        {
+            return scene_;
+        }
 
         planning_scene::PlanningScenePtr &getScene()
         {
@@ -254,12 +259,18 @@ namespace robowflex
         robot_state::RobotState &getCurrentState();
         collision_detection::AllowedCollisionMatrix &getACM();
 
-        void addCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
+        void updateCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
         void removeCollisionObject(const std::string &name);
+        Eigen::Affine3d getObjectPose(const std::string &name);
+
+        // Use default end-effector if one exists
+        bool attachObject(const std::string &name);
+        bool attachObject(const std::string &name, const std::string &ee_link,
+                          const std::vector<std::string> &touch_links);
+        bool detachObject(const std::string &name);
 
     private:
         planning_scene::PlanningScenePtr scene_;
-        moveit_msgs::PlanningScene msg_;
     };
 
     class Planner
