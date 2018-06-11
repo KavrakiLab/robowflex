@@ -3,6 +3,8 @@
 
 #include "robowflex.h"
 
+#include "tmpack/toy_task_planner.cpp"
+
 using namespace robowflex;
 
 void shutdown(int sig)
@@ -29,10 +31,6 @@ int main(int argc, char **argv)
     planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     );
 
-    // OMPL::OMPLInterfacePlanner planner(ur5);
-    // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
-    // );
-
     // Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
     // Eigen::Affine3d pose = Eigen::Affine3d::Identity();
     // pose.translate(Eigen::Vector3d{1, 1, 1});
@@ -45,14 +43,15 @@ int main(int argc, char **argv)
 
     // RVIZHelper rviz(ur5, scene);
 
+    std::vector<double> start_state({0, -0.2, 0, 0, 0, 0});
+    TMPackToy tmpack(ur5, "manipulator", planner, scene, request, start_state);
+
     ros::Rate rate(0.5);
     while (ros::ok())
     {
-        planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-            break;
+        std::vector<planning_interface::MotionPlanResponse> responses = tmpack.plan();
 
-        // rviz.update(res);
+        rviz.update(responses[0]);
 
         ros::spinOnce();
         rate.sleep();
