@@ -20,6 +20,7 @@ find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
+  moveit_planners_ompl
   moveit_ros_planning
   geometric_shapes
   eigen_conversions
@@ -29,6 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
+    moveit_planners_ompl
     moveit_ros_planning
     geometric_shapes
     eigen_conversions

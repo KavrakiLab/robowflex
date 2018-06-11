@@ -11,8 +11,38 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
 
+#include <moveit/ompl_interface/ompl_interface.h>
+#include <moveit/ompl_interface/model_based_planning_context.h>
+
 namespace robowflex
 {
+    class Exception : public std::exception
+    {
+    public:
+        Exception(int value, const std::string &message) : value_(value), message_(message)
+        {
+        }
+
+        int getValue() const
+        {
+            return value_;
+        }
+
+        const std::string &getMessage() const
+        {
+            return message_;
+        }
+
+        virtual const char *what() const throw()
+        {
+            return message_.c_str();
+        }
+
+    protected:
+        const int value_;
+        const std::string message_;
+    };
+
     namespace IO
     {
         // Resolves `package://` URLs and returns canonical absolute path if path exists, otherwise ""
@@ -259,14 +289,13 @@ namespace robowflex
         planning_pipeline::PlanningPipelinePtr pipeline_;
     };
 
-    class OMPLPlanner : public PipelinePlanner
+    namespace OMPL
     {
-    public:
-        class OMPLSettings
+        class Settings
         {
         public:
-            // Initialized here so default arguments are parsed correctly in loadOMPLPipeline.
-            OMPLSettings()
+            // Initialized here so default arguments are parsed correctly in loadPipeline.
+            Settings()
               : max_goal_samples(10)
               , max_goal_sampling_attempts(1000)
               , max_planning_threads(4)
@@ -296,32 +325,52 @@ namespace robowflex
             void setParam(IO::Handler &handler) const;
         };
 
-        OMPLPlanner(Robot &robot);
+        class OMPLPipelinePlanner : public PipelinePlanner
+        {
+        public:
+            OMPLPipelinePlanner(Robot &robot);
 
-        OMPLPlanner(OMPLPlanner const &) = delete;
-        void operator=(OMPLPlanner const &) = delete;
+            OMPLPipelinePlanner(OMPLPipelinePlanner const &) = delete;
+            void operator=(OMPLPipelinePlanner const &) = delete;
 
-        bool initialize(const std::string &config_file = "", const OMPLSettings settings = OMPLSettings(),
-                        const std::string &plugin = "ompl_interface/OMPLPlanner",
-                        const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+            bool initialize(const std::string &config_file = "", const Settings settings = Settings(),
+                            const std::string &plugin = "ompl_interface/OMPLPlanner",
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
-    private:
-        static const std::vector<std::string> DEFAULT_ADAPTERS;
-    };
+        private:
+            static const std::vector<std::string> DEFAULT_ADAPTERS;
+        };
+
+        class OMPLInterfacePlanner : public Planner
+        {
+        public:
+            OMPLInterfacePlanner(Robot &robot);
+
+            OMPLInterfacePlanner(OMPLInterfacePlanner const &) = delete;
+            void operator=(OMPLInterfacePlanner const &) = delete;
+
+            bool initialize(const std::string &config_file = "", const OMPL::Settings settings = Settings());
+
+            planning_interface::MotionPlanResponse plan(Scene &scene,
+                                                        const planning_interface::MotionPlanRequest &request) override;
+
+        private:
+            ompl_interface::OMPLInterface interface_;
+        };
+
+    }  // namespace OMPL
 
     class MotionRequestBuilder
     {
     public:
         MotionRequestBuilder(const Robot &robot, const std::string &group_name);
 
+        void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
         void setGoalConfiguration(const std::vector<double> &joints);
-        void setGoalConfiguration(const std::string &ee_name,
-                                  const std::string &base_name,
-                                  const Eigen::Affine3d &pose,
-                                  const Geometry &geom,
-                                  const Eigen::Quaterniond &ee_orientation,
-                                  const Eigen::Vector3d angle_tolerances);
+        void setGoalRegion(const std::string &ee_name, const std::string &base_name, const Eigen::Affine3d &pose,
+                           const Geometry &geom, const Eigen::Quaterniond &ee_orientation,
+                           const Eigen::Vector3d angle_tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
 
     private:

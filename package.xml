@@ -16,8 +16,7 @@
   <depend>eigen_conversions</depend>
   <depend>eigen</depend>
   <depend>moveit_ros_planning</depend>
-
-  <exec_depend>moveit_planners_ompl</exec_depend>
+  <depend>moveit_planners_ompl</depend>
 
   <export>
   </export>
