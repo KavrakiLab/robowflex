@@ -16,6 +16,9 @@ MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string
     moveit_msgs::WorkspaceParameters &wp = request_.workspace_parameters;
     wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -10;
     wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 10;
+
+    // Default planning time
+    request_.allowed_planning_time = 5.0;
 }
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)
@@ -41,37 +44,14 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geom,
-                                         const Eigen::Quaterniond &ee_orientation,
-                                         const Eigen::Vector3d angle_tolerances)
+                                         const Eigen::Affine3d &pose, const Geometry &geometry,
+                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
     moveit_msgs::Constraints constraints;
 
-    moveit_msgs::PositionConstraint position;
-    moveit_msgs::OrientationConstraint orientation;
-
-    position.header.frame_id = base_name;
-    position.link_name = ee_name;
-    if (geom.isMesh())
-    {
-        position.constraint_region.meshes.push_back(geom.getMeshMsg());
-        position.constraint_region.mesh_poses.push_back(TF::poseEigenToMsg(pose));
-    }
-    else
-    {
-        position.constraint_region.primitives.push_back(geom.getSolidMsg());
-        position.constraint_region.primitive_poses.push_back(TF::poseEigenToMsg(pose));
-    }
-
-    orientation.header.frame_id = base_name;
-    orientation.link_name = ee_name;
-    orientation.absolute_x_axis_tolerance = angle_tolerances[0];
-    orientation.absolute_y_axis_tolerance = angle_tolerances[1];
-    orientation.absolute_z_axis_tolerance = angle_tolerances[2];
-    orientation.orientation = TF::quaternionEigenToMsg(ee_orientation);
-
-    constraints.position_constraints.push_back(position);
-    constraints.orientation_constraints.push_back(orientation);
+    constraints.position_constraints.push_back(TF::getPositionConstraint(ee_name, base_name, pose, geometry));
+    constraints.orientation_constraints.push_back(
+        TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 
     request_.goal_constraints.clear();
     request_.goal_constraints.push_back(constraints);
@@ -133,7 +113,7 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
             return false;
         }
 
-        handler_.loadYAMLtoROS(config.second, PLANNER_CONFIGS);
+        handler_.loadYAMLtoROS(config.second);
     }
 
     handler_.setParam("planning_plugin", plugin);
@@ -171,7 +151,7 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
             return false;
         }
 
-        handler_.loadYAMLtoROS(config.second, "");
+        handler_.loadYAMLtoROS(config.second);
     }
 
     settings.setParam(handler_);

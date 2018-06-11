@@ -74,7 +74,7 @@ namespace robowflex
             ~Handler();
 
             // Loads an YAML node to the ROS parameter server.
-            void loadYAMLtoROS(const YAML::Node &node, const std::string &prefix);
+            void loadYAMLtoROS(const YAML::Node &node, const std::string &prefix = "");
 
             template <typename T>
             void setParam(const std::string &key, const T &value)
@@ -123,16 +123,6 @@ namespace robowflex
         };
     }  // namespace IO
 
-    namespace TF
-    {
-        Eigen::Vector3d vectorMsgToEigen(const geometry_msgs::Vector3 &msg);
-        geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
-        Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
-        geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
-        Eigen::Quaterniond quaternionMsgToEigen(const geometry_msgs::Quaternion &msg);
-        geometry_msgs::Quaternion quaternionEigenToMsg(const Eigen::Quaterniond &quaternion);
-    }  // namespace TF
-
     class Geometry
     {
     public:
@@ -178,6 +168,24 @@ namespace robowflex
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
         const shapes::ShapePtr shape_{nullptr};                      // Loaded shape.
     };
+
+    namespace TF
+    {
+        Eigen::Vector3d vectorMsgToEigen(const geometry_msgs::Vector3 &msg);
+        geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
+        Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
+        geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
+        Eigen::Quaterniond quaternionMsgToEigen(const geometry_msgs::Quaternion &msg);
+        geometry_msgs::Quaternion quaternionEigenToMsg(const Eigen::Quaterniond &quaternion);
+
+        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &poses, const Geometry &geometries);
+        moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name, const std::string &base_name,
+                                                              const Eigen::Affine3d &poses, const Geometry &geometries);
+        moveit_msgs::OrientationConstraint getOrientationConstraint(const std::string &ee_name,
+                                                                    const std::string &base_name,
+                                                                    const Eigen::Quaterniond &orientation,
+                                                                    const Eigen::Vector3d &tolerances);
+    }  // namespace TF
 
     class Robot
     {
@@ -369,8 +377,8 @@ namespace robowflex
         void setStartConfiguration(const std::vector<double> &joints);
         void setGoalConfiguration(const std::vector<double> &joints);
         void setGoalRegion(const std::string &ee_name, const std::string &base_name, const Eigen::Affine3d &pose,
-                           const Geometry &geom, const Eigen::Quaterniond &ee_orientation,
-                           const Eigen::Vector3d angle_tolerances);
+                           const Geometry &geometry, const Eigen::Quaterniond &orientation,
+                           const Eigen::Vector3d &tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
 
     private:
