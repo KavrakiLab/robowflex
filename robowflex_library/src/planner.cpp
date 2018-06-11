@@ -17,6 +17,8 @@ MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string
     wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -1;
     wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 1;
 
+    request_.planner_id = "RRTConnectkConfigDefault";
+
     // Default planning time
     request_.allowed_planning_time = 5.0;
 }
