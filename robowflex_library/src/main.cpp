@@ -40,6 +40,9 @@ int main(int argc, char **argv)
     scene.updateCollisionObject("box", box, pose);
 
     scene.toYAMLFile("/home/zak/test.yml");
+    scene.fromYAMLFile("/home/zak/test.yml");
+
+    return 0;
 
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});

@@ -270,7 +270,7 @@ namespace robowflex
         bool detachObject(const std::string &name);
 
         void toYAMLFile(const std::string &file);
-        void fromYAMLFile(const std::string &file);
+        bool fromYAMLFile(const std::string &file);
 
     private:
         planning_scene::PlanningScenePtr scene_;

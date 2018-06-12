@@ -128,7 +128,6 @@ void Scene::toYAMLFile(const std::string &file)
     yaml = msg;
 
     YAML::Emitter out;
-    out.SetIndent(4);
     out << yaml;
 
     std::ofstream fout(file);
@@ -136,6 +135,16 @@ void Scene::toYAMLFile(const std::string &file)
     fout.close();
 }
 
-void Scene::fromYAMLFile(const std::string &file)
+bool Scene::fromYAMLFile(const std::string &file)
 {
+    const auto &result = IO::loadFileToYAML(file);
+
+    if (!result.first)
+        return false;
+
+    moveit_msgs::PlanningScene msg;
+    msg = result.second.as<moveit_msgs::PlanningScene>();
+
+    scene_->setPlanningSceneMsg(msg);
+    return true;
 }

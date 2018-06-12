@@ -18,6 +18,11 @@ namespace
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         return (s == "true") ? true : false;
     }
+
+    bool isHeaderEmpty(const std_msgs::Header &h)
+    {
+        return h.seq == 0 && h.stamp.isZero() && h.frame_id == "world";
+    }
 }  // namespace
 
 namespace YAML
@@ -39,8 +44,12 @@ namespace YAML
 
         // node["object_colors"] = rhs.object_colors;
 
-        node["world"] = rhs.world;
-        node["is_diff"] = boolToString(rhs.is_diff);
+        if (!rhs.world.collision_objects.empty() || !rhs.world.octomap.octomap.data.empty())
+            node["world"] = rhs.world;
+
+        if (rhs.is_diff)
+            node["is_diff"] = boolToString(rhs.is_diff);
+
         return node;
     }
 
@@ -85,13 +94,19 @@ namespace YAML
     Node convert<moveit_msgs::RobotState>::encode(const moveit_msgs::RobotState &rhs)
     {
         Node node;
-        node["joint_state"] = rhs.joint_state;
+
+        if (!rhs.joint_state.name.empty())
+            node["joint_state"] = rhs.joint_state;
 
         if (!rhs.multi_dof_joint_state.joint_names.empty())
             node["multi_dof_joint_state"] = rhs.multi_dof_joint_state;
 
-        node["attached_collision_objects"] = rhs.attached_collision_objects;
-        node["is_diff"] = boolToString(rhs.is_diff);
+        if (!rhs.attached_collision_objects.empty())
+            node["attached_collision_objects"] = rhs.attached_collision_objects;
+
+        if (rhs.is_diff)
+            node["is_diff"] = boolToString(rhs.is_diff);
+
         return node;
     }
 
@@ -118,7 +133,10 @@ namespace YAML
     Node convert<geometry_msgs::TransformStamped>::encode(const geometry_msgs::TransformStamped &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
         node["child_frame_id"] = rhs.child_frame_id;
         node["transform"] = rhs.transform;
         return node;
@@ -143,16 +161,25 @@ namespace YAML
     Node convert<std_msgs::Header>::encode(const std_msgs::Header &rhs)
     {
         Node node;
-        node["seq"] = rhs.seq;
-        node["stamp"]["sec"] = rhs.stamp.sec;
-        node["stamp"]["nsec"] = rhs.stamp.nsec;
-        node["frame_id"] = rhs.frame_id;
+        if (rhs.seq != 0)
+            node["seq"] = rhs.seq;
+
+        if (!rhs.stamp.isZero())
+        {
+            node["stamp"]["sec"] = rhs.stamp.sec;
+            node["stamp"]["nsec"] = rhs.stamp.nsec;
+        }
+
+        if (rhs.frame_id != "world")
+            node["frame_id"] = rhs.frame_id;
+
         return node;
     }
 
     bool convert<std_msgs::Header>::decode(const Node &node, std_msgs::Header &rhs)
     {
         rhs = std_msgs::Header();
+        rhs.frame_id = "world";
 
         if (node["seq"])
             rhs.seq = node["seq"].as<int>();
@@ -315,7 +342,9 @@ namespace YAML
     Node convert<sensor_msgs::JointState>::encode(const sensor_msgs::JointState &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
 
         if (!rhs.name.empty())
         {
@@ -367,7 +396,9 @@ namespace YAML
     Node convert<sensor_msgs::MultiDOFJointState>::encode(const sensor_msgs::MultiDOFJointState &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
 
         node["joint_names"] = rhs.joint_names;
         node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
@@ -406,19 +437,49 @@ namespace YAML
     Node convert<moveit_msgs::AttachedCollisionObject>::encode(const moveit_msgs::AttachedCollisionObject &rhs)
     {
         Node node;
+        node["link_name"] = rhs.link_name;
+        node["object"] = rhs.object;
+
+        if (!rhs.touch_links.empty())
+            node["touch_links"] = rhs.touch_links;
+
+        if (!rhs.detach_posture.points.empty())
+            node["detach_posture"] = rhs.detach_posture;
+
+        node["weight"] = rhs.weight;
         return node;
     }
 
     bool convert<moveit_msgs::AttachedCollisionObject>::decode(const Node &node,
                                                                moveit_msgs::AttachedCollisionObject &rhs)
     {
+        rhs = moveit_msgs::AttachedCollisionObject();
+
+        if (node["link_name"])
+            rhs.link_name = node["link_name"].as<std::string>();
+
+        if (node["object"])
+            rhs.object = node["object"].as<moveit_msgs::CollisionObject>();
+
+        if (node["touch_links"])
+            rhs.touch_links = node["touch_links"].as<std::vector<std::string>>();
+
+        if (node["detach_posture"])
+            rhs.detach_posture = node["detach_posture"].as<trajectory_msgs::JointTrajectory>();
+
+        if (node["weight"])
+            rhs.weight = node["weight"].as<double>();
+
         return true;
     }
 
     Node convert<trajectory_msgs::JointTrajectory>::encode(const trajectory_msgs::JointTrajectory &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
         node["joint_names"] = rhs.joint_names;
         node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
         node["points"] = rhs.points;
@@ -498,6 +559,51 @@ namespace YAML
     Node convert<moveit_msgs::CollisionObject>::encode(const moveit_msgs::CollisionObject &rhs)
     {
         Node node;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["id"] = rhs.id;
+
+        if (!rhs.type.key.empty())
+            node["type"] = rhs.type;
+
+        if (!rhs.primitives.empty())
+        {
+            node["primitives"] = rhs.primitives;
+            node["primitive_poses"] = rhs.primitive_poses;
+        }
+
+        if (!rhs.meshes.empty())
+        {
+            node["meshes"] = rhs.meshes;
+            node["mesh_poses"] = rhs.mesh_poses;
+        }
+
+        if (!rhs.planes.empty())
+        {
+            node["planes"] = rhs.planes;
+            node["plane_poses"] = rhs.plane_poses;
+        }
+
+        std::string s;
+        switch (rhs.operation)
+        {
+            case moveit_msgs::CollisionObject::ADD:
+                s = "add";
+                break;
+            case moveit_msgs::CollisionObject::REMOVE:
+                s = "remove";
+                break;
+            case moveit_msgs::CollisionObject::APPEND:
+                s = "append";
+                break;
+            case moveit_msgs::CollisionObject::MOVE:
+                s = "move";
+                break;
+        }
+
+        node["operation"] = s;
         return node;
     }
 
@@ -687,7 +793,9 @@ namespace YAML
     Node convert<moveit_msgs::PlanningSceneWorld>::encode(const moveit_msgs::PlanningSceneWorld &rhs)
     {
         Node node;
-        node["collision_objects"] = rhs.collision_objects;
+
+        if (!rhs.collision_objects.empty())
+            node["collision_objects"] = rhs.collision_objects;
 
         if (!rhs.octomap.octomap.data.empty())
             node["octomap"] = rhs.octomap;
@@ -711,7 +819,10 @@ namespace YAML
     Node convert<octomap_msgs::Octomap>::encode(const octomap_msgs::Octomap &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
         node["binary"] = boolToString(rhs.binary);
         node["id"] = rhs.id;
         node["resolution"] = rhs.resolution;
@@ -744,7 +855,10 @@ namespace YAML
     Node convert<octomap_msgs::OctomapWithPose>::encode(const octomap_msgs::OctomapWithPose &rhs)
     {
         Node node;
-        node["header"] = rhs.header;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
         node["origin"] = rhs.origin;
         node["octomap"] = rhs.octomap;
         return node;
@@ -776,6 +890,39 @@ namespace YAML
     bool convert<ros::Duration>::decode(const Node &node, ros::Duration &rhs)
     {
         rhs.fromSec(node.as<double>());
+        return true;
+    }
+
+    Node convert<shape_msgs::SolidPrimitive>::encode(const shape_msgs::SolidPrimitive &rhs)
+    {
+        Node node;
+        return node;
+    }
+
+    bool convert<shape_msgs::SolidPrimitive>::decode(const Node &node, shape_msgs::SolidPrimitive &rhs)
+    {
+        return true;
+    }
+
+    Node convert<shape_msgs::Mesh>::encode(const shape_msgs::Mesh &rhs)
+    {
+        Node node;
+        return node;
+    }
+
+    bool convert<shape_msgs::Mesh>::decode(const Node &node, shape_msgs::Mesh &rhs)
+    {
+        return true;
+    }
+
+    Node convert<shape_msgs::Plane>::encode(const shape_msgs::Plane &rhs)
+    {
+        Node node;
+        return node;
+    }
+
+    bool convert<shape_msgs::Plane>::decode(const Node &node, shape_msgs::Plane &rhs)
+    {
         return true;
     }
 }  // namespace YAML
