@@ -37,7 +37,6 @@ int main(int argc, char **argv)
     );
 
     Scene scene(r2);
-
     // add the handrails
     // scene.updateCollisionObject("ISS Handrail 0", ,);
 
