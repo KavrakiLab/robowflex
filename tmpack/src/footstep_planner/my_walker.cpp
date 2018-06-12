@@ -1,7 +1,7 @@
 #include "robowflex.h"
 #include <vector>
 
-#include "tmpack_interface.cpp"
+#include "../tmpack_interface.cpp"
 
 namespace robowflex
 {
@@ -14,7 +14,7 @@ namespace robowflex
 
     // want to get feedback on how the motion planner did
 
-    class TMPackToy : public TMPackInterface
+    class MyWalker : public TMPackInterface
     {
         std::vector<std::vector<double>> getTaskPlan()
         {
@@ -27,16 +27,22 @@ namespace robowflex
         }
 
     public:
+        int start_index, goal_index;
 
-        int start_index, int goal_index;
-
-        TMPackToy(const std::string &handrail_filename, const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
-                  Scene &scene, MotionRequestBuilder &request, std::vector<double> &start)
+        MyWalker(const Robot &robot, const std::string &group_name,
+                 OMPL::OMPLPipelinePlanner &planner, Scene &scene, MotionRequestBuilder &request,
+                 std::vector<double> &start)
           : TMPackInterface(robot, group_name, planner, scene, request, start)
         {
-          //parse file
-          //build graph
-          //
+            // parse file
+            // build graph
+            //
+            start_index = 0;
+            goal_index = 1;
+            std::string cmd = "/home/awells/Development/nasa_footstep_planning/run_walker.sh " +
+                              std::to_string(start_index) + " " + std::to_string(goal_index) + "\n";
+            std::cout<<"Calling: "<<cmd<<std::endl;
+            system(cmd.c_str());
         }
     };
 

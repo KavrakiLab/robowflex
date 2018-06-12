@@ -1,4 +1,4 @@
-#include "toy_task_planner.cpp"
+#include "footstep_planner/my_walker.cpp"
 #include "robowflex.h"
 #include <ros/ros.h>
 #include <signal.h>
@@ -44,12 +44,12 @@ int main(int argc, char **argv)
     request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
 
     std::vector<double> start =  {0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0};
-    TMPackToy toy(ur5, "manipulator", planner, scene, request, start);
+    MyWalker walker(ur5, "manipulator", planner, scene, request, start);
 
     ros::Rate rate(0.5);
     while (ros::ok())
     {
-        auto res = toy.plan();
+        auto res = walker.plan();
 
         // rviz.update(res);
 
