@@ -23,6 +23,21 @@ namespace
     {
         return h.seq == 0 && h.stamp.isZero() && h.frame_id == "world";
     }
+
+    unsigned int nodeToCollisionObject(const YAML::Node &n)
+    {
+        std::string s = n.as<std::string>();
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+        if (s == "move")
+            return moveit_msgs::CollisionObject::MOVE;
+        else if (s == "remove")
+            return moveit_msgs::CollisionObject::REMOVE;
+        else if (s == "append")
+            return moveit_msgs::CollisionObject::APPEND;
+        else
+            return moveit_msgs::CollisionObject::ADD;
+    }
 }  // namespace
 
 namespace YAML
@@ -609,6 +624,38 @@ namespace YAML
 
     bool convert<moveit_msgs::CollisionObject>::decode(const Node &node, moveit_msgs::CollisionObject &rhs)
     {
+        rhs = moveit_msgs::CollisionObject();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["id"])
+            rhs.id = node["id"].as<std::string>();
+
+        if (node["type"])
+            rhs.type = node["type"].as<object_recognition_msgs::ObjectType>();
+
+        if (node["primitives"])
+        {
+            rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
+            rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
+        }
+
+        if (node["meshes"])
+        {
+            rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
+            rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
+        }
+
+        if (node["planes"])
+        {
+            rhs.planes = node["planes"].as<std::vector<shape_msgs::Plane>>();
+            rhs.plane_poses = node["plane_poses"].as<std::vector<geometry_msgs::Pose>>();
+        }
+
+        if (node["operation"])
+            rhs.operation = nodeToCollisionObject(node["operation"]);
+
         return true;
     }
 
