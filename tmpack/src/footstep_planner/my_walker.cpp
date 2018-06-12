@@ -42,7 +42,7 @@ namespace robowflex
             std::string cmd = "/home/awells/Development/nasa_footstep_planning/run_walker.sh " +
                               std::to_string(start_index) + " " + std::to_string(goal_index) + "\n";
             std::cout<<"Calling: "<<cmd<<std::endl;
-            system(cmd.c_str());
+            int ret = system(cmd.c_str());
         }
     };
 
