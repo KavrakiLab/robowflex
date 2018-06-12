@@ -286,6 +286,13 @@ namespace robowflex
         virtual planning_interface::MotionPlanResponse plan(Scene &scene,
                                                             const planning_interface::MotionPlanRequest &request) = 0;
 
+        virtual const std::vector<std::string> getPlannerConfigs() const = 0;
+
+        const Robot &getRobot() const
+        {
+            return robot_;
+        }
+
     protected:
         Robot &robot_;
         IO::Handler &handler_;
@@ -356,8 +363,11 @@ namespace robowflex
                             const std::string &plugin = "ompl_interface/OMPLPlanner",
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
+            const std::vector<std::string> getPlannerConfigs() const override;
+
         private:
             static const std::vector<std::string> DEFAULT_ADAPTERS;
+            std::vector<std::string> configs_;
         };
 
         class OMPLInterfacePlanner : public Planner
@@ -373,8 +383,11 @@ namespace robowflex
             planning_interface::MotionPlanResponse plan(Scene &scene,
                                                         const planning_interface::MotionPlanRequest &request) override;
 
+            const std::vector<std::string> getPlannerConfigs() const override;
+
         private:
             ompl_interface::OMPLInterface interface_;
+            std::vector<std::string> configs_;
         };
 
     }  // namespace OMPL
@@ -382,7 +395,7 @@ namespace robowflex
     class MotionRequestBuilder
     {
     public:
-        MotionRequestBuilder(const Robot &robot, const std::string &group_name);
+        MotionRequestBuilder(const Planner &planner, const std::string &group_name);
 
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
@@ -393,11 +406,14 @@ namespace robowflex
         const planning_interface::MotionPlanRequest &getRequest();
 
     private:
+        const Planner &planner_;
         const Robot &robot_;
         const std::string group_name_;
         const robot_model::JointModelGroup *jmg_;
 
         planning_interface::MotionPlanRequest request_;
+
+        static const std::string DEFAULT_CONFIG;
     };
 
     class RVIZHelper

@@ -7,8 +7,13 @@
 
 using namespace robowflex;
 
-MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string &group_name)
-  : robot_(robot), group_name_(group_name), jmg_(robot.getModel()->getJointModelGroup(group_name))
+const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnect";
+
+MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
+  : planner_(planner)
+  , robot_(planner.getRobot())
+  , group_name_(group_name)
+  , jmg_(robot_.getModel()->getJointModelGroup(group_name))
 {
     request_.group_name = group_name_;
 
@@ -17,10 +22,17 @@ MotionRequestBuilder::MotionRequestBuilder(const Robot &robot, const std::string
     wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -1;
     wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 1;
 
-    request_.planner_id = "RRTConnectkConfigDefault";
-
     // Default planning time
     request_.allowed_planning_time = 5.0;
+
+    // Default planner (find an RRTConnect config, for Indigo)
+    auto &configs = planner.getPlannerConfigs();
+    const auto &found = std::find_if(std::begin(configs), std::end(configs), [DEFAULT_CONFIG](const std::string &s) {
+        return s.find(DEFAULT_CONFIG) != std::string::npos;
+    });
+
+    if (found != std::end(configs))
+        request_.planner_id = *found;
 }
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)
@@ -100,15 +112,13 @@ const std::vector<std::string>                                                  
 
 const std::string PLANNER_CONFIGS = "planner_configs";
 
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot) : PipelinePlanner(robot)
+namespace
 {
-}
-
-bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings settings,
-                                           const std::string &plugin, const std::vector<std::string> &adapters)
-{
-    if (!config_file.empty())
+    bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file, std::vector<std::string> &configs)
     {
+        if (config_file.empty())
+            return false;
+
         auto &config = IO::loadFileToYAML(config_file);
         if (!config.first)
         {
@@ -116,8 +126,28 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
             return false;
         }
 
-        handler_.loadYAMLtoROS(config.second);
+        handler.loadYAMLtoROS(config.second);
+
+        auto &planner_configs = config.second["planner_configs"];
+        if (planner_configs)
+        {
+            for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
+                configs.push_back(it->first.as<std::string>());
+        }
+
+        return true;
     }
+}  // namespace
+
+OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot) : PipelinePlanner(robot)
+{
+}
+
+bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings settings,
+                                           const std::string &plugin, const std::vector<std::string> &adapters)
+{
+    if (!loadOMPLConfig(handler_, config_file, configs_))
+        return false;
 
     handler_.setParam("planning_plugin", plugin);
 
@@ -138,6 +168,11 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     return true;
 }
 
+const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
+{
+    return configs_;
+}
+
 OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
   : Planner(robot), interface_(robot.getModel(), robot.getHandler().getHandle())
 {
@@ -145,17 +180,8 @@ OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
 
 bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, const OMPL::Settings settings)
 {
-    if (!config_file.empty())
-    {
-        auto &config = IO::loadFileToYAML(config_file);
-        if (!config.first)
-        {
-            ROS_ERROR("Failed to load planner configs.");
-            return false;
-        }
-
-        handler_.loadYAMLtoROS(config.second);
-    }
+    if (!loadOMPLConfig(handler_, config_file, configs_))
+        return false;
 
     settings.setParam(handler_);
     return true;
@@ -176,4 +202,9 @@ OMPL::OMPLInterfacePlanner::plan(Scene &scene, const planning_interface::MotionP
     bool result = context->solve(response);
 
     return response;
+}
+
+const std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
+{
+    return configs_;
 }
