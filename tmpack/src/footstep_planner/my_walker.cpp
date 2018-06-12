@@ -2,6 +2,9 @@
 #include <vector>
 
 #include "../tmpack_interface.cpp"
+#include "utils/util.h"
+#include "utils/geom_2D.h"
+#include "calc_footsteps.cpp"
 
 namespace robowflex
 {
@@ -29,9 +32,8 @@ namespace robowflex
     public:
         int start_index, goal_index;
 
-        MyWalker(const Robot &robot, const std::string &group_name,
-                 OMPL::OMPLPipelinePlanner &planner, Scene &scene, MotionRequestBuilder &request,
-                 std::vector<double> &start)
+        MyWalker(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
+                 MotionRequestBuilder &request, std::vector<double> &start)
           : TMPackInterface(robot, group_name, planner, scene, request, start)
         {
             // parse file
@@ -41,8 +43,14 @@ namespace robowflex
             goal_index = 1;
             std::string cmd = "/home/awells/Development/nasa_footstep_planning/run_walker.sh " +
                               std::to_string(start_index) + " " + std::to_string(goal_index) + "\n";
-            std::cout<<"Calling: "<<cmd<<std::endl;
-            system(cmd.c_str());
+            std::cout << "Calling: " << cmd << std::endl;
+            int r = system(cmd.c_str());
+        }
+
+        void setStartAndGoal(int s, int g)
+        {
+            start_index = s;
+            goal_index = g;
         }
     };
 
