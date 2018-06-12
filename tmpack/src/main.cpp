@@ -60,7 +60,6 @@ int main(int argc, char **argv)
     size_t time_spent = 0;
     size_t count = 0;
     size_t success_count = 0;
-
     ros::Rate rate(0.5);
 
     while (ros::ok() && count++ < NUM_ITERATIONS)
@@ -69,7 +68,6 @@ int main(int argc, char **argv)
         auto res = walker.plan();
         if (res[0].error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             success_count++;
-
         // rviz.update(res);
 
         time_spent += (ros::Time::now().nsec - begin);
