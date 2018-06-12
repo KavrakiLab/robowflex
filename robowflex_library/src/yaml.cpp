@@ -1,6 +1,24 @@
+#include <algorithm>
+#include <string>
+
 #include "robowflex.h"
 
 using namespace robowflex;
+
+namespace
+{
+    const std::string boolToString(bool b)
+    {
+        return b ? "true" : "false";
+    }
+
+    bool nodeToBool(const YAML::Node &n)
+    {
+        std::string s = n.as<std::string>();
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+        return (s == "true") ? true : false;
+    }
+}  // namespace
 
 namespace YAML
 {
@@ -16,7 +34,7 @@ namespace YAML
         // node["link_scale"] = rhs.link_scale;
         // node["object_colors"] = rhs.object_colors;
         // node["world"] = rhs.world;
-        node["is_diff"] = rhs.is_diff;
+        node["is_diff"] = boolToString(rhs.is_diff);
         return node;
     }
 
@@ -57,7 +75,7 @@ namespace YAML
         //     rhs.world = node["world"].as<std::vector<moveit_msgs::PlanningSceneWorld>>();
 
         if (node["is_diff"])
-            rhs.is_diff = node["is_diff"].as<bool>();
+            rhs.is_diff = nodeToBool(node["is_diff"]);
 
         return true;
     }
@@ -68,7 +86,7 @@ namespace YAML
         node["joint_state"] = rhs.joint_state;
         node["multi_dof_joint_state"] = rhs.multi_dof_joint_state;
         node["attached_collision_objects"] = rhs.attached_collision_objects;
-        node["is_diff"] = rhs.is_diff;
+        node["is_diff"] = boolToString(rhs.is_diff);
         return node;
     }
 
@@ -90,7 +108,7 @@ namespace YAML
         }
 
         if (node["is_diff"])
-            rhs.is_diff = node["is_diff"].as<bool>();
+            rhs.is_diff = nodeToBool(node["is_diff"]);
 
         return true;
     }
@@ -173,6 +191,8 @@ namespace YAML
     Node convert<geometry_msgs::Vector3>::encode(const geometry_msgs::Vector3 &rhs)
     {
         Node node;
+        node.SetStyle(YAML::EmitterStyle::Flow);
+
         node.push_back(rhs.x);
         node.push_back(rhs.y);
         node.push_back(rhs.z);
@@ -192,6 +212,8 @@ namespace YAML
     Node convert<geometry_msgs::Quaternion>::encode(const geometry_msgs::Quaternion &rhs)
     {
         Node node;
+        node.SetStyle(YAML::EmitterStyle::Flow);
+
         node.push_back(rhs.x);
         node.push_back(rhs.y);
         node.push_back(rhs.z);
@@ -251,9 +273,13 @@ namespace YAML
         Node node;
         node["header"] = rhs.header;
         node["name"] = rhs.name;
+        node["name"].SetStyle(YAML::EmitterStyle::Flow);
         node["position"] = rhs.position;
+        node["position"].SetStyle(YAML::EmitterStyle::Flow);
         node["velocity"] = rhs.velocity;
+        node["velocity"].SetStyle(YAML::EmitterStyle::Flow);
         node["effort"] = rhs.effort;
+        node["effort"].SetStyle(YAML::EmitterStyle::Flow);
         return node;
     }
 
@@ -297,10 +323,18 @@ namespace YAML
     {
         Node node;
         node["header"] = rhs.header;
+
         node["joint_names"] = rhs.joint_names;
+        node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
+
         node["transforms"] = rhs.transforms;
+        node["transforms"].SetStyle(YAML::EmitterStyle::Flow);
+
         node["twist"] = rhs.twist;
+        node["twist"].SetStyle(YAML::EmitterStyle::Flow);
+
         node["wrench"] = rhs.wrench;
+        node["wrench"].SetStyle(YAML::EmitterStyle::Flow);
         return node;
     }
 
