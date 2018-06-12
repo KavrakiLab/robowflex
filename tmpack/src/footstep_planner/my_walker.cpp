@@ -40,6 +40,8 @@ namespace robowflex
     public:
         int start_index, goal_index;
 
+        std::vector<double> goal_pose;
+
         MyWalker(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
                  MotionRequestBuilder &request, std::vector<double> &start)
           : TMPackInterface(robot, group_name, planner, scene, request, start)
@@ -51,7 +53,6 @@ namespace robowflex
             std::vector<std::string> line_names;
             footstep_planning::loadScene("/home/awells/Development/nasa_footstep_planning/scenes/iss.txt",
                                          &line_segments, &line_names);
-            // store a map of points and their names
 
             // we only use the end points and the centers
             for (size_t i = 0; i < line_segments.size(); i++)

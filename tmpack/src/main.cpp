@@ -26,6 +26,10 @@ int main(int argc, char **argv)
 
     Scene scene(r2);
 
+    //add the handrails
+    // scene.updateCollisionObject("ISS Handrail 0", ,);
+
+
     OMPL::OMPLPipelinePlanner planner(r2);
     planner.initialize("package://r2_moveit_config/config/ompl_planning.yaml"  // planner config
     );
