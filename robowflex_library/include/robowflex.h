@@ -269,6 +269,9 @@ namespace robowflex
                           const std::vector<std::string> &touch_links);
         bool detachObject(const std::string &name);
 
+        void toYAMLFile(const std::string &file);
+        void fromYAMLFile(const std::string &file);
+
     private:
         planning_scene::PlanningScenePtr scene_;
     };
@@ -389,7 +392,6 @@ namespace robowflex
             ompl_interface::OMPLInterface interface_;
             std::vector<std::string> configs_;
         };
-
     }  // namespace OMPL
 
     class MotionRequestBuilder
