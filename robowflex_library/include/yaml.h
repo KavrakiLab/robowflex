@@ -191,6 +191,13 @@ namespace YAML
         static Node encode(const octomap_msgs::OctomapWithPose &rhs);
         static bool decode(const Node &node, octomap_msgs::OctomapWithPose &rhs);
     };
+
+    template <>
+    struct convert<ros::Duration>
+    {
+        static Node encode(const ros::Duration &rhs);
+        static bool decode(const Node &node, ros::Duration &rhs);
+    };
 }  // namespace YAML
 
 #endif

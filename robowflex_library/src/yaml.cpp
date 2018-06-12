@@ -418,23 +418,80 @@ namespace YAML
     Node convert<trajectory_msgs::JointTrajectory>::encode(const trajectory_msgs::JointTrajectory &rhs)
     {
         Node node;
+        node["header"] = rhs.header;
+        node["joint_names"] = rhs.joint_names;
+        node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
+        node["points"] = rhs.points;
         return node;
     }
 
     bool convert<trajectory_msgs::JointTrajectory>::decode(const Node &node, trajectory_msgs::JointTrajectory &rhs)
     {
+        rhs = trajectory_msgs::JointTrajectory();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["joint_names"])
+            rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
+
+        if (node["points"])
+            rhs.points = node["points"].as<std::vector<trajectory_msgs::JointTrajectoryPoint>>();
+
         return true;
     }
 
     Node convert<trajectory_msgs::JointTrajectoryPoint>::encode(const trajectory_msgs::JointTrajectoryPoint &rhs)
     {
         Node node;
+
+        if (!rhs.positions.empty())
+        {
+            node["positions"] = rhs.positions;
+            node["positions"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.velocities.empty())
+        {
+            node["velocities"] = rhs.velocities;
+            node["velocities"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.accelerations.empty())
+        {
+            node["accelerations"] = rhs.accelerations;
+            node["accelerations"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.effort.empty())
+        {
+            node["effort"] = rhs.effort;
+            node["effort"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        node["time_from_start"] = rhs.time_from_start;
+
         return node;
     }
 
     bool convert<trajectory_msgs::JointTrajectoryPoint>::decode(const Node &node,
                                                                 trajectory_msgs::JointTrajectoryPoint &rhs)
     {
+        if (node["positions"])
+            rhs.positions = node["positions"].as<std::vector<double>>();
+
+        if (node["velocities"])
+            rhs.velocities = node["velocities"].as<std::vector<double>>();
+
+        if (node["accelerations"])
+            rhs.accelerations = node["accelerations"].as<std::vector<double>>();
+
+        if (node["effort"])
+            rhs.effort = node["effort"].as<std::vector<double>>();
+
+        if (node["time_from_start"])
+            rhs.time_from_start = node["time_from_start"].as<ros::Duration>();
+
         return true;
     }
 
@@ -706,6 +763,19 @@ namespace YAML
         if (node["octomap"])
             rhs.octomap = node["octomap"].as<octomap_msgs::Octomap>();
 
+        return true;
+    }
+
+    Node convert<ros::Duration>::encode(const ros::Duration &rhs)
+    {
+        Node node;
+        node = rhs.toSec();
+        return node;
+    }
+
+    bool convert<ros::Duration>::decode(const Node &node, ros::Duration &rhs)
+    {
+        rhs.fromSec(node.as<double>());
         return true;
     }
 }  // namespace YAML
