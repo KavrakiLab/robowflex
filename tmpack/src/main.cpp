@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
     // scene.addCollisionObject("box", box, pose);
 
-    MotionRequestBuilder request(ur5, "manipulator");
+    MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
     request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
 
