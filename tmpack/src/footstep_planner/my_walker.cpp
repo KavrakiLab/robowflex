@@ -19,6 +19,10 @@ namespace robowflex
 
     class MyWalker : public TMPackInterface
     {
+        footstep_planning::FootstepPlanner my_step_planner;
+        std::vector<footstep_planning::point_2D> points;
+
+        // returns vector of joint poses
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
@@ -26,6 +30,10 @@ namespace robowflex
             my_plan.push_back(goal);
             goal = {0.39, -0.69, -2.12, 2.82, -0.39, 0};
             my_plan.push_back(goal);
+
+            std::vector<footstep_planning::point_2D> foot_placements =
+                my_step_planner.calculate_foot_placements(points, points[9], points[17], footstep_planning::foot::left);
+
             return my_plan;
         }
 
@@ -39,6 +47,23 @@ namespace robowflex
             // parse file
             // build graph
             //
+            std::vector<footstep_planning::line_segment> line_segments;
+            std::vector<std::string> line_names;
+            footstep_planning::loadScene("/home/awells/Development/nasa_footstep_planning/scenes/iss.txt",
+                                         &line_segments, &line_names);
+            // store a map of points and their names
+
+            // we only use the end points and the centers
+            for (size_t i = 0; i < line_segments.size(); i++)
+            {
+                auto l = line_segments[i];
+                std::string i_s = line_names[i];
+                points.push_back(footstep_planning::point_2D(l.x1, l.y1));
+                points.push_back(footstep_planning::point_2D(l.x2, l.y2));
+                points.push_back(footstep_planning::point_2D((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2));
+            }
+            my_step_planner.buildGraph(points);
+
             start_index = 0;
             goal_index = 1;
             std::string cmd = "/home/awells/Development/nasa_footstep_planning/run_walker.sh " +
