@@ -29,7 +29,7 @@ namespace YAML
         node["robot_state"] = rhs.robot_state;
         node["robot_model_name"] = rhs.robot_model_name;
         node["fixed_frame_transforms"] = rhs.fixed_frame_transforms;
-        // node["allowed_collision_matrix"] = rhs.allowed_collision_matrix;
+        node["allowed_collision_matrix"] = rhs.allowed_collision_matrix;
 
         // node["link_padding"] = rhs.link_padding;
         // node["link_padding"].SetStyle(YAML::EmitterStyle::Flow);
@@ -58,11 +58,8 @@ namespace YAML
             rhs.robot_model_name = node["robot_model_name"].as<std::string>();
 
         if (node["fixed_frame_transforms"])
-        {
-            const auto &fft = node["fixed_frame_transforms"];
-            for (YAML::const_iterator it = fft.begin(); it != fft.end(); ++it)
-                rhs.fixed_frame_transforms.push_back(it->as<geometry_msgs::TransformStamped>());
-        }
+            rhs.fixed_frame_transforms =
+                node["fixed_frame_transforms"].as<std::vector<geometry_msgs::TransformStamped>>();
 
         if (node["allowed_collision_matrix"])
             rhs.allowed_collision_matrix = node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
@@ -73,8 +70,8 @@ namespace YAML
         if (node["link_scale"])
             rhs.link_scale = node["link_scale"].as<std::vector<moveit_msgs::LinkScale>>();
 
-        // if (node["object_colors"])
-        //     rhs.object_colors = node["object_colors"].as<std::vector<moveit_msgs::ObjectColor>>();
+        if (node["object_colors"])
+            rhs.object_colors = node["object_colors"].as<std::vector<moveit_msgs::ObjectColor>>();
 
         if (node["world"])
             rhs.world = node["world"].as<moveit_msgs::PlanningSceneWorld>();
@@ -106,11 +103,8 @@ namespace YAML
             rhs.multi_dof_joint_state = node["multi_dof_joint_state"].as<sensor_msgs::MultiDOFJointState>();
 
         if (node["attached_collision_objects"])
-        {
-            const auto &aco = node["attached_collision_objects"];
-            for (YAML::const_iterator it = aco.begin(); it != aco.end(); ++it)
-                rhs.attached_collision_objects.push_back(it->as<moveit_msgs::AttachedCollisionObject>());
-        }
+            rhs.attached_collision_objects =
+                node["attached_collision_objects"].as<std::vector<moveit_msgs::AttachedCollisionObject>>();
 
         if (node["is_diff"])
             rhs.is_diff = nodeToBool(node["is_diff"]);
@@ -294,32 +288,16 @@ namespace YAML
         rhs.header = node["header"].as<std_msgs::Header>();
 
         if (node["name"])
-        {
-            const auto &names = node["name"];
-            for (YAML::const_iterator it = names.begin(); it != names.end(); ++it)
-                rhs.name.push_back(it->as<std::string>());
-        }
+            rhs.name = node["name"].as<std::vector<std::string>>();
 
         if (node["position"])
-        {
-            const auto &positions = node["position"];
-            for (YAML::const_iterator it = positions.begin(); it != positions.end(); ++it)
-                rhs.position.push_back(it->as<double>());
-        }
+            rhs.position = node["position"].as<std::vector<double>>();
 
         if (node["velocity"])
-        {
-            const auto &velocities = node["velocity"];
-            for (YAML::const_iterator it = velocities.begin(); it != velocities.end(); ++it)
-                rhs.velocity.push_back(it->as<double>());
-        }
+            rhs.velocity = node["velocity"].as<std::vector<double>>();
 
         if (node["effort"])
-        {
-            const auto &efforts = node["effort"];
-            for (YAML::const_iterator it = efforts.begin(); it != efforts.end(); ++it)
-                rhs.effort.push_back(it->as<double>());
-        }
+            rhs.effort = node["effort"].as<std::vector<double>>();
 
         return true;
     }
@@ -349,32 +327,16 @@ namespace YAML
         rhs.header = node["header"].as<std_msgs::Header>();
 
         if (node["joint_names"])
-        {
-            const auto &joint_names = node["joint_names"];
-            for (YAML::const_iterator it = joint_names.begin(); it != joint_names.end(); ++it)
-                rhs.joint_names.push_back(it->as<std::string>());
-        }
+            rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
 
         if (node["transforms"])
-        {
-            const auto &transforms = node["transforms"];
-            for (YAML::const_iterator it = transforms.begin(); it != transforms.end(); ++it)
-                rhs.transforms.push_back(it->as<geometry_msgs::Transform>());
-        }
+            rhs.transforms = node["transforms"].as<std::vector<geometry_msgs::Transform>>();
 
         if (node["twist"])
-        {
-            const auto &twist = node["twist"];
-            for (YAML::const_iterator it = twist.begin(); it != twist.end(); ++it)
-                rhs.twist.push_back(it->as<geometry_msgs::Twist>());
-        }
+            rhs.twist = node["twist"].as<std::vector<geometry_msgs::Twist>>();
 
         if (node["wrench"])
-        {
-            const auto &wrench = node["wrench"];
-            for (YAML::const_iterator it = wrench.begin(); it != wrench.end(); ++it)
-                rhs.wrench.push_back(it->as<geometry_msgs::Wrench>());
-        }
+            rhs.wrench = node["wrench"].as<std::vector<geometry_msgs::Wrench>>();
 
         return true;
     }
