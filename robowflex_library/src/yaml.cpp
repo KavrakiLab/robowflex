@@ -86,7 +86,10 @@ namespace YAML
     {
         Node node;
         node["joint_state"] = rhs.joint_state;
-        node["multi_dof_joint_state"] = rhs.multi_dof_joint_state;
+
+        if (!rhs.multi_dof_joint_state.joint_names.empty())
+            node["multi_dof_joint_state"] = rhs.multi_dof_joint_state;
+
         node["attached_collision_objects"] = rhs.attached_collision_objects;
         node["is_diff"] = boolToString(rhs.is_diff);
         return node;
@@ -166,6 +169,27 @@ namespace YAML
         return true;
     }
 
+    Node convert<geometry_msgs::Pose>::encode(const geometry_msgs::Pose &rhs)
+    {
+        Node node;
+        node["position"] = rhs.position;
+        node["orientation"] = rhs.orientation;
+        return node;
+    }
+
+    bool convert<geometry_msgs::Pose>::decode(const Node &node, geometry_msgs::Pose &rhs)
+    {
+        rhs = geometry_msgs::Pose();
+
+        if (node["position"])
+            rhs.position = node["position"].as<geometry_msgs::Point>();
+
+        if (node["orientation"])
+            rhs.orientation = node["orientation"].as<geometry_msgs::Quaternion>();
+
+        return true;
+    }
+
     Node convert<geometry_msgs::Transform>::encode(const geometry_msgs::Transform &rhs)
     {
         Node node;
@@ -184,6 +208,27 @@ namespace YAML
         if (node["rotation"])
             rhs.rotation = node["rotation"].as<geometry_msgs::Quaternion>();
 
+        return true;
+    }
+
+    Node convert<geometry_msgs::Point>::encode(const geometry_msgs::Point &rhs)
+    {
+        Node node;
+        node.SetStyle(YAML::EmitterStyle::Flow);
+
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        node.push_back(rhs.z);
+        return node;
+    }
+
+    bool convert<geometry_msgs::Point>::decode(const Node &node, geometry_msgs::Point &rhs)
+    {
+        rhs = geometry_msgs::Point();
+
+        rhs.x = node[0].as<double>();
+        rhs.y = node[1].as<double>();
+        rhs.z = node[2].as<double>();
         return true;
     }
 
@@ -271,14 +316,31 @@ namespace YAML
     {
         Node node;
         node["header"] = rhs.header;
-        node["name"] = rhs.name;
-        node["name"].SetStyle(YAML::EmitterStyle::Flow);
-        node["position"] = rhs.position;
-        node["position"].SetStyle(YAML::EmitterStyle::Flow);
-        node["velocity"] = rhs.velocity;
-        node["velocity"].SetStyle(YAML::EmitterStyle::Flow);
-        node["effort"] = rhs.effort;
-        node["effort"].SetStyle(YAML::EmitterStyle::Flow);
+
+        if (!rhs.name.empty())
+        {
+            node["name"] = rhs.name;
+            node["name"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.position.empty())
+        {
+            node["position"] = rhs.position;
+            node["position"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.velocity.empty())
+        {
+            node["velocity"] = rhs.velocity;
+            node["velocity"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
+        if (!rhs.effort.empty())
+        {
+            node["effort"] = rhs.effort;
+            node["effort"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
         return node;
     }
 
@@ -390,12 +452,22 @@ namespace YAML
     Node convert<object_recognition_msgs::ObjectType>::encode(const object_recognition_msgs::ObjectType &rhs)
     {
         Node node;
+        node["key"] = rhs.key;
+        node["db"] = rhs.db;
         return node;
     }
 
     bool convert<object_recognition_msgs::ObjectType>::decode(const Node &node,
                                                               object_recognition_msgs::ObjectType &rhs)
     {
+        rhs = object_recognition_msgs::ObjectType();
+
+        if (node["key"])
+            rhs.key = node["key"].as<std::string>();
+
+        if (node["db"])
+            rhs.db = node["db"].as<std::string>();
+
         return true;
     }
 
@@ -488,23 +560,152 @@ namespace YAML
     Node convert<moveit_msgs::AllowedCollisionMatrix>::encode(const moveit_msgs::AllowedCollisionMatrix &rhs)
     {
         Node node;
+        node["entry_names"] = rhs.entry_names;
+        node["entry_names"].SetStyle(YAML::EmitterStyle::Flow);
+
+        node["entry_values"] = rhs.entry_values;
+
+        if (!rhs.default_entry_values.empty())
+        {
+            node["default_entry_names"] = rhs.entry_names;
+            node["default_entry_names"].SetStyle(YAML::EmitterStyle::Flow);
+
+            std::vector<std::string> default_entry_values;
+            for (auto &b : rhs.default_entry_values)
+                default_entry_values.emplace_back(boolToString(b));
+
+            node["default_entry_values"] = default_entry_values;
+            node["default_entry_values"].SetStyle(YAML::EmitterStyle::Flow);
+        }
+
         return node;
     }
 
     bool convert<moveit_msgs::AllowedCollisionMatrix>::decode(const Node &node,
                                                               moveit_msgs::AllowedCollisionMatrix &rhs)
     {
+        rhs = moveit_msgs::AllowedCollisionMatrix();
+
+        if (node["entry_names"])
+            rhs.entry_names = node["entry_names"].as<std::vector<std::string>>();
+
+        if (node["entry_values"])
+            rhs.entry_values = node["entry_values"].as<std::vector<moveit_msgs::AllowedCollisionEntry>>();
+
+        if (node["default_entry_names"])
+            rhs.default_entry_names = node["default_entry_names"].as<std::vector<std::string>>();
+
+        if (node["default_entry_values"])
+        {
+            const auto &dev = node["default_entry_values"];
+            for (std::size_t i = 0; i < dev.size(); i++)
+                rhs.default_entry_values.push_back(nodeToBool(dev[i]));
+        }
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::AllowedCollisionEntry>::encode(const moveit_msgs::AllowedCollisionEntry &rhs)
+    {
+        Node node;
+        std::vector<std::string> enabled;
+        for (auto &b : rhs.enabled)
+            enabled.emplace_back(boolToString(b));
+
+        node = enabled;
+        node.SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+
+    bool convert<moveit_msgs::AllowedCollisionEntry>::decode(const Node &node, moveit_msgs::AllowedCollisionEntry &rhs)
+    {
+        rhs = moveit_msgs::AllowedCollisionEntry();
+
+        for (std::size_t i = 0; i < node.size(); i++)
+            rhs.enabled.push_back(nodeToBool(node[i]));
+
         return true;
     }
 
     Node convert<moveit_msgs::PlanningSceneWorld>::encode(const moveit_msgs::PlanningSceneWorld &rhs)
     {
         Node node;
+        node["collision_objects"] = rhs.collision_objects;
+
+        if (!rhs.octomap.octomap.data.empty())
+            node["octomap"] = rhs.octomap;
+
         return node;
     }
 
     bool convert<moveit_msgs::PlanningSceneWorld>::decode(const Node &node, moveit_msgs::PlanningSceneWorld &rhs)
     {
+        rhs = moveit_msgs::PlanningSceneWorld();
+
+        if (node["collision_objects"])
+            rhs.collision_objects = node["collision_objects"].as<std::vector<moveit_msgs::CollisionObject>>();
+
+        if (node["octomap"])
+            rhs.octomap = node["octomap"].as<octomap_msgs::OctomapWithPose>();
+
+        return true;
+    }
+
+    Node convert<octomap_msgs::Octomap>::encode(const octomap_msgs::Octomap &rhs)
+    {
+        Node node;
+        node["header"] = rhs.header;
+        node["binary"] = boolToString(rhs.binary);
+        node["id"] = rhs.id;
+        node["resolution"] = rhs.resolution;
+        node["data"] = rhs.data;
+        return node;
+    }
+
+    bool convert<octomap_msgs::Octomap>::decode(const Node &node, octomap_msgs::Octomap &rhs)
+    {
+        rhs = octomap_msgs::Octomap();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["binary"])
+            rhs.binary = nodeToBool(node["binary"]);
+
+        if (node["id"])
+            rhs.id = node["id"].as<std::string>();
+
+        if (node["resolution"])
+            rhs.resolution = node["resolution"].as<double>();
+
+        if (node["data"])
+            rhs.data = node["data"].as<std::vector<signed char>>();
+
+        return true;
+    }
+
+    Node convert<octomap_msgs::OctomapWithPose>::encode(const octomap_msgs::OctomapWithPose &rhs)
+    {
+        Node node;
+        node["header"] = rhs.header;
+        node["origin"] = rhs.origin;
+        node["octomap"] = rhs.octomap;
+        return node;
+    }
+
+    bool convert<octomap_msgs::OctomapWithPose>::decode(const Node &node, octomap_msgs::OctomapWithPose &rhs)
+    {
+        rhs = octomap_msgs::OctomapWithPose();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["origin"])
+            rhs.origin = node["origin"].as<geometry_msgs::Pose>();
+
+        if (node["octomap"])
+            rhs.octomap = node["octomap"].as<octomap_msgs::Octomap>();
+
         return true;
     }
 }  // namespace YAML

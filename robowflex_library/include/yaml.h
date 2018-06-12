@@ -32,6 +32,13 @@ namespace YAML
     };
 
     template <>
+    struct convert<geometry_msgs::Pose>
+    {
+        static Node encode(const geometry_msgs::Pose &rhs);
+        static bool decode(const Node &node, geometry_msgs::Pose &rhs);
+    };
+
+    template <>
     struct convert<geometry_msgs::Transform>
     {
         static Node encode(const geometry_msgs::Transform &rhs);
@@ -43,6 +50,13 @@ namespace YAML
     {
         static Node encode(const geometry_msgs::Vector3 &rhs);
         static bool decode(const Node &node, geometry_msgs::Vector3 &rhs);
+    };
+
+    template <>
+    struct convert<geometry_msgs::Point>
+    {
+        static Node encode(const geometry_msgs::Point &rhs);
+        static bool decode(const Node &node, geometry_msgs::Point &rhs);
     };
 
     template <>
@@ -137,6 +151,13 @@ namespace YAML
     };
 
     template <>
+    struct convert<moveit_msgs::AllowedCollisionEntry>
+    {
+        static Node encode(const moveit_msgs::AllowedCollisionEntry &rhs);
+        static bool decode(const Node &node, moveit_msgs::AllowedCollisionEntry &rhs);
+    };
+
+    template <>
     struct convert<moveit_msgs::PlanningSceneWorld>
     {
         static Node encode(const moveit_msgs::PlanningSceneWorld &rhs);
@@ -155,6 +176,20 @@ namespace YAML
     {
         static Node encode(const std_msgs::ColorRGBA &rhs);
         static bool decode(const Node &node, std_msgs::ColorRGBA &rhs);
+    };
+
+    template <>
+    struct convert<octomap_msgs::Octomap>
+    {
+        static Node encode(const octomap_msgs::Octomap &rhs);
+        static bool decode(const Node &node, octomap_msgs::Octomap &rhs);
+    };
+
+    template <>
+    struct convert<octomap_msgs::OctomapWithPose>
+    {
+        static Node encode(const octomap_msgs::OctomapWithPose &rhs);
+        static bool decode(const Node &node, octomap_msgs::OctomapWithPose &rhs);
     };
 }  // namespace YAML
 
