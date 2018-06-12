@@ -30,10 +30,16 @@ namespace YAML
         node["robot_model_name"] = rhs.robot_model_name;
         node["fixed_frame_transforms"] = rhs.fixed_frame_transforms;
         // node["allowed_collision_matrix"] = rhs.allowed_collision_matrix;
+
         // node["link_padding"] = rhs.link_padding;
+        // node["link_padding"].SetStyle(YAML::EmitterStyle::Flow);
+
         // node["link_scale"] = rhs.link_scale;
+        // node["link_scale"].SetStyle(YAML::EmitterStyle::Flow);
+
         // node["object_colors"] = rhs.object_colors;
-        // node["world"] = rhs.world;
+
+        node["world"] = rhs.world;
         node["is_diff"] = boolToString(rhs.is_diff);
         return node;
     }
@@ -58,21 +64,20 @@ namespace YAML
                 rhs.fixed_frame_transforms.push_back(it->as<geometry_msgs::TransformStamped>());
         }
 
-        // if (node["allowed_collision_matrix"])
-        //     rhs.allowed_collision_matrix =
-        //         node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
+        if (node["allowed_collision_matrix"])
+            rhs.allowed_collision_matrix = node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
 
-        // if (node["link_padding"])
-        //     rhs.link_padding = node["link_padding"].as<std::vector<moveit_msgs::LinkPadding>>();
+        if (node["link_padding"])
+            rhs.link_padding = node["link_padding"].as<std::vector<moveit_msgs::LinkPadding>>();
 
-        // if (node["link_scale"])
-        //     rhs.link_scale = node["link_scale"].as<std::vector<moveit_msgs::LinkScale>>();
+        if (node["link_scale"])
+            rhs.link_scale = node["link_scale"].as<std::vector<moveit_msgs::LinkScale>>();
 
         // if (node["object_colors"])
         //     rhs.object_colors = node["object_colors"].as<std::vector<moveit_msgs::ObjectColor>>();
 
-        // if (node["world"])
-        //     rhs.world = node["world"].as<std::vector<moveit_msgs::PlanningSceneWorld>>();
+        if (node["world"])
+            rhs.world = node["world"].as<moveit_msgs::PlanningSceneWorld>();
 
         if (node["is_diff"])
             rhs.is_diff = nodeToBool(node["is_diff"]);
@@ -378,7 +383,7 @@ namespace YAML
     {
         Node node;
         return node;
-    }  // namespace YAML
+    }
 
     bool convert<moveit_msgs::AttachedCollisionObject>::decode(const Node &node,
                                                                moveit_msgs::AttachedCollisionObject &rhs)
@@ -428,6 +433,115 @@ namespace YAML
 
     bool convert<object_recognition_msgs::ObjectType>::decode(const Node &node,
                                                               object_recognition_msgs::ObjectType &rhs)
+    {
+        return true;
+    }
+
+    Node convert<moveit_msgs::LinkPadding>::encode(const moveit_msgs::LinkPadding &rhs)
+    {
+        Node node;
+        node["link_name"] = rhs.link_name;
+        node["padding"] = rhs.padding;
+        return node;
+    }
+
+    bool convert<moveit_msgs::LinkPadding>::decode(const Node &node, moveit_msgs::LinkPadding &rhs)
+    {
+        rhs = moveit_msgs::LinkPadding();
+
+        if (node["link_name"])
+            rhs.link_name = node["link_name"].as<std::string>();
+
+        if (node["padding"])
+            rhs.padding = node["padding"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::LinkScale>::encode(const moveit_msgs::LinkScale &rhs)
+    {
+        Node node;
+        node["link_name"] = rhs.link_name;
+        node["scale"] = rhs.scale;
+        return node;
+    }
+
+    bool convert<moveit_msgs::LinkScale>::decode(const Node &node, moveit_msgs::LinkScale &rhs)
+    {
+        rhs = moveit_msgs::LinkScale();
+
+        if (node["link_name"])
+            rhs.link_name = node["link_name"].as<std::string>();
+
+        if (node["scale"])
+            rhs.scale = node["scale"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::ObjectColor>::encode(const moveit_msgs::ObjectColor &rhs)
+    {
+        Node node;
+        node["id"] = rhs.id;
+        node["color"] = rhs.color;
+        return node;
+    }
+
+    bool convert<moveit_msgs::ObjectColor>::decode(const Node &node, moveit_msgs::ObjectColor &rhs)
+    {
+        rhs = moveit_msgs::ObjectColor();
+
+        if (node["id"])
+            rhs.id = node["id"].as<std::string>();
+
+        if (node["color"])
+            rhs.color = node["color"].as<std_msgs::ColorRGBA>();
+
+        return true;
+    }
+
+    Node convert<std_msgs::ColorRGBA>::encode(const std_msgs::ColorRGBA &rhs)
+    {
+        Node node;
+        node.SetStyle(YAML::EmitterStyle::Flow);
+
+        node.push_back(rhs.r);
+        node.push_back(rhs.g);
+        node.push_back(rhs.b);
+        node.push_back(rhs.a);
+        return node;
+    }
+
+    bool convert<std_msgs::ColorRGBA>::decode(const Node &node, std_msgs::ColorRGBA &rhs)
+    {
+        rhs = std_msgs::ColorRGBA();
+
+        rhs.r = node[0].as<double>();
+        rhs.g = node[1].as<double>();
+        rhs.b = node[2].as<double>();
+        rhs.a = node[3].as<double>();
+        return true;
+    }
+
+    Node convert<moveit_msgs::AllowedCollisionMatrix>::encode(const moveit_msgs::AllowedCollisionMatrix &rhs)
+    {
+        Node node;
+        return node;
+    }
+
+    bool convert<moveit_msgs::AllowedCollisionMatrix>::decode(const Node &node,
+                                                              moveit_msgs::AllowedCollisionMatrix &rhs)
+    {
+        return true;
+    }
+
+    Node convert<moveit_msgs::PlanningSceneWorld>::encode(const moveit_msgs::PlanningSceneWorld &rhs)
+    {
+        Node node;
+        return node;
+    }
+
+    bool convert<moveit_msgs::PlanningSceneWorld>::decode(const Node &node, moveit_msgs::PlanningSceneWorld &rhs)
     {
         return true;
     }

@@ -114,6 +114,48 @@ namespace YAML
         static Node encode(const object_recognition_msgs::ObjectType &rhs);
         static bool decode(const Node &node, object_recognition_msgs::ObjectType &rhs);
     };
+
+    template <>
+    struct convert<moveit_msgs::LinkPadding>
+    {
+        static Node encode(const moveit_msgs::LinkPadding &rhs);
+        static bool decode(const Node &node, moveit_msgs::LinkPadding &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::LinkScale>
+    {
+        static Node encode(const moveit_msgs::LinkScale &rhs);
+        static bool decode(const Node &node, moveit_msgs::LinkScale &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::AllowedCollisionMatrix>
+    {
+        static Node encode(const moveit_msgs::AllowedCollisionMatrix &rhs);
+        static bool decode(const Node &node, moveit_msgs::AllowedCollisionMatrix &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::PlanningSceneWorld>
+    {
+        static Node encode(const moveit_msgs::PlanningSceneWorld &rhs);
+        static bool decode(const Node &node, moveit_msgs::PlanningSceneWorld &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::ObjectColor>
+    {
+        static Node encode(const moveit_msgs::ObjectColor &rhs);
+        static bool decode(const Node &node, moveit_msgs::ObjectColor &rhs);
+    };
+
+    template <>
+    struct convert<std_msgs::ColorRGBA>
+    {
+        static Node encode(const std_msgs::ColorRGBA &rhs);
+        static bool decode(const Node &node, std_msgs::ColorRGBA &rhs);
+    };
 }  // namespace YAML
 
 #endif
