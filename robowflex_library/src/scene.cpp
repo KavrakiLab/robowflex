@@ -124,7 +124,19 @@ void Scene::toYAMLFile(const std::string &file)
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
 
+    const std::string full_path = IO::resolvePath(file);
+    if (full_path.empty())
+    {
+        // TODO: throw
+        return;
+    }
 
+    YAML::Node yaml;
+    yaml = msg;
+
+    std::ofstream fout(full_path);
+    fout << yaml;
+    fout.close();
 }
 
 void Scene::fromYAMLFile(const std::string &file)

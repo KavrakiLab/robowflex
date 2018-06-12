@@ -448,4 +448,6 @@ namespace robowflex
 
 }  // namespace robowflex
 
+#include "yaml.h"
+
 #endif

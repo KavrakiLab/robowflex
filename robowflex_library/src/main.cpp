@@ -33,11 +33,13 @@ int main(int argc, char **argv)
     // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     // );
 
-    // Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
-    // Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    // pose.translate(Eigen::Vector3d{1, 1, 1});
+    Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose.translate(Eigen::Vector3d{1, 1, 1});
 
-    // scene.addCollisionObject("box", box, pose);
+    scene.updateCollisionObject("box", box, pose);
+
+    scene.toYAMLFile("/home/zak/test.yml");
 
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
