@@ -27,7 +27,7 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 
     // Default planner (find an RRTConnect config, for Indigo)
     auto &configs = planner.getPlannerConfigs();
-    const auto &found = std::find_if(std::begin(configs), std::end(configs), [DEFAULT_CONFIG](const std::string &s) {
+    const auto &found = std::find_if(std::begin(configs), std::end(configs), [](const std::string &s) {
         return s.find(DEFAULT_CONFIG) != std::string::npos;
     });
 
