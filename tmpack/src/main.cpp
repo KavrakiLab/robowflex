@@ -37,6 +37,8 @@ int main(int argc, char **argv)
     );
 
     Scene scene(r2);
+
+    // skeleton of idea for passing constraints and scene graph changes through the tmp interface
     // add the handrails
     // scene.updateCollisionObject("ISS Handrail 0", ,);
 
@@ -54,6 +56,7 @@ int main(int argc, char **argv)
                        OMPL::Settings(), // settings
                        "ompl_interface/OMPLPlanningContextManager" // plugin
                          );
+
     std::vector<double> start = START_POSE;
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request, start);
@@ -72,7 +75,7 @@ int main(int argc, char **argv)
 
         time_spent += (ros::Time::now().nsec - begin);
 
-        time_spent += (ros::Time::now().nsec-begin);
+        time_spent += (ros::Time::now().nsec - begin);
         ros::spinOnce();
         rate.sleep();
     }
