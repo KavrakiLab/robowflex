@@ -119,31 +119,20 @@ bool Scene::detachObject(const std::string &name)
     world->addToObject(name, body->getShapes(), body->getFixedTransforms());
 }
 
-void Scene::toYAMLFile(const std::string &file)
+bool Scene::toYAMLFile(const std::string &file)
 {
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
 
-    YAML::Node yaml;
-    yaml = msg;
-
-    YAML::Emitter out;
-    out << yaml;
-
-    std::ofstream fout(file);
-    fout << out.c_str();
-    fout.close();
+    return IO::messageToYAMLFile(msg, file);
 }
 
 bool Scene::fromYAMLFile(const std::string &file)
 {
-    const auto &result = IO::loadFileToYAML(file);
-
-    if (!result.first)
-        return false;
 
     moveit_msgs::PlanningScene msg;
-    msg = result.second.as<moveit_msgs::PlanningScene>();
+    if (!IO::YAMLFileToMessage(msg, file))
+        return false;
 
     scene_->setPlanningSceneMsg(msg);
     return true;

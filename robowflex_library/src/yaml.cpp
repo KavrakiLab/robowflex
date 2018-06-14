@@ -1233,8 +1233,16 @@ namespace YAML
     {
         rhs.joint_name = node["joint_name"].as<std::string>();
         rhs.position = node["position"].as<double>();
-        rhs.tolerance_above = node["tolerance_above"].as<double>();
-        rhs.tolerance_below = node["tolerance_below"].as<double>();
+
+        if (node["tolerance_above"])
+            rhs.tolerance_above = node["tolerance_above"].as<double>();
+        else
+            rhs.tolerance_above = std::numeric_limits<double>::epsilon();
+
+        if (node["tolerance_below"])
+            rhs.tolerance_below = node["tolerance_below"].as<double>();
+        else
+            rhs.tolerance_below = std::numeric_limits<double>::epsilon();
 
         if (node["weight"])
             rhs.weight = node["weight"].as<double>();

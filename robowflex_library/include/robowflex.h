@@ -63,6 +63,34 @@ namespace robowflex
         // Loads an YAML file to a YAML node. If path does not exist or bad format, false in first.
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
+        template <typename T>
+        bool messageToYAMLFile(T &msg, const std::string &file)
+        {
+            YAML::Node yaml;
+            yaml = msg;
+
+            YAML::Emitter out;
+            out << yaml;
+
+            std::ofstream fout(file);
+            fout << out.c_str();
+            fout.close();
+
+            return true;
+        }
+
+        template <typename T>
+        bool YAMLFileToMessage(T &msg, const std::string &file)
+        {
+            const auto &result = IO::loadFileToYAML(file);
+
+            if (!result.first)
+                return false;
+
+            msg = result.second.as<T>();
+            return true;
+        }
+
         class Handler
         {
         public:
@@ -269,7 +297,7 @@ namespace robowflex
                           const std::vector<std::string> &touch_links);
         bool detachObject(const std::string &name);
 
-        void toYAMLFile(const std::string &file);
+        bool toYAMLFile(const std::string &file);
         bool fromYAMLFile(const std::string &file);
 
     private:
@@ -407,7 +435,7 @@ namespace robowflex
                            const Eigen::Vector3d &tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
 
-        void toYAMLFile(const std::string &file);
+        bool toYAMLFile(const std::string &file);
         bool fromYAMLFile(const std::string &file);
 
     private:
