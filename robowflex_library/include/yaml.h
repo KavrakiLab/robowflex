@@ -3,6 +3,16 @@
 
 namespace YAML
 {
+#if ROBOWFLEX_AT_LEAST_LUNAR
+#else
+    template <>
+    struct convert<signed char>
+    {
+        static Node encode(const signed char &rhs);
+        static bool decode(const Node &node, signed char &rhs);
+    };
+#endif
+
     template <>
     struct convert<moveit_msgs::PlanningScene>
     {
@@ -233,7 +243,6 @@ namespace YAML
         static Node encode(const shape_msgs::Plane &rhs);
         static bool decode(const Node &node, shape_msgs::Plane &rhs);
     };
-
 
     template <>
     struct convert<moveit_msgs::WorkspaceParameters>

@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include <algorithm>
 #include <string>
 
@@ -9,6 +11,13 @@ using namespace robowflex;
 
 namespace
 {
+    void nodeFlow(const YAML::Node &n)
+    {
+#if ROBOWFLEX_AT_LEAST_LUNAR
+        n.SetStyle(YAML::EmitterStyle::Flow);
+#endif
+    }
+
     const std::string boolToString(bool b)
     {
         return b ? "true" : "false";
@@ -99,6 +108,51 @@ namespace
 
 namespace YAML
 {
+#if ROBOWFLEX_AT_LEAST_LUNAR
+#else
+    // Copied from YAML_DEFINE_CONVERT_STREAMABLE
+    Node convert<signed char>::encode(const signed char &rhs)
+    {
+        std::stringstream stream;
+        stream.precision(std::numeric_limits<signed char>::digits10 + 1);
+        stream << rhs;
+        return Node(stream.str());
+    }
+
+    bool convert<signed char>::decode(const Node &node, signed char &rhs)
+    {
+        if (node.Type() != NodeType::Scalar)
+            return false;
+
+        const std::string &input = node.Scalar();
+        std::stringstream stream(input);
+        stream.unsetf(std::ios::dec);
+        if ((stream >> rhs) && (stream >> std::ws).eof())
+            return true;
+        if (std::numeric_limits<signed char>::has_infinity)
+        {
+            if (conversion::IsInfinity(input))
+            {
+                rhs = std::numeric_limits<signed char>::infinity();
+                return true;
+            }
+            else if (conversion::IsNegativeInfinity(input))
+            {
+                rhs = -std::numeric_limits<signed char>::infinity();
+                return true;
+            }
+        }
+
+        if (std::numeric_limits<signed char>::has_quiet_NaN && conversion::IsNaN(input))
+        {
+            rhs = std::numeric_limits<signed char>::quiet_NaN();
+            return true;
+        }
+
+        return false;
+    }
+#endif
+
     Node convert<moveit_msgs::PlanningScene>::encode(const moveit_msgs::PlanningScene &rhs)
     {
         Node node;
@@ -340,7 +394,7 @@ namespace YAML
     Node convert<geometry_msgs::Point>::encode(const geometry_msgs::Point &rhs)
     {
         Node node;
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -361,7 +415,7 @@ namespace YAML
     Node convert<geometry_msgs::Vector3>::encode(const geometry_msgs::Vector3 &rhs)
     {
         Node node;
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -382,7 +436,7 @@ namespace YAML
     Node convert<geometry_msgs::Quaternion>::encode(const geometry_msgs::Quaternion &rhs)
     {
         Node node;
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -448,25 +502,25 @@ namespace YAML
         if (!rhs.name.empty())
         {
             node["name"] = rhs.name;
-            node["name"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["name"]);
         }
 
         if (!rhs.position.empty())
         {
             node["position"] = rhs.position;
-            node["position"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["position"]);
         }
 
         if (!rhs.velocity.empty())
         {
             node["velocity"] = rhs.velocity;
-            node["velocity"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["velocity"]);
         }
 
         if (!rhs.effort.empty())
         {
             node["effort"] = rhs.effort;
-            node["effort"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["effort"]);
         }
 
         return node;
@@ -504,16 +558,16 @@ namespace YAML
             node["header"] = rhs.header;
 
         node["joint_names"] = rhs.joint_names;
-        node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["joint_names"]);
 
         node["transforms"] = rhs.transforms;
-        node["transforms"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["transforms"]);
 
         node["twist"] = rhs.twist;
-        node["twist"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["twist"]);
 
         node["wrench"] = rhs.wrench;
-        node["wrench"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["wrench"]);
         return node;
     }
 
@@ -588,7 +642,7 @@ namespace YAML
             node["header"] = rhs.header;
 
         node["joint_names"] = rhs.joint_names;
-        node["joint_names"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["joint_names"]);
         node["points"] = rhs.points;
         return node;
     }
@@ -618,25 +672,25 @@ namespace YAML
         if (!rhs.positions.empty())
         {
             node["positions"] = rhs.positions;
-            node["positions"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["positions"]);
         }
 
         if (!rhs.velocities.empty())
         {
             node["velocities"] = rhs.velocities;
-            node["velocities"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["velocities"]);
         }
 
         if (!rhs.accelerations.empty())
         {
             node["accelerations"] = rhs.accelerations;
-            node["accelerations"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["accelerations"]);
         }
 
         if (!rhs.effort.empty())
         {
             node["effort"] = rhs.effort;
-            node["effort"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["effort"]);
         }
 
         node["time_from_start"] = rhs.time_from_start;
@@ -842,7 +896,7 @@ namespace YAML
     Node convert<std_msgs::ColorRGBA>::encode(const std_msgs::ColorRGBA &rhs)
     {
         Node node;
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
 
         node.push_back(rhs.r);
         node.push_back(rhs.g);
@@ -866,21 +920,21 @@ namespace YAML
     {
         Node node;
         node["entry_names"] = rhs.entry_names;
-        node["entry_names"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["entry_names"]);
 
         node["entry_values"] = rhs.entry_values;
 
         if (!rhs.default_entry_values.empty())
         {
             node["default_entry_names"] = rhs.entry_names;
-            node["default_entry_names"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["default_entry_names"]);
 
             std::vector<std::string> default_entry_values;
             for (auto &b : rhs.default_entry_values)
                 default_entry_values.emplace_back(boolToString(b));
 
             node["default_entry_values"] = default_entry_values;
-            node["default_entry_values"].SetStyle(YAML::EmitterStyle::Flow);
+            nodeFlow(node["default_entry_values"]);
         }
 
         return node;
@@ -918,7 +972,7 @@ namespace YAML
             enabled.emplace_back(boolToString(b));
 
         node = enabled;
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
         return node;
     }
 
@@ -991,7 +1045,7 @@ namespace YAML
             rhs.resolution = node["resolution"].as<double>();
 
         if (node["data"])
-            rhs.data = node["data"].as<std::vector<signed char>>();
+            rhs.data = node["data"].as<std::vector<int8_t>>();
 
         return true;
     }
@@ -1044,7 +1098,7 @@ namespace YAML
         Node node;
         node["type"] = primitiveTypeToString(rhs);
         node["dimensions"] = rhs.dimensions;
-        node["dimensions"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["dimensions"]);
         return node;
     }
 
@@ -1108,7 +1162,7 @@ namespace YAML
         node.push_back(rhs.vertex_indices[0]);
         node.push_back(rhs.vertex_indices[1]);
         node.push_back(rhs.vertex_indices[2]);
-        node.SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node);
         return node;
     }
 
@@ -1127,7 +1181,7 @@ namespace YAML
         node["coef"].push_back(rhs.coef[1]);
         node["coef"].push_back(rhs.coef[2]);
         node["coef"].push_back(rhs.coef[3]);
-        node["coef"].SetStyle(YAML::EmitterStyle::Flow);
+        nodeFlow(node["coef"]);
         return node;
     }
 
