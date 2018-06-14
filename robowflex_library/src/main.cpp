@@ -33,22 +33,25 @@ int main(int argc, char **argv)
     // planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
     // );
 
-    Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    pose.translate(Eigen::Vector3d{1, 1, 1});
+    // Geometry box(Geometry::ShapeType::BOX, {0.1, 0.1, 0.1});
+    // Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    // pose.translate(Eigen::Vector3d{1, 1, 1});
 
-    scene.updateCollisionObject("box", box, pose);
+    // scene.updateCollisionObject("box", box, pose);
 
-    scene.toYAMLFile("/home/zak/test.yml");
-    scene.fromYAMLFile("/home/zak/test.yml");
+    // Geometry mesh(Geometry::ShapeType::MESH, {1, 1, 1}, "package://ur_description/meshes/sensors/kinect.dae");
+    // pose.translate(Eigen::Vector3d{-2, 0, 0});
 
-    return 0;
+    // scene.updateCollisionObject("mesh", mesh, pose);
+
+    // scene.toYAMLFile("/home/zak/test.yml");
+    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
     request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
 
-    // RVIZHelper rviz(ur5, scene);
+    RVIZHelper rviz(ur5, scene);
 
     ros::Rate rate(0.5);
     while (ros::ok())
@@ -57,7 +60,7 @@ int main(int argc, char **argv)
         if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             break;
 
-        // rviz.update(res);
+        rviz.update(res);
 
         ros::spinOnce();
         rate.sleep();

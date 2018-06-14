@@ -214,6 +214,13 @@ namespace YAML
     };
 
     template <>
+    struct convert<shape_msgs::MeshTriangle>
+    {
+        static Node encode(const shape_msgs::MeshTriangle &rhs);
+        static bool decode(const Node &node, shape_msgs::MeshTriangle &rhs);
+    };
+
+    template <>
     struct convert<shape_msgs::Plane>
     {
         static Node encode(const shape_msgs::Plane &rhs);

@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <string>
 
+#include <geometric_shapes/shape_operations.h>
+
 #include "robowflex.h"
 
 using namespace robowflex;
@@ -44,6 +46,41 @@ namespace
             return moveit_msgs::CollisionObject::APPEND;
         else
             return moveit_msgs::CollisionObject::ADD;
+    }
+
+    const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
+    {
+        // geometric_shapes::SolidPrimitiveDimCount<shape_msgs::SolidPrimitive::BOX>::value;
+        switch (shape.type)
+        {
+            case shape_msgs::SolidPrimitive::BOX:
+                return "box";
+                break;
+            case shape_msgs::SolidPrimitive::SPHERE:
+                return "sphere";
+                break;
+            case shape_msgs::SolidPrimitive::CYLINDER:
+                return "cylinder";
+                break;
+            case shape_msgs::SolidPrimitive::CONE:
+                return "cone";
+                break;
+        }
+    }
+
+    void nodeToPrimitiveType(const YAML::Node &n, shape_msgs::SolidPrimitive &shape)
+    {
+        std::string s = n.as<std::string>();
+        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+        if (s == "sphere")
+            shape.type = shape_msgs::SolidPrimitive::SPHERE;
+        else if (s == "cylinder")
+            shape.type = shape_msgs::SolidPrimitive::CYLINDER;
+        else if (s == "cone")
+            shape.type = shape_msgs::SolidPrimitive::CONE;
+        else
+            shape.type = shape_msgs::SolidPrimitive::BOX;
     }
 }  // namespace
 
@@ -623,9 +660,6 @@ namespace YAML
         std::string s;
         switch (rhs.operation)
         {
-            case moveit_msgs::CollisionObject::ADD:
-                s = "add";
-                break;
             case moveit_msgs::CollisionObject::REMOVE:
                 s = "remove";
                 break;
@@ -635,6 +669,8 @@ namespace YAML
             case moveit_msgs::CollisionObject::MOVE:
                 s = "move";
                 break;
+            default:
+                return node;
         }
 
         node["operation"] = s;
@@ -647,6 +683,8 @@ namespace YAML
 
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["id"])
             rhs.id = node["id"].as<std::string>();
@@ -902,6 +940,8 @@ namespace YAML
 
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["binary"])
             rhs.binary = nodeToBool(node["binary"]);
@@ -964,33 +1004,99 @@ namespace YAML
     Node convert<shape_msgs::SolidPrimitive>::encode(const shape_msgs::SolidPrimitive &rhs)
     {
         Node node;
+        node["type"] = primitiveTypeToString(rhs);
+        node["dimensions"] = rhs.dimensions;
+        node["dimensions"].SetStyle(YAML::EmitterStyle::Flow);
         return node;
     }
 
     bool convert<shape_msgs::SolidPrimitive>::decode(const Node &node, shape_msgs::SolidPrimitive &rhs)
     {
+        if (node["type"])
+            nodeToPrimitiveType(node["type"], rhs);
+
+        if (node["dimensions"])
+            rhs.dimensions = node["dimensions"].as<std::vector<double>>();
+
         return true;
     }
 
     Node convert<shape_msgs::Mesh>::encode(const shape_msgs::Mesh &rhs)
     {
         Node node;
+        for (auto &triangle : rhs.triangles)
+            node["triangles"].push_back(triangle);
+
+        for (auto &vertex : rhs.vertices)
+            node["vertices"].push_back(vertex);
+
         return node;
     }
 
     bool convert<shape_msgs::Mesh>::decode(const Node &node, shape_msgs::Mesh &rhs)
     {
+        if (node["resource"])
+        {
+            std::string resource = node["resource"].as<std::string>();
+            Eigen::Vector3d dimensions{1, 1, 1};
+
+            if (node["dimensions"])
+            {
+                Eigen::Vector3d load(node["dimensions"].as<std::vector<double>>().data());
+                dimensions = load;
+            }
+
+            shapes::Mesh *mesh = shapes::createMeshFromResource(resource, dimensions);
+
+            shapes::ShapeMsg msg;
+            shapes::constructMsgFromShape(mesh, msg);
+            rhs = boost::get<shape_msgs::Mesh>(msg);
+        }
+        else
+        {
+            if (node["triangles"])
+                rhs.triangles = node["triangles"].as<std::vector<shape_msgs::MeshTriangle>>();
+            if (node["vertices"])
+                rhs.vertices = node["vertices"].as<std::vector<geometry_msgs::Point>>();
+        }
+        return true;
+    }
+
+    Node convert<shape_msgs::MeshTriangle>::encode(const shape_msgs::MeshTriangle &rhs)
+    {
+        Node node;
+        node.push_back(rhs.vertex_indices[0]);
+        node.push_back(rhs.vertex_indices[1]);
+        node.push_back(rhs.vertex_indices[2]);
+        node.SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+
+    bool convert<shape_msgs::MeshTriangle>::decode(const Node &node, shape_msgs::MeshTriangle &rhs)
+    {
+        rhs.vertex_indices[0] = node[0].as<double>();
+        rhs.vertex_indices[1] = node[1].as<double>();
+        rhs.vertex_indices[2] = node[2].as<double>();
         return true;
     }
 
     Node convert<shape_msgs::Plane>::encode(const shape_msgs::Plane &rhs)
     {
         Node node;
+        node["coef"].push_back(rhs.coef[0]);
+        node["coef"].push_back(rhs.coef[1]);
+        node["coef"].push_back(rhs.coef[2]);
+        node["coef"].push_back(rhs.coef[3]);
+        node["coef"].SetStyle(YAML::EmitterStyle::Flow);
         return node;
     }
 
     bool convert<shape_msgs::Plane>::decode(const Node &node, shape_msgs::Plane &rhs)
     {
+        rhs.coef[0] = node["coef"][0].as<double>();
+        rhs.coef[1] = node["coef"][1].as<double>();
+        rhs.coef[2] = node["coef"][2].as<double>();
+        rhs.coef[3] = node["coef"][3].as<double>();
         return true;
     }
 }  // namespace YAML
