@@ -9,40 +9,39 @@
 
 using namespace robowflex;
 
+#if ROBOWFLEX_AT_LEAST_LUNAR
+#define ROBOWFLEX_YAML_FLOW(n) n.SetStyle(YAML::EmitterStyle::Flow);
+#else
+#define ROBOWFLEX_YAML_FLOW(n)
+#endif
+
 namespace
 {
-    void nodeFlow(const YAML::Node &n)
-    {
-#if ROBOWFLEX_AT_LEAST_LUNAR
-        n.SetStyle(YAML::EmitterStyle::Flow);
-#endif
-    }
-
-    const std::string boolToString(bool b)
+    static const std::string boolToString(bool b)
     {
         return b ? "true" : "false";
     }
 
-    bool nodeToBool(const YAML::Node &n)
+    static bool nodeToBool(const YAML::Node &n)
     {
         std::string s = n.as<std::string>();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         return (s == "true") ? true : false;
     }
 
-    bool isHeaderEmpty(const std_msgs::Header &h)
+    static bool isHeaderEmpty(const std_msgs::Header &h)
     {
         return h.seq == 0 && h.stamp.isZero() && h.frame_id == "world";
     }
 
-    std_msgs::Header getDefaultHeader()
+    static std_msgs::Header getDefaultHeader()
     {
         std_msgs::Header msg;
         msg.frame_id = "world";
         return msg;
     }
 
-    unsigned int nodeToCollisionObject(const YAML::Node &n)
+    static unsigned int nodeToCollisionObject(const YAML::Node &n)
     {
         std::string s = n.as<std::string>();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -57,7 +56,7 @@ namespace
             return moveit_msgs::CollisionObject::ADD;
     }
 
-    const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
+    static const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
     {
         // geometric_shapes::SolidPrimitiveDimCount<shape_msgs::SolidPrimitive::BOX>::value;
         switch (shape.type)
@@ -77,7 +76,7 @@ namespace
         }
     }
 
-    void nodeToPrimitiveType(const YAML::Node &n, shape_msgs::SolidPrimitive &shape)
+    static void nodeToPrimitiveType(const YAML::Node &n, shape_msgs::SolidPrimitive &shape)
     {
         std::string s = n.as<std::string>();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -92,12 +91,12 @@ namespace
             shape.type = shape_msgs::SolidPrimitive::BOX;
     }
 
-    bool isVector3Zero(const geometry_msgs::Vector3 &v)
+    static bool isVector3Zero(const geometry_msgs::Vector3 &v)
     {
         return v.x == 0 && v.y == 0 && v.z == 0;
     }
 
-    bool isConstraintEmpty(const moveit_msgs::Constraints &c)
+    static bool isConstraintEmpty(const moveit_msgs::Constraints &c)
     {
         return c.joint_constraints.empty()           //
                && c.position_constraints.empty()     //
@@ -394,7 +393,7 @@ namespace YAML
     Node convert<geometry_msgs::Point>::encode(const geometry_msgs::Point &rhs)
     {
         Node node;
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -415,7 +414,7 @@ namespace YAML
     Node convert<geometry_msgs::Vector3>::encode(const geometry_msgs::Vector3 &rhs)
     {
         Node node;
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -436,7 +435,7 @@ namespace YAML
     Node convert<geometry_msgs::Quaternion>::encode(const geometry_msgs::Quaternion &rhs)
     {
         Node node;
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
 
         node.push_back(rhs.x);
         node.push_back(rhs.y);
@@ -502,25 +501,25 @@ namespace YAML
         if (!rhs.name.empty())
         {
             node["name"] = rhs.name;
-            nodeFlow(node["name"]);
+            ROBOWFLEX_YAML_FLOW(node["name"]);
         }
 
         if (!rhs.position.empty())
         {
             node["position"] = rhs.position;
-            nodeFlow(node["position"]);
+            ROBOWFLEX_YAML_FLOW(node["position"]);
         }
 
         if (!rhs.velocity.empty())
         {
             node["velocity"] = rhs.velocity;
-            nodeFlow(node["velocity"]);
+            ROBOWFLEX_YAML_FLOW(node["velocity"]);
         }
 
         if (!rhs.effort.empty())
         {
             node["effort"] = rhs.effort;
-            nodeFlow(node["effort"]);
+            ROBOWFLEX_YAML_FLOW(node["effort"]);
         }
 
         return node;
@@ -558,16 +557,16 @@ namespace YAML
             node["header"] = rhs.header;
 
         node["joint_names"] = rhs.joint_names;
-        nodeFlow(node["joint_names"]);
+        ROBOWFLEX_YAML_FLOW(node["joint_names"]);
 
         node["transforms"] = rhs.transforms;
-        nodeFlow(node["transforms"]);
+        ROBOWFLEX_YAML_FLOW(node["transforms"]);
 
         node["twist"] = rhs.twist;
-        nodeFlow(node["twist"]);
+        ROBOWFLEX_YAML_FLOW(node["twist"]);
 
         node["wrench"] = rhs.wrench;
-        nodeFlow(node["wrench"]);
+        ROBOWFLEX_YAML_FLOW(node["wrench"]);
         return node;
     }
 
@@ -642,7 +641,7 @@ namespace YAML
             node["header"] = rhs.header;
 
         node["joint_names"] = rhs.joint_names;
-        nodeFlow(node["joint_names"]);
+        ROBOWFLEX_YAML_FLOW(node["joint_names"]);
         node["points"] = rhs.points;
         return node;
     }
@@ -672,25 +671,25 @@ namespace YAML
         if (!rhs.positions.empty())
         {
             node["positions"] = rhs.positions;
-            nodeFlow(node["positions"]);
+            ROBOWFLEX_YAML_FLOW(node["positions"]);
         }
 
         if (!rhs.velocities.empty())
         {
             node["velocities"] = rhs.velocities;
-            nodeFlow(node["velocities"]);
+            ROBOWFLEX_YAML_FLOW(node["velocities"]);
         }
 
         if (!rhs.accelerations.empty())
         {
             node["accelerations"] = rhs.accelerations;
-            nodeFlow(node["accelerations"]);
+            ROBOWFLEX_YAML_FLOW(node["accelerations"]);
         }
 
         if (!rhs.effort.empty())
         {
             node["effort"] = rhs.effort;
-            nodeFlow(node["effort"]);
+            ROBOWFLEX_YAML_FLOW(node["effort"]);
         }
 
         node["time_from_start"] = rhs.time_from_start;
@@ -896,7 +895,7 @@ namespace YAML
     Node convert<std_msgs::ColorRGBA>::encode(const std_msgs::ColorRGBA &rhs)
     {
         Node node;
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
 
         node.push_back(rhs.r);
         node.push_back(rhs.g);
@@ -920,21 +919,21 @@ namespace YAML
     {
         Node node;
         node["entry_names"] = rhs.entry_names;
-        nodeFlow(node["entry_names"]);
+        ROBOWFLEX_YAML_FLOW(node["entry_names"]);
 
         node["entry_values"] = rhs.entry_values;
 
         if (!rhs.default_entry_values.empty())
         {
             node["default_entry_names"] = rhs.entry_names;
-            nodeFlow(node["default_entry_names"]);
+            ROBOWFLEX_YAML_FLOW(node["default_entry_names"]);
 
             std::vector<std::string> default_entry_values;
             for (auto &b : rhs.default_entry_values)
                 default_entry_values.emplace_back(boolToString(b));
 
             node["default_entry_values"] = default_entry_values;
-            nodeFlow(node["default_entry_values"]);
+            ROBOWFLEX_YAML_FLOW(node["default_entry_values"]);
         }
 
         return node;
@@ -972,7 +971,7 @@ namespace YAML
             enabled.emplace_back(boolToString(b));
 
         node = enabled;
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
         return node;
     }
 
@@ -1098,7 +1097,7 @@ namespace YAML
         Node node;
         node["type"] = primitiveTypeToString(rhs);
         node["dimensions"] = rhs.dimensions;
-        nodeFlow(node["dimensions"]);
+        ROBOWFLEX_YAML_FLOW(node["dimensions"]);
         return node;
     }
 
@@ -1162,7 +1161,7 @@ namespace YAML
         node.push_back(rhs.vertex_indices[0]);
         node.push_back(rhs.vertex_indices[1]);
         node.push_back(rhs.vertex_indices[2]);
-        nodeFlow(node);
+        ROBOWFLEX_YAML_FLOW(node);
         return node;
     }
 
@@ -1181,7 +1180,7 @@ namespace YAML
         node["coef"].push_back(rhs.coef[1]);
         node["coef"].push_back(rhs.coef[2]);
         node["coef"].push_back(rhs.coef[3]);
-        nodeFlow(node["coef"]);
+        ROBOWFLEX_YAML_FLOW(node["coef"]);
         return node;
     }
 
