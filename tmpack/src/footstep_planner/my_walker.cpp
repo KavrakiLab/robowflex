@@ -6,6 +6,8 @@
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"
 
+#define GOAL_POSE {1.07485, -0.019672, 0.000100924, 1.27794e-05, -3.73287e-06, 0.985502, 0.169662, -0.278892, -0.566762, -0.11038, 1.4638, -0.512414, 1.8041, 1.45799, 0, 0, 0, -1.47759, -0.40627, 0.166451, 1.38375, 0.293776, 0.0480252, 1.57101, 8.88178e-16, 0, 0, -0.340968, 0.872665, -1.39626, -1.8326, -2.44346, 1.39626, 0, 0, 0, 0, 0, 0, 0, 1.77636e-15, 0, 1.77636e-15, -8.88178e-16, 0, -8.88178e-16, 8.88178e-16, 0, 8.88178e-16, 8.88178e-16, 8.88178e-16, 0, 8.88178e-16, -0.872665, -1.39626, 1.8326, -2.44346, -1.39626, 8.88178e-16, 0, 0, 0, 0, 0, 0, 0, 0, 8.88178e-16, 0, 0, 0, 0, 0, 0, -8.88178e-16, -2.66454e-15, -2.66454e-15, 1.77636e-15, -0.0872665, 1.77636e-15, 0}
+
 namespace robowflex
 {
     // Things this should implement:
@@ -26,9 +28,7 @@ namespace robowflex
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
-            std::vector<double> goal = {-0.39, -0.69, -2.12, 2.82, -0.39, 0};
-            my_plan.push_back(goal);
-            goal = {0.39, -0.69, -2.12, 2.82, -0.39, 0};
+            std::vector<double> goal = GOAL_POSE;
             my_plan.push_back(goal);
 
             std::vector<footstep_planning::point_2D> foot_placements =
