@@ -51,7 +51,9 @@ int main(int argc, char **argv)
     request.addPathPositionConstraint(
         "r2/right_leg/gripper/tip", "/world", Eigen::Affine3d(Eigen::Translation3d(1.983001, 0.321150, -1.361)),
         Geometry(Geometry::ShapeType::Type::SPHERE, Eigen::Vector3d(0.01, 0.01, 0.01), "right_foot_base_position"));
-
+                       OMPL::Settings(), // settings
+                       "ompl_interface/OMPLPlanningContextManager" // plugin
+                         );
     std::vector<double> start = START_POSE;
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request, start);
@@ -67,13 +69,13 @@ int main(int argc, char **argv)
         auto res = walker.plan();
         if (res[0].error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             success_count++;
-        // rviz.update(res);
 
         time_spent += (ros::Time::now().nsec - begin);
+
+        time_spent += (ros::Time::now().nsec-begin);
         ros::spinOnce();
         rate.sleep();
     }
-
     std::cout << "Time spent: " << time_spent << std::endl;
 
     return 0;
