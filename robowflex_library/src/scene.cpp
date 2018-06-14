@@ -118,3 +118,22 @@ bool Scene::detachObject(const std::string &name)
 
     world->addToObject(name, body->getShapes(), body->getFixedTransforms());
 }
+
+bool Scene::toYAMLFile(const std::string &file)
+{
+    moveit_msgs::PlanningScene msg;
+    scene_->getPlanningSceneMsg(msg);
+
+    return IO::messageToYAMLFile(msg, file);
+}
+
+bool Scene::fromYAMLFile(const std::string &file)
+{
+
+    moveit_msgs::PlanningScene msg;
+    if (!IO::YAMLFileToMessage(msg, file))
+        return false;
+
+    scene_->setPlanningSceneMsg(msg);
+    return true;
+}

@@ -70,37 +70,6 @@ namespace
         const std::string extension = boost::filesystem::extension(path);
         return isSuffix("xacro", extension);
     }
-
-    enum DISTRO
-    {
-        ERROR = -1,
-        INDIGO = 0,
-        KINETIC = 1,
-        LUNAR = 2,
-        MELODIC = 3
-    };
-
-    DISTRO getROSDistro()
-    {
-        const char *ros = getenv("ROS_DISTRO");
-        if (ros == NULL)
-        {
-            ROS_WARN("ROS_DISTRO environment variable is not set! Cannot resolve distro.");
-            return ERROR;
-        }
-
-        const std::string ros_s(ros);
-        if (ros_s == "indigo")
-            return INDIGO;
-        if (ros_s == "kinetic")
-            return KINETIC;
-        if (ros_s == "lunar")
-            return LUNAR;
-        if (ros_s == "melodic")
-            return MELODIC;
-
-        return ERROR;
-    }
 }  // namespace
 
 const std::string IO::resolvePath(const std::string &path)
@@ -187,8 +156,9 @@ const std::string IO::loadXacroToString(const std::string &path)
 
     std::string cmd = "rosrun xacro xacro ";
 
-    if (getROSDistro() != MELODIC)
-        cmd += "--inorder ";
+#if ROBOWFLEX_AT_LEAST_MELODIC
+    cmd += "--inorder ";
+#endif
 
     cmd += full_path;
     return runCommand(cmd);

@@ -27,9 +27,8 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 
     // Default planner (find an RRTConnect config, for Indigo)
     auto &configs = planner.getPlannerConfigs();
-    const auto &found = std::find_if(std::begin(configs), std::end(configs), [](const std::string &s) {
-        return s.find(DEFAULT_CONFIG) != std::string::npos;
-    });
+    const auto &found = std::find_if(std::begin(configs), std::end(configs),
+                                     [](const std::string &s) { return s.find(DEFAULT_CONFIG) != std::string::npos; });
 
     if (found != std::end(configs))
         request_.planner_id = *found;
@@ -73,26 +72,42 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 }
 
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geometry,
-                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances) {
-  addPathPositionConstraint(ee_name, base_name, pose, geometry);
-  addPathOrientationConstraint(ee_name, base_name, orientation, tolerances);
+                                                 const Eigen::Affine3d &pose, const Geometry &geometry,
+                                                 const Eigen::Quaterniond &orientation,
+                                                 const Eigen::Vector3d &tolerances)
+{
+    addPathPositionConstraint(ee_name, base_name, pose, geometry);
+    addPathOrientationConstraint(ee_name, base_name, orientation, tolerances);
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geometry) {
-    request_.path_constraints.position_constraints.push_back(TF::getPositionConstraint(ee_name, base_name, pose, geometry));
+                                                     const Eigen::Affine3d &pose, const Geometry &geometry)
+{
+    request_.path_constraints.position_constraints.push_back(
+        TF::getPositionConstraint(ee_name, base_name, pose, geometry));
 }
 
 void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances) {
-    request_.path_constraints.orientation_constraints.push_back(TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
+                                                        const Eigen::Quaterniond &orientation,
+                                                        const Eigen::Vector3d &tolerances)
+{
+    request_.path_constraints.orientation_constraints.push_back(
+        TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 }
-
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 {
     return request_;
+}
+
+bool MotionRequestBuilder::toYAMLFile(const std::string &file)
+{
+    return IO::messageToYAMLFile(request_, file);
+}
+
+bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
+{
+    return IO::YAMLFileToMessage(request_, file);
 }
 
 planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
