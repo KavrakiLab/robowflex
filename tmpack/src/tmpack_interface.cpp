@@ -44,10 +44,6 @@ namespace robowflex
 
         virtual std::vector<std::vector<double>> getTaskPlan() = 0;
 
-
-        void * constraint_applicator();
-
-
         std::vector<planning_interface::MotionPlanResponse> plan_linearly(std::vector<double> start,
                                                                           std::vector<std::vector<double>> goals)
         {
@@ -67,7 +63,7 @@ namespace robowflex
 
     public:
         TMPackInterface(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
-                        Scene &scene, MotionRequestBuilder &request, std::vector<double> &start, constraint_applicator *() = viod *)
+                        Scene &scene, MotionRequestBuilder &request, std::vector<double> &start)
           : robot(robot)
           , group_name(group_name)
           , planner(planner)
