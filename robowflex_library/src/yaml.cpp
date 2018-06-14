@@ -24,6 +24,13 @@ namespace
         return h.seq == 0 && h.stamp.isZero() && h.frame_id == "world";
     }
 
+    std_msgs::Header getDefaultHeader()
+    {
+        std_msgs::Header msg;
+        msg.frame_id = "world";
+        return msg;
+    }
+
     unsigned int nodeToCollisionObject(const YAML::Node &n)
     {
         std::string s = n.as<std::string>();
@@ -163,6 +170,8 @@ namespace YAML
 
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["child_frame_id"])
             rhs.child_frame_id = node["child_frame_id"].as<std::string>();
@@ -391,7 +400,11 @@ namespace YAML
     bool convert<sensor_msgs::JointState>::decode(const Node &node, sensor_msgs::JointState &rhs)
     {
         rhs = sensor_msgs::JointState();
-        rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["name"])
             rhs.name = node["name"].as<std::vector<std::string>>();
@@ -432,7 +445,11 @@ namespace YAML
     bool convert<sensor_msgs::MultiDOFJointState>::decode(const Node &node, sensor_msgs::MultiDOFJointState &rhs)
     {
         rhs = sensor_msgs::MultiDOFJointState();
-        rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["joint_names"])
             rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
@@ -507,6 +524,8 @@ namespace YAML
 
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["joint_names"])
             rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
@@ -917,6 +936,8 @@ namespace YAML
 
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
 
         if (node["origin"])
             rhs.origin = node["origin"].as<geometry_msgs::Pose>();
