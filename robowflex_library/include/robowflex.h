@@ -407,6 +407,9 @@ namespace robowflex
                            const Eigen::Vector3d &tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
 
+        void toYAMLFile(const std::string &file);
+        bool fromYAMLFile(const std::string &file);
+
     private:
         const Planner &planner_;
         const Robot &robot_;

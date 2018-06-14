@@ -82,6 +82,19 @@ namespace
         else
             shape.type = shape_msgs::SolidPrimitive::BOX;
     }
+
+    bool isVector3Zero(const geometry_msgs::Vector3 &v)
+    {
+        return v.x == 0 && v.y == 0 && v.z == 0;
+    }
+
+    bool isConstraintEmpty(const moveit_msgs::Constraints &c)
+    {
+        return c.joint_constraints.empty()           //
+               && c.position_constraints.empty()     //
+               && c.orientation_constraints.empty()  //
+               && c.visibility_constraints.empty();
+    }
 }  // namespace
 
 namespace YAML
@@ -274,6 +287,31 @@ namespace YAML
 
         if (node["orientation"])
             rhs.orientation = node["orientation"].as<geometry_msgs::Quaternion>();
+
+        return true;
+    }
+
+    Node convert<geometry_msgs::PoseStamped>::encode(const geometry_msgs::PoseStamped &rhs)
+    {
+        Node node;
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["pose"] = rhs.pose;
+
+        return node;
+    }
+
+    bool convert<geometry_msgs::PoseStamped>::decode(const Node &node, geometry_msgs::PoseStamped &rhs)
+    {
+        rhs = geometry_msgs::PoseStamped();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
+
+        rhs.pose = node["pose"].as<geometry_msgs::Pose>();
 
         return true;
     }
@@ -1012,6 +1050,7 @@ namespace YAML
 
     bool convert<shape_msgs::SolidPrimitive>::decode(const Node &node, shape_msgs::SolidPrimitive &rhs)
     {
+        rhs = shape_msgs::SolidPrimitive();
         if (node["type"])
             nodeToPrimitiveType(node["type"], rhs);
 
@@ -1035,6 +1074,7 @@ namespace YAML
 
     bool convert<shape_msgs::Mesh>::decode(const Node &node, shape_msgs::Mesh &rhs)
     {
+        rhs = shape_msgs::Mesh();
         if (node["resource"])
         {
             std::string resource = node["resource"].as<std::string>();
@@ -1097,6 +1137,349 @@ namespace YAML
         rhs.coef[1] = node["coef"][1].as<double>();
         rhs.coef[2] = node["coef"][2].as<double>();
         rhs.coef[3] = node["coef"][3].as<double>();
+        return true;
+    }
+
+    Node convert<moveit_msgs::WorkspaceParameters>::encode(const moveit_msgs::WorkspaceParameters &rhs)
+    {
+        Node node;
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["min_corner"] = rhs.min_corner;
+        node["max_corner"] = rhs.max_corner;
+        return node;
+    }
+
+    bool convert<moveit_msgs::WorkspaceParameters>::decode(const Node &node, moveit_msgs::WorkspaceParameters &rhs)
+    {
+        rhs = moveit_msgs::WorkspaceParameters();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
+
+        rhs.min_corner = node["min_corner"].as<geometry_msgs::Vector3>();
+        rhs.max_corner = node["max_corner"].as<geometry_msgs::Vector3>();
+        return true;
+    }
+
+    Node convert<moveit_msgs::Constraints>::encode(const moveit_msgs::Constraints &rhs)
+    {
+        Node node;
+
+        if (!rhs.name.empty())
+            node["name"] = rhs.name;
+
+        if (!rhs.joint_constraints.empty())
+            node["joint_constraints"] = rhs.joint_constraints;
+
+        if (!rhs.position_constraints.empty())
+            node["position_constraints"] = rhs.position_constraints;
+
+        if (!rhs.orientation_constraints.empty())
+            node["orientation_constraints"] = rhs.orientation_constraints;
+
+        if (!rhs.visibility_constraints.empty())
+            node["visibility_constraints"] = rhs.visibility_constraints;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::Constraints>::decode(const Node &node, moveit_msgs::Constraints &rhs)
+    {
+        rhs = moveit_msgs::Constraints();
+
+        if (node["name"])
+            rhs.name = node["name"].as<std::string>();
+
+        if (node["joint_constraints"])
+            rhs.joint_constraints = node["joint_constraints"].as<std::vector<moveit_msgs::JointConstraint>>();
+
+        if (node["position_constraints"])
+            rhs.position_constraints = node["position_constraints"].as<std::vector<moveit_msgs::PositionConstraint>>();
+
+        if (node["orientation_constraints"])
+            rhs.orientation_constraints =
+                node["orientation_constraints"].as<std::vector<moveit_msgs::OrientationConstraint>>();
+
+        if (node["visibility_constraints"])
+            rhs.visibility_constraints =
+                node["visibility_constraints"].as<std::vector<moveit_msgs::VisibilityConstraint>>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::JointConstraint>::encode(const moveit_msgs::JointConstraint &rhs)
+    {
+        Node node;
+        node["joint_name"] = rhs.joint_name;
+        node["position"] = rhs.position;
+
+        if (rhs.tolerance_above > std::numeric_limits<double>::epsilon())
+            node["tolerance_above"] = rhs.tolerance_above;
+
+        if (rhs.tolerance_below > std::numeric_limits<double>::epsilon())
+            node["tolerance_below"] = rhs.tolerance_below;
+
+        if (rhs.weight < 1)
+            node["weight"] = rhs.weight;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::JointConstraint>::decode(const Node &node, moveit_msgs::JointConstraint &rhs)
+    {
+        rhs.joint_name = node["joint_name"].as<std::string>();
+        rhs.position = node["position"].as<double>();
+        rhs.tolerance_above = node["tolerance_above"].as<double>();
+        rhs.tolerance_below = node["tolerance_below"].as<double>();
+
+        if (node["weight"])
+            rhs.weight = node["weight"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::PositionConstraint>::encode(const moveit_msgs::PositionConstraint &rhs)
+    {
+        Node node;
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["link_name"] = rhs.link_name;
+
+        if (isVector3Zero(rhs.target_point_offset))
+            node["target_point_offset"] = rhs.target_point_offset;
+
+        node["constraint_region"] = rhs.constraint_region;
+
+        if (rhs.weight < 1)
+            node["weight"] = rhs.weight;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::PositionConstraint>::decode(const Node &node, moveit_msgs::PositionConstraint &rhs)
+    {
+        rhs = moveit_msgs::PositionConstraint();
+        rhs.weight = 1;
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
+
+        rhs.link_name = node["link_name"].as<std::string>();
+        if (node["target_point_offset"])
+            rhs.target_point_offset = node["target_point_offset"].as<geometry_msgs::Vector3>();
+
+        rhs.constraint_region = node["constraint_region"].as<moveit_msgs::BoundingVolume>();
+        if (node["weight"])
+            rhs.weight = node["weight"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::OrientationConstraint>::encode(const moveit_msgs::OrientationConstraint &rhs)
+    {
+        Node node;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["orientation"] = rhs.orientation;
+        node["link_name"] = rhs.link_name;
+
+        node["absolute_x_axis_tolerance"] = rhs.absolute_x_axis_tolerance;
+        node["absolute_y_axis_tolerance"] = rhs.absolute_y_axis_tolerance;
+        node["absolute_z_axis_tolerance"] = rhs.absolute_z_axis_tolerance;
+
+        if (rhs.weight < 1)
+            node["weight"] = rhs.weight;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::OrientationConstraint>::decode(const Node &node, moveit_msgs::OrientationConstraint &rhs)
+    {
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+        else
+            rhs.header = getDefaultHeader();
+
+        rhs.orientation = node["orientation"].as<geometry_msgs::Quaternion>();
+        rhs.link_name = node["link_name"].as<std::string>();
+
+        rhs.absolute_x_axis_tolerance = node["absolute_x_axis_tolerance"].as<double>();
+        rhs.absolute_y_axis_tolerance = node["absolute_y_axis_tolerance"].as<double>();
+        rhs.absolute_z_axis_tolerance = node["absolute_z_axis_tolerance"].as<double>();
+
+        if (node["weight"])
+            rhs.weight = node["weight"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::VisibilityConstraint>::encode(const moveit_msgs::VisibilityConstraint &rhs)
+    {
+        Node node;
+        node["target_radius"] = rhs.target_radius;
+        node["target_pose"] = rhs.target_pose;
+        node["cone_sides"] = rhs.cone_sides;
+        node["sensor_pose"] = rhs.sensor_pose;
+        node["max_view_angle"] = rhs.max_view_angle;
+        node["max_range_angle"] = rhs.max_range_angle;
+        node["sensor_view_direction"] = rhs.sensor_view_direction;
+        node["weight"] = rhs.weight;
+        return node;
+    }
+
+    bool convert<moveit_msgs::VisibilityConstraint>::decode(const Node &node, moveit_msgs::VisibilityConstraint &rhs)
+    {
+        rhs = moveit_msgs::VisibilityConstraint();
+
+        rhs.target_radius = node["target_radius"].as<double>();
+        rhs.target_pose = node["target_pose"].as<geometry_msgs::PoseStamped>();
+        rhs.cone_sides = node["cone_sides"].as<int>();
+        rhs.sensor_pose = node["sensor_pose"].as<geometry_msgs::PoseStamped>();
+        rhs.max_view_angle = node["max_view_angle"].as<double>();
+        rhs.max_range_angle = node["max_range_angle"].as<double>();
+        rhs.sensor_view_direction = node["sensor_view_direction"].as<int>();
+        rhs.weight = node["weight"].as<double>();
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::BoundingVolume>::encode(const moveit_msgs::BoundingVolume &rhs)
+    {
+        Node node;
+
+        if (!rhs.primitives.empty())
+        {
+            node["primitives"] = rhs.primitives;
+            node["primitive_poses"] = rhs.primitive_poses;
+        }
+
+        if (!rhs.meshes.empty())
+        {
+            node["meshes"] = rhs.meshes;
+            node["mesh_poses"] = rhs.mesh_poses;
+        }
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::BoundingVolume>::decode(const Node &node, moveit_msgs::BoundingVolume &rhs)
+    {
+        rhs = moveit_msgs::BoundingVolume();
+
+        if (node["primitives"])
+        {
+            rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
+            rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
+        }
+
+        if (node["meshes"])
+        {
+            rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
+            rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
+        }
+
+        return true;
+    }
+
+    Node convert<moveit_msgs::TrajectoryConstraints>::encode(const moveit_msgs::TrajectoryConstraints &rhs)
+    {
+        Node node;
+        node["constraints"] = rhs.constraints;
+        return node;
+    }
+
+    bool convert<moveit_msgs::TrajectoryConstraints>::decode(const Node &node, moveit_msgs::TrajectoryConstraints &rhs)
+    {
+        rhs.constraints = node["constraints"].as<std::vector<moveit_msgs::Constraints>>();
+        return true;
+    }
+
+    Node convert<moveit_msgs::MotionPlanRequest>::encode(const moveit_msgs::MotionPlanRequest &rhs)
+    {
+        Node node;
+
+        if (!(isHeaderEmpty(rhs.workspace_parameters.header) && isVector3Zero(rhs.workspace_parameters.min_corner) &&
+              isVector3Zero(rhs.workspace_parameters.max_corner)))
+            node["workspace_parameters"] = rhs.workspace_parameters;
+
+        node["start_state"] = rhs.start_state;
+
+        if (!rhs.goal_constraints.empty())
+            node["goal_constraints"] = rhs.goal_constraints;
+
+        if (!isConstraintEmpty(rhs.path_constraints))
+            node["path_constraints"] = rhs.path_constraints;
+
+        if (!rhs.trajectory_constraints.constraints.empty())
+            node["trajectory_constraints"] = rhs.trajectory_constraints;
+
+        if (!rhs.planner_id.empty())
+            node["planner_id"] = rhs.planner_id;
+
+        if (!rhs.group_name.empty())
+            node["group_name"] = rhs.group_name;
+
+        if (rhs.num_planning_attempts != 0)
+            node["num_planning_attempts"] = rhs.num_planning_attempts;
+
+        if (rhs.allowed_planning_time != 0)
+            node["allowed_planning_time"] = rhs.allowed_planning_time;
+
+        if (rhs.max_velocity_scaling_factor > 0)
+            node["max_velocity_scaling_factor"] = rhs.max_velocity_scaling_factor;
+
+        if (rhs.max_acceleration_scaling_factor > 0)
+            node["max_acceleration_scaling_factor"] = rhs.max_acceleration_scaling_factor;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::MotionPlanRequest>::decode(const Node &node, moveit_msgs::MotionPlanRequest &rhs)
+    {
+        rhs = moveit_msgs::MotionPlanRequest();
+
+        if (node["workspace_parameters"])
+            rhs.workspace_parameters = node["workspace_parameters"].as<moveit_msgs::WorkspaceParameters>();
+
+        if (node["start_state"])
+            rhs.start_state = node["start_state"].as<moveit_msgs::RobotState>();
+
+        if (node["goal_constraints"])
+            rhs.goal_constraints = node["goal_constraints"].as<std::vector<moveit_msgs::Constraints>>();
+
+        if (node["path_constraints"])
+            rhs.path_constraints = node["path_constraints"].as<moveit_msgs::Constraints>();
+
+        if (node["trajectory_constraints"])
+            rhs.trajectory_constraints = node["trajectory_constraints"].as<moveit_msgs::TrajectoryConstraints>();
+
+        if (node["planner_id"])
+            rhs.planner_id = node["planner_id"].as<std::string>();
+
+        if (node["group_name"])
+            rhs.group_name = node["group_name"].as<std::string>();
+
+        if (node["num_planning_attempts"])
+            rhs.num_planning_attempts = node["num_planning_attempts"].as<int>();
+
+        if (node["allowed_planning_time"])
+            rhs.allowed_planning_time = node["allowed_planning_time"].as<double>();
+
+        if (node["max_velocity_scaling_factor"])
+            rhs.max_velocity_scaling_factor = node["max_velocity_scaling_factor"].as<double>();
+
+        if (node["max_acceleration_scaling_factor"])
+            rhs.max_acceleration_scaling_factor = node["max_acceleration_scaling_factor"].as<double>();
+
         return true;
     }
 }  // namespace YAML

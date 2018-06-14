@@ -76,6 +76,32 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
     return request_;
 }
 
+void MotionRequestBuilder::toYAMLFile(const std::string &file)
+{
+    YAML::Node yaml;
+    yaml = request_;
+
+    YAML::Emitter out;
+    out << yaml;
+
+    std::ofstream fout(file);
+    fout << out.c_str();
+    fout.close();
+}
+
+bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
+{
+    const auto &result = IO::loadFileToYAML(file);
+
+    if (!result.first)
+        return false;
+
+    moveit_msgs::MotionPlanRequest msg;
+    request_ = result.second.as<moveit_msgs::MotionPlanRequest>();
+
+    return true;
+}
+
 planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
                                                              const planning_interface::MotionPlanRequest &request)
 {

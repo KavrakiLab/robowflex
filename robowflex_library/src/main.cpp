@@ -44,12 +44,14 @@ int main(int argc, char **argv)
 
     // scene.updateCollisionObject("mesh", mesh, pose);
 
-    // scene.toYAMLFile("/home/zak/test.yml");
     scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
+    scene.toYAMLFile("scene.yml");
 
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
     request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
+
+    request.toYAMLFile("request.yml");
 
     RVIZHelper rviz(ur5, scene);
 

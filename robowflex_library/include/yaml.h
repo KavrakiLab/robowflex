@@ -39,6 +39,13 @@ namespace YAML
     };
 
     template <>
+    struct convert<geometry_msgs::PoseStamped>
+    {
+        static Node encode(const geometry_msgs::PoseStamped &rhs);
+        static bool decode(const Node &node, geometry_msgs::PoseStamped &rhs);
+    };
+
+    template <>
     struct convert<geometry_msgs::Transform>
     {
         static Node encode(const geometry_msgs::Transform &rhs);
@@ -225,6 +232,70 @@ namespace YAML
     {
         static Node encode(const shape_msgs::Plane &rhs);
         static bool decode(const Node &node, shape_msgs::Plane &rhs);
+    };
+
+
+    template <>
+    struct convert<moveit_msgs::WorkspaceParameters>
+    {
+        static Node encode(const moveit_msgs::WorkspaceParameters &rhs);
+        static bool decode(const Node &node, moveit_msgs::WorkspaceParameters &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::Constraints>
+    {
+        static Node encode(const moveit_msgs::Constraints &rhs);
+        static bool decode(const Node &node, moveit_msgs::Constraints &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::JointConstraint>
+    {
+        static Node encode(const moveit_msgs::JointConstraint &rhs);
+        static bool decode(const Node &node, moveit_msgs::JointConstraint &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::PositionConstraint>
+    {
+        static Node encode(const moveit_msgs::PositionConstraint &rhs);
+        static bool decode(const Node &node, moveit_msgs::PositionConstraint &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::OrientationConstraint>
+    {
+        static Node encode(const moveit_msgs::OrientationConstraint &rhs);
+        static bool decode(const Node &node, moveit_msgs::OrientationConstraint &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::VisibilityConstraint>
+    {
+        static Node encode(const moveit_msgs::VisibilityConstraint &rhs);
+        static bool decode(const Node &node, moveit_msgs::VisibilityConstraint &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::TrajectoryConstraints>
+    {
+        static Node encode(const moveit_msgs::TrajectoryConstraints &rhs);
+        static bool decode(const Node &node, moveit_msgs::TrajectoryConstraints &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::BoundingVolume>
+    {
+        static Node encode(const moveit_msgs::BoundingVolume &rhs);
+        static bool decode(const Node &node, moveit_msgs::BoundingVolume &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::MotionPlanRequest>
+    {
+        static Node encode(const moveit_msgs::MotionPlanRequest &rhs);
+        static bool decode(const Node &node, moveit_msgs::MotionPlanRequest &rhs);
     };
 }  // namespace YAML
 
