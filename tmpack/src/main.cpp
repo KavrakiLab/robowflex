@@ -80,9 +80,12 @@ int main(int argc, char **argv)
 
         time_spent += (ros::Time::now().nsec - begin);
 
+        time_spent += (ros::Time::now().nsec - begin);
         ros::spinOnce();
         rate.sleep();
     }
+    std::cout << "Time spent: " << time_spent << std::endl;
+
     std::cout << "Time spent: " << time_spent << std::endl;
 
     return 0;

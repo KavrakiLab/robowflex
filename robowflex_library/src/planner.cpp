@@ -7,7 +7,7 @@
 
 using namespace robowflex;
 
-const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnect";
+const std::string MotionRequestBuilder::DEFAULT_CONFIG = "CBiRRT2";
 
 MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
   : planner_(planner)
