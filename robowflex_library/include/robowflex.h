@@ -234,6 +234,9 @@ namespace robowflex
         bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
                         const std::string &kinematics_file);
 
+        bool loadYAMLFile(const std::string &name, const std::string &file);
+        bool loadXMLFile(const std::string &name, const std::string &file);
+
         const std::string &getName() const
         {
             return name_;
@@ -266,7 +269,7 @@ namespace robowflex
         const std::string name_;
         IO::Handler handler_;
 
-        robot_model_loader::RobotModelLoader loader_;
+        std::shared_ptr<robot_model_loader::RobotModelLoader> loader_;
         robot_model::RobotModelPtr model_;
         std::map<std::string, robot_model::SolverAllocatorFn> imap_;
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;

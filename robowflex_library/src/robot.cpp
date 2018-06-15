@@ -24,52 +24,43 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
 bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
                                  const std::string &limits_file, const std::string &kinematics_file)
 {
-    if (!handler_.hasParam(ROBOT_DESCRIPTION))
+    bool success = loadXMLFile(ROBOT_DESCRIPTION, urdf_file)                                // urdf
+                   && loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file)            // srdf
+                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file)         // joint limits
+                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file);  // kinematics
+
+    return success;
+}
+
+bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
+{
+    if (!handler_.hasParam(name))
     {
-        const std::string urdf_string = IO::loadXMLToString(urdf_file);
-        if (urdf_string.empty())
+        auto &yaml = IO::loadFileToYAML(file);
+        if (!yaml.first)
         {
-            ROS_ERROR("Failed to load URDF.");
+            ROS_ERROR("Failed to load YAML file `%s`.", file.c_str());
             return false;
         }
 
-        handler_.setParam(ROBOT_DESCRIPTION, urdf_string);
+        handler_.loadYAMLtoROS(yaml.second, name);
     }
 
-    if (!handler_.hasParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC))
+    return true;
+}
+
+bool Robot::loadXMLFile(const std::string &name, const std::string &file)
+{
+    if (!handler_.hasParam(name))
     {
-        const std::string srdf_string = IO::loadXMLToString(srdf_file);
-        if (srdf_string.empty())
+        const std::string string = IO::loadXMLToString(file);
+        if (string.empty())
         {
-            ROS_ERROR("Failed to load SRDF.");
+            ROS_ERROR("Failed to load XML file `%s`.", file.c_str());
             return false;
         }
 
-        handler_.setParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_string);
-    }
-
-    if (!handler_.hasParam(ROBOT_DESCRIPTION + ROBOT_PLANNING))
-    {
-        auto &limits = IO::loadFileToYAML(limits_file);
-        if (!limits.first)
-        {
-            ROS_ERROR("Failed to load joint limits.");
-            return false;
-        }
-
-        handler_.loadYAMLtoROS(limits.second, ROBOT_DESCRIPTION + ROBOT_PLANNING);
-    }
-
-    if (!handler_.hasParam(ROBOT_DESCRIPTION + ROBOT_KINEMATICS))
-    {
-        auto &kinematics = IO::loadFileToYAML(kinematics_file);
-        if (!kinematics.first)
-        {
-            ROS_ERROR("Failed to load kinematics.");
-            return false;
-        }
-
-        handler_.loadYAMLtoROS(kinematics.second, ROBOT_DESCRIPTION + ROBOT_KINEMATICS);
+        handler_.setParam(name, string);
     }
 
     return true;
@@ -80,10 +71,10 @@ void Robot::loadRobotModel()
     robot_model_loader::RobotModelLoader::Options options(handler_.getNamespace() + "/" + ROBOT_DESCRIPTION);
     options.load_kinematics_solvers_ = false;
 
-    loader_ = robot_model_loader::RobotModelLoader(options);
-    kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_.getRobotDescription()));
+    loader_.reset(new robot_model_loader::RobotModelLoader(options));
+    kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
 
-    model_ = std::move(loader_.getModel());
+    model_ = std::move(loader_->getModel());
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -91,7 +82,7 @@ bool Robot::loadKinematics(const std::string &name)
     if (imap_.find(name) != imap_.end())
         return true;
 
-    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_.getSRDF());
+    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())

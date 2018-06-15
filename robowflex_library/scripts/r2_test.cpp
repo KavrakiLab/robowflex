@@ -7,7 +7,6 @@ using namespace robowflex;
 
 void shutdown(int sig)
 {
-    ros::spinOnce();
     ros::shutdown();
 }
 
@@ -23,6 +22,14 @@ int main(int argc, char **argv)
                   "package://r2_moveit_config/config/kinematics.yaml"     // kinematics
                   );
 
+    r2.loadXMLFile("legs/simplified_robot_description", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro");
+
+    ros::NodeHandle nh("~");
+    nh.setParam("cached_ik_path", IO::resolvePath("package://robot_ragdoll_demos/config"));
+    nh.setParam("constraint_samplers", "moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator "
+                                       "moveit_r2_constraints/MoveItR2PoseSamplerAllocator "
+                                       "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator");
+
     r2.loadKinematics("legsandtorso");
 
     Scene scene(r2);
@@ -36,16 +43,11 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
 
-    ros::Rate rate(0.5);
-    while (ros::ok())
-    {
-        planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-            break;
+    request.toYAMLFile("test.yml");
 
-        ros::spinOnce();
-        rate.sleep();
-    }
+    planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
+    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        return 1;
 
     return 0;
 }
