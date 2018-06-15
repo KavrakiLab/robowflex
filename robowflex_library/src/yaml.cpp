@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <string>
 
-#include <geometric_shapes/shape_operations.h>
-
 #include "robowflex.h"
 
 using namespace robowflex;
@@ -1116,11 +1114,8 @@ namespace YAML
     Node convert<shape_msgs::Mesh>::encode(const shape_msgs::Mesh &rhs)
     {
         Node node;
-        for (auto &triangle : rhs.triangles)
-            node["triangles"].push_back(triangle);
-
-        for (auto &vertex : rhs.vertices)
-            node["vertices"].push_back(vertex);
+        node["triangles"] = rhs.triangles;
+        node["vertices"] = rhs.vertices;
 
         return node;
     }
@@ -1139,11 +1134,8 @@ namespace YAML
                 dimensions = load;
             }
 
-            shapes::Mesh *mesh = shapes::createMeshFromResource(resource, dimensions);
-
-            shapes::ShapeMsg msg;
-            shapes::constructMsgFromShape(mesh, msg);
-            rhs = boost::get<shape_msgs::Mesh>(msg);
+            robowflex::Geometry mesh(Geometry::ShapeType::Type::MESH, dimensions, resource);
+            rhs = mesh.getMeshMsg();
         }
         else
         {
