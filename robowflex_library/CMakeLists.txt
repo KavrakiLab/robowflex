@@ -52,6 +52,10 @@ target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+add_executable(benchmark_test scripts/benchmark_test.cpp)
+target_link_libraries(benchmark_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+
 install(TARGETS ${LIBRARY_NAME}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

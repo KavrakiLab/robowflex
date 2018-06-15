@@ -430,7 +430,8 @@ namespace robowflex
         //     bool initialize(const std::string &config_file = "", const OMPL::Settings settings = Settings());
 
         //     planning_interface::MotionPlanResponse plan(Scene &scene,
-        //                                                 const planning_interface::MotionPlanRequest &request) override;
+        //                                                 const planning_interface::MotionPlanRequest &request)
+        //                                                 override;
 
         //     const std::vector<std::string> getPlannerConfigs() const override;
 
@@ -474,15 +475,29 @@ namespace robowflex
         static const std::string DEFAULT_CONFIG;
     };
 
+    class Benchmarker
+    {
+    public:
+        Benchmarker();
+
+        void addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
+                                    MotionRequestBuilder &request);
+
+        void benchmark(const std::string &file);
+
+    private:
+        std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> request_;
+    };
+
     class RVIZHelper
     {
     public:
         RVIZHelper(Robot &robot, Scene &scene) : robot_(robot), scene_(scene)
         {
-            IO::Handler &handler = robot.getHandler();
+            ros::NodeHandle nh("~");
 
-            traj_pub_ = handler.advertise<moveit_msgs::RobotTrajectory>("trajectory");
-            scene_pub_ = handler.advertise<moveit_msgs::PlanningScene>("scene");
+            traj_pub_ = nh.advertise<moveit_msgs::RobotTrajectory>("trajectory", 1000);
+            scene_pub_ = nh.advertise<moveit_msgs::PlanningScene>("scene", 1000);
         }
 
         void update(const planning_interface::MotionPlanResponse &response)
