@@ -49,8 +49,6 @@ namespace robowflex
                                                                           std::vector<std::vector<double>> goals)
         {
             request.setStartConfiguration(start);
-
-            planning_interface::MotionPlanResponse res;
             std::vector<planning_interface::MotionPlanResponse> responses;
 
             for (std::vector<double> goal_conf : goals)

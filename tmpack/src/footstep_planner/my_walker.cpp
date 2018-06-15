@@ -75,6 +75,8 @@ namespace robowflex
         // For example, in walking the constraints cause the alternating legs to stay still
         std::vector<std::vector<double>> getTaskPlan()
         {
+            std::cout<<"Getting task plan"<<std::endl;
+
             std::vector<std::vector<double>> my_plan;
             std::vector<double> goal = GOAL_POSE;
             my_plan.push_back(goal);
