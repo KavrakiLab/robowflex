@@ -85,8 +85,10 @@ namespace
             shape.type = shape_msgs::SolidPrimitive::CYLINDER;
         else if (s == "cone")
             shape.type = shape_msgs::SolidPrimitive::CONE;
-        else
+        else if (s == "box")
             shape.type = shape_msgs::SolidPrimitive::BOX;
+        else
+            shape.type = n.as<int>();
     }
 
     static bool isVector3Zero(const geometry_msgs::Vector3 &v)
@@ -403,9 +405,18 @@ namespace YAML
     {
         rhs = geometry_msgs::Point();
 
-        rhs.x = node[0].as<double>();
-        rhs.y = node[1].as<double>();
-        rhs.z = node[2].as<double>();
+        if (node.IsSequence())
+        {
+            rhs.x = node[0].as<double>();
+            rhs.y = node[1].as<double>();
+            rhs.z = node[2].as<double>();
+        }
+        else
+        {
+            rhs.x = node["x"].as<double>();
+            rhs.y = node["y"].as<double>();
+            rhs.z = node["z"].as<double>();
+        }
         return true;
     }
 
@@ -424,9 +435,19 @@ namespace YAML
     {
         rhs = geometry_msgs::Vector3();
 
-        rhs.x = node[0].as<double>();
-        rhs.y = node[1].as<double>();
-        rhs.z = node[2].as<double>();
+        if (node.IsSequence())
+        {
+            rhs.x = node[0].as<double>();
+            rhs.y = node[1].as<double>();
+            rhs.z = node[2].as<double>();
+        }
+        else
+        {
+            rhs.x = node["x"].as<double>();
+            rhs.y = node["y"].as<double>();
+            rhs.z = node["z"].as<double>();
+        }
+
         return true;
     }
 
@@ -446,10 +467,20 @@ namespace YAML
     {
         rhs = geometry_msgs::Quaternion();
 
-        rhs.x = node[0].as<double>();
-        rhs.y = node[1].as<double>();
-        rhs.z = node[2].as<double>();
-        rhs.w = node[3].as<double>();
+        if (node.IsSequence())
+        {
+            rhs.x = node[0].as<double>();
+            rhs.y = node[1].as<double>();
+            rhs.z = node[2].as<double>();
+            rhs.w = node[3].as<double>();
+        }
+        else
+        {
+            rhs.x = node["x"].as<double>();
+            rhs.y = node["y"].as<double>();
+            rhs.z = node["z"].as<double>();
+            rhs.w = node["w"].as<double>();
+        }
         return true;
     }
 
@@ -1291,6 +1322,8 @@ namespace YAML
 
         if (node["weight"])
             rhs.weight = node["weight"].as<double>();
+        else
+            rhs.weight = 1;
 
         return true;
     }
@@ -1331,6 +1364,8 @@ namespace YAML
         rhs.constraint_region = node["constraint_region"].as<moveit_msgs::BoundingVolume>();
         if (node["weight"])
             rhs.weight = node["weight"].as<double>();
+        else
+            rhs.weight = 1;
 
         return true;
     }
@@ -1371,6 +1406,8 @@ namespace YAML
 
         if (node["weight"])
             rhs.weight = node["weight"].as<double>();
+        else
+            rhs.weight = 1;
 
         return true;
     }

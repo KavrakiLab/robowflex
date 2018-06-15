@@ -23,6 +23,8 @@ int main(int argc, char **argv)
                   "package://r2_moveit_config/config/kinematics.yaml"     // kinematics
                   );
 
+    r2.loadKinematics("legsandtorso");
+
     Scene scene(r2);
 
     OMPL::OMPLPipelinePlanner planner(r2);
@@ -32,8 +34,7 @@ int main(int argc, char **argv)
                        );
 
     MotionRequestBuilder request(planner, "legsandtorso");
-    request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
-    request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
+    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
 
     ros::Rate rate(0.5);
     while (ros::ok())
