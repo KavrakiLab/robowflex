@@ -9,6 +9,7 @@
 #include <Eigen/Geometry>
 
 #include <moveit/robot_model/robot_model.h>
+#include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/planning_scene/planning_scene.h>
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
@@ -253,6 +254,8 @@ namespace robowflex
             return handler_;
         }
 
+        bool loadKinematics(const std::string &group);
+
     protected:
         // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server
         // Returns false when failure.
@@ -263,7 +266,10 @@ namespace robowflex
         const std::string name_;
         IO::Handler handler_;
 
+        robot_model_loader::RobotModelLoader loader_;
         robot_model::RobotModelPtr model_;
+        std::map<std::string, robot_model::SolverAllocatorFn> imap_;
+        kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;
 
     private:
         static const std::string ROBOT_DESCRIPTION;
