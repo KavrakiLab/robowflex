@@ -207,38 +207,38 @@ const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() co
     return configs_;
 }
 
-OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
-  : Planner(robot), interface_(robot.getModel(), robot.getHandler().getHandle())
-{
-}
+// OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
+//   : Planner(robot), interface_(robot.getModel(), robot.getHandler().getHandle())
+// {
+// }
 
-bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, const OMPL::Settings settings)
-{
-    if (!loadOMPLConfig(handler_, config_file, configs_))
-        return false;
+// bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, const OMPL::Settings settings)
+// {
+//     if (!loadOMPLConfig(handler_, config_file, configs_))
+//         return false;
 
-    settings.setParam(handler_);
-    return true;
-}
+//     settings.setParam(handler_);
+//     return true;
+// }
 
-planning_interface::MotionPlanResponse
-OMPL::OMPLInterfacePlanner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
-{
-    planning_interface::MotionPlanResponse response;
-    response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+// planning_interface::MotionPlanResponse
+// OMPL::OMPLInterfacePlanner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
+// {
+//     planning_interface::MotionPlanResponse response;
+//     response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
 
-    ompl_interface::ModelBasedPlanningContextPtr context = interface_.getPlanningContext(scene.getScene(), request);
+//     ompl_interface::ModelBasedPlanningContextPtr context = interface_.getPlanningContext(scene.getScene(), request);
 
-    if (!context)
-        return response;
+//     if (!context)
+//         return response;
 
-    context->clear();
-    bool result = context->solve(response);
+//     context->clear();
+//     bool result = context->solve(response);
 
-    return response;
-}
+//     return response;
+// }
 
-const std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
-{
-    return configs_;
-}
+// const std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
+// {
+//     return configs_;
+// }
