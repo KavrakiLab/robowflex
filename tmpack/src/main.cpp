@@ -1,5 +1,6 @@
 #include "footstep_planner/my_walker.cpp"
 #include <include/robowflex.h>
+#include <include/detail/r2.h>
 #include <ros/ros.h>
 #include <signal.h>
 
@@ -35,56 +36,34 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
+    signal(SIGSEGV, shutdown);
 
-    Robot r2("r2");
-
-    r2.initialize("package://r2_description/urdf/r2c6.urdf",              // urdf
-                  "package://r2_moveit_config/config/r2.srdf",            // srdf
-                  "package://r2_moveit_config/config/joint_limits.yaml",  // joint limits
-                  "package://r2_moveit_config/config/kinematics.yaml"     // kinematics
-    );
+    R2Robot r2;
+    r2.initialize({"legsandtorso"});
 
     Scene scene(r2);
 
-    // skeleton of idea for passing constraints and scene graph changes through the tmp interface
-    // add the handrails
-    // scene.updateCollisionObject("ISS Handrail 0", ,);
-
-    OMPL::OMPLPipelinePlanner planner(r2);
-    planner.initialize("package://r2_moveit_config/config/ompl_planning.yaml",  // planner config
-                       OMPL::Settings(),                                        // settings
-                       "ompl_interface/OMPLPlanningContextManager"              // plugin
-    );
+    OMPL::R2OMPLPipelinePlanner planner(r2);
+    planner.initialize();
 
     MotionRequestBuilder request(planner, "legsandtorso");
-    // Lock the right foot in place:
-    request.addPathPositionConstraint(
-        "r2/right_leg/gripper/tip", "/world", Eigen::Affine3d(Eigen::Translation3d(1.983001, 0.321150, -1.361)),
-        Geometry(Geometry::ShapeType::Type::SPHERE, Eigen::Vector3d(0.01, 0.01, 0.01), "right_foot_base_position"));
-
-    std::vector<double> start = START_POSE;
-
-    MyWalker walker(r2, "legsandtorso", planner, scene, request, start);
+    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
 
     size_t time_spent = 0;
     size_t count = 0;
     size_t success_count = 0;
     ros::Rate rate(0.5);
+    std::vector<double> start = START_POSE;
+    MyWalker walker(r2, "legsandtorso", planner, scene, request, start);
 
-    while (ros::ok() && count++ < NUM_ITERATIONS)
-    {
-        size_t begin = ros::Time::now().nsec;
-        auto res = walker.plan();
-        if (res[0].error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-            success_count++;
+    while(count++ < NUM_ITERATIONS) {
+      size_t begin = ros::Time::now().nsec;
+      std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
+      if (res[0].error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        return 1;
 
-        time_spent += (ros::Time::now().nsec - begin);
-
-        time_spent += (ros::Time::now().nsec - begin);
-        ros::spinOnce();
-        rate.sleep();
+      time_spent += (ros::Time::now().nsec - begin);
     }
-    std::cout << "Time spent: " << time_spent << std::endl;
 
     std::cout << "Time spent: " << time_spent << std::endl;
 
