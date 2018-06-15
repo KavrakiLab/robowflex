@@ -44,14 +44,22 @@ int main(int argc, char **argv)
 
     // scene.updateCollisionObject("mesh", mesh, pose);
 
-    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
-    scene.toYAMLFile("scene.yml");
+    // scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
+    // scene.toYAMLFile("scene.yml");
 
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
-    request.setGoalConfiguration({-0.39, -0.69, -2.12, 2.82, -0.39, 0.0});
 
-    request.toYAMLFile("request.yml");
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
+    Eigen::Quaterniond orn{0, 0, 1, 0};
+
+    request.setGoalRegion("ee_link", "world",                                         // links
+                          pose, Geometry(Geometry::ShapeType::SPHERE, {0.01, 0, 0}),  // position
+                          orn, {0.01, 0.01, 0.01}                                     // orientation
+    );
+
+    ur5.loadKinematics("manipulator");
 
     RVIZHelper rviz(ur5, scene);
 

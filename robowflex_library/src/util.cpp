@@ -73,6 +73,7 @@ moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_
     constraint.link_name = ee_name;
 
     constraint.constraint_region = getBoundingVolume(pose, geometry);
+    constraint.weight = 1;
 
     return constraint;
 }
@@ -90,6 +91,7 @@ moveit_msgs::OrientationConstraint TF::getOrientationConstraint(const std::strin
     constraint.absolute_y_axis_tolerance = tolerances[1];
     constraint.absolute_z_axis_tolerance = tolerances[2];
     constraint.orientation = TF::quaternionEigenToMsg(orientation);
+    constraint.weight = 1;
 
     return constraint;
 }
