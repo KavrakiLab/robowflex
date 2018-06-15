@@ -28,19 +28,68 @@ namespace robowflex
 
     // want to get feedback on how the motion planner did
 
+
+  // Domain semantics are implemented by using callbacks in the getTaskPlan
+  // and planLinearly functions
+
+  class MyWalkerConstraintHelper : public TMPConstraintHelper
+  {
+  public:
+
+    MyWalkerConstraintHelper() {};
+    void _getTaskPlan_Callback()
+    {
+      // do nothing
+    }
+
+    void _planLinearly_Callback(MotionRequestBuilder & request)
+    {
+      // do nothing
+    }
+  }
+    my_constraint_helper;
+
+  class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
+  {
+  public:
+    MyWalkerSceneGraphHelper() {};
+    void _getTaskPlan_Callback()
+    {
+      // do nothing
+    }
+
+    void _planLinearly_Callback(MotionRequestBuilder & request)
+    {
+      // do nothing
+    }
+  }
+    my_scene_graph_helper;
+
+
+    // parses PDDL and solves
     class MyWalker : public TMPackInterface
     {
+
+
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
         // returns vector of joint poses
+        // the goal is to not have to build the motion requests by hand every time
+        // TMP has a common pattern of using the last goal as the new start
+        // However, we need a way to pass in new constraints for each step
+        // The constraints cause the alternating legs to stay still
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
             std::vector<double> goal = GOAL_POSE;
             my_plan.push_back(goal);
 
-            //Not currently used, just seeing if the interface works
+            //is this good style? The superclass has a reference to these
+            my_constraint_helper._getTaskPlan_Callback();
+            my_scene_graph_helper._getTaskPlan_Callback();
+
+            // Not currently used, just seeing if the interface works
             std::vector<footstep_planning::point_2D> foot_placements =
                 my_step_planner.calculate_foot_placements(points, points[9], points[17], footstep_planning::foot::left);
 
@@ -52,11 +101,12 @@ namespace robowflex
 
         std::vector<double> goal_pose;
 
+        // Loads the scene description and creates the graph we will use for planning
         MyWalker(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
                  MotionRequestBuilder &request, std::vector<double> &start)
-          : TMPackInterface(robot, group_name, planner, scene, request, start)
+          : TMPackInterface(robot, group_name, planner, scene, request, start, my_constraint_helper,
+                            my_scene_graph_helper)
         {
-            //Parse the file and build the graph:
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
             footstep_planning::loadScene("/home/awells/Development/nasa_footstep_planning/scenes/iss.txt",
@@ -70,15 +120,8 @@ namespace robowflex
                 points.push_back(footstep_planning::point_2D(l.x2, l.y2));
                 points.push_back(footstep_planning::point_2D((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2));
             }
-            my_step_planner.buildGraph(points);
 
-            //Not actually used, just testing the interface
-            // start_index = 0;
-            // goal_index = 1;
-            // std::string cmd = "/home/awells/Development/nasa_footstep_planning/run_walker.sh " +
-            //                   std::to_string(start_index) + " " + std::to_string(goal_index) + "\n";
-            // std::cout << "Calling: " << cmd << std::endl;
-            // int r = system(cmd.c_str());
+            my_step_planner.buildGraph(points);
         }
 
         void setStartAndGoal(int s, int g)
