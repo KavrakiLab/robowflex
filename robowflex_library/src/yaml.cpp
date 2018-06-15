@@ -1303,7 +1303,7 @@ namespace YAML
 
         node["link_name"] = rhs.link_name;
 
-        if (isVector3Zero(rhs.target_point_offset))
+        if (!isVector3Zero(rhs.target_point_offset))
             node["target_point_offset"] = rhs.target_point_offset;
 
         node["constraint_region"] = rhs.constraint_region;
