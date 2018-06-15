@@ -335,3 +335,11 @@ const std::string IO::Handler::generateUUID()
 
     return s;
 }
+
+std::ofstream IO::createFile(const std::string &file)
+{
+    boost::filesystem::create_directories(file);
+    std::ofstream out(file, std::ofstream::out | std::ofstream::trunc);
+
+    return out;
+}

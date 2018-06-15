@@ -71,6 +71,9 @@ namespace robowflex
         // Loads an YAML file to a YAML node. If path does not exist or bad format, false in first.
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
+        // Creates a file
+        std::ofstream createFile(const std::string &file);
+
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)
         {
@@ -299,7 +302,7 @@ namespace robowflex
             return scene_;
         }
 
-        moveit_msgs::PlanningScene getMessage();
+        moveit_msgs::PlanningScene getMessage() const;
         robot_state::RobotState &getCurrentState();
         collision_detection::AllowedCollisionMatrix &getACM();
 
@@ -330,7 +333,7 @@ namespace robowflex
         Planner(Planner const &) = delete;
         void operator=(Planner const &) = delete;
 
-        virtual planning_interface::MotionPlanResponse plan(Scene &scene,
+        virtual planning_interface::MotionPlanResponse plan(const Scene &scene,
                                                             const planning_interface::MotionPlanRequest &request) = 0;
 
         virtual const std::vector<std::string> getPlannerConfigs() const = 0;
@@ -355,7 +358,7 @@ namespace robowflex
         PipelinePlanner(PipelinePlanner const &) = delete;
         void operator=(PipelinePlanner const &) = delete;
 
-        planning_interface::MotionPlanResponse plan(Scene &scene,
+        planning_interface::MotionPlanResponse plan(const Scene &scene,
                                                     const planning_interface::MotionPlanRequest &request) override;
 
     protected:
@@ -459,7 +462,7 @@ namespace robowflex
                                        const Eigen::Affine3d &pose, const Geometry &geometry);
         void addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
                                           const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
-        const planning_interface::MotionPlanRequest &getRequest();
+        const planning_interface::MotionPlanRequest &getRequest() const;
 
         bool toYAMLFile(const std::string &file);
         bool fromYAMLFile(const std::string &file);
@@ -478,15 +481,68 @@ namespace robowflex
     class Benchmarker
     {
     public:
+        class Options
+        {
+        public:
+            Options() : runs(100)
+            {
+            }
+
+            unsigned int runs;
+        };
+
+        class Results
+        {
+        public:
+            class Run
+            {
+            public:
+                Run(const std::string &name, double time, bool success, bool correct, double length, double clearance,
+                    double smoothness)
+                  : name(name)
+                  , time(time)
+                  , success(success)
+                  , correct(correct)
+                  , length(length)
+                  , clearance(clearance)
+                  , smoothness(smoothness)
+                {
+                }
+
+                const std::string name;
+                const double time;
+                const bool success;
+                const bool correct;
+                const double length;
+                const double clearance;
+                const double smoothness;
+            };
+
+            Results()
+            {
+            }
+
+            void addRun(const Scene &scene, const std::string &name, double time,
+                        planning_interface::MotionPlanResponse &run);
+            void computeMetric(const Scene &scene, planning_interface::MotionPlanResponse &run, bool &correct,
+                               double &length, double &clearance, double &smoothness);
+
+            std::vector<Run> runs;
+        };
+
         Benchmarker();
 
         void addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
                                     MotionRequestBuilder &request);
 
-        void benchmark(const std::string &file);
+        void benchmark(const std::string &file, const Options &options = Options());
+
+    protected:
+        void writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
+                         const MotionRequestBuilder &builder);
 
     private:
-        std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> request_;
+        std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> requests_;
     };
 
     class RVIZHelper

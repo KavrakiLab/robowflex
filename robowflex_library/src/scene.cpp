@@ -15,7 +15,7 @@ void Scene::operator=(const Scene &other)
     scene_ = other.getSceneConst();
 }
 
-moveit_msgs::PlanningScene Scene::getMessage()
+moveit_msgs::PlanningScene Scene::getMessage() const
 {
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);

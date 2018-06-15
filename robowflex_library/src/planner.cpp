@@ -96,7 +96,7 @@ void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_na
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 }
 
-const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
+const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() const
 {
     return request_;
 }
@@ -111,12 +111,12 @@ bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
     return IO::YAMLFileToMessage(request_, file);
 }
 
-planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
+planning_interface::MotionPlanResponse PipelinePlanner::plan(const Scene &scene,
                                                              const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
-        pipeline_->generatePlan(scene.getScene(), request, response);
+        pipeline_->generatePlan(scene.getSceneConst(), request, response);
 
     return response;
 }
