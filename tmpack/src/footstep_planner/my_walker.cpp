@@ -28,48 +28,42 @@ namespace robowflex
 
     // want to get feedback on how the motion planner did
 
-
-  // Domain semantics are implemented by using callbacks in the getTaskPlan
-  // and planLinearly functions
-
-  class MyWalkerConstraintHelper : public TMPConstraintHelper
-  {
-  public:
-
-    MyWalkerConstraintHelper() {};
-    void _getTaskPlan_Callback()
-    {
-      // do nothing
-    }
-
-    void _planLinearly_Callback(MotionRequestBuilder & request)
-    {
-      // do nothing
-    }
-  }
-    my_constraint_helper;
-
-  class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
-  {
-  public:
-    MyWalkerSceneGraphHelper() {};
-    void _getTaskPlan_Callback()
-    {
-      // do nothing
-    }
-
-    void _planLinearly_Callback(MotionRequestBuilder & request)
-    {
-      // do nothing
-    }
-  }
-    my_scene_graph_helper;
-
-
     // parses PDDL and solves
     class MyWalker : public TMPackInterface
     {
+        // Domain semantics are implemented by using callbacks in the getTaskPlan
+        // and planLinearly functions
+        class MyWalkerConstraintHelper : public TMPConstraintHelper
+        {
+          bool last_foot_left = true;
+        public:
+            MyWalkerConstraintHelper(){};
+            void _getTaskPlan_Callback()
+            {
+                // do nothing
+            }
 
+            void _planLinearly_Callback(MotionRequestBuilder &request)
+            {
+                // do nothing
+              last_foot_left = !last_foot_left;
+            }
+        } my_constraint_helper;
+
+        class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
+        {
+        public:
+            MyWalkerSceneGraphHelper(){};
+            void _getTaskPlan_Callback()
+            {
+                // do nothing
+            }
+
+            void _planLinearly_Callback(MotionRequestBuilder &request)
+            {
+                // do nothing
+            }
+        } my_scene_graph_helper;
 
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
@@ -85,7 +79,7 @@ namespace robowflex
             std::vector<double> goal = GOAL_POSE;
             my_plan.push_back(goal);
 
-            //is this good style? The superclass has a reference to these
+            // is this good style? The superclass has a reference to these
             my_constraint_helper._getTaskPlan_Callback();
             my_scene_graph_helper._getTaskPlan_Callback();
 
