@@ -412,8 +412,10 @@ namespace robowflex
 
             const std::vector<std::string> getPlannerConfigs() const override;
 
-        private:
+        protected:
             static const std::vector<std::string> DEFAULT_ADAPTERS;
+
+        private:
             std::vector<std::string> configs_;
         };
 
