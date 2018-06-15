@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 
     r2.loadXMLFile("legs/simplified_robot_description", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro");
 
+    // These need to go in the node namespace
     ros::NodeHandle nh("~");
     nh.setParam("cached_ik_path", IO::resolvePath("package://robot_ragdoll_demos/config"));
     nh.setParam("constraint_samplers", "moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator "
@@ -42,8 +43,6 @@ int main(int argc, char **argv)
 
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
-
-    request.toYAMLFile("test.yml");
 
     planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
