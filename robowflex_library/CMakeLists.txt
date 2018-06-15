@@ -46,7 +46,7 @@ add_library(${LIBRARY_NAME} src/planner.cpp src/scene.cpp src/robot.cpp src/geom
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(planner_test src/main.cpp)
+add_executable(planner_test scripts/planner_test.cpp)
 target_link_libraries(planner_test ${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
 install (TARGETS ${LIBRARY_NAME}

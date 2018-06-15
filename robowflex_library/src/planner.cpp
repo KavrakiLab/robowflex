@@ -73,22 +73,28 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 }
 
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geometry,
-                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances) {
-  addPathPositionConstraint(ee_name, base_name, pose, geometry);
-  addPathOrientationConstraint(ee_name, base_name, orientation, tolerances);
+                                                 const Eigen::Affine3d &pose, const Geometry &geometry,
+                                                 const Eigen::Quaterniond &orientation,
+                                                 const Eigen::Vector3d &tolerances)
+{
+    addPathPositionConstraint(ee_name, base_name, pose, geometry);
+    addPathOrientationConstraint(ee_name, base_name, orientation, tolerances);
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geometry) {
-    request_.path_constraints.position_constraints.push_back(TF::getPositionConstraint(ee_name, base_name, pose, geometry));
+                                                     const Eigen::Affine3d &pose, const Geometry &geometry)
+{
+    request_.path_constraints.position_constraints.push_back(
+        TF::getPositionConstraint(ee_name, base_name, pose, geometry));
 }
 
 void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances) {
-    request_.path_constraints.orientation_constraints.push_back(TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
+                                                        const Eigen::Quaterniond &orientation,
+                                                        const Eigen::Vector3d &tolerances)
+{
+    request_.path_constraints.orientation_constraints.push_back(
+        TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 }
-
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 {
