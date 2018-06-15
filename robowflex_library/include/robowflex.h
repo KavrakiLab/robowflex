@@ -1,6 +1,8 @@
 #ifndef ROBOWFLEX_
 #define ROBOWFLEX_
 
+#include <fstream>
+
 #include <yaml-cpp/yaml.h>
 
 #include <Eigen/Core>
@@ -13,6 +15,11 @@
 
 #include <moveit/ompl_interface/ompl_interface.h>
 #include <moveit/ompl_interface/model_based_planning_context.h>
+
+#define ROBOWFLEX_AT_LEAST_INDIGO ROS_VERSION_MINIMUM(1, 11, 0)
+#define ROBOWFLEX_AT_LEAST_LUNAR ROS_VERSION_MINIMUM(1, 12, 0)
+#define ROBOWFLEX_AT_LEAST_KINETIC ROS_VERSION_MINIMUM(1, 13, 0)
+#define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
 namespace robowflex
 {
@@ -62,6 +69,34 @@ namespace robowflex
 
         // Loads an YAML file to a YAML node. If path does not exist or bad format, false in first.
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
+
+        template <typename T>
+        bool messageToYAMLFile(T &msg, const std::string &file)
+        {
+            YAML::Node yaml;
+            yaml = msg;
+
+            YAML::Emitter out;
+            out << yaml;
+
+            std::ofstream fout(file);
+            fout << out.c_str();
+            fout.close();
+
+            return true;
+        }
+
+        template <typename T>
+        bool YAMLFileToMessage(T &msg, const std::string &file)
+        {
+            const auto &result = IO::loadFileToYAML(file);
+
+            if (!result.first)
+                return false;
+
+            msg = result.second.as<T>();
+            return true;
+        }
 
         class Handler
         {
@@ -269,6 +304,9 @@ namespace robowflex
                           const std::vector<std::string> &touch_links);
         bool detachObject(const std::string &name);
 
+        bool toYAMLFile(const std::string &file);
+        bool fromYAMLFile(const std::string &file);
+
     private:
         planning_scene::PlanningScenePtr scene_;
     };
@@ -389,7 +427,6 @@ namespace robowflex
             ompl_interface::OMPLInterface interface_;
             std::vector<std::string> configs_;
         };
-
     }  // namespace OMPL
 
     class MotionRequestBuilder
@@ -411,6 +448,9 @@ namespace robowflex
         void addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
                                           const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
         const planning_interface::MotionPlanRequest &getRequest();
+
+        bool toYAMLFile(const std::string &file);
+        bool fromYAMLFile(const std::string &file);
 
     private:
         const Planner &planner_;
@@ -452,5 +492,7 @@ namespace robowflex
     };
 
 }  // namespace robowflex
+
+#include "yaml.h"
 
 #endif

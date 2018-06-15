@@ -95,6 +95,16 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
     return request_;
 }
 
+bool MotionRequestBuilder::toYAMLFile(const std::string &file)
+{
+    return IO::messageToYAMLFile(request_, file);
+}
+
+bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
+{
+    return IO::YAMLFileToMessage(request_, file);
+}
+
 planning_interface::MotionPlanResponse PipelinePlanner::plan(Scene &scene,
                                                              const planning_interface::MotionPlanRequest &request)
 {

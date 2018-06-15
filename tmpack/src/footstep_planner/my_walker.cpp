@@ -1,4 +1,4 @@
-#include "../../../robowflex_library/include/robowflex.h"
+#include <include/robowflex.h>
 #include <vector>
 
 #include "../tmpack_interface.cpp"

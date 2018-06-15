@@ -41,7 +41,7 @@ const std::string &Geometry::ShapeType::toString(Type type)
 }
 
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
-  : type_(type), dimensions_(dimensions), resource_(IO::resolvePath(resource)), shape_(loadShape())
+  : type_(type), dimensions_(dimensions), resource_("file://" + IO::resolvePath(resource)), shape_(loadShape())
 {
 }
 

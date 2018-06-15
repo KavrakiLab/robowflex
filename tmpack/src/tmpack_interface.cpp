@@ -1,7 +1,7 @@
 #ifndef TMPACK_INTERFACE_CPP
 #define TMPACK_INTERFACE_CPP
 
-#include "../../robowflex_library/include/robowflex.h"
+#include <include/robowflex.h>
 #include <ros/ros.h>
 #include <vector>
 
