@@ -8,12 +8,14 @@ using namespace robowflex;
 void shutdown(int sig)
 {
     ros::shutdown();
+    exit(0);
 }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
+    signal(SIGSEGV, shutdown);
 
     Robot r2("r2");
     r2.initialize("package://r2_description/urdf/r2c6.urdf",              // urdf
