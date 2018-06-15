@@ -16,7 +16,7 @@ namespace robowflex
     class TMPConstraintHelper
     {
     public:
-        TMPConstraintHelper() {};
+        TMPConstraintHelper();
         virtual T getTaskPlanCallback(planning_interface::MotionPlanRequest& request) = 0;
         virtual T planLinearlyCallback() = 0;
     };
@@ -27,7 +27,7 @@ namespace robowflex
   template <class T> class TMPSceneGraphHelper
     {
     public:
-        TMPSceneGraphHelper() {};
+        TMPSceneGraphHelper();
         virtual T getTaskPlanCallback(planning_interface::MotionPlanRequest& request) = 0;
         virtual T planLinearlyCallback() = 0;
     };
