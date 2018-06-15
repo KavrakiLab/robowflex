@@ -53,9 +53,6 @@ int main(int argc, char **argv)
     request.addPathPositionConstraint(
         "r2/right_leg/gripper/tip", "/world", Eigen::Affine3d(Eigen::Translation3d(1.983001, 0.321150, -1.361)),
         Geometry(Geometry::ShapeType::Type::SPHERE, Eigen::Vector3d(0.01, 0.01, 0.01), "right_foot_base_position"));
-                       OMPL::Settings(), // settings
-                       "ompl_interface/OMPLPlanningContextManager" // plugin
-                         );
 
     std::vector<double> start = START_POSE;
 
