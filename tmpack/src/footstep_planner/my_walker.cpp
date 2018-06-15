@@ -72,7 +72,7 @@ namespace robowflex
         // the goal is to not have to build the motion requests by hand every time
         // TMP has a common pattern of using the last goal as the new start
         // However, we need a way to pass in new constraints for each step
-        // The constraints cause the alternating legs to stay still
+        // For example, in walking the constraints cause the alternating legs to stay still
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
@@ -86,6 +86,14 @@ namespace robowflex
             // Not currently used, just seeing if the interface works
             std::vector<footstep_planning::point_2D> foot_placements =
                 my_step_planner.calculate_foot_placements(points, points[9], points[17], footstep_planning::foot::left);
+
+            //Benchmarking code. We'll loop through random locations and try to plan to them.
+            //TODO: Get random pose for torso, plan to it and return plan
+            double rand_x, rand_y;
+            std::uniform_real_distribution<double> uni_rnd_smpl(-100,100);
+            std::default_random_engine re;
+            rand_x = uni_rnd_smpl(re)*0.75;
+            rand_y = uni_rnd_smpl(re)*1.5;
 
             return my_plan;
         }
