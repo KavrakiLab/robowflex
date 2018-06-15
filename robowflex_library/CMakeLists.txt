@@ -44,10 +44,13 @@ link_directories(${catkin_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME} src/planner.cpp src/scene.cpp src/robot.cpp src/geometry.cpp src/util.cpp src/io.cpp src/yaml.cpp)
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
-add_executable(planner_test scripts/planner_test.cpp)
-target_link_libraries(planner_test ${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
+add_executable(ur5_test scripts/ur5_test.cpp)
+target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(r2_test scripts/r2_test.cpp)
+target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 install (TARGETS ${LIBRARY_NAME}
          LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
