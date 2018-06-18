@@ -26,7 +26,10 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   roscpp
   rosbag
+  cmake_modules
 )
+
+find_package(TinyXML REQUIRED)
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
@@ -51,6 +54,7 @@ add_library(${LIBRARY_NAME}
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/openrave_xml.cpp
   src/yaml.cpp
   src/detail/r2.cpp
 )

@@ -3,11 +3,11 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
-const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnect";
+const std::string MotionRequestBuilder::DEFAULT_CONFIG = "CBiRRT2";
 
 MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
   : planner_(planner)
@@ -94,6 +94,11 @@ void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_na
 {
     request_.path_constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
+}
+
+moveit_msgs::Constraints &MotionRequestBuilder::getPathConstraints()
+{
+    return request_.path_constraints;
 }
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() const

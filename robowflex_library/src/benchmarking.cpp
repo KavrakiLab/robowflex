@@ -1,7 +1,7 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <rosbag/bag.h>
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
@@ -36,7 +36,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
-        Results results;
+        Results results(name, scene, planner, builder);
 
         for (int j = 0; j < options.runs; ++j)
         {
@@ -46,7 +46,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
             planning_interface::MotionPlanResponse response = planner.plan(scene, builder.getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
-            results.addRun(scene, name, time, response);
+            results.addRun(j, time, response);
             moveit_msgs::RobotTrajectory msg;
             response.trajectory_->getRobotTrajectoryMsg(msg);
             trajectories.push_back(msg);
@@ -54,7 +54,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
         }
 
         // TODO: maybe I don't need to repeat the name here? not sure.
-        output.writeOutput(results, name, scene, planner, builder);
+        output.dump(results); 
 
         if (options.trajectory_output_file != "")
         {
@@ -68,48 +68,32 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
     {
         bag.close();
     }
+
     output.close();
 }
 
-//void Benchmarker::writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
-//                              const MotionRequestBuilder &builder)
-//{
-    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
-
-    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-    // metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
-//}
-
-void Benchmarker::Results::addRun(const Scene &scene, const std::string &name, double time,
-                                  planning_interface::MotionPlanResponse &run)
+void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
 {
-    double length, clearance, smoothness;
-    bool correct, success = run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
-    if (success)
-        computeMetric(scene, run, correct, length, clearance, smoothness);
+    Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
+    if (metrics.success)
+        computeMetric(run, metrics);
 
-    runs.emplace_back(name, time, success,  //
-                      correct, length, clearance, smoothness);
+    runs.emplace_back(metrics);
 }
 
-void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface::MotionPlanResponse &run,  //
-                                         bool &correct, double &length, double &clearance, double &smoothness)
+void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    correct = true;
-    length = 0.0;
-    clearance = 0.0;
-    smoothness = 0.0;
+    metrics.correct = true;
+    metrics.length = 0.0;
+    metrics.clearance = 0.0;
+    metrics.smoothness = 0.0;
 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene.getSceneConst();
 
     // compute path length
     for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-        length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+        metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
 
     // compute correctness and clearance
     collision_detection::CollisionRequest request;
@@ -119,16 +103,16 @@ void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface:
         s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
 
         if (result.collision)
-            correct = false;
+            metrics.correct = false;
 
         if (!p.getWayPoint(k).satisfiesBounds())
-            correct = false;
+            metrics.correct = false;
 
         double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
         if (d > 0.0)  // in case of collision, distance is negative
-            clearance += d;
+            metrics.clearance += d;
     }
-    clearance /= (double)p.getWayPointCount();
+    metrics.clearance /= (double)p.getWayPointCount();
 
     // compute smoothness
     if (p.getWayPointCount() > 2)
@@ -156,19 +140,19 @@ void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface:
 
                 // and we normalize by the length of the segments
                 double u = 2.0 * angle;  /// (a + b);
-                smoothness += u * u;
+                metrics.smoothness += u * u;
             }
             a = b;
         }
-        smoothness /= (double)p.getWayPointCount();
+        metrics.smoothness /= (double)p.getWayPointCount();
     }
 }
 
-void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &build)
+void JSONBenchmarkOutputter::dump(const Benchmarker::Results &results)
 {
     if (not is_init)
     {
-        outfile_.open(output_path_);
+        outfile_ = IO::createFile(file_);
         outfile_ << "{";
         // TODO: output specific information about the scene and planner structs?
 
@@ -179,14 +163,14 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         outfile_ << ",";
     }
 
-    outfile_ << "\"" << name << "\":["; 
+    outfile_ << "\"" << results.name << "\":[";
 
     for (size_t i = 0; i < results.runs.size(); i++)
     {
         Benchmarker::Results::Run run = results.runs[i];
         outfile_ << "{";
 
-        outfile_ << "\"name\": \"" << run.name << "\",";
+        outfile_ << "\"name\": \"run_" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
         outfile_ << "\"success\":" << run.success << ",";
         outfile_ << "\"correct\":" << run.correct << ",";
@@ -194,7 +178,7 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         outfile_ << "\"clearance\":";
         // Check for infinity.
         if (run.clearance == std::numeric_limits<double>::infinity())
-            outfile_ <<  std::numeric_limits<double>::max() << ",";
+            outfile_ << std::numeric_limits<double>::max() << ",";
         else
             outfile_ << run.clearance << ",";
         outfile_ << "\"smoothness\":" << run.smoothness;
@@ -204,6 +188,7 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         if (i != results.runs.size() - 1)
             outfile_ << "," << std::endl;
     }
+
     outfile_ << "]";
 }
 
@@ -211,4 +196,27 @@ void JSONBenchmarkOutputter::close()
 {
     outfile_ << "}" << std::endl;
     outfile_.close();
+}
+
+void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
+{
+
+// void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
+// &planner,
+//                              const MotionRequestBuilder &builder)
+//{
+// metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
+// metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+
+// metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
+// metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
+// metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
+// metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
+// metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
+//}
+
+}
+
+void OMPLBenchmarkOutputter::close()
+{
 }

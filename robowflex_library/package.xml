@@ -17,6 +17,8 @@
   <depend>eigen</depend>
   <depend>rosbag</depend>
   <depend>moveit_ros_planning</depend>
+  <depend>tinyxml</depend>
+  <build_depend>cmake_modules</build_depend>
   <!-- <depend>moveit_planners_ompl</depend> -->
 
   <export>

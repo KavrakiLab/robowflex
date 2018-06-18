@@ -1,6 +1,6 @@
 #include <geometric_shapes/shape_operations.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
@@ -97,43 +97,4 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
         shapes::constructMsgFromShape(shape_.get(), msg);
 
     return boost::get<shape_msgs::Mesh>(msg);
-}
-
-Geometry::Geometry(TiXmlElement *elem, const Eigen::Affine3d &this_tf)
-{
-    if (not elem)
-    {
-        ROS_ERROR("No Body element?");
-        throw Exception(2, "Malformed File: No Body Element");
-    }
-    TiXmlHandle hBody(elem);
-    TiXmlElement *geom = hBody.FirstChild("Geom").Element();
-    if (not geom)
-        throw Exception(2, "Malformed File: No Geom attribute?");
-
-    // Set type.
-    const char *geom_type=  geom->Attribute("type");
-    if (not geom_type)
-        throw Exception(2, "Malformed File: No type attribute in geom element");
-    type_ = stringToType(geom_type); 
-
-    // Set resource
-    // TODO
-
-    // Set Dimensions
-    if (type_ == MESH)
-        dimensions_ = Eigen::Vector3d(1.0, 1.0, 1.0);
-
-    TiXmlHandle hGeom(geom);
-    if (type_ == BOX)
-    {
-        TiXmlElement *extents = hGeom.FirstChild("extents").Element();
-        if (not extents)
-            throw Exception(2, "Malformed File: No extents in a box geometry.");
-        std::vector<double> extent_vec = splitAndParse(extents->GetText());
-        dimensions_ = Eigen::Vector3d(extent_vec[0] * 2.0, extent_vec[1] * 2.0, extent_vec[2] * 2.0);
-    }
-
-    // Set Offset
-    offset_ = this_tf * TFfromXML(hGeom.FirstChild("translation").Element(), nullptr, hGeom.FirstChild("quat").Element());
 }

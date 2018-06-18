@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <signal.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 

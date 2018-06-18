@@ -15,7 +15,7 @@
 
 #include <eigen_conversions/eigen_msg.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
@@ -338,7 +338,10 @@ const std::string IO::Handler::generateUUID()
 
 std::ofstream IO::createFile(const std::string &file)
 {
-    boost::filesystem::create_directories(file);
+    boost::filesystem::path path(file);
+    ROS_WARN("Parent path: %s", path.parent_path().string().c_str());
+    if (path.parent_path() != "")
+        boost::filesystem::create_directories(path.parent_path());
     std::ofstream out(file, std::ofstream::out | std::ofstream::trunc);
 
     return out;
