@@ -1,6 +1,6 @@
 #include <eigen_conversions/eigen_msg.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 

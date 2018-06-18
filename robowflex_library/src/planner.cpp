@@ -3,7 +3,7 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 

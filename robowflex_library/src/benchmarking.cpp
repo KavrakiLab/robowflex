@@ -1,6 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 

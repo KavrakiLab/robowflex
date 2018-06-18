@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <signal.h>
 
-#include "robowflex.h"
-#include "detail/r2.h"
+#include <robowflex/robowflex.h>
+#include <robowflex/detail/r2.h>
 
 using namespace robowflex;
 
