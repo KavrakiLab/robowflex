@@ -16,7 +16,7 @@ void Benchmarker::addBenchmarkingRequest(const std::string &name, Scene &scene, 
                       std::forward_as_tuple(scene, planner, request));
 }
 
-void Benchmarker::benchmark(const std::string &file, const Options &options)
+void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
 {
     unsigned int count = 0;
     const unsigned int total = requests_.size() * options.runs;
@@ -42,13 +42,15 @@ void Benchmarker::benchmark(const std::string &file, const Options &options)
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
-        writeOutput(file, results, scene, planner, builder);
+        // TODO: maybe I don't need to repeat the name here? not sure.
+        output.writeOutput(results, name, scene, planner, builder);
     }
+    output.close();
 }
 
-void Benchmarker::writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
-                              const MotionRequestBuilder &builder)
-{
+//void Benchmarker::writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
+//                              const MotionRequestBuilder &builder)
+//{
     // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
     // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
 
@@ -57,7 +59,7 @@ void Benchmarker::writeOutput(const std::string &file, const Results &results, c
     // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
     // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
     // metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
-}
+//}
 
 void Benchmarker::Results::addRun(const Scene &scene, const std::string &name, double time,
                                   planning_interface::MotionPlanResponse &run)
@@ -137,4 +139,53 @@ void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface:
         }
         smoothness /= (double)p.getWayPointCount();
     }
+}
+
+void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &build)
+{
+    if (not is_init)
+    {
+        outfile_.open(output_path_);
+        outfile_ << "{";
+        // TODO: output specific information about the scene and planner structs?
+
+        is_init = true;
+    }
+    else
+    {
+        outfile_ << ",";
+    }
+
+    outfile_ << "\"" << name << "\":["; 
+
+    for (size_t i = 0; i < results.runs.size(); i++)
+    {
+        Benchmarker::Results::Run run = results.runs[i];
+        outfile_ << "{";
+
+        outfile_ << "\"name\": \"" << run.name << "\",";
+        outfile_ << "\"time\":" << run.time << ",";
+        outfile_ << "\"success\":" << run.success << ",";
+        outfile_ << "\"correct\":" << run.correct << ",";
+        outfile_ << "\"length\":" << run.length << ",";
+        outfile_ << "\"clearance\":";
+        // Check for infinity.
+        if (run.clearance == std::numeric_limits<double>::infinity())
+            outfile_ <<  std::numeric_limits<double>::max() << ",";
+        else
+            outfile_ << run.clearance << ",";
+        outfile_ << "\"smoothness\":" << run.smoothness;
+
+        outfile_ << "}";
+        // Write the command between each run.
+        if (i != results.runs.size() - 1)
+            outfile_ << "," << std::endl;
+    }
+    outfile_ << "]";
+}
+
+void JSONBenchmarkOutputter::close()
+{
+    outfile_ << "}" << std::endl;
+    outfile_.close();
 }

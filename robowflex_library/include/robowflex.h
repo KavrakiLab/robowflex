@@ -478,6 +478,9 @@ namespace robowflex
         static const std::string DEFAULT_CONFIG;
     };
 
+    // Forward Declaration.
+    class BenchmarkOutputter;
+
     class Benchmarker
     {
     public:
@@ -511,7 +514,9 @@ namespace robowflex
 
                 const std::string name;
                 const double time;
+                /** Whether or not MoveIt returns a 'success'. */
                 const bool success;
+                /** True if the path is actually collision free. */
                 const bool correct;
                 const double length;
                 const double clearance;
@@ -535,14 +540,44 @@ namespace robowflex
         void addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
                                     MotionRequestBuilder &request);
 
-        void benchmark(const std::string &file, const Options &options = Options());
-
-    protected:
-        void writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
-                         const MotionRequestBuilder &builder);
+        void benchmark(BenchmarkOutputter &output, const Options &options = Options());
 
     private:
         std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> requests_;
+    };
+
+    class BenchmarkOutputter
+    {
+    public:
+        BenchmarkOutputter(const std::string &output_path) : output_path_(output_path)
+        {
+        }
+
+        // Write one unit of output (usually a single planner) to the output.
+        virtual void writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &builder) = 0;
+
+        // Close resources the outputter is using.
+        virtual void close() = 0;
+
+    protected:
+        const std::string output_path_;
+    };
+
+    class JSONBenchmarkOutputter : public BenchmarkOutputter
+    {
+    public:
+        JSONBenchmarkOutputter(const std::string &output_path) : BenchmarkOutputter(output_path)
+        {
+        }
+
+        void writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &builder) override; 
+
+        void close() override;
+
+    private:
+        bool is_init = false;
+
+        std::ofstream outfile_;
     };
 
     class RVIZHelper
