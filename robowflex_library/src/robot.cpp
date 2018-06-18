@@ -1,4 +1,6 @@
 #include <robowflex_library/robowflex.h>
+#include <moveit/robot_state/robot_state.h>
+
 
 using namespace robowflex;
 

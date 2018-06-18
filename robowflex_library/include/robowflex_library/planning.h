@@ -158,6 +158,8 @@ namespace robowflex
 
         static const std::vector<std::string> DEFAULT_CONFIGS;
     };
+
+    std::vector<double> getFinalJointPositions(planning_interface::MotionPlanResponse response);
 }  // namespace robowflex
 
 #endif
