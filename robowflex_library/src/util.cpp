@@ -56,8 +56,8 @@ namespace
 
 void robowflex::startROS(int argc, char **argv)
 {
-    startup();
     ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
+    startup();
     signal(SIGINT, shutdown);
     signal(SIGSEGV, shutdown);
 }
