@@ -3,6 +3,8 @@
 
 namespace robowflex
 {
+    class Scene;
+
     class Robot
     {
     public:
@@ -39,6 +41,16 @@ namespace robowflex
 
         bool loadKinematics(const std::string &group);
 
+        void setState(const std::vector<double> &positions);
+        void setGroupState(const std::string &name, const std::vector<double> &positions);
+        std::vector<double> getState() const;
+
+        void setFromIK(const std::string &group, const Geometry &region, const Eigen::Affine3d &pose,
+                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+
+        const Eigen::Affine3d &getLinkTF(const std::string &name) const;
+        bool inCollision(Scene &scene) const;
+
     protected:
         // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server
         // Returns false when failure.
@@ -53,6 +65,8 @@ namespace robowflex
         robot_model::RobotModelPtr model_;
         std::map<std::string, robot_model::SolverAllocatorFn> imap_;
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;
+
+        robot_state::RobotStatePtr scratch_;
 
     private:
         static const std::string ROBOT_DESCRIPTION;

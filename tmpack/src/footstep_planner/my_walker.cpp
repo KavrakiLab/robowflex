@@ -1,4 +1,5 @@
-#include <include/robowflex.h>
+#include <robowflex_library/robowflex.h>
+#include <random>
 #include <vector>
 
 #include "../tmpack_interface.cpp"
@@ -6,16 +7,16 @@
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"
 
-#define GOAL_POSE                                                                                                      \
-    {                                                                                                                  \
-        1.07485, -0.019672, 0.000100924, 1.27794e-05, -3.73287e-06, 0.985502, 0.169662, -0.278892, -0.566762,          \
-            -0.11038, 1.4638, -0.512414, 1.8041, 1.45799, 0, 0, 0, -1.47759, -0.40627, 0.166451, 1.38375, 0.293776,    \
-            0.0480252, 1.57101, 8.88178e-16, 0, 0, -0.340968, 0.872665, -1.39626, -1.8326, -2.44346, 1.39626, 0, 0, 0, \
-            0, 0, 0, 0, 1.77636e-15, 0, 1.77636e-15, -8.88178e-16, 0, -8.88178e-16, 8.88178e-16, 0, 8.88178e-16,       \
-            8.88178e-16, 8.88178e-16, 0, 8.88178e-16, -0.872665, -1.39626, 1.8326, -2.44346, -1.39626, 8.88178e-16, 0, \
-            0, 0, 0, 0, 0, 0, 0, 8.88178e-16, 0, 0, 0, 0, 0, 0, -8.88178e-16, -2.66454e-15, -2.66454e-15, 1.77636e-15, \
-            -0.0872665, 1.77636e-15, 0                                                                                 \
-    }
+// #define GOAL_POSE                                                                                                      \
+//     {                                                                                                                  \
+//         1.07485, -0.019672, 0.000100924, 1.27794e-05, -3.73287e-06, 0.985502, 0.169662, -0.278892, -0.566762,          \
+//             -0.11038, 1.4638, -0.512414, 1.8041, 1.45799, 0, 0, 0, -1.47759, -0.40627, 0.166451, 1.38375, 0.293776,    \
+//             0.0480252, 1.57101, 8.88178e-16, 0, 0, -0.340968, 0.872665, -1.39626, -1.8326, -2.44346, 1.39626, 0, 0, 0, \
+//             0, 0, 0, 0, 1.77636e-15, 0, 1.77636e-15, -8.88178e-16, 0, -8.88178e-16, 8.88178e-16, 0, 8.88178e-16,       \
+//             8.88178e-16, 8.88178e-16, 0, 8.88178e-16, -0.872665, -1.39626, 1.8326, -2.44346, -1.39626, 8.88178e-16, 0, \
+//             0, 0, 0, 0, 0, 0, 0, 8.88178e-16, 0, 0, 0, 0, 0, 0, -8.88178e-16, -2.66454e-15, -2.66454e-15, 1.77636e-15, \
+//             -0.0872665, 1.77636e-15, 0                                                                                 \
+//     }
 
 namespace robowflex
 {
@@ -75,11 +76,9 @@ namespace robowflex
         // For example, in walking the constraints cause the alternating legs to stay still
         std::vector<std::vector<double>> getTaskPlan()
         {
-            std::cout<<"Getting task plan"<<std::endl;
-
             std::vector<std::vector<double>> my_plan;
-            std::vector<double> goal = GOAL_POSE;
-            my_plan.push_back(goal);
+            // std::vector<double> goal = GOAL_POSE;
+            // my_plan.push_back(goal);
 
             // is this good style? The superclass has a reference to these
             my_constraint_helper._getTaskPlan_Callback();
@@ -97,6 +96,9 @@ namespace robowflex
             rand_x = uni_rnd_smpl(re)*0.75;
             rand_y = uni_rnd_smpl(re)*1.5;
 
+            //to make loop in plan_linearly running
+            my_plan.push_back({0.0, 0.0, 0.0});
+
             return my_plan;
         }
 
@@ -107,8 +109,8 @@ namespace robowflex
 
         // Loads the scene description and creates the graph we will use for planning
         MyWalker(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
-                 MotionRequestBuilder &request, std::vector<double> &start)
-          : TMPackInterface(robot, group_name, planner, scene, request, start, my_constraint_helper,
+                 MotionRequestBuilder &request)
+          : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
                             my_scene_graph_helper)
         {
             std::vector<footstep_planning::line_segment> line_segments;

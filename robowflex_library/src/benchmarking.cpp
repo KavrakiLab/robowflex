@@ -3,7 +3,7 @@
 #include <rosbag/bag.h>
 #include <moveit/version.h>
 
-#include <robowflex/robowflex.h>
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
@@ -57,7 +57,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
 
         // TODO: maybe I don't need to repeat the name here? not sure.
         results.finish = IO::getDate();
-        output.dump(results); 
+        output.dumpResult(results); 
 
         if (options.trajectory_output_file != "")
         {
@@ -71,8 +71,6 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
     {
         bag.close();
     }
-
-    output.close();
 }
 
 void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
@@ -86,6 +84,7 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
+    metrics.waypoints = 0.0;
     metrics.correct = true;
     metrics.length = 0.0;
     metrics.clearance = 0.0;
@@ -93,6 +92,8 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene.getSceneConst();
+
+    metrics.waypoints = p.getWayPointCount();
 
     // compute path length
     for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
@@ -151,11 +152,11 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     }
 }
 
-void JSONBenchmarkOutputter::dump(const Benchmarker::Results &results)
+void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     if (not is_init)
     {
-        outfile_ = IO::createFile(file_);
+        IO::createFile(outfile_, file_);
         outfile_ << "{";
         // TODO: output specific information about the scene and planner structs?
 
@@ -195,24 +196,21 @@ void JSONBenchmarkOutputter::dump(const Benchmarker::Results &results)
     outfile_ << "]";
 }
 
-void JSONBenchmarkOutputter::close()
+JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 {
     outfile_ << "}" << std::endl;
     outfile_.close();
 }
 
-void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
+void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
-    if (!is_init)
-    {
-        is_init = true;
-        outfile_ = IO::createFile(file_);
-    }
+    std::ofstream out;
+    IO::createFile(out, prefix_ + results.name + ".log");
 
-    outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
-    outfile_ << "Experiment " << results.name << std::endl;         // experiment
-    outfile_ << "Running on " << IO::getHostname() << std::endl;    // hostname
-    outfile_ << "Starting at " << IO::getDate() << std::endl;       // date
+    out << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
+    out << "Experiment " << results.name << std::endl;         // experiment
+    out << "Running on " << IO::getHostname() << std::endl;    // hostname
+    out << "Starting at " << IO::getDate() << std::endl;       // date
 
     // setup
     moveit_msgs::PlanningScene scene_msg;
@@ -227,50 +225,60 @@ void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
     YAML::Emitter yaml_out;
     yaml_out << yaml;
 
-    outfile_ << "<<<|" << std::endl;
-    outfile_ << yaml_out.c_str() << std::endl;
-    outfile_ << "|>>>" << std::endl;
+    out << "<<<|" << std::endl;
+    out << yaml_out.c_str() << std::endl;
+    out << "|>>>" << std::endl;
 
     // random seed (fake)
-    outfile_ << "0 is the random seed" << std::endl;
+    out << "0 is the random seed" << std::endl;
 
     // time limit
-    outfile_ << request.allowed_planning_time << " seconds per run" << std::endl;
+    out << request.allowed_planning_time << " seconds per run" << std::endl;
 
     // memory limit
-    outfile_ << "-1 MB per run" << std::endl;
+    out << "-1 MB per run" << std::endl;
 
     // num_runs
-    outfile_ << results.runs.size() << " runs per planner" << std::endl;
+    out << results.runs.size() << " runs per planner" << std::endl;
 
     // total_time
 
     auto duration = results.finish - results.start;
     double total = (double)duration.total_milliseconds() / 1000.;
-    outfile_ << total << " seconds spent to collect the data" << std::endl;
+    out << total << " seconds spent to collect the data" << std::endl;
 
     // num_enums / enums
-    outfile_ << "0 enum types" << std::endl;
+    out << "0 enum types" << std::endl;
 
     // num_planners
-    outfile_ << "1 planners" << std::endl;
+    out << "1 planners" << std::endl;
 
-    // void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
-    // &planner,
-    //                              const MotionRequestBuilder &builder)
-    //{
-    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+    // planners_data -> planner_data
+    out << request.planner_id << std::endl;  // planner_name
+    out << "0 common properties" << std::endl;
+    out << "7 properties for each run" << std::endl;  // run_properties
+    out << "waypoints INTEGER" << std::endl;
+    out << "time REAL" << std::endl;
+    out << "success BOOLEAN" << std::endl;
+    out << "correct BOOLEAN" << std::endl;
+    out << "length REAL" << std::endl;
+    out << "clearance REAL" << std::endl;
+    out << "smoothness REAL" << std::endl;
 
-    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-    // metrics["path_" + run.description_[j] + "_time REAL"] =
-    // boost::lexical_cast<std::string>(run.processing_time_[j]);
-    //}
-}
+    out << results.runs.size() << " runs" << std::endl;
 
-void OMPLBenchmarkOutputter::close()
-{
+    for (auto &run : results.runs)
+    {
+        out << run.waypoints << "; "   //
+            << run.time << "; "        //
+            << run.success << "; "     //
+            << run.correct << "; "     //
+            << run.length << "; "      //
+            << run.clearance << "; "   //
+            << run.smoothness << "; "  //
+            << std::endl;
+    }
+
+    out << "." << std::endl;
+    out.close();
 }

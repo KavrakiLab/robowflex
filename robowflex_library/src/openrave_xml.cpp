@@ -3,9 +3,6 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3.h>
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
 #include <eigen_conversions/eigen_msg.h>
 #include <geometric_shapes/shape_operations.h>
 
@@ -14,9 +11,7 @@
 #include <sstream>
 #include <tinyxml.h>
 
-#include <robowflex/robowflex.h>
-#include <robowflex/openrave_xml.h>
-#include <robowflex/util.h>
+#include <robowflex_library/robowflex.h>
 #include <ros/ros.h>
 
 using namespace openrave;

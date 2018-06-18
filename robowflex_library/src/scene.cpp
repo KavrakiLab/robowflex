@@ -1,6 +1,4 @@
-#include <robowflex/robowflex.h>
-#include <robowflex/openrave_xml.h>
-#include <moveit/robot_state/conversions.h>
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 

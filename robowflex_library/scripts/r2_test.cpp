@@ -1,22 +1,14 @@
 #include <ros/ros.h>
 #include <signal.h>
 
-#include <robowflex/robowflex.h>
-#include <robowflex/detail/r2.h>
+#include <robowflex_library/robowflex.h>
+#include <robowflex_library/detail/r2.h>
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::shutdown();
-    exit(0);
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
-    signal(SIGSEGV, shutdown);
+    startROS(argc, argv);
 
     R2Robot r2;
     r2.initialize({"legsandtorso"});

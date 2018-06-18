@@ -1,5 +1,5 @@
-#include <robowflex/robowflex.h>
-#include <robowflex/detail/r2.h>
+#include <robowflex_library/robowflex.h>
+#include <robowflex_library/detail/r2.h>
 
 using namespace robowflex;
 

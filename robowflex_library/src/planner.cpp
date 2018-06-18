@@ -3,11 +3,11 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
-#include <robowflex/robowflex.h>
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
-const std::string MotionRequestBuilder::DEFAULT_CONFIG = "CBiRRT2";
+const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS = {"CBiRRT2", "RRTConnect"};
 
 MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
   : planner_(planner)
@@ -27,12 +27,19 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 
     // Default planner (find an RRTConnect config, for Indigo)
     auto &configs = planner.getPlannerConfigs();
-    const auto &found = std::find_if(std::begin(configs), std::end(configs), [](const std::string &s) {
-        return s.find(DEFAULT_CONFIG) != std::string::npos;
-    });
 
-    if (found != std::end(configs))
-        request_.planner_id = *found;
+    for (const auto &config : DEFAULT_CONFIGS)
+    {
+        const auto &found = std::find_if(std::begin(configs), std::end(configs), [config](const std::string &s) {
+            return s.find(config) != std::string::npos;
+        });
+
+        if (found != std::end(configs))
+        {
+            request_.planner_id = *found;
+            break;
+        }
+    }
 }
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)

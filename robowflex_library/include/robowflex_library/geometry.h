@@ -30,6 +30,9 @@ namespace robowflex
         Geometry(const Geometry &) = delete;             // non construction-copyable
         Geometry &operator=(const Geometry &) = delete;  // non copyable
 
+        const bool contains(const Eigen::Vector3d &point) const;
+        Eigen::Vector3d sample(const unsigned int attempts = 50) const;
+
         const bool isMesh() const;
 
         const shape_msgs::SolidPrimitive getSolidMsg() const;
@@ -40,13 +43,20 @@ namespace robowflex
             return shape_;
         }
 
+        const bodies::BodyPtr &getBody() const
+        {
+            return body_;
+        }
+
     private:
         shapes::Shape *loadShape() const;
+        bodies::Body *loadBody() const;
 
         ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
         std::string resource_{""};                                   // Resource locator for MESH types.
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
         const shapes::ShapePtr shape_{nullptr};                      // Loaded shape.
+        const bodies::BodyPtr body_{nullptr};                        // Body operation.
     };
 
     namespace TF
@@ -65,6 +75,8 @@ namespace robowflex
                                                                     const std::string &base_name,
                                                                     const Eigen::Quaterniond &orientation,
                                                                     const Eigen::Vector3d &tolerances);
+
+        Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
     }  // namespace TF
 }  // namespace robowflex
 

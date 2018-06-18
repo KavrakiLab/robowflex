@@ -22,12 +22,13 @@
 #define ROBOWFLEX_AT_LEAST_KINETIC ROS_VERSION_MINIMUM(1, 13, 0)
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
-#include "robowflex/util.h"
-#include "robowflex/geometry.h"
-#include "robowflex/scene.h"
-#include "robowflex/planning.h"
-#include "robowflex/benchmarking.h"
+#include "util.h"
+#include "geometry.h"
+#include "scene.h"
+#include "planning.h"
+#include "benchmarking.h"
 
-#include "robowflex/yaml.h"
+#include "openrave_xml.h"
+#include "yaml.h"
 
 #endif
