@@ -95,6 +95,9 @@ namespace robowflex
             rand_x = uni_rnd_smpl(re)*0.75;
             rand_y = uni_rnd_smpl(re)*1.5;
 
+            //to make loop in plan_linearly running
+            my_plan.push_back({0.0, 0.0, 0.0});
+
             return my_plan;
         }
 

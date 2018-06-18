@@ -66,9 +66,9 @@ int main(int argc, char **argv)
     while (count++ < NUM_ITERATIONS)
     {
         size_t begin = ros::Time::now().nsec;
-        // std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
-        planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+        std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
+        //planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
+        if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
             success_count++;
         }
         time_spent += (ros::Time::now().nsec - begin);
