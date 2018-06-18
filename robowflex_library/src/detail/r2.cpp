@@ -1,5 +1,5 @@
-#include "robowflex.h"
-#include "detail/r2.h"
+#include <robowflex/robowflex.h>
+#include <robowflex/detail/r2.h>
 
 using namespace robowflex;
 
@@ -7,7 +7,7 @@ const std::string R2Robot::URDF{"package://r2_description/urdf/r2c6.urdf"};
 const std::string R2Robot::SRDF{"package://r2_moveit_config/config/r2.srdf"};
 const std::string R2Robot::LIMITS{"package://r2_moveit_config/config/joint_limits.yaml"};
 const std::string R2Robot::KINEMATICS{"package://r2_moveit_config/config/kinematics.yaml"};
-const std::string R2Robot::CACHED{IO::resolvePath("package://robot_ragdoll_demos/config")};
+const std::string R2Robot::CACHED{"package://robot_ragdoll_demos/config"};
 const std::vector<std::string> R2Robot::SAMPLERS{"moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator",  //
                                                  "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",        //
                                                  "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"};
@@ -27,7 +27,7 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
 
     // These need to go in the node namespace
     ros::NodeHandle nh("~");
-    nh.setParam("cached_ik_path", CACHED);
+    nh.setParam("cached_ik_path", IO::resolvePath(CACHED));
 
     std::stringstream ss;
     for (std::size_t i = 0; i < SAMPLERS.size(); ++i)

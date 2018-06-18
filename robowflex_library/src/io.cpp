@@ -11,11 +11,13 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <boost/asio/ip/host_name.hpp>
+
 #include <ros/package.h>
 
 #include <eigen_conversions/eigen_msg.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
@@ -334,4 +336,25 @@ const std::string IO::Handler::generateUUID()
     std::replace(s.begin(), s.end(), '-', '_');
 
     return s;
+}
+
+std::ofstream IO::createFile(const std::string &file)
+{
+    boost::filesystem::path path(file);
+    const auto parent = path.parent_path().string();
+
+    if (!parent.empty())
+        boost::filesystem::create_directories(parent);
+
+    return std::ofstream(file, std::ofstream::out | std::ofstream::trunc);
+}
+
+const std::string IO::getHostname()
+{
+    return boost::asio::ip::host_name();
+}
+
+boost::posix_time::ptime IO::getDate()
+{
+    return boost::posix_time::microsec_clock::local_time();
 }

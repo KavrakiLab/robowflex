@@ -43,9 +43,11 @@ int main(int argc, char **argv)
 
     ur5.loadKinematics("manipulator");
 
-    planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-        return 1;
+    Benchmarker benchmark;
+    benchmark.addBenchmarkingRequest("test", scene, planner, request);
+
+    OMPLBenchmarkOutputter out("test.log");
+    benchmark.benchmark(out);
 
     return 0;
 }
