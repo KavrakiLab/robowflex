@@ -12,7 +12,7 @@ namespace robowflex
         class Options
         {
         public:
-            Options() : runs(100)
+            Options() : runs(10)
             {
             }
 
@@ -93,12 +93,10 @@ namespace robowflex
         }
 
         void dump(const Benchmarker::Results &results) override;
-
         void close() override;
 
     private:
-        bool is_init = false;
-
+        bool is_init{false};
         std::ofstream outfile_;
     };
 
@@ -110,12 +108,10 @@ namespace robowflex
         }
 
         void dump(const Benchmarker::Results &results) override;
-
         void close() override;
 
     private:
-        bool is_init = false;
-
+        bool is_init{false};
         std::ofstream outfile_;
     };
 }  // namespace robowflex

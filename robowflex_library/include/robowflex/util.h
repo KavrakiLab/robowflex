@@ -53,6 +53,8 @@ namespace robowflex
         // Creates a file
         std::ofstream createFile(const std::string &file);
 
+        const std::string getHostname();
+
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)
         {

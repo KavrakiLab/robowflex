@@ -1,5 +1,7 @@
 #include <boost/math/constants/constants.hpp>
 
+#include <moveit/version.h>
+
 #include <robowflex/robowflex.h>
 
 using namespace robowflex;
@@ -176,21 +178,38 @@ void JSONBenchmarkOutputter::close()
 
 void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
 {
+    if (!is_init)
+    {
+        is_init = true;
+        outfile_ = IO::createFile(file_);
+    }
 
-// void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
-// &planner,
-//                              const MotionRequestBuilder &builder)
-//{
-// metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-// metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+    outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;
+    outfile_ << "Experiment " << results.name << std::endl;
+    outfile_ << "Running on " << IO::getHostname() << std::endl;
 
-// metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-// metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-// metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-// metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-// metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
-//}
+    // Experiment setup
+    moveit_msgs::PlanningScene scene_msg;
+    results.scene.getSceneConst()->getPlanningSceneMsg(scene_msg);
+    outfile_ << "<<<|" << std::endl;
+    outfile_ << "Motion plan request:" << std::endl << results.builder.getRequest() << std::endl;
+    outfile_ << "Planning scene:" << std::endl << scene_msg << std::endl;
+    outfile_ << "|>>>" << std::endl;
 
+    // void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
+    // &planner,
+    //                              const MotionRequestBuilder &builder)
+    //{
+    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
+    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+
+    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
+    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
+    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
+    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
+    // metrics["path_" + run.description_[j] + "_time REAL"] =
+    // boost::lexical_cast<std::string>(run.processing_time_[j]);
+    //}
 }
 
 void OMPLBenchmarkOutputter::close()
