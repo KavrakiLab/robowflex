@@ -61,10 +61,9 @@ int main(int argc, char **argv)
     ros::Rate rate(0.5);
     // std::vector<double> start = START_POSE; //We ignore this for the YAML start
 
-    std::vector<double> start = request.getRequest().start_state.joint_state.position;
 
 
-    MyWalker walker(r2, "legsandtorso", planner, scene, request, r2.getModel()->getJointModelGroup("legsandtorso"), start);//, start);
+    MyWalker walker(r2, "legsandtorso", planner, scene, request);//, r2.getModel()->getJointModelGroup("legsandtorso"), start);//, start);
 
 
     while (count++ < NUM_ITERATIONS)

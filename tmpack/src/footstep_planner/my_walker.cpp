@@ -46,7 +46,7 @@ namespace robowflex
                 // do nothing
             }
 
-          void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const robot_model::JointModelGroup *jmg, const std::vector<double> &joint_positions)
+          void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const std::vector<double> &joint_positions)
             {
                 //Hopefully z is correct height
                 double x = 0, y = 0, z = -0.95;
@@ -77,8 +77,7 @@ namespace robowflex
                 robot.setState(s);
 
                 request.addPathPoseConstraint(
-                    other_tip_name, "world",
-                    Eigen::Affine3d(tip_location * Eigen::Quaterniond::Identity()),
+                                              other_tip_name, "world", tip_constraint_tf,
                     Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1), "my_sphere_for_constraint_2"),
                     tip_orientation,
                     Eigen::Vector3d(0.01, 0.01, 0.01));
@@ -151,8 +150,8 @@ namespace robowflex
 
         // Loads the scene description and creates the graph we will use for planning
         MyWalker(Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
-                 MotionRequestBuilder &request, robot_model::JointModelGroup *jmg, std::vector<double> real_start_state)
-          : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper, my_scene_graph_helper, jmg, real_start_state)
+                 MotionRequestBuilder &request)
+          : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper, my_scene_graph_helper)
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;

@@ -16,7 +16,7 @@ namespace robowflex
     public:
         // TMPConstraintHelper() = 0;
         virtual void _getTaskPlan_Callback() = 0;
-      virtual void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const robot_model::JointModelGroup *jmg, const std::vector<double> &joint_positions) = 0;
+        virtual void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const std::vector<double> &joint_positions) = 0;
     };
 
     // Class to help manipulate the scene graph when running the plan linearly
@@ -37,12 +37,8 @@ namespace robowflex
         OMPL::OMPLPipelinePlanner &planner;
         Scene &scene;
         MotionRequestBuilder &request;
-        std::vector<double> &real_start_state;
 
-
-        robot_model::JointModelGroup *jmg;
-
-
+        // robot_model::JointModelGroup *jmg;
 
         // We use these callbacks to implement domain semantics
         TMPConstraintHelper &constraint_helper;
@@ -58,20 +54,17 @@ namespace robowflex
 
             std::cout << "Goals: " << goals.size() << std::endl;
 
-            std::vector<double> next_start_joint_positions = real_start_state;
+            std::vector<double> next_start_joint_positions = request.getRequest().start_state.joint_state.position;
 
             for (std::vector<double> goal_conf : goals)
             {
                 // domain semantics can all be done here?
-                constraint_helper._planLinearly_Callback(request, goal_conf, robot, jmg, next_start_joint_positions);
+                constraint_helper._planLinearly_Callback(request, goal_conf, robot, next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
                 planning_interface::MotionPlanResponse response = planner.plan(scene, request.getRequest());
                 responses.push_back(response);
 
-                // moveit_msgs::MotionPlanResponse msg;
-                // response.getMessage(msg);
-                // std::vector<double> joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
                 next_start_joint_positions = getFinalJointPositions(response);
                 request.setStartConfiguration(next_start_joint_positions);
 
@@ -84,7 +77,7 @@ namespace robowflex
     public:
         TMPackInterface(Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
                         Scene &scene, MotionRequestBuilder &request, TMPConstraintHelper &constraint_helper,
-                        TMPSceneGraphHelper &scene_graph_helper, robot_model::JointModelGroup *jmg, std::vector<double> real_start_state)
+                        TMPSceneGraphHelper &scene_graph_helper)
           : robot(robot)
           , group_name(group_name)
           , planner(planner)
@@ -92,8 +85,6 @@ namespace robowflex
           , request(request)
           , constraint_helper(constraint_helper)
           , scene_graph_helper(scene_graph_helper)
-          , jmg(jmg)
-          , real_start_state(real_start_state)
         {
         }
 
