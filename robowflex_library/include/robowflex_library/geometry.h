@@ -42,11 +42,13 @@ namespace robowflex
 
     private:
         shapes::Shape *loadShape() const;
+        bodies::Body *loadBody() const;
 
         ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
         std::string resource_{""};                                   // Resource locator for MESH types.
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
         const shapes::ShapePtr shape_{nullptr};                      // Loaded shape.
+        const bodies::BodyPtr body_{nullptr};                        // Body operation.
     };
 
     namespace TF

@@ -41,7 +41,11 @@ const std::string &Geometry::ShapeType::toString(Type type)
 }
 
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
-  : type_(type), dimensions_(dimensions), resource_("file://" + IO::resolvePath(resource)), shape_(loadShape())
+  : type_(type)
+  , dimensions_(dimensions)
+  , resource_("file://" + IO::resolvePath(resource))
+  , shape_(loadShape())
+  , body_(loadBody())
 {
 }
 
@@ -71,6 +75,34 @@ shapes::Shape *Geometry::loadShape() const
 
         default:
             break;
+    }
+
+    return nullptr;
+}
+
+bodies::Body *Geometry::loadBody() const
+{
+    switch (type_)
+    {
+    case ShapeType::BOX:
+        return new bodies::Box(shape_.get());
+        break;
+
+    case ShapeType::SPHERE:
+        return new bodies::Sphere(shape_.get());
+        break;
+
+    case ShapeType::CYLINDER:
+        return new bodies::Cylinder(shape_.get());
+        break;
+
+    case ShapeType::MESH:
+        return new bodies::ConvexMesh(shape_.get());
+        break;
+
+    case ShapeType::CONE:
+    default:
+        break;
     }
 
     return nullptr;

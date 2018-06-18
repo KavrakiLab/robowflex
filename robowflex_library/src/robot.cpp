@@ -75,6 +75,7 @@ void Robot::loadRobotModel()
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
 
     model_ = std::move(loader_->getModel());
+    scratch_.reset(new robot_state::RobotState(model_));
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -128,4 +129,14 @@ bool Robot::loadKinematics(const std::string &name)
     model_->setKinematicsAllocators(imap_);
 
     return true;
+}
+
+void Robot::setState(const std::vector<double> &positions)
+{
+    scratch_->setVariablePositions(positions);
+}
+
+const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
+{
+    return scratch_->getGlobalLinkTransform(name);
 }
