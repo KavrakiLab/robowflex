@@ -155,3 +155,13 @@ const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);
 }
+
+bool Robot::inCollision(Scene &scene) const
+{
+    collision_detection::CollisionRequest request;
+    collision_detection::CollisionResult result;
+
+    scene.getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
+
+    return result.collision;
+}

@@ -3,6 +3,8 @@
 
 namespace robowflex
 {
+    class Scene;
+
     class Robot
     {
     public:
@@ -44,6 +46,7 @@ namespace robowflex
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
         const Eigen::Affine3d &getLinkTF(const std::string &name) const;
+        bool inCollision(Scene &scene) const;
 
     protected:
         // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server
