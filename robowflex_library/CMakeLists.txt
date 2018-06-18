@@ -63,6 +63,9 @@ target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+add_executable(wam7_test scripts/wam7_test.cpp)
+target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 add_executable(benchmark_test scripts/benchmark_test.cpp)
 target_link_libraries(benchmark_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
