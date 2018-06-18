@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometric_shapes
   eigen_conversions
   roscpp
+  rosbag
 )
 
 catkin_package(

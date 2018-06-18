@@ -1,5 +1,6 @@
 #include <boost/math/constants/constants.hpp>
 
+#include <rosbag/bag.h>
 #include "robowflex.h"
 
 using namespace robowflex;
@@ -21,12 +22,19 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
     unsigned int count = 0;
     const unsigned int total = requests_.size() * options.runs;
 
+    rosbag::Bag bag;
+
+    if (options.trajectory_output_file != "")
+    {
+        bag.open(options.trajectory_output_file, rosbag::bagmode::Write);
+    }
     for (const auto &request : requests_)
     {
         const auto &name = request.first;
         const auto &scene = std::get<0>(request.second);
         auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
+        std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
         Results results;
 
@@ -39,11 +47,26 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(scene, name, time, response);
+            moveit_msgs::RobotTrajectory msg;
+            response.trajectory_->getRobotTrajectoryMsg(msg);
+            trajectories.push_back(msg);
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
         // TODO: maybe I don't need to repeat the name here? not sure.
         output.writeOutput(results, name, scene, planner, builder);
+
+        if (options.trajectory_output_file != "")
+        {
+            for (moveit_msgs::RobotTrajectory traj : trajectories)
+            {
+                bag.write(name, ros::Time::now(), traj);
+            }
+        }
+    }
+    if (options.trajectory_output_file != "")
+    {
+        bag.close();
     }
     output.close();
 }

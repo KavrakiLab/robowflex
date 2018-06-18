@@ -487,11 +487,17 @@ namespace robowflex
         class Options
         {
         public:
-            Options() : runs(100)
+            Options() : runs(100), trajectory_output_file("")
             {
             }
 
             unsigned int runs;
+            /** 
+             * If not empty, the trajectories found by each request are stored in a topic of
+             * the request name in a bag file of the given name.
+             * If empty, no trajectories are output.
+             */
+            std::string trajectory_output_file;
         };
 
         class Results
