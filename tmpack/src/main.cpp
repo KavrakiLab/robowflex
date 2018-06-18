@@ -1,6 +1,6 @@
 #include "footstep_planner/my_walker.cpp"
-#include <include/robowflex.h>
-#include <include/detail/r2.h>
+#include <robowflex_library/robowflex.h>
+#include <robowflex_library/detail/r2.h>
 #include <ros/ros.h>
 #include <signal.h>
 

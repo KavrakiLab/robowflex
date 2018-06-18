@@ -23,7 +23,7 @@ catkin_package(
    roscpp
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp ../robowflex_library)
+include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
 add_executable(toy_planner src/main.cpp)
