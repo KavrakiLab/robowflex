@@ -44,6 +44,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
+        results.finish = IO::getDate();
         output.dump(results);
     }
 
@@ -184,17 +185,51 @@ void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
         outfile_ = IO::createFile(file_);
     }
 
-    outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;
-    outfile_ << "Experiment " << results.name << std::endl;
-    outfile_ << "Running on " << IO::getHostname() << std::endl;
+    outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
+    outfile_ << "Experiment " << results.name << std::endl;         // experiment
+    outfile_ << "Running on " << IO::getHostname() << std::endl;    // hostname
+    outfile_ << "Starting at " << IO::getDate() << std::endl;       // date
 
-    // Experiment setup
+    // setup
     moveit_msgs::PlanningScene scene_msg;
+    const auto &request = results.builder.getRequest();
+
     results.scene.getSceneConst()->getPlanningSceneMsg(scene_msg);
+
+    YAML::Node yaml;
+    yaml["scene"] = scene_msg;
+    yaml["request"] = request;
+
+    YAML::Emitter yaml_out;
+    yaml_out << yaml;
+
     outfile_ << "<<<|" << std::endl;
-    outfile_ << "Motion plan request:" << std::endl << results.builder.getRequest() << std::endl;
-    outfile_ << "Planning scene:" << std::endl << scene_msg << std::endl;
+    outfile_ << yaml_out.c_str() << std::endl;
     outfile_ << "|>>>" << std::endl;
+
+    // random seed (fake)
+    outfile_ << "0 is the random seed" << std::endl;
+
+    // time limit
+    outfile_ << request.allowed_planning_time << " seconds per run" << std::endl;
+
+    // memory limit
+    outfile_ << "-1 MB per run" << std::endl;
+
+    // num_runs
+    outfile_ << results.runs.size() << " runs per planner" << std::endl;
+
+    // total_time
+
+    auto duration = results.finish - results.start;
+    double total = (double)duration.total_milliseconds() / 1000.;
+    outfile_ << total << " seconds spent to collect the data" << std::endl;
+
+    // num_enums / enums
+    outfile_ << "0 enum types" << std::endl;
+
+    // num_planners
+    outfile_ << "1 planners" << std::endl;
 
     // void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
     // &planner,

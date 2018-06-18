@@ -42,17 +42,22 @@ namespace robowflex
 
             Results(const std::string &name, const Scene &scene, const Planner &planner,
                     const MotionRequestBuilder &builder)
-              : scene(scene), planner(planner), builder(builder)
+              : name(name), scene(scene), planner(planner), builder(builder)
             {
+                start = IO::getDate();
             }
 
             void addRun(int num, double time, planning_interface::MotionPlanResponse &run);
             void computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics);
 
+
             const std::string name;
             const Scene &scene;
             const Planner &planner;
             const MotionRequestBuilder &builder;
+
+            boost::posix_time::ptime start;
+            boost::posix_time::ptime finish;
 
             std::vector<Run> runs;
         };

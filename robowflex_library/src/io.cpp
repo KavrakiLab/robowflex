@@ -353,3 +353,8 @@ const std::string IO::getHostname()
 {
     return boost::asio::ip::host_name();
 }
+
+boost::posix_time::ptime IO::getDate()
+{
+    return boost::posix_time::microsec_clock::local_time();
+}
