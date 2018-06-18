@@ -12,7 +12,7 @@ namespace robowflex
         class Options
         {
         public:
-            Options() : runs(10)
+            Options() : runs(100)
             {
             }
 

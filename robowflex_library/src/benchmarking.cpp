@@ -237,7 +237,7 @@ void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
     // planners_data -> planner_data
     outfile_ << request.planner_id << std::endl;  // planner_name
     outfile_ << "0 common properties" << std::endl;
-    outfile_ << "6 properties for each run" << std::endl;  // run_properties
+    outfile_ << "7 properties for each run" << std::endl;  // run_properties
     outfile_ << "waypoints INTEGER" << std::endl;
     outfile_ << "time REAL" << std::endl;
     outfile_ << "success BOOLEAN" << std::endl;
