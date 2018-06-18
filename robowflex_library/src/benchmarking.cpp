@@ -63,7 +63,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
         {
             for (moveit_msgs::RobotTrajectory traj : trajectories)
             {
-                bag.write(name, ros::Time::now(), traj);
+                bag.write(name, ros::Time::now(), traj.joint_trajectory);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace openrave
 
     //void parse_kinbody(LoadIntoMoveIt &load_struct, TiXmlElement *elem, Eigen::Affine3d tf);
 
-    bool fromXMLFile(moveit_msgs::PlanningScene planning_scene, const std::string &file);
+    bool fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std::string &file);
 } // end namespace OpenRAVE
 
 

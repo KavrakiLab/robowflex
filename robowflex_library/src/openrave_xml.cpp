@@ -14,7 +14,9 @@
 #include <sstream>
 #include <tinyxml.h>
 
+#include <robowflex/robowflex.h>
 #include <robowflex/openrave_xml.h>
+#include <robowflex/util.h>
 #include <ros/ros.h>
 
 using namespace openrave;
@@ -63,7 +65,7 @@ Eigen::Affine3d TFfromXML(TiXmlElement *transElem, TiXmlElement *rotationElem, T
     return tf;
 }
 
-bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affine3d tf)
+bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affine3d tf, moveit_msgs::PlanningScene &planning_scene)
 {
     if (not elem)
     {
@@ -89,7 +91,7 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
             return false;
         }
         TiXmlHandle hDoc(&doc);
-        parse_kinbody(load_struct, hDoc.FirstChildElement("KinBody").Element(), tf * this_tf);
+        parse_kinbody(load_struct, hDoc.FirstChildElement("KinBody").Element(), tf * this_tf, planning_scene);
 
         return true;
     }
@@ -102,6 +104,7 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
             ROS_INFO("Pushing back collision object");
             moveit_msgs::CollisionObject coll_obj;
             coll_obj.id = bodyElem->Attribute("name");
+            coll_obj.header.frame_id = "world";
 
             TiXmlHandle hBody(bodyElem);
             TiXmlElement *geom = hBody.FirstChild("Geom").Element();
@@ -110,7 +113,6 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
                 ROS_ERROR("Malformed File: No Geom attribute?");
                 return false;
             }
-
 
             TiXmlHandle hGeom(geom);
             // Set Offset
@@ -126,21 +128,26 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
                 return false;
             }
 
+            std::string geom_str = std::string(geom_type);
+
             // Set Dimensions
-            if (geom_type == "trimesh")
+            if (geom_str == "trimesh")
             {
                 // Set resource
                 // TODO
 
                 //dimensions_ = Eigen::Vector3d(1.0, 1.0, 1.0);
 
+                ROS_INFO("Setting mesh");
                 coll_obj.mesh_poses.push_back(pose_msg);
             }
 
             //Geometry::ShapeType::Type type = Geometry::ShapeType::toType(geom_type);
 
-            if (geom_type == "box")
+            ROS_INFO("Type: %s", geom_str.c_str());
+            if (geom_str == "box")
             {
+                ROS_INFO("Setting box");
                 TiXmlElement *extents = hGeom.FirstChild("extents").Element();
                 if (not extents)
                 {
@@ -158,20 +165,21 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
             coll_obj.operation = moveit_msgs::CollisionObject::ADD;
 
             load_struct.coll_objects.push_back(coll_obj);
+            planning_scene.world.collision_objects.push_back(coll_obj);
         }
     }
     return true;
 }
 
-bool openrave::fromXMLFile(moveit_msgs::PlanningScene planning_scene, const std::string &file)
+bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std::string &file)
 {
     LoadIntoMoveIt load_struct;
     // Hardcoded offset on WAM (see wam7.kinbody.xml)
     Eigen::Affine3d tf;
-    tf.translation() = Eigen::Vector3d(0.0, -0.14, -0.346);
+    tf.translation() = Eigen::Vector3d(0.0, 0.0, -0.346);
     tf.linear() = Eigen::Quaterniond::Identity().toRotationMatrix();
     load_struct.robot_offset = tf;
-    TiXmlDocument doc(file.c_str());
+    TiXmlDocument doc(robowflex::IO::resolvePath(file.c_str()));
     if (!doc.LoadFile())
     {
         ROS_ERROR("Cannot load file %s", file.c_str());
@@ -204,7 +212,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene planning_scene, const std:
         const std::string pKey = std::string(pElem->Value());
         if (pKey == "KinBody")
         {
-            if (!parse_kinbody(load_struct, pElem, load_struct.robot_offset.inverse()))
+            if (!parse_kinbody(load_struct, pElem, load_struct.robot_offset.inverse(), planning_scene))
             {
                 return false;
             }
@@ -218,10 +226,9 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene planning_scene, const std:
     ROS_INFO("At the end, we found a rob translation of (%f, %f, %f), and we found %zu objects", 
              rob_trans[0], rob_trans[1], rob_trans[2], load_struct.coll_objects.size());
 
-    for (auto it : load_struct.coll_objects)
+    if (not load_struct.coll_objects.empty())
     {
         planning_scene.is_diff = true;
-        planning_scene.world.collision_objects.push_back(it);
     }
     return true;
 }

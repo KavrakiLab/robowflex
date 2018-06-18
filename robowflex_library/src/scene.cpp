@@ -1,5 +1,6 @@
 #include <robowflex/robowflex.h>
 #include <robowflex/openrave_xml.h>
+#include <moveit/robot_state/conversions.h>
 
 using namespace robowflex;
 
@@ -145,6 +146,6 @@ bool Scene::fromOpenRAVEXMLFile(const std::string &file)
     if (!openrave::fromXMLFile(msg, file))
         return false;
 
-    scene_->setPlanningSceneMsg(msg);
+    scene_->usePlanningSceneMsg(msg);
     return true;
 }
