@@ -500,37 +500,34 @@ namespace robowflex
             class Run
             {
             public:
-                Run(const std::string &name, double time, bool success, bool correct, double length, double clearance,
-                    double smoothness)
-                  : name(name)
-                  , time(time)
-                  , success(success)
-                  , correct(correct)
-                  , length(length)
-                  , clearance(clearance)
-                  , smoothness(smoothness)
+                Run(int num, double time, bool success) : time(time), success(success)
                 {
                 }
 
-                const std::string name;
-                const double time;
+                int num;
+                double time;
                 /** Whether or not MoveIt returns a 'success'. */
-                const bool success;
+                bool success;
                 /** True if the path is actually collision free. */
-                const bool correct;
-                const double length;
-                const double clearance;
-                const double smoothness;
+                bool correct;
+                double length;
+                double clearance;
+                double smoothness;
             };
 
-            Results()
+            Results(const std::string &name, const Scene &scene, const Planner &planner,
+                    const MotionRequestBuilder &builder)
+              : scene(scene), planner(planner), builder(builder)
             {
             }
 
-            void addRun(const Scene &scene, const std::string &name, double time,
-                        planning_interface::MotionPlanResponse &run);
-            void computeMetric(const Scene &scene, planning_interface::MotionPlanResponse &run, bool &correct,
-                               double &length, double &clearance, double &smoothness);
+            void addRun(int num, double time, planning_interface::MotionPlanResponse &run);
+            void computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics);
+
+            const std::string name;
+            const Scene &scene;
+            const Planner &planner;
+            const MotionRequestBuilder &builder;
 
             std::vector<Run> runs;
         };
@@ -549,28 +546,28 @@ namespace robowflex
     class BenchmarkOutputter
     {
     public:
-        BenchmarkOutputter(const std::string &output_path) : output_path_(output_path)
+        BenchmarkOutputter(const std::string &file) : file_(file)
         {
         }
 
         // Write one unit of output (usually a single planner) to the output.
-        virtual void writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &builder) = 0;
+        virtual void dump(const Benchmarker::Results &results) = 0;
 
         // Close resources the outputter is using.
         virtual void close() = 0;
 
     protected:
-        const std::string output_path_;
+        const std::string file_;
     };
 
     class JSONBenchmarkOutputter : public BenchmarkOutputter
     {
     public:
-        JSONBenchmarkOutputter(const std::string &output_path) : BenchmarkOutputter(output_path)
+        JSONBenchmarkOutputter(const std::string &file) : BenchmarkOutputter(file)
         {
         }
 
-        void writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &builder) override; 
+        void dump(const Benchmarker::Results &results) override;
 
         void close() override;
 
