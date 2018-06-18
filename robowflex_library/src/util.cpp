@@ -1,8 +1,66 @@
+#include <ros/ros.h>
+#include <signal.h>
+
+#include <boost/version.hpp>
+
+#define IS_BOOST_164 BOOST_VERSION > 106400
+
+#if IS_BOOST_164
+#include <boost/process.hpp>
+#endif
+
 #include <eigen_conversions/eigen_msg.h>
 
 #include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
+
+namespace
+{
+#if IS_BOOST_164
+    static boost::process::child roscore;
+    static bool roscore_init{false};
+#endif
+
+    void shutdown(int sig)
+    {
+        // Some stuff for later
+        ros::shutdown();
+
+#if IS_BOOST_164
+        if (roscore_init)
+            roscore.terminate();
+#endif
+    }
+
+    void startup()
+    {
+        if (!ros::master::check())
+        {
+            ROS_ERROR("rosmaster is not running!");
+#if IS_BOOST_164
+            ROS_WARN("Booting rosmaster...");
+            roscore = boost::process::child("rosmaster",                                     //
+                                            boost::process::std_in.close(),                  //
+                                            boost::process::std_out > boost::process::null,  //
+                                            boost::process::std_err > boost::process::null   //
+            );
+
+            roscore_init = true;
+#endif
+        }
+
+        exit(0);
+    }
+}  // namespace
+
+void robowflex::startROS(int argc, char **argv)
+{
+    startup();
+    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
+    signal(SIGINT, shutdown);
+    signal(SIGSEGV, shutdown);
+}
 
 Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3 &msg)
 {

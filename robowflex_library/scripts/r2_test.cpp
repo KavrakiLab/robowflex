@@ -6,17 +6,9 @@
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::shutdown();
-    exit(0);
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
-    signal(SIGSEGV, shutdown);
+    startROS(argc, argv);
 
     R2Robot r2;
     r2.initialize({"legsandtorso"});

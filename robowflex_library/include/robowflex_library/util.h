@@ -32,6 +32,8 @@ namespace robowflex
         const std::string message_;
     };
 
+    void startROS(int argc, char **argv);
+
     namespace IO
     {
         // Resolves `package://` URLs and returns canonical absolute path if path exists, otherwise ""

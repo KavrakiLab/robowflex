@@ -5,19 +5,9 @@
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::spinOnce();
-    ros::shutdown();
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
-
-    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
+    startROS(argc, argv);
 
     Robot wam7("wam7");
     wam7.initialize("package://barrett_model/robots/wam_7dof_wam_bhand.urdf.xacro",  // urdf

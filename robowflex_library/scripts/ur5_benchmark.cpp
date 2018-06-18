@@ -5,16 +5,9 @@
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::spinOnce();
-    ros::shutdown();
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
+    startROS(argc, argv);
 
     Robot ur5("ur5");
     ur5.initialize("package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
