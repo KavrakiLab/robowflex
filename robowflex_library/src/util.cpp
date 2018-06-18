@@ -31,6 +31,8 @@ namespace
         if (roscore_init)
             roscore.terminate();
 #endif
+
+        exit(0);
     }
 
     void startup()
@@ -49,8 +51,6 @@ namespace
             roscore_init = true;
 #endif
         }
-
-        exit(0);
     }
 }  // namespace
 
