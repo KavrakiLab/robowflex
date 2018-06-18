@@ -53,11 +53,11 @@ namespace robowflex
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
         // Creates a file
-        std::ofstream createFile(const std::string &file);
+        void createFile(std::ofstream &out, const std::string &file);
 
         const std::string getHostname();
 
-        boost::posix_time::ptime  getDate();
+        boost::posix_time::ptime getDate();
 
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)

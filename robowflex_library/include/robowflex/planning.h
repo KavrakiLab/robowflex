@@ -156,7 +156,7 @@ namespace robowflex
 
         planning_interface::MotionPlanRequest request_;
 
-        static const std::string DEFAULT_CONFIG;
+        static const std::vector<std::string> DEFAULT_CONFIGS;
     };
 }  // namespace robowflex
 

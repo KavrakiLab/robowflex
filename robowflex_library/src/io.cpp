@@ -338,7 +338,7 @@ const std::string IO::Handler::generateUUID()
     return s;
 }
 
-std::ofstream IO::createFile(const std::string &file)
+void IO::createFile(std::ofstream &out, const std::string &file)
 {
     boost::filesystem::path path(file);
     const auto parent = path.parent_path().string();
@@ -346,7 +346,7 @@ std::ofstream IO::createFile(const std::string &file)
     if (!parent.empty())
         boost::filesystem::create_directories(parent);
 
-    return std::ofstream(file, std::ofstream::out | std::ofstream::trunc);
+    out.open(file, std::ofstream::out | std::ofstream::trunc);
 }
 
 const std::string IO::getHostname()
