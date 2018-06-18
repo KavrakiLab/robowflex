@@ -1,20 +1,10 @@
-#include <ros/ros.h>
-#include <signal.h>
-
-#include "robowflex.h"
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::spinOnce();
-    ros::shutdown();
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
+    startROS(argc, argv);
 
     Robot ur5("ur5");
     ur5.initialize("package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
@@ -24,6 +14,7 @@ int main(int argc, char **argv)
     );
 
     Scene scene(ur5);
+    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     OMPL::OMPLPipelinePlanner planner(ur5);
     planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config

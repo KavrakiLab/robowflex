@@ -1,4 +1,4 @@
-#include "robowflex.h"
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
@@ -75,6 +75,7 @@ void Robot::loadRobotModel()
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
 
     model_ = std::move(loader_->getModel());
+    scratch_.reset(new robot_state::RobotState(model_));
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -128,4 +129,51 @@ bool Robot::loadKinematics(const std::string &name)
     model_->setKinematicsAllocators(imap_);
 
     return true;
+}
+
+void Robot::setState(const std::vector<double> &positions)
+{
+    scratch_->setVariablePositions(positions);
+}
+
+void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
+{
+    scratch_->setJointGroupPositions(name, positions);
+}
+
+std::vector<double> Robot::getState() const
+{
+    const double *positions = scratch_->getVariablePositions();
+    std::vector<double> state(positions, positions + scratch_->getVariableCount());
+    return state;
+}
+
+void Robot::setFromIK(const std::string &group,                             //
+                      const Geometry &region, const Eigen::Affine3d &pose,  //
+                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+{
+    Eigen::Affine3d sampled_pose = pose;
+
+    sampled_pose.translate(region.sample());
+    sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
+
+    geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
+
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+    scratch_->setFromIK(jmg, msg);
+}
+
+const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
+{
+    return scratch_->getGlobalLinkTransform(name);
+}
+
+bool Robot::inCollision(Scene &scene) const
+{
+    collision_detection::CollisionRequest request;
+    collision_detection::CollisionResult result;
+
+    scene.getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
+
+    return result.collision;
 }

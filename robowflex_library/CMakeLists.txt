@@ -61,18 +61,22 @@ target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yam
 add_executable(ur5_test scripts/ur5_test.cpp)
 target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+add_executable(ur5_benchmark scripts/ur5_benchmark.cpp)
+target_link_libraries(ur5_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(wam7_test scripts/wam7_test.cpp)
 target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
-add_executable(benchmark_test scripts/benchmark_test.cpp)
-target_link_libraries(benchmark_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
-
+add_executable(wam7_benchmark scripts/wam7_benchmark.cpp)
+target_link_libraries(wam7_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 install(TARGETS ${LIBRARY_NAME}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+install(DIRECTORY include/robowflex_library/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 install(DIRECTORY yaml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

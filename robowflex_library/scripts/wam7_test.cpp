@@ -1,26 +1,19 @@
 #include <ros/ros.h>
 #include <signal.h>
 
-#include "robowflex.h"
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
-void shutdown(int sig)
-{
-    ros::spinOnce();
-    ros::shutdown();
-}
-
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
-    signal(SIGINT, shutdown);
+    startROS(argc, argv);
 
     Robot wam7("wam7");
     wam7.initialize("package://barrett_model/robots/wam_7dof_wam_bhand.urdf.xacro",  // urdf
-                   "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
-                   "package://barrett_wam_moveit_config/config/joint_limits.yaml",      // joint limits
-                   "package://barrett_wam_moveit_config/config/kinematics.yaml"         // kinematics
+                    "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
+                    "package://barrett_wam_moveit_config/config/joint_limits.yaml",  // joint limits
+                    "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
     );
 
     Scene scene(wam7);

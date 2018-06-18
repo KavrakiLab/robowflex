@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
-find_package (gflags REQUIRED)
+find_package(gflags QUIET)
 
 catkin_package(
   CATKIN_DEPENDS
@@ -23,8 +23,10 @@ catkin_package(
    roscpp
 )
 
-include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp ../robowflex_library)
+include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_executable(toy_planner src/main.cpp)
-target_link_libraries(toy_planner ${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp gflags)
+if(gflags_FOUND)
+  add_executable(toy_planner src/main.cpp)
+  target_link_libraries(toy_planner ${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp gflags)
+endif()

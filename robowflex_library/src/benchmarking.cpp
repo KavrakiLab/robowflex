@@ -1,7 +1,9 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <rosbag/bag.h>
-#include "robowflex.h"
+#include <moveit/version.h>
+
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
@@ -36,7 +38,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
-        Results results;
+        Results results(name, scene, planner, builder);
 
         for (int j = 0; j < options.runs; ++j)
         {
@@ -46,15 +48,15 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
             planning_interface::MotionPlanResponse response = planner.plan(scene, builder.getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
-            results.addRun(scene, name, time, response);
+            results.addRun(j, time, response);
             moveit_msgs::RobotTrajectory msg;
             response.trajectory_->getRobotTrajectoryMsg(msg);
             trajectories.push_back(msg);
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
-        // TODO: maybe I don't need to repeat the name here? not sure.
-        output.writeOutput(results, name, scene, planner, builder);
+        results.finish = IO::getDate();
+        output.dumpResult(results);
 
         if (options.trajectory_output_file != "")
         {
@@ -68,48 +70,33 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
     {
         bag.close();
     }
-    output.close();
 }
 
-//void Benchmarker::writeOutput(const std::string &file, const Results &results, const Scene &scene, const Planner &planner,
-//                              const MotionRequestBuilder &builder)
-//{
-    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
-
-    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-    // metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
-//}
-
-void Benchmarker::Results::addRun(const Scene &scene, const std::string &name, double time,
-                                  planning_interface::MotionPlanResponse &run)
+void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
 {
-    double length, clearance, smoothness;
-    bool correct, success = run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
-    if (success)
-        computeMetric(scene, run, correct, length, clearance, smoothness);
+    Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
+    if (metrics.success)
+        computeMetric(run, metrics);
 
-    runs.emplace_back(name, time, success,  //
-                      correct, length, clearance, smoothness);
+    runs.emplace_back(metrics);
 }
 
-void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface::MotionPlanResponse &run,  //
-                                         bool &correct, double &length, double &clearance, double &smoothness)
+void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    correct = true;
-    length = 0.0;
-    clearance = 0.0;
-    smoothness = 0.0;
+    metrics.waypoints = 0.0;
+    metrics.correct = true;
+    metrics.length = 0.0;
+    metrics.clearance = 0.0;
+    metrics.smoothness = 0.0;
 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene.getSceneConst();
 
+    metrics.waypoints = p.getWayPointCount();
+
     // compute path length
     for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-        length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+        metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
 
     // compute correctness and clearance
     collision_detection::CollisionRequest request;
@@ -119,16 +106,16 @@ void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface:
         s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
 
         if (result.collision)
-            correct = false;
+            metrics.correct = false;
 
         if (!p.getWayPoint(k).satisfiesBounds())
-            correct = false;
+            metrics.correct = false;
 
         double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
         if (d > 0.0)  // in case of collision, distance is negative
-            clearance += d;
+            metrics.clearance += d;
     }
-    clearance /= (double)p.getWayPointCount();
+    metrics.clearance /= (double)p.getWayPointCount();
 
     // compute smoothness
     if (p.getWayPointCount() > 2)
@@ -156,19 +143,19 @@ void Benchmarker::Results::computeMetric(const Scene &scene, planning_interface:
 
                 // and we normalize by the length of the segments
                 double u = 2.0 * angle;  /// (a + b);
-                smoothness += u * u;
+                metrics.smoothness += u * u;
             }
             a = b;
         }
-        smoothness /= (double)p.getWayPointCount();
+        metrics.smoothness /= (double)p.getWayPointCount();
     }
 }
 
-void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, const std::string &name, const Scene &scene, const Planner &planner, const MotionRequestBuilder &build)
+void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     if (not is_init)
     {
-        outfile_.open(output_path_);
+        IO::createFile(outfile_, file_);
         outfile_ << "{";
         // TODO: output specific information about the scene and planner structs?
 
@@ -179,14 +166,14 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         outfile_ << ",";
     }
 
-    outfile_ << "\"" << name << "\":["; 
+    outfile_ << "\"" << results.name << "\":[";
 
     for (size_t i = 0; i < results.runs.size(); i++)
     {
         Benchmarker::Results::Run run = results.runs[i];
         outfile_ << "{";
 
-        outfile_ << "\"name\": \"" << run.name << "\",";
+        outfile_ << "\"name\": \"run_" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
         outfile_ << "\"success\":" << run.success << ",";
         outfile_ << "\"correct\":" << run.correct << ",";
@@ -194,7 +181,7 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         outfile_ << "\"clearance\":";
         // Check for infinity.
         if (run.clearance == std::numeric_limits<double>::infinity())
-            outfile_ <<  std::numeric_limits<double>::max() << ",";
+            outfile_ << std::numeric_limits<double>::max() << ",";
         else
             outfile_ << run.clearance << ",";
         outfile_ << "\"smoothness\":" << run.smoothness;
@@ -204,11 +191,93 @@ void JSONBenchmarkOutputter::writeOutput(const Benchmarker::Results &results, co
         if (i != results.runs.size() - 1)
             outfile_ << "," << std::endl;
     }
+
     outfile_ << "]";
 }
 
-void JSONBenchmarkOutputter::close()
+JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 {
     outfile_ << "}" << std::endl;
     outfile_.close();
+}
+
+void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
+{
+    std::ofstream out;
+    IO::createFile(out, prefix_ + results.name + ".log");
+
+    out << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
+    out << "Experiment " << results.name << std::endl;         // experiment
+    out << "Running on " << IO::getHostname() << std::endl;    // hostname
+    out << "Starting at " << IO::getDate() << std::endl;       // date
+
+    // setup
+    moveit_msgs::PlanningScene scene_msg;
+    const auto &request = results.builder.getRequest();
+
+    results.scene.getSceneConst()->getPlanningSceneMsg(scene_msg);
+
+    YAML::Node yaml;
+    yaml["scene"] = scene_msg;
+    yaml["request"] = request;
+
+    YAML::Emitter yaml_out;
+    yaml_out << yaml;
+
+    out << "<<<|" << std::endl;
+    out << yaml_out.c_str() << std::endl;
+    out << "|>>>" << std::endl;
+
+    // random seed (fake)
+    out << "0 is the random seed" << std::endl;
+
+    // time limit
+    out << request.allowed_planning_time << " seconds per run" << std::endl;
+
+    // memory limit
+    out << "-1 MB per run" << std::endl;
+
+    // num_runs
+    out << results.runs.size() << " runs per planner" << std::endl;
+
+    // total_time
+
+    auto duration = results.finish - results.start;
+    double total = (double)duration.total_milliseconds() / 1000.;
+    out << total << " seconds spent to collect the data" << std::endl;
+
+    // num_enums / enums
+    out << "0 enum types" << std::endl;
+
+    // num_planners
+    out << "1 planners" << std::endl;
+
+    // planners_data -> planner_data
+    out << request.planner_id << std::endl;  // planner_name
+    out << "0 common properties" << std::endl;
+    out << "7 properties for each run" << std::endl;  // run_properties
+    out << "waypoints INTEGER" << std::endl;
+    out << "time REAL" << std::endl;
+    out << "success BOOLEAN" << std::endl;
+    out << "correct BOOLEAN" << std::endl;
+    out << "length REAL" << std::endl;
+    out << "clearance REAL" << std::endl;
+    out << "smoothness REAL" << std::endl;
+
+    out << results.runs.size() << " runs" << std::endl;
+
+    for (auto &run : results.runs)
+    {
+        out << run.waypoints << "; "   //
+            << run.time << "; "        //
+            << run.success << "; "     //
+            << run.correct << "; "     //
+            << run.length << "; "      //
+            << run.clearance << "; "   //
+            << run.smoothness << "; "  //
+            << std::endl;
+    }
+
+    out << "." << std::endl;
+    out.close();
 }
