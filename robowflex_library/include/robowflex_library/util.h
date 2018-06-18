@@ -32,7 +32,7 @@ namespace robowflex
         const std::string message_;
     };
 
-    void startROS(int argc, char **argv);
+    void startROS(int argc, char **argv, const std::string &name = "robowflex");
 
     namespace IO
     {

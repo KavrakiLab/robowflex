@@ -54,10 +54,11 @@ namespace
     }
 }  // namespace
 
-void robowflex::startROS(int argc, char **argv)
+void robowflex::startROS(int argc, char **argv, const std::string &name)
 {
-    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
+    ros::init(argc, argv, name, ros::init_options::NoSigintHandler);
     startup();
+
     signal(SIGINT, shutdown);
     signal(SIGSEGV, shutdown);
 }
