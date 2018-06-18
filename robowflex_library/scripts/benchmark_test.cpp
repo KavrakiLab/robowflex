@@ -16,36 +16,34 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
 
-    Robot ur5("ur5");
-    ur5.initialize("package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
-                   "package://ur5_robotiq85_moveit_config/config/ur5_robotiq85.srdf",     // srdf
-                   "package://ur5_robotiq85_moveit_config/config/joint_limits.yaml",      // joint limits
-                   "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
-    );
-    ur5.loadKinematics("manipulator");
+    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
+    signal(SIGINT, shutdown);
 
-    Scene scene(ur5);
-
-    OMPL::OMPLPipelinePlanner planner(ur5);
-    planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config
+    Robot wam7("wam7");
+    wam7.initialize("package://barrett_model/robots/wam_7dof_wam_bhand.urdf.xacro",  // urdf
+                   "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
+                   "package://barrett_wam_moveit_config/config/joint_limits.yaml",      // joint limits
+                   "package://barrett_wam_moveit_config/config/kinematics.yaml"         // kinematics
     );
 
-    MotionRequestBuilder request(planner, "manipulator");
-    request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
+    Scene scene(wam7);
 
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
-    Eigen::Quaterniond orn{0, 0, 1, 0};
-
-    request.setGoalRegion("ee_link", "world",                                         // links
-                          pose, Geometry(Geometry::ShapeType::SPHERE, {0.01, 0, 0}),  // position
-                          orn, {0.01, 0.01, 0.01}                                     // orientation
+    OMPL::OMPLPipelinePlanner planner(wam7);
+    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
     );
+
+    MotionRequestBuilder request(planner, "arm");
+    request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    request.setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
+
+    wam7.loadKinematics("arm");
+
 
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("test", scene, planner, request);
 
-    benchmark.benchmark("test.log");
+    JSONBenchmarkOutputter out("test_log.json");
+    benchmark.benchmark(out);
 
     return 0;
 }
