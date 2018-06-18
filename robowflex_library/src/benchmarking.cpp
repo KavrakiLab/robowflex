@@ -182,11 +182,14 @@ void JSONBenchmarkOutputter::close()
 
 void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
 {
-    if (!is_init)
+    if (is_init)
     {
-        is_init = true;
-        outfile_ = IO::createFile(file_);
+        ROS_ERROR("Cannot output multiple times with OMPL Benchmark outputter.");
+        return;
     }
+
+    is_init = true;
+    outfile_ = IO::createFile(file_);
 
     outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
     outfile_ << "Experiment " << results.name << std::endl;         // experiment
