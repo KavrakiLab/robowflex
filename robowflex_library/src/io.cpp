@@ -157,7 +157,7 @@ const std::string IO::loadXacroToString(const std::string &path)
     std::string cmd = "rosrun xacro xacro ";
 
 #if ROBOWFLEX_AT_LEAST_MELODIC
-#elif
+#else
     cmd += "--inorder ";
 #endif
 
