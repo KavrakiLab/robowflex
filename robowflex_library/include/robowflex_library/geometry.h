@@ -30,6 +30,9 @@ namespace robowflex
         Geometry(const Geometry &) = delete;             // non construction-copyable
         Geometry &operator=(const Geometry &) = delete;  // non copyable
 
+        const bool contains(const Eigen::Vector3d &point) const;
+        Eigen::Vector3d sample(const unsigned int attempts = 50) const;
+
         const bool isMesh() const;
 
         const shape_msgs::SolidPrimitive getSolidMsg() const;
@@ -38,6 +41,11 @@ namespace robowflex
         const shapes::ShapePtr &getShape() const
         {
             return shape_;
+        }
+
+        const bodies::BodyPtr &getBody() const
+        {
+            return body_;
         }
 
     private:
@@ -67,6 +75,8 @@ namespace robowflex
                                                                     const std::string &base_name,
                                                                     const Eigen::Quaterniond &orientation,
                                                                     const Eigen::Vector3d &tolerances);
+
+        Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
     }  // namespace TF
 }  // namespace robowflex
 

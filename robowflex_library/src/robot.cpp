@@ -136,6 +136,21 @@ void Robot::setState(const std::vector<double> &positions)
     scratch_->setVariablePositions(positions);
 }
 
+void Robot::setFromIK(const std::string &group,                             //
+                      const Geometry &region, const Eigen::Affine3d &pose,  //
+                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+{
+    Eigen::Affine3d sampled_pose = pose;
+
+    sampled_pose.translate(region.sample());
+    sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
+
+    geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
+
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+    scratch_->setFromIK(jmg, msg);
+}
+
 const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);

@@ -84,28 +84,44 @@ bodies::Body *Geometry::loadBody() const
 {
     switch (type_)
     {
-    case ShapeType::BOX:
-        return new bodies::Box(shape_.get());
-        break;
+        case ShapeType::BOX:
+            return new bodies::Box(shape_.get());
+            break;
 
-    case ShapeType::SPHERE:
-        return new bodies::Sphere(shape_.get());
-        break;
+        case ShapeType::SPHERE:
+            return new bodies::Sphere(shape_.get());
+            break;
 
-    case ShapeType::CYLINDER:
-        return new bodies::Cylinder(shape_.get());
-        break;
+        case ShapeType::CYLINDER:
+            return new bodies::Cylinder(shape_.get());
+            break;
 
-    case ShapeType::MESH:
-        return new bodies::ConvexMesh(shape_.get());
-        break;
+        case ShapeType::MESH:
+            return new bodies::ConvexMesh(shape_.get());
+            break;
 
-    case ShapeType::CONE:
-    default:
-        break;
+        case ShapeType::CONE:
+        default:
+            break;
     }
 
     return nullptr;
+}
+
+const bool Geometry::contains(const Eigen::Vector3d &point) const
+{
+    return body_->containsPoint(point[0], point[1], point[2]);
+}
+
+Eigen::Vector3d Geometry::sample(const unsigned int attempts) const
+{
+    Eigen::Vector3d point;
+    random_numbers::RandomNumberGenerator rng;
+
+    if (!body_->samplePointInside(rng, attempts, point))
+        point = Eigen::Vector3d{0, 0, 0};
+
+    return point;
 }
 
 const bool Geometry::isMesh() const

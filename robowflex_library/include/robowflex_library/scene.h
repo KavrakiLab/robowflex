@@ -40,6 +40,9 @@ namespace robowflex
         bool loadKinematics(const std::string &group);
 
         void setState(const std::vector<double> &positions);
+        void setFromIK(const std::string &group, const Geometry &region, const Eigen::Affine3d &pose,
+                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+
         const Eigen::Affine3d &getLinkTF(const std::string &name) const;
 
     protected:

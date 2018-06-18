@@ -14,6 +14,7 @@ int main(int argc, char **argv)
     );
 
     Scene scene(ur5);
+    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     OMPL::OMPLPipelinePlanner planner(ur5);
     planner.initialize("package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  // planner config

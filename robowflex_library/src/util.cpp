@@ -1,5 +1,5 @@
-#include <ros/ros.h>
 #include <signal.h>
+#include <random>
 
 #include <boost/version.hpp>
 
@@ -8,6 +8,8 @@
 #if IS_BOOST_164
 #include <boost/process.hpp>
 #endif
+
+#include <ros/ros.h>
 
 #include <eigen_conversions/eigen_msg.h>
 
@@ -153,4 +155,16 @@ moveit_msgs::OrientationConstraint TF::getOrientationConstraint(const std::strin
     constraint.weight = 1;
 
     return constraint;
+}
+
+Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+{
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> rng(-1.0, 1.0);
+
+    Eigen::Quaterniond sampled = Eigen::AngleAxisd(rng(generator) * tolerances[0], Eigen::Vector3d::UnitX())    //
+                                 * Eigen::AngleAxisd(rng(generator) * tolerances[1], Eigen::Vector3d::UnitY())  //
+                                 * Eigen::AngleAxisd(rng(generator) * tolerances[2], Eigen::Vector3d::UnitZ());
+
+    return orientation * sampled;
 }
