@@ -62,6 +62,7 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
+    metrics.waypoints = 0.0;
     metrics.correct = true;
     metrics.length = 0.0;
     metrics.clearance = 0.0;
@@ -69,6 +70,8 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene.getSceneConst();
+
+    metrics.waypoints = p.getWayPointCount();
 
     // compute path length
     for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
@@ -231,20 +234,34 @@ void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
     // num_planners
     outfile_ << "1 planners" << std::endl;
 
-    // void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
-    // &planner,
-    //                              const MotionRequestBuilder &builder)
-    //{
-    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+    // planners_data -> planner_data
+    outfile_ << request.planner_id << std::endl;  // planner_name
+    outfile_ << "0 common properties" << std::endl;
+    outfile_ << "6 properties for each run" << std::endl;  // run_properties
+    outfile_ << "waypoints INTEGER" << std::endl;
+    outfile_ << "time REAL" << std::endl;
+    outfile_ << "success BOOLEAN" << std::endl;
+    outfile_ << "correct BOOLEAN" << std::endl;
+    outfile_ << "length REAL" << std::endl;
+    outfile_ << "clearance REAL" << std::endl;
+    outfile_ << "smoothness REAL" << std::endl;
 
-    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-    // metrics["path_" + run.description_[j] + "_time REAL"] =
-    // boost::lexical_cast<std::string>(run.processing_time_[j]);
-    //}
+    outfile_ << results.runs.size() << " runs" << std::endl;
+
+    for (auto &run : results.runs)
+    {
+        outfile_ << run.waypoints << "; "   //
+                 << run.time << "; "        //
+                 << run.success << "; "     //
+                 << run.correct << "; "     //
+                 << run.length << "; "      //
+                 << run.clearance << "; "   //
+                 << run.smoothness << "; "  //
+                 << std::endl;
+    }
+
+    outfile_ << "." << std::endl;
+    outfile_.close();
 }
 
 void OMPLBenchmarkOutputter::close()

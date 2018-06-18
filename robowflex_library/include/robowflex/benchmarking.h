@@ -30,6 +30,7 @@ namespace robowflex
                 }
 
                 int num;
+                int waypoints;
                 double time;
                 /** Whether or not MoveIt returns a 'success'. */
                 bool success;
