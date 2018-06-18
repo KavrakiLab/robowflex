@@ -34,6 +34,11 @@ namespace robowflex
             return model_;
         }
 
+        robot_model::RobotStatePtr &getScratchState()
+        {
+            return scratch_;
+        }
+
         IO::Handler &getHandler()
         {
             return handler_;
