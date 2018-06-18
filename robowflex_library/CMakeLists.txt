@@ -42,7 +42,18 @@ catkin_package(
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(${LIBRARY_NAME} src/planner.cpp src/scene.cpp src/robot.cpp src/geometry.cpp src/util.cpp src/io.cpp src/yaml.cpp src/detail/r2.cpp)
+add_library(${LIBRARY_NAME}
+  src/planner.cpp
+  src/scene.cpp
+  src/robot.cpp
+  src/geometry.cpp
+  src/benchmarking.cpp
+  src/util.cpp
+  src/io.cpp
+  src/yaml.cpp
+  src/detail/r2.cpp
+)
+
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
@@ -51,6 +62,13 @@ target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(wam7_test scripts/wam7_test.cpp)
+target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(benchmark_test scripts/benchmark_test.cpp)
+target_link_libraries(benchmark_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 
 install(TARGETS ${LIBRARY_NAME}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

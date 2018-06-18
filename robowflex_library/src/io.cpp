@@ -15,7 +15,7 @@
 
 #include <eigen_conversions/eigen_msg.h>
 
-#include "robowflex.h"
+#include <robowflex/robowflex.h>
 
 using namespace robowflex;
 
@@ -334,4 +334,12 @@ const std::string IO::Handler::generateUUID()
     std::replace(s.begin(), s.end(), '-', '_');
 
     return s;
+}
+
+std::ofstream IO::createFile(const std::string &file)
+{
+    boost::filesystem::create_directories(file);
+    std::ofstream out(file, std::ofstream::out | std::ofstream::trunc);
+
+    return out;
 }
