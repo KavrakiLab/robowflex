@@ -101,6 +101,23 @@ namespace robowflex
 
         std::ofstream outfile_;
     };
+
+    class OMPLBenchmarkOutputter : public BenchmarkOutputter
+    {
+    public:
+        OMPLBenchmarkOutputter(const std::string &file) : BenchmarkOutputter(file)
+        {
+        }
+
+        void dump(const Benchmarker::Results &results) override;
+
+        void close() override;
+
+    private:
+        bool is_init = false;
+
+        std::ofstream outfile_;
+    };
 }  // namespace robowflex
 
 #endif
