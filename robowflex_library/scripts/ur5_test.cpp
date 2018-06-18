@@ -13,7 +13,7 @@ void shutdown(int sig)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "roboflex", ros::init_options::NoSigintHandler);
+    ros::init(argc, argv, "robowflex", ros::init_options::NoSigintHandler);
     signal(SIGINT, shutdown);
 
     Robot ur5("ur5");
