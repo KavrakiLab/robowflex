@@ -136,6 +136,18 @@ void Robot::setState(const std::vector<double> &positions)
     scratch_->setVariablePositions(positions);
 }
 
+void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
+{
+    scratch_->setJointGroupPositions(name, positions);
+}
+
+std::vector<double> Robot::getState() const
+{
+    const double *positions = scratch_->getVariablePositions();
+    std::vector<double> state(positions, positions + scratch_->getVariableCount());
+    return state;
+}
+
 void Robot::setFromIK(const std::string &group,                             //
                       const Geometry &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
