@@ -1,6 +1,8 @@
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 
+#include <boost/date_time.hpp>
+
 namespace robowflex
 {
     class Exception : public std::exception
@@ -52,6 +54,10 @@ namespace robowflex
 
         // Creates a file
         std::ofstream createFile(const std::string &file);
+
+        const std::string getHostname();
+
+        boost::posix_time::ptime  getDate();
 
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)

@@ -51,15 +51,20 @@ namespace robowflex
                     const MotionRequestBuilder &builder)
               : name(name), scene(scene), planner(planner), builder(builder)
             {
+                start = IO::getDate();
             }
 
             void addRun(int num, double time, planning_interface::MotionPlanResponse &run);
             void computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics);
 
+
             const std::string name;
             const Scene &scene;
             const Planner &planner;
             const MotionRequestBuilder &builder;
+
+            boost::posix_time::ptime start;
+            boost::posix_time::ptime finish;
 
             std::vector<Run> runs;
         };
@@ -100,12 +105,10 @@ namespace robowflex
         }
 
         void dump(const Benchmarker::Results &results) override;
-
         void close() override;
 
     private:
-        bool is_init = false;
-
+        bool is_init{false};
         std::ofstream outfile_;
     };
 
@@ -117,12 +120,10 @@ namespace robowflex
         }
 
         void dump(const Benchmarker::Results &results) override;
-
         void close() override;
 
     private:
-        bool is_init = false;
-
+        bool is_init{false};
         std::ofstream outfile_;
     };
 }  // namespace robowflex

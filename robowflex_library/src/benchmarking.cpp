@@ -1,6 +1,8 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <rosbag/bag.h>
+#include <moveit/version.h>
+
 #include <robowflex/robowflex.h>
 
 using namespace robowflex;
@@ -54,6 +56,7 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
         }
 
         // TODO: maybe I don't need to repeat the name here? not sure.
+        results.finish = IO::getDate();
         output.dump(results); 
 
         if (options.trajectory_output_file != "")
@@ -200,21 +203,72 @@ void JSONBenchmarkOutputter::close()
 
 void OMPLBenchmarkOutputter::dump(const Benchmarker::Results &results)
 {
+    if (!is_init)
+    {
+        is_init = true;
+        outfile_ = IO::createFile(file_);
+    }
 
-// void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
-// &planner,
-//                              const MotionRequestBuilder &builder)
-//{
-// metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
-// metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+    outfile_ << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
+    outfile_ << "Experiment " << results.name << std::endl;         // experiment
+    outfile_ << "Running on " << IO::getHostname() << std::endl;    // hostname
+    outfile_ << "Starting at " << IO::getDate() << std::endl;       // date
 
-// metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
-// metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
-// metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
-// metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
-// metrics["path_" + run.description_[j] + "_time REAL"] = boost::lexical_cast<std::string>(run.processing_time_[j]);
-//}
+    // setup
+    moveit_msgs::PlanningScene scene_msg;
+    const auto &request = results.builder.getRequest();
 
+    results.scene.getSceneConst()->getPlanningSceneMsg(scene_msg);
+
+    YAML::Node yaml;
+    yaml["scene"] = scene_msg;
+    yaml["request"] = request;
+
+    YAML::Emitter yaml_out;
+    yaml_out << yaml;
+
+    outfile_ << "<<<|" << std::endl;
+    outfile_ << yaml_out.c_str() << std::endl;
+    outfile_ << "|>>>" << std::endl;
+
+    // random seed (fake)
+    outfile_ << "0 is the random seed" << std::endl;
+
+    // time limit
+    outfile_ << request.allowed_planning_time << " seconds per run" << std::endl;
+
+    // memory limit
+    outfile_ << "-1 MB per run" << std::endl;
+
+    // num_runs
+    outfile_ << results.runs.size() << " runs per planner" << std::endl;
+
+    // total_time
+
+    auto duration = results.finish - results.start;
+    double total = (double)duration.total_milliseconds() / 1000.;
+    outfile_ << total << " seconds spent to collect the data" << std::endl;
+
+    // num_enums / enums
+    outfile_ << "0 enum types" << std::endl;
+
+    // num_planners
+    outfile_ << "1 planners" << std::endl;
+
+    // void Benchmarker::dump(const std::string &file, const Results &results, const Scene &scene, const Planner
+    // &planner,
+    //                              const MotionRequestBuilder &builder)
+    //{
+    // metrics["time REAL"] = boost::lexical_cast<std::string>(total_time);
+    // metrics["solved BOOLEAN"] = boost::lexical_cast<std::string>(solved);
+
+    // metrics["path_" + run.description_[j] + "_correct BOOLEAN"] = boost::lexical_cast<std::string>(correct);
+    // metrics["path_" + run.description_[j] + "_length REAL"] = boost::lexical_cast<std::string>(L);
+    // metrics["path_" + run.description_[j] + "_clearance REAL"] = boost::lexical_cast<std::string>(clearance);
+    // metrics["path_" + run.description_[j] + "_smoothness REAL"] = boost::lexical_cast<std::string>(smoothness);
+    // metrics["path_" + run.description_[j] + "_time REAL"] =
+    // boost::lexical_cast<std::string>(run.processing_time_[j]);
+    //}
 }
 
 void OMPLBenchmarkOutputter::close()
