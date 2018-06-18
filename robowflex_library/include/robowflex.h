@@ -318,6 +318,7 @@ namespace robowflex
 
         bool toYAMLFile(const std::string &file);
         bool fromYAMLFile(const std::string &file);
+        bool fromOpenRAVEXMLFile(const std::string &file);
 
     private:
         planning_scene::PlanningScenePtr scene_;
