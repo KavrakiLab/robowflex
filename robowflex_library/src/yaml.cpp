@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <string>
 
-#include <robowflex/robowflex.h>
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 

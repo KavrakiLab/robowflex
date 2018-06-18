@@ -1,6 +1,6 @@
 #include <geometric_shapes/shape_operations.h>
 
-#include <robowflex/robowflex.h>
+#include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
 
