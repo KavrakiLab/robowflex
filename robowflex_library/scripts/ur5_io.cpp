@@ -1,4 +1,5 @@
 #include <robowflex_library/robowflex.h>
+#include <robowflex_library/detail/ur5.h>
 
 using namespace robowflex;
 
