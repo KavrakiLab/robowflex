@@ -52,6 +52,7 @@ add_library(${LIBRARY_NAME}
   src/io.cpp
   src/yaml.cpp
   src/detail/r2.cpp
+  src/detail/ur5.cpp
 )
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
