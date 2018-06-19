@@ -38,8 +38,6 @@ namespace robowflex
         Scene &scene;
         MotionRequestBuilder &request;
 
-        // robot_model::JointModelGroup *jmg;
-
         // We use these callbacks to implement domain semantics
         TMPConstraintHelper &constraint_helper;
         TMPSceneGraphHelper &scene_graph_helper;
@@ -52,9 +50,13 @@ namespace robowflex
             // request.setStartConfiguration(start);
             std::vector<planning_interface::MotionPlanResponse> responses;
 
-            std::cout << "Goals: " << goals.size() << std::endl;
-
             std::vector<double> next_start_joint_positions = request.getRequest().start_state.joint_state.position;
+
+            //we manually specify these because the virtual_link isn't included in the above:
+            std::vector<double> tmp = {1.97695540603, 0.135286119285, 0.0538594464644, 0.00469409498409, -0.0735915747411, -0.996745300836, 0.0325737756642};
+
+            tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
+            next_start_joint_positions = tmp;
 
             for (std::vector<double> goal_conf : goals)
             {
@@ -67,7 +69,6 @@ namespace robowflex
 
                 next_start_joint_positions = getFinalJointPositions(response);
                 request.setStartConfiguration(next_start_joint_positions);
-
                 // std::cout<<"goal constraints: "<<request.getRequest().goal_constraints[0]<<std::endl;
                 // std::cout<<"path constraints: "<<request.getPathConstraints()<<std::endl;
             }

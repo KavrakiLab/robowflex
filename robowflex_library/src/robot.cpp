@@ -150,6 +150,11 @@ std::vector<double> Robot::getState() const
     return state;
 }
 
+std::vector<std::string> Robot::getJointNames() const
+{
+    return scratch_->getVariableNames();
+}
+
 void Robot::setFromIK(const std::string &group,                             //
                       const Geometry &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)

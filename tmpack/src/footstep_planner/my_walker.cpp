@@ -46,9 +46,10 @@ namespace robowflex
                 // do nothing
             }
 
-          void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const std::vector<double> &joint_positions)
+            void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot &robot,
+                                        const std::vector<double> &joint_positions)
             {
-                //Hopefully z is correct height
+                // Hopefully z is correct height
                 double x = 0, y = 0, z = -0.95;
                 x = task_op[0];
                 y = task_op[1];
@@ -56,37 +57,53 @@ namespace robowflex
                 // Path constraint from r2_plan.yml
                 // We'll want to alternate feet for these
                 // For now, we hope there's only the one important constraint.
+
                 request.getPathConstraints().position_constraints.clear();
                 request.getPathConstraints().orientation_constraints.clear();
 
-                std::string tip_name = "r2/left_leg/gripper/tip";
-                std::string other_tip_name = "r2/right_leg/gripper/tip";
+                std::string moving_tip_name = "r2/left_leg/gripper/tip";
+                std::string stationary_tip_name = "r2/right_leg/gripper/tip";
                 if (!last_foot_left)
                 {
-                    tip_name = "r2/right_leg/gripper/tip";
-                    other_tip_name = "r2/left_leg/gripper/tip";
+                    moving_tip_name = "r2/right_leg/gripper/tip";
+                    stationary_tip_name = "r2/left_leg/gripper/tip";
                 }
 
                 // Set one leg to not move:
-                Eigen::Translation3d tip_location = Eigen::Translation3d(1.526, 0.2919, -1.104);
-                Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(9.19840220243e-09, -0.00173565, 0.999998, 1.02802058722e-07);
+                // Eigen::Translation3d tip_location = Eigen::Translation3d(1.526, 0.2919, -1.104);
+                Eigen::Quaterniond tip_orientation =
+                    Eigen::Quaterniond(9.19840220243e-09, -0.00173565, 0.999998, 1.02802058722e-07);
 
-                std::vector<double> s = robot.getState();
+                // Eigen::Affine3d tip_constraint_tf = tip_location * Eigen::Quaterniond::Identity();
+
+                // robot.setState(joint_positions);
+                // std::vector<double> s = robot.getState();
+                // std::vector<std::string> names = robot.getJointNames();
+
                 robot.setState(joint_positions);
-                Eigen::Affine3d tip_constraint_tf = robot.getLinkTF(tip_name);
-                robot.setState(s);
+                Eigen::Affine3d tip_constraint_tf = robot.getLinkTF(stationary_tip_name);
+                std::cout<<tip_constraint_tf.rotation()<<std::endl;
+
+                //I think this works?
+                tip_orientation = tip_constraint_tf.rotation();
+
+                // robot.setState(s);
+
+                // tip_constraint_tf = robot.getLinkTF(stationary_tip_name);
+                // std::cout << tip_constraint_tf.translation() << std::endl;
+
+                // std::cout << robot.getLinkTF("r2/world_ref").translation() << std::endl;
 
                 request.addPathPoseConstraint(
-                                              other_tip_name, "world", tip_constraint_tf,
+                    stationary_tip_name, "world", tip_constraint_tf,
                     Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1), "my_sphere_for_constraint_2"),
-                    tip_orientation,
-                    Eigen::Vector3d(0.01, 0.01, 0.01));
+                    tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
 
                 request.setGoalRegion(
-                    tip_name, "world", Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
+                    moving_tip_name, "world",
+                    Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
                     Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1), "my_sphere_for_constraint_1"),
-                    Eigen::Quaterniond(1.82386512384e-06, 1.2006283947e-06, 0.999999999998, -2.88426574161e-07),
-                    Eigen::Vector3d(0.01, 0.01, 0.01));
+                    Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d(0.01, 0.01, 0.01));
 
                 last_foot_left = !last_foot_left;
             }

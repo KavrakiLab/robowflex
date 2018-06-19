@@ -44,6 +44,7 @@ namespace robowflex
         void setState(const std::vector<double> &positions);
         void setGroupState(const std::string &name, const std::vector<double> &positions);
         std::vector<double> getState() const;
+        std::vector<std::string> getJointNames() const;
 
         void setFromIK(const std::string &group, const Geometry &region, const Eigen::Affine3d &pose,
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
