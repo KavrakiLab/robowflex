@@ -34,9 +34,12 @@ int main(int argc, char **argv)
 
     Benchmarker::Options opts;
     opts.runs = 25;
-    opts.trajectory_output_file = "all_trajs.bag";
-    JSONBenchmarkOutputter out("test_log.json");
-    benchmark.benchmark(out, opts);
+    BenchmarkOutputterPtr out_json(new JSONBenchmarkOutputter("test_log.json"));
+    BenchmarkOutputterPtr out_traj(new TrajectoryOutputter("test_log.bag"));
+    std::vector<BenchmarkOutputterPtr> outs;
+    outs.push_back(out_json);
+    outs.push_back(out_traj);
+    benchmark.benchmark(outs, opts);
 
     return 0;
 }

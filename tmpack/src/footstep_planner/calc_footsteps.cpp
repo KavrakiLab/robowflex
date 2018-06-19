@@ -47,7 +47,8 @@ namespace footstep_planning
     // TODO: A cool heuristic for footstep planning.
     double eval_step(point_2D p1, point_2D p2)
     {
-        return (FLAGS_walk_centroid - dist(p1, p2)) * (FLAGS_walk_centroid - dist(p1, p2)) * FLAGS_step_qual_weight +
+        return (FLAGS_walk_centroid - dist(p1, p2)) * (FLAGS_walk_centroid - dist(p1, p2)) *
+                   FLAGS_step_qual_weight +
                1.0 * FLAGS_num_step_weight + (dist(p1, p2) > FLAGS_step_max_dist ? 1000000000 : 0);
     }
     // Vertex i cooresponds to point(i)
@@ -75,8 +76,8 @@ namespace footstep_planning
             }
         }
 
-        std::vector<point_2D> calculate_foot_placements(std::vector<point_2D> points, point_2D start, point_2D goal,
-                                                        foot start_foot)
+        std::vector<point_2D> calculate_foot_placements(std::vector<point_2D> points, point_2D start,
+                                                        point_2D goal, foot start_foot)
         {
             if (boost::num_edges(g) == 0)
             {
@@ -103,8 +104,8 @@ namespace footstep_planning
             std::vector<Vertex> p(boost::num_vertices(g),
                                   boost::graph_traits<Graph>::null_vertex());  // the predecessor
                                                                                // array
-            boost::dijkstra_shortest_paths(g, startI,
-                                           boost::distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
+            boost::dijkstra_shortest_paths(
+                g, startI, boost::distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
 
             // walk up the tree to get our path
             int vi = goalI;

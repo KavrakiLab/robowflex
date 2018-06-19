@@ -19,17 +19,11 @@ void Benchmarker::addBenchmarkingRequest(const std::string &name, Scene &scene, 
                       std::forward_as_tuple(scene, planner, request));
 }
 
-void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
+void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, const Options &options)
 {
     unsigned int count = 0;
     const unsigned int total = requests_.size() * options.runs;
 
-    rosbag::Bag bag;
-
-    if (options.trajectory_output_file != "")
-    {
-        bag.open(options.trajectory_output_file, rosbag::bagmode::Write);
-    }
     for (const auto &request : requests_)
     {
         const auto &name = request.first;
@@ -49,27 +43,14 @@ void Benchmarker::benchmark(BenchmarkOutputter &output, const Options &options)
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
-            moveit_msgs::RobotTrajectory msg;
-            response.trajectory_->getRobotTrajectoryMsg(msg);
-            trajectories.push_back(msg);
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
-        // TODO: maybe I don't need to repeat the name here? not sure.
         results.finish = IO::getDate();
-        output.dumpResult(results); 
-
-        if (options.trajectory_output_file != "")
+        for (BenchmarkOutputterPtr output : outputs)
         {
-            for (moveit_msgs::RobotTrajectory traj : trajectories)
-            {
-                bag.write(name, ros::Time::now(), traj.joint_trajectory);
-            }
+            output->dumpResult(results);
         }
-    }
-    if (options.trajectory_output_file != "")
-    {
-        bag.close();
     }
 }
 
@@ -84,7 +65,7 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    metrics.waypoints = 0.0;
+    metrics.waypoints = 0;
     metrics.correct = true;
     metrics.length = 0.0;
     metrics.clearance = 0.0;
@@ -94,6 +75,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const planning_scene::PlanningScene &s = *scene.getSceneConst();
 
     metrics.waypoints = p.getWayPointCount();
+    p.getRobotTrajectoryMsg(metrics.path);
 
     // compute path length
     for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
@@ -154,13 +136,13 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
 void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
-    if (not is_init)
+    if (not is_init_)
     {
         IO::createFile(outfile_, file_);
         outfile_ << "{";
         // TODO: output specific information about the scene and planner structs?
 
-        is_init = true;
+        is_init_ = true;
     }
     else
     {
@@ -200,6 +182,15 @@ JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 {
     outfile_ << "}" << std::endl;
     outfile_.close();
+}
+
+void TrajectoryOutputter::dumpResult(const Benchmarker::Results &results)
+{
+    const std::string &name = results.name;
+    for (Benchmarker::Results::Run run : results.runs)
+    {
+        bag_.addMessage(name, run.path);
+    }
 }
 
 void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)

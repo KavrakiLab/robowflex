@@ -32,7 +32,8 @@ collision_detection::AllowedCollisionMatrix &Scene::getACM()
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
-void Scene::updateCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose)
+void Scene::updateCollisionObject(const std::string &name, const Geometry &geometry,
+                                  const Eigen::Affine3d &pose)
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -129,7 +130,6 @@ bool Scene::toYAMLFile(const std::string &file)
 
 bool Scene::fromYAMLFile(const std::string &file)
 {
-
     moveit_msgs::PlanningScene msg;
     if (!IO::YAMLFileToMessage(msg, file))
         return false;

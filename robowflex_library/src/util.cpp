@@ -125,8 +125,10 @@ moveit_msgs::BoundingVolume TF::getBoundingVolume(const Eigen::Affine3d &pose, c
     return bv;
 }
 
-moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                          const Eigen::Affine3d &pose, const Geometry &geometry)
+moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_name,
+                                                          const std::string &base_name,
+                                                          const Eigen::Affine3d &pose,
+                                                          const Geometry &geometry)
 {
     moveit_msgs::PositionConstraint constraint;
 
@@ -157,14 +159,16 @@ moveit_msgs::OrientationConstraint TF::getOrientationConstraint(const std::strin
     return constraint;
 }
 
-Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
+                                         const Eigen::Vector3d &tolerances)
 {
     std::default_random_engine generator;
     std::uniform_real_distribution<double> rng(-1.0, 1.0);
 
-    Eigen::Quaterniond sampled = Eigen::AngleAxisd(rng(generator) * tolerances[0], Eigen::Vector3d::UnitX())    //
-                                 * Eigen::AngleAxisd(rng(generator) * tolerances[1], Eigen::Vector3d::UnitY())  //
-                                 * Eigen::AngleAxisd(rng(generator) * tolerances[2], Eigen::Vector3d::UnitZ());
+    Eigen::Quaterniond sampled =
+        Eigen::AngleAxisd(rng(generator) * tolerances[0], Eigen::Vector3d::UnitX())    //
+        * Eigen::AngleAxisd(rng(generator) * tolerances[1], Eigen::Vector3d::UnitY())  //
+        * Eigen::AngleAxisd(rng(generator) * tolerances[2], Eigen::Vector3d::UnitZ());
 
     return orientation * sampled;
 }
