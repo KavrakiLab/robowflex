@@ -11,7 +11,6 @@ int main(int argc, char **argv)
     ur5.initialize();
 
     Scene scene(ur5);
-    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     OMPL::UR5OMPLPipelinePlanner planner(ur5);
     planner.initialize();
