@@ -30,9 +30,9 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 
     for (const auto &config : DEFAULT_CONFIGS)
     {
-        const auto &found = std::find_if(std::begin(configs), std::end(configs), [config](const std::string &s) {
-            return s.find(config) != std::string::npos;
-        });
+        const auto &found =
+            std::find_if(std::begin(configs), std::end(configs),
+                         [config](const std::string &s) { return s.find(config) != std::string::npos; });
 
         if (found != std::end(configs))
         {
@@ -67,7 +67,8 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
                                          const Eigen::Affine3d &pose, const Geometry &geometry,
-                                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+                                         const Eigen::Quaterniond &orientation,
+                                         const Eigen::Vector3d &tolerances)
 {
     moveit_msgs::Constraints constraints;
 
@@ -95,7 +96,8 @@ void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name,
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
 }
 
-void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
+void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_name,
+                                                        const std::string &base_name,
                                                         const Eigen::Quaterniond &orientation,
                                                         const Eigen::Vector3d &tolerances)
 {
@@ -113,6 +115,15 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
     return request_;
 }
 
+std::vector<double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
+{
+    moveit_msgs::MotionPlanResponse msg;
+    response.getMessage(msg);
+    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    // request.setStartConfiguration(joint_positions);
+    return joint_positions;
+}
+
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 {
     return IO::messageToYAMLFile(request_, file);
@@ -123,8 +134,8 @@ bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
     return IO::YAMLFileToMessage(request_, file);
 }
 
-planning_interface::MotionPlanResponse PipelinePlanner::plan(const Scene &scene,
-                                                             const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse
+PipelinePlanner::plan(const Scene &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
@@ -149,6 +160,7 @@ void OMPL::Settings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
+const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN({"ompl_interface/OMPLPlanner"});
 const std::vector<std::string>                                                                                //
     OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS({"default_planner_request_adapters/AddTimeParameterization",  //
                                                  "default_planner_request_adapters/FixWorkspaceBounds",       //
@@ -156,11 +168,10 @@ const std::vector<std::string>                                                  
                                                  "default_planner_request_adapters/FixStartStateCollision",   //
                                                  "default_planner_request_adapters/FixStartStatePathConstraints"});
 
-const std::string PLANNER_CONFIGS = "planner_configs";
-
 namespace
 {
-    bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file, std::vector<std::string> &configs)
+    bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
+                        std::vector<std::string> &configs)
     {
         if (config_file.empty())
             return false;
@@ -190,7 +201,8 @@ OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot) : PipelinePlanner(r
 }
 
 bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings settings,
-                                           const std::string &plugin, const std::vector<std::string> &adapters)
+                                           const std::string &plugin,
+                                           const std::vector<std::string> &adapters)
 {
     if (!loadOMPLConfig(handler_, config_file, configs_))
         return false;
@@ -208,8 +220,8 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     handler_.setParam("request_adapters", ss.str());
     settings.setParam(handler_);
 
-    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_.getModel(), handler_.getHandle(), "planning_plugin",
-                                                            "request_adapters"));
+    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_.getModel(), handler_.getHandle(),
+                                                            "planning_plugin", "request_adapters"));
 
     return true;
 }
@@ -239,7 +251,8 @@ const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() co
 //     planning_interface::MotionPlanResponse response;
 //     response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
 
-//     ompl_interface::ModelBasedPlanningContextPtr context = interface_.getPlanningContext(scene.getScene(), request);
+//     ompl_interface::ModelBasedPlanningContextPtr context = interface_.getPlanningContext(scene.getScene(),
+//     request);
 
 //     if (!context)
 //         return response;

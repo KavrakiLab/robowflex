@@ -13,8 +13,8 @@ namespace robowflex
         Robot(Robot const &) = delete;
         void operator=(Robot const &) = delete;
 
-        bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
-                        const std::string &kinematics_file);
+        bool initialize(const std::string &urdf_file, const std::string &srdf_file,
+                        const std::string &limits_file, const std::string &kinematics_file);
 
         bool loadYAMLFile(const std::string &name, const std::string &file);
         bool loadXMLFile(const std::string &name, const std::string &file);
@@ -34,6 +34,11 @@ namespace robowflex
             return model_;
         }
 
+        robot_model::RobotStatePtr &getScratchState()
+        {
+            return scratch_;
+        }
+
         IO::Handler &getHandler()
         {
             return handler_;
@@ -42,8 +47,13 @@ namespace robowflex
         bool loadKinematics(const std::string &group);
 
         void setState(const std::vector<double> &positions);
+        void setState(const std::map<std::string, double> &variable_map);
+        void setState(const std::vector<std::string> &variable_names,
+                      const std::vector<double> &variable_position);
+
         void setGroupState(const std::string &name, const std::vector<double> &positions);
         std::vector<double> getState() const;
+        std::vector<std::string> getJointNames() const;
 
         void setFromIK(const std::string &group, const Geometry &region, const Eigen::Affine3d &pose,
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
@@ -97,7 +107,8 @@ namespace robowflex
         robot_state::RobotState &getCurrentState();
         collision_detection::AllowedCollisionMatrix &getACM();
 
-        void updateCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
+        void updateCollisionObject(const std::string &name, const Geometry &geometry,
+                                   const Eigen::Affine3d &pose);
         void removeCollisionObject(const std::string &name);
         Eigen::Affine3d getObjectPose(const std::string &name);
 
@@ -119,29 +130,53 @@ namespace robowflex
         class RVIZHelper
         {
         public:
-            RVIZHelper(Robot &robot, Scene &scene) : robot_(robot), scene_(scene)
+            RVIZHelper()
             {
                 ros::NodeHandle nh("~");
 
-                traj_pub_ = nh.advertise<moveit_msgs::RobotTrajectory>("trajectory", 1000);
-                scene_pub_ = nh.advertise<moveit_msgs::PlanningScene>("scene", 1000);
+                trajectory_pub_ = nh.advertise<moveit_msgs::RobotTrajectory>("trajectory", 0);
+                scene_pub_ = nh.advertise<moveit_msgs::PlanningScene>("scene", 0);
+                marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers", 0);
             }
 
-            void update(const planning_interface::MotionPlanResponse &response)
+            void updateTrajectory(const planning_interface::MotionPlanResponse &response)
             {
                 moveit_msgs::RobotTrajectory msg;
                 response.trajectory_->getRobotTrajectoryMsg(msg);
 
-                traj_pub_.publish(msg);
-                scene_pub_.publish(scene_.getMessage());
+                trajectory_pub_.publish(msg);
+            }
+
+            void updateScene(const Scene &scene)
+            {
+                scene_pub_.publish(scene.getMessage());
+            }
+
+            void updateMarkers()
+            {
+                visualization_msgs::MarkerArray msg;
+
+                std::vector<std::string> remove;
+                for (auto &marker : markers_)
+                {
+                    msg.markers.push_back(marker.second);
+
+                    if (marker.second.action == visualization_msgs::Marker::ADD)
+                        marker.second.action = visualization_msgs::Marker::MODIFY;
+                    else if (marker.second.action == visualization_msgs::Marker::DELETE)
+                        remove.push_back(marker.first);
+                }
+
+                marker_pub_.publish(msg);
+
+                for (auto &marker : remove)
+                    markers_.erase(markers_.find(marker));
             }
 
         private:
-            Robot &robot_;
-            Scene &scene_;
+            ros::Publisher marker_pub_, trajectory_pub_, scene_pub_;
 
-            ros::Publisher traj_pub_;
-            ros::Publisher scene_pub_;
+            std::map<std::string, visualization_msgs::Marker> markers_;
         };
     }  // namespace IO
 }  // namespace robowflex

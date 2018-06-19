@@ -40,35 +40,26 @@ int main(int argc, char **argv)
 
     R2Robot r2;
     r2.initialize({"legsandtorso"});
-
     Scene scene(r2);
-
     OMPL::R2OMPLPipelinePlanner planner(r2);
     planner.initialize();
-
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
-
-    // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-    // if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-    //     return 1;
-
-    // return 0;
 
     size_t time_spent = 0;
     size_t count = 0;
     size_t success_count = 0;
     ros::Rate rate(0.5);
     // std::vector<double> start = START_POSE; //We ignore this for the YAML start
-    MyWalker walker(r2, "legsandtorso", planner, scene, request);//, start);
 
-
+    MyWalker walker(r2, "legsandtorso", planner, scene, request);
     while (count++ < NUM_ITERATIONS)
     {
         size_t begin = ros::Time::now().nsec;
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
-        //planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+        // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
+        if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+        {
             success_count++;
         }
         time_spent += (ros::Time::now().nsec - begin);
@@ -77,7 +68,5 @@ int main(int argc, char **argv)
     std::cout << "Time spent: " << time_spent << std::endl;
     std::cout << "Number of runs: " << count << std::endl;
     std::cout << "Number of successful runs: " << success_count << std::endl;
-
-
     return 0;
 }
