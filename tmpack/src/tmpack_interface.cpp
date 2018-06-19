@@ -16,7 +16,8 @@ namespace robowflex
     public:
         // TMPConstraintHelper() = 0;
         virtual void _getTaskPlan_Callback() = 0;
-        virtual void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot& robot, const std::vector<double> &joint_positions) = 0;
+        virtual void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op,
+                                            Robot &robot, const std::vector<double> &joint_positions) = 0;
     };
 
     // Class to help manipulate the scene graph when running the plan linearly
@@ -27,7 +28,8 @@ namespace robowflex
     public:
         // TMPSceneGraphHelper() = 0;
         virtual void _getTaskPlan_Callback() = 0;
-        virtual void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op) = 0;
+        virtual void _planLinearly_Callback(MotionRequestBuilder &request,
+                                            const std::vector<double> &task_op) = 0;
     };
 
     class TMPackInterface
@@ -44,16 +46,19 @@ namespace robowflex
 
         virtual std::vector<std::vector<double>> getTaskPlan() = 0;
 
-        std::vector<planning_interface::MotionPlanResponse> plan_linearly(std::vector<std::vector<double>> goals)
+        std::vector<planning_interface::MotionPlanResponse>
+        plan_linearly(std::vector<std::vector<double>> goals)
         {
             // Instead we are using the start from the yaml file
             // request.setStartConfiguration(start);
             std::vector<planning_interface::MotionPlanResponse> responses;
 
-            std::vector<double> next_start_joint_positions = request.getRequest().start_state.joint_state.position;
+            std::vector<double> next_start_joint_positions =
+                request.getRequest().start_state.joint_state.position;
 
-            //we manually specify these because the virtual_link isn't included in the above:
-            std::vector<double> tmp = {1.97695540603, 0.135286119285, 0.0538594464644, 0.00469409498409, -0.0735915747411, -0.996745300836, 0.0325737756642};
+            // we manually specify these because the virtual_link isn't included in the above:
+            std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
+                                       -0.0735915747411, -0.996745300836, 0.0325737756642};
 
             tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
             next_start_joint_positions = tmp;
@@ -61,7 +66,8 @@ namespace robowflex
             for (std::vector<double> goal_conf : goals)
             {
                 // domain semantics can all be done here?
-                constraint_helper._planLinearly_Callback(request, goal_conf, robot, next_start_joint_positions);
+                constraint_helper._planLinearly_Callback(request, goal_conf, robot,
+                                                         next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
                 planning_interface::MotionPlanResponse response = planner.plan(scene, request.getRequest());

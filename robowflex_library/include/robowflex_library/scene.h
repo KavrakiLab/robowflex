@@ -13,8 +13,8 @@ namespace robowflex
         Robot(Robot const &) = delete;
         void operator=(Robot const &) = delete;
 
-        bool initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
-                        const std::string &kinematics_file);
+        bool initialize(const std::string &urdf_file, const std::string &srdf_file,
+                        const std::string &limits_file, const std::string &kinematics_file);
 
         bool loadYAMLFile(const std::string &name, const std::string &file);
         bool loadXMLFile(const std::string &name, const std::string &file);
@@ -103,7 +103,8 @@ namespace robowflex
         robot_state::RobotState &getCurrentState();
         collision_detection::AllowedCollisionMatrix &getACM();
 
-        void updateCollisionObject(const std::string &name, const Geometry &geometry, const Eigen::Affine3d &pose);
+        void updateCollisionObject(const std::string &name, const Geometry &geometry,
+                                   const Eigen::Affine3d &pose);
         void removeCollisionObject(const std::string &name);
         Eigen::Affine3d getObjectPose(const std::string &name);
 

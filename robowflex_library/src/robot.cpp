@@ -1,7 +1,6 @@
 #include <robowflex_library/robowflex.h>
 #include <moveit/robot_state/robot_state.h>
 
-
 using namespace robowflex;
 
 const std::string Robot::ROBOT_DESCRIPTION = "robot_description";
@@ -13,8 +12,8 @@ Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
 
-bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_file, const std::string &limits_file,
-                       const std::string &kinematics_file)
+bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_file,
+                       const std::string &limits_file, const std::string &kinematics_file)
 {
     if (!loadRobotDescription(urdf_file, srdf_file, limits_file, kinematics_file))
         return false;
@@ -111,8 +110,8 @@ bool Robot::loadKinematics(const std::string &name)
 
         else
         {
-            ROS_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s", typeid(*solver).name(),
-                      name.c_str(), error_msg.c_str());
+            ROS_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
+                      typeid(*solver).name(), name.c_str(), error_msg.c_str());
             return false;
         }
     }
@@ -138,13 +137,13 @@ void Robot::setState(const std::vector<double> &positions)
     scratch_->setVariablePositions(positions);
 }
 
-void setVariablePositions(const std::map<std::string, double>& variable_map)
+void setVariablePositions(const std::map<std::string, double> &variable_map)
 {
     scratch_->setVariablePositions(variable_map);
 }
 
-void setVariablePositions(const std::vector<std::string>& variable_names,
-                            const std::vector<double>& variable_position)
+void setVariablePositions(const std::vector<std::string> &variable_names,
+                          const std::vector<double> &variable_position)
 {
     scratch_->setVariablePositions(variable_names, variable_position);
 }

@@ -54,7 +54,8 @@ namespace robowflex
 
         ShapeType::Type type_{ShapeType::Type::BOX};                 // Geometry Type.
         std::string resource_{""};                                   // Resource locator for MESH types.
-        const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along axes.
+        const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  // Dimensions to scale geometry along
+                                                                     // axes.
         const shapes::ShapePtr shape_{nullptr};                      // Loaded shape.
         const bodies::BodyPtr body_{nullptr};                        // Body operation.
     };
@@ -68,15 +69,19 @@ namespace robowflex
         Eigen::Quaterniond quaternionMsgToEigen(const geometry_msgs::Quaternion &msg);
         geometry_msgs::Quaternion quaternionEigenToMsg(const Eigen::Quaterniond &quaternion);
 
-        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &poses, const Geometry &geometries);
-        moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                              const Eigen::Affine3d &poses, const Geometry &geometries);
+        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &poses,
+                                                      const Geometry &geometries);
+        moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
+                                                              const std::string &base_name,
+                                                              const Eigen::Affine3d &poses,
+                                                              const Geometry &geometries);
         moveit_msgs::OrientationConstraint getOrientationConstraint(const std::string &ee_name,
                                                                     const std::string &base_name,
                                                                     const Eigen::Quaterniond &orientation,
                                                                     const Eigen::Vector3d &tolerances);
 
-        Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+        Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation,
+                                             const Eigen::Vector3d &tolerances);
     }  // namespace TF
 }  // namespace robowflex
 

@@ -8,9 +8,10 @@ const std::string R2Robot::SRDF{"package://r2_moveit_config/config/r2.srdf"};
 const std::string R2Robot::LIMITS{"package://r2_moveit_config/config/joint_limits.yaml"};
 const std::string R2Robot::KINEMATICS{"package://r2_moveit_config/config/kinematics.yaml"};
 const std::string R2Robot::CACHED{"package://robot_ragdoll_demos/config"};
-const std::vector<std::string> R2Robot::SAMPLERS{"moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator",  //
-                                                 "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",        //
-                                                 "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"};
+const std::vector<std::string> R2Robot::SAMPLERS{
+    "moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator",  //
+    "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",        //
+    "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"};
 
 const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_config/config/ompl_planning.yaml"};
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
@@ -50,7 +51,8 @@ OMPL::R2OMPLPipelinePlanner::R2OMPLPipelinePlanner(R2Robot &robot) : OMPLPipelin
 }
 
 bool OMPL::R2OMPLPipelinePlanner::initialize(const std::string &config_file, const Settings settings,
-                                             const std::string &plugin, const std::vector<std::string> &adapters)
+                                             const std::string &plugin,
+                                             const std::vector<std::string> &adapters)
 {
     return OMPLPipelinePlanner::initialize(config_file, settings, plugin, adapters);
 }

@@ -13,8 +13,8 @@ namespace robowflex
         Planner(Planner const &) = delete;
         void operator=(Planner const &) = delete;
 
-        virtual planning_interface::MotionPlanResponse plan(const Scene &scene,
-                                                            const planning_interface::MotionPlanRequest &request) = 0;
+        virtual planning_interface::MotionPlanResponse
+        plan(const Scene &scene, const planning_interface::MotionPlanRequest &request) = 0;
 
         virtual const std::vector<std::string> getPlannerConfigs() const = 0;
 
@@ -38,8 +38,8 @@ namespace robowflex
         PipelinePlanner(PipelinePlanner const &) = delete;
         void operator=(PipelinePlanner const &) = delete;
 
-        planning_interface::MotionPlanResponse plan(const Scene &scene,
-                                                    const planning_interface::MotionPlanRequest &request) override;
+        planning_interface::MotionPlanResponse
+        plan(const Scene &scene, const planning_interface::MotionPlanRequest &request) override;
 
     protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;
@@ -110,11 +110,12 @@ namespace robowflex
         //     OMPLInterfacePlanner(OMPLInterfacePlanner const &) = delete;
         //     void operator=(OMPLInterfacePlanner const &) = delete;
 
-        //     bool initialize(const std::string &config_file = "", const OMPL::Settings settings = Settings());
+        //     bool initialize(const std::string &config_file = "", const OMPL::Settings settings =
+        //     Settings());
 
         //     planning_interface::MotionPlanResponse plan(Scene &scene,
-        //                                                 const planning_interface::MotionPlanRequest &request)
-        //                                                 override;
+        //                                                 const planning_interface::MotionPlanRequest
+        //                                                 &request) override;
 
         //     const std::vector<std::string> getPlannerConfigs() const override;
 
@@ -132,16 +133,17 @@ namespace robowflex
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
         void setGoalConfiguration(const std::vector<double> &joints);
-        void setGoalRegion(const std::string &ee_name, const std::string &base_name, const Eigen::Affine3d &pose,
-                           const Geometry &geometry, const Eigen::Quaterniond &orientation,
-                           const Eigen::Vector3d &tolerances);
+        void setGoalRegion(const std::string &ee_name, const std::string &base_name,
+                           const Eigen::Affine3d &pose, const Geometry &geometry,
+                           const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
         void addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
                                    const Eigen::Affine3d &pose, const Geometry &geometry,
                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
         void addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
                                        const Eigen::Affine3d &pose, const Geometry &geometry);
         void addPathOrientationConstraint(const std::string &ee_name, const std::string &base_name,
-                                          const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+                                          const Eigen::Quaterniond &orientation,
+                                          const Eigen::Vector3d &tolerances);
         const planning_interface::MotionPlanRequest &getRequest() const;
         moveit_msgs::Constraints &getPathConstraints();
 

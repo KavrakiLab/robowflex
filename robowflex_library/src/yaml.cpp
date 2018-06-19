@@ -196,7 +196,8 @@ namespace YAML
                 node["fixed_frame_transforms"].as<std::vector<geometry_msgs::TransformStamped>>();
 
         if (node["allowed_collision_matrix"])
-            rhs.allowed_collision_matrix = node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
+            rhs.allowed_collision_matrix =
+                node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
 
         if (node["link_padding"])
             rhs.link_padding = node["link_padding"].as<std::vector<moveit_msgs::LinkPadding>>();
@@ -267,7 +268,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<geometry_msgs::TransformStamped>::decode(const Node &node, geometry_msgs::TransformStamped &rhs)
+    bool convert<geometry_msgs::TransformStamped>::decode(const Node &node,
+                                                          geometry_msgs::TransformStamped &rhs)
     {
         rhs = geometry_msgs::TransformStamped();
 
@@ -599,7 +601,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<sensor_msgs::MultiDOFJointState>::decode(const Node &node, sensor_msgs::MultiDOFJointState &rhs)
+    bool convert<sensor_msgs::MultiDOFJointState>::decode(const Node &node,
+                                                          sensor_msgs::MultiDOFJointState &rhs)
     {
         rhs = sensor_msgs::MultiDOFJointState();
 
@@ -623,7 +626,8 @@ namespace YAML
         return true;
     }
 
-    Node convert<moveit_msgs::AttachedCollisionObject>::encode(const moveit_msgs::AttachedCollisionObject &rhs)
+    Node
+    convert<moveit_msgs::AttachedCollisionObject>::encode(const moveit_msgs::AttachedCollisionObject &rhs)
     {
         Node node;
         node["link_name"] = rhs.link_name;
@@ -675,7 +679,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<trajectory_msgs::JointTrajectory>::decode(const Node &node, trajectory_msgs::JointTrajectory &rhs)
+    bool convert<trajectory_msgs::JointTrajectory>::decode(const Node &node,
+                                                           trajectory_msgs::JointTrajectory &rhs)
     {
         rhs = trajectory_msgs::JointTrajectory();
 
@@ -693,7 +698,8 @@ namespace YAML
         return true;
     }
 
-    Node convert<trajectory_msgs::JointTrajectoryPoint>::encode(const trajectory_msgs::JointTrajectoryPoint &rhs)
+    Node
+    convert<trajectory_msgs::JointTrajectoryPoint>::encode(const trajectory_msgs::JointTrajectoryPoint &rhs)
     {
         Node node;
 
@@ -1004,7 +1010,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::AllowedCollisionEntry>::decode(const Node &node, moveit_msgs::AllowedCollisionEntry &rhs)
+    bool convert<moveit_msgs::AllowedCollisionEntry>::decode(const Node &node,
+                                                             moveit_msgs::AllowedCollisionEntry &rhs)
     {
         rhs = moveit_msgs::AllowedCollisionEntry();
 
@@ -1027,7 +1034,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::PlanningSceneWorld>::decode(const Node &node, moveit_msgs::PlanningSceneWorld &rhs)
+    bool convert<moveit_msgs::PlanningSceneWorld>::decode(const Node &node,
+                                                          moveit_msgs::PlanningSceneWorld &rhs)
     {
         rhs = moveit_msgs::PlanningSceneWorld();
 
@@ -1227,7 +1235,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::WorkspaceParameters>::decode(const Node &node, moveit_msgs::WorkspaceParameters &rhs)
+    bool convert<moveit_msgs::WorkspaceParameters>::decode(const Node &node,
+                                                           moveit_msgs::WorkspaceParameters &rhs)
     {
         rhs = moveit_msgs::WorkspaceParameters();
 
@@ -1274,7 +1283,8 @@ namespace YAML
             rhs.joint_constraints = node["joint_constraints"].as<std::vector<moveit_msgs::JointConstraint>>();
 
         if (node["position_constraints"])
-            rhs.position_constraints = node["position_constraints"].as<std::vector<moveit_msgs::PositionConstraint>>();
+            rhs.position_constraints =
+                node["position_constraints"].as<std::vector<moveit_msgs::PositionConstraint>>();
 
         if (node["orientation_constraints"])
             rhs.orientation_constraints =
@@ -1347,7 +1357,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::PositionConstraint>::decode(const Node &node, moveit_msgs::PositionConstraint &rhs)
+    bool convert<moveit_msgs::PositionConstraint>::decode(const Node &node,
+                                                          moveit_msgs::PositionConstraint &rhs)
     {
         rhs = moveit_msgs::PositionConstraint();
         rhs.weight = 1;
@@ -1390,7 +1401,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::OrientationConstraint>::decode(const Node &node, moveit_msgs::OrientationConstraint &rhs)
+    bool convert<moveit_msgs::OrientationConstraint>::decode(const Node &node,
+                                                             moveit_msgs::OrientationConstraint &rhs)
     {
         if (node["header"])
             rhs.header = node["header"].as<std_msgs::Header>();
@@ -1426,7 +1438,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::VisibilityConstraint>::decode(const Node &node, moveit_msgs::VisibilityConstraint &rhs)
+    bool convert<moveit_msgs::VisibilityConstraint>::decode(const Node &node,
+                                                            moveit_msgs::VisibilityConstraint &rhs)
     {
         rhs = moveit_msgs::VisibilityConstraint();
 
@@ -1487,7 +1500,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::TrajectoryConstraints>::decode(const Node &node, moveit_msgs::TrajectoryConstraints &rhs)
+    bool convert<moveit_msgs::TrajectoryConstraints>::decode(const Node &node,
+                                                             moveit_msgs::TrajectoryConstraints &rhs)
     {
         rhs.constraints = node["constraints"].as<std::vector<moveit_msgs::Constraints>>();
         return true;
@@ -1497,7 +1511,8 @@ namespace YAML
     {
         Node node;
 
-        if (!(isHeaderEmpty(rhs.workspace_parameters.header) && isVector3Zero(rhs.workspace_parameters.min_corner) &&
+        if (!(isHeaderEmpty(rhs.workspace_parameters.header) &&
+              isVector3Zero(rhs.workspace_parameters.min_corner) &&
               isVector3Zero(rhs.workspace_parameters.max_corner)))
             node["workspace_parameters"] = rhs.workspace_parameters;
 
@@ -1533,7 +1548,8 @@ namespace YAML
         return node;
     }
 
-    bool convert<moveit_msgs::MotionPlanRequest>::decode(const Node &node, moveit_msgs::MotionPlanRequest &rhs)
+    bool convert<moveit_msgs::MotionPlanRequest>::decode(const Node &node,
+                                                         moveit_msgs::MotionPlanRequest &rhs)
     {
         rhs = moveit_msgs::MotionPlanRequest();
 
@@ -1550,7 +1566,8 @@ namespace YAML
             rhs.path_constraints = node["path_constraints"].as<moveit_msgs::Constraints>();
 
         if (node["trajectory_constraints"])
-            rhs.trajectory_constraints = node["trajectory_constraints"].as<moveit_msgs::TrajectoryConstraints>();
+            rhs.trajectory_constraints =
+                node["trajectory_constraints"].as<moveit_msgs::TrajectoryConstraints>();
 
         if (node["planner_id"])
             rhs.planner_id = node["planner_id"].as<std::string>();

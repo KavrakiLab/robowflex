@@ -46,8 +46,8 @@ namespace robowflex
                 // do nothing
             }
 
-            void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op, Robot &robot,
-                                        const std::vector<double> &joint_positions)
+            void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op,
+                                        Robot &robot, const std::vector<double> &joint_positions)
             {
                 // Hopefully z is correct height
                 double x = 0, y = 0, z = -0.95;
@@ -82,9 +82,9 @@ namespace robowflex
 
                 robot.setState(joint_positions);
                 Eigen::Affine3d tip_constraint_tf = robot.getLinkTF(stationary_tip_name);
-                std::cout<<tip_constraint_tf.rotation()<<std::endl;
+                std::cout << tip_constraint_tf.rotation() << std::endl;
 
-                //I think this works?
+                // I think this works?
                 tip_orientation = tip_constraint_tf.rotation();
 
                 // robot.setState(s);
@@ -94,15 +94,17 @@ namespace robowflex
 
                 // std::cout << robot.getLinkTF("r2/world_ref").translation() << std::endl;
 
-                request.addPathPoseConstraint(
-                    stationary_tip_name, "world", tip_constraint_tf,
-                    Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1), "my_sphere_for_constraint_2"),
-                    tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
+                request.addPathPoseConstraint(stationary_tip_name, "world", tip_constraint_tf,
+                                              Geometry(Geometry::ShapeType::SPHERE,
+                                                       Eigen::Vector3d(0.1, 0.1, 0.1),
+                                                       "my_sphere_for_constraint_2"),
+                                              tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
 
                 request.setGoalRegion(
                     moving_tip_name, "world",
                     Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
-                    Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1), "my_sphere_for_constraint_1"),
+                    Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
+                             "my_sphere_for_constraint_1"),
                     Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d(0.01, 0.01, 0.01));
 
                 last_foot_left = !last_foot_left;
@@ -144,7 +146,8 @@ namespace robowflex
 
             // Not currently used, just seeing if the interface works
             std::vector<footstep_planning::point_2D> foot_placements =
-                my_step_planner.calculate_foot_placements(points, points[9], points[17], footstep_planning::foot::left);
+                my_step_planner.calculate_foot_placements(points, points[9], points[17],
+                                                          footstep_planning::foot::left);
 
             // Benchmarking code. We'll loop through random locations and try to plan to them.
             // TODO: Get random pose for torso, plan to it and return plan
@@ -166,9 +169,10 @@ namespace robowflex
         std::vector<double> goal_pose;
 
         // Loads the scene description and creates the graph we will use for planning
-        MyWalker(Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner, Scene &scene,
-                 MotionRequestBuilder &request)
-          : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper, my_scene_graph_helper)
+        MyWalker(Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
+                 Scene &scene, MotionRequestBuilder &request)
+          : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
+                            my_scene_graph_helper)
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
