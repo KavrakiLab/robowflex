@@ -47,6 +47,10 @@ namespace robowflex
         bool loadKinematics(const std::string &group);
 
         void setState(const std::vector<double> &positions);
+        void setState(const std::map<std::string, double> &variable_map);
+        void setState(const std::vector<std::string> &variable_names,
+                      const std::vector<double> &variable_position);
+
         void setGroupState(const std::string &name, const std::vector<double> &positions);
         std::vector<double> getState() const;
         std::vector<std::string> getJointNames() const;
