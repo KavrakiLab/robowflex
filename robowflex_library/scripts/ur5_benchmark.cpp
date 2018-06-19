@@ -37,8 +37,10 @@ int main(int argc, char **argv)
     benchmark.addBenchmarkingRequest("joint", scene, planner, joint_request);
     benchmark.addBenchmarkingRequest("pose", scene, planner, pose_request);
 
-    OMPLBenchmarkOutputter out("robowflex_ur5_test/");
-    benchmark.benchmark(out);
+    BenchmarkOutputterPtr out(new OMPLBenchmarkOutputter("robowflex_ur5_test/"));
+    std::vector<BenchmarkOutputterPtr> outs;
+    outs.push_back(out);
+    benchmark.benchmark(outs);
 
     return 0;
 }

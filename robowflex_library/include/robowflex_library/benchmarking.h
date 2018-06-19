@@ -1,10 +1,13 @@
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
+#include <robowflex_library/util.h>
+
 namespace robowflex
 {
     // Forward Declaration.
     class BenchmarkOutputter;
+    typedef std::shared_ptr<BenchmarkOutputter> BenchmarkOutputterPtr;
 
     class Benchmarker
     {
@@ -12,18 +15,11 @@ namespace robowflex
         class Options
         {
         public:
-            Options() : runs(100), trajectory_output_file("")
+            Options() : runs(100)
             {
             }
 
             unsigned int runs;
-
-            /** 
-             * If not empty, the trajectories found by each request are stored in a topic of
-             * the request name in a bag file of the given name.
-             * If empty, no trajectories are output.
-             */
-            std::string trajectory_output_file;
         };
 
         class Results
@@ -32,12 +28,13 @@ namespace robowflex
             class Run
             {
             public:
-                Run(int num, double time, bool success) : time(time), success(success)
+                Run(int num, double time, bool success) : num(num), time(time), success(success)
                 {
                 }
 
                 int num;
                 int waypoints;
+                moveit_msgs::RobotTrajectory path;
                 double time;
                 /** Whether or not MoveIt returns a 'success'. */
                 bool success;
@@ -74,7 +71,7 @@ namespace robowflex
         void addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
                                     MotionRequestBuilder &request);
 
-        void benchmark(BenchmarkOutputter &output, const Options &options = Options());
+        void benchmark(const std::vector<BenchmarkOutputterPtr> &output, const Options &options = Options());
 
     private:
         std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> requests_;
@@ -105,9 +102,28 @@ namespace robowflex
         void dumpResult(const Benchmarker::Results &results) override;
 
     private:
-        bool is_init{false};
+        bool is_init_{false};
         const std::string file_;
         std::ofstream outfile_;
+    };
+
+    class TrajectoryOutputter : public BenchmarkOutputter
+    {
+    public:
+        TrajectoryOutputter(const std::string &file) : BenchmarkOutputter(), file_(file), bag_(file_)
+        {
+        }
+
+        void dumpResult(const Benchmarker::Results &results) override;
+
+    private:
+        /**
+         * The trajectories found by each request are stored in a topic of
+         * the request name in a bag file of the given name.
+         */
+        std::string file_;
+        bool is_init_{false};
+        IO::Bag bag_;
     };
 
     class OMPLBenchmarkOutputter : public BenchmarkOutputter

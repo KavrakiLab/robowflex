@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     startROS(argc, argv);
 
     Robot wam7("wam7");
-    wam7.initialize("package://barrett_model/robots/wam_7dof_wam_bhand.urdf.xacro",  // urdf
+    wam7.initialize("package://barrett_model/robots/wam7_bhand.urdf.xacro",  // urdf
                     "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
                     "package://barrett_wam_moveit_config/config/joint_limits.yaml",  // joint limits
                     "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
@@ -31,8 +31,12 @@ int main(int argc, char **argv)
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("test", scene, planner, request);
 
-    JSONBenchmarkOutputter out("test_log.json");
-    benchmark.benchmark(out);
+    BenchmarkOutputterPtr out_json(new JSONBenchmarkOutputter("test_log.json"));
+    BenchmarkOutputterPtr out_traj(new TrajectoryOutputter("test_log.bag"));
+    std::vector<BenchmarkOutputterPtr> outs;
+    outs.push_back(out_json);
+    outs.push_back(out_traj);
+    benchmark.benchmark(outs);
 
     return 0;
 }
