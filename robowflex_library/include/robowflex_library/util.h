@@ -1,6 +1,8 @@
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 
+#include <rosbag/bag.h>
+#include <rosbag/view.h>
 #include <boost/date_time.hpp>
 
 namespace robowflex
@@ -88,6 +90,62 @@ namespace robowflex
             msg = result.second.as<T>();
             return true;
         }
+
+        class Bag
+        {
+        public:
+            enum Mode
+            {
+                READ,
+                WRITE
+            };
+
+            Bag(const std::string &file, Mode mode = WRITE)
+              : mode_(mode)
+              , file_((mode_ == WRITE) ? file : IO::resolvePath(file))
+              , bag_(file_, (mode_ == WRITE) ? rosbag::bagmode::Write : rosbag::bagmode::Read)
+            {
+            }
+
+            ~Bag()
+            {
+                bag_.close();
+            }
+
+            template <typename T>
+            bool addMessage(const std::string &topic, T msg)
+            {
+                if (mode_ == WRITE)
+                {
+                    bag_.write(topic, ros::Time::now(), msg);
+                    return true;
+                }
+
+                return false;
+            }
+
+            template <typename T>
+            std::vector<T> getMessages(const std::vector<std::string> &topics)
+            {
+                std::vector<T> msgs;
+
+                if (mode_ != READ)
+                    return msgs;
+
+                rosbag::View view(bag_, rosbag::TopicQuery(topics));
+                for (auto &msg : view)
+                {
+                    typename T::ConstPtr ptr = msg.instantiate<T>();
+                    if (ptr != nullptr)
+                        msgs.emplace_back(*ptr);
+                }
+            }
+
+        private:
+            const Mode mode_;
+            const std::string file_;
+            rosbag::Bag bag_;
+        };
 
         class Handler
         {
