@@ -38,7 +38,7 @@ namespace robowflex
         {
             bool last_foot_left = true;
             std::vector<std::vector<double>> my_foot_placements;
-
+            size_t op_index = 0;
         public:
             MyWalkerConstraintHelper(){};
             void _getTaskPlan_Callback()
@@ -54,10 +54,11 @@ namespace robowflex
                 x = task_op[0];
                 y = task_op[1];
 
-                // Path constraint from r2_plan.yml
-                // We'll want to alternate feet for these
-                // For now, we hope there's only the one important constraint.
+                x = 41.9;
+                y = -41.9
 
+                // Path constraint from r2_plan.yml. We'll want to alternate feet for these. For now,
+                //we hope there's only the one important constraint.
                 request.getPathConstraints().position_constraints.clear();
                 request.getPathConstraints().orientation_constraints.clear();
 
@@ -69,30 +70,14 @@ namespace robowflex
                     stationary_tip_name = "r2/left_leg/gripper/tip";
                 }
 
-                // Set one leg to not move:
-                // Eigen::Translation3d tip_location = Eigen::Translation3d(1.526, 0.2919, -1.104);
-                Eigen::Quaterniond tip_orientation =
-                    Eigen::Quaterniond(9.19840220243e-09, -0.00173565, 0.999998, 1.02802058722e-07);
-
-                // Eigen::Affine3d tip_constraint_tf = tip_location * Eigen::Quaterniond::Identity();
-
-                // robot.setState(joint_positions);
-                // std::vector<double> s = robot.getState();
-                // std::vector<std::string> names = robot.getJointNames();
-
+                //Find the location of the stationary tip in the workspace
                 robot.setState(joint_positions);
                 Eigen::Affine3d tip_constraint_tf = robot.getLinkTF(stationary_tip_name);
                 std::cout << tip_constraint_tf.rotation() << std::endl;
 
-                // I think this works?
-                tip_orientation = tip_constraint_tf.rotation();
-
-                // robot.setState(s);
-
-                // tip_constraint_tf = robot.getLinkTF(stationary_tip_name);
-                // std::cout << tip_constraint_tf.translation() << std::endl;
-
-                // std::cout << robot.getLinkTF("r2/world_ref").translation() << std::endl;
+                //I think this works? It sets the orientation correctly. The pose is for a sphere so
+                //it shouldn't matter that we have a rotation.
+                Eigen::Quaterniond tip_orientation = tip_constraint_tf.rotation();
 
                 request.addPathPoseConstraint(stationary_tip_name, "world", tip_constraint_tf,
                                               Geometry(Geometry::ShapeType::SPHERE,
