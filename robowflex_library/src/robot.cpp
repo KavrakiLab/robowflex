@@ -138,6 +138,17 @@ void Robot::setState(const std::vector<double> &positions)
     scratch_->setVariablePositions(positions);
 }
 
+void setVariablePositions(const std::map<std::string, double>& variable_map)
+{
+    scratch_->setVariablePositions(variable_map);
+}
+
+void setVariablePositions(const std::vector<std::string>& variable_names,
+                            const std::vector<double>& variable_position)
+{
+    scratch_->setVariablePositions(variable_names, variable_position);
+}
+
 void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
 {
     scratch_->setJointGroupPositions(name, positions);
