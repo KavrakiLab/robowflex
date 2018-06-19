@@ -86,6 +86,35 @@ PipelinePlanner::plan(const SceneConstPtr &scene, const planning_interface::Moti
 }
 
 ///
+/// OMPL
+///
+
+bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
+                          std::vector<std::string> &configs)
+{
+    if (config_file.empty())
+        return false;
+
+    auto &config = IO::loadFileToYAML(config_file);
+    if (!config.first)
+    {
+        ROS_ERROR("Failed to load planner configs.");
+        return false;
+    }
+
+    handler.loadYAMLtoROS(config.second);
+
+    auto &planner_configs = config.second["planner_configs"];
+    if (planner_configs)
+    {
+        for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
+            configs.push_back(it->first.as<std::string>());
+    }
+
+    return true;
+}
+
+///
 /// OMPL::Settings
 ///
 
