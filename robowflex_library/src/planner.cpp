@@ -160,15 +160,13 @@ void OMPL::Settings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
-const std::vector<std::string>  //
-    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(
-        {"default_planner_request_adapters/AddTimeParameterization",  //
-         "default_planner_request_adapters/FixWorkspaceBounds",       //
-         "default_planner_request_adapters/FixStartStateBounds",      //
-         "default_planner_request_adapters/FixStartStateCollision",   //
-         "default_planner_request_adapters/FixStartStatePathConstraints"});
-
-const std::string PLANNER_CONFIGS = "planner_configs";
+const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN({"ompl_interface/OMPLPlanner"});
+const std::vector<std::string>                                                                                //
+    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS({"default_planner_request_adapters/AddTimeParameterization",  //
+                                                 "default_planner_request_adapters/FixWorkspaceBounds",       //
+                                                 "default_planner_request_adapters/FixStartStateBounds",      //
+                                                 "default_planner_request_adapters/FixStartStateCollision",   //
+                                                 "default_planner_request_adapters/FixStartStatePathConstraints"});
 
 namespace
 {
