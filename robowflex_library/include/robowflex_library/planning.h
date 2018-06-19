@@ -336,7 +336,10 @@ namespace robowflex
      */
     namespace OMPL
     {
-        bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file, std::vector<std::string> &configs);
+        /** \brief Loads an OMPL configuration YAML file onto the parameter server.
+         */
+        static bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
+                                   std::vector<std::string> &configs);
 
         /** \brief Settings descriptor for settings provided by the default \a MoveIt! OMPL planning pipeline.
          */
