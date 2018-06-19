@@ -26,7 +26,6 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   rosbag
   roscpp
-  rosbag
 )
 
 catkin_package(
