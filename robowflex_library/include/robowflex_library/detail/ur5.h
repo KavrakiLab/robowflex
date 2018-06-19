@@ -24,7 +24,7 @@ namespace robowflex
             UR5OMPLPipelinePlanner(UR5Robot &robot);
 
             bool initialize(const std::string &config_file = CONFIG, const Settings settings = Settings(),
-                            const std::string &plugin = PLUGIN,
+                            const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
         private:

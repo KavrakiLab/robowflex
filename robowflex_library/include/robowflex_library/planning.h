@@ -90,12 +90,13 @@ namespace robowflex
             void operator=(OMPLPipelinePlanner const &) = delete;
 
             bool initialize(const std::string &config_file = "", const Settings settings = Settings(),
-                            const std::string &plugin = "ompl_interface/OMPLPlanner",
+                            const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
             const std::vector<std::string> getPlannerConfigs() const override;
 
         protected:
+            static const std::string DEFAULT_PLUGIN;
             static const std::vector<std::string> DEFAULT_ADAPTERS;
 
         private:
