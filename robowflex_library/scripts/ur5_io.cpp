@@ -6,12 +6,8 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    Robot ur5("ur5");
-    ur5.initialize("package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
-                   "package://ur5_robotiq85_moveit_config/config/ur5_robotiq85.srdf",     // srdf
-                   "package://ur5_robotiq85_moveit_config/config/joint_limits.yaml",      // joint limits
-                   "package://ur5_robotiq85_moveit_config/config/kinematics.yaml"         // kinematics
-    );
+    UR5Robot ur5;
+    ur5.initialize();
 
     Scene scene(ur5);
     scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
