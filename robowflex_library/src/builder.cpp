@@ -146,6 +146,16 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
     return request_;
 }
 
+bool MotionRequestBuilder::toYAMLFile(const std::string &file)
+{
+    return IO::YAMLtoFile(IO::toNode(request_), file);
+}
+
+bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
+{
+    return IO::fromYAMLFile(request_, file);
+}
+
 std::map<std::string, double>
 robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &response)
 {
@@ -160,14 +170,4 @@ robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &
         map.emplace(joint_names[i], joint_positions[i]);
 
     return map;
-}
-
-bool MotionRequestBuilder::toYAMLFile(const std::string &file)
-{
-    return IO::YAMLtoFile(IO::toNode(request_), file);
-}
-
-bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
-{
-    return IO::fromYAMLFile(request_, file);
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robowflex</name>
+  <name>robowflex_ompl</name>
   <version>0.0.1</version>
-  <description>The Better Benchmarking Package</description>
+  <description>The Better Benchmarking Package: OMPL Interface</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
@@ -10,12 +10,9 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>robowflex_library</exec_depend>
-  <exec_depend>robowflex_visualization</exec_depend>
-  <exec_depend>robowflex_ompl</exec_depend>
-  <exec_depend>tmpack</exec_depend>
+  <depend>robowflex_library</depend>
+  <depend>moveit_planners_ompl</depend>
 
   <export>
-    <metapackage/>
   </export>
 </package>
