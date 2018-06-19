@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     OMPL::R2OMPLPipelinePlanner planner(r2);
     planner.initialize();
     MotionRequestBuilder request(planner, "legsandtorso");
-    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
+    request.fromYAMLFile("package://robowflex_library/yaml/r2_start.yml");
 
     size_t time_spent = 0;
     size_t count = 0;

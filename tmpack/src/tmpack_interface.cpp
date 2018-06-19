@@ -57,11 +57,20 @@ namespace robowflex
                 request.getRequest().start_state.joint_state.position;
 
             // we manually specify these because the virtual_link isn't included in the above:
-            std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
-                                       -0.0735915747411, -0.996745300836, 0.0325737756642};
+            //For r2_plan.yml
+            // std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
+            //                            -0.0735915747411, -0.996745300836, 0.0325737756642};
+
+            //For r2_start.yml
+            std::vector<double> tmp = {1.98552, 0.0242871, 9.14127e-05, 4.8366e-06, -2.4964e-06, 1, -6.53607e-07};
 
             tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
             next_start_joint_positions = tmp;
+
+            std::vector<std::string> names = robot.getJointNames();
+            for(int i= 0; i <names.size(); i++) {
+              std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
+            }
 
             for (std::vector<double> goal_conf : goals)
             {
@@ -75,8 +84,6 @@ namespace robowflex
 
                 next_start_joint_positions = getFinalJointPositions(response);
                 request.setStartConfiguration(next_start_joint_positions);
-                // std::cout<<"goal constraints: "<<request.getRequest().goal_constraints[0]<<std::endl;
-                // std::cout<<"path constraints: "<<request.getPathConstraints()<<std::endl;
             }
             return responses;
         }
