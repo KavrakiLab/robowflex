@@ -155,6 +155,8 @@ namespace robowflex
             Handler(Handler const &) = delete;
             void operator=(Handler const &) = delete;
 
+            Handler(const IO::Handler &handler, const std::string &name);
+
             ~Handler();
 
             // Loads an YAML node to the ROS parameter server.
@@ -178,12 +180,17 @@ namespace robowflex
                 return nh_.getParam(key, value);
             }
 
-            const ros::NodeHandle &getHandle()
+            const ros::NodeHandle &getHandle() const
             {
                 return nh_;
             }
 
-            const std::string &getNamespace()
+            const std::string &getName() const
+            {
+                return name_;
+            }
+
+            const std::string &getNamespace() const
             {
                 return namespace_;
             }

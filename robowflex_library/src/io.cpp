@@ -298,6 +298,11 @@ IO::Handler::Handler(const std::string &name)
 {
 }
 
+IO::Handler::Handler(const IO::Handler &handler, const std::string &name)
+    : name_(handler.getName()), namespace_(handler.getNamespace()), nh_(handler.getHandle(), name)
+{
+}
+
 IO::Handler::~Handler()
 {
     for (auto key : params_)

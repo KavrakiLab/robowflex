@@ -7,7 +7,7 @@
 
 using namespace robowflex;
 
-const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS = {"CBiRRT2", "RRTConnect"};
+const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"CBiRRT2", "RRTConnect"});
 
 MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
   : planner_(planner)
@@ -35,19 +35,23 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
     const auto &configs = planner_.getPlannerConfigs();
-    const auto &found =
-        std::find_if(std::begin(configs), std::end(configs),
-                     [requested_config](const std::string &s) {
-                         return s.find(requested_config) != std::string::npos;
-                     });
 
-    if (found != std::end(configs))
+    std::vector<std::reference_wrapper<const std::string>> matches;
+    for (const auto &config : configs)
     {
-        request_.planner_id = *found;
-        return true;
+        if (config.find(requested_config) != std::string::npos)
+            matches.emplace_back(config);
     }
 
-    return false;
+    if (matches.empty())
+        return false;
+
+    const auto &found =
+        std::min_element(matches.begin(), matches.end(),
+                         [](const std::string &a, const std::string &b) { return a.size() < b.size(); });
+
+    request_.planner_id = *found;
+    return true;
 }
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)
@@ -168,13 +172,14 @@ void OMPL::Settings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
-const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN({"ompl_interface/OMPLPlanner"});
-const std::vector<std::string>                                                                                //
-    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS({"default_planner_request_adapters/AddTimeParameterization",  //
-                                                 "default_planner_request_adapters/FixWorkspaceBounds",       //
-                                                 "default_planner_request_adapters/FixStartStateBounds",      //
-                                                 "default_planner_request_adapters/FixStartStateCollision",   //
-                                                 "default_planner_request_adapters/FixStartStatePathConstraints"});
+const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN("ompl_interface/OMPLPlanner");
+const std::vector<std::string>                                        //
+    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(                      //
+        {"default_planner_request_adapters/AddTimeParameterization",  //
+         "default_planner_request_adapters/FixWorkspaceBounds",       //
+         "default_planner_request_adapters/FixStartStateBounds",      //
+         "default_planner_request_adapters/FixStartStateCollision",   //
+         "default_planner_request_adapters/FixStartStatePathConstraints"});
 
 namespace
 {
@@ -204,7 +209,7 @@ namespace
     }
 }  // namespace
 
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot) : PipelinePlanner(robot)
+OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot, const std::string &name) : PipelinePlanner(robot, name)
 {
 }
 
