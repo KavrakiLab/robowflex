@@ -47,10 +47,9 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         }
 
         results.finish = IO::getDate();
+
         for (BenchmarkOutputterPtr output : outputs)
-        {
             output->dumpResult(results);
-        }
     }
 }
 
@@ -145,9 +144,7 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         is_init_ = true;
     }
     else
-    {
         outfile_ << ",";
-    }
 
     outfile_ << "\"" << results.name << "\":[";
 
@@ -184,13 +181,12 @@ JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
     outfile_.close();
 }
 
-void TrajectoryOutputter::dumpResult(const Benchmarker::Results &results)
+void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     const std::string &name = results.name;
+
     for (Benchmarker::Results::Run run : results.runs)
-    {
         bag_.addMessage(name, run.path);
-    }
 }
 
 void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
