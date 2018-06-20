@@ -26,20 +26,28 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
     request_.allowed_planning_time = 5.0;
 
     // Default planner (find an RRTConnect config, for Indigo)
-    auto &configs = planner.getPlannerConfigs();
-
+    const auto &configs = planner.getPlannerConfigs();
     for (const auto &config : DEFAULT_CONFIGS)
-    {
-        const auto &found =
-            std::find_if(std::begin(configs), std::end(configs),
-                         [config](const std::string &s) { return s.find(config) != std::string::npos; });
-
-        if (found != std::end(configs))
-        {
-            request_.planner_id = *found;
+        if (setConfig(config))
             break;
-        }
+}
+
+bool MotionRequestBuilder::setConfig(const std::string &requested_config)
+{
+    const auto &configs = planner_.getPlannerConfigs();
+    const auto &found =
+        std::find_if(std::begin(configs), std::end(configs),
+                     [requested_config](const std::string &s) {
+                         return s.find(requested_config) != std::string::npos;
+                     });
+
+    if (found != std::end(configs))
+    {
+        request_.planner_id = *found;
+        return true;
     }
+
+    return false;
 }
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)

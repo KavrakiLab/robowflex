@@ -150,6 +150,11 @@ namespace robowflex
 
         bool toYAMLFile(const std::string &file);
         bool fromYAMLFile(const std::string &file);
+        /**
+         * `requested_config` is just the planner name. If it's in the OMPL Config you passed in,
+         * the planner used during motion planning will be set to that.
+         */
+        bool setConfig(const std::string &requested_config);
 
     private:
         const Planner &planner_;
