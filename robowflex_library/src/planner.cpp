@@ -7,7 +7,7 @@
 
 using namespace robowflex;
 
-const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS = {"CBiRRT2", "RRTConnect"};
+const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"CBiRRT2", "RRTConnect"});
 
 MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
   : planner_(planner)
@@ -172,9 +172,9 @@ void OMPL::Settings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
 }
 
-const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN({"ompl_interface/OMPLPlanner"});
-const std::vector<std::string>  //
-    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(
+const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN("ompl_interface/OMPLPlanner");
+const std::vector<std::string>                                        //
+    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(                      //
         {"default_planner_request_adapters/AddTimeParameterization",  //
          "default_planner_request_adapters/FixWorkspaceBounds",       //
          "default_planner_request_adapters/FixStartStateBounds",      //
