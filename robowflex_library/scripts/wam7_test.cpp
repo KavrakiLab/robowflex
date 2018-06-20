@@ -1,6 +1,3 @@
-#include <ros/ros.h>
-#include <signal.h>
-
 #include <robowflex_library/robowflex.h>
 
 using namespace robowflex;
@@ -19,12 +16,16 @@ int main(int argc, char **argv)
     Scene scene(wam7);
 
     OMPL::OMPLPipelinePlanner planner(wam7);
-    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
+    OMPL::Settings settings;
+    settings.simplify_solutions = false;
+    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml",  // planner config
+                       settings
     );
 
     MotionRequestBuilder request(planner, "arm");
     request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     request.setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
+    request.setConfig("BKPIECE");
 
     wam7.loadKinematics("arm");
 
