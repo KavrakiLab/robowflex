@@ -12,7 +12,7 @@ Benchmarker::Benchmarker()
 }
 
 void Benchmarker::addBenchmarkingRequest(const std::string &name, ScenePtr scene, PlannerPtr planner,
-                                         MotionRequestBuilder &request)
+                                         MotionRequestBuilderPtr request)
 {
     requests_.emplace(std::piecewise_construct,     //
                       std::forward_as_tuple(name),  //
@@ -39,7 +39,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             ros::WallTime start;
 
             start = ros::WallTime::now();
-            planning_interface::MotionPlanResponse response = planner->plan(scene, builder.getRequest());
+            planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
@@ -201,7 +201,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     // setup
     moveit_msgs::PlanningScene scene_msg;
-    const auto &request = results.builder.getRequest();
+    const auto &request = results.builder->getRequest();
 
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 

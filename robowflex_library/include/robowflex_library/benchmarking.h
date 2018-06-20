@@ -44,7 +44,7 @@ namespace robowflex
             };
 
             Results(const std::string &name, SceneConstPtr scene, PlannerConstPtr planner,
-                    const MotionRequestBuilder &builder)
+                    MotionRequestBuilderConstPtr builder)
               : name(name), scene(scene), planner(planner), builder(builder)
             {
                 start = IO::getDate();
@@ -56,7 +56,7 @@ namespace robowflex
             const std::string name;
             SceneConstPtr scene;
             PlannerConstPtr planner;
-            const MotionRequestBuilder &builder;
+            MotionRequestBuilderConstPtr builder;
 
             boost::posix_time::ptime start;
             boost::posix_time::ptime finish;
@@ -67,12 +67,12 @@ namespace robowflex
         Benchmarker();
 
         void addBenchmarkingRequest(const std::string &name, ScenePtr scene, PlannerPtr planner,
-                                    MotionRequestBuilder &request);
+                                    MotionRequestBuilderPtr request);
 
         void benchmark(const std::vector<BenchmarkOutputterPtr> &output, const Options &options = Options());
 
     private:
-        std::map<std::string, std::tuple<ScenePtr, PlannerPtr, MotionRequestBuilder &>> requests_;
+        std::map<std::string, std::tuple<ScenePtr, PlannerPtr, MotionRequestBuilderPtr>> requests_;
     };
 
     class BenchmarkOutputter

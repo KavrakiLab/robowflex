@@ -19,9 +19,9 @@ int main(int argc, char **argv)
     planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
     );
 
-    MotionRequestBuilder request(planner, "arm");
-    request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    request.setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
+    MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, "arm"));
+    request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    request->setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
 
     wam7.loadKinematics("arm");
 
