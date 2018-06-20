@@ -6,6 +6,7 @@ namespace robowflex
     // Forward Declaration.
     ROBOWFLEX_CLASS_FORWARD(BenchmarkOutputter);
 
+    ROBOWFLEX_CLASS_FORWARD(Benchmarker);
     class Benchmarker
     {
     public:
@@ -42,7 +43,7 @@ namespace robowflex
                 double smoothness;
             };
 
-            Results(const std::string &name, const Scene &scene, const Planner &planner,
+            Results(const std::string &name, SceneConstPtr scene, PlannerConstPtr planner,
                     const MotionRequestBuilder &builder)
               : name(name), scene(scene), planner(planner), builder(builder)
             {
@@ -53,8 +54,8 @@ namespace robowflex
             void computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics);
 
             const std::string name;
-            const Scene &scene;
-            const Planner &planner;
+            SceneConstPtr scene;
+            PlannerConstPtr planner;
             const MotionRequestBuilder &builder;
 
             boost::posix_time::ptime start;
@@ -65,13 +66,13 @@ namespace robowflex
 
         Benchmarker();
 
-        void addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
+        void addBenchmarkingRequest(const std::string &name, ScenePtr scene, PlannerPtr planner,
                                     MotionRequestBuilder &request);
 
         void benchmark(const std::vector<BenchmarkOutputterPtr> &output, const Options &options = Options());
 
     private:
-        std::map<std::string, std::tuple<Scene &, Planner &, MotionRequestBuilder &>> requests_;
+        std::map<std::string, std::tuple<ScenePtr, PlannerPtr, MotionRequestBuilder &>> requests_;
     };
 
     class BenchmarkOutputter

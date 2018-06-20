@@ -3,6 +3,7 @@
 
 namespace robowflex
 {
+    ROBOWFLEX_CLASS_FORWARD(Scene);
     class Scene;
 
     class Robot

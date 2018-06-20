@@ -18,6 +18,7 @@ namespace robowflex
 
     namespace OMPL
     {
+        ROBOWFLEX_CLASS_FORWARD(UR5OMPLPipelinePlanner);
         class UR5OMPLPipelinePlanner : public OMPLPipelinePlanner
         {
         public:

@@ -10,10 +10,10 @@ int main(int argc, char **argv)
     UR5Robot ur5;
     ur5.initialize();
 
-    Scene scene(ur5);
+    ScenePtr scene(new Scene(ur5));
 
-    OMPL::UR5OMPLPipelinePlanner planner(ur5);
-    planner.initialize();
+    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::UR5OMPLPipelinePlanner(ur5));
+    planner->initialize();
 
     MotionRequestBuilder joint_request(planner, "manipulator");
     joint_request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});

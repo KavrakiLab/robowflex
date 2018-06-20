@@ -13,10 +13,10 @@ int main(int argc, char **argv)
                     "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
     );
 
-    Scene scene(wam7);
+    ScenePtr scene(new Scene(wam7));
 
-    OMPL::OMPLPipelinePlanner planner(wam7);
-    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
+    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::OMPLPipelinePlanner(wam7));
+    planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
     );
 
     MotionRequestBuilder request(planner, "arm");

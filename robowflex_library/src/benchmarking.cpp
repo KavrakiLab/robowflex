@@ -11,7 +11,7 @@ Benchmarker::Benchmarker()
 {
 }
 
-void Benchmarker::addBenchmarkingRequest(const std::string &name, Scene &scene, Planner &planner,
+void Benchmarker::addBenchmarkingRequest(const std::string &name, ScenePtr scene, PlannerPtr planner,
                                          MotionRequestBuilder &request)
 {
     requests_.emplace(std::piecewise_construct,     //
@@ -27,8 +27,8 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
     for (const auto &request : requests_)
     {
         const auto &name = request.first;
-        const auto &scene = std::get<0>(request.second);
-        auto &planner = std::get<1>(request.second);
+        auto scene = std::get<0>(request.second);
+        auto planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
@@ -39,7 +39,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             ros::WallTime start;
 
             start = ros::WallTime::now();
-            planning_interface::MotionPlanResponse response = planner.plan(scene, builder.getRequest());
+            planning_interface::MotionPlanResponse response = planner->plan(scene, builder.getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
@@ -71,7 +71,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     metrics.smoothness = 0.0;
 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
-    const planning_scene::PlanningScene &s = *scene.getSceneConst();
+    const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
     metrics.waypoints = p.getWayPointCount();
     p.getRobotTrajectoryMsg(metrics.path);
@@ -203,7 +203,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     moveit_msgs::PlanningScene scene_msg;
     const auto &request = results.builder.getRequest();
 
-    results.scene.getSceneConst()->getPlanningSceneMsg(scene_msg);
+    results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
     YAML::Node yaml;
     yaml["scene"] = scene_msg;
