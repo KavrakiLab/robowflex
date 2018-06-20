@@ -209,7 +209,7 @@ namespace
     }
 }  // namespace
 
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot) : PipelinePlanner(robot)
+OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot, const std::string &name) : PipelinePlanner(robot, name)
 {
 }
 

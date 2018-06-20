@@ -6,7 +6,7 @@ namespace robowflex
     class Planner
     {
     public:
-        Planner(Robot &robot) : robot_(robot), handler_(robot_.getHandler())
+        Planner(Robot &robot, const std::string &name = "") : robot_(robot), handler_(robot_.getHandler(), name)
         {
         }
 
@@ -25,13 +25,13 @@ namespace robowflex
 
     protected:
         Robot &robot_;
-        IO::Handler &handler_;
+        IO::Handler handler_;
     };
 
     class PipelinePlanner : public Planner
     {
     public:
-        PipelinePlanner(Robot &robot) : Planner(robot)
+        PipelinePlanner(Robot &robot, const std::string &name = "") : Planner(robot, name)
         {
         }
 
@@ -84,7 +84,7 @@ namespace robowflex
         class OMPLPipelinePlanner : public PipelinePlanner
         {
         public:
-            OMPLPipelinePlanner(Robot &robot);
+            OMPLPipelinePlanner(Robot &robot, const std::string &name = "");
 
             OMPLPipelinePlanner(OMPLPipelinePlanner const &) = delete;
             void operator=(OMPLPipelinePlanner const &) = delete;
