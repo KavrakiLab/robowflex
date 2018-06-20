@@ -2,6 +2,7 @@
 #define ROBOWFLEX_
 
 #include <fstream>
+#include <memory>
 
 #include <yaml-cpp/yaml.h>
 
@@ -16,6 +17,10 @@
 
 // #include <moveit/ompl_interface/ompl_interface.h>
 // #include <moveit/ompl_interface/model_based_planning_context.h>
+
+#define ROBOWFLEX_CLASS_FORWARD(C)                                                                           \
+    class C;                                                                                                 \
+    typedef std::shared_ptr<C> C##Ptr
 
 #define ROBOWFLEX_AT_LEAST_INDIGO ROS_VERSION_MINIMUM(1, 11, 0)
 #define ROBOWFLEX_AT_LEAST_LUNAR ROS_VERSION_MINIMUM(1, 12, 0)
