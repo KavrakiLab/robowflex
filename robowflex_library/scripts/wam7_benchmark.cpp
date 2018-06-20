@@ -13,7 +13,6 @@ int main(int argc, char **argv)
                     "package://barrett_wam_moveit_config/config/kinematics.yaml"         // kinematics
     );
 
-    Scene scene(wam7);
     ScenePtr scene(new Scene(wam7));
     scene->fromOpenRAVEXMLFile("package://OptPlanners_OpenRAVE/scripts/data/envs/wam7_table_andrewshelf.env.xml");
 
