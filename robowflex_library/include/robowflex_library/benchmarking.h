@@ -1,13 +1,10 @@
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
-#include <robowflex_library/util.h>
-
 namespace robowflex
 {
     // Forward Declaration.
-    class BenchmarkOutputter;
-    typedef std::shared_ptr<BenchmarkOutputter> BenchmarkOutputterPtr;
+    ROBOWFLEX_CLASS_FORWARD(BenchmarkOutputter);
 
     class Benchmarker
     {
@@ -80,10 +77,6 @@ namespace robowflex
     class BenchmarkOutputter
     {
     public:
-        BenchmarkOutputter()
-        {
-        }
-
         virtual ~BenchmarkOutputter() = default;
 
         // Write one unit of output (usually a single planner) to the output.
@@ -93,7 +86,7 @@ namespace robowflex
     class JSONBenchmarkOutputter : public BenchmarkOutputter
     {
     public:
-        JSONBenchmarkOutputter(const std::string &file) : BenchmarkOutputter(), file_(file)
+        JSONBenchmarkOutputter(const std::string &file) : file_(file)
         {
         }
 
@@ -107,10 +100,10 @@ namespace robowflex
         std::ofstream outfile_;
     };
 
-    class TrajectoryOutputter : public BenchmarkOutputter
+    class TrajectoryBenchmarkOutputter : public BenchmarkOutputter
     {
     public:
-        TrajectoryOutputter(const std::string &file) : BenchmarkOutputter(), file_(file), bag_(file_)
+        TrajectoryBenchmarkOutputter(const std::string &file) : file_(file), bag_(file_)
         {
         }
 
@@ -121,15 +114,15 @@ namespace robowflex
          * The trajectories found by each request are stored in a topic of
          * the request name in a bag file of the given name.
          */
-        std::string file_;
         bool is_init_{false};
+        const std::string file_;
         IO::Bag bag_;
     };
 
     class OMPLBenchmarkOutputter : public BenchmarkOutputter
     {
     public:
-        OMPLBenchmarkOutputter(const std::string &prefix) : BenchmarkOutputter(), prefix_(prefix)
+        OMPLBenchmarkOutputter(const std::string &prefix) : prefix_(prefix)
         {
         }
 
