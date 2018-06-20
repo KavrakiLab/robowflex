@@ -20,6 +20,7 @@ namespace robowflex
 
     namespace OMPL
     {
+        ROBOWFLEX_CLASS_FORWARD(R2OMPLPipelinePlanner);
         class R2OMPLPipelinePlanner : public OMPLPipelinePlanner
         {
         public:

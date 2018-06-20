@@ -14,13 +14,14 @@ int main(int argc, char **argv)
     );
 
     Scene scene(wam7);
-    scene.fromOpenRAVEXMLFile("package://OptPlanners_OpenRAVE/scripts/data/envs/wam7_table_andrewshelf.env.xml");
+    ScenePtr scene(new Scene(wam7));
+    scene->fromOpenRAVEXMLFile("package://OptPlanners_OpenRAVE/scripts/data/envs/wam7_table_andrewshelf.env.xml");
 
-    OMPL::OMPLPipelinePlanner planner(wam7);
-    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
+    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::OMPLPipelinePlanner(wam7));
+    planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
     );
 
-    MotionRequestBuilder request(planner, "arm");
+    MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, "arm"));
     request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     request.setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
 

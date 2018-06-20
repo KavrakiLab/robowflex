@@ -20,7 +20,8 @@
 
 #define ROBOWFLEX_CLASS_FORWARD(C)                                                                           \
     class C;                                                                                                 \
-    typedef std::shared_ptr<C> C##Ptr
+    typedef std::shared_ptr<C> C##Ptr;                                                                       \
+    typedef std::shared_ptr<const C> C##ConstPtr;
 
 #define ROBOWFLEX_AT_LEAST_INDIGO ROS_VERSION_MINIMUM(1, 11, 0)
 #define ROBOWFLEX_AT_LEAST_LUNAR ROS_VERSION_MINIMUM(1, 12, 0)

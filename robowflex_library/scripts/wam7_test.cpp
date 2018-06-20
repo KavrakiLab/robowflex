@@ -13,12 +13,12 @@ int main(int argc, char **argv)
                     "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
     );
 
-    Scene scene(wam7);
+    ScenePtr scene(new Scene(wam7));
 
-    OMPL::OMPLPipelinePlanner planner(wam7);
+    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::OMPLPipelinePlanner(wam7));
     OMPL::Settings settings;
     settings.simplify_solutions = false;
-    planner.initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml",  // planner config
+    planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml",  // planner config
                        settings
     );
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     wam7.loadKinematics("arm");
 
-    planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
+    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 

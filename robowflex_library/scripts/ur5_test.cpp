@@ -10,17 +10,20 @@ int main(int argc, char **argv)
     UR5Robot ur5;
     ur5.initialize();
 
-    Scene scene(ur5);
+    ScenePtr scene(new Scene(ur5));
 
-    OMPL::UR5OMPLPipelinePlanner default_planner(ur5, "default");
-    default_planner.initialize();
+    std::vector<PlannerPtr> planners;
+    OMPL::UR5OMPLPipelinePlannerPtr default_planner(new OMPL::UR5OMPLPipelinePlanner(ur5, "default"));
+    default_planner->initialize();
+    planners.push_back(default_planner);
 
     OMPL::Settings settings;
     settings.simplify_solutions = false;
-    OMPL::UR5OMPLPipelinePlanner no_simple_planner(ur5, "simple");
-    no_simple_planner.initialize(settings);
+    OMPL::UR5OMPLPipelinePlannerPtr no_simple_planner(new OMPL::UR5OMPLPipelinePlanner(ur5, "simple"));
+    no_simple_planner->initialize(settings);
+    planners.push_back(no_simple_planner);
 
-    for (auto &planner : {std::ref(default_planner), std::ref(no_simple_planner)})
+    for (auto& planner : planners)
     {
         MotionRequestBuilder request(planner, "manipulator");
         request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
@@ -34,7 +37,7 @@ int main(int argc, char **argv)
                               orn, {0.01, 0.01, 0.01}                                     // orientation
                               );
 
-        planning_interface::MotionPlanResponse res = planner.get().plan(scene, request.getRequest());
+        planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
         if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             return 1;
     }

@@ -3,6 +3,7 @@
 
 namespace robowflex
 {
+    ROBOWFLEX_CLASS_FORWARD(Planner);
     class Planner
     {
     public:
@@ -14,7 +15,7 @@ namespace robowflex
         void operator=(Planner const &) = delete;
 
         virtual planning_interface::MotionPlanResponse
-        plan(const Scene &scene, const planning_interface::MotionPlanRequest &request) = 0;
+        plan(SceneConstPtr scene, const planning_interface::MotionPlanRequest &request) = 0;
 
         virtual const std::vector<std::string> getPlannerConfigs() const = 0;
 
@@ -28,6 +29,7 @@ namespace robowflex
         IO::Handler handler_;
     };
 
+    ROBOWFLEX_CLASS_FORWARD(PipelinePlanner);
     class PipelinePlanner : public Planner
     {
     public:
@@ -39,7 +41,7 @@ namespace robowflex
         void operator=(PipelinePlanner const &) = delete;
 
         planning_interface::MotionPlanResponse
-        plan(const Scene &scene, const planning_interface::MotionPlanRequest &request) override;
+        plan(SceneConstPtr scene, const planning_interface::MotionPlanRequest &request) override;
 
     protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;
@@ -81,6 +83,7 @@ namespace robowflex
             void setParam(IO::Handler &handler) const;
         };
 
+        ROBOWFLEX_CLASS_FORWARD(OMPLPipelinePlanner);
         class OMPLPipelinePlanner : public PipelinePlanner
         {
         public:
@@ -126,10 +129,11 @@ namespace robowflex
         // };
     }  // namespace OMPL
 
+    ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     class MotionRequestBuilder
     {
     public:
-        MotionRequestBuilder(const Planner &planner, const std::string &group_name);
+        MotionRequestBuilder(PlannerConstPtr planner, const std::string &group_name);
 
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
@@ -157,7 +161,7 @@ namespace robowflex
         bool setConfig(const std::string &requested_config);
 
     private:
-        const Planner &planner_;
+        PlannerConstPtr planner_;
         const Robot &robot_;
         const std::string group_name_;
         const robot_model::JointModelGroup *jmg_;
