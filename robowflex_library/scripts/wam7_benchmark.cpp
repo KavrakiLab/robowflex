@@ -21,8 +21,8 @@ int main(int argc, char **argv)
     );
 
     MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, "arm"));
-    request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    request.setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
+    request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    request->setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
 
     wam7.loadKinematics("arm");
 
