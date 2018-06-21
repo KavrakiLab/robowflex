@@ -9,11 +9,11 @@ using namespace robowflex;
 
 const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"CBiRRT2", "RRTConnect"});
 
-MotionRequestBuilder::MotionRequestBuilder(PlannerConstPtr planner, const std::string &group_name)
+MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name)
   : planner_(planner)
   , robot_(planner->getRobot())
   , group_name_(group_name)
-  , jmg_(robot_.getModel()->getJointModelGroup(group_name))
+  , jmg_(robot_->getModelConst()->getJointModelGroup(group_name))
 {
     request_.group_name = group_name_;
 
@@ -62,7 +62,7 @@ void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParame
 
 void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
 {
-    robot_state::RobotState start_state(robot_.getModel());
+    robot_state::RobotState start_state(robot_->getModelConst());
     start_state.setToDefaultValues();
     start_state.setJointGroupPositions(jmg_, joints);
 
@@ -71,7 +71,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
-    robot_state::RobotState goal_state(robot_.getModel());
+    robot_state::RobotState goal_state(robot_->getModelConst());
     goal_state.setJointGroupPositions(jmg_, joints);
 
     request_.goal_constraints.clear();
@@ -148,7 +148,7 @@ bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 }
 
 planning_interface::MotionPlanResponse
-PipelinePlanner::plan(SceneConstPtr scene, const planning_interface::MotionPlanRequest &request)
+PipelinePlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
@@ -210,7 +210,8 @@ namespace
     }
 }  // namespace
 
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot, const std::string &name) : PipelinePlanner(robot, name)
+OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
+  : PipelinePlanner(robot, name)
 {
 }
 
@@ -234,7 +235,7 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     handler_.setParam("request_adapters", ss.str());
     settings.setParam(handler_);
 
-    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_.getModel(), handler_.getHandle(),
+    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
 
     return true;

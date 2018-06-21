@@ -7,7 +7,7 @@ namespace robowflex
     class Planner
     {
     public:
-        Planner(Robot &robot, const std::string &name = "") : robot_(robot), handler_(robot_.getHandler(), name)
+        Planner(const RobotPtr &robot, const std::string &name = "") : robot_(robot), handler_(robot_->getHandler(), name)
         {
         }
 
@@ -15,17 +15,17 @@ namespace robowflex
         void operator=(Planner const &) = delete;
 
         virtual planning_interface::MotionPlanResponse
-        plan(SceneConstPtr scene, const planning_interface::MotionPlanRequest &request) = 0;
+        plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) = 0;
 
         virtual const std::vector<std::string> getPlannerConfigs() const = 0;
 
-        const Robot &getRobot() const
+        const RobotPtr getRobot() const
         {
             return robot_;
         }
 
     protected:
-        Robot &robot_;
+        RobotPtr robot_;
         IO::Handler handler_;
     };
 
@@ -33,7 +33,7 @@ namespace robowflex
     class PipelinePlanner : public Planner
     {
     public:
-        PipelinePlanner(Robot &robot, const std::string &name = "") : Planner(robot, name)
+        PipelinePlanner(const RobotPtr &robot, const std::string &name = "") : Planner(robot, name)
         {
         }
 
@@ -41,7 +41,7 @@ namespace robowflex
         void operator=(PipelinePlanner const &) = delete;
 
         planning_interface::MotionPlanResponse
-        plan(SceneConstPtr scene, const planning_interface::MotionPlanRequest &request) override;
+        plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
     protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;
@@ -87,7 +87,7 @@ namespace robowflex
         class OMPLPipelinePlanner : public PipelinePlanner
         {
         public:
-            OMPLPipelinePlanner(Robot &robot, const std::string &name = "");
+            OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name = "");
 
             OMPLPipelinePlanner(OMPLPipelinePlanner const &) = delete;
             void operator=(OMPLPipelinePlanner const &) = delete;
@@ -133,7 +133,7 @@ namespace robowflex
     class MotionRequestBuilder
     {
     public:
-        MotionRequestBuilder(PlannerConstPtr planner, const std::string &group_name);
+        MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name);
 
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
@@ -161,8 +161,8 @@ namespace robowflex
         bool setConfig(const std::string &requested_config);
 
     private:
-        PlannerConstPtr planner_;
-        const Robot &robot_;
+        const PlannerConstPtr planner_;
+        const RobotConstPtr robot_;
         const std::string group_name_;
         const robot_model::JointModelGroup *jmg_;
 

@@ -6,16 +6,16 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    Robot wam7("wam7");
-    wam7.initialize("package://barrett_model/robots/wam7_bhand.urdf.xacro",          // urdf
-                    "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
-                    "package://barrett_wam_moveit_config/config/joint_limits.yaml",  // joint limits
-                    "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
+    auto wam7 = std::make_shared<Robot>("wam7");
+    wam7->initialize("package://barrett_model/robots/wam7_bhand.urdf.xacro",          // urdf
+                     "package://barrett_wam_moveit_config/config/wam7_hand.srdf",     // srdf
+                     "package://barrett_wam_moveit_config/config/joint_limits.yaml",  // joint limits
+                     "package://barrett_wam_moveit_config/config/kinematics.yaml"     // kinematics
     );
 
-    ScenePtr scene(new Scene(wam7));
+    auto scene = std::make_shared<Scene>(wam7);
 
-    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::OMPLPipelinePlanner(wam7));
+    auto planner = std::make_shared<OMPL::OMPLPipelinePlanner>(wam7);
     planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config
     );
 
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     request->setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
 
-    wam7.loadKinematics("arm");
+    wam7->loadKinematics("arm");
 
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("test", scene, planner, request);

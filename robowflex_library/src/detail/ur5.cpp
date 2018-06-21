@@ -23,7 +23,8 @@ bool UR5Robot::initialize()
     return success;
 }
 
-OMPL::UR5OMPLPipelinePlanner::UR5OMPLPipelinePlanner(UR5Robot &robot, const std::string &name) : OMPLPipelinePlanner(robot, name)
+OMPL::UR5OMPLPipelinePlanner::UR5OMPLPipelinePlanner(const UR5RobotPtr &robot, const std::string &name)
+  : OMPLPipelinePlanner(robot, name)
 {
 }
 
