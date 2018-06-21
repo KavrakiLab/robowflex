@@ -69,10 +69,10 @@ namespace robowflex
 
             for (std::vector<double> goal_conf : goals)
             {
-                std::vector<std::string> names = robot.getJointNames();
-                for(int i= 0; i <names.size(); i++) {
-                  std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
-                }
+                // std::vector<std::string> names = robot.getJointNames();
+                // for(int i= 0; i <names.size(); i++) {
+                //   std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
+                // }
 
                 // domain semantics can all be done here?
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
