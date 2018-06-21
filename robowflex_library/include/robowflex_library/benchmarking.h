@@ -10,14 +10,29 @@ namespace robowflex
     class Benchmarker
     {
     public:
+        enum RunMetricBits
+        {
+            WAYPOINTS = 0x001,
+            PATH = 0x002,
+            CORRECT = 0x004,
+            LENGTH = 0x008,
+            CLEARANCE = 0x010,
+            SMOOTHNESS = 0x020,
+            ALL = 0x003F // The result of ORing all of the above bits together.
+        };
         class Options
         {
         public:
-            Options() : runs(100)
+            Options() : runs(100), run_metric_bits(RunMetricBits::ALL)
+            {
+            }
+
+            Options(const Options &options) : runs(options.runs), run_metric_bits(options.run_metric_bits)
             {
             }
 
             unsigned int runs;
+            int run_metric_bits;
         };
 
         class Results
@@ -44,8 +59,8 @@ namespace robowflex
             };
 
             Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
-                    const MotionRequestBuilderConstPtr builder)
-              : name(name), scene(scene), planner(planner), builder(builder)
+                    const MotionRequestBuilderConstPtr builder, const Options &options)
+              : name(name), scene(scene), planner(planner), builder(builder), options(options)
             {
                 start = IO::getDate();
             }
@@ -57,6 +72,7 @@ namespace robowflex
             const SceneConstPtr scene;
             const PlannerConstPtr planner;
             const MotionRequestBuilderConstPtr builder;
+            const Options options;
 
             boost::posix_time::ptime start;
             boost::posix_time::ptime finish;

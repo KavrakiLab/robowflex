@@ -32,7 +32,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
-        Results results(name, scene, planner, builder);
+        Results results(name, scene, planner, builder, options);
 
         for (int j = 0; j < options.runs; ++j)
         {
@@ -73,63 +73,83 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
-    metrics.waypoints = p.getWayPointCount();
-    p.getRobotTrajectoryMsg(metrics.path);
+    if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
+        metrics.waypoints = p.getWayPointCount();
 
-    // compute path length
-    for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-        metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+    if (options.run_metric_bits & RunMetricBits::PATH)
+        p.getRobotTrajectoryMsg(metrics.path);
+
+    if (options.run_metric_bits & RunMetricBits::LENGTH)
+        // compute path length
+        for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
+            metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
 
     // compute correctness and clearance
-    collision_detection::CollisionRequest request;
-    for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
+    if ((options.run_metric_bits & RunMetricBits::CORRECT) |
+        (options.run_metric_bits & RunMetricBits::CLEARANCE))
     {
-        collision_detection::CollisionResult result;
-        s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
-
-        if (result.collision)
-            metrics.correct = false;
-
-        if (!p.getWayPoint(k).satisfiesBounds())
-            metrics.correct = false;
-
-        double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
-        if (d > 0.0)  // in case of collision, distance is negative
-            metrics.clearance += d;
-    }
-    metrics.clearance /= (double)p.getWayPointCount();
-
-    // compute smoothness
-    if (p.getWayPointCount() > 2)
-    {
-        double a = p.getWayPoint(0).distance(p.getWayPoint(1));
-        for (std::size_t k = 2; k < p.getWayPointCount(); ++k)
+        collision_detection::CollisionRequest request;
+        for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
         {
-            // view the path as a sequence of segments, and look at the triangles it forms:
-            //          s1
-            //          /\          s4
-            //      a  /  \ b       |
-            //        /    \        |
-            //       /......\_______|
-            //     s0    c   s2     s3
-            //
-
-            // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
-            double b = p.getWayPoint(k - 1).distance(p.getWayPoint(k));
-            double cdist = p.getWayPoint(k - 2).distance(p.getWayPoint(k));
-            double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
-            if (acosValue > -1.0 && acosValue < 1.0)
+            if (options.run_metric_bits & RunMetricBits::CORRECT)
             {
-                // the smoothness is actually the outside angle of the one we compute
-                double angle = (boost::math::constants::pi<double>() - acos(acosValue));
+                collision_detection::CollisionResult result;
+                s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
 
-                // and we normalize by the length of the segments
-                double u = 2.0 * angle;  /// (a + b);
-                metrics.smoothness += u * u;
+                if (result.collision)
+                    metrics.correct = false;
+
+                if (!p.getWayPoint(k).satisfiesBounds())
+                    metrics.correct = false;
             }
-            a = b;
+
+            if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+            {
+                double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
+                if (d > 0.0)  // in case of collision, distance is negative
+                    metrics.clearance += d;
+            }
         }
-        metrics.smoothness /= (double)p.getWayPointCount();
+        if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+        {
+            metrics.clearance /= (double)p.getWayPointCount();
+        }
+    }
+
+    if (options.run_metric_bits & RunMetricBits::SMOOTHNESS)
+    {
+        // compute smoothness
+        if (p.getWayPointCount() > 2)
+        {
+            double a = p.getWayPoint(0).distance(p.getWayPoint(1));
+            for (std::size_t k = 2; k < p.getWayPointCount(); ++k)
+            {
+                // view the path as a sequence of segments, and look at the triangles it forms:
+                //          s1
+                //          /\          s4
+                //      a  /  \ b       |
+                //        /    \        |
+                //       /......\_______|
+                //     s0    c   s2     s3
+                //
+
+                // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
+                double b = p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+                double cdist = p.getWayPoint(k - 2).distance(p.getWayPoint(k));
+                double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
+                if (acosValue > -1.0 && acosValue < 1.0)
+                {
+                    // the smoothness is actually the outside angle of the one we compute
+                    double angle = (boost::math::constants::pi<double>() - acos(acosValue));
+
+                    // and we normalize by the length of the segments
+                    double u = 2.0 * angle;  /// (a + b);
+                    metrics.smoothness += u * u;
+                }
+                a = b;
+            }
+            metrics.smoothness /= (double)p.getWayPointCount();
+        }
     }
 }
 
@@ -148,6 +168,7 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     outfile_ << "\"" << results.name << "\":[";
 
+    int bitmask = results.options.run_metric_bits;
     for (size_t i = 0; i < results.runs.size(); i++)
     {
         Benchmarker::Results::Run run = results.runs[i];
@@ -155,16 +176,23 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
         outfile_ << "\"name\": \"run_" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
-        outfile_ << "\"success\":" << run.success << ",";
-        outfile_ << "\"correct\":" << run.correct << ",";
-        outfile_ << "\"length\":" << run.length << ",";
-        outfile_ << "\"clearance\":";
-        // Check for infinity.
-        if (run.clearance == std::numeric_limits<double>::infinity())
-            outfile_ << std::numeric_limits<double>::max() << ",";
-        else
-            outfile_ << run.clearance << ",";
-        outfile_ << "\"smoothness\":" << run.smoothness;
+        outfile_ << "\"success\":" << run.success; 
+        if (bitmask & Benchmarker::RunMetricBits::CORRECT)
+            outfile_ << ",\"correct\":" << run.correct;
+        if (bitmask & Benchmarker::RunMetricBits::LENGTH)
+            outfile_ << ",\"length\":" << run.length;
+        
+        if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
+        {
+            outfile_ << ",\"clearance\":";
+            // Check for infinity.
+            if (run.clearance == std::numeric_limits<double>::infinity())
+                outfile_ << std::numeric_limits<double>::max();
+            else
+                outfile_ << run.clearance;
+        }
+        if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
+            outfile_ << ",\"smoothness\":" << run.smoothness;
 
         outfile_ << "}";
         // Write the command between each run.
@@ -183,6 +211,11 @@ JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 
 void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
+    if (!(results.options.run_metric_bits & Benchmarker::RunMetricBits::PATH))
+    {
+        ROS_WARN("These results did not save the path according to the options. Skipping.");
+        return;
+    }
     const std::string &name = results.name;
 
     for (Benchmarker::Results::Run run : results.runs)
@@ -243,27 +276,45 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     // planners_data -> planner_data
     out << request.planner_id << std::endl;  // planner_name
     out << "0 common properties" << std::endl;
-    out << "7 properties for each run" << std::endl;  // run_properties
-    out << "waypoints INTEGER" << std::endl;
+    // Get the number of what metrics we actually saved by counting the bits set to true.
+    // First, ignore the PATH bit, but look at all the other metrics we saved.
+    int bitmask = results.options.run_metric_bits & 
+                  (Benchmarker::RunMetricBits::ALL & !Benchmarker::RunMetricBits::PATH);
+    int count;
+    for (count=0; bitmask; count += 1)
+        bitmask &= bitmask - 1;
+    bitmask = results.options.run_metric_bits;
+    out << count + 2 << " properties for each run" << std::endl;  // run_properties
     out << "time REAL" << std::endl;
     out << "success BOOLEAN" << std::endl;
-    out << "correct BOOLEAN" << std::endl;
-    out << "length REAL" << std::endl;
-    out << "clearance REAL" << std::endl;
-    out << "smoothness REAL" << std::endl;
+    if (bitmask & Benchmarker::RunMetricBits::WAYPOINTS)
+        out << "waypoints INTEGER" << std::endl;
+    if (bitmask & Benchmarker::RunMetricBits::CORRECT)
+        out << "correct BOOLEAN" << std::endl;
+    if (bitmask & Benchmarker::RunMetricBits::LENGTH)
+        out << "length REAL" << std::endl;
+    if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
+        out << "clearance REAL" << std::endl;
+    if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
+        out << "smoothness REAL" << std::endl;
 
     out << results.runs.size() << " runs" << std::endl;
 
     for (auto &run : results.runs)
     {
-        out << run.waypoints << "; "   //
-            << run.time << "; "        //
-            << run.success << "; "     //
-            << run.correct << "; "     //
-            << run.length << "; "      //
-            << run.clearance << "; "   //
-            << run.smoothness << "; "  //
-            << std::endl;
+        out << run.time << "; "        //
+            << run.success << "; ";
+        if (bitmask & Benchmarker::RunMetricBits::WAYPOINTS)
+            out << run.waypoints << "; ";
+        if (bitmask & Benchmarker::RunMetricBits::CORRECT)
+            out << run.correct << "; ";
+        if (bitmask & Benchmarker::RunMetricBits::LENGTH)
+            out << run.length << "; ";
+        if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
+            out << run.clearance << "; ";
+        if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
+            out << run.smoothness << "; ";
+        out << std::endl;
     }
 
     out << "." << std::endl;

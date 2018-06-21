@@ -28,7 +28,12 @@ int main(int argc, char **argv)
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("test", scene, planner, request);
 
+    Benchmarker::Options options;
+    options.run_metric_bits = Benchmarker::RunMetricBits::PATH |
+                              Benchmarker::RunMetricBits::LENGTH;
+    options.runs = 10;
     benchmark.benchmark({std::make_shared<JSONBenchmarkOutputter>("test_log.json"),  //
-                         std::make_shared<TrajectoryBenchmarkOutputter>("test_log.bag")});
+                         std::make_shared<TrajectoryBenchmarkOutputter>("test_log.bag")},
+                         options);
     return 0;
 }
