@@ -38,6 +38,10 @@ namespace robowflex
 
     namespace IO
     {
+        // Resolves `package://` URLs, the path does not need to exist, but the package does.
+        // Can be used to write new files in packages.
+        const std::string resolvePackage(const std::string &path);
+
         // Resolves `package://` URLs and returns canonical absolute path if path exists, otherwise ""
         const std::string resolvePath(const std::string &path);
 

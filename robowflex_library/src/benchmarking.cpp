@@ -11,8 +11,8 @@ Benchmarker::Benchmarker()
 {
 }
 
-void Benchmarker::addBenchmarkingRequest(const std::string &name, ScenePtr scene, PlannerPtr planner,
-                                         MotionRequestBuilderPtr request)
+void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr &scene,
+                                         const PlannerPtr &planner, const MotionRequestBuilderPtr &request)
 {
     requests_.emplace(std::piecewise_construct,     //
                       std::forward_as_tuple(name),  //

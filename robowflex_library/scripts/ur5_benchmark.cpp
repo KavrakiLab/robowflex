@@ -7,12 +7,12 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    UR5Robot ur5;
-    ur5.initialize();
+    auto ur5 = std::make_shared<UR5Robot>();
+    ur5->initialize();
 
-    ScenePtr scene(new Scene(ur5));
+    auto scene = std::make_shared<Scene>(ur5);
 
-    OMPL::OMPLPipelinePlannerPtr planner(new OMPL::UR5OMPLPipelinePlanner(ur5));
+    auto planner = std::make_shared<OMPL::UR5OMPLPipelinePlanner>(ur5);
     planner->initialize();
 
     MotionRequestBuilderPtr joint_request(new MotionRequestBuilder(planner, "manipulator"));
@@ -30,8 +30,6 @@ int main(int argc, char **argv)
                                pose, Geometry(Geometry::ShapeType::SPHERE, {0.01, 0, 0}),  // position
                                orn, {0.01, 0.01, 0.01}                                     // orientation
     );
-
-    ur5.loadKinematics("manipulator");
 
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("joint", scene, planner, joint_request);

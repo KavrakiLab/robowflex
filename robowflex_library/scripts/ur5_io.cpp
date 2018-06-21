@@ -1,5 +1,6 @@
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/detail/ur5.h>
+#include <ros/ros.h>
 
 using namespace robowflex;
 
@@ -7,15 +8,20 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    UR5Robot ur5;
-    ur5.initialize();
+    auto ur5 = std::make_shared<UR5Robot>();
+    ur5->initialize();
 
-    Scene scene(ur5);
-    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
+    ROS_INFO_STREAM("Resolve Path: "  //
+                    << IO::resolvePath("package://robowflex_library/doesnt/exist.log"));
+    ROS_INFO_STREAM("Resolve Package: "  //
+                    << IO::resolvePackage("package://robowflex_library/doesnt/exist.log"));
+
+    auto scene = std::make_shared<Scene>(ur5);
+    scene->fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     {
         IO::Bag bag_out("scene.bag", IO::Bag::WRITE);
-        bag_out.addMessage("scene", scene.getMessage());
+        bag_out.addMessage("scene", scene->getMessage());
     }
 
     {

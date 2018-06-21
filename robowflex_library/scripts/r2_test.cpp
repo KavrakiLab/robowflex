@@ -10,12 +10,12 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    R2Robot r2;
-    r2.initialize({"legsandtorso"});
+    auto r2 = std::make_shared<R2Robot>();
+    r2->initialize({"legsandtorso"});
 
-    ScenePtr scene(new Scene(r2));
+    auto scene = std::make_shared<Scene>(r2);
 
-    OMPL::R2OMPLPipelinePlannerPtr planner(new OMPL::R2OMPLPipelinePlanner(r2));
+    auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
     planner->initialize();
 
     MotionRequestBuilder request(planner, "legsandtorso");
