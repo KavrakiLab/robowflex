@@ -9,11 +9,11 @@ using namespace robowflex;
 
 const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"CBiRRT2", "RRTConnect"});
 
-MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::string &group_name)
+MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name)
   : planner_(planner)
-  , robot_(planner.getRobot())
+  , robot_(planner->getRobot())
   , group_name_(group_name)
-  , jmg_(robot_.getModel()->getJointModelGroup(group_name))
+  , jmg_(robot_->getModelConst()->getJointModelGroup(group_name))
 {
     request_.group_name = group_name_;
 
@@ -26,7 +26,7 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
     request_.allowed_planning_time = 5.0;
 
     // Default planner (find an RRTConnect config, for Indigo)
-    const auto &configs = planner.getPlannerConfigs();
+    const auto &configs = planner->getPlannerConfigs();
     for (const auto &config : DEFAULT_CONFIGS)
         if (setConfig(config))
             break;
@@ -34,7 +34,7 @@ MotionRequestBuilder::MotionRequestBuilder(const Planner &planner, const std::st
 
 bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
-    const auto &configs = planner_.getPlannerConfigs();
+    const auto &configs = planner_->getPlannerConfigs();
 
     std::vector<std::reference_wrapper<const std::string>> matches;
     for (const auto &config : configs)
@@ -51,6 +51,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
                          [](const std::string &a, const std::string &b) { return a.size() < b.size(); });
 
     request_.planner_id = *found;
+    ROS_INFO("Using planner: %s", request_.planner_id.c_str());
     return true;
 }
 
@@ -61,7 +62,7 @@ void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParame
 
 void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
 {
-    robot_state::RobotState start_state(robot_.getModel());
+    robot_state::RobotState start_state(robot_->getModelConst());
     start_state.setToDefaultValues();
     start_state.setJointGroupPositions(jmg_, joints);
 
@@ -70,7 +71,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
-    robot_state::RobotState goal_state(robot_.getModel());
+    robot_state::RobotState goal_state(robot_->getModelConst());
     goal_state.setJointGroupPositions(jmg_, joints);
 
     request_.goal_constraints.clear();
@@ -147,11 +148,11 @@ bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 }
 
 planning_interface::MotionPlanResponse
-PipelinePlanner::plan(const Scene &scene, const planning_interface::MotionPlanRequest &request)
+PipelinePlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     if (pipeline_)
-        pipeline_->generatePlan(scene.getSceneConst(), request, response);
+        pipeline_->generatePlan(scene->getSceneConst(), request, response);
 
     return response;
 }
@@ -209,7 +210,8 @@ namespace
     }
 }  // namespace
 
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(Robot &robot, const std::string &name) : PipelinePlanner(robot, name)
+OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
+  : PipelinePlanner(robot, name)
 {
 }
 
@@ -233,7 +235,7 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     handler_.setParam("request_adapters", ss.str());
     settings.setParam(handler_);
 
-    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_.getModel(), handler_.getHandle(),
+    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
 
     return true;

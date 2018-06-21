@@ -7,15 +7,15 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    UR5Robot ur5;
-    ur5.initialize();
+    auto ur5 = std::make_shared<UR5Robot>();
+    ur5->initialize();
 
-    Scene scene(ur5);
-    scene.fromYAMLFile("package://robowflex_library/yaml/test.yml");
+    auto scene = std::make_shared<Scene>(ur5);
+    scene->fromYAMLFile("package://robowflex_library/yaml/test.yml");
 
     {
         IO::Bag bag_out("scene.bag", IO::Bag::WRITE);
-        bag_out.addMessage("scene", scene.getMessage());
+        bag_out.addMessage("scene", scene->getMessage());
     }
 
     {

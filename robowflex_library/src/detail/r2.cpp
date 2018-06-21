@@ -46,7 +46,8 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
     return success;
 }
 
-OMPL::R2OMPLPipelinePlanner::R2OMPLPipelinePlanner(R2Robot &robot) : OMPLPipelinePlanner(robot)
+OMPL::R2OMPLPipelinePlanner::R2OMPLPipelinePlanner(const R2RobotPtr &robot, const std::string &name)
+  : OMPLPipelinePlanner(robot, name)
 {
 }
 

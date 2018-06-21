@@ -2,7 +2,7 @@
 
 using namespace robowflex;
 
-Scene::Scene(Robot &robot) : scene_(new planning_scene::PlanningScene(robot.getModel()))
+Scene::Scene(const RobotConstPtr &robot) : scene_(new planning_scene::PlanningScene(robot->getModelConst()))
 {
 }
 

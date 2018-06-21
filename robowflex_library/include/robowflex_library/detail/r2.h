@@ -3,6 +3,7 @@
 
 namespace robowflex
 {
+    ROBOWFLEX_CLASS_FORWARD(R2Robot);
     class R2Robot : public Robot
     {
     public:
@@ -20,10 +21,11 @@ namespace robowflex
 
     namespace OMPL
     {
+        ROBOWFLEX_CLASS_FORWARD(R2OMPLPipelinePlanner);
         class R2OMPLPipelinePlanner : public OMPLPipelinePlanner
         {
         public:
-            R2OMPLPipelinePlanner(R2Robot &robot);
+            R2OMPLPipelinePlanner(const R2RobotPtr &robot, const std::string &name = "");
 
             bool initialize(const std::string &config_file = CONFIG, const Settings settings = Settings(),
                             const std::string &plugin = PLUGIN,

@@ -10,18 +10,18 @@ int main(int argc, char **argv)
 {
     startROS(argc, argv);
 
-    R2Robot r2;
-    r2.initialize({"legsandtorso"});
+    auto r2 = std::make_shared<R2Robot>();
+    r2->initialize({"legsandtorso"});
 
-    Scene scene(r2);
+    auto scene = std::make_shared<Scene>(r2);
 
-    OMPL::R2OMPLPipelinePlanner planner(r2);
-    planner.initialize();
+    auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
+    planner->initialize();
 
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
 
-    planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
+    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
