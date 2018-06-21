@@ -72,9 +72,11 @@ namespace
         const std::string extension = boost::filesystem::extension(path);
         return isSuffix("xacro", extension);
     }
+
+
 }  // namespace
 
-const std::string IO::resolvePath(const std::string &path)
+const std::string IO::resolvePackage(const std::string &path)
 {
     if (path.empty())
         return "";
@@ -103,6 +105,13 @@ const std::string IO::resolvePath(const std::string &path)
 
     file = expandHome(file);
     file = expandSymlinks(file);
+
+    return boost::filesystem::absolute(file).string();
+}
+
+const std::string IO::resolvePath(const std::string &path)
+{
+    boost::filesystem::path file = resolvePackage(path);
 
     if (!boost::filesystem::exists(file))
     {
