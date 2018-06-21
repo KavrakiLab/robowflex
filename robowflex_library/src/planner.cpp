@@ -115,13 +115,22 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
     return request_;
 }
 
-std::vector<double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
+std::map<std::string, double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
 {
     moveit_msgs::MotionPlanResponse msg;
     response.getMessage(msg);
-    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    std::vector<double> joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    std::vector<std::string> joint_names = msg.trajectory.joint_trajectory.joint_names;
+    std::cout<<"Names length: "<<joint_names.size()<<std::endl;
+    for(std::string n : joint_names) {
+        std::cout<<n<<std::endl;
+    }
     // request.setStartConfiguration(joint_positions);
-    return joint_positions;
+    std::map<std::string, double> m;
+    for(size_t i = 0; i < joint_names.size(); i++) {
+        m.insert(std::pair<std::string, double> (joint_names[i], joint_positions[i]));
+    }
+    return m;
 }
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)

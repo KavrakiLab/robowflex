@@ -39,6 +39,7 @@ namespace robowflex
             bool last_foot_left = true;
             std::vector<std::vector<double>> my_foot_placements;
             size_t op_index = 0;
+
         public:
             MyWalkerConstraintHelper(){};
             void _getTaskPlan_Callback()
@@ -54,16 +55,16 @@ namespace robowflex
                 x = task_op[0];
                 y = task_op[1];
 
-                //the measurements for the walker are in a different frame:
+                // the measurements for the walker are in a different frame:
                 double tmp = x;
-                x = 2 + y/84;
-                y = -tmp/84;
+                x = 2 + y / 84;
+                y = -tmp / 84;
 
-                //x = 41.9/100;
-                //y = -41.9/100;
+                // x = 41.9/100;
+                // y = -41.9/100;
 
                 // Path constraint from r2_plan.yml. We'll want to alternate feet for these. For now,
-                //we hope there's only the one important constraint.
+                // we hope there's only the one important constraint.
                 request.getPathConstraints().position_constraints.clear();
                 request.getPathConstraints().orientation_constraints.clear();
 
@@ -75,16 +76,15 @@ namespace robowflex
                     stationary_tip_name = "r2/left_leg/gripper/tip";
                 }
 
-                //Find the location of the stationary tip in the workspace
+                // Find the location of the stationary tip in the workspace
                 robot.setState(joint_positions);
                 Eigen::Affine3d tip_tf = robot.getLinkTF(stationary_tip_name);
-                std::cout << "stat: "<< tip_tf.translation() << std::endl;
-                std::cout << "mover: "<< robot.getLinkTF(moving_tip_name).translation() << std::endl;
+                std::cout << "stat: " << tip_tf.translation() << std::endl;
+                std::cout << "mover: " << robot.getLinkTF(moving_tip_name).translation() << std::endl;
 
-                //I think this works? It sets the orientation correctly. The pose is for a sphere so
-                //it shouldn't matter that we have a rotation.
+                // I think this works? It sets the orientation correctly. The pose is for a sphere so
+                // it shouldn't matter that we have a rotation.
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
-
 
                 request.addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
                                               Geometry(Geometry::ShapeType::SPHERE,
@@ -149,9 +149,10 @@ namespace robowflex
             rand_x = uni_rnd_smpl(re) * 0.75;
             rand_y = uni_rnd_smpl(re) * 1.5;
 
-            //TODO: Actually use the plan
+            // TODO: Actually use the plan
             my_plan.push_back({42, -72});
-
+            my_plan.push_back({0, -150});
+            
             return my_plan;
         }
 

@@ -67,13 +67,13 @@ namespace robowflex
             tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
             next_start_joint_positions = tmp;
 
-            std::vector<std::string> names = robot.getJointNames();
-            for(int i= 0; i <names.size(); i++) {
-              std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
-            }
-
             for (std::vector<double> goal_conf : goals)
             {
+                std::vector<std::string> names = robot.getJointNames();
+                for(int i= 0; i <names.size(); i++) {
+                  std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
+                }
+
                 // domain semantics can all be done here?
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
                                                          next_start_joint_positions);
@@ -82,7 +82,13 @@ namespace robowflex
                 planning_interface::MotionPlanResponse response = planner.plan(scene, request.getRequest());
                 responses.push_back(response);
 
-                next_start_joint_positions = getFinalJointPositions(response);
+                std::map<std::string, double> named_joint_positions = getFinalJointPositions(response);
+                std::vector<double> temp = robot.getState();
+                robot.setState(named_joint_positions);
+                next_start_joint_positions = robot.getState();
+                robot.setState(temp);
+                std::cout<<"Number of joints specified: "<<next_start_joint_positions.size()<<std::endl;
+
                 request.setStartConfiguration(next_start_joint_positions);
             }
             return responses;
