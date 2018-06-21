@@ -149,10 +149,12 @@ namespace robowflex
             rand_x = uni_rnd_smpl(re) * 0.75;
             rand_y = uni_rnd_smpl(re) * 1.5;
 
+            foot_placements =  my_step_planner.calculateFootPlacementsFromTorso(points, points[9], points[17],
+                                                          footstep_planning::foot::left);
+
             // TODO: Actually use the plan
             my_plan.push_back({42, -72});
             my_plan.push_back({0, -150});
-            
             return my_plan;
         }
 
