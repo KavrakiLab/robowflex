@@ -6,7 +6,6 @@
 
 namespace robowflex
 {
-    // Forward Declaration.
     ROBOWFLEX_CLASS_FORWARD(BenchmarkOutputter);
     ROBOWFLEX_CLASS_FORWARD(Benchmarker);
 
