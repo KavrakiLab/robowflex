@@ -38,7 +38,6 @@ namespace robowflex
         const std::string message_;
     };
 
-
     // takes in lambdas and executes them
     template <typename RT>
     class Pool
@@ -59,6 +58,11 @@ namespace robowflex
 
             for (unsigned int i = 0; i < threads_.size(); ++i)
                 threads_[i].join();
+        }
+
+        unsigned int getThreadCount() const
+        {
+            return threads_.size();
         }
 
         RT process(std::function<RT()> function) const

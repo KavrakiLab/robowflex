@@ -15,9 +15,12 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
 
-// #include <moveit/ompl_interface/ompl_interface.h>
-// #include <moveit/ompl_interface/model_based_planning_context.h>
-
+/**
+ * \def ROBOWFLEX_CLASS_FORWARD
+ * Macro that forward declares a class and defines two shared ptrs types:
+ *  - ${Class}Ptr      = shared_ptr<${Class}>
+ *  - ${Class}ConstPtr = shared_ptr<const ${Class}>
+ */
 #define ROBOWFLEX_CLASS_FORWARD(C)                                                                           \
     class C;                                                                                                 \
     typedef std::shared_ptr<C> C##Ptr;                                                                       \
