@@ -27,8 +27,8 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
     for (const auto &request : requests_)
     {
         const auto &name = request.first;
-        auto scene = std::get<0>(request.second);
-        auto planner = std::get<1>(request.second);
+        auto &scene = std::get<0>(request.second);
+        auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
@@ -68,7 +68,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
     if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
-        metrics.metrics["waypoints"] = std::make_pair((int)p.getWayPointCount(), Run::INT);
+        metrics.metrics["waypoints"] = (int)p.getWayPointCount();
 
     if (options.run_metric_bits & RunMetricBits::PATH)
         p.getRobotTrajectoryMsg(metrics.path);
@@ -80,12 +80,11 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
             length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
 
-        metrics.metrics["length"] = std::make_pair(length, Run::DOUBLE);
+        metrics.metrics["length"] = length;
     }
 
     // compute correctness and clearance
-    if ((options.run_metric_bits & RunMetricBits::CORRECT) |
-        (options.run_metric_bits & RunMetricBits::CLEARANCE))
+    if (options.run_metric_bits & (RunMetricBits::CORRECT | RunMetricBits::CLEARANCE))
     {
         bool correct = true;
         double clearance = 0.0;
@@ -114,12 +113,12 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         }
 
         if (options.run_metric_bits & RunMetricBits::CORRECT)
-            metrics.metrics["correct"] = std::make_pair(correct, Run::BOOL);
+            metrics.metrics["correct"] = correct;
 
         if (options.run_metric_bits & RunMetricBits::CLEARANCE)
         {
             clearance /= (double)p.getWayPointCount();
-            metrics.metrics["clearance"] = std::make_pair(clearance, Run::DOUBLE);
+            metrics.metrics["clearance"] = clearance;
         }
     }
 
@@ -162,7 +161,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
             smoothness /= (double)p.getWayPointCount();
         }
 
-        metrics.metrics["smoothness"] = std::make_pair(smoothness, Run::DOUBLE);
+        metrics.metrics["smoothness"] = smoothness;
     }
 }
 
@@ -191,28 +190,8 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         outfile_ << "\"success\":" << run.success;
 
         for (const auto &metric : run.metrics)
-        {
-            const auto &name = metric.first;
-            const auto &value = metric.second.first;
-            const auto &type = metric.second.second;
-
-            outfile_ << ",\"" << name << "\":";
-            switch (type)
-            {
-                case Benchmarker::Results::Run::BOOL:
-                    outfile_ << boost::get<bool>(value);
-                    break;
-                case Benchmarker::Results::Run::INT:
-                    outfile_ << boost::get<int>(value);
-                    break;
-                case Benchmarker::Results::Run::DOUBLE:
-                {
-                    double v = boost::get<double>(value);
-                    outfile_ << (std::isfinite(v)) ? v : std::numeric_limits<double>::max();
-                    break;
-                }
-            }
-        }
+            outfile_ << ",\"" << metric.first
+                     << "\":" << boost::apply_visitor(Benchmarker::Results::Run::toString(), metric.second);
 
         outfile_ << "}";
 
@@ -305,26 +284,29 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     std::vector<std::reference_wrapper<const std::string>> keys;
     for (const auto &metric : results.runs[0].metrics)
     {
-        const auto &name = metric.first;
-        const auto &type = metric.second.second;
+        class toString : public boost::static_visitor<const std::string>
+        {
+        public:
+            const std::string operator()(int /* dummy */) const
+            {
+                return "INT";
+            }
 
+            const std::string operator()(double /* dummy */) const
+            {
+                return "REAL";
+            }
+
+            const std::string operator()(bool /* dummy */) const
+            {
+                return "BOOLEAN";
+            }
+        };
+
+        const auto &name = metric.first;
         keys.emplace_back(name);
 
-        out << name << " ";
-        switch (type)
-        {
-            case Benchmarker::Results::Run::BOOL:
-                out << "BOOLEAN";
-                break;
-            case Benchmarker::Results::Run::INT:
-                out << "INT";
-                break;
-            case Benchmarker::Results::Run::DOUBLE:
-                out << "REAL";
-                break;
-        }
-
-        out << std::endl;
+        out << name << " " << boost::apply_visitor(toString(), metric.second) << std::endl;
     }
 
     out << results.runs.size() << " runs" << std::endl;
@@ -335,26 +317,8 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
             << run.success << "; ";
 
         for (const auto &key : keys)
-        {
-            const auto &metric = run.metrics.find(key);
-            const auto &value = metric->second.first;
-            const auto &type = metric->second.second;
-
-            switch (type)
-            {
-                case Benchmarker::Results::Run::BOOL:
-                    out << boost::get<bool>(value);
-                    break;
-                case Benchmarker::Results::Run::INT:
-                    out << boost::get<int>(value);
-                    break;
-                case Benchmarker::Results::Run::DOUBLE:
-                    out << boost::get<double>(value);
-                    break;
-            }
-
-            out << "; ";
-        }
+            out << boost::apply_visitor(Benchmarker::Results::Run::toString(), run.metrics.find(key)->second)
+                << "; ";
 
         out << std::endl;
     }

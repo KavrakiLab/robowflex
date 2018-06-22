@@ -2,6 +2,7 @@
 #define ROBOWFLEX_BENCHMARKING_
 
 #include <boost/variant.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace robowflex
 {
@@ -43,11 +44,25 @@ namespace robowflex
             class Run
             {
             public:
-                enum Type
+                class toString : public boost::static_visitor<const std::string>
                 {
-                    BOOL,
-                    INT,
-                    DOUBLE
+                public:
+                    const std::string operator()(int value) const
+                    {
+                        return boost::lexical_cast<std::string>(boost::get<int>(value));
+                    }
+
+                    const std::string operator()(double value) const
+                    {
+                        double v = boost::get<double>(value);
+                        return boost::lexical_cast<std::string>(
+                            (std::isfinite(v)) ? v : std::numeric_limits<double>::max());
+                    }
+
+                    const std::string operator()(bool value) const
+                    {
+                        return boost::lexical_cast<std::string>(boost::get<bool>(value));
+                    }
                 };
 
                 Run(int num, double time, bool success) : num(num), time(time), success(success)
@@ -59,7 +74,7 @@ namespace robowflex
                 bool success;
                 moveit_msgs::RobotTrajectory path;
 
-                std::map<std::string, std::pair<boost::variant<bool, double, int>, Type>> metrics;
+                std::map<std::string, boost::variant<bool, double, int>> metrics;
             };
 
             Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
