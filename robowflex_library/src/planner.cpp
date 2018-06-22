@@ -98,6 +98,11 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
     request_.goal_constraints.push_back(constraints);
 }
 
+void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
+{
+    request_.allowed_planning_time = allowed_planning_time;
+}
+
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
                                                  const Eigen::Affine3d &pose, const Geometry &geometry,
                                                  const Eigen::Quaterniond &orientation,
