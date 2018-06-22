@@ -47,8 +47,8 @@ namespace robowflex
                 // do nothing
             }
 
-            void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op,
-                                        Robot &robot, const std::vector<double> &joint_positions)
+            void _planLinearly_Callback(MotionRequestBuilderPtr request, const std::vector<double> &task_op,
+                                        RobotPtr robot, const std::vector<double> &joint_positions)
             {
                 // Hopefully z is correct height
                 double x = 0, y = 0, z = -0.95;
@@ -62,8 +62,8 @@ namespace robowflex
 
                 // Path constraint from r2_plan.yml. We'll want to alternate feet for these. 
                 // For now, we hope there's only the one important constraint.
-                request.getPathConstraints().position_constraints.clear();
-                request.getPathConstraints().orientation_constraints.clear();
+                request->getPathConstraints().position_constraints.clear();
+                request->getPathConstraints().orientation_constraints.clear();
 
                 std::string moving_tip_name = "r2/left_leg/gripper/tip";
                 std::string stationary_tip_name = "r2/right_leg/gripper/tip";
@@ -75,22 +75,22 @@ namespace robowflex
 
                 // Find the location of the stationary tip in the workspace
 //                robot.setState(joint_positions);
-                Eigen::Affine3d tip_tf = robot.getLinkTF(stationary_tip_name);
-                std::cout << "left: " << robot.getLinkTF("r2/left_leg/gripper/tip").translation() << std::endl;
-                std::cout << "right: " << robot.getLinkTF("r2/right_leg/gripper/tip").translation() << std::endl;
+                Eigen::Affine3d tip_tf = robot->getLinkTF(stationary_tip_name);
+                std::cout << "left: " << robot->getLinkTF("r2/left_leg/gripper/tip").translation() << std::endl;
+                std::cout << "right: " << robot->getLinkTF("r2/right_leg/gripper/tip").translation() << std::endl;
                 std::cout<< "moving: "<<moving_tip_name<<std::endl;
 
                 // I think this works? It sets the orientation correctly. The pose is for a sphere so
                 // it shouldn't matter that we have a rotation.
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
 
-                request.addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
+                request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
                                               Geometry(Geometry::ShapeType::SPHERE,
                                                        Eigen::Vector3d(0.1, 0.1, 0.1),
                                                        "my_sphere_for_constraint_2"),
                                               tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
 
-                request.setGoalRegion(
+                request->setGoalRegion(
                     moving_tip_name, "world",
                     Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
                     Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
@@ -110,7 +110,7 @@ namespace robowflex
                 // do nothing
             }
 
-            void _planLinearly_Callback(MotionRequestBuilder &request, const std::vector<double> &task_op)
+            void _planLinearly_Callback(MotionRequestBuilderPtr request, const std::vector<double> &task_op)
             {
                 // do nothing
             }
@@ -170,8 +170,8 @@ namespace robowflex
         std::vector<double> goal_pose;
 
         // Loads the scene description and creates the graph we will use for planning
-        MyWalker(Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
-                 Scene &scene, MotionRequestBuilder &request)
+        MyWalker(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
+                 ScenePtr scene, MotionRequestBuilderPtr request)
           : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
                             my_scene_graph_helper)
         {
