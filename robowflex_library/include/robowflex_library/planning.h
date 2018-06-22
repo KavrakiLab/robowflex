@@ -353,7 +353,7 @@ namespace robowflex
             OMPLPipelinePlanner(OMPLPipelinePlanner const &) = delete;
             void operator=(OMPLPipelinePlanner const &) = delete;
 
-            /** /brief Initialize planning pipeline.
+            /** \brief Initialize planning pipeline.
              *  Loads OMPL planning plugin \a plugin with the planning adapters \a adapters. Parameters are
              *  set on the parameter server from \a settings and planning configurations are loaded from the
              *  YAML file \a config_file.
