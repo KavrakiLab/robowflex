@@ -194,6 +194,7 @@ namespace robowflex
         void setGoalRegion(const std::string &ee_name, const std::string &base_name,
                            const Eigen::Affine3d &pose, const Geometry &geometry,
                            const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+        void setAllowedPlanningTime(double allowed_planning_time);
         void addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
                                    const Eigen::Affine3d &pose, const Geometry &geometry,
                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
