@@ -1,6 +1,10 @@
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 
+#include <thread>
+#include <future>
+#include <functional>
+
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/date_time.hpp>
@@ -32,6 +36,72 @@ namespace robowflex
     protected:
         const int value_;
         const std::string message_;
+    };
+
+
+    // takes in lambdas and executes them
+    template <typename RT>
+    class Pool
+    {
+    public:
+        Pool(unsigned int n)
+        {
+            active_ = true;
+
+            for (unsigned int i = 0; i < n; ++i)
+                threads_.emplace_back(std::bind(&Pool::run, this));
+        }
+
+        ~Pool()
+        {
+            active_ = false;
+            cv_.notify_all();
+
+            for (unsigned int i = 0; i < threads_.size(); ++i)
+                threads_[i].join();
+        }
+
+        RT process(std::function<RT()> function) const
+        {
+            std::packaged_task<RT()> task(function);
+            std::future<RT> future = task.get_future();
+
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            jobs_.emplace(task);
+
+            cv_.notify_one();
+            lock.unlock();
+
+            return future.get();
+        }
+
+        void run()
+        {
+            while (active_)
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cv_.wait(lock, [&] { return (active_ && !jobs_.empty()) || !active_; });
+
+                if (!active_)
+                    break;
+
+                auto job = jobs_.front();
+                jobs_.pop();
+
+                lock.unlock();
+
+                job();
+            }
+        }
+
+    private:
+        bool active_{false};
+        mutable std::mutex mutex_;
+        mutable std::condition_variable cv_;
+
+        std::vector<std::thread> threads_;
+        mutable std::queue<std::reference_wrapper<std::packaged_task<RT()>>> jobs_;
     };
 
     void startROS(int argc, char **argv, const std::string &name = "robowflex");

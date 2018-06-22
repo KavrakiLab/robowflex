@@ -73,6 +73,9 @@ target_link_libraries(ur5_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 add_executable(ur5_io scripts/ur5_io.cpp)
 target_link_libraries(ur5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+add_executable(ur5_pool scripts/ur5_pool.cpp)
+target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 

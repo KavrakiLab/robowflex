@@ -7,7 +7,8 @@ namespace robowflex
     class Planner
     {
     public:
-        Planner(const RobotPtr &robot, const std::string &name = "") : robot_(robot), handler_(robot_->getHandler(), name)
+        Planner(const RobotPtr &robot, const std::string &name = "")
+          : robot_(robot), handler_(robot_->getHandler(), name), name_(name)
         {
         }
 
@@ -27,6 +28,58 @@ namespace robowflex
     protected:
         RobotPtr robot_;
         IO::Handler handler_;
+        const std::string name_;
+    };
+
+    template <typename P>
+    class PoolPlanner : public Planner
+    {
+    public:
+        PoolPlanner(const RobotPtr &robot, unsigned int n = std::thread::hardware_concurrency(),
+                    const std::string &name = "")
+          : Planner(robot, name), pool_(n)
+        {
+        }
+
+        template <typename... Args>
+        bool initialize(Args &&... args)
+        {
+            auto planner = std::make_shared<P>(robot_, name_);
+            planner->initialize(std::forward<Args>(args)...);
+            planners_.emplace(std::move(planner));
+        }
+
+        planning_interface::MotionPlanResponse
+        plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            cv_.wait(lock, [&] { return !planners_.empty(); });
+
+            auto planner = planners_.front();
+            planners_.pop();
+
+            lock.unlock();
+
+            auto result = pool_.process([&] { return planner->plan(scene, request); });
+
+            lock.lock();
+            planners_.emplace(planner);
+            cv_.notify_one();
+
+            return result;
+        }
+
+        const std::vector<std::string> getPlannerConfigs() const override
+        {
+            return planners_.front()->getPlannerConfigs();
+        }
+
+    private:
+        Pool<planning_interface::MotionPlanResponse> pool_;
+
+        std::queue<PlannerPtr> planners_;
+        std::mutex mutex_;
+        std::condition_variable cv_;
     };
 
     ROBOWFLEX_CLASS_FORWARD(PipelinePlanner);
@@ -141,6 +194,7 @@ namespace robowflex
         void setGoalRegion(const std::string &ee_name, const std::string &base_name,
                            const Eigen::Affine3d &pose, const Geometry &geometry,
                            const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+        void setAllowedPlanningTime(double allowed_planning_time);
         void addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
                                    const Eigen::Affine3d &pose, const Geometry &geometry,
                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);

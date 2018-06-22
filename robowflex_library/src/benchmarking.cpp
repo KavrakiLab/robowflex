@@ -1,6 +1,5 @@
 #include <boost/math/constants/constants.hpp>
 
-#include <rosbag/bag.h>
 #include <moveit/version.h>
 
 #include <robowflex_library/robowflex.h>
