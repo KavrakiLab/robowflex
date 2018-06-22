@@ -69,9 +69,9 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
-void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &robot_state_ptr)
+void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &state)
 {
-    moveit::core::robotStateToRobotStateMsg(*robot_state_ptr, request_.start_state);
+    moveit::core::robotStateToRobotStateMsg(*state, request_.start_state);
 }
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
@@ -138,18 +138,20 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
     return request_;
 }
 
-std::map<std::string, double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
+std::map<std::string, double>
+robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &response)
 {
     moveit_msgs::MotionPlanResponse msg;
     response.getMessage(msg);
-    std::vector<double> joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
-    std::vector<std::string> joint_names = msg.trajectory.joint_trajectory.joint_names;
-    // request.setStartConfiguration(joint_positions);
-    std::map<std::string, double> m;
-    for(size_t i = 0; i < joint_names.size(); i++) {
-        m.insert(std::pair<std::string, double> (joint_names[i], joint_positions[i]));
-    }
-    return m;
+
+    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    const std::vector<std::string> &joint_names = msg.trajectory.joint_trajectory.joint_names;
+
+    std::map<std::string, double> map;
+    for (size_t i = 0; i < joint_names.size(); i++)
+        map.emplace(joint_names[i], joint_positions[i]);
+
+    return map;
 }
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
@@ -260,40 +262,3 @@ const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() co
 {
     return configs_;
 }
-
-// OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
-//   : Planner(robot), interface_(robot.getModel(), robot.getHandler().getHandle())
-// {
-// }
-
-// bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, const OMPL::Settings settings)
-// {
-//     if (!loadOMPLConfig(handler_, config_file, configs_))
-//         return false;
-
-//     settings.setParam(handler_);
-//     return true;
-// }
-
-// planning_interface::MotionPlanResponse
-// OMPL::OMPLInterfacePlanner::plan(Scene &scene, const planning_interface::MotionPlanRequest &request)
-// {
-//     planning_interface::MotionPlanResponse response;
-//     response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
-
-//     ompl_interface::ModelBasedPlanningContextPtr context = interface_.getPlanningContext(scene.getScene(),
-//     request);
-
-//     if (!context)
-//         return response;
-
-//     context->clear();
-//     bool result = context->solve(response);
-
-//     return response;
-// }
-
-// const std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
-// {
-//     return configs_;
-// }

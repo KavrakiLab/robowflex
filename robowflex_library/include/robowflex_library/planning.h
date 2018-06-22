@@ -191,6 +191,11 @@ namespace robowflex
          */
         void setStartConfiguration(const std::vector<double> &joints);
 
+        /** \brief Set the start configuration from a robot state.
+         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+         */
+        void setStartConfiguration(const robot_state::RobotStatePtr &state);
+
         /** \brief Set the goal configuration from a vector \a joints.
          *  All joints are assumed to be specified and in the default order.
          *  \param[in] joints The values of the joints to set.
@@ -295,8 +300,12 @@ namespace robowflex
         static const std::vector<std::string> DEFAULT_CONFIGS;  ///< Default planner configurations to use
     };
 
-    /** \brief TODO: Document */
-    std::vector<double> getFinalJointPositions(planning_interface::MotionPlanResponse response);
+    /** \brief Returns the joint positions from the last state in a planned trajectory in \a response.
+     *  \param[in] response The motion plan to extract the last state from.
+     *  \return A map of joint name to joint position of the last state in \a response.
+     */
+    std::map<std::string, double>
+    getFinalJointPositions(const planning_interface::MotionPlanResponse &response);
 
     namespace OMPL
     {
