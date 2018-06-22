@@ -69,6 +69,11 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
+void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &robot_state_ptr)
+{
+    moveit::core::robotStateToRobotStateMsg(*robot_state_ptr, request_.start_state);
+}
+
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
     robot_state::RobotState goal_state(robot_->getModelConst());
@@ -133,13 +138,18 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
     return request_;
 }
 
-std::vector<double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
+std::map<std::string, double> robowflex::getFinalJointPositions(planning_interface::MotionPlanResponse response)
 {
     moveit_msgs::MotionPlanResponse msg;
     response.getMessage(msg);
-    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    std::vector<double> joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
+    std::vector<std::string> joint_names = msg.trajectory.joint_trajectory.joint_names;
     // request.setStartConfiguration(joint_positions);
-    return joint_positions;
+    std::map<std::string, double> m;
+    for(size_t i = 0; i < joint_names.size(); i++) {
+        m.insert(std::pair<std::string, double> (joint_names[i], joint_positions[i]));
+    }
+    return m;
 }
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
