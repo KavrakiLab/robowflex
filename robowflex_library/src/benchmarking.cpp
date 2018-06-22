@@ -68,7 +68,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
     if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
-        metrics.metrics["waypoints"] = std::make_pair((int) p.getWayPointCount(), Run::INT);
+        metrics.metrics["waypoints"] = std::make_pair((int)p.getWayPointCount(), Run::INT);
 
     if (options.run_metric_bits & RunMetricBits::PATH)
         p.getRobotTrajectoryMsg(metrics.path);
@@ -155,6 +155,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
                     double u = 2.0 * angle;  /// (a + b);
                     smoothness += u * u;
                 }
+
                 a = b;
             }
 
@@ -180,7 +181,6 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     outfile_ << "\"" << results.name << "\":[";
 
-    uint32_t bitmask = results.options.run_metric_bits;
     for (size_t i = 0; i < results.runs.size(); i++)
     {
         const Benchmarker::Results::Run &run = results.runs[i];
@@ -208,17 +208,14 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
                 case Benchmarker::Results::Run::DOUBLE:
                 {
                     double v = boost::get<double>(value);
-
-                    if (v == std::numeric_limits<double>::infinity())
-                        outfile_ << std::numeric_limits<double>::max();
-                    else
-                        outfile_ << v;
+                    outfile_ << (std::isfinite(v)) ? v : std::numeric_limits<double>::max();
                     break;
                 }
             }
         }
 
         outfile_ << "}";
+
         // Write the command between each run.
         if (i != results.runs.size() - 1)
             outfile_ << "," << std::endl;
