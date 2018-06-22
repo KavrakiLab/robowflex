@@ -1,8 +1,6 @@
 #ifndef ROBOWFLEX_PLANNER_
 #define ROBOWFLEX_PLANNER_
 
-#include <boost/asio.hpp>
-
 namespace robowflex
 {
     ROBOWFLEX_CLASS_FORWARD(Planner);
