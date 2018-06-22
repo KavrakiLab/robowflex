@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 #include <vector>
 
-#define MAX_STEP_ATTEMPTS 1
+#define MAX_STEP_ATTEMPTS 2
 
 namespace robowflex
 {
