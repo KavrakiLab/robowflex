@@ -138,7 +138,7 @@ namespace robowflex
 
             // Not currently used, just seeing if the interface works
             std::vector<footstep_planning::point_2D> foot_placements =
-                my_step_planner.calculate_foot_placements(points, points[9], points[17],
+                my_step_planner.calculateFootPlacements(points, points[9], points[17],
                                                           footstep_planning::foot::left);
 
             // Benchmarking code. We'll loop through random locations and try to plan to them.
@@ -149,12 +149,20 @@ namespace robowflex
             rand_x = uni_rnd_smpl(re) * 0.75;
             rand_y = uni_rnd_smpl(re) * 1.5;
 
-            foot_placements =  my_step_planner.calculateFootPlacementsFromTorso(points, points[9], points[17],
+            foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
                                                           footstep_planning::foot::left);
 
+            std::cout<<"Foot placements: "<<std::endl;
+            for(footstep_planning::point_2D p : foot_placements) {
+              std::cout<<p<<std::endl;
+              // my_plan.push_back({p.x, p.y});
+            }
+
             // TODO: Actually use the plan
-            my_plan.push_back({42, -72});
-            my_plan.push_back({0, -150});
+            my_plan.push_back({42, -42});
+            my_plan.push_back({-42, -42});
+            my_plan.push_back({0, 50});
+
             return my_plan;
         }
 
