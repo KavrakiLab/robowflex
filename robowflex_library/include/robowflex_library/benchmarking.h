@@ -1,6 +1,9 @@
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
+#include <boost/variant.hpp>
+#include <boost/lexical_cast.hpp>
+
 namespace robowflex
 {
     // Forward Declaration.
@@ -10,14 +13,29 @@ namespace robowflex
     class Benchmarker
     {
     public:
+        enum RunMetricBits
+        {
+            WAYPOINTS = 1 << 0,
+            PATH = 1 << 1,
+            CORRECT = 1 << 2,
+            LENGTH = 1 << 3,
+            CLEARANCE = 1 << 4,
+            SMOOTHNESS = 1 << 5,
+        };
+
         class Options
         {
         public:
-            Options() : runs(100)
+            Options() : runs(100), run_metric_bits(~0)
+            {
+            }
+
+            Options(const Options &options) : runs(options.runs), run_metric_bits(options.run_metric_bits)
             {
             }
 
             unsigned int runs;
+            uint32_t run_metric_bits;
         };
 
         class Results
@@ -26,26 +44,42 @@ namespace robowflex
             class Run
             {
             public:
+                class toString : public boost::static_visitor<const std::string>
+                {
+                public:
+                    const std::string operator()(int value) const
+                    {
+                        return boost::lexical_cast<std::string>(boost::get<int>(value));
+                    }
+
+                    const std::string operator()(double value) const
+                    {
+                        double v = boost::get<double>(value);
+                        return boost::lexical_cast<std::string>(
+                            (std::isfinite(v)) ? v : std::numeric_limits<double>::max());
+                    }
+
+                    const std::string operator()(bool value) const
+                    {
+                        return boost::lexical_cast<std::string>(boost::get<bool>(value));
+                    }
+                };
+
                 Run(int num, double time, bool success) : num(num), time(time), success(success)
                 {
                 }
 
                 int num;
-                int waypoints;
-                moveit_msgs::RobotTrajectory path;
                 double time;
-                /** Whether or not MoveIt returns a 'success'. */
                 bool success;
-                /** True if the path is actually collision free. */
-                bool correct;
-                double length;
-                double clearance;
-                double smoothness;
+                moveit_msgs::RobotTrajectory path;
+
+                std::map<std::string, boost::variant<bool, double, int>> metrics;
             };
 
             Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
-                    const MotionRequestBuilderConstPtr builder)
-              : name(name), scene(scene), planner(planner), builder(builder)
+                    const MotionRequestBuilderConstPtr builder, const Options &options)
+              : name(name), scene(scene), planner(planner), builder(builder), options(options)
             {
                 start = IO::getDate();
             }
@@ -57,6 +91,7 @@ namespace robowflex
             const SceneConstPtr scene;
             const PlannerConstPtr planner;
             const MotionRequestBuilderConstPtr builder;
+            const Options options;
 
             boost::posix_time::ptime start;
             boost::posix_time::ptime finish;
