@@ -27,12 +27,12 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
     for (const auto &request : requests_)
     {
         const auto &name = request.first;
-        auto scene = std::get<0>(request.second);
-        auto planner = std::get<1>(request.second);
+        auto &scene = std::get<0>(request.second);
+        auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         std::vector<moveit_msgs::RobotTrajectory> trajectories;
 
-        Results results(name, scene, planner, builder);
+        Results results(name, scene, planner, builder, options);
 
         for (int j = 0; j < options.runs; ++j)
         {
@@ -64,72 +64,104 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    metrics.waypoints = 0;
-    metrics.correct = true;
-    metrics.length = 0.0;
-    metrics.clearance = 0.0;
-    metrics.smoothness = 0.0;
-
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
-    metrics.waypoints = p.getWayPointCount();
-    p.getRobotTrajectoryMsg(metrics.path);
+    if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
+        metrics.metrics["waypoints"] = (int)p.getWayPointCount();
 
-    // compute path length
-    for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-        metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+    if (options.run_metric_bits & RunMetricBits::PATH)
+        p.getRobotTrajectoryMsg(metrics.path);
+
+    if (options.run_metric_bits & RunMetricBits::LENGTH)
+    {
+        double length = 0.0;
+        // compute path length
+        for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
+            length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+
+        metrics.metrics["length"] = length;
+    }
 
     // compute correctness and clearance
-    collision_detection::CollisionRequest request;
-    for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
+    if (options.run_metric_bits & (RunMetricBits::CORRECT | RunMetricBits::CLEARANCE))
     {
-        collision_detection::CollisionResult result;
-        s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
+        bool correct = true;
+        double clearance = 0.0;
 
-        if (result.collision)
-            metrics.correct = false;
-
-        if (!p.getWayPoint(k).satisfiesBounds())
-            metrics.correct = false;
-
-        double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
-        if (d > 0.0)  // in case of collision, distance is negative
-            metrics.clearance += d;
-    }
-    metrics.clearance /= (double)p.getWayPointCount();
-
-    // compute smoothness
-    if (p.getWayPointCount() > 2)
-    {
-        double a = p.getWayPoint(0).distance(p.getWayPoint(1));
-        for (std::size_t k = 2; k < p.getWayPointCount(); ++k)
+        collision_detection::CollisionRequest request;
+        for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
         {
-            // view the path as a sequence of segments, and look at the triangles it forms:
-            //          s1
-            //          /\          s4
-            //      a  /  \ b       |
-            //        /    \        |
-            //       /......\_______|
-            //     s0    c   s2     s3
-            //
-
-            // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
-            double b = p.getWayPoint(k - 1).distance(p.getWayPoint(k));
-            double cdist = p.getWayPoint(k - 2).distance(p.getWayPoint(k));
-            double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
-            if (acosValue > -1.0 && acosValue < 1.0)
+            if (options.run_metric_bits & RunMetricBits::CORRECT)
             {
-                // the smoothness is actually the outside angle of the one we compute
-                double angle = (boost::math::constants::pi<double>() - acos(acosValue));
+                collision_detection::CollisionResult result;
+                s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
 
-                // and we normalize by the length of the segments
-                double u = 2.0 * angle;  /// (a + b);
-                metrics.smoothness += u * u;
+                if (result.collision)
+                    correct = false;
+
+                if (!p.getWayPoint(k).satisfiesBounds())
+                    correct = false;
             }
-            a = b;
+
+            if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+            {
+                double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
+                if (d > 0.0)  // in case of collision, distance is negative
+                    clearance += d;
+            }
         }
-        metrics.smoothness /= (double)p.getWayPointCount();
+
+        if (options.run_metric_bits & RunMetricBits::CORRECT)
+            metrics.metrics["correct"] = correct;
+
+        if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+        {
+            clearance /= (double)p.getWayPointCount();
+            metrics.metrics["clearance"] = clearance;
+        }
+    }
+
+    if (options.run_metric_bits & RunMetricBits::SMOOTHNESS)
+    {
+        double smoothness = 0.0;
+
+        // compute smoothness
+        if (p.getWayPointCount() > 2)
+        {
+            double a = p.getWayPoint(0).distance(p.getWayPoint(1));
+            for (std::size_t k = 2; k < p.getWayPointCount(); ++k)
+            {
+                // view the path as a sequence of segments, and look at the triangles it forms:
+                //          s1
+                //          /\          s4
+                //      a  /  \ b       |
+                //        /    \        |
+                //       /......\_______|
+                //     s0    c   s2     s3
+                //
+
+                // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
+                double b = p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+                double cdist = p.getWayPoint(k - 2).distance(p.getWayPoint(k));
+                double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
+                if (acosValue > -1.0 && acosValue < 1.0)
+                {
+                    // the smoothness is actually the outside angle of the one we compute
+                    double angle = (boost::math::constants::pi<double>() - acos(acosValue));
+
+                    // and we normalize by the length of the segments
+                    double u = 2.0 * angle;  /// (a + b);
+                    smoothness += u * u;
+                }
+
+                a = b;
+            }
+
+            smoothness /= (double)p.getWayPointCount();
+        }
+
+        metrics.metrics["smoothness"] = smoothness;
     }
 }
 
@@ -150,23 +182,19 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     for (size_t i = 0; i < results.runs.size(); i++)
     {
-        Benchmarker::Results::Run run = results.runs[i];
+        const Benchmarker::Results::Run &run = results.runs[i];
         outfile_ << "{";
 
         outfile_ << "\"name\": \"run_" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
-        outfile_ << "\"success\":" << run.success << ",";
-        outfile_ << "\"correct\":" << run.correct << ",";
-        outfile_ << "\"length\":" << run.length << ",";
-        outfile_ << "\"clearance\":";
-        // Check for infinity.
-        if (run.clearance == std::numeric_limits<double>::infinity())
-            outfile_ << std::numeric_limits<double>::max() << ",";
-        else
-            outfile_ << run.clearance << ",";
-        outfile_ << "\"smoothness\":" << run.smoothness;
+        outfile_ << "\"success\":" << run.success;
+
+        for (const auto &metric : run.metrics)
+            outfile_ << ",\"" << metric.first
+                     << "\":" << boost::apply_visitor(Benchmarker::Results::Run::toString(), metric.second);
 
         outfile_ << "}";
+
         // Write the command between each run.
         if (i != results.runs.size() - 1)
             outfile_ << "," << std::endl;
@@ -183,6 +211,11 @@ JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 
 void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
+    if (!(results.options.run_metric_bits & Benchmarker::RunMetricBits::PATH))
+    {
+        ROS_WARN("These results did not save the path according to the options. Skipping.");
+        return;
+    }
     const std::string &name = results.name;
 
     for (Benchmarker::Results::Run run : results.runs)
@@ -243,27 +276,51 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     // planners_data -> planner_data
     out << request.planner_id << std::endl;  // planner_name
     out << "0 common properties" << std::endl;
-    out << "7 properties for each run" << std::endl;  // run_properties
-    out << "waypoints INTEGER" << std::endl;
+
+    out << (results.runs[0].metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
     out << "time REAL" << std::endl;
     out << "success BOOLEAN" << std::endl;
-    out << "correct BOOLEAN" << std::endl;
-    out << "length REAL" << std::endl;
-    out << "clearance REAL" << std::endl;
-    out << "smoothness REAL" << std::endl;
+
+    std::vector<std::reference_wrapper<const std::string>> keys;
+    for (const auto &metric : results.runs[0].metrics)
+    {
+        class toString : public boost::static_visitor<const std::string>
+        {
+        public:
+            const std::string operator()(int /* dummy */) const
+            {
+                return "INT";
+            }
+
+            const std::string operator()(double /* dummy */) const
+            {
+                return "REAL";
+            }
+
+            const std::string operator()(bool /* dummy */) const
+            {
+                return "BOOLEAN";
+            }
+        };
+
+        const auto &name = metric.first;
+        keys.emplace_back(name);
+
+        out << name << " " << boost::apply_visitor(toString(), metric.second) << std::endl;
+    }
 
     out << results.runs.size() << " runs" << std::endl;
 
-    for (auto &run : results.runs)
+    for (const auto &run : results.runs)
     {
-        out << run.waypoints << "; "   //
-            << run.time << "; "        //
-            << run.success << "; "     //
-            << run.correct << "; "     //
-            << run.length << "; "      //
-            << run.clearance << "; "   //
-            << run.smoothness << "; "  //
-            << std::endl;
+        out << run.time << "; "  //
+            << run.success << "; ";
+
+        for (const auto &key : keys)
+            out << boost::apply_visitor(Benchmarker::Results::Run::toString(), run.metrics.find(key)->second)
+                << "; ";
+
+        out << std::endl;
     }
 
     out << "." << std::endl;
