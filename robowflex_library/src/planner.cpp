@@ -56,6 +56,11 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
+void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &robot_state_ptr)
+{
+    moveit::core::robotStateToRobotStateMsg(*robot_state_ptr, request_.start_state);
+}
+
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
     robot_state::RobotState goal_state(robot_.getModel());

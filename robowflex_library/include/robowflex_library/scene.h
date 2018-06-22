@@ -130,13 +130,12 @@ namespace robowflex
         class RVIZHelper
         {
         public:
-            RVIZHelper()
+            RVIZHelper():
+            nh_("~")
             {
-                ros::NodeHandle nh("~");
-
-                trajectory_pub_ = nh.advertise<moveit_msgs::RobotTrajectory>("trajectory", 0);
-                scene_pub_ = nh.advertise<moveit_msgs::PlanningScene>("scene", 0);
-                marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers", 0);
+                trajectory_pub_ = nh_.advertise<moveit_msgs::RobotTrajectory>("trajectory", 0);
+                scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("scene", 0);
+                marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("markers", 0);
             }
 
             void updateTrajectory(const planning_interface::MotionPlanResponse &response)
@@ -174,6 +173,7 @@ namespace robowflex
             }
 
         private:
+            ros::NodeHandle nh_;
             ros::Publisher marker_pub_, trajectory_pub_, scene_pub_;
 
             std::map<std::string, visualization_msgs::Marker> markers_;

@@ -3,6 +3,7 @@
 #include <robowflex_library/detail/r2.h>
 #include <ros/ros.h>
 #include <signal.h>
+#include <iostream>
 
 #define NUM_ITERATIONS 1
 // #define START_POSE                                                                                                     \
@@ -53,16 +54,23 @@ int main(int argc, char **argv)
     // std::vector<double> start = START_POSE; //We ignore this for the YAML start
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request);
-    while (count++ < NUM_ITERATIONS)
+
+    robowflex::IO::RVIZHelper rviz;
+    rviz.updateScene(scene);
+    int a;
+    //std::cin >> a;
+    for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
         if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
+            rviz.updateTrajectory(res[0]);
             success_count++;
         }
         time_spent += (ros::Time::now().nsec - begin);
+        //std::cin >> a;
     }
 
     std::cout << "Time spent: " << time_spent << std::endl;

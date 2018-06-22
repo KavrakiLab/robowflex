@@ -135,22 +135,26 @@ bool Robot::loadKinematics(const std::string &name)
 void Robot::setState(const std::vector<double> &positions)
 {
     scratch_->setVariablePositions(positions);
+    scratch_->update();
 }
 
 void Robot::setState(const std::map<std::string, double> &variable_map)
 {
     scratch_->setVariablePositions(variable_map);
+    scratch_->update();
 }
 
 void Robot::setState(const std::vector<std::string> &variable_names,
                      const std::vector<double> &variable_position)
 {
     scratch_->setVariablePositions(variable_names, variable_position);
+    scratch_->update();
 }
 
 void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
 {
     scratch_->setJointGroupPositions(name, positions);
+    scratch_->update();
 }
 
 std::vector<double> Robot::getState() const
@@ -178,6 +182,7 @@ void Robot::setFromIK(const std::string &group,                             //
 
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
     scratch_->setFromIK(jmg, msg);
+    scratch_->update();
 }
 
 const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const

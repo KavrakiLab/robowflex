@@ -132,6 +132,7 @@ namespace robowflex
 
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
         void setStartConfiguration(const std::vector<double> &joints);
+        void setStartConfiguration(const robot_state::RobotStatePtr &robot_state_ptr);
         void setGoalConfiguration(const std::vector<double> &joints);
         void setGoalRegion(const std::string &ee_name, const std::string &base_name,
                            const Eigen::Affine3d &pose, const Geometry &geometry,

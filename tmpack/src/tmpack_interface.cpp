@@ -5,6 +5,8 @@
 #include <ros/ros.h>
 #include <vector>
 
+#define MAX_STEP_ATTEMPTS 1
+
 namespace robowflex
 {
     // Class to help add constraints to the task plan when we are running the
@@ -56,6 +58,8 @@ namespace robowflex
             std::vector<double> next_start_joint_positions =
                 request.getRequest().start_state.joint_state.position;
 
+            std::cout<<"Request joint state size: "<<request.getRequest().start_state.joint_state.position.size()<<std::endl;
+
             // we manually specify these because the virtual_link isn't included in the above:
             //For r2_plan.yml
             // std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
@@ -69,27 +73,37 @@ namespace robowflex
 
             for (std::vector<double> goal_conf : goals)
             {
+                std::cout<<"setting start state with: "<<next_start_joint_positions.size()<<" joints"<<std::endl;
                 // std::vector<std::string> names = robot.getJointNames();
                 // for(int i= 0; i <names.size(); i++) {
                 //   std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
                 // }
 
                 // domain semantics can all be done here?
+                robot.setState(next_start_joint_positions);
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
-                planning_interface::MotionPlanResponse response = planner.plan(scene, request.getRequest());
-                responses.push_back(response);
-
-                std::map<std::string, double> named_joint_positions = getFinalJointPositions(response);
-                std::vector<double> temp = robot.getState();
-                robot.setState(named_joint_positions);
-                next_start_joint_positions = robot.getState();
-                robot.setState(temp);
-                std::cout<<"Number of joints specified: "<<next_start_joint_positions.size()<<std::endl;
-
-                request.setStartConfiguration(next_start_joint_positions);
+                for(size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++) {
+                    request.setStartConfiguration(robot.getScratchState());
+                    planning_interface::MotionPlanResponse response = planner.plan(scene, request.getRequest());
+                    
+                    //only update if the motion was successful:
+                    if(response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                        responses.push_back(response);
+                        std::map<std::string, double> named_joint_positions = getFinalJointPositions(response);
+                        robot.setState(named_joint_positions);
+                        next_start_joint_positions = robot.getState();
+                        break;            
+                    } else if(step_attempts >= MAX_STEP_ATTEMPTS-1) { //We always want to have some response
+                        responses.push_back(response);
+                    }
+                }
+                //stop once a motion fails
+                if(responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                    break;
+                }
             }
             return responses;
         }

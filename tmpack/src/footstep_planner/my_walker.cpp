@@ -60,11 +60,8 @@ namespace robowflex
                 x = 2 + y / 84;
                 y = -tmp / 84;
 
-                // x = 41.9/100;
-                // y = -41.9/100;
-
-                // Path constraint from r2_plan.yml. We'll want to alternate feet for these. For now,
-                // we hope there's only the one important constraint.
+                // Path constraint from r2_plan.yml. We'll want to alternate feet for these. 
+                // For now, we hope there's only the one important constraint.
                 request.getPathConstraints().position_constraints.clear();
                 request.getPathConstraints().orientation_constraints.clear();
 
@@ -77,10 +74,11 @@ namespace robowflex
                 }
 
                 // Find the location of the stationary tip in the workspace
-                robot.setState(joint_positions);
+//                robot.setState(joint_positions);
                 Eigen::Affine3d tip_tf = robot.getLinkTF(stationary_tip_name);
-                std::cout << "stat: " << tip_tf.translation() << std::endl;
-                std::cout << "mover: " << robot.getLinkTF(moving_tip_name).translation() << std::endl;
+                std::cout << "left: " << robot.getLinkTF("r2/left_leg/gripper/tip").translation() << std::endl;
+                std::cout << "right: " << robot.getLinkTF("r2/right_leg/gripper/tip").translation() << std::endl;
+                std::cout<< "moving: "<<moving_tip_name<<std::endl;
 
                 // I think this works? It sets the orientation correctly. The pose is for a sphere so
                 // it shouldn't matter that we have a rotation.
