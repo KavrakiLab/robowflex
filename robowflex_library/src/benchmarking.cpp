@@ -111,9 +111,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
             }
         }
         if (options.run_metric_bits & RunMetricBits::CLEARANCE)
-        {
             metrics.clearance /= (double)p.getWayPointCount();
-        }
     }
 
     if (options.run_metric_bits & RunMetricBits::SMOOTHNESS)
@@ -168,7 +166,7 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     outfile_ << "\"" << results.name << "\":[";
 
-    int bitmask = results.options.run_metric_bits;
+    uint32_t bitmask = results.options.run_metric_bits;
     for (size_t i = 0; i < results.runs.size(); i++)
     {
         Benchmarker::Results::Run run = results.runs[i];
@@ -278,9 +276,9 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "0 common properties" << std::endl;
     // Get the number of what metrics we actually saved by counting the bits set to true.
     // First, ignore the PATH bit, but look at all the other metrics we saved.
-    int bitmask = results.options.run_metric_bits & 
+    uint32_t bitmask = results.options.run_metric_bits &
                   (Benchmarker::RunMetricBits::ALL & !Benchmarker::RunMetricBits::PATH);
-    int count;
+    uint32_t count;
     for (count=0; bitmask; count += 1)
         bitmask &= bitmask - 1;
     bitmask = results.options.run_metric_bits;

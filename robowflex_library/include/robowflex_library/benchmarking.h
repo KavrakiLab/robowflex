@@ -12,12 +12,12 @@ namespace robowflex
     public:
         enum RunMetricBits
         {
-            WAYPOINTS = 0x001,
-            PATH = 0x002,
-            CORRECT = 0x004,
-            LENGTH = 0x008,
-            CLEARANCE = 0x010,
-            SMOOTHNESS = 0x020,
+            WAYPOINTS = 1 << 0,
+            PATH = 1 << 1,
+            CORRECT = 1 << 2,
+            LENGTH = 1 << 3,
+            CLEARANCE = 1 << 4,
+            SMOOTHNESS = 1 << 5,
             ALL = 0x003F // The result of ORing all of the above bits together.
         };
         class Options
@@ -32,7 +32,7 @@ namespace robowflex
             }
 
             unsigned int runs;
-            int run_metric_bits;
+            uint32_t run_metric_bits;
         };
 
         class Results
