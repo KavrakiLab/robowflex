@@ -64,30 +64,32 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    metrics.waypoints = 0;
-    metrics.correct = true;
-    metrics.length = 0.0;
-    metrics.clearance = 0.0;
-    metrics.smoothness = 0.0;
-
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
     if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
-        metrics.waypoints = p.getWayPointCount();
+        metrics.metrics["waypoints"] = std::make_pair((int) p.getWayPointCount(), Run::INT);
 
     if (options.run_metric_bits & RunMetricBits::PATH)
         p.getRobotTrajectoryMsg(metrics.path);
 
     if (options.run_metric_bits & RunMetricBits::LENGTH)
+    {
+        double length = 0.0;
         // compute path length
         for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-            metrics.length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+            length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+
+        metrics.metrics["length"] = std::make_pair(length, Run::DOUBLE);
+    }
 
     // compute correctness and clearance
     if ((options.run_metric_bits & RunMetricBits::CORRECT) |
         (options.run_metric_bits & RunMetricBits::CLEARANCE))
     {
+        bool correct = true;
+        double clearance = 0.0;
+
         collision_detection::CollisionRequest request;
         for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
         {
@@ -97,25 +99,34 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
                 s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
 
                 if (result.collision)
-                    metrics.correct = false;
+                    correct = false;
 
                 if (!p.getWayPoint(k).satisfiesBounds())
-                    metrics.correct = false;
+                    correct = false;
             }
 
             if (options.run_metric_bits & RunMetricBits::CLEARANCE)
             {
                 double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
                 if (d > 0.0)  // in case of collision, distance is negative
-                    metrics.clearance += d;
+                    clearance += d;
             }
         }
+
+        if (options.run_metric_bits & RunMetricBits::CORRECT)
+            metrics.metrics["correct"] = std::make_pair(correct, Run::BOOL);
+
         if (options.run_metric_bits & RunMetricBits::CLEARANCE)
-            metrics.clearance /= (double)p.getWayPointCount();
+        {
+            clearance /= (double)p.getWayPointCount();
+            metrics.metrics["clearance"] = std::make_pair(clearance, Run::DOUBLE);
+        }
     }
 
     if (options.run_metric_bits & RunMetricBits::SMOOTHNESS)
     {
+        double smoothness = 0.0;
+
         // compute smoothness
         if (p.getWayPointCount() > 2)
         {
@@ -142,12 +153,15 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
                     // and we normalize by the length of the segments
                     double u = 2.0 * angle;  /// (a + b);
-                    metrics.smoothness += u * u;
+                    smoothness += u * u;
                 }
                 a = b;
             }
-            metrics.smoothness /= (double)p.getWayPointCount();
+
+            smoothness /= (double)p.getWayPointCount();
         }
+
+        metrics.metrics["smoothness"] = std::make_pair(smoothness, Run::DOUBLE);
     }
 }
 
@@ -169,28 +183,40 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     uint32_t bitmask = results.options.run_metric_bits;
     for (size_t i = 0; i < results.runs.size(); i++)
     {
-        Benchmarker::Results::Run run = results.runs[i];
+        const Benchmarker::Results::Run &run = results.runs[i];
         outfile_ << "{";
 
         outfile_ << "\"name\": \"run_" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
-        outfile_ << "\"success\":" << run.success; 
-        if (bitmask & Benchmarker::RunMetricBits::CORRECT)
-            outfile_ << ",\"correct\":" << run.correct;
-        if (bitmask & Benchmarker::RunMetricBits::LENGTH)
-            outfile_ << ",\"length\":" << run.length;
-        
-        if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
+        outfile_ << "\"success\":" << run.success;
+
+        for (const auto &metric : run.metrics)
         {
-            outfile_ << ",\"clearance\":";
-            // Check for infinity.
-            if (run.clearance == std::numeric_limits<double>::infinity())
-                outfile_ << std::numeric_limits<double>::max();
-            else
-                outfile_ << run.clearance;
+            const auto &name = metric.first;
+            const auto &value = metric.second.first;
+            const auto &type = metric.second.second;
+
+            outfile_ << ",\"" << name << "\":";
+            switch (type)
+            {
+                case Benchmarker::Results::Run::BOOL:
+                    outfile_ << boost::get<bool>(value);
+                    break;
+                case Benchmarker::Results::Run::INT:
+                    outfile_ << boost::get<int>(value);
+                    break;
+                case Benchmarker::Results::Run::DOUBLE:
+                {
+                    double v = boost::get<double>(value);
+
+                    if (v == std::numeric_limits<double>::infinity())
+                        outfile_ << std::numeric_limits<double>::max();
+                    else
+                        outfile_ << v;
+                    break;
+                }
+            }
         }
-        if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
-            outfile_ << ",\"smoothness\":" << run.smoothness;
 
         outfile_ << "}";
         // Write the command between each run.
@@ -274,44 +300,65 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     // planners_data -> planner_data
     out << request.planner_id << std::endl;  // planner_name
     out << "0 common properties" << std::endl;
-    // Get the number of what metrics we actually saved by counting the bits set to true.
-    // First, ignore the PATH bit, but look at all the other metrics we saved.
-    uint32_t bitmask = results.options.run_metric_bits &
-                  (Benchmarker::RunMetricBits::ALL & !Benchmarker::RunMetricBits::PATH);
-    uint32_t count;
-    for (count=0; bitmask; count += 1)
-        bitmask &= bitmask - 1;
-    bitmask = results.options.run_metric_bits;
-    out << count + 2 << " properties for each run" << std::endl;  // run_properties
+
+    out << (results.runs[0].metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
     out << "time REAL" << std::endl;
     out << "success BOOLEAN" << std::endl;
-    if (bitmask & Benchmarker::RunMetricBits::WAYPOINTS)
-        out << "waypoints INTEGER" << std::endl;
-    if (bitmask & Benchmarker::RunMetricBits::CORRECT)
-        out << "correct BOOLEAN" << std::endl;
-    if (bitmask & Benchmarker::RunMetricBits::LENGTH)
-        out << "length REAL" << std::endl;
-    if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
-        out << "clearance REAL" << std::endl;
-    if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
-        out << "smoothness REAL" << std::endl;
+
+    std::vector<std::reference_wrapper<const std::string>> keys;
+    for (const auto &metric : results.runs[0].metrics)
+    {
+        const auto &name = metric.first;
+        const auto &type = metric.second.second;
+
+        keys.emplace_back(name);
+
+        out << name << " ";
+        switch (type)
+        {
+            case Benchmarker::Results::Run::BOOL:
+                out << "BOOLEAN";
+                break;
+            case Benchmarker::Results::Run::INT:
+                out << "INT";
+                break;
+            case Benchmarker::Results::Run::DOUBLE:
+                out << "REAL";
+                break;
+        }
+
+        out << std::endl;
+    }
 
     out << results.runs.size() << " runs" << std::endl;
 
-    for (auto &run : results.runs)
+    for (const auto &run : results.runs)
     {
-        out << run.time << "; "        //
+        out << run.time << "; "  //
             << run.success << "; ";
-        if (bitmask & Benchmarker::RunMetricBits::WAYPOINTS)
-            out << run.waypoints << "; ";
-        if (bitmask & Benchmarker::RunMetricBits::CORRECT)
-            out << run.correct << "; ";
-        if (bitmask & Benchmarker::RunMetricBits::LENGTH)
-            out << run.length << "; ";
-        if (bitmask & Benchmarker::RunMetricBits::CLEARANCE)
-            out << run.clearance << "; ";
-        if (bitmask & Benchmarker::RunMetricBits::SMOOTHNESS)
-            out << run.smoothness << "; ";
+
+        for (const auto &key : keys)
+        {
+            const auto &metric = run.metrics.find(key);
+            const auto &value = metric->second.first;
+            const auto &type = metric->second.second;
+
+            switch (type)
+            {
+                case Benchmarker::Results::Run::BOOL:
+                    out << boost::get<bool>(value);
+                    break;
+                case Benchmarker::Results::Run::INT:
+                    out << boost::get<int>(value);
+                    break;
+                case Benchmarker::Results::Run::DOUBLE:
+                    out << boost::get<double>(value);
+                    break;
+            }
+
+            out << "; ";
+        }
+
         out << std::endl;
     }
 

@@ -1,6 +1,8 @@
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
+#include <boost/variant.hpp>
+
 namespace robowflex
 {
     // Forward Declaration.
@@ -18,12 +20,12 @@ namespace robowflex
             LENGTH = 1 << 3,
             CLEARANCE = 1 << 4,
             SMOOTHNESS = 1 << 5,
-            ALL = 0x003F // The result of ORing all of the above bits together.
         };
+
         class Options
         {
         public:
-            Options() : runs(100), run_metric_bits(RunMetricBits::ALL)
+            Options() : runs(100), run_metric_bits(~0)
             {
             }
 
@@ -41,21 +43,23 @@ namespace robowflex
             class Run
             {
             public:
+                enum Type
+                {
+                    BOOL,
+                    INT,
+                    DOUBLE
+                };
+
                 Run(int num, double time, bool success) : num(num), time(time), success(success)
                 {
                 }
 
                 int num;
-                int waypoints;
-                moveit_msgs::RobotTrajectory path;
                 double time;
-                /** Whether or not MoveIt returns a 'success'. */
                 bool success;
-                /** True if the path is actually collision free. */
-                bool correct;
-                double length;
-                double clearance;
-                double smoothness;
+                moveit_msgs::RobotTrajectory path;
+
+                std::map<std::string, std::pair<boost::variant<bool, double, int>, Type>> metrics;
             };
 
             Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
