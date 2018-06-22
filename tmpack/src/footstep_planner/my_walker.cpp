@@ -153,13 +153,13 @@ namespace robowflex
             std::cout<<"Foot placements: "<<std::endl;
             for(footstep_planning::point_2D p : foot_placements) {
               std::cout<<p<<std::endl;
-              // my_plan.push_back({p.x, p.y});
+              my_plan.push_back({p.x, p.y});
             }
 
             // TODO: Actually use the plan
-            my_plan.push_back({42, -42});
-            my_plan.push_back({-42, -42});
-            my_plan.push_back({0, 50});
+            // my_plan.push_back({42, -42});
+            // my_plan.push_back({-42, -42});
+            // my_plan.push_back({0, 50});
 
             return my_plan;
         }

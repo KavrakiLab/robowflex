@@ -5,7 +5,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 1
+#define NUM_ITERATIONS 100
 // #define START_POSE                                                                                                     \
 //     {                                                                                                                  \
 //         -0.030580680548965233, 0.05347800856425433, 0.015236617202923242, 1.6048735607571416, -0.08929297054119978,    \
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
         size_t begin = ros::Time::now().nsec;
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+        if (res.back().error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
             //rviz.updateTrajectory(res[0]);
             success_count++;
