@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   geometric_shapes
   eigen_conversions
+  rosbag
   roscpp
 )
 
@@ -34,6 +35,7 @@ catkin_package(
     moveit_ros_planning
     geometric_shapes
     eigen_conversions
+    rosbag
     roscpp
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
@@ -52,6 +54,7 @@ add_library(${LIBRARY_NAME}
   src/io.cpp
   src/yaml.cpp
   src/detail/r2.cpp
+  src/detail/ur5.cpp
 )
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
@@ -62,6 +65,12 @@ target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(ur5_benchmark scripts/ur5_benchmark.cpp)
 target_link_libraries(ur5_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(ur5_io scripts/ur5_io.cpp)
+target_link_libraries(ur5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(ur5_pool scripts/ur5_pool.cpp)
+target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})

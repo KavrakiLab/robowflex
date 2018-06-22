@@ -72,9 +72,11 @@ namespace
         const std::string extension = boost::filesystem::extension(path);
         return isSuffix("xacro", extension);
     }
+
+
 }  // namespace
 
-const std::string IO::resolvePath(const std::string &path)
+const std::string IO::resolvePackage(const std::string &path)
 {
     if (path.empty())
         return "";
@@ -103,6 +105,13 @@ const std::string IO::resolvePath(const std::string &path)
 
     file = expandHome(file);
     file = expandSymlinks(file);
+
+    return boost::filesystem::absolute(file).string();
+}
+
+const std::string IO::resolvePath(const std::string &path)
+{
+    boost::filesystem::path file = resolvePackage(path);
 
     if (!boost::filesystem::exists(file))
     {
@@ -295,6 +304,11 @@ const std::string IO::Handler::UUID(generateUUID());
 
 IO::Handler::Handler(const std::string &name)
   : name_(name), namespace_("robowflex_" + UUID + "/" + name_), nh_(namespace_)
+{
+}
+
+IO::Handler::Handler(const IO::Handler &handler, const std::string &name)
+    : name_(handler.getName()), namespace_(handler.getNamespace()), nh_(handler.getHandle(), name)
 {
 }
 

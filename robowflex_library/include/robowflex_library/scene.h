@@ -3,7 +3,8 @@
 
 namespace robowflex
 {
-    class Scene;
+    ROBOWFLEX_CLASS_FORWARD(Robot);
+    ROBOWFLEX_CLASS_FORWARD(Scene);
 
     class Robot
     {
@@ -24,7 +25,7 @@ namespace robowflex
             return name_;
         }
 
-        const robot_model::RobotModelPtr &getModel() const
+        const robot_model::RobotModelPtr &getModelConst() const
         {
             return model_;
         }
@@ -59,7 +60,7 @@ namespace robowflex
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
         const Eigen::Affine3d &getLinkTF(const std::string &name) const;
-        bool inCollision(Scene &scene) const;
+        bool inCollision(const SceneConstPtr &scene) const;
 
     protected:
         // Loads a robot description (URDF, SRDF, joint limits, kinematics) to the parameter server
@@ -88,7 +89,7 @@ namespace robowflex
     class Scene
     {
     public:
-        Scene(Robot &robot);
+        Scene(const RobotConstPtr &robot);
 
         Scene(const Scene &);
         void operator=(const Scene &);
