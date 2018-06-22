@@ -246,6 +246,11 @@ namespace robowflex
                                           const Eigen::Quaterniond &orientation,
                                           const Eigen::Vector3d &tolerances);
 
+        /** \brief Set the allowed planning time in the request.
+         *  \param[in] allowed_planning_time The allowed planning time.
+         */
+        void setAllowedPlanningTime(double allowed_planning_time);
+
         /** \brief Get a reference to the currently built motion planning request.
          *  \return The motion planning request.
          */
