@@ -1,3 +1,5 @@
+/* Author: Zachary Kingston, Bryce Willey */
+
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
@@ -7,7 +9,12 @@
 namespace robowflex
 {
     ROBOWFLEX_CLASS_FORWARD(Benchmarker);
+    /** \class robowflex::BenchmarkerPtr
+        \brief A shared pointer wrapper for robowflex::Benchmarker. */
+
     ROBOWFLEX_CLASS_FORWARD(BenchmarkOutputter);
+    /** \class robowflex::BenchmarkOutputterPtr
+        \brief A shared pointer wrapper for robowflex::BenchmarkOutputter. */
 
     /** \brief A utility to benchmark many robowflex::Planner instances against different queries, specified
      *  by robowflex::Scene and robowflex::MotionRequestBuilder instances.

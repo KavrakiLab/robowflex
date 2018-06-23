@@ -6,6 +6,8 @@
 namespace robowflex
 {
     ROBOWFLEX_CLASS_FORWARD(Planner);
+    /** \class robowflex::PlannerPtr
+        \brief A shared pointer wrapper for robowflex::Planner. */
 
     /** \brief An abstract interface to a motion planning algorithm.
      */
@@ -140,6 +142,8 @@ namespace robowflex
     };
 
     ROBOWFLEX_CLASS_FORWARD(PipelinePlanner);
+    /** \class robowflex::PipelinePlannerPtr
+        \brief A shared pointer wrapper for robowflex::PipelinePlanner. */
 
     /** \brief A motion planner that uses the \a MoveIt! planning pipeline to load a planner plugin.
      */
@@ -168,6 +172,8 @@ namespace robowflex
     };
 
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
+    /** \class robowflex::MotionRequestBuilderPtr
+        \brief A shared pointer wrapper for robowflex::MotionRequestBuilder. */
 
     /** \brief A helper class to build motion planning requests for a robowflex::Planner
      */
@@ -307,6 +313,8 @@ namespace robowflex
     std::map<std::string, double>
     getFinalJointPositions(const planning_interface::MotionPlanResponse &response);
 
+    /** \brief OMPL specific planners and features.
+     */
     namespace OMPL
     {
         /** \brief Settings descriptor for settings provided by the default \a MoveIt! OMPL planning pipeline.
@@ -350,6 +358,8 @@ namespace robowflex
         };
 
         ROBOWFLEX_CLASS_FORWARD(OMPLPipelinePlanner);
+        /** \class robowflex::OMPL::OMPLPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::OMPL::OMPLPipelinePlanner. */
 
         /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! default OMPL planning pipeline.
          */
