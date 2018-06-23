@@ -8,13 +8,25 @@
 
 namespace robowflex
 {
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Benchmarker);
+    /** \endcond */
+
     /** \class robowflex::BenchmarkerPtr
         \brief A shared pointer wrapper for robowflex::Benchmarker. */
 
+    /** \class robowflex::BenchmarkerConstPtr
+        \brief A const shared pointer wrapper for robowflex::Benchmarker. */
+
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(BenchmarkOutputter);
+    /** \endcond */
+
     /** \class robowflex::BenchmarkOutputterPtr
         \brief A shared pointer wrapper for robowflex::BenchmarkOutputter. */
+
+    /** \class robowflex::BenchmarkOutputterConstPtr
+        \brief A const shared pointer wrapper for robowflex::BenchmarkOutputter. */
 
     /** \brief A utility to benchmark many robowflex::Planner instances against different queries, specified
      *  by robowflex::Scene and robowflex::MotionRequestBuilder instances.

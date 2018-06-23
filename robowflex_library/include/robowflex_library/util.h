@@ -1,3 +1,5 @@
+/* Author: Zachary Kingston */
+
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 

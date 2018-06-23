@@ -1,14 +1,22 @@
+/* Author: Zachary Kingston */
+
 #ifndef ROBOWFLEX_GEOMETRY_
 #define ROBOWFLEX_GEOMETRY_
 
 namespace robowflex
 {
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Geometry);
+    /** \endcond */
+
     /** \class robowflex::GeometryPtr
         \brief A shared pointer wrapper for robowflex::Geometry. */
 
+    /** \class robowflex::GeometryConstPtr
+        \brief A const shared pointer wrapper for robowflex::Geometry. */
+
     /** \brief A class that manages both solid and mesh geometry for various parts of the motion planning
-     * system.
+     *  system.
      */
     class Geometry
     {

@@ -5,9 +5,15 @@
 
 namespace robowflex
 {
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Planner);
+    /** \endcond */
+
     /** \class robowflex::PlannerPtr
         \brief A shared pointer wrapper for robowflex::Planner. */
+
+    /** \class robowflex::PlannerConstPtr
+        \brief A const shared pointer wrapper for robowflex::Planner. */
 
     /** \brief An abstract interface to a motion planning algorithm.
      */
@@ -141,9 +147,15 @@ namespace robowflex
         std::condition_variable cv_;       ///< Planner condition variable
     };
 
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(PipelinePlanner);
+    /** \endcond */
+
     /** \class robowflex::PipelinePlannerPtr
         \brief A shared pointer wrapper for robowflex::PipelinePlanner. */
+
+    /** \class robowflex::PipelinePlannerConstPtr
+        \brief A const shared pointer wrapper for robowflex::PipelinePlanner. */
 
     /** \brief A motion planner that uses the \a MoveIt! planning pipeline to load a planner plugin.
      */
@@ -171,9 +183,15 @@ namespace robowflex
         planning_pipeline::PlanningPipelinePtr pipeline_;  ///< Loaded planning pipeline plugin.
     };
 
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
+    /** \endcond */
+
     /** \class robowflex::MotionRequestBuilderPtr
         \brief A shared pointer wrapper for robowflex::MotionRequestBuilder. */
+
+    /** \class robowflex::MotionRequestBuilderConstPtr
+        \brief A const shared pointer wrapper for robowflex::MotionRequestBuilder. */
 
     /** \brief A helper class to build motion planning requests for a robowflex::Planner
      */
@@ -357,9 +375,15 @@ namespace robowflex
             void setParam(IO::Handler &handler) const;
         };
 
+        /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(OMPLPipelinePlanner);
+        /** \endcond */
+
         /** \class robowflex::OMPL::OMPLPipelinePlannerPtr
             \brief A shared pointer wrapper for robowflex::OMPL::OMPLPipelinePlanner. */
+
+        /** \class robowflex::OMPL::OMPLPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::OMPL::OMPLPipelinePlanner. */
 
         /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! default OMPL planning pipeline.
          */
