@@ -24,23 +24,40 @@ namespace robowflex
     template <typename C, typename RT, typename... Args>
     struct function_traits<RT (C::*)(Args...) const>
     {
-        typedef std::function<RT(Args...)> f_type;
+        enum
+        {
+            arity = sizeof...(Args)
+        };
+        typedef function<RT(Args...)> f_type;
     };
 
     // for pointers to member function
     template <typename C, typename RT, typename... Args>
     struct function_traits<RT (C::*)(Args...)>
     {
-        typedef std::function<RT(Args...)> f_type;
+        enum
+        {
+            arity = sizeof...(Args)
+        };
+        typedef function<RT(Args...)> f_type;
     };
 
     // for function pointers
     template <typename RT, typename... Args>
     struct function_traits<RT (*)(Args...)>
     {
-        typedef std::function<RT(Args...)> f_type;
+        enum
+        {
+            arity = sizeof...(Args)
+        };
+        typedef function<RT(Args...)> f_type;
     };
 
+    template <typename L>
+    static typename function_traits<L>::f_type make_function(L l)
+    {
+        return (typename function_traits<L>::f_type)(l);
+    }
     template <typename L>
     static typename function_traits<L>::f_type make_function(L l)
     {
