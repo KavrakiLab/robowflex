@@ -42,6 +42,7 @@ namespace robowflex
 }
 
 #include "util.h"
+#include "pool.h"
 #include "geometry.h"
 #include "scene.h"
 #include "planning.h"

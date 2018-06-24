@@ -27,9 +27,28 @@ int main(int argc, char **argv)
                           orn, {0.01, 0.01, 0.01}                                     // orientation
     );
 
+    // Submit a blocking call for planning.
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
+
+    // Submit a set of asynchronous planning calls.
+    auto job1 = planner->submit(scene, request.getRequest());
+    auto job2 = planner->submit(scene, request.getRequest());
+    auto job3 = planner->submit(scene, request.getRequest());
+    auto job4 = planner->submit(scene, request.getRequest());
+
+    // Wait for jobs to complete
+    // job1.wait();
+    // job2.wait();
+    // job3.wait();
+    // job4.wait();
+
+    // Get results of plans. These block until results are available.
+    planning_interface::MotionPlanResponse res1 = job1->get();
+    planning_interface::MotionPlanResponse res2 = job2->get();
+    planning_interface::MotionPlanResponse res3 = job3->get();
+    planning_interface::MotionPlanResponse res4 = job4->get();
 
     return 0;
 }

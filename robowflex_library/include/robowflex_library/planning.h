@@ -107,6 +107,33 @@ namespace robowflex
             }
         }
 
+        /** \brief Submit a motion planning request job to the queue.
+         *  \param[in] scene Planning scene to plane for.
+         *  \param[in] request Motion plan request to service.
+         *  \return Job that will service the planning request. This job can be canceled.
+         */
+        std::shared_ptr<Pool::Job<planning_interface::MotionPlanResponse>>
+        submit(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+        {
+            return pool_.submit(make_function([&] {
+                std::unique_lock<std::mutex> lock(mutex_);
+                cv_.wait(lock, [&] { return !planners_.empty(); });
+
+                auto planner = planners_.front();
+                planners_.pop();
+
+                lock.unlock();
+
+                auto result = planner->plan(scene, request);
+
+                lock.lock();
+                planners_.emplace(planner);
+                cv_.notify_one();
+
+                return result;
+            }));
+        }
+
         /** \brief Plan a motion given a \a request and a \a scene.
          *  Forwards the planning request onto the thread pool to be executed. Blocks until complete and
          *  returns result.
@@ -117,21 +144,8 @@ namespace robowflex
         planning_interface::MotionPlanResponse
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override
         {
-            std::unique_lock<std::mutex> lock(mutex_);
-            cv_.wait(lock, [&] { return !planners_.empty(); });
-
-            auto planner = planners_.front();
-            planners_.pop();
-
-            lock.unlock();
-
-            auto result = pool_.process([&] { return planner->plan(scene, request); });
-
-            lock.lock();
-            planners_.emplace(planner);
-            cv_.notify_one();
-
-            return result;
+            auto job = submit(scene, request);
+            return job->get();
         }
 
         const std::vector<std::string> getPlannerConfigs() const override
@@ -140,7 +154,7 @@ namespace robowflex
         }
 
     private:
-        Pool<planning_interface::MotionPlanResponse> pool_;  ///< Thread pool
+        Pool pool_;  ///< Thread pool
 
         std::queue<PlannerPtr> planners_;  ///< Motion planners
         std::mutex mutex_;                 ///< Planner mutex
