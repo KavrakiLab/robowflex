@@ -1,3 +1,5 @@
+/* Author: Zachary Kingston */
+
 #ifndef ROBOWFLEX_
 #define ROBOWFLEX_
 
@@ -15,9 +17,14 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 #include <moveit/planning_interface/planning_interface.h>
 
-// #include <moveit/ompl_interface/ompl_interface.h>
-// #include <moveit/ompl_interface/model_based_planning_context.h>
+/** \file */
 
+/**
+ * \def ROBOWFLEX_CLASS_FORWARD
+ * Macro that forward declares a class and defines two shared ptrs types:
+ *  - ${Class}Ptr      = shared_ptr<${Class}>
+ *  - ${Class}ConstPtr = shared_ptr<const ${Class}>
+ */
 #define ROBOWFLEX_CLASS_FORWARD(C)                                                                           \
     class C;                                                                                                 \
     typedef std::shared_ptr<C> C##Ptr;                                                                       \
@@ -27,6 +34,12 @@
 #define ROBOWFLEX_AT_LEAST_LUNAR ROS_VERSION_MINIMUM(1, 12, 0)
 #define ROBOWFLEX_AT_LEAST_KINETIC ROS_VERSION_MINIMUM(1, 13, 0)
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
+
+/** \brief Main namespace. Contains all library classes and functions.
+ */
+namespace robowflex
+{
+}
 
 #include "util.h"
 #include "geometry.h"

@@ -1,3 +1,5 @@
+/* Author: Zachary Kingston */
+
 #ifndef ROBOWFLEX_YAML_
 #define ROBOWFLEX_YAML_
 

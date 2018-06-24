@@ -3,6 +3,7 @@
 #include <robowflex_library/detail/r2.h>
 #include <ros/ros.h>
 #include <signal.h>
+#include <iostream>
 
 #define NUM_ITERATIONS 1
 // #define START_POSE                                                                                                     \
@@ -38,13 +39,19 @@ int main(int argc, char **argv)
     signal(SIGINT, shutdown);
     signal(SIGSEGV, shutdown);
 
-    R2Robot r2;
-    r2.initialize({"legsandtorso"});
-    Scene scene(r2);
-    OMPL::R2OMPLPipelinePlanner planner(r2);
-    planner.initialize();
-    MotionRequestBuilder request(planner, "legsandtorso");
-    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
+    //R2RobotPtr r2 = std::make_shared<R2Robot>();
+    auto r2 = std::make_shared<R2Robot>();
+
+    r2->initialize({"legsandtorso"});
+    //ScenePtr scene = std::make_shared<Scene>(r2);
+    auto scene = std::make_shared<Scene>(r2);
+
+    //OMPL::R2OMPLPipelinePlannerPtr planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
+    auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
+
+    planner->initialize();
+    auto request = std::make_shared<MotionRequestBuilder>(planner, "legsandtorso");
+    request->fromYAMLFile("package://robowflex_library/yaml/r2_start.yml");
 
     size_t time_spent = 0;
     size_t count = 0;
@@ -53,16 +60,23 @@ int main(int argc, char **argv)
     // std::vector<double> start = START_POSE; //We ignore this for the YAML start
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request);
-    while (count++ < NUM_ITERATIONS)
+
+    robowflex::IO::RVIZHelper rviz;
+    //rviz.updateScene(scene);
+    //int a;
+    //std::cin >> a;
+    for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
         if (res[0].error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
+            //rviz.updateTrajectory(res[0]);
             success_count++;
         }
         time_spent += (ros::Time::now().nsec - begin);
+        //std::cin >> a;
     }
 
     std::cout << "Time spent: " << time_spent << std::endl;

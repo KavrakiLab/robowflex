@@ -4,10 +4,10 @@ project(robowflex_library)
 set(LIBRARY_NAME robowflex_library)
 
 set(CMAKE_MODULE_PATH
-    "${CMAKE_MODULE_PATH}"
-    "${CMAKE_ROOT_DIR}/cmake/Modules"
-    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules"
-    "${CMAKE_CURRENT_SOURCE_DIR}/robowflex/CMakeModules")
+  "${CMAKE_MODULE_PATH}"
+  "${CMAKE_ROOT_DIR}/cmake/Modules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/robowflex/CMakeModules")
 
 add_compile_options(-std=c++11)
 
@@ -19,6 +19,7 @@ find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+
 find_package(catkin REQUIRED COMPONENTS
   # moveit_planners_ompl
   moveit_ros_planning
@@ -27,22 +28,44 @@ find_package(catkin REQUIRED COMPONENTS
   rosbag
   cmake_modules
   roscpp
-)
+  )
 
 find_package(TinyXML REQUIRED)
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
-    # moveit_planners_ompl
-    moveit_ros_planning
-    geometric_shapes
-    eigen_conversions
-    rosbag
-    roscpp
+  # moveit_planners_ompl
+  moveit_ros_planning
+  geometric_shapes
+  eigen_conversions
+  rosbag
+  roscpp
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-)
+  )
+
+find_package(Doxygen QUIET)
+if (DOXYGEN_FOUND)
+  set(DOXYFILE "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in")
+  set(DOXYGEN_SOURCE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include")
+  set(DOXYGEN_HTML_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/html)
+  set(DOXYGEN_CATKIN_DOC_DIR "${CATKIN_DEVEL_PREFIX}/share/${PROJECT_NAME}/doc")
+
+  file(MAKE_DIRECTORY ${DOXYGEN_CATKIN_DOC_DIR})
+
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+  # add a target to generate API documentation with Doxygen
+  add_custom_target(doc ALL
+    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${DOXYGEN_CATKIN_DOC_DIR}
+    )
+
+  install(DIRECTORY ${DOXYGEN_CATKIN_DOC_DIR} DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+else()
+  message("Unable to find Doxygen. API Documentation will not be generated")
+endif()
+
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
@@ -59,7 +82,7 @@ add_library(${LIBRARY_NAME}
   src/yaml.cpp
   src/detail/r2.cpp
   src/detail/ur5.cpp
-)
+  )
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)

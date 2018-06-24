@@ -31,3 +31,6 @@
 *.out
 *.app
 core
+
+# Compile Commands
+*compile_commands.json

@@ -6,10 +6,6 @@
 
 using namespace robowflex;
 
-Benchmarker::Benchmarker()
-{
-}
-
 void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr &scene,
                                          const PlannerPtr &planner, const MotionRequestBuilderPtr &request)
 {
@@ -66,13 +62,13 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
     const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
-    if (options.run_metric_bits & RunMetricBits::WAYPOINTS)
+    if (options.options & MetricOptions::WAYPOINTS)
         metrics.metrics["waypoints"] = (int)p.getWayPointCount();
 
-    if (options.run_metric_bits & RunMetricBits::PATH)
+    if (options.options & MetricOptions::PATH)
         p.getRobotTrajectoryMsg(metrics.path);
 
-    if (options.run_metric_bits & RunMetricBits::LENGTH)
+    if (options.options & MetricOptions::LENGTH)
     {
         double length = 0.0;
         // compute path length
@@ -83,7 +79,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     }
 
     // compute correctness and clearance
-    if (options.run_metric_bits & (RunMetricBits::CORRECT | RunMetricBits::CLEARANCE))
+    if (options.options & (MetricOptions::CORRECT | MetricOptions::CLEARANCE))
     {
         bool correct = true;
         double clearance = 0.0;
@@ -91,7 +87,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         collision_detection::CollisionRequest request;
         for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
         {
-            if (options.run_metric_bits & RunMetricBits::CORRECT)
+            if (options.options & MetricOptions::CORRECT)
             {
                 collision_detection::CollisionResult result;
                 s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
@@ -103,7 +99,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
                     correct = false;
             }
 
-            if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+            if (options.options & MetricOptions::CLEARANCE)
             {
                 double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
                 if (d > 0.0)  // in case of collision, distance is negative
@@ -111,17 +107,17 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
             }
         }
 
-        if (options.run_metric_bits & RunMetricBits::CORRECT)
+        if (options.options & MetricOptions::CORRECT)
             metrics.metrics["correct"] = correct;
 
-        if (options.run_metric_bits & RunMetricBits::CLEARANCE)
+        if (options.options & MetricOptions::CLEARANCE)
         {
             clearance /= (double)p.getWayPointCount();
             metrics.metrics["clearance"] = clearance;
         }
     }
 
-    if (options.run_metric_bits & RunMetricBits::SMOOTHNESS)
+    if (options.options & MetricOptions::SMOOTHNESS)
     {
         double smoothness = 0.0;
 
@@ -210,7 +206,7 @@ JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
 
 void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
-    if (!(results.options.run_metric_bits & Benchmarker::RunMetricBits::PATH))
+    if (!(results.options.options & Benchmarker::MetricOptions::PATH))
     {
         ROS_WARN("These results did not save the path according to the options. Skipping.");
         return;
@@ -219,6 +215,11 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
 
     for (Benchmarker::Results::Run run : results.runs)
         bag_.addMessage(name, run.path);
+}
+
+OMPLBenchmarkOutputter::~OMPLBenchmarkOutputter()
+{
+    IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
 }
 
 void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
