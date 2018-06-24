@@ -37,18 +37,27 @@ int main(int argc, char **argv)
     auto job2 = planner->submit(scene, request.getRequest());
     auto job3 = planner->submit(scene, request.getRequest());
     auto job4 = planner->submit(scene, request.getRequest());
+    auto job5 = planner->submit(scene, request.getRequest());
+    auto job6 = planner->submit(scene, request.getRequest());
+    auto job7 = planner->submit(scene, request.getRequest());
+    auto job8 = planner->submit(scene, request.getRequest());
 
-    // Wait for jobs to complete
-    // job1.wait();
-    // job2.wait();
-    // job3.wait();
-    // job4.wait();
+    // Wait for a job to complete
+    job1->wait();
+
+    // Cancel a job (if already running, nothing happens, but if canceled before execution the job is skipped)
+    job5->cancel();
 
     // Get results of plans. These block until results are available.
     planning_interface::MotionPlanResponse res1 = job1->get();
     planning_interface::MotionPlanResponse res2 = job2->get();
     planning_interface::MotionPlanResponse res3 = job3->get();
     planning_interface::MotionPlanResponse res4 = job4->get();
+    // We cancled job5, so no result is guarenteed.
+    // planning_interface::MotionPlanResponse res5 = job5->get();
+    planning_interface::MotionPlanResponse res6 = job6->get();
+    planning_interface::MotionPlanResponse res7 = job7->get();
+    planning_interface::MotionPlanResponse res8 = job8->get();
 
     return 0;
 }

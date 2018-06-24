@@ -15,6 +15,8 @@ namespace robowflex
      * TODO: Investigate other APIs for the submit() function in robowflex::Pool.
      */
 
+    /** \cond IGNORE */
+
     template <typename T>
     struct function_traits : public function_traits<decltype(&T::operator())>
     {
@@ -28,7 +30,7 @@ namespace robowflex
         {
             arity = sizeof...(Args)
         };
-        typedef function<RT(Args...)> f_type;
+        typedef std::function<RT(Args...)> f_type;
     };
 
     // for pointers to member function
@@ -39,7 +41,7 @@ namespace robowflex
         {
             arity = sizeof...(Args)
         };
-        typedef function<RT(Args...)> f_type;
+        typedef std::function<RT(Args...)> f_type;
     };
 
     // for function pointers
@@ -50,14 +52,9 @@ namespace robowflex
         {
             arity = sizeof...(Args)
         };
-        typedef function<RT(Args...)> f_type;
+        typedef std::function<RT(Args...)> f_type;
     };
 
-    template <typename L>
-    static typename function_traits<L>::f_type make_function(L l)
-    {
-        return (typename function_traits<L>::f_type)(l);
-    }
     template <typename L>
     static typename function_traits<L>::f_type make_function(L l)
     {
@@ -84,6 +81,8 @@ namespace robowflex
     {
         return {p};
     }
+
+    /* \endcond */
 
     /** \brief A thread pool that can execute arbitrary functions asynchronously.
      *  Functions with arguments to be executed are put in the queue through submit(). This returns a
