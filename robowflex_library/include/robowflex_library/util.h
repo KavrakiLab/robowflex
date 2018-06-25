@@ -102,7 +102,7 @@ namespace robowflex
          */
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
-        /** \brief Creates a file and opens an output stream.
+        /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
          *  \param[in] file File to create and open.
          */
@@ -118,6 +118,13 @@ namespace robowflex
          */
         boost::posix_time::ptime getDate();
 
+        /** \brief Write the contents of a YAML node out to a potentially new file.
+         *  \param[in] node Node to write.
+         *  \param[in] file Filename to open.
+         *  \return True on success, false otherwise.
+         */
+        bool YAMLtoFile(const YAML::Node &node, const std::string &file);
+
         /** \brief Dump a message (or YAML convertable object) to a file.
          *  \param[in] msg Message to dump.
          *  \param[in] file File to dump message to.
@@ -129,14 +136,7 @@ namespace robowflex
             YAML::Node yaml;
             yaml = msg;
 
-            YAML::Emitter out;
-            out << yaml;
-
-            std::ofstream fout(file);
-            fout << out.c_str();
-            fout.close();
-
-            return true;
+            return YAMLtoFile(yaml, file);
         }
 
         /** \brief Load a message (or YAML convertable object) from a file.

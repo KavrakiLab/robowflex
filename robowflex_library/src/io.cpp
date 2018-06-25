@@ -73,7 +73,6 @@ namespace
         return isSuffix("xacro", extension);
     }
 
-
 }  // namespace
 
 const std::string IO::resolvePackage(const std::string &path)
@@ -205,6 +204,20 @@ const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
     }
 }
 
+bool IO::YAMLtoFile(const YAML::Node &node, const std::string &file)
+{
+    YAML::Emitter out;
+    out << node;
+
+    std::ofstream fout;
+    IO::createFile(fout, file);
+
+    fout << out.c_str();
+    fout.close();
+
+    return true;
+}
+
 namespace
 {
     class XmlRpcValueCreator : public XmlRpc::XmlRpcValue
@@ -308,7 +321,7 @@ IO::Handler::Handler(const std::string &name)
 }
 
 IO::Handler::Handler(const IO::Handler &handler, const std::string &name)
-    : name_(handler.getName()), namespace_(handler.getNamespace()), nh_(handler.getHandle(), name)
+  : name_(handler.getName()), namespace_(handler.getNamespace()), nh_(handler.getHandle(), name)
 {
 }
 

@@ -199,3 +199,46 @@ bool Robot::inCollision(const SceneConstPtr &scene) const
 
     return result.collision;
 }
+
+bool Robot::dumpGeometry(const std::string &filename) const
+{
+    YAML::Node node;
+    const auto &urdf = model_->getURDF();
+
+    std::vector<urdf::LinkSharedPtr> links;
+    urdf->getLinks(links);
+
+    for (const auto &link : links)
+    {
+        if (link->visual && link->visual->geometry)
+        {
+            const auto &geometry = link->visual->geometry;
+            if (geometry->type == urdf::Geometry::MESH)
+            {
+                const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
+                node[link->name] = IO::resolvePath(mesh->filename);
+            }
+        }
+    }
+
+    return IO::YAMLtoFile(node, filename);
+}
+
+bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename)
+{
+    YAML::Node node;
+    for (std::size_t k = 0; k < path.getWayPointCount(); ++k)
+    {
+        YAML::Node point;
+        const auto &state = path.getWayPoint(k);
+        for (const auto &link_name : model_->getLinkModelNames())
+            point[link_name] = TF::poseEigenToMsg(state.getGlobalLinkTransform(link_name));
+
+        YAML::Node value;
+        value["point"] = point;
+        value["duration"] = path.getWayPointDurationFromStart(k);
+        node.push_back(value);
+    }
+
+    return IO::YAMLtoFile(node, filename);
+}

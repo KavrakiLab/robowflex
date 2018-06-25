@@ -189,6 +189,24 @@ namespace robowflex
 
         /** \} */
 
+        /** \name IO
+            \{ */
+
+        /** \brief Dumps the names of links and absolute paths to their visual mesh files to a YAML file.
+         *  \param[in] file File to save to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpGeometry(const std::string &file) const;
+
+        /** \brief Dumps a the tranforms of all links of a robot through a robot trajectory to a file.
+         *  \param[in] path Path to output.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename);
+
+        /** \} */
+
     protected:
         /** \brief Loads robot description files to parameter server.
          *  All files are loaded under the robot's namespace.
