@@ -201,9 +201,10 @@ namespace robowflex
         /** \brief Dumps a the tranforms of all links of a robot through a robot trajectory to a file.
          *  \param[in] path Path to output.
          *  \param[in] filename Filename to output to.
+         *  \param[in] fps The transforms (frames) per second used to interpolate the given path.
          *  \return True on success, false on failure.
          */
-        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename);
+        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps=30);
 
         /** \} */
 

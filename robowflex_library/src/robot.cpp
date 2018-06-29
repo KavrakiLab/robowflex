@@ -1,5 +1,7 @@
 #include <robowflex_library/robowflex.h>
 #include <moveit/robot_state/robot_state.h>
+#include <deque>
+#include <numeric>
 
 using namespace robowflex;
 
@@ -224,21 +226,31 @@ bool Robot::dumpGeometry(const std::string &filename) const
     return IO::YAMLtoFile(node, filename);
 }
 
-bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename)
+bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps)
 {
     YAML::Node node;
-    for (std::size_t k = 0; k < path.getWayPointCount(); ++k)
+    node["fps"] = fps;
+    YAML::Node values;
+
+    // Find the total duration of the path.
+    const std::deque<double> &durations = path.getWayPointDurations();
+    double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
+
+    for (double duration = 0.0; duration < total_duration; duration += (1.0 / fps))
     {
         YAML::Node point;
-        const auto &state = path.getWayPoint(k);
+        robot_state::RobotStatePtr state = std::make_shared<robot_state::RobotState>(model_);
+        path.getStateAtDurationFromStart(duration, state);
         for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = TF::poseEigenToMsg(state.getGlobalLinkTransform(link_name));
-
+            point[link_name] = TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name));
+        
         YAML::Node value;
         value["point"] = point;
-        value["duration"] = path.getWayPointDurationFromStart(k);
-        node.push_back(value);
+        value["duration"] = 1.0 / fps;
+        values.push_back(value);
     }
+
+    node["transforms"] = values;
 
     return IO::YAMLtoFile(node, filename);
 }
