@@ -138,10 +138,14 @@ bool Scene::fromYAMLFile(const std::string &file)
     return true;
 }
 
-bool Scene::fromOpenRAVEXMLFile(const std::string &file)
+bool Scene::fromOpenRAVEXMLFile(const std::string &file, std::string models_dir)
 {
+    if (models_dir == "")
+    {
+        models_dir = IO::resolveParent(file);
+    }
     moveit_msgs::PlanningScene msg;
-    if (!openrave::fromXMLFile(msg, file))
+    if (!openrave::fromXMLFile(msg, file, models_dir))
         return false;
 
     scene_->usePlanningSceneMsg(msg);

@@ -161,6 +161,12 @@ namespace robowflex
          */
         const std::string resolvePackage(const std::string &path);
 
+        /** \brief Resolves `package://` URLs to get the directory this path is in.
+         *  \param[in] path Path to get the parent of.
+         *  \return The directory that this path is contained in, or "" on failure.
+         */
+        const std::string resolveParent(const std::string &path);
+
         /** \brief Resolves `package://` URLs and relative file paths to their canonical form.
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.

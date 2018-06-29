@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     );
 
     auto scene = std::make_shared<Scene>(wam7);
-    scene->fromOpenRAVEXMLFile("package://OptPlanners_OpenRAVE/scripts/data/envs/wam7_table_andrewshelf.env.xml");
+    scene->fromOpenRAVEXMLFile("package://optplanners_openrave/scripts/data/envs/wam7_realistic.env.xml");
 
     auto planner = std::make_shared<OMPL::OMPLPipelinePlanner>(wam7);
     planner->initialize("package://barrett_wam_moveit_config/config/ompl_planning.yaml"  // planner config

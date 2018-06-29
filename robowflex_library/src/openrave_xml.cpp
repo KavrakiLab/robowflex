@@ -76,19 +76,16 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
     if (filename)
     {
         // We need to read in another file to get the actual info.
-        // Hardcode the directory at the moment.
-        std::string fullPath = std::string("/home/brycew/moveit_ws/src/OptPlanners_OpenRAVE/scripts/data/envs/") +
-                               std::string(filename);
+        std::string fullPath = load_struct.directory_stack.top() + "/" + std::string(filename);
         TiXmlDocument doc(fullPath.c_str());
         if (!doc.LoadFile())
         {
-            ROS_ERROR("Cannot load file %s", filename);
+            ROS_ERROR("Cannot load file %s", fullPath.c_str());
             return false;
         }
         TiXmlHandle hDoc(&doc);
-        parse_kinbody(load_struct, hDoc.FirstChildElement("KinBody").Element(), tf * this_tf, planning_scene);
-
-        return true;
+        load_struct.directory_stack.push(robowflex::IO::resolveParent(fullPath));
+        return parse_kinbody(load_struct, hDoc.FirstChildElement("KinBody").Element(), tf * this_tf, planning_scene);
     }
 
     TiXmlElement *bodyElem = hElem.FirstChild().Element();
@@ -129,15 +126,32 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
             if (geom_str == "trimesh")
             {
                 // Set resource
-                // TODO
+                Eigen::Vector3d dimensions{1, 1, 1};
 
-                //dimensions_ = Eigen::Vector3d(1.0, 1.0, 1.0);
+                TiXmlElement *data = hGeom.FirstChild("Data").Element();
+                std::string resourcePath;
+                if (data)
+                {
+                    resourcePath = load_struct.directory_stack.top() + "/" + std::string(data->GetText());
+                }
+                else {
+                    TiXmlElement *render = hGeom.FirstChild("Render").Element();
+                    if (render)
+                    {
+                        resourcePath = load_struct.directory_stack.top() + "/" + std::string(data->GetText());
+                    }
+                    else
+                    {
+                        ROS_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
+                        return false;
+                    }
+                }
+                robowflex::Geometry mesh(robowflex::Geometry::ShapeType::Type::MESH, dimensions, resourcePath);
 
                 ROS_INFO("Setting mesh");
+                coll_obj.meshes.push_back(mesh.getMeshMsg());
                 coll_obj.mesh_poses.push_back(pose_msg);
             }
-
-            //Geometry::ShapeType::Type type = Geometry::ShapeType::toType(geom_type);
 
             ROS_INFO("Type: %s", geom_str.c_str());
             if (geom_str == "box")
@@ -163,12 +177,14 @@ bool parse_kinbody(LoadIntoMoveIt& load_struct, TiXmlElement *elem, Eigen::Affin
             planning_scene.world.collision_objects.push_back(coll_obj);
         }
     }
+    load_struct.directory_stack.pop();
     return true;
 }
 
-bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std::string &file)
+bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std::string &file, const std::string &model_dir)
 {
     LoadIntoMoveIt load_struct;
+    load_struct.directory_stack.push(model_dir);
     // Hardcoded offset on WAM (see wam7.kinbody.xml)
     Eigen::Affine3d tf;
     tf.translation() = Eigen::Vector3d(0.0, 0.0, -0.346);
