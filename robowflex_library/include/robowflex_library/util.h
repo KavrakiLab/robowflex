@@ -3,10 +3,6 @@
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 
-#include <thread>
-#include <future>
-#include <functional>
-
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/date_time.hpp>
@@ -48,97 +44,6 @@ namespace robowflex
     protected:
         const int value_;            ///< Error code.
         const std::string message_;  ///< Error message.
-    };
-
-    /** \brief A thread pool that can execute arbitrary functions that return a return type \a RT.
-     *  Functions executed are blocking, but are executed asynchronously so many threads can call process()
-     *  simultaneously.
-     *  \tparam RT Return type of functions to execute.
-     */
-    template <typename RT>
-    class Pool
-    {
-    public:
-        /** \brief Constructor.
-         *  \param[in] n Number of threads to spin up.
-         */
-        Pool(unsigned int n)
-        {
-            active_ = true;
-
-            for (unsigned int i = 0; i < n; ++i)
-                threads_.emplace_back(std::bind(&Pool::run, this));
-        }
-
-        /** \brief Destructor.
-         *  Cancels all threads and joins them.
-         */
-        ~Pool()
-        {
-            active_ = false;
-            cv_.notify_all();
-
-            for (unsigned int i = 0; i < threads_.size(); ++i)
-                threads_[i].join();
-        }
-
-        /** \brief Get the number of threads.
-         *  \return The number of threads.
-         */
-        unsigned int getThreadCount() const
-        {
-            return threads_.size();
-        }
-
-        /** \brief Process a function that returns \a RT
-         *  Blocks until result is available.
-         *  \param[in] function Function to execute.
-         *  \return Result of \a function, of type \a RT.
-         */
-        RT process(std::function<RT()> function) const
-        {
-            std::packaged_task<RT()> task(function);
-            std::future<RT> future = task.get_future();
-
-            std::unique_lock<std::mutex> lock(mutex_);
-
-            jobs_.emplace(task);
-
-            cv_.notify_one();
-            lock.unlock();
-
-            return future.get();
-        }
-
-        /** \brief Background thread process.
-         *  Executes jobs submitted from process().
-         */
-        void run()
-        {
-            while (active_)
-            {
-                std::unique_lock<std::mutex> lock(mutex_);
-                cv_.wait(lock, [&] { return (active_ && !jobs_.empty()) || !active_; });
-
-                if (!active_)
-                    break;
-
-                auto job = jobs_.front();
-                jobs_.pop();
-
-                lock.unlock();
-
-                job();
-            }
-        }
-
-    private:
-        bool active_{false};                  ///< Is thread pool active?
-        mutable std::mutex mutex_;            ///< Job queue mutex.
-        mutable std::condition_variable cv_;  ///< Job queue condition variable.
-
-        std::vector<std::thread> threads_;                                           ///< Threads.
-        mutable std::queue<std::reference_wrapper<std::packaged_task<RT()>>> jobs_;  ///< Jobs.
     };
 
     /** \brief Start-up ROS.
@@ -203,7 +108,7 @@ namespace robowflex
          */
         const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
-        /** \brief Creates a file and opens an output stream.
+        /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
          *  \param[in] file File to create and open.
          */
@@ -219,6 +124,13 @@ namespace robowflex
          */
         boost::posix_time::ptime getDate();
 
+        /** \brief Write the contents of a YAML node out to a potentially new file.
+         *  \param[in] node Node to write.
+         *  \param[in] file Filename to open.
+         *  \return True on success, false otherwise.
+         */
+        bool YAMLtoFile(const YAML::Node &node, const std::string &file);
+
         /** \brief Dump a message (or YAML convertable object) to a file.
          *  \param[in] msg Message to dump.
          *  \param[in] file File to dump message to.
@@ -230,14 +142,7 @@ namespace robowflex
             YAML::Node yaml;
             yaml = msg;
 
-            YAML::Emitter out;
-            out << yaml;
-
-            std::ofstream fout(file);
-            fout << out.c_str();
-            fout.close();
-
-            return true;
+            return YAMLtoFile(yaml, file);
         }
 
         /** \brief Load a message (or YAML convertable object) from a file.
