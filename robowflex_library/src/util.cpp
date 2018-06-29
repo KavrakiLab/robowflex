@@ -53,6 +53,8 @@ namespace
             roscore_init = true;
 #endif
         }
+
+        ros::start();
     }
 }  // namespace
 

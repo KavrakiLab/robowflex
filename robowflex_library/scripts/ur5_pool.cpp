@@ -27,7 +27,7 @@ int main(int argc, char **argv)
                           orn, {0.01, 0.01, 0.01}                                     // orientation
     );
 
-    // Submit a blocking call for planning.
+    // Submit a blocking call for planning. This plan is executed in a different thread
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
@@ -42,19 +42,21 @@ int main(int argc, char **argv)
     auto job7 = planner->submit(scene, request.getRequest());
     auto job8 = planner->submit(scene, request.getRequest());
 
-    // Wait for a job to complete
-    job1->wait();
-
     // Cancel a job (if already running, nothing happens, but if canceled before execution the job is skipped)
     job5->cancel();
+
+    // Wait for a job to complete
+    job1->wait();
 
     // Get results of plans. These block until results are available.
     planning_interface::MotionPlanResponse res1 = job1->get();
     planning_interface::MotionPlanResponse res2 = job2->get();
     planning_interface::MotionPlanResponse res3 = job3->get();
     planning_interface::MotionPlanResponse res4 = job4->get();
-    // We cancled job5, so no result is guarenteed.
+
+    // We canceled job5, so no result is guaranteed.
     // planning_interface::MotionPlanResponse res5 = job5->get();
+
     planning_interface::MotionPlanResponse res6 = job6->get();
     planning_interface::MotionPlanResponse res7 = job7->get();
     planning_interface::MotionPlanResponse res8 = job8->get();
