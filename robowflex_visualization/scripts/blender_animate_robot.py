@@ -152,7 +152,7 @@ class RobotFrames(object):
         # Iterate through frames from end to start
         return len(self.points) - 1
 
-def animate_robot(mesh_map_file, path_file, scene_file=None):
+def animate_robot(mesh_map_file, path_file):
     '''
     Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms,
     load the robot into blender and animate its path.
@@ -170,8 +170,7 @@ def animate_robot(mesh_map_file, path_file, scene_file=None):
     robot_frames.animate(fps=30)
 
     # TODO: Load scene from yaml.
-    if scene_file is not None:
-        
+    
     # TODO: auto-adjust the camera position until the full motion lies within
     # the frame? Will need to get bounding box of the entire motion, then
     # project back to the active camera.
