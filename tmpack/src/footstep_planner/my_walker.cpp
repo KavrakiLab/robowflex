@@ -146,8 +146,8 @@ namespace robowflex
             double rand_x, rand_y;
             rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
             rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
-            // rand_x = 4.03932;
-            // rand_y = 46.1757;
+            rand_x = 65.2039;
+            rand_y = 5.8249;
             
             foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
                                                           footstep_planning::foot::left);

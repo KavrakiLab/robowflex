@@ -60,10 +60,45 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
             set = true;
         }
 
-        moveit_msgs::RobotTrajectory msg;
-        response.trajectory_->getRobotTrajectoryMsg(msg);
+        if(response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+            moveit_msgs::RobotTrajectory msg;
+            response.trajectory_->getRobotTrajectoryMsg(msg);
+            out.trajectory.push_back(msg);
+        }
+        else {
+            moveit_msgs::RobotTrajectory msg;
+            //response.trajectory_->getRobotTrajectoryMsg(msg);
+            //Not sure what to do for a failed motion
+            //Use a marker to indicate the final goal?
+            visualization_msgs::Marker marker;
+            marker.header.frame_id = "goal_marker";
+            marker.header.stamp = ros::Time();
+            marker.ns = "my_namespace";
+            marker.id = 97;
+            marker.type = visualization_msgs::Marker::SPHERE;
+            marker.action = visualization_msgs::Marker::ADD;
+            marker.pose.position.x = 0;
+            marker.pose.position.y = 0;
+            marker.pose.position.z = 0;
+            marker.pose.orientation.x = 0.0;
+            marker.pose.orientation.y = 0.0;
+            marker.pose.orientation.z = 0.0;
+            marker.pose.orientation.w = 1.0;
+            marker.scale.x = 10;
+            marker.scale.y = 10.1;
+            marker.scale.z = 10.1;
+            marker.color.a = 1.0; // Don't forget to set the alpha!
+            marker.color.r = 0.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
 
-        out.trajectory.push_back(msg);
+            visualization_msgs::MarkerArray arr;
+            arr.markers.push_back(marker);
+            marker_pub_.publish(arr); 
+
+            //out.trajectory.push_back(msg);
+        }
+
     }
 
     trajectory_pub_.publish(out);
@@ -76,21 +111,21 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
 
 void IO::RVIZHelper::updateMarkers()
 {
-    // visualization_msgs::MarkerArray msg;
+    visualization_msgs::MarkerArray msg;
 
-    // std::vector<std::string> remove;
-    // for (auto &marker : markers_)
-    // {
-    //     msg.markers.push_back(marker.second);
+    std::vector<std::string> remove;
+    for (auto &marker : markers_)
+    {
+        msg.markers.push_back(marker.second);
 
-    //     if (marker.second.action == visualization_msgs::Marker::ADD)
-    //         marker.second.action = visualization_msgs::Marker::MODIFY;
-    //     else if (marker.second.action == visualization_msgs::Marker::DELETE)
-    //         remove.push_back(marker.first);
-    // }
+        if (marker.second.action == visualization_msgs::Marker::ADD)
+            marker.second.action = visualization_msgs::Marker::MODIFY;
+        else if (marker.second.action == visualization_msgs::Marker::DELETE)
+            remove.push_back(marker.first);
+    }
 
-    // marker_pub_.publish(msg);
+    marker_pub_.publish(msg);
 
-    // for (auto &marker : remove)
-    //     markers_.erase(markers_.find(marker));
+    for (auto &marker : remove)
+        markers_.erase(markers_.find(marker));
 }

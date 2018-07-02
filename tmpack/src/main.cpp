@@ -1,11 +1,12 @@
 #include "footstep_planner/my_walker.cpp"
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/detail/r2.h>
+#include <robowflex_library/io/visualization.h>
 #include <ros/ros.h>
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 100
+#define NUM_ITERATIONS 1
 // #define START_POSE                                                                                                     \
 //     {                                                                                                                  \
 //         -0.030580680548965233, 0.05347800856425433, 0.015236617202923242, 1.6048735607571416, -0.08929297054119978,    \
@@ -67,10 +68,10 @@ int main(int argc, char **argv)
     tmp.insert(tmp.end(), start_joint_positions.begin(), start_joint_positions.end());
     start_joint_positions = tmp;
 
-    robowflex::IO::RVIZHelper rviz;
+    IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
     //rviz.updateScene(scene);
-    //int a;
-    //std::cin >> a;
+    int a;
+    std::cin >> a;
     for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
@@ -81,15 +82,21 @@ int main(int argc, char **argv)
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
         if (res.back().error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
-            //rviz.updateTrajectory(res[0]);
             success_count++;
         }
+
+        rviz.updateTrajectories(res);
+        rviz.updateMarkers();
+
         time_spent += (ros::Time::now().nsec - begin);
-        //std::cin >> a;
     }
+
+    while(true)
+        ros::spinOnce();
 
     std::cout << "Time spent: " << time_spent << std::endl;
     std::cout << "Number of runs: " << count << std::endl;
     std::cout << "Number of successful runs: " << success_count << std::endl;
+
     return 0;
 }
