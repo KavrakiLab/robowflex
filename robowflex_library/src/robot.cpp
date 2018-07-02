@@ -284,7 +284,11 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
 
         YAML::Node value;
         value["point"] = point;
+#if ROBOWFLEX_AT_LEAST_KINETIC
         value["duration"] = path.getWayPointDurationFromStart(k);
+#else
+        value["duration"] = path.getWaypointDurationFromStart(k);
+#endif
         node.push_back(value);
     }
 
