@@ -5,6 +5,7 @@
 
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/collision_detection/collision_common.h>
+#include <moveit/robot_state/robot_state.h>
 
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -276,8 +277,7 @@ bool Robot::dumpGeometry(const std::string &filename) const
     return IO::YAMLtoFile(node, filename);
 }
 
-bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
-                               double fps)
+bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps)
 {
     YAML::Node node, values;
 

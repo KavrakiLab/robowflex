@@ -211,8 +211,7 @@ namespace robowflex
          *  \param[in] fps The transforms (frames) per second used to interpolate the given path.
          *  \return True on success, false on failure.
          */
-        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
-                                double fps = 30);
+        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps=30);
 
         /** \} */
 
