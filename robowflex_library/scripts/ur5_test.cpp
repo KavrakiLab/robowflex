@@ -12,8 +12,6 @@ int main(int argc, char **argv)
     auto ur5 = std::make_shared<UR5Robot>();
     ur5->initialize();
 
-    ur5->dumpGeometry("ur5.yaml");
-
     auto scene = std::make_shared<Scene>(ur5);
 
     auto default_planner = std::make_shared<OMPL::UR5OMPLPipelinePlanner>(ur5, "default");
@@ -45,8 +43,6 @@ int main(int argc, char **argv)
         planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
         if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             return 1;
-
-        ur5->dumpPathTransforms(*res.trajectory_, "ur5_path.yaml");
     }
 
     return 0;

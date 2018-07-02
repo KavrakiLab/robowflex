@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -141,13 +141,14 @@ bool Scene::toYAMLFile(const std::string &file)
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
 
-    return IO::messageToYAMLFile(msg, file);
+    YAML::Node node = IO::toNode(msg);
+    return IO::YAMLtoFile(node, file);
 }
 
 bool Scene::fromYAMLFile(const std::string &file)
 {
     moveit_msgs::PlanningScene msg;
-    if (!IO::YAMLFileToMessage(msg, file))
+    if (!IO::fromYAMLFile(msg, file))
         return false;
 
     scene_->setPlanningSceneMsg(msg);

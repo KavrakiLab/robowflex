@@ -76,6 +76,7 @@ add_library(${LIBRARY_NAME}
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/io/visualization.cpp
   src/pool.cpp
   src/tf.cpp
   src/yaml.cpp
@@ -97,6 +98,9 @@ target_link_libraries(ur5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(ur5_pool scripts/ur5_pool.cpp)
 target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_executable(ur5_visualization scripts/ur5_visualization.cpp)
+target_link_libraries(ur5_visualization ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})

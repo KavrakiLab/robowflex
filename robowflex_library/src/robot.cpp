@@ -3,11 +3,12 @@
 #include <deque>
 #include <numeric>
 
+#include <moveit/robot_state/robot_state.h>
 #include <moveit/collision_detection/collision_common.h>
 #include <moveit/robot_state/robot_state.h>
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/scene.h>
@@ -144,6 +145,11 @@ bool Robot::loadKinematics(const std::string &name)
     return true;
 }
 
+const std::string &Robot::getModelName() const
+{
+    return model_->getName();
+}
+
 const std::string &Robot::getName() const
 {
     return name_;
@@ -167,6 +173,11 @@ const robot_model::RobotStatePtr &Robot::getScratchState() const
 robot_model::RobotStatePtr &Robot::getScratchState()
 {
     return scratch_;
+}
+
+const IO::Handler &Robot::getHandlerConst() const
+{
+    return handler_;
 }
 
 IO::Handler &Robot::getHandler()
@@ -276,14 +287,17 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     const std::deque<double> &durations = path.getWayPointDurations();
     double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
 
+    robot_state::RobotStatePtr state;
+    state.reset(new robot_state::RobotState(model_));
+
     for (double duration = 0.0; duration < total_duration; duration += (1.0 / fps))
     {
         YAML::Node point;
-        robot_state::RobotStatePtr state = std::make_shared<robot_state::RobotState>(model_);
+
         path.getStateAtDurationFromStart(duration, state);
         for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name));
-        
+            point[link_name] = IO::toNode(TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name)));
+
         YAML::Node value;
         value["point"] = point;
         value["duration"] = 1.0 / fps;
