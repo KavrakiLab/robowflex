@@ -58,8 +58,6 @@ namespace robowflex
             std::vector<double> next_start_joint_positions =
                 request->getRequest().start_state.joint_state.position;
 
-            std::cout<<"Request joint state size: "<<request->getRequest().start_state.joint_state.position.size()<<std::endl;
-
             // we manually specify these because the virtual_link isn't included in the above:
             //For r2_plan.yml
             // std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
@@ -80,7 +78,7 @@ namespace robowflex
                 // }
 
                 // domain semantics can all be done here?
-                robot->setState(next_start_joint_positions);
+                //robot->setState(next_start_joint_positions);
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);

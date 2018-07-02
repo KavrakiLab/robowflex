@@ -44,7 +44,7 @@ namespace robowflex
             MyWalkerConstraintHelper(){};
             void _getTaskPlan_Callback()
             {
-                // do nothing
+                last_foot_left = true;
             }
 
             void _planLinearly_Callback(MotionRequestBuilderPtr request, const std::vector<double> &task_op,
@@ -119,6 +119,9 @@ namespace robowflex
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
+        std::uniform_real_distribution<double> uni_rnd_smpl_ = std::uniform_real_distribution<double>(-100, 100);
+        std::default_random_engine rand_eng_;
+
         // returns vector of joint poses
         // the goal is to not have to build the motion requests by hand every time
         // TMP has a common pattern of using the last goal as the new start
@@ -139,16 +142,17 @@ namespace robowflex
                 my_step_planner.calculateFootPlacements(points, points[9], points[17],
                                                           footstep_planning::foot::left);
 
-            // Benchmarking code. We'll loop through random locations and try to plan to them.
-            // TODO: Get random pose for torso, plan to it and return plan
+            // Benchmarking code. We loop through random locations and try to plan to them.
             double rand_x, rand_y;
-            std::uniform_real_distribution<double> uni_rnd_smpl(-100, 100);
-            std::default_random_engine re;
-            rand_x = uni_rnd_smpl(re) * 0.75;
-            rand_y = uni_rnd_smpl(re) * 1.5;
-
+            rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
+            rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
+            // rand_x = 4.03932;
+            // rand_y = 46.1757;
+            
             foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
                                                           footstep_planning::foot::left);
+
+            std::cout<<"Torso pose: < "<<rand_x<<", "<<rand_y<<" >"<<std::endl;
 
             std::cout<<"Foot placements: "<<std::endl;
             for(footstep_planning::point_2D p : foot_placements) {
