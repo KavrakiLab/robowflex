@@ -27,6 +27,9 @@ def resolvePackage(path):
             package_name = path[:path.find('/')]
             path = path[path.find('/'):]
         rospack = rospkg.RosPack()
-        package_path = rospack.get_path(package_name)
-    return os.path.realpath(package_path + path)
+        package_path1 = rospack.get_path(package_name)
+    else:
+        package_path1 = ''
+
+    return os.path.realpath(package_path1 + path)
         
