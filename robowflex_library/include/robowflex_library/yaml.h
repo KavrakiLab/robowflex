@@ -3,6 +3,61 @@
 #ifndef ROBOWFLEX_YAML_
 #define ROBOWFLEX_YAML_
 
+#include <ros/duration.h>
+
+#include <std_msgs/Header.h>
+#include <std_msgs/ColorRGBA.h>
+
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Transform.h>
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Wrench.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TransformStamped.h>
+
+#include <shape_msgs/SolidPrimitive.h>
+#include <shape_msgs/MeshTriangle.h>
+#include <shape_msgs/Mesh.h>
+#include <shape_msgs/Plane.h>
+
+#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/MultiDOFJointState.h>
+
+#include <octomap_msgs/Octomap.h>
+#include <octomap_msgs/OctomapWithPose.h>
+
+#include <trajectory_msgs/JointTrajectory.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+
+#include <object_recognition_msgs/ObjectType.h>
+
+#include <moveit_msgs/LinkPadding.h>
+#include <moveit_msgs/LinkScale.h>
+#include <moveit_msgs/ObjectColor.h>
+#include <moveit_msgs/RobotState.h>
+#include <moveit_msgs/WorkspaceParameters.h>
+#include <moveit_msgs/BoundingVolume.h>
+#include <moveit_msgs/JointConstraint.h>
+#include <moveit_msgs/PositionConstraint.h>
+#include <moveit_msgs/OrientationConstraint.h>
+#include <moveit_msgs/VisibilityConstraint.h>
+#include <moveit_msgs/TrajectoryConstraints.h>
+#include <moveit_msgs/Constraints.h>
+#include <moveit_msgs/CollisionObject.h>
+#include <moveit_msgs/AttachedCollisionObject.h>
+#include <moveit_msgs/AllowedCollisionEntry.h>
+#include <moveit_msgs/AllowedCollisionMatrix.h>
+#include <moveit_msgs/PlanningScene.h>
+#include <moveit_msgs/PlanningSceneWorld.h>
+#include <moveit_msgs/MotionPlanRequest.h>
+
+#include <yaml-cpp/yaml.h>
+
+#include <robowflex_library/macros.h>
+
 namespace YAML
 {
 #if ROBOWFLEX_AT_LEAST_LUNAR

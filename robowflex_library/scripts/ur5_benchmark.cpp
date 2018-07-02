@@ -1,3 +1,5 @@
+/* Author: Zachary Kingston */
+
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/detail/ur5.h>
 
@@ -26,9 +28,10 @@ int main(int argc, char **argv)
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
     Eigen::Quaterniond orn{0, 0, 1, 0};
 
-    pose_request->setGoalRegion("ee_link", "world",                                         // links
-                               pose, Geometry(Geometry::ShapeType::SPHERE, {0.01, 0, 0}),  // position
-                               orn, {0.01, 0.01, 0.01}                                     // orientation
+    auto sphere = std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d{0.01, 0, 0});
+    pose_request->setGoalRegion("ee_link", "world",      // links
+                                pose, sphere,            // position
+                                orn, {0.01, 0.01, 0.01}  // orientation
     );
 
     Benchmarker benchmark;

@@ -68,13 +68,16 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${B
 link_directories(${catkin_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME}
-  src/planner.cpp
+  src/planning.cpp
+  src/builder.cpp
   src/scene.cpp
   src/robot.cpp
   src/geometry.cpp
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/pool.cpp
+  src/tf.cpp
   src/yaml.cpp
   src/detail/r2.cpp
   src/detail/ur5.cpp

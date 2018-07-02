@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <string>
 
-#include <robowflex_library/robowflex.h>
-
-using namespace robowflex;
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/yaml.h>
 
 #if ROBOWFLEX_AT_LEAST_LUNAR
 #define ROBOWFLEX_YAML_FLOW(n) n.SetStyle(YAML::EmitterStyle::Flow);
@@ -1173,7 +1172,7 @@ namespace YAML
                 dimensions = load;
             }
 
-            robowflex::Geometry mesh(Geometry::ShapeType::Type::MESH, dimensions, resource);
+            robowflex::Geometry mesh(robowflex::Geometry::ShapeType::Type::MESH, dimensions, resource);
             rhs = mesh.getMeshMsg();
         }
         else
