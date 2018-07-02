@@ -68,7 +68,7 @@ namespace robowflex
              *  \tparam T Type of the \a value.
              */
             template <typename T>
-            bool getParam(const std::string &key, const T &value)
+            bool getParam(const std::string &key, T &value) const
             {
                 return nh_.getParam(key, value);
             }

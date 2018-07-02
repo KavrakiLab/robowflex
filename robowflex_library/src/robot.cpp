@@ -3,7 +3,7 @@
 #include <moveit/collision_detection/collision_common.h>
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/scene.h>
@@ -140,6 +140,11 @@ bool Robot::loadKinematics(const std::string &name)
     return true;
 }
 
+const std::string &Robot::getModelName() const
+{
+    return model_->getName();
+}
+
 const std::string &Robot::getName() const
 {
     return name_;
@@ -163,6 +168,11 @@ const robot_model::RobotStatePtr &Robot::getScratchState() const
 robot_model::RobotStatePtr &Robot::getScratchState()
 {
     return scratch_;
+}
+
+const IO::Handler &Robot::getHandlerConst() const
+{
+    return handler_;
 }
 
 IO::Handler &Robot::getHandler()
@@ -270,7 +280,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
         YAML::Node point;
         const auto &state = path.getWayPoint(k);
         for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = TF::poseEigenToMsg(state.getGlobalLinkTransform(link_name));
+            point[link_name] = IO::toNode(TF::poseEigenToMsg(state.getGlobalLinkTransform(link_name)));
 
         YAML::Node value;
         value["point"] = point;

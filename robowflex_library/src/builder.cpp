@@ -6,7 +6,7 @@
 #include <moveit_msgs/MoveItErrorCodes.h>
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
@@ -164,10 +164,10 @@ robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 {
-    return IO::messageToYAMLFile(request_, file);
+    return IO::YAMLtoFile(IO::toNode(request_), file);
 }
 
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
-    return IO::YAMLFileToMessage(request_, file);
+    return IO::fromYAMLFile(request_, file);
 }

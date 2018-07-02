@@ -7,7 +7,7 @@
 #include <moveit/collision_detection/collision_common.h>
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/benchmarking.h>
@@ -323,8 +323,8 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
     YAML::Node yaml;
-    yaml["scene"] = scene_msg;
-    yaml["request"] = request;
+    yaml["scene"] = IO::toNode(scene_msg);
+    yaml["request"] = IO::toNode(request);
 
     YAML::Emitter yaml_out;
     yaml_out << yaml;

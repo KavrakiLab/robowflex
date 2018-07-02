@@ -1,9 +1,13 @@
+/* Author: Zachary Kingston */
+
 #include <cstdint>
 
 #include <algorithm>
 #include <string>
 
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
 
 #if ROBOWFLEX_AT_LEAST_LUNAR
@@ -1589,3 +1593,40 @@ namespace YAML
         return true;
     }
 }  // namespace YAML
+
+namespace robowflex
+{
+    namespace IO
+    {
+        YAML::Node toNode(const geometry_msgs::Pose &msg)
+        {
+            YAML::Node node;
+            node = msg;
+            return node;
+        }
+
+        YAML::Node toNode(const moveit_msgs::PlanningScene &msg)
+        {
+            YAML::Node node;
+            node = msg;
+            return node;
+        }
+
+        YAML::Node toNode(const moveit_msgs::MotionPlanRequest &msg)
+        {
+            YAML::Node node;
+            node = msg;
+            return node;
+        }
+
+        bool fromYAMLFile(moveit_msgs::PlanningScene &msg, const std::string &file)
+        {
+            return IO::YAMLFileToMessage(msg, file);
+        }
+
+        bool fromYAMLFile(moveit_msgs::MotionPlanRequest &msg, const std::string &file)
+        {
+            return IO::YAMLFileToMessage(msg, file);
+        }
+    }  // namespace IO
+}  // namespace robowflex

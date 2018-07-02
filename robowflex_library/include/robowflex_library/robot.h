@@ -40,6 +40,11 @@ namespace robowflex
     class Robot
     {
     public:
+        static const std::string ROBOT_DESCRIPTION;  ///< Default robot description name.
+        static const std::string ROBOT_SEMANTIC;     ///< Default robot semantic description suffix.
+        static const std::string ROBOT_PLANNING;     ///< Default robot planning description suffix.
+        static const std::string ROBOT_KINEMATICS;   ///< Default robot kinematics description suffix.
+
         /** \brief Constructor.
          *  \param[in] name The name of the robot. Used to namespace information under.
          */
@@ -88,6 +93,11 @@ namespace robowflex
         /** \name Getters and Setters
             \{ */
 
+        /** \brief Get the robot's model name.
+         *  \return The robot's model name.
+         */
+        const std::string &getModelName() const;
+
         /** \brief Get the robot's name.
          *  \return The robot's name.
          */
@@ -112,6 +122,11 @@ namespace robowflex
          *  \return The scratch robot state.
          */
         robot_model::RobotStatePtr &getScratchState();
+
+        /** \brief Get the underlying IO handler used for this robot.
+         *  \return A reference to the IO handler.
+         */
+        const IO::Handler &getHandlerConst() const;
 
         /** \brief Get the underlying IO handler used for this robot.
          *  \return A reference to the IO handler.
@@ -224,12 +239,6 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
-
-    private:
-        static const std::string ROBOT_DESCRIPTION;  ///< Default robot description name.
-        static const std::string ROBOT_SEMANTIC;     ///< Default robot semantic description suffix.
-        static const std::string ROBOT_PLANNING;     ///< Default robot planning description suffix.
-        static const std::string ROBOT_KINEMATICS;   ///< Default robot kinematics description suffix.
     };
 }  // namespace robowflex
 
