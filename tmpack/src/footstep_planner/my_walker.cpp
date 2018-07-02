@@ -85,7 +85,7 @@ namespace robowflex
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
 
                 request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
-                                              Geometry(Geometry::ShapeType::SPHERE,
+                                              std::make_shared<Geometry>(Geometry::ShapeType::SPHERE,
                                                        Eigen::Vector3d(0.1, 0.1, 0.1),
                                                        "my_sphere_for_constraint_2"),
                                               tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
@@ -93,7 +93,7 @@ namespace robowflex
                 request->setGoalRegion(
                     moving_tip_name, "world",
                     Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
-                    Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
+                    std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
                              "my_sphere_for_constraint_1"),
                     Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d(0.01, 0.01, 0.01));
 
