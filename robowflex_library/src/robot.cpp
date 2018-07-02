@@ -279,17 +279,13 @@ bool Robot::dumpGeometry(const std::string &filename) const
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                double fps)
 {
-    YAML::Node node;
-    node["fps"] = fps;
-    YAML::Node values;
+    YAML::Node node, values;
 
     // Find the total duration of the path.
     const std::deque<double> &durations = path.getWayPointDurations();
     double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
 
-    robot_state::RobotStatePtr state;
-    state.reset(new robot_state::RobotState(model_));
-
+    robot_state::RobotStatePtr state(new robot_state::RobotState(model_));
     for (double duration = 0.0; duration < total_duration; duration += (1.0 / fps))
     {
         YAML::Node point;
@@ -309,6 +305,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
         values.push_back(value);
     }
 
+    node["fps"] = fps;
     node["transforms"] = values;
 
     return IO::YAMLtoFile(node, filename);
