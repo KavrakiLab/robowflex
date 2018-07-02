@@ -1,7 +1,17 @@
-#include <robowflex_library/robowflex.h>
-#include <moveit/robot_state/robot_state.h>
+/* Author: Zachary Kingston */
+
 #include <deque>
 #include <numeric>
+
+#include <moveit/collision_detection/collision_common.h>
+#include <moveit/robot_state/robot_state.h>
+
+#include <robowflex_library/io.h>
+#include <robowflex_library/yaml.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/tf.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/robot.h>
 
 using namespace robowflex;
 
@@ -134,6 +144,36 @@ bool Robot::loadKinematics(const std::string &name)
     return true;
 }
 
+const std::string &Robot::getName() const
+{
+    return name_;
+}
+
+const robot_model::RobotModelPtr &Robot::getModelConst() const
+{
+    return model_;
+}
+
+robot_model::RobotModelPtr &Robot::getModel()
+{
+    return model_;
+}
+
+const robot_model::RobotStatePtr &Robot::getScratchState() const
+{
+    return scratch_;
+}
+
+robot_model::RobotStatePtr &Robot::getScratchState()
+{
+    return scratch_;
+}
+
+IO::Handler &Robot::getHandler()
+{
+    return handler_;
+}
+
 void Robot::setState(const std::vector<double> &positions)
 {
     scratch_->setVariablePositions(positions);
@@ -171,13 +211,13 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-void Robot::setFromIK(const std::string &group,                             //
-                      const Geometry &region, const Eigen::Affine3d &pose,  //
+void Robot::setFromIK(const std::string &group,                                     //
+                      const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
     Eigen::Affine3d sampled_pose = pose;
 
-    sampled_pose.translate(region.sample());
+    sampled_pose.translate(region->sample());
     sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
 
     geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);

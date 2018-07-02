@@ -1,4 +1,10 @@
-#include <robowflex_library/robowflex.h>
+/* Author: Zachary Kingston */
+
+#include <robowflex_library/io.h>
+#include <robowflex_library/yaml.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
 
 using namespace robowflex;
 
@@ -13,6 +19,16 @@ Scene::Scene(const Scene &other) : scene_(other.getSceneConst())
 void Scene::operator=(const Scene &other)
 {
     scene_ = other.getSceneConst();
+}
+
+const planning_scene::PlanningScenePtr &Scene::getSceneConst() const
+{
+    return scene_;
+}
+
+planning_scene::PlanningScenePtr &Scene::getScene()
+{
+    return scene_;
 }
 
 moveit_msgs::PlanningScene Scene::getMessage() const
@@ -32,19 +48,19 @@ collision_detection::AllowedCollisionMatrix &Scene::getACM()
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
-void Scene::updateCollisionObject(const std::string &name, const Geometry &geometry,
+void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                   const Eigen::Affine3d &pose)
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
     {
-        if (!world->moveShapeInObject(name, geometry.getShape(), pose))
+        if (!world->moveShapeInObject(name, geometry->getShape(), pose))
             world->removeObject(name);
         else
             return;
     }
 
-    world->addToObject(name, geometry.getShape(), pose);
+    world->addToObject(name, geometry->getShape(), pose);
 }
 
 void Scene::removeCollisionObject(const std::string &name)

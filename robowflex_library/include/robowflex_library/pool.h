@@ -3,9 +3,12 @@
 #ifndef ROBOWFLEX_POOL_
 #define ROBOWFLEX_POOL_
 
-#include <thread>
-#include <future>
-#include <functional>
+#include <memory>      // for std::shared_ptr
+#include <thread>      // for std::thread
+#include <future>      // for std::future / std::promise
+#include <functional>  // for std::function
+#include <vector>      // for std::vector
+#include <queue>       // for std::queue
 
 namespace robowflex
 {
@@ -102,18 +105,12 @@ namespace robowflex
 
             /** \brief Cancels this job.
              */
-            void cancel()
-            {
-                canceled = true;
-            }
+            void cancel();
 
             /** \brief Checks if this job has been cancled.
              *  \return True if the job is cancled, false otherwise.
              */
-            bool isCancled() const
-            {
-                return canceled;
-            }
+            bool isCancled() const;
 
         protected:
             bool canceled{false};  ///< Whether the job is cancled or not.
@@ -170,33 +167,17 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] n The number of threads to use. By default uses available hardware threads.
          */
-        Pool(unsigned int n = std::thread::hardware_concurrency())
-        {
-            active_ = true;
-
-            for (unsigned int i = 0; i < n; ++i)
-                threads_.emplace_back(std::bind(&Pool::run, this));
-        }
+        Pool(unsigned int n = std::thread::hardware_concurrency());
 
         /** \brief Destructor.
          *  Cancels all threads and joins them.
          */
-        ~Pool()
-        {
-            active_ = false;
-            cv_.notify_all();
-
-            for (unsigned int i = 0; i < threads_.size(); ++i)
-                threads_[i].join();
-        }
+        ~Pool();
 
         /** \brief Get the number of threads.
          *  \return The number of threads.
          */
-        unsigned int getThreadCount() const
-        {
-            return threads_.size();
-        }
+        unsigned int getThreadCount() const;
 
         /** \brief Submit a function with arguments to be processed by the thread pool.
          *  Submitted functions must be wrapped with robowflex::make_function() or be a std::function type so
@@ -227,26 +208,7 @@ namespace robowflex
         /** \brief Background thread process.
          *  Executes jobs submitted from submit().
          */
-        void run()
-        {
-            while (active_)
-            {
-                std::unique_lock<std::mutex> lock(mutex_);
-                cv_.wait(lock, [&] { return (active_ && !jobs_.empty()) || !active_; });
-
-                if (!active_)
-                    break;
-
-                auto job = jobs_.front();
-                jobs_.pop();
-
-                lock.unlock();
-
-                // Ignore canceled jobs.
-                if (!job->isCancled())
-                    job->execute();
-            }
-        }
+        void run();
 
     private:
         bool active_{false};                  ///< Is thread pool active?
