@@ -58,6 +58,7 @@
 
 #include <robowflex_library/macros.h>
 
+/** \cond IGNORE */
 namespace YAML
 {
 #if ROBOWFLEX_AT_LEAST_LUNAR
@@ -364,5 +365,6 @@ namespace YAML
         static bool decode(const Node &node, moveit_msgs::MotionPlanRequest &rhs);
     };
 }  // namespace YAML
+/* \endcond */
 
 #endif

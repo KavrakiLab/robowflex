@@ -1,51 +1,65 @@
+/* Author: Zachary Kingston, Bryce Willey */
+
 #include <boost/math/constants/constants.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <moveit/version.h>
+#include <moveit/collision_detection/collision_common.h>
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/yaml.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/planning.h>
+#include <robowflex_library/benchmarking.h>
 
 using namespace robowflex;
 
-void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr &scene,
-                                         const PlannerPtr &planner, const MotionRequestBuilderPtr &request)
+///
+/// Benchmarker::Options
+///
+
+Benchmarker::Options::Options(unsigned int runs, uint32_t options) : runs(runs), options(options)
 {
-    requests_.emplace(std::piecewise_construct,     //
-                      std::forward_as_tuple(name),  //
-                      std::forward_as_tuple(scene, planner, request));
 }
 
-void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, const Options &options)
+///
+/// Benchmarker::Results::Run::toString
+///
+
+const std::string Benchmarker::Results::Run::toString::operator()(int value) const
 {
-    unsigned int count = 0;
-    const unsigned int total = requests_.size() * options.runs;
+    return boost::lexical_cast<std::string>(boost::get<int>(value));
+}
 
-    for (const auto &request : requests_)
-    {
-        const auto &name = request.first;
-        auto &scene = std::get<0>(request.second);
-        auto &planner = std::get<1>(request.second);
-        const auto &builder = std::get<2>(request.second);
-        std::vector<moveit_msgs::RobotTrajectory> trajectories;
+const std::string Benchmarker::Results::Run::toString::operator()(double value) const
+{
+    double v = boost::get<double>(value);
+    return boost::lexical_cast<std::string>((std::isfinite(v)) ? v : std::numeric_limits<double>::max());
+}
 
-        Results results(name, scene, planner, builder, options);
+const std::string Benchmarker::Results::Run::toString::operator()(bool value) const
+{
+    return boost::lexical_cast<std::string>(boost::get<bool>(value));
+}
 
-        for (int j = 0; j < options.runs; ++j)
-        {
-            ros::WallTime start;
+///
+/// Benchmarker::Results::Run
+///
 
-            start = ros::WallTime::now();
-            planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
-            double time = (ros::WallTime::now() - start).toSec();
+Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), time(time), success(success)
+{
+}
 
-            results.addRun(j, time, response);
-            ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
-        }
+///
+/// Benchmarker::Results
+///
 
-        results.finish = IO::getDate();
-
-        for (BenchmarkOutputterPtr output : outputs)
-            output->dumpResult(results);
-    }
+Benchmarker::Results::Results(const std::string &name, const SceneConstPtr scene,
+                              const PlannerConstPtr planner, const MotionRequestBuilderConstPtr builder,
+                              const Options &options)
+  : name(name), scene(scene), planner(planner), builder(builder), options(options)
+{
+    start = IO::getDate();
 }
 
 void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
@@ -160,6 +174,66 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     }
 }
 
+///
+/// Benchmarker
+///
+
+void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr &scene,
+                                         const PlannerPtr &planner, const MotionRequestBuilderPtr &request)
+{
+    requests_.emplace(std::piecewise_construct,     //
+                      std::forward_as_tuple(name),  //
+                      std::forward_as_tuple(scene, planner, request));
+}
+
+void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, const Options &options)
+{
+    unsigned int count = 0;
+    const unsigned int total = requests_.size() * options.runs;
+
+    for (const auto &request : requests_)
+    {
+        const auto &name = request.first;
+        auto &scene = std::get<0>(request.second);
+        auto &planner = std::get<1>(request.second);
+        const auto &builder = std::get<2>(request.second);
+        std::vector<moveit_msgs::RobotTrajectory> trajectories;
+
+        Results results(name, scene, planner, builder, options);
+
+        for (int j = 0; j < options.runs; ++j)
+        {
+            ros::WallTime start;
+
+            start = ros::WallTime::now();
+            planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
+            double time = (ros::WallTime::now() - start).toSec();
+
+            results.addRun(j, time, response);
+            ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
+        }
+
+        results.finish = IO::getDate();
+
+        for (BenchmarkOutputterPtr output : outputs)
+            output->dumpResult(results);
+    }
+}
+
+///
+/// JSONBenchmarkOutputter
+///
+
+JSONBenchmarkOutputter::JSONBenchmarkOutputter(const std::string &file) : file_(file)
+{
+}
+
+JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
+{
+    outfile_ << "}" << std::endl;
+    outfile_.close();
+}
+
 void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     if (not is_init_)
@@ -198,10 +272,12 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     outfile_ << "]";
 }
 
-JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
+///
+/// TrajectoryBenchmarkOutputter
+///
+
+TrajectoryBenchmarkOutputter::TrajectoryBenchmarkOutputter(const std::string &file) : file_(file), bag_(file_)
 {
-    outfile_ << "}" << std::endl;
-    outfile_.close();
 }
 
 void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
@@ -215,6 +291,14 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
 
     for (Benchmarker::Results::Run run : results.runs)
         bag_.addMessage(name, run.path);
+}
+
+///
+/// OMPLBenchmarkOutputter
+///
+
+OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix) : prefix_(prefix)
+{
 }
 
 OMPLBenchmarkOutputter::~OMPLBenchmarkOutputter()

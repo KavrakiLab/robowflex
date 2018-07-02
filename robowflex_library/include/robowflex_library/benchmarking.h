@@ -3,11 +3,31 @@
 #ifndef ROBOWFLEX_BENCHMARKING_
 #define ROBOWFLEX_BENCHMARKING_
 
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <tuple>
+#include <map>
+#include <fstream>
+
 #include <boost/variant.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/date_time.hpp>  // for date operations
+
+#include <moveit_msgs/RobotTrajectory.h>
+
+#include <moveit/planning_interface/planning_response.h>
+
+#include <robowflex_library/class_forward.h>
+#include <robowflex_library/io/bag.h>
 
 namespace robowflex
 {
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Planner);
+    ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
+    /** \endcond */
+
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Benchmarker);
     /** \endcond */
@@ -55,9 +75,7 @@ namespace robowflex
              *  \param[in] runs Number of runs per query.
              *  \param[in] options Bitmask of robowflex::Benchmarker::MetricOptions to compute.
              */
-            Options(unsigned int runs = 100, uint32_t options = ~0) : runs(runs), options(options)
-            {
-            }
+            Options(unsigned int runs = 100, uint32_t options = ~0);
 
             unsigned int runs;  ///< Number of runs per query.
             uint32_t options;   ///< Bitmask of robowflex::Benchmarker::MetricOptions to compute.
@@ -84,26 +102,15 @@ namespace robowflex
                 public:
                     /** \brief Print int metric value to string.
                      */
-                    const std::string operator()(int value) const
-                    {
-                        return boost::lexical_cast<std::string>(boost::get<int>(value));
-                    }
+                    const std::string operator()(int value) const;
 
                     /** \brief Print double metric value to string.
                      */
-                    const std::string operator()(double value) const
-                    {
-                        double v = boost::get<double>(value);
-                        return boost::lexical_cast<std::string>(
-                            (std::isfinite(v)) ? v : std::numeric_limits<double>::max());
-                    }
+                    const std::string operator()(double value) const;
 
                     /** \brief Print boolean metric value to string.
                      */
-                    const std::string operator()(bool value) const
-                    {
-                        return boost::lexical_cast<std::string>(boost::get<bool>(value));
-                    }
+                    const std::string operator()(bool value) const;
                 };
 
                 /** \brief Constructor.
@@ -111,9 +118,7 @@ namespace robowflex
                  *  \param[in] time Time that run took.
                  *  \param[in] success Was the run successful?
                  */
-                Run(int num, double time, bool success) : num(num), time(time), success(success)
-                {
-                }
+                Run(int num, double time, bool success);
 
                 int num;                            ///< Run number.
                 double time;                        ///< Time that run took.
@@ -131,11 +136,7 @@ namespace robowflex
              *  \param[in] options Options for the query.
              */
             Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
-                    const MotionRequestBuilderConstPtr builder, const Options &options)
-              : name(name), scene(scene), planner(planner), builder(builder), options(options)
-            {
-                start = IO::getDate();
-            }
+                    const MotionRequestBuilderConstPtr builder, const Options &options);
 
             /** \brief Add a run to the set of results.
              *  \param[in] num The number of the run.
@@ -210,9 +211,7 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] file Filename to save results to.
          */
-        JSONBenchmarkOutputter(const std::string &file) : file_(file)
-        {
-        }
+        JSONBenchmarkOutputter(const std::string &file);
 
         /** \brief Destructor. Closes \a outfile_.
          */
@@ -237,9 +236,7 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] file Filename for rosbag.
          */
-        TrajectoryBenchmarkOutputter(const std::string &file) : file_(file), bag_(file_)
-        {
-        }
+        TrajectoryBenchmarkOutputter(const std::string &file);
 
         /** \brief Dumps all trajectories in \a results to rosbag file \a file_.
          *  The topic the trajectories are saved under is the \a name_ in \a results, or the name of the
@@ -263,9 +260,7 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] prefix Prefix to place in front of all log files generated.
          */
-        OMPLBenchmarkOutputter(const std::string &prefix) : prefix_(prefix)
-        {
-        }
+        OMPLBenchmarkOutputter(const std::string &prefix);
 
         /** \brief Destructor, runs `ompl_benchmark_statistics.py` to generate benchmarking database.
          */
