@@ -47,3 +47,20 @@ def hex_to_rgb(hex_str):
     g = pow(fin[1] / 255, gamma)
     b = pow(fin[2] / 255, gamma)
     return (r, g, b)
+
+def pose_to_quat(pose):
+    ''' 
+    Takes a pose dict and extracts the orientation quaternion.
+    ROS quaternions or XYZW, but Blender's are WXYZ, so reorder them.
+    '''
+    return pose['orientation'][3:] + pose['orientation'][:3]
+
+def pose_to_vec(pose):
+    ''' Takes a pose dict and extracts the position vector. '''
+    return pose['position']
+
+def set_pose(obj, pose):
+    ''' Sets the pose of a blender object by passing in a pose dict. '''
+    obj.location = pose_to_vec(pose)
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = pose_to_quat(pose)

@@ -25,6 +25,8 @@ int main(int argc, char **argv)
 
     PlannerPtr planners[] = {default_planner, simple_planner};
 
+    ur5->dumpGeometry("ur5.yaml");
+
     for (auto &planner : planners)
     {
         MotionRequestBuilder request(planner, "manipulator");
@@ -43,6 +45,8 @@ int main(int argc, char **argv)
         planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
         if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             return 1;
+        
+        ur5->dumpPathTransforms(*res.trajectory_, "ur5_path.yaml");
     }
 
     return 0;

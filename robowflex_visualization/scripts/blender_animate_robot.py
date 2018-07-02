@@ -4,11 +4,6 @@ Reads in a static file of transforms of different parts of the ur5
 robot and animates them in blender.
 '''
 import json
-import yaml
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
 import sys
 import os
 import time
@@ -28,13 +23,7 @@ if not CURRENT_DIRECTORY in sys.path:
 # pylint: disable=wrong-import-position
 import blender_utils
 import utils
-
-def read_yaml_data(file_name):
-    ''' Returns the yaml data structure of the data stored. '''
-    with open(file_name) as input_file:
-        if '.yaml' in file_name:
-            return yaml.load(input_file.read(), Loader=Loader)
-
+import blender_load_scene as blender_scene
 
 class RobotFrames(object):
     def __init__(self, points, link_map, 
@@ -60,8 +49,6 @@ class RobotFrames(object):
         self.distance_threshold = distance_threshold
         self.frame_extra_count = frame_extra_count
         self.link_to_parts = {}
-        # Will be overwritten by the call to animate.
-        self.step_size = 1
 
     def load_meshes(self):
         ''' Loads all of the robot's meshes into the scene. '''
@@ -85,72 +72,25 @@ class RobotFrames(object):
                     i_obj.select = True
                     bpy.ops.object.delete()
                     continue
-                i_obj.location = self.point_to_vec(self.points[0]['point'][link_name])
-                i_obj.rotation_mode = 'QUATERNION'
-                i_obj.rotation_quaternion = self.point_to_quat(self.points[0]['point'][link_name])
+                blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
                 i_obj.keyframe_insert(data_path="location", index=-1)
                 i_obj.name = link_name
                 remaining.append(i_obj.name)
             self.link_to_parts[link_name] = remaining
 
     def animate(self, fps=30):
-        ''' Adds key frames for each of the robot's links according to frame data. '''
+        ''' Adds key frames for each of the robot's links according to point data. '''
         for idx, point in enumerate(self.points):
             bpy.context.scene.frame_set(idx)
             for link_name in self.link_map:
                 for name in self.link_to_parts[link_name]:
                     i_obj = bpy.data.objects[name]
-                    i_obj.location = self.point_to_vec(point['point'][link_name])
-                    i_obj.rotation_mode = 'QUATERNION'
-                    i_obj.rotation_quaternion = self.point_to_quat(point['point'][link_name])
+                    blender_utils.set_pose(i_obj, point['point'][link_name])
                     i_obj.keyframe_insert(data_path="location", index=-1)
                     i_obj.keyframe_insert(data_path="rotation_quaternion", index=-1)
-        # TODO set the fps param in blender.
-
-    @staticmethod
-    def __distance_moved(frame1, frame2):
-        '''
-        Returns the difference between locations and quaternions between 2 states.
-        '''
-        dist_moved = 0.0
-        for link_name in LINK_MAP:
-            dist_moved += sum([abs(p[1] - p[0])
-                               for p in zip(frame2[link_name]['position'] + frame2[link_name]['orientation'],
-                                            frame1[link_name]['position'] + frame1[link_name]['orientation'])])
-        return dist_moved
-
-    @staticmethod
-    def point_to_quat(point):
-        ''' 
-        Takes a yaml map of a pose and extracts the vector.
-        ROS quaternions or XYZW, but Blender's are WXYZ, so reorder them.
-        '''
-        l = point['orientation'][3:] + point['orientation'][:3]
-        return l
-
-    @staticmethod
-    def point_to_vec(point):
-        ''' Takes a yaml map of a pose and extracts the quaternion. '''
-        return point['position']
-
-    def dist_from_previous(self, idx):
-        ''' Convenience method for getting distance from previous frame. '''
-        return self.__distance_moved(self.points[idx-1], self.points[idx])
-
-    def get_first_moving_frame_idx(self):
-        '''
-        Locates the first frame where the robot moves more than DISTANCE_THRESHOLD.
-        Returns the last frame if the robot never moves.
-        '''
-        return 0
-
-    def get_last_moving_frame_idx(self):
-        '''
-        Locates the last frame that the robot moves more than DISTANCE_THRESHOLD.
-        Return the first frame if the robot never moves.
-        '''
-        # Iterate through frames from end to start
-        return len(self.points) - 1
+        bpy.context.scene.render.fps = fps
+        bpy.context.scene.frame_start = -self.frame_extra_count
+        bpy.context.scene.frame_end = len(self.points) - 1 + self.frame_extra_count
 
 def animate_robot(mesh_map_file, path_file):
     '''
@@ -160,17 +100,14 @@ def animate_robot(mesh_map_file, path_file):
     '''
 
     blender_utils.delete_all()
-    # Find a better way of passing this in.
 
-    points = read_yaml_data(utils.resolvePackage(path_file))
-    link_map = read_yaml_data(utils.resolvePackage(mesh_map_file))
+    points = utils.read_yaml_data(path_file)
+    link_map = utils.read_yaml_data(mesh_map_file)
 
     robot_frames = RobotFrames(points, link_map)
     robot_frames.load_meshes()
-    robot_frames.animate(fps=30)
+    robot_frames.animate(fps=points['fps'])
 
-    # TODO: Load scene from yaml.
-    
     # TODO: auto-adjust the camera position until the full motion lies within
     # the frame? Will need to get bounding box of the entire motion, then
     # project back to the active camera.
@@ -181,10 +118,6 @@ def animate_robot(mesh_map_file, path_file):
     # frame_radius = min dist(1/2 * (cam_frame[i] + cam_frame[j]) - Q)
     # Iterate over all frames and calculate an AABB for all links.
     # Minimize sum(abs(dist(project_point(v) - Q) - frame_radius)) for v in AABB
-
-    # Find start and stop points based on frame data.
-    bpy.context.scene.frame_start = robot_frames.get_first_moving_frame_idx()
-    bpy.context.scene.frame_end = robot_frames.get_last_moving_frame_idx()
 
     # Set the output to be MP4 H264 video.
     bpy.context.scene.render.image_settings.file_format = 'FFMPEG'
@@ -197,3 +130,4 @@ def animate_robot(mesh_map_file, path_file):
 
 if __name__ == '__main__':
     animate_robot('ur5.yaml', 'ur5_path.yaml')
+    blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')

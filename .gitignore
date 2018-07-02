@@ -34,3 +34,6 @@ core
 
 # Compile Commands
 *compile_commands.json
+
+# Python 
+__pycache__
