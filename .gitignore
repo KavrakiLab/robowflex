@@ -34,3 +34,4 @@ core
 
 # Compile Commands
 *compile_commands.json
+*.pyc

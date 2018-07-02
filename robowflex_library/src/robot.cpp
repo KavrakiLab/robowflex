@@ -295,8 +295,13 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
         YAML::Node point;
 
         path.getStateAtDurationFromStart(duration, state);
-        for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = IO::toNode(TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name)));
+        state->update();
+
+        for (const auto &link : model_->getLinkModels())
+        {
+            Eigen::Affine3d tf = state->getGlobalLinkTransform(link) * link->getVisualMeshOrigin();
+            point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
+        }
 
         YAML::Node value;
         value["point"] = point;
