@@ -61,6 +61,12 @@ int main(int argc, char **argv)
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request);
 
+    //For r2_start.yml
+    std::vector<double> tmp = {1.98552, 0.0242871, 9.14127e-05, 4.8366e-06, -2.4964e-06, 1, -6.53607e-07};
+    std::vector<double> start_joint_positions = request->getRequest().start_state.joint_state.position;
+    tmp.insert(tmp.end(), start_joint_positions.begin(), start_joint_positions.end());
+    start_joint_positions = tmp;
+
     robowflex::IO::RVIZHelper rviz;
     //rviz.updateScene(scene);
     //int a;
@@ -68,6 +74,9 @@ int main(int argc, char **argv)
     for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
+
+        //reset start position before each iteration
+        r2->setState(start_joint_positions);
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
         if (res.back().error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
