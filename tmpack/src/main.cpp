@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 1
+#define NUM_ITERATIONS 100
 // #define START_POSE                                                                                                     \
 //     {                                                                                                                  \
 //         -0.030580680548965233, 0.05347800856425433, 0.015236617202923242, 1.6048735607571416, -0.08929297054119978,    \
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     start_joint_positions = tmp;
 
     IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
-    //rviz.updateScene(scene);
+
     int a;
     std::cin >> a;
     for (; count < NUM_ITERATIONS; count++)
