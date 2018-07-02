@@ -1,6 +1,9 @@
-<<<<<<< HEAD
 /* Author: Zachary Kingston */
 
+#include <deque>
+#include <numeric>
+
+#include <moveit/robot_state/robot_state.h>
 #include <moveit/collision_detection/collision_common.h>
 
 #include <robowflex_library/io.h>
@@ -9,12 +12,6 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
-=======
-#include <robowflex_library/robowflex.h>
-#include <moveit/robot_state/robot_state.h>
-#include <deque>
-#include <numeric>
->>>>>>> First commit of blender scripts, changed path output to be controllable resolution.
 
 using namespace robowflex;
 
@@ -290,13 +287,16 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     const std::deque<double> &durations = path.getWayPointDurations();
     double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
 
+    robot_state::RobotStatePtr state;
+    state.reset(new robot_state::RobotState(model_));
+
     for (double duration = 0.0; duration < total_duration; duration += (1.0 / fps))
     {
         YAML::Node point;
-        robot_state::RobotStatePtr state = std::make_shared<robot_state::RobotState>(model_);
+
         path.getStateAtDurationFromStart(duration, state);
         for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name));
+            point[link_name] = IO::toNode(TF::poseEigenToMsg(state->getGlobalLinkTransform(link_name)));
 
         YAML::Node value;
         value["point"] = point;
