@@ -27,11 +27,7 @@ import blender_load_scene as blender_scene
 
 
 class RobotFrames(object):
-    def __init__(self,
-                 points,
-                 link_map,
-                 distance_threshold=0.07,
-                 frame_extra_count=10):
+    def __init__(self, points, link_map, distance_threshold = 0.07, frame_extra_count = 10):
         '''
         @param points: a list of dictionaries that contain a point (TF
                locations of each link) and a duration.
@@ -47,8 +43,7 @@ class RobotFrames(object):
         for link_name in link_map.keys():
             for idx, point in enumerate(self.points):
                 if not link_name in point['point']:
-                    raise ValueError('Link ' + link_name + 'is not ' +
-                                     'present in frame ' + str(idx))
+                    raise ValueError('Link ' + link_name + 'is not ' + 'present in frame ' + str(idx))
         self.link_map = link_map
         self.distance_threshold = distance_threshold
         self.frame_extra_count = frame_extra_count
@@ -61,9 +56,9 @@ class RobotFrames(object):
             old = set([obj.name for obj in bpy.data.objects])
 
             if '.dae' in mesh_file:
-                bpy.ops.wm.collada_import(filepath=mesh_file)
+                bpy.ops.wm.collada_import(filepath = mesh_file)
             elif '.stl' in mesh_file:
-                bpy.ops.import_mesh.stl(filepath=mesh_file)
+                bpy.ops.import_mesh.stl(filepath = mesh_file)
             new = set([obj.name for obj in bpy.data.objects])
             imported_names = new - old
             remaining = []
@@ -72,18 +67,17 @@ class RobotFrames(object):
                 # cameras and lamps. Delete those.
                 i_obj = bpy.data.objects[name]
                 if 'Camera' in name or 'Lamp' in name:
-                    bpy.ops.object.select_all(action='DESELECT')
+                    bpy.ops.object.select_all(action = 'DESELECT')
                     i_obj.select = True
                     bpy.ops.object.delete()
                     continue
-                blender_utils.set_pose(i_obj,
-                                       self.points[0]['point'][link_name])
-                i_obj.keyframe_insert(data_path="location", index=-1)
+                blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
+                i_obj.keyframe_insert(data_path = "location", index = -1)
                 i_obj.name = link_name
                 remaining.append(i_obj.name)
             self.link_to_parts[link_name] = remaining
 
-    def animate(self, fps=30):
+    def animate(self, fps = 30):
         ''' Adds key frames for each of the robot's links according to point data. '''
         for idx, point in enumerate(self.points):
             bpy.context.scene.frame_set(idx)
@@ -91,13 +85,11 @@ class RobotFrames(object):
                 for name in self.link_to_parts[link_name]:
                     i_obj = bpy.data.objects[name]
                     blender_utils.set_pose(i_obj, point['point'][link_name])
-                    i_obj.keyframe_insert(data_path="location", index=-1)
-                    i_obj.keyframe_insert(
-                        data_path="rotation_quaternion", index=-1)
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = -self.frame_extra_count
-        bpy.context.scene.frame_end = len(
-            self.points) - 1 + self.frame_extra_count
+        bpy.context.scene.frame_end = len(self.points) - 1 + self.frame_extra_count
 
 
 def animate_robot(mesh_map_file, path_file):
@@ -114,7 +106,7 @@ def animate_robot(mesh_map_file, path_file):
 
     robot_frames = RobotFrames(points, link_map)
     robot_frames.load_meshes()
-    robot_frames.animate(fps=points['fps'])
+    robot_frames.animate(fps = points['fps'])
 
     # TODO: auto-adjust the camera position until the full motion lies within
     # the frame? Will need to get bounding box of the entire motion, then
@@ -139,5 +131,4 @@ def animate_robot(mesh_map_file, path_file):
 
 if __name__ == '__main__':
     animate_robot('ur5.yaml', 'ur5_path.yaml')
-    blender_scene.add_planning_scene(
-        'package://robowflex_library/yaml/test.yml')
+    blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')

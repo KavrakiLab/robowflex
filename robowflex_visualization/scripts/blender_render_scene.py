@@ -38,7 +38,6 @@ def set_render_settings(settings):
     '''
     r_set = bpy.types.RenderSettings()
 
-    # yapf: disable
     ALL_SETTINGS = [
         'alpha_mode',
         'antialiasing_samples',
@@ -116,8 +115,7 @@ def set_render_settings(settings):
         'use_stamp_render_time',
         'use_textures',
         'use_world_space_shading'
-    ]
-    # yapf: enable
+    ] # yapf: disable
 
     for attr in ALL_SETTINGS:
         if attr in settings:
@@ -134,7 +132,6 @@ def set_ffmpeg_settings(settings):
     https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
     '''
 
-    #yapf: disable
     FFMPEG_SETTINGS = [
         'audio_bitrate',
         'audio_channels',
@@ -156,8 +153,7 @@ def set_ffmpeg_settings(settings):
         'use_lossless_output',
         'use_max_b_frames',
         'video_bitrate'
-    ]
-    # yapf: enable
+    ] # yapf: disable
 
     f_set = bpy.types.FFmpegSettings()
     for attr in FFMPEG_SETTINGS:
@@ -171,7 +167,6 @@ def set_image_format_settings(settings):
     https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
     '''
 
-    # yapf: disable
     IMAGE_SETTINGS = [
         'cineon_black',
         'cineon_gamma',
@@ -190,8 +185,7 @@ def set_image_format_settings(settings):
         'use_zbuffer',
         'view_settings',
         'views_format'
-    ]
-    # yapf: enable
+    ] # yapf: disable
 
     i_set = bpy.types.ImageFormatSettings()
     for attr in IMAGE_SETTINGS:
@@ -208,7 +202,6 @@ def set_light_settings(settings):
     '''
     w_set = bpy.types.WorldLight()
 
-    # yapf: disable
     ALL_SETTINGS = [
         'adapt_to_speed',
         'ao_blend_type',
@@ -232,8 +225,7 @@ def set_light_settings(settings):
         'use_environment_light',
         'use_indirect_light',
         'use_falloff'
-    ]
-    # yapf: enable
+    ] # yapf: disable
 
     for attr in ALL_SETTINGS:
         if attr in settings:

@@ -25,7 +25,7 @@ def resolvePackage(path):
 
     PREFIX = 'package://'
     if PREFIX in path:
-        path = path[len(PREFIX):]  # Remove 'package://'
+        path = path[len(PREFIX):]    # Remove 'package://'
         if '/' not in path:
             package_name = path
             path = ''
@@ -34,6 +34,7 @@ def resolvePackage(path):
             path = path[path.find('/'):]
         rospack = rospkg.RosPack()
         package_path1 = rospack.get_path(package_name)
+
     else:
         package_path1 = ''
 
@@ -59,4 +60,4 @@ def read_yaml_data(file_name):
         logging.warn('Cannot open {}'.format(file_name))
         return None
     with open(full_name) as input_file:
-        return yaml.load(input_file.read(), Loader=Loader)
+        return yaml.load(input_file.read(), Loader = Loader)

@@ -16,7 +16,7 @@ def add_mat_to_obj(obj, mat):
 
 def add_camera(location, rotation):
     ''' Adds camera to a location and a quaternion rotation. '''
-    bpy.ops.object.camera_add(location=location)
+    bpy.ops.object.camera_add(location = location)
     bpy.context.scene.camera = bpy.context.active_object
     bpy.context.active_object.rotation_mode = 'QUATERNION'
     bpy.context.active_object.rotation_quaternion = rotation
@@ -24,7 +24,7 @@ def add_camera(location, rotation):
 
 def add_sun(location, shadow):
     ''' Adds a sun/parallel light source to the scene. '''
-    bpy.ops.object.lamp_add(type='SUN', location=location)
+    bpy.ops.object.lamp_add(type = 'SUN', location = location)
     if shadow:
         bpy.context.active_object.data.shadow_method = 'RAY_SHADOW'
         bpy.context.active_object.data.shadow_ray_samples = 6
@@ -34,7 +34,7 @@ def delete_all():
     '''
     Deletes all selectable things from the scene (objects, cameras, lights, etc)
     '''
-    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.select_all(action = 'SELECT')
     bpy.ops.object.delete()
 
 

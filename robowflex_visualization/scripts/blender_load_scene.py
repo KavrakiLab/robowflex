@@ -17,15 +17,17 @@ if not CURRENT_DIRECTORY in sys.path:
 import blender_utils
 import utils
 
+
 def set_color(obj, color):
     # TODO: figure out a better way to make new materials?
-    mat = bpy.data.materials.new(name=str(random.randint(1, 100000)))
+    mat = bpy.data.materials.new(name = str(random.randint(1, 100000)))
     mat.diffuse_color = color
     blender_utils.add_mat_to_obj(obj, mat)
 
+
 def add_box(box):
-    ''' 
-    Creates and adds a dict of shape_msgs::SolidPrimitive box to the blender scene. 
+    '''
+    Creates and adds a dict of shape_msgs::SolidPrimitive box to the blender scene.
     '''
     bpy.ops.mesh.primitive_cube_add()
     obj = bpy.context.active_object
@@ -33,43 +35,43 @@ def add_box(box):
     set_color(obj, (0, 0.9, 0.2))
     return obj
 
+
 def add_sphere(sphere):
-    ''' 
-    Creates and adds a dict of shape_msgs::SolidPrimitive sphere to the blender scene. 
     '''
-    bpy.ops.mesh.primitive_uv_sphere_add(size=sphere['dimensions'][0])
+    Creates and adds a dict of shape_msgs::SolidPrimitive sphere to the blender scene.
+    '''
+    bpy.ops.mesh.primitive_uv_sphere_add(size = sphere['dimensions'][0])
     obj = bpy.context.active_object
     set_color(obj, (0, 0.9, 0.2))
     return obj
+
 
 def add_cylinder(cylinder):
-    ''' 
-    Creates and adds a dict of shape_msgs::SolidPrimitive cylinder to the blender scene. 
+    '''
+    Creates and adds a dict of shape_msgs::SolidPrimitive cylinder to the blender scene.
     '''
     height = cylinder['dimensions'][0]
-    radius = cylinder['dimensions'][1] 
-    bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=height)
+    radius = cylinder['dimensions'][1]
+    bpy.ops.mesh.primitive_cylinder_add(radius = radius, depth = height)
     obj = bpy.context.active_object
     set_color(obj, (0, 0.9, 0.2))
     return obj
 
+
 def add_cone(cone):
-    ''' 
+    '''
     Creates and adds a dict of shape_msgs::SolidPrimitive cone to the blender scene.
     '''
     height = cone['dimensions'][0]
-    radius = cone['dimensions'][1] 
-    bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=height)
+    radius = cone['dimensions'][1]
+    bpy.ops.mesh.primitive_cylinder_add(radius = radius, depth = height)
     obj = bpy.context.active_object
     set_color(obj, (0, 0.9, 0.2))
     return obj
 
-SHAPE_MAP = {
-    'box' : add_box,
-    'sphere' : add_sphere,
-    'cylinder' : add_cylinder,
-    'cone' : add_cone
-}
+
+SHAPE_MAP = {'box': add_box, 'sphere': add_sphere, 'cylinder': add_cylinder, 'cone': add_cone}
+
 
 def add_mesh(mesh):
     '''
@@ -77,16 +79,17 @@ def add_mesh(mesh):
     '''
     mesh_file = utils.resolvePackage(mesh['resource'])
     if '.dae' in mesh_file:
-        bpy.ops.wm.collada_import(filepath=mesh_file)
+        bpy.ops.wm.collada_import(filepath = mesh_file)
     elif '.stl' in mesh_file:
-        bpy.ops.import_mesh.stl(filepath=mesh_file)
+        bpy.ops.import_mesh.stl(filepath = mesh_file)
     elif '.ply' in mesh_file:
-        bpy.ops.import_mesh.ply(filepath=mesh_file)
+        bpy.ops.import_mesh.ply(filepath = mesh_file)
     else:
         return None
     obj = bpy.context.active_object
     obj.scale = mesh['dimensions']
     return obj
+
 
 def add_shape(shape):
     '''
@@ -96,6 +99,7 @@ def add_shape(shape):
         return add_mesh(shape)
     else:
         return SHAPE_MAP[shape['type']](shape)
+
 
 def add_collision_objects(collision_objects):
     '''
@@ -112,12 +116,14 @@ def add_collision_objects(collision_objects):
             obj = add_shape(shape)
             blender_utils.set_pose(obj, pose)
 
+
 def add_planning_scene_world(world):
     '''
     Adds a moveit_msgs::PlanningSceneWorld to the blender scene.
     '''
     # TODO: add Octomap
     add_collision_objects(world['collision_objects'])
+
 
 def add_planning_scene(scenefile):
     '''
