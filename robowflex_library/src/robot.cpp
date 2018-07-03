@@ -363,56 +363,36 @@ bool Robot::dumpGeometry(const std::string &filename) const
         YAML::Node node;
 
         YAML::Node visual;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+        for (const auto &element : link->visual_array)
+            if (element)
+                visual["elements"].push_back(addLinkVisual(element));
+#else
         if (link->visual)
-            visual["visual"] = addLinkVisual(link->visual);
-
-        YAML::Node visual_groups;
-        for (const auto &group_pair : link->visual_groups)
-        {
-            YAML::Node geometry, group;
-            for (const auto &visual : *group_pair.second)
-                if (visual)
-                    geometry.push_back(addLinkVisual(visual));
-
-            group["name"] = group_pair.first;
-            group["elements"] = geometry;
-            visual_groups.push_back(group);
-        }
-
-        if (!visual_groups.IsNull())
-            visual["groups"] = visual_groups;
-
-        if (!visual.IsNull())
-            node["visual"] = visual;
+            visual["elements"].push_back(addLinkVisual(link->visual));
+#endif
 
         YAML::Node collision;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+        for (const auto &element : link->collision_array)
+            if (element)
+                collision["elements"].push_back(addLinkCollision(element));
+#else
         if (link->collision)
-            collision["collision"] = addLinkCollision(link->collision);
-
-        YAML::Node collision_groups;
-        for (const auto &group_pair : link->collision_groups)
-        {
-            YAML::Node geometry, group;
-            for (const auto &collision : *group_pair.second)
-                if (collision)
-                    geometry.push_back(addLinkCollision(collision));
-
-            group["name"] = group_pair.first;
-            group["elements"] = geometry;
-            collision_groups.push_back(group);
-        }
-
-        if (!collision_groups.IsNull())
-            collision["groups"] = collision_groups;
-
-        if (!collision.IsNull())
-            node["collision"] = collision;
+            collision["elements"].push_back(addLinkCollision(link->collision));
+#endif
 
         if (!visual.IsNull() || !collision.IsNull())
         {
             YAML::Node add;
             add["name"] = link->name;
-            add["geometry"] = node;
+
+            if (!visual.IsNull())
+                add["visual"] = visual;
+
+            if (!collision.IsNull())
+                add["collision"] = collision;
+
             link_geometry.push_back(add);
         }
     }
