@@ -410,6 +410,8 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     const std::deque<double> &durations = path.getWayPointDurations();
     double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
 
+    const auto &urdf = model_->getURDF();
+
     robot_state::RobotStatePtr previous, state(new robot_state::RobotState(model_));
 
     for (double duration = 0.0, delay = 0.0; duration < total_duration; duration += rate, delay += rate)
@@ -422,10 +424,14 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             continue;
 
         state->update();
-        for (const auto &link : model_->getLinkModels())
+        for (const auto &link_name : model_->getLinkModelNames())
         {
-            Eigen::Affine3d tf = state->getGlobalLinkTransform(link) * link->getVisualMeshOrigin();
-            point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
+            if (urdf->getLink(link_name)->visual)
+            {
+                const auto &link = model_->getLinkModel(link_name);
+                Eigen::Affine3d tf = state->getGlobalLinkTransform(link) * link->getVisualMeshOrigin();
+                point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
+            }
         }
 
         YAML::Node value;
