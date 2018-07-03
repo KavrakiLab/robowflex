@@ -362,67 +362,53 @@ bool Robot::dumpGeometry(const std::string &filename) const
     {
         YAML::Node node;
 
-        bool has_visual = false;
         YAML::Node visual;
         if (link->visual)
-        {
             visual["visual"] = addLinkVisual(link->visual);
-            has_visual = true;
-        }
 
-        if (!link->visual_groups.empty())
+        YAML::Node visual_groups;
+        for (const auto &group_pair : link->visual_groups)
         {
-            YAML::Node visual_groups;
-            for (const auto &group_pair : link->visual_groups)
-            {
-                YAML::Node geometry, group;
-                for (const auto &visual : *group_pair.second)
-                    if (visual)
-                        geometry.push_back(addLinkVisual(visual));
+            YAML::Node geometry, group;
+            for (const auto &visual : *group_pair.second)
+                if (visual)
+                    geometry.push_back(addLinkVisual(visual));
 
-                group["name"] = group_pair.first;
-                group["elements"] = geometry;
-                visual_groups.push_back(group);
-            }
-
-            visual["groups"] = visual_groups;
-            has_visual = true;
+            group["name"] = group_pair.first;
+            group["elements"] = geometry;
+            visual_groups.push_back(group);
         }
 
-        if (has_visual)
+        if (!visual_groups.IsNull())
+            visual["groups"] = visual_groups;
+
+        if (!visual.IsNull())
             node["visual"] = visual;
 
-        bool has_collision = false;
         YAML::Node collision;
         if (link->collision)
-        {
             collision["collision"] = addLinkCollision(link->collision);
-            has_collision = true;
-        }
 
-        if (!link->collision_groups.empty())
+        YAML::Node collision_groups;
+        for (const auto &group_pair : link->collision_groups)
         {
-            YAML::Node collision_groups;
-            for (const auto &group_pair : link->collision_groups)
-            {
-                YAML::Node geometry, group;
-                for (const auto &collision : *group_pair.second)
-                    if (collision)
-                        geometry.push_back(addLinkCollision(collision));
+            YAML::Node geometry, group;
+            for (const auto &collision : *group_pair.second)
+                if (collision)
+                    geometry.push_back(addLinkCollision(collision));
 
-                group["name"] = group_pair.first;
-                group["elements"] = geometry;
-                collision_groups.push_back(group);
-            }
-
-            collision["groups"] = collision_groups;
-            has_collision = true;
+            group["name"] = group_pair.first;
+            group["elements"] = geometry;
+            collision_groups.push_back(group);
         }
 
-        if (has_collision)
+        if (!collision_groups.IsNull())
+            collision["groups"] = collision_groups;
+
+        if (!collision.IsNull())
             node["collision"] = collision;
 
-        if (has_visual || has_collision)
+        if (!visual.IsNull() || !collision.IsNull())
         {
             YAML::Node add;
             add["name"] = link->name;
