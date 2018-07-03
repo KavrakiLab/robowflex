@@ -24,4 +24,12 @@
 /** \brief Tests if boost is at least version 1.64 */
 #define IS_BOOST_164 BOOST_VERSION >= 106400
 
+#if ROBOWFLEX_AT_LEAST_LUNAR
+/** \brief Sets flow style for YAML nodes. */
+#define ROBOWFLEX_YAML_FLOW(n) n.SetStyle(YAML::EmitterStyle::Flow);
+#else
+#define ROBOWFLEX_YAML_FLOW(n)
+#endif
+
+
 #endif

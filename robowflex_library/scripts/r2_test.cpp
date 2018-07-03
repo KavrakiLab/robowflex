@@ -13,6 +13,8 @@ int main(int argc, char **argv)
     auto r2 = std::make_shared<R2Robot>();
     r2->initialize({"legsandtorso"});
 
+    r2->dumpGeometry("r2.yaml");
+
     auto scene = std::make_shared<Scene>(r2);
 
     auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
