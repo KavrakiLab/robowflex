@@ -1,14 +1,15 @@
 /* Author: Zachary Kingston */
 #include <signal.h>
 
-#if IS_BOOST_164
-#include <boost/process.hpp>
-#endif
-
 #include <ros/init.h>
 #include <ros/master.h>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
+
+#if IS_BOOST_164
+#include <boost/process.hpp>
+#endif
 
 using namespace robowflex;
 
