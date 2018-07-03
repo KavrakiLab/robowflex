@@ -247,15 +247,101 @@ bool Robot::inCollision(const SceneConstPtr &scene) const
 {
     collision_detection::CollisionRequest request;
     collision_detection::CollisionResult result;
-
-    scene->getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
+    v scene->getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
 
     return result.collision;
 }
 
+namespace
+{
+    YAML::Node getLinkGeometry(const urdf::GeometrySharedPtr &geometry)
+    {
+        YAML::Node node;
+        switch (geometry->type)
+        {
+            case urdf::Geometry::MESH:
+            {
+                const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
+                node["type"] = "mesh";
+                node["resource"] = IO::resolvePath(mesh->filename);
+                node["dimensions"] = std::vector<double>({mesh->scale.x, mesh->scale.y, mesh->scale.z});
+                break;
+            }
+            case urdf::Geometry::BOX:
+            {
+                const auto &box = static_cast<urdf::Box *>(geometry.get());
+                node["type"] = "box";
+                node["dimensions"] = std::vector<double>({box->dim.x, box->dim.y, box->dim.z});
+                break;
+            }
+            case urdf::Geometry::SPHERE:
+            {
+                const auto &sphere = static_cast<urdf::Sphere *>(geometry.get());
+                node["type"] = "sphere";
+                node["dimensions"] = std::vector<double>({sphere->radius});
+                break;
+            }
+            case urdf::Geometry::CYLINDER:
+            {
+                const auto &cylinder = static_cast<urdf::Cylinder *>(geometry.get());
+                node["type"] = "cylinder";
+                node["dimensions"] = std::vector<double>({cylinder->length, cylinder->radius});
+                break;
+            }
+            default:
+                break;
+        }
+
+        return node;
+    }
+
+    void addLinkMaterial(YAML::Node &node, const urdf::MaterialSharedPtr &material)
+    {
+        node["color"] =
+            std::vector<double>({material->color.r, material->color.g, material->color.b, material->color.a});
+        // node["texture"] = visual->texture_filename;
+    }
+
+    YAML::Node addLinkVisual(const urdf::VisualSharedPtr &visual)
+    {
+        YAML::Node node;
+        if (visual)
+        {
+            if (visual->geometry)
+            {
+                const auto &geometry = visual->geometry;
+                node = addLinkGeometry(geometry);
+
+                if (visual->material)
+                {
+                    const auto &material = visual->material;
+                    addLinkMaterial(node, material);
+                }
+            }
+        }
+
+        return node;
+    }
+
+    YAML::Node addLinkCollision(const urdf::CollisionSharedPtr &collision)
+    {
+        YAML::Node node;
+        if (collision)
+        {
+            if (collision->geometry)
+            {
+                const auto &geometry = collision->geometry;
+                node = addLinkGeometry(geometry);
+            }
+        }
+
+        return node;
+    }
+}  // namespace
+
 bool Robot::dumpGeometry(const std::string &filename) const
 {
-    YAML::Node node;
+    YAML::Node link_geometry;
     const auto &urdf = model_->getURDF();
 
     std::vector<urdf::LinkSharedPtr> links;
@@ -263,21 +349,50 @@ bool Robot::dumpGeometry(const std::string &filename) const
 
     for (const auto &link : links)
     {
-        if (link->visual && link->visual->geometry)
+        YAML::Node visual;
+        if (link->visual)
+            visual['visual'] = addLinkVisual(link->visual);
+
+        auto &groups = visual["groups"];
+        for (const auto &group_pair : link->visual_groups)
         {
-            const auto &geometry = link->visual->geometry;
-            if (geometry->type == urdf::Geometry::MESH)
-            {
-                const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
-                node[link->name] = IO::resolvePath(mesh->filename);
-            }
+            YAML::Node geometry, group;
+            for (const auto &visual : *group_pair.second)
+                if (visual)
+                    geometry.push_back(addLinkVisual(visual));
+
+            group["name"] = group_pair.first;
+            group["elements"] = geometry;
+            groups.push_back(group);
         }
+
+        YAML::Node collision;
+        if (link->collision)
+            collision['collision'] = addLinkCollision(link->collision);
+
+        auto &groups = collision["groups"];
+        for (const auto &group_pair : link->collision_groups)
+        {
+            YAML::Node geometry, group;
+            for (const auto &collision : *group_pair.second)
+                if (collision)
+                    geometry.push_back(addLinkCollision(collision));
+
+            group["name"] = group_pair.first;
+            group["elements"] = geometry;
+            groups.push_back(group);
+        }
+
+        auto &node = link_geometry[link->name];
+        node["visual"] = visual;
+        node["collision"] = collision;
     }
 
-    return IO::YAMLtoFile(node, filename);
+    return IO::YAMLtoFile(link_geometry, filename);
 }
 
-bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps)
+bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
+                               double fps)
 {
     YAML::Node node, values;
 
