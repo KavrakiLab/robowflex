@@ -348,6 +348,21 @@ namespace
 
         return node;
     }
+
+    Eigen::Affine3d urdfPoseToEigen(const urdf::Pose &pose)
+    {
+        geometry_msgs::Pose msg;
+        msg.position.x = pose.position.x;
+        msg.position.y = pose.position.y;
+        msg.position.z = pose.position.z;
+
+        msg.orientation.x = pose.rotation.x;
+        msg.orientation.y = pose.rotation.y;
+        msg.orientation.z = pose.rotation.z;
+        msg.orientation.w = pose.rotation.w;
+
+        return TF::poseMsgToEigen(msg);
+    }
 }  // namespace
 
 bool Robot::dumpGeometry(const std::string &filename) const
@@ -419,17 +434,18 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
         YAML::Node point;
 
         path.getStateAtDurationFromStart(duration, state);
-
         if (previous && state->distance(*previous) < threshold)
             continue;
 
         state->update();
         for (const auto &link_name : model_->getLinkModelNames())
         {
-            if (urdf->getLink(link_name)->visual)
+            const auto &urdf_link = urdf->getLink(link_name);
+            if (urdf_link->visual)
             {
                 const auto &link = model_->getLinkModel(link_name);
-                Eigen::Affine3d tf = state->getGlobalLinkTransform(link) * link->getVisualMeshOrigin();
+                Eigen::Affine3d tf =
+                    state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }
         }

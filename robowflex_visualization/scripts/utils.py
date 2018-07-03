@@ -6,7 +6,14 @@ stay updated with that.
 
 import logging
 import os.path
-import rospkg
+
+have_rospkg = False
+try:
+    import rospkg
+    have_rospkg = True
+except ImportError:
+    logging.warn('Cannot import `rospkg`! Will not resolve package paths...')
+
 import yaml
 try:
     from yaml import CLoader as Loader
@@ -22,20 +29,19 @@ def resolvePackage(path):
     if not path:
         return ''
 
-    PREFIX = 'package://'
-    if PREFIX in path:
-        path = path[len(PREFIX):]    # Remove 'package://'
-        if '/' not in path:
-            package_name = path
-            path = ''
-        else:
-            package_name = path[:path.find('/')]
-            path = path[path.find('/'):]
-        rospack = rospkg.RosPack()
-        package_path1 = rospack.get_path(package_name)
-
-    else:
-        package_path1 = ''
+    package_path1 = ''
+    if have_rospkg:
+         PREFIX = 'package://'
+         if PREFIX in path:
+             path = path[len(PREFIX):]    # Remove 'package://'
+             if '/' not in path:
+                 package_name = path
+                 path = ''
+             else:
+                 package_name = path[:path.find('/')]
+                 path = path[path.find('/'):]
+             rospack = rospkg.RosPack()
+             package_path1 = rospack.get_path(package_name)
 
     return os.path.realpath(package_path1 + path)
 
