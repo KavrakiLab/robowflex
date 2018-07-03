@@ -91,7 +91,8 @@ def add_mesh(mesh):
     else:
         return None
     obj = bpy.context.active_object
-    set_color(obj, mesh)
+    bpy.ops.object.shade_smooth()
+    # set_color(obj, mesh) TODO: Some meshes come with materials, some don't, figure out what to do here.
     if 'dimensions' in mesh:
         obj.scale = mesh['dimensions']
     else:
