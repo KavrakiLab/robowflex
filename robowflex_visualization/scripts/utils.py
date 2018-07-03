@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' 
+'''
 Simple functions you shouldn't have to worry about.
 Copied as much as possible from `robowflex_library`, and should stay updated with that.
 '''
@@ -13,6 +13,7 @@ try:
 except ImportError:
     from yaml import Loader
 
+
 def resolvePackage(path):
     """
     Resolves `package://` URLs to their canonical form. The path does not need
@@ -21,14 +22,14 @@ def resolvePackage(path):
     """
     if not path:
         return ''
-    
+
     PREFIX = 'package://'
     if PREFIX in path:
-        path = path[len(PREFIX):] # Remove 'package://'
+        path = path[len(PREFIX):]  # Remove 'package://'
         if '/' not in path:
             package_name = path
             path = ''
-        else:   
+        else:
             package_name = path[:path.find('/')]
             path = path[path.find('/'):]
         rospack = rospkg.RosPack()
@@ -37,6 +38,7 @@ def resolvePackage(path):
         package_path1 = ''
 
     return os.path.realpath(package_path1 + path)
+
 
 def resolvePath(path):
     """
@@ -49,7 +51,7 @@ def resolvePath(path):
         return ''
     return full_path
 
-        
+
 def read_yaml_data(file_name):
     ''' Returns the yaml data structure of the data stored. '''
     full_name = resolvePath(file_name)

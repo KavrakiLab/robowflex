@@ -5,14 +5,14 @@ A module for reading in Blender Scene Descriptions from yaml.
 
 import os
 import sys
-#pylint: disable=import-error
+# pylint: disable=import-error
 import bpy
 
 CURRENT_DIRECTORY = os.getcwd()
 if not CURRENT_DIRECTORY in sys.path:
     sys.path.append(CURRENT_DIRECTORY)
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 import blender_utils
 import utils
 
@@ -21,11 +21,14 @@ import utils
 #     camera direction and position
 #     sun lights, point lights, rays, cones, etc,
 
+
 def add_light(light):
     pass
 
+
 def add_camera(camera):
     pass
+
 
 def set_render_settings(settings):
     '''
@@ -34,6 +37,8 @@ def set_render_settings(settings):
     for details.
     '''
     r_set = bpy.types.RenderSettings()
+
+    # yapf: disable
     ALL_SETTINGS = [
         'alpha_mode',
         'antialiasing_samples',
@@ -112,6 +117,8 @@ def set_render_settings(settings):
         'use_textures',
         'use_world_space_shading'
     ]
+    # yapf: enable
+
     for attr in ALL_SETTINGS:
         if attr in settings:
             setattr(r_set, attr, settings[attr])
@@ -121,10 +128,13 @@ def set_render_settings(settings):
     if 'image_format_settings' in settings:
         set_image_format_settings(settings['image_format_settings'])
 
+
 def set_ffmpeg_settings(settings):
     '''
     https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
     '''
+
+    #yapf: disable
     FFMPEG_SETTINGS = [
         'audio_bitrate',
         'audio_channels',
@@ -147,16 +157,21 @@ def set_ffmpeg_settings(settings):
         'use_max_b_frames',
         'video_bitrate'
     ]
+    # yapf: enable
+
     f_set = bpy.types.FFmpegSettings()
     for attr in FFMPEG_SETTINGS:
         if attr in settings:
             setattr(f_set, attr, settings[attr])
     bpy.context.scene.render.ffmpeg = f_set
 
+
 def set_image_format_settings(settings):
     '''
     https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
     '''
+
+    # yapf: disable
     IMAGE_SETTINGS = [
         'cineon_black',
         'cineon_gamma',
@@ -176,6 +191,8 @@ def set_image_format_settings(settings):
         'view_settings',
         'views_format'
     ]
+    # yapf: enable
+
     i_set = bpy.types.ImageFormatSettings()
     for attr in IMAGE_SETTINGS:
         if attr in settings:
@@ -190,6 +207,8 @@ def set_light_settings(settings):
     for details.
     '''
     w_set = bpy.types.WorldLight()
+
+    # yapf: disable
     ALL_SETTINGS = [
         'adapt_to_speed',
         'ao_blend_type',
@@ -206,7 +225,7 @@ def set_light_settings(settings):
         'indirect_factor',
         'passes',
         'sample_method',
-        'samples',  
+        'samples',
         'threshold',
         'use_ambient_occlusion',
         'use_cache',
@@ -214,6 +233,8 @@ def set_light_settings(settings):
         'use_indirect_light',
         'use_falloff'
     ]
+    # yapf: enable
+
     for attr in ALL_SETTINGS:
         if attr in settings:
             setattr(w_set, attr, settings[attr])

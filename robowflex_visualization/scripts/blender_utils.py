@@ -3,6 +3,7 @@
 # pylint: disable=import-error
 import bpy
 
+
 def add_mat_to_obj(obj, mat):
     ''' Adds a material to an object. '''
     if obj.data.materials:
@@ -11,6 +12,7 @@ def add_mat_to_obj(obj, mat):
     else:
         # no slots
         obj.data.materials.append(mat)
+
 
 def add_camera(location, rotation):
     ''' Adds camera to a location and a quaternion rotation. '''
@@ -27,12 +29,14 @@ def add_sun(location, shadow):
         bpy.context.active_object.data.shadow_method = 'RAY_SHADOW'
         bpy.context.active_object.data.shadow_ray_samples = 6
 
+
 def delete_all():
     '''
     Deletes all selectable things from the scene (objects, cameras, lights, etc)
     '''
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
+
 
 def hex_to_rgb(hex_str):
     ''' Converts a RGB hex string into three tuple of color. Supports anything like *123456'''
@@ -48,16 +52,19 @@ def hex_to_rgb(hex_str):
     b = pow(fin[2] / 255, gamma)
     return (r, g, b)
 
+
 def pose_to_quat(pose):
-    ''' 
+    '''
     Takes a pose dict and extracts the orientation quaternion.
     ROS quaternions or XYZW, but Blender's are WXYZ, so reorder them.
     '''
     return pose['orientation'][3:] + pose['orientation'][:3]
 
+
 def pose_to_vec(pose):
     ''' Takes a pose dict and extracts the position vector. '''
     return pose['position']
+
 
 def set_pose(obj, pose):
     ''' Sets the pose of a blender object by passing in a pose dict. '''
