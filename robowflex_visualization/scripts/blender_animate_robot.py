@@ -88,8 +88,15 @@ class RobotFrames(object):
         '''Adds key frames for each of the robot's links according to point data.
 
         '''
-        for idx, point in enumerate(self.points):
-            bpy.context.scene.frame_set(idx)
+        # Sometimes, weird keyframes are being added way after finish. Delete those.
+        for link in self.link_list:
+            link_name = link['name']
+            for name in self.link_to_parts[link_name]:
+                i_obj = bpy.data.objects[name]
+                i_obj.animation_data_clear()
+        current_frame = 0
+        for point in self.points:
+            bpy.context.scene.frame_set(current_frame)
             for link in self.link_list:
                 link_name = link['name']
                 for name in self.link_to_parts[link_name]:
@@ -97,10 +104,10 @@ class RobotFrames(object):
                     blender_utils.set_pose(i_obj, point['point'][link_name])
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
+            current_frame += fps  * point['duration']
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = -self.frame_extra_count
         bpy.context.scene.frame_end = len(self.points) - 1 + self.frame_extra_count
-
 
 def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
