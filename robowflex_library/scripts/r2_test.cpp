@@ -21,11 +21,12 @@ int main(int argc, char **argv)
     planner->initialize();
 
     MotionRequestBuilder request(planner, "legsandtorso");
-    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan.yml");
+    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
+    r2->dumpPathTransforms(*res.trajectory_, "r2_path.yaml", 30, 0.5);
     return 0;
 }

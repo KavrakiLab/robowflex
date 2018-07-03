@@ -5,6 +5,25 @@
 # pylint: disable=import-error
 import bpy
 
+def apply_smooth():
+    '''Applies the smooth shading to the selected object.
+
+    '''
+    bpy.ops.object.shade_smooth()
+
+def apply_edge_split():
+    '''Applies the edge split modifier to the selected object.
+
+    '''
+    bpy.ops.object.modifier_add(type = 'EDGE_SPLIT')
+
+
+def apply_subsurf():
+    '''Applies the subsurface modifier to the selected object.
+
+    '''
+    bpy.ops.object.modifier_add(type = "SUBSURF")
+
 
 def add_mat_to_obj(obj, mat):
     '''Adds a material to an object.

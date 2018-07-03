@@ -47,6 +47,7 @@ def add_sphere(sphere):
     bpy.ops.mesh.primitive_uv_sphere_add(size = sphere['dimensions'][0])
     obj = bpy.context.active_object
     set_color(obj, sphere)
+    blender_utils.apply_smooth()
     return obj
 
 
@@ -58,6 +59,8 @@ def add_cylinder(cylinder):
     radius = cylinder['dimensions'][1]
     bpy.ops.mesh.primitive_cylinder_add(radius = radius, depth = height)
     obj = bpy.context.active_object
+    blender_utils.apply_smooth()
+    blender_utils.apply_edge_split()
     set_color(obj, cylinder)
     return obj
 
@@ -91,7 +94,8 @@ def add_mesh(mesh):
     else:
         return None
     obj = bpy.context.active_object
-    bpy.ops.object.shade_smooth()
+    blender_utils.apply_smooth()
+    blender_utils.apply_edge_split()
     # set_color(obj, mesh) TODO: Some meshes come with materials, some don't, figure out what to do here.
     if 'dimensions' in mesh:
         obj.scale = mesh['dimensions']
