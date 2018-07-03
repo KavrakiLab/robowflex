@@ -68,8 +68,8 @@ int main(int argc, char **argv)
     tmp.insert(tmp.end(), start_joint_positions.begin(), start_joint_positions.end());
     start_joint_positions = tmp;
 
-    IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
-    //rviz.updateScene(scene);
+    //IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
+
     int a;
     std::cin >> a;
     for (; count < NUM_ITERATIONS; count++)
@@ -85,14 +85,14 @@ int main(int argc, char **argv)
             success_count++;
         }
 
-        rviz.updateTrajectories(res);
-        rviz.updateMarkers();
+        //rviz.updateTrajectories(res);
+        //rviz.updateMarkers();
 
         time_spent += (ros::Time::now().nsec - begin);
     }
 
-    while(true)
-        ros::spinOnce();
+    //while(true)
+    //    ros::spinOnce();
 
     std::cout << "Time spent: " << time_spent << std::endl;
     std::cout << "Number of runs: " << count << std::endl;
