@@ -23,7 +23,6 @@ import blender_load_scene as blender_scene
 import blender_animate_robot as blender_robot
 import blender_render_scene as blender_render
 
-
 if __name__ == '__main__':
     imp.reload(blender_scene)
     imp.reload(blender_utils)

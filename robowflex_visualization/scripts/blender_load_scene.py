@@ -17,15 +17,17 @@ if not CURRENT_DIRECTORY in sys.path:
 import blender_utils
 import utils
 
+
 def set_color(obj, element):
     if 'color' in element:
         # TODO: figure out a better way to make new materials?
-        mat = bpy.data.materials.new(name=str(random.randint(1, 100000)))
+        mat = bpy.data.materials.new(name = str(random.randint(1, 100000)))
         mat.diffuse_color = element['color'][:3]
         if len(element['color']) > 3:
             # An alpha value was provided
             mat.alpha = element['color'][3]
         blender_utils.add_mat_to_obj(obj, mat)
+
 
 def add_box(box):
     '''Creates and adds a dict of shape_msgs::SolidPrimitive box to the blender scene.

@@ -38,13 +38,13 @@ COMMON_LIGHT_SETTINGS = [
     'use_only_shadow',
     'use_shadow',
     'use_shadow_layer'
-]
+] #yapf: disable
 
 def add_point_light(light):
     '''
     https://docs.blender.org/api/current/bpy.types.PointLamp.html
     '''
-    bpy.ops.object.lamp_add(type='POINT', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.ops.object.lamp_add(type = 'POINT', location = blender_utils.pose_to_vec(light['pose']))
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
         'compression_threshold',
         'constant_coefficient',
@@ -56,17 +56,18 @@ def add_point_light(light):
         'quadratic_attenuation',
         'quadratic_coefficient',
         'use_sphere'
-    ]
+    ] #yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context.active_object.data, attr, light[attr])
     return
 
+
 def add_sun_light(light):
     '''
     https://docs.blender.org/api/current/bpy.types.SunLamp.html
     '''
-    bpy.ops.object.lamp_add(type='SUN', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.ops.object.lamp_add(type = 'SUN', location = blender_utils.pose_to_vec(light['pose']))
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
         'compression_threshold',
         'ge_shadow_buffer_type',
@@ -78,11 +79,12 @@ def add_sun_light(light):
             setattr(bpy.context.active_object.data, attr, light[attr])
     return
 
+
 def add_spot_light(light):
     '''
     https://docs.blender.org/api/current/bpy.types.SpotLamp.html
     '''
-    bpy.ops.object.lamp_add(type='SPOT', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.ops.object.lamp_add(type = 'SPOT', location = blender_utils.pose_to_vec(light['pose']))
     bpy.context.active_object.rotation_mode = 'QUATERNION'
     bpy.context.active_object.rotation_quaternion = blender_utils.pose_to_quat(light['pose'])
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
@@ -103,24 +105,26 @@ def add_spot_light(light):
         'use_halo',
         'use_sphere',
         'use_square',
-    ]
+    ] #yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context.active_object.data, attr, light[attr])
     return
 
+
 def add_hemi_light(light):
     '''
     https://docs.blender.org/api/current/bpy.types.HemiLamp.html
     '''
-    bpy.ops.object.lamp_add(type='HEMI', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.ops.object.lamp_add(type = 'HEMI', location = blender_utils.pose_to_vec(light['pose']))
     return
+
 
 def add_area_light(light):
     '''
     https://docs.blender.org/api/current/bpy.types.AreaLamp.html
     '''
-    bpy.ops.object.lamp_add(type='AREA', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.ops.object.lamp_add(type = 'AREA', location = blender_utils.pose_to_vec(light['pose']))
     bpy.context.active_object.rotation_mode = 'QUATERNION'
     bpy.context.active_object.rotation_quaternion = blender_utils.pose_to_quat(light['pose'])
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
@@ -133,7 +137,7 @@ def add_area_light(light):
         'use_dither',
         'use_jitter',
         'use_umbra'
-    ]
+    ] # yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context.active_object.data, attr, light[attr])
@@ -141,17 +145,16 @@ def add_area_light(light):
 
 
 LIGHT_MAP = {
-    'point' : add_point_light,
-    'sun' : add_sun_light,
-    'spot' : add_spot_light,
-    'hemi' : add_hemi_light,
-    'area' : add_area_light,
+    'point': add_point_light,
+    'sun': add_sun_light,
+    'spot': add_spot_light,
+    'hemi': add_hemi_light,
+    'area': add_area_light,
 }
 
 
-
 def add_light(light):
-    LIGHT_MAP[light['type'].lower()](light) 
+    LIGHT_MAP[light['type'].lower()](light)
     # Set the common light settings:
     ALL_SETTINGS = [
         'color',
@@ -162,7 +165,7 @@ def add_light(light):
         'use_nodes',
         'use_own_layer',
         'use_specular'
-    ]
+    ] #yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context_active_object.data, attr, light[attr])
@@ -170,9 +173,7 @@ def add_light(light):
 
 
 def add_camera(camera):
-    blender_utils.add_camera(
-        blender_utils.pose_to_vec(camera['pose']),
-        blender_utils.pose_to_quat(camera['pose']))
+    blender_utils.add_camera(blender_utils.pose_to_vec(camera['pose']), blender_utils.pose_to_quat(camera['pose']))
 
 
 def set_render_settings(settings):
@@ -363,6 +364,7 @@ def set_light_settings(settings):
     for attr in ALL_SETTINGS:
         if attr in settings:
             setattr(bpy.data.worlds['World'].light_settings, attr, settings[attr])
+
 
 def add_blender_scene(scenefile):
     scene = utils.read_yaml_data(scenefile)
