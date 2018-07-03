@@ -209,9 +209,11 @@ namespace robowflex
          *  \param[in] path Path to output.
          *  \param[in] filename Filename to output to.
          *  \param[in] fps The transforms (frames) per second used to interpolate the given path.
+         *  \param[in] threshold The minimum distance between states before transforms are output.
          *  \return True on success, false on failure.
          */
-        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename, double fps=30);
+        bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
+                                double fps = 30, double threshold = 0.0);
 
         /** \} */
 

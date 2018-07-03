@@ -401,22 +401,27 @@ bool Robot::dumpGeometry(const std::string &filename) const
 }
 
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
-                               double fps)
+                               double fps, double threshold)
 {
     YAML::Node node, values;
+    const double rate = 1.0 / fps;
 
     // Find the total duration of the path.
     const std::deque<double> &durations = path.getWayPointDurations();
     double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
 
-    robot_state::RobotStatePtr state(new robot_state::RobotState(model_));
-    for (double duration = 0.0; duration < total_duration; duration += (1.0 / fps))
+    robot_state::RobotStatePtr previous, state(new robot_state::RobotState(model_));
+
+    for (double duration = 0.0, delay = 0.0; duration < total_duration; duration += rate, delay += rate)
     {
         YAML::Node point;
 
         path.getStateAtDurationFromStart(duration, state);
-        state->update();
 
+        if (previous && state->distance(*previous) < threshold)
+            continue;
+
+        state->update();
         for (const auto &link : model_->getLinkModels())
         {
             Eigen::Affine3d tf = state->getGlobalLinkTransform(link) * link->getVisualMeshOrigin();
@@ -425,12 +430,19 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
 
         YAML::Node value;
         value["point"] = point;
-        value["duration"] = 1.0 / fps;
+        value["duration"] = delay;
         values.push_back(value);
+
+        delay = 0;
+
+        if (!previous)
+            previous.reset(new robot_state::RobotState(model_));
+
+        *previous = *state;
     }
 
-    node["fps"] = fps;
     node["transforms"] = values;
+    node["fps"] = fps;
 
     return IO::YAMLtoFile(node, filename);
 }
