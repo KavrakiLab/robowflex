@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-'''
-A module for reading in Blender Scene Descriptions from yaml.
+'''A module for reading in Blender Scene Descriptions from yaml.
+
 '''
 
 import os
@@ -31,10 +31,8 @@ def add_camera(camera):
 
 
 def set_render_settings(settings):
-    '''
-    Settings for rendering. See
-    https://docs.blender.org/api/current/bpy.types.RenderSettings.html
-    for details.
+    '''Settings for rendering. See https://docs.blender.org/api/current/bpy.types.RenderSettings.html for details.
+
     '''
     r_set = bpy.types.RenderSettings()
 
@@ -128,8 +126,8 @@ def set_render_settings(settings):
 
 
 def set_ffmpeg_settings(settings):
-    '''
-    https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
+    '''https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
+
     '''
 
     FFMPEG_SETTINGS = [
@@ -163,8 +161,8 @@ def set_ffmpeg_settings(settings):
 
 
 def set_image_format_settings(settings):
-    '''
-    https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
+    '''https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
+
     '''
 
     IMAGE_SETTINGS = [
@@ -195,10 +193,8 @@ def set_image_format_settings(settings):
 
 
 def set_light_settings(settings):
-    '''
-    Settings for world lighting. See
-    https://docs.blender.org/api/current/bpy.types.WorldLighting.html
-    for details.
+    '''Settings for world lighting. See https://docs.blender.org/api/current/bpy.types.WorldLighting.html for details.
+
     '''
     w_set = bpy.types.WorldLight()
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-'''
-Reads in a static file of transforms of different parts of the ur5
-robot and animates them in blender.
+'''Reads in a static file of transforms of different parts of the ur5 robot and animates them in blender.
+
 '''
 import json
 import sys
@@ -28,7 +27,8 @@ import blender_load_scene as blender_scene
 
 class RobotFrames(object):
     def __init__(self, points, link_map, distance_threshold = 0.07, frame_extra_count = 10):
-        '''
+        '''Initialize RobotFrames.
+
         @param points: a list of dictionaries that contain a point (TF
                locations of each link) and a duration.
         @param link_map: a map between the link name and its mesh file.
@@ -36,6 +36,7 @@ class RobotFrames(object):
                frame as 'moving'
         @param frame_extra_count: the number of frames to render before the
                robot starts/stops moving.
+
         '''
         if not points:
             raise ValueError('Points should not be empty')
@@ -50,7 +51,9 @@ class RobotFrames(object):
         self.link_to_parts = {}
 
     def load_meshes(self):
-        ''' Loads all of the robot's meshes into the scene. '''
+        '''Loads all of the robot's meshes into the scene.
+
+        '''
         for link_name, mesh_file in self.link_map.items():
             # Mark all objects as imported
             old = set([obj.name for obj in bpy.data.objects])
@@ -78,7 +81,9 @@ class RobotFrames(object):
             self.link_to_parts[link_name] = remaining
 
     def animate(self, fps = 30):
-        ''' Adds key frames for each of the robot's links according to point data. '''
+        '''Adds key frames for each of the robot's links according to point data.
+
+        '''
         for idx, point in enumerate(self.points):
             bpy.context.scene.frame_set(idx)
             for link_name in self.link_map:
@@ -93,10 +98,11 @@ class RobotFrames(object):
 
 
 def animate_robot(mesh_map_file, path_file):
-    '''
-    Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms,
-    load the robot into blender and animate its path.
+    '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
+    animate its path.
+
     WARNING: well delete all existing objects in the scene.
+
     '''
 
     blender_utils.delete_all()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-'''
-Simple functions you shouldn't have to worry about.
-Copied as much as possible from `robowflex_library`, and should stay updated with that.
+'''Simple functions you shouldn't have to worry about. Copied as much as possible from `robowflex_library`, and should
+stay updated with that.
+
 '''
 
 import logging
@@ -15,11 +15,10 @@ except ImportError:
 
 
 def resolvePackage(path):
-    """
-    Resolves `package://` URLs to their canonical form. The path does not need
-    to exist, but the package does. Can be used to write new files in packages.
-    Returns "" on failure.
-    """
+    '''Resolves `package://` URLs to their canonical form. The path does not need to exist, but the package does. Can be
+    used to write new files in packages. Returns "" on failure.
+
+    '''
     if not path:
         return ''
 
@@ -42,10 +41,9 @@ def resolvePackage(path):
 
 
 def resolvePath(path):
-    """
-    Resolves `package://` URLs and relative file paths to their canonical form.
-    Returns "" on failure.
-    """
+    '''Resolves `package://` URLs and relative file paths to their canonical form. Returns "" on failure.
+
+    '''
     full_path = resolvePackage(path)
     if not os.path.exists(full_path):
         logging.warn('File {} does not exist'.format(full_path))
@@ -54,7 +52,9 @@ def resolvePath(path):
 
 
 def read_yaml_data(file_name):
-    ''' Returns the yaml data structure of the data stored. '''
+    '''Returns the yaml data structure of the data stored.
+
+    '''
     full_name = resolvePath(file_name)
     if not full_name:
         logging.warn('Cannot open {}'.format(file_name))
