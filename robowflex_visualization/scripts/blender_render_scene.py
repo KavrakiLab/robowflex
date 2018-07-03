@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-'''
-A module for reading in Blender Scene Descriptions from yaml.
+'''A module for reading in Blender Scene Descriptions from yaml.
+
 '''
 
 import os
 import sys
-#pylint: disable=import-error
+# pylint: disable=import-error
 import bpy
 
 CURRENT_DIRECTORY = os.getcwd()
 if not CURRENT_DIRECTORY in sys.path:
     sys.path.append(CURRENT_DIRECTORY)
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 import blender_utils
 import utils
 
@@ -149,6 +149,7 @@ LIGHT_MAP = {
 }
 
 
+
 def add_light(light):
     LIGHT_MAP[light['type'].lower()](light) 
     # Set the common light settings:
@@ -167,16 +168,16 @@ def add_light(light):
             setattr(bpy.context_active_object.data, attr, light[attr])
     return
 
+
 def add_camera(camera):
     blender_utils.add_camera(
         blender_utils.pose_to_vec(camera['pose']),
         blender_utils.pose_to_quat(camera['pose']))
 
+
 def set_render_settings(settings):
-    '''
-    Settings for rendering. See
-    https://docs.blender.org/api/current/bpy.types.RenderSettings.html
-    for details.
+    '''Settings for rendering. See https://docs.blender.org/api/current/bpy.types.RenderSettings.html for details.
+
     '''
     ALL_SETTINGS = [
         'alpha_mode',
@@ -255,7 +256,8 @@ def set_render_settings(settings):
         'use_stamp_render_time',
         'use_textures',
         'use_world_space_shading'
-    ]
+    ] # yapf: disable
+
     for attr in ALL_SETTINGS:
         if attr in settings:
             setattr(bpy.context.scene.render, attr, settings[attr])
@@ -264,10 +266,12 @@ def set_render_settings(settings):
     if 'image_format_settings' in settings:
         set_image_format_settings(settings['image_format_settings'])
 
+
 def set_ffmpeg_settings(settings):
+    '''https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
+
     '''
-    https://docs.blender.org/api/current/bpy.types.FFmpegSettings.html
-    '''
+
     FFMPEG_SETTINGS = [
         'audio_bitrate',
         'audio_channels',
@@ -289,15 +293,18 @@ def set_ffmpeg_settings(settings):
         'use_lossless_output',
         'use_max_b_frames',
         'video_bitrate'
-    ]
+    ] # yapf: disable
+
     for attr in FFMPEG_SETTINGS:
         if attr in settings:
             setattr(bpy.context.scene.render.ffmpeg, attr, settings[attr])
 
+
 def set_image_format_settings(settings):
+    '''https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
+
     '''
-    https://docs.blender.org/api/current/bpy.types.ImageFormatSettings.html
-    '''
+
     IMAGE_SETTINGS = [
         'cineon_black',
         'cineon_gamma',
@@ -316,17 +323,15 @@ def set_image_format_settings(settings):
         'use_zbuffer',
         'view_settings',
         'views_format'
-    ]
+    ] # yapf: disable
     for attr in IMAGE_SETTINGS:
         if attr in settings:
             setattr(bpy.context.scene.render.image_format_settings, attr, settings[attr])
 
 
 def set_light_settings(settings):
-    '''
-    Settings for world lighting. See
-    https://docs.blender.org/api/current/bpy.types.WorldLighting.html
-    for details.
+    '''Settings for world lighting. See https://docs.blender.org/api/current/bpy.types.WorldLighting.html for details.
+
     '''
     ALL_SETTINGS = [
         'adapt_to_speed',
@@ -344,14 +349,15 @@ def set_light_settings(settings):
         'indirect_factor',
         'passes',
         'sample_method',
-        'samples',  
+        'samples',
         'threshold',
         'use_ambient_occlusion',
         'use_cache',
         'use_environment_light',
         'use_indirect_light',
         'use_falloff'
-    ]
+    ] # yapf: disable
+
     if not bpy.data.worlds:
         bpy.ops.world.new()
     for attr in ALL_SETTINGS:

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-'''
-Reads in a static file of transforms of different parts of the ur5
-robot and animates them in blender.
+'''Reads in a static file of transforms of different parts of the ur5 robot and animates them in blender.
+
 '''
 import json
 import sys
@@ -26,17 +25,19 @@ import blender_utils
 import utils
 import blender_load_scene as blender_scene
 
+
 class RobotFrames(object):
-    def __init__(self, points, link_list, 
-                 distance_threshold=0.07, frame_extra_count=10):
-        '''
-        @param points: a list of dictionaries that contain a point (TF 
+    def __init__(self, points, link_list, distance_threshold = 0.07, frame_extra_count = 10):
+        '''Initialize RobotFrames.
+
+        @param points: a list of dictionaries that contain a point (TF
                locations of each link) and a duration.
-        @param link_map: a map between the link name and its mesh file.
+        @param link_list: a list of link elements (primitive or mesh) 
         @param distance_threshold: the minimum distance required to consider a
                frame as 'moving'
         @param frame_extra_count: the number of frames to render before the
                robot starts/stops moving.
+
         '''
         if not points:
             raise ValueError('Points should not be empty')
@@ -44,15 +45,16 @@ class RobotFrames(object):
         for link in link_list:
             for idx, point in enumerate(self.points):
                 if not link['name'] in point['point']:
-                    raise ValueError('Link ' + link['name'] + 'is not ' +
-                                     'present in frame ' + str(idx))
+                    raise ValueError('Link ' + link['name'] + 'is not present in frame ' + str(idx))
         self.link_list = link_list
         self.distance_threshold = distance_threshold
         self.frame_extra_count = frame_extra_count
         self.link_to_parts = {}
 
     def load_meshes(self):
-        ''' Loads all of the robot's meshes into the scene. '''
+        '''
+        Loads all of the robot's meshes into the scene. 
+        '''
         for link in self.link_list:
             link_name = link['name']
             # Mark all objects as imported
@@ -72,18 +74,20 @@ class RobotFrames(object):
                 # cameras and lamps. Delete those.
                 i_obj = bpy.data.objects[name]
                 if 'Camera' in name or 'Lamp' in name:
-                    bpy.ops.object.select_all(action='DESELECT')
+                    bpy.ops.object.select_all(action = 'DESELECT')
                     i_obj.select = True
                     bpy.ops.object.delete()
                     continue
                 blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
-                i_obj.keyframe_insert(data_path="location", index=-1)
+                i_obj.keyframe_insert(data_path = "location", index = -1)
                 i_obj.name = link_name
                 remaining.append(i_obj.name)
             self.link_to_parts[link_name] = remaining
 
-    def animate(self, fps=30):
-        ''' Adds key frames for each of the robot's links according to point data. '''
+    def animate(self, fps = 30):
+        '''Adds key frames for each of the robot's links according to point data.
+
+        '''
         for idx, point in enumerate(self.points):
             bpy.context.scene.frame_set(idx)
             for link in self.link_list:
@@ -91,19 +95,20 @@ class RobotFrames(object):
                 for name in self.link_to_parts[link_name]:
                     i_obj = bpy.data.objects[name]
                     blender_utils.set_pose(i_obj, point['point'][link_name])
-                    i_obj.keyframe_insert(data_path="location", index=-1)
-                    i_obj.keyframe_insert(data_path="rotation_quaternion", index=-1)
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = -self.frame_extra_count
         bpy.context.scene.frame_end = len(self.points) - 1 + self.frame_extra_count
 
-def animate_robot(mesh_map_file, path_file):
-    '''
-    Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms,
-    load the robot into blender and animate its path.
-    WARNING: well delete all existing objects in the scene.
-    '''
 
+def animate_robot(mesh_map_file, path_file):
+    '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
+    animate its path.
+
+    WARNING: well delete all existing objects in the scene.
+
+    '''
     blender_utils.delete_all()
 
     points = utils.read_yaml_data(path_file)
@@ -111,7 +116,7 @@ def animate_robot(mesh_map_file, path_file):
 
     robot_frames = RobotFrames(points, link_map)
     robot_frames.load_meshes()
-    robot_frames.animate(fps=points['fps'])
+    robot_frames.animate(fps = points['fps'])
 
     # TODO: auto-adjust the camera position until the full motion lies within
     # the frame? Will need to get bounding box of the entire motion, then
@@ -123,13 +128,3 @@ def animate_robot(mesh_map_file, path_file):
     # frame_radius = min dist(1/2 * (cam_frame[i] + cam_frame[j]) - Q)
     # Iterate over all frames and calculate an AABB for all links.
     # Minimize sum(abs(dist(project_point(v) - Q) - frame_radius)) for v in AABB
-
-    # Set the output to be MP4 H264 video.
-    bpy.context.scene.render.image_settings.file_format = 'FFMPEG'
-    bpy.context.scene.render.ffmpeg.format = 'MPEG4'
-    bpy.context.scene.render.ffmpeg.codec = 'H264'
-    bpy.context.scene.render.ffmpeg.constant_rate_factor = 'HIGH'
-
-    # Make the animation!
-    #bpy.ops.render.render(animation=True)
-
