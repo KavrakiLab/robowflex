@@ -32,6 +32,7 @@ namespace robowflex
 
     /** \class robowflex::SceneConstPtr
         \brief A const shared pointer wrapper for robowflex::Scene. */
+
     /** \brief Wrapper class around the planning scene and collision geometry.
      */
     class Scene

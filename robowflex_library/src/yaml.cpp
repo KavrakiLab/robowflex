@@ -5,16 +5,11 @@
 #include <algorithm>
 #include <string>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
-
-#if ROBOWFLEX_AT_LEAST_LUNAR
-#define ROBOWFLEX_YAML_FLOW(n) n.SetStyle(YAML::EmitterStyle::Flow);
-#else
-#define ROBOWFLEX_YAML_FLOW(n)
-#endif
 
 namespace
 {

@@ -11,6 +11,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>robowflex_library</exec_depend>
+  <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>tmpack</exec_depend>
 
   <export>
