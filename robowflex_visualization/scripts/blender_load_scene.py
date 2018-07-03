@@ -17,11 +17,15 @@ if not CURRENT_DIRECTORY in sys.path:
 import blender_utils
 import utils
 
-def set_color(obj, color):
-    # TODO: figure out a better way to make new materials?
-    mat = bpy.data.materials.new(name=str(random.randint(1, 100000)))
-    mat.diffuse_color = color
-    blender_utils.add_mat_to_obj(obj, mat)
+def set_color(obj, element):
+    if 'color' in element:
+        # TODO: figure out a better way to make new materials?
+        mat = bpy.data.materials.new(name=str(random.randint(1, 100000)))
+        mat.diffuse_color = element['color'][:3]
+        if len(element['color']) > 3:
+            # An alpha value was provided
+            mat.alpha = element['color'][3]
+        blender_utils.add_mat_to_obj(obj, mat)
 
 def add_box(box):
     ''' 
@@ -29,8 +33,8 @@ def add_box(box):
     '''
     bpy.ops.mesh.primitive_cube_add()
     obj = bpy.context.active_object
-    obj.scale = box['dimensions']
-    set_color(obj, (0, 0.9, 0.2))
+    obj.scale = [d / 2.0 for d in box['dimensions']]
+    set_color(obj, box)
     return obj
 
 def add_sphere(sphere):
@@ -39,7 +43,7 @@ def add_sphere(sphere):
     '''
     bpy.ops.mesh.primitive_uv_sphere_add(size=sphere['dimensions'][0])
     obj = bpy.context.active_object
-    set_color(obj, (0, 0.9, 0.2))
+    set_color(obj, sphere)
     return obj
 
 def add_cylinder(cylinder):
@@ -50,7 +54,7 @@ def add_cylinder(cylinder):
     radius = cylinder['dimensions'][1] 
     bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=height)
     obj = bpy.context.active_object
-    set_color(obj, (0, 0.9, 0.2))
+    set_color(obj, cylinder)
     return obj
 
 def add_cone(cone):
@@ -61,7 +65,7 @@ def add_cone(cone):
     radius = cone['dimensions'][1] 
     bpy.ops.mesh.primitive_cylinder_add(radius=radius, depth=height)
     obj = bpy.context.active_object
-    set_color(obj, (0, 0.9, 0.2))
+    set_color(obj, cone)
     return obj
 
 SHAPE_MAP = {
@@ -85,7 +89,11 @@ def add_mesh(mesh):
     else:
         return None
     obj = bpy.context.active_object
-    obj.scale = mesh['dimensions']
+    set_color(obj, mesh)
+    if 'dimensions' in mesh:
+        obj.scale = mesh['dimensions']
+    else:
+        obj.scale = (1, 1, 1)
     return obj
 
 def add_shape(shape):
@@ -109,6 +117,8 @@ def add_collision_objects(collision_objects):
             shapes = coll_obj['meshes']
             poses = coll_obj['mesh_poses']
         for shape, pose in zip(shapes, poses):
+            if not 'color' in shape:
+                shape['color'] = (0.0, 0.9, 0.2)
             obj = add_shape(shape)
             blender_utils.set_pose(obj, pose)
 

@@ -19,7 +19,6 @@ def add_camera(location, rotation):
     bpy.context.active_object.rotation_mode = 'QUATERNION'
     bpy.context.active_object.rotation_quaternion = rotation
 
-
 def add_sun(location, shadow):
     ''' Adds a sun/parallel light source to the scene. '''
     bpy.ops.object.lamp_add(type='SUN', location=location)
@@ -53,7 +52,11 @@ def pose_to_quat(pose):
     Takes a pose dict and extracts the orientation quaternion.
     ROS quaternions or XYZW, but Blender's are WXYZ, so reorder them.
     '''
-    return pose['orientation'][3:] + pose['orientation'][:3]
+    if isinstance(pose['orientation'][0], str):
+        # Means there's a NAN somewhere.
+        return (1.0, 0.0, 0.0, 0.0)
+    else:
+        return pose['orientation'][3:] + pose['orientation'][:3]
 
 def pose_to_vec(pose):
     ''' Takes a pose dict and extracts the position vector. '''

@@ -7,6 +7,7 @@ import json
 import sys
 import os
 import time
+import imp
 
 # pylint: disable=import-error
 import bpy
@@ -26,7 +27,7 @@ import utils
 import blender_load_scene as blender_scene
 
 class RobotFrames(object):
-    def __init__(self, points, link_map, 
+    def __init__(self, points, link_list, 
                  distance_threshold=0.07, frame_extra_count=10):
         '''
         @param points: a list of dictionaries that contain a point (TF 
@@ -40,26 +41,29 @@ class RobotFrames(object):
         if not points:
             raise ValueError('Points should not be empty')
         self.points = points['transforms']
-        for link_name in link_map.keys():
+        for link in link_list:
             for idx, point in enumerate(self.points):
-                if not link_name in point['point']:
-                    raise ValueError('Link ' + link_name + 'is not ' +
+                if not link['name'] in point['point']:
+                    raise ValueError('Link ' + link['name'] + 'is not ' +
                                      'present in frame ' + str(idx))
-        self.link_map = link_map
+        self.link_list = link_list
         self.distance_threshold = distance_threshold
         self.frame_extra_count = frame_extra_count
         self.link_to_parts = {}
 
     def load_meshes(self):
         ''' Loads all of the robot's meshes into the scene. '''
-        for link_name, mesh_file in self.link_map.items():
+        for link in self.link_list:
+            link_name = link['name']
             # Mark all objects as imported
             old = set([obj.name for obj in bpy.data.objects])
 
-            if '.dae' in mesh_file:
-                bpy.ops.wm.collada_import(filepath=mesh_file)
-            elif '.stl' in mesh_file:
-                bpy.ops.import_mesh.stl(filepath=mesh_file)
+            if 'visual' not in link:
+                self.link_to_parts[link_name] = []
+                continue
+            for link_element in link['visual']['elements']:
+                blender_scene.add_shape(link_element)
+
             new = set([obj.name for obj in bpy.data.objects])
             imported_names = new - old
             remaining = []
@@ -82,7 +86,8 @@ class RobotFrames(object):
         ''' Adds key frames for each of the robot's links according to point data. '''
         for idx, point in enumerate(self.points):
             bpy.context.scene.frame_set(idx)
-            for link_name in self.link_map:
+            for link in self.link_list:
+                link_name = link['name']
                 for name in self.link_to_parts[link_name]:
                     i_obj = bpy.data.objects[name]
                     blender_utils.set_pose(i_obj, point['point'][link_name])
@@ -128,6 +133,3 @@ def animate_robot(mesh_map_file, path_file):
     # Make the animation!
     #bpy.ops.render.render(animation=True)
 
-if __name__ == '__main__':
-    animate_robot('ur5.yaml', 'ur5_path.yaml')
-    blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')

@@ -16,16 +16,161 @@ if not CURRENT_DIRECTORY in sys.path:
 import blender_utils
 import utils
 
-# TODO: Setup similar to load scene:
-#   load cameras, lights, and other scene objects
-#     camera direction and position
-#     sun lights, point lights, rays, cones, etc,
+COMMON_LIGHT_SETTINGS = [
+    'shadow_adaptive_threshold',
+    'shadow_buffer_bias',
+    'shadow_buffer_bleed_bias',
+    'shadow_buffer_clip_end',
+    'shadow_buffer_clip_start',
+    'shadow_buffer_samples',
+    'shadow_buffer_size',
+    'shadow_buffer_soft',
+    'shadow_buffer_type',
+    'shadow_color',
+    'shadow_filter_type',
+    'shadow_method',
+    'shadow_ray_sample_method',
+    'shadow_ray_samples',
+    'shadow_sample_buffers',
+    'shadow_soft_size',
+    'use_auto_clip_end',
+    'use_auto_clip_start',
+    'use_only_shadow',
+    'use_shadow',
+    'use_shadow_layer'
+]
+
+def add_point_light(light):
+    '''
+    https://docs.blender.org/api/current/bpy.types.PointLamp.html
+    '''
+    bpy.ops.object.lamp_add(type='POINT', location=blender_utils.pose_to_vec(light['pose']))
+    ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
+        'compression_threshold',
+        'constant_coefficient',
+        'falloff_curve',
+        'falloff_type',
+        'ge_shadow_buffer_type',
+        'linear_attenuation',
+        'linear_coefficient',
+        'quadratic_attenuation',
+        'quadratic_coefficient',
+        'use_sphere'
+    ]
+    for attr in ALL_SETTINGS:
+        if attr in light:
+            setattr(bpy.context.active_object.data, attr, light[attr])
+    return
+
+def add_sun_light(light):
+    '''
+    https://docs.blender.org/api/current/bpy.types.SunLamp.html
+    '''
+    bpy.ops.object.lamp_add(type='SUN', location=blender_utils.pose_to_vec(light['pose']))
+    ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
+        'compression_threshold',
+        'ge_shadow_buffer_type',
+        'shadow_frustum_size',
+        'show_shadow_box',
+    ]
+    for attr in ALL_SETTINGS:
+        if attr in light:
+            setattr(bpy.context.active_object.data, attr, light[attr])
+    return
+
+def add_spot_light(light):
+    '''
+    https://docs.blender.org/api/current/bpy.types.SpotLamp.html
+    '''
+    bpy.ops.object.lamp_add(type='SPOT', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.context.active_object.rotation_mode = 'QUATERNION'
+    bpy.context.active_object.rotation_quaternion = blender_utils.pose_to_quat(light['pose'])
+    ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
+        'compression_threshold',
+        'constant_coefficient',
+        'falloff_curve',
+        'falloff_type',
+        'ge_shadow_buffer_type',
+        'halo_intensity',
+        'halo_step',
+        'linear_attenuation',
+        'linear_coefficient',
+        'quadratic_attenuation',
+        'quadratic_coefficient',
+        'show_cone',
+        'spot_blend',
+        'spot_size',
+        'use_halo',
+        'use_sphere',
+        'use_square',
+    ]
+    for attr in ALL_SETTINGS:
+        if attr in light:
+            setattr(bpy.context.active_object.data, attr, light[attr])
+    return
+
+def add_hemi_light(light):
+    '''
+    https://docs.blender.org/api/current/bpy.types.HemiLamp.html
+    '''
+    bpy.ops.object.lamp_add(type='HEMI', location=blender_utils.pose_to_vec(light['pose']))
+    return
+
+def add_area_light(light):
+    '''
+    https://docs.blender.org/api/current/bpy.types.AreaLamp.html
+    '''
+    bpy.ops.object.lamp_add(type='AREA', location=blender_utils.pose_to_vec(light['pose']))
+    bpy.context.active_object.rotation_mode = 'QUATERNION'
+    bpy.context.active_object.rotation_quaternion = blender_utils.pose_to_quat(light['pose'])
+    ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
+        'compression_threshold',
+        'gamma',
+        'ge_shadow_buffer_type',
+        'shape',
+        'size',
+        'size_y',
+        'use_dither',
+        'use_jitter',
+        'use_umbra'
+    ]
+    for attr in ALL_SETTINGS:
+        if attr in light:
+            setattr(bpy.context.active_object.data, attr, light[attr])
+    return
+
+
+LIGHT_MAP = {
+    'point' : add_point_light,
+    'sun' : add_sun_light,
+    'spot' : add_spot_light,
+    'hemi' : add_hemi_light,
+    'area' : add_area_light,
+}
+
 
 def add_light(light):
-    pass
+    LIGHT_MAP[light['type'].lower()](light) 
+    # Set the common light settings:
+    ALL_SETTINGS = [
+        'color',
+        'distance',
+        'energy',
+        'use_diffuse',
+        'use_negative',
+        'use_nodes',
+        'use_own_layer',
+        'use_specular'
+    ]
+    for attr in ALL_SETTINGS:
+        if attr in light:
+            setattr(bpy.context_active_object.data, attr, light[attr])
+    return
 
 def add_camera(camera):
-    pass
+    blender_utils.add_camera(
+        blender_utils.pose_to_vec(camera['pose']),
+        blender_utils.pose_to_quat(camera['pose']))
 
 def set_render_settings(settings):
     '''
@@ -33,7 +178,6 @@ def set_render_settings(settings):
     https://docs.blender.org/api/current/bpy.types.RenderSettings.html
     for details.
     '''
-    r_set = bpy.types.RenderSettings()
     ALL_SETTINGS = [
         'alpha_mode',
         'antialiasing_samples',
@@ -114,8 +258,7 @@ def set_render_settings(settings):
     ]
     for attr in ALL_SETTINGS:
         if attr in settings:
-            setattr(r_set, attr, settings[attr])
-    bpy.context.scene.render = r_set
+            setattr(bpy.context.scene.render, attr, settings[attr])
     if 'ffmpeg' in settings:
         set_ffmpeg_settings(settings['ffmpeg'])
     if 'image_format_settings' in settings:
@@ -147,11 +290,9 @@ def set_ffmpeg_settings(settings):
         'use_max_b_frames',
         'video_bitrate'
     ]
-    f_set = bpy.types.FFmpegSettings()
     for attr in FFMPEG_SETTINGS:
         if attr in settings:
-            setattr(f_set, attr, settings[attr])
-    bpy.context.scene.render.ffmpeg = f_set
+            setattr(bpy.context.scene.render.ffmpeg, attr, settings[attr])
 
 def set_image_format_settings(settings):
     '''
@@ -176,11 +317,9 @@ def set_image_format_settings(settings):
         'view_settings',
         'views_format'
     ]
-    i_set = bpy.types.ImageFormatSettings()
     for attr in IMAGE_SETTINGS:
         if attr in settings:
-            setattr(i_set, attr, settings[attr])
-    bpy.context.scene.render.image_format_settings = i_set
+            setattr(bpy.context.scene.render.image_format_settings, attr, settings[attr])
 
 
 def set_light_settings(settings):
@@ -189,7 +328,6 @@ def set_light_settings(settings):
     https://docs.blender.org/api/current/bpy.types.WorldLighting.html
     for details.
     '''
-    w_set = bpy.types.WorldLight()
     ALL_SETTINGS = [
         'adapt_to_speed',
         'ao_blend_type',
@@ -214,16 +352,14 @@ def set_light_settings(settings):
         'use_indirect_light',
         'use_falloff'
     ]
-    for attr in ALL_SETTINGS:
-        if attr in settings:
-            setattr(w_set, attr, settings[attr])
     if not bpy.data.worlds:
         bpy.ops.world.new()
-    bpy.data.worlds['World'].light_settings = w_set
-    pass
+    for attr in ALL_SETTINGS:
+        if attr in settings:
+            setattr(bpy.data.worlds['World'].light_settings, attr, settings[attr])
 
-
-def add_blender_scene(scene):
+def add_blender_scene(scenefile):
+    scene = utils.read_yaml_data(scenefile)
     for light in scene.get('lights', []):
         add_light(light)
     if 'camera' in scene:

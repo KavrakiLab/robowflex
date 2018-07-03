@@ -427,7 +427,6 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
         value["point"] = point;
         value["duration"] = 1.0 / fps;
         values.push_back(value);
-        break;
     }
 
     node["fps"] = fps;
