@@ -38,11 +38,12 @@ COMMON_LIGHT_SETTINGS = [
     'use_only_shadow',
     'use_shadow',
     'use_shadow_layer'
-] #yapf: disable
+] # yapf: disable
+
 
 def add_point_light(light):
-    '''
-    https://docs.blender.org/api/current/bpy.types.PointLamp.html
+    '''https://docs.blender.org/api/current/bpy.types.PointLamp.html
+
     '''
     bpy.ops.object.lamp_add(type = 'POINT', location = blender_utils.pose_to_vec(light['pose']))
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
@@ -56,7 +57,7 @@ def add_point_light(light):
         'quadratic_attenuation',
         'quadratic_coefficient',
         'use_sphere'
-    ] #yapf: disable
+    ] # yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context.active_object.data, attr, light[attr])
@@ -64,8 +65,8 @@ def add_point_light(light):
 
 
 def add_sun_light(light):
-    '''
-    https://docs.blender.org/api/current/bpy.types.SunLamp.html
+    '''https://docs.blender.org/api/current/bpy.types.SunLamp.html
+
     '''
     bpy.ops.object.lamp_add(type = 'SUN', location = blender_utils.pose_to_vec(light['pose']))
     ALL_SETTINGS = COMMON_LIGHT_SETTINGS + [
@@ -81,8 +82,8 @@ def add_sun_light(light):
 
 
 def add_spot_light(light):
-    '''
-    https://docs.blender.org/api/current/bpy.types.SpotLamp.html
+    '''https://docs.blender.org/api/current/bpy.types.SpotLamp.html
+
     '''
     bpy.ops.object.lamp_add(type = 'SPOT', location = blender_utils.pose_to_vec(light['pose']))
     bpy.context.active_object.rotation_mode = 'QUATERNION'
@@ -105,7 +106,7 @@ def add_spot_light(light):
         'use_halo',
         'use_sphere',
         'use_square',
-    ] #yapf: disable
+    ] # yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context.active_object.data, attr, light[attr])
@@ -113,16 +114,16 @@ def add_spot_light(light):
 
 
 def add_hemi_light(light):
-    '''
-    https://docs.blender.org/api/current/bpy.types.HemiLamp.html
+    '''https://docs.blender.org/api/current/bpy.types.HemiLamp.html
+
     '''
     bpy.ops.object.lamp_add(type = 'HEMI', location = blender_utils.pose_to_vec(light['pose']))
     return
 
 
 def add_area_light(light):
-    '''
-    https://docs.blender.org/api/current/bpy.types.AreaLamp.html
+    '''https://docs.blender.org/api/current/bpy.types.AreaLamp.html
+
     '''
     bpy.ops.object.lamp_add(type = 'AREA', location = blender_utils.pose_to_vec(light['pose']))
     bpy.context.active_object.rotation_mode = 'QUATERNION'
@@ -165,7 +166,7 @@ def add_light(light):
         'use_nodes',
         'use_own_layer',
         'use_specular'
-    ] #yapf: disable
+    ] # yapf: disable
     for attr in ALL_SETTINGS:
         if attr in light:
             setattr(bpy.context_active_object.data, attr, light[attr])

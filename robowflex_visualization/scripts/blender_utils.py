@@ -8,6 +8,7 @@ import bpy
 
 def add_mat_to_obj(obj, mat):
     '''Adds a material to an object.
+
     '''
     if obj.data.materials:
         # assign to 1st material slot
@@ -19,6 +20,7 @@ def add_mat_to_obj(obj, mat):
 
 def add_camera(location, rotation):
     '''Adds camera to a location and a quaternion rotation.
+
     '''
     bpy.ops.object.camera_add(location = location)
     bpy.context.scene.camera = bpy.context.active_object
@@ -28,6 +30,7 @@ def add_camera(location, rotation):
 
 def add_sun(location, shadow):
     '''Adds a sun/parallel light source to the scene.
+
     '''
     bpy.ops.object.lamp_add(type = 'SUN', location = location)
     if shadow:
@@ -37,6 +40,7 @@ def add_sun(location, shadow):
 
 def delete_all():
     '''Deletes all selectable things from the scene (objects, cameras, lights, etc).
+
     '''
     bpy.ops.object.select_all(action = 'SELECT')
     bpy.ops.object.delete()
@@ -44,6 +48,7 @@ def delete_all():
 
 def hex_to_rgb(hex_str):
     '''Converts a RGB hex string into three tuple of color. Supports anything like #123456
+
     '''
     # pylint: disable=maybe-no-member
     #return tuple([component / 255 for component in bytes.fromhex(hex_str[-6:])])
@@ -61,6 +66,7 @@ def hex_to_rgb(hex_str):
 def pose_to_quat(pose):
     '''Takes a pose dict and extracts the orientation quaternion. ROS quaternions or XYZW, but Blender's are WXYZ, so
     reorder them.
+
     '''
     if isinstance(pose['orientation'][0], str):
         # Means there's a NAN somewhere.
@@ -71,6 +77,7 @@ def pose_to_quat(pose):
 
 def pose_to_vec(pose):
     '''Takes a pose dict and extracts the position vector.
+
     '''
 
     return pose['position']
@@ -78,6 +85,7 @@ def pose_to_vec(pose):
 
 def set_pose(obj, pose):
     '''Sets the pose of a blender object by passing in a pose dict.
+
     '''
 
     obj.location = pose_to_vec(pose)

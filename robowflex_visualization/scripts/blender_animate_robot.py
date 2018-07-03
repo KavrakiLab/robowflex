@@ -32,7 +32,7 @@ class RobotFrames(object):
 
         @param points: a list of dictionaries that contain a point (TF
                locations of each link) and a duration.
-        @param link_list: a list of link elements (primitive or mesh) 
+        @param link_list: a list of link elements (primitive or mesh)
         @param distance_threshold: the minimum distance required to consider a
                frame as 'moving'
         @param frame_extra_count: the number of frames to render before the
@@ -52,8 +52,8 @@ class RobotFrames(object):
         self.link_to_parts = {}
 
     def load_meshes(self):
-        '''
-        Loads all of the robot's meshes into the scene. 
+        '''Loads all of the robot's meshes into the scene.
+
         '''
         for link in self.link_list:
             link_name = link['name']
@@ -104,10 +104,11 @@ class RobotFrames(object):
                     blender_utils.set_pose(i_obj, point['point'][link_name])
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
-            current_frame += fps  * point['duration']
+            current_frame += fps * point['duration']
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = -self.frame_extra_count
         bpy.context.scene.frame_end = len(self.points) - 1 + self.frame_extra_count
+
 
 def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
