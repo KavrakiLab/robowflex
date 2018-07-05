@@ -15,10 +15,17 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+##
+## Non-ROS libraries
+##
+
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+##
+## Catkin setup
+##
 
 find_package(catkin REQUIRED COMPONENTS
   # moveit_planners_ompl
@@ -32,20 +39,26 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
-  # moveit_planners_ompl
-  moveit_ros_planning
-  geometric_shapes
-  eigen_conversions
-  rosbag
-  roscpp
+    # moveit_planners_ompl
+    moveit_ros_planning
+    geometric_shapes
+    eigen_conversions
+    rosbag
+    roscpp
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
+
+##
+## Doxygen generation
+##
 
 find_package(Doxygen QUIET)
 if (DOXYGEN_FOUND)
   set(DOXYFILE "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in")
   set(DOXYGEN_SOURCE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include")
+  set(DOXYGEN_DOC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+  set(DOXYGEN_TAG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/tag)
   set(DOXYGEN_HTML_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/html)
   set(DOXYGEN_CATKIN_DOC_DIR "${CATKIN_DEVEL_PREFIX}/share/${PROJECT_NAME}/doc")
 
@@ -63,6 +76,9 @@ else()
   message("Unable to find Doxygen. API Documentation will not be generated")
 endif()
 
+##
+## Library Creation
+##
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
@@ -87,6 +103,10 @@ add_library(${LIBRARY_NAME}
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
+##
+## Scripts
+##
+
 add_executable(ur5_test scripts/ur5_test.cpp)
 target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
@@ -110,6 +130,10 @@ target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 add_executable(wam7_benchmark scripts/wam7_benchmark.cpp)
 target_link_libraries(wam7_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+##
+## Installation of library, headers, and YAML used by scripts
+##
 
 install(TARGETS ${LIBRARY_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
