@@ -131,6 +131,9 @@ target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 add_executable(wam7_benchmark scripts/wam7_benchmark.cpp)
 target_link_libraries(wam7_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+add_executable(tapedeck scripts/tapedeck.cpp)
+target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 ##
 ## Installation of library, headers, and YAML used by scripts
 ##

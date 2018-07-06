@@ -3,6 +3,7 @@
 #ifndef ROBOWFLEX_YAML_
 #define ROBOWFLEX_YAML_
 
+#include <ros/time.h>
 #include <ros/duration.h>
 
 #include <std_msgs/Header.h>
@@ -270,6 +271,13 @@ namespace YAML
     {
         static Node encode(const octomap_msgs::OctomapWithPose &rhs);
         static bool decode(const Node &node, octomap_msgs::OctomapWithPose &rhs);
+    };
+
+    template <>
+    struct convert<ros::Time>
+    {
+        static Node encode(const ros::Time &rhs);
+        static bool decode(const Node &node, ros::Time &rhs);
     };
 
     template <>
