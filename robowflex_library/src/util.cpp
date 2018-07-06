@@ -63,3 +63,8 @@ void robowflex::startROS(int argc, char **argv, const std::string &name)
     signal(SIGINT, shutdown);
     signal(SIGSEGV, shutdown);
 }
+
+void robowflex::explode()
+{
+    raise(SIGSEGV);
+}

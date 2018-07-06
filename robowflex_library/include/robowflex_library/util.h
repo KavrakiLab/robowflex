@@ -53,6 +53,10 @@ namespace robowflex
      *  \param[in] name Name of ROS node.
      */
     void startROS(int argc, char **argv, const std::string &name = "robowflex");
+
+    /** \brief Trigger a SEGSEGV.
+     */
+    void explode();
 }  // namespace robowflex
 
 #endif

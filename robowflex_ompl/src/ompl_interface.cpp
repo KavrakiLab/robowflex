@@ -1,10 +1,16 @@
-#include <robowflex_library/robowflex.h>
+#include <moveit/ompl_interface/model_based_planning_context.h>
+
+#include <robowflex_library/io/handler.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/planning.h>
+
 #include <robowflex_ompl/ompl.h>
 
 using namespace robowflex;
 
-OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(Robot &robot)
-  : Planner(robot), interface_(robot.getModel(), handler_.getHandle())
+OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(const RobotPtr &robot, const std::string &name)
+  : Planner(robot, name), interface_(robot->getModel(), handler_.getHandle())
 {
 }
 
@@ -32,14 +38,14 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     return true;
 }
 
-planning_interface::MotionPlanResponse
-OMPL::OMPLInterfacePlanner::plan(const Scene &scene, const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
 
     ompl_interface::ModelBasedPlanningContextPtr context =
-        interface_.getPlanningContext(scene.getSceneConst(), request);
+        interface_.getPlanningContext(scene->getSceneConst(), request);
 
     if (!context)
         return response;
