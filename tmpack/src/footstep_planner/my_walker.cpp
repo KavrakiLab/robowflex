@@ -140,11 +140,13 @@ namespace robowflex
             //TODO: This goal pose fails
             // rand_x = 65.2039;
             // rand_y = 5.8249;
+
             
             foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
                                                           footstep_planning::foot::left);
 
             std::cout<<"Torso pose: < "<<rand_x<<", "<<rand_y<<" >"<<std::endl;
+
             std::cout<<"Foot placements: "<<std::endl;
             for(footstep_planning::point_2D p : foot_placements) {
               std::cout<<p<<std::endl;

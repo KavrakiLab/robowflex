@@ -62,7 +62,6 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
             out.trajectory.push_back(msg);
         }
         else {
-
             // do nothing
             /*
             if(out.trajectory == NULL) {
