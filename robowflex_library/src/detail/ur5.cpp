@@ -1,5 +1,5 @@
-#include <robowflex_library/robot.h>
-#include <robowflex_library/planning.h>
+/* Author: Zachary Kingston */
+
 #include <robowflex_library/detail/ur5.h>
 
 using namespace robowflex;

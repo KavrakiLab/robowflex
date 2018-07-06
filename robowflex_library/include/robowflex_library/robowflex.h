@@ -15,9 +15,13 @@ namespace robowflex
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/yaml.h>
+
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/io/yaml.h>
+
 #include <robowflex_library/pool.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>

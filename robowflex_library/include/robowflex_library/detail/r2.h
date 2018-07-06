@@ -3,6 +3,10 @@
 #ifndef ROBOWFLEX_R2_
 #define ROBOWFLEX_R2_
 
+#include <robowflex_library/macros.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/planning.h>
+
 namespace robowflex
 {
     /** \cond IGNORE */

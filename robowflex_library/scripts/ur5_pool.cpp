@@ -1,22 +1,31 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/util.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/detail/ur5.h>
 
 using namespace robowflex;
 
 int main(int argc, char **argv)
 {
+    // Startup ROS
     startROS(argc, argv);
 
+    // Create the default UR5 robot.
     auto ur5 = std::make_shared<UR5Robot>();
     ur5->initialize();
 
+    // Create an empty scene.
     auto scene = std::make_shared<Scene>(ur5);
 
+    // Create a pool of default planners for the UR5.
     auto planner = std::make_shared<PoolPlanner>(ur5);
     planner->initialize<OMPL::UR5OMPLPipelinePlanner>();
 
+    // Create a motion planning request with a pose goal.
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
 

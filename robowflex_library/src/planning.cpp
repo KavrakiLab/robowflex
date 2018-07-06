@@ -19,6 +19,11 @@ const RobotPtr Planner::getRobot() const
     return robot_;
 }
 
+const std::string &Planner::getName() const
+{
+    return name_;
+}
+
 ///
 /// PoolPlanner
 ///
@@ -50,8 +55,8 @@ PoolPlanner::submit(const SceneConstPtr &scene, const planning_interface::Motion
     }));
 }
 
-planning_interface::MotionPlanResponse
-PoolPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse PoolPlanner::plan(const SceneConstPtr &scene,
+                                                         const planning_interface::MotionPlanRequest &request)
 {
     auto job = submit(scene, request);
     return job->get();

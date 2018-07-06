@@ -61,8 +61,14 @@ namespace robowflex
         virtual const std::vector<std::string> getPlannerConfigs() const = 0;
 
         /** \brief Return the robot for this planner.
+         *  \return Get the robot associated with the planner.
          */
         const RobotPtr getRobot() const;
+
+        /** \brief Get the name of the planner.
+         *  \return The planner's name.
+         */
+        const std::string &getName() const;
 
     protected:
         RobotPtr robot_;          ///< The robot to plan for.

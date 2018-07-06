@@ -3,6 +3,7 @@
 #ifndef ROBOWFLEX_UTIL_
 #define ROBOWFLEX_UTIL_
 
+#include <string>
 #include <exception>
 
 namespace robowflex

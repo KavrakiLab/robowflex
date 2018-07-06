@@ -1,6 +1,6 @@
+/* Author: Zachary Kingston */
+
 #include <robowflex_library/io.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/detail/r2.h>
 
 using namespace robowflex;
