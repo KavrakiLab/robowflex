@@ -11,10 +11,6 @@
 
 using namespace robowflex;
 
-///
-/// IO::RVIZHelper
-///
-
 IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
   : robot_(robot), nh_("/" + name)
 {
@@ -66,39 +62,44 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
             out.trajectory.push_back(msg);
         }
         else {
-            moveit_msgs::RobotTrajectory msg;
-            //response.trajectory_->getRobotTrajectoryMsg(msg);
-            //Not sure what to do for a failed motion
-            //Use a marker to indicate the final goal?
-            visualization_msgs::Marker marker;
-            marker.header.frame_id = "/map";
-            marker.header.stamp = ros::Time().now();
-            marker.ns = "Sphere";
-            marker.id = 8;
-            marker.type = visualization_msgs::Marker::SPHERE;
-            marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = -1.0;
-            marker.pose.position.y = 3.2;
-            marker.pose.position.z = 0;
-            marker.pose.orientation.x = 0.0;
-            marker.pose.orientation.y = 0.0;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w = 0.0;
-            marker.scale.x = 0.7;
-            marker.scale.y = 0.7;
-            marker.scale.z = 0.7;
-            marker.color.a = 1.0; // Don't forget to set the alpha!
-            marker.color.r = 1.0;
-            marker.color.g = 0.5;
-            marker.color.b = 0.0;
-            marker.lifetime = ros::Duration(15);
 
-            marker_pub_.publish(marker);
+            // do nothing
+            /*
+            if(out.trajectory == NULL) {
+                std::cout<<"Trajectory is null"<<std::endl;
+            }
+            */
         }
-
     }
 
     trajectory_pub_.publish(out);
+}
+
+void IO::RVIZHelper::addMarker(float x, float y, float z)
+{
+    std::cout<<"Adding the marker"<<std::endl;
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "/map";
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "Sphere";
+    marker.id = 8;
+    marker.type = visualization_msgs::Marker::SPHERE;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.position.x = x;
+    marker.pose.position.y = y;
+    marker.pose.position.z = z;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 0.0;
+    marker.scale.x = 0.5;
+    marker.scale.y = 0.5;
+    marker.scale.z = 0.5;
+    marker.color.a = 1.0; // Don't forget to set the alpha!
+    marker.color.r = 1.0;
+    marker.color.g = 0.5;
+    marker.color.b = 0.0;
+    marker_pub_.publish(marker);
 }
 
 void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)

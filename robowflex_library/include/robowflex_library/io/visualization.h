@@ -49,6 +49,8 @@ namespace robowflex
              */
             void updateMarkers();
 
+            void addMarker(float x, float y, float z);
+
         private:
             RobotConstPtr robot_;            ///< Robot being visualized.
             ros::NodeHandle nh_;             ///< Handle for publishing.

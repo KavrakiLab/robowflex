@@ -6,25 +6,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 1
-// #define START_POSE                                                                                                     \
-//     {                                                                                                                  \
-//         -0.030580680548965233, 0.05347800856425433, 0.015236617202923242, 1.6048735607571416, -0.08929297054119978,    \
-//             1.633835488060198, 1.6268710455959683, 0.5000000000000027, 0.4999999999999982, 0.5, -0.026793193509068836, \
-//             -0.0601802322235212, 0.025380777360997087, 1.5383038467290353, -0.08692033328500415, 1.507065006616994,    \
-//             1.6211921121057182, 0.0, 0.0, 0.0, 1.5987211554602254e-14, 0.8726646259971691, -1.3962634015954636,        \
-//             -1.8325957145940468, -2.4434609527920617, 1.3962634015954638, 0.0, -8.881784197001252e-16,                 \
-//             1.7763568394002505e-15, 8.881784197001252e-16, 8.881784197001252e-16, 0.0, 8.881784197001252e-16,          \
-//             1.7763568394002505e-15, 8.881784197001252e-16, 8.881784197001252e-16, 8.881784197001252e-16,               \
-//             8.881784197001252e-16, 0.0, 8.881784197001252e-16, 0.0, 8.881784197001252e-16, 0.0, 0.0,                   \
-//             8.881784197001252e-16, 0.0, -0.8726646259972393, -1.3962634015953872, 1.8325957145941594,                  \
-//             -2.4434609527919715, -1.396263401596698, -2.4424906541753444e-13, 5.782041512247815e-13,                   \
-//             1.865174681370263e-14, 1.7763568394002505e-15, 2.6645352591003757e-15, 0.0, 1.7763568394002505e-14,        \
-//             -3.552713678800501e-15, -3.552713678800501e-15, -8.881784197001252e-16, -1.0658141036401503e-14,           \
-//             -7.993605777301127e-15, -8.881784197001252e-16, -8.881784197001252e-15, -7.105427357601002e-15, 0.0,       \
-//             3.019806626980426e-14, 1.2434497875801753e-14, 3.019806626980426e-14, 8.881784197001252e-16,               \
-//             -0.0872664625997146, -1.7763568394002505e-15, 8.881784197001252e-16                                        \
-//     }
+#define NUM_ITERATIONS 100
 
 using namespace robowflex;
 
@@ -60,7 +42,6 @@ int main(int argc, char **argv)
     ros::Rate rate(0.5);
     // std::vector<double> start = START_POSE; //We ignore this for the YAML start
 
-    MyWalker walker(r2, "legsandtorso", planner, scene, request);
 
     //For r2_start.yml
     std::vector<double> tmp = {1.98552, 0.0242871, 9.14127e-05, 4.8366e-06, -2.4964e-06, 1, -6.53607e-07};
@@ -68,10 +49,12 @@ int main(int argc, char **argv)
     tmp.insert(tmp.end(), start_joint_positions.begin(), start_joint_positions.end());
     start_joint_positions = tmp;
 
-    //IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
+    IO::RVIZHelper rviz = IO::RVIZHelper(r2, "robonaut2");
 
-    int a;
-    std::cin >> a;
+    MyWalker walker(r2, "legsandtorso", planner, scene, request, rviz);
+
+    // int a;
+    // std::cin >> a;
     for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
@@ -91,8 +74,8 @@ int main(int argc, char **argv)
         time_spent += (ros::Time::now().nsec - begin);
     }
 
-    //while(true)
-    //    ros::spinOnce();
+    // while(true)
+    //     ros::spinOnce();
 
     std::cout << "Time spent: " << time_spent << std::endl;
     std::cout << "Number of runs: " << count << std::endl;
