@@ -162,34 +162,6 @@ const std::vector<std::string>                                        //
          "default_planner_request_adapters/FixStartStateCollision",   //
          "default_planner_request_adapters/FixStartStatePathConstraints"});
 
-namespace
-{
-    bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
-                        std::vector<std::string> &configs)
-    {
-        if (config_file.empty())
-            return false;
-
-        auto &config = IO::loadFileToYAML(config_file);
-        if (!config.first)
-        {
-            ROS_ERROR("Failed to load planner configs.");
-            return false;
-        }
-
-        handler.loadYAMLtoROS(config.second);
-
-        auto &planner_configs = config.second["planner_configs"];
-        if (planner_configs)
-        {
-            for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
-                configs.push_back(it->first.as<std::string>());
-        }
-
-        return true;
-    }
-}  // namespace
-
 OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
