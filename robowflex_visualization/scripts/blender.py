@@ -36,4 +36,4 @@ if __name__ == '__main__':
     )
 
     blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')
-    blender_render.add_blender_scene('../yaml/render_settings.yml')
+    blender_render.add_blender_scene('package://robowflex_visualization/yaml/render_settings.yml')
