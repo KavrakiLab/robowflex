@@ -16,35 +16,35 @@ using namespace robowflex;
 class Tapedeck
 {
 public:
-    Tapedeck(const std::string &move_group = "/move_group") : nh_("/")
+    Tapedeck(const std::string &move_group = "/move_group")
     {
         psc_ = nh_.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene", true);
-        nh_.subscribe(move_group + "/goal", 1, &Tapedeck::goalCallback, this);
-        nh_.subscribe(move_group + "/result", 1, &Tapedeck::resultCallback, this);
+        psc_.waitForExistence();
+
+        goal_sub_ = nh_.subscribe(move_group + "/goal", 10, &Tapedeck::goalCallback, this);
+        result_sub_ = nh_.subscribe(move_group + "/result", 10, &Tapedeck::resultCallback, this);
     }
 
-    moveit_msgs::PlanningScene retrieveScene()
+    const moveit_msgs::PlanningScene &retrieveScene()
     {
         moveit_msgs::GetPlanningScene::Request req;
-        moveit_msgs::GetPlanningScene::Response res;
 
         req.components.components = moveit_msgs::PlanningSceneComponents::ROBOT_STATE           //
                                     | moveit_msgs::PlanningSceneComponents::WORLD_OBJECT_NAMES  //
                                     | moveit_msgs::PlanningSceneComponents::WORLD_OBJECT_GEOMETRY;
 
-        psc_.call(req, res);
-        return res.scene;
+        psc_.call(req, response_);
+        return response_.scene;
     }
 
     void goalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
     {
         const std::string &id = msg.goal_id.id;
+        ROS_INFO("Intercepted request goal ID: `%s`", id.c_str());
 
         requests_.emplace(std::piecewise_construct,  //
                           std::forward_as_tuple(id),
                           std::forward_as_tuple(retrieveScene(), msg.goal.request));
-
-        ROS_INFO("Intercepted request goal ID: `%s`", id.c_str());
     }
 
     void resultCallback(const moveit_msgs::MoveGroupActionResult &msg)
@@ -70,12 +70,13 @@ public:
         else
             node["success"] = "false";
 
+        ros::Time time = ros::Time::now();
         node["id"] = id;
-        node["time"] = ros::Time::now();
+        node["time"] = time;
         node["scene"] = request->second.first;
         node["request"] = request->second.second;
 
-        IO::YAMLtoFile(node, id + ".yml");
+        IO::YAMLtoFile(node, to_iso_string(time.toBoost()) + ".yml");
         ROS_WARN("  Wrote YAML for ID: `%s`", id.c_str());
 
         requests_.erase(request);
@@ -83,8 +84,11 @@ public:
 
 private:
     ros::NodeHandle nh_;
+    ros::Subscriber goal_sub_;
+    ros::Subscriber result_sub_;
     ros::ServiceClient psc_;
 
+    moveit_msgs::GetPlanningScene::Response response_;
     std::map<std::string, std::pair<moveit_msgs::PlanningScene, moveit_msgs::MotionPlanRequest>> requests_;
 };
 
@@ -93,5 +97,11 @@ int main(int argc, char **argv)
     // Startup ROS
     startROS(argc, argv);
     Tapedeck deck;
-    ros::spin();
+
+    ros::Rate r(10); // 10 hz
+    while (ros::ok())
+    {
+        ros::spinOnce();
+        r.sleep();
+    }
 }

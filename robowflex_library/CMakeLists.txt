@@ -135,8 +135,20 @@ add_executable(tapedeck scripts/tapedeck.cpp)
 target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 ##
-## Installation of library, headers, and YAML used by scripts
+## Installation of programs, library, headers, and YAML used by scripts
 ##
+
+install(TARGETS
+    ur5_test
+    ur5_benchmark
+    ur5_io
+    ur5_pool
+    ur5_visualization
+    r2_test
+    wam7_test
+    wam7_benchmark
+    tapedeck
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS ${LIBRARY_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
