@@ -31,6 +31,8 @@
 
 #include <trajectory_msgs/JointTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <trajectory_msgs/MultiDOFJointTrajectory.h>
+#include <trajectory_msgs/MultiDOFJointTrajectoryPoint.h>
 
 #include <object_recognition_msgs/ObjectType.h>
 
@@ -53,6 +55,9 @@
 #include <moveit_msgs/PlanningScene.h>
 #include <moveit_msgs/PlanningSceneWorld.h>
 #include <moveit_msgs/MotionPlanRequest.h>
+
+#include <moveit_msgs/MoveGroupGoal.h>
+#include <moveit_msgs/MoveGroupResult.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -363,6 +368,27 @@ namespace YAML
     {
         static Node encode(const moveit_msgs::MotionPlanRequest &rhs);
         static bool decode(const Node &node, moveit_msgs::MotionPlanRequest &rhs);
+    };
+
+    template <>
+    struct convert<trajectory_msgs::MultiDOFJointTrajectory>
+    {
+        static Node encode(const trajectory_msgs::MultiDOFJointTrajectory &rhs);
+        static bool decode(const Node &node, trajectory_msgs::MultiDOFJointTrajectory &rhs);
+    };
+
+    template <>
+    struct convert<trajectory_msgs::MultiDOFJointTrajectoryPoint>
+    {
+        static Node encode(const trajectory_msgs::MultiDOFJointTrajectoryPoint &rhs);
+        static bool decode(const Node &node, trajectory_msgs::MultiDOFJointTrajectoryPoint &rhs);
+    };
+
+    template <>
+    struct convert<moveit_msgs::RobotTrajectory>
+    {
+        static Node encode(const moveit_msgs::RobotTrajectory &rhs);
+        static bool decode(const Node &node, moveit_msgs::RobotTrajectory &rhs);
     };
 }  // namespace YAML
 /* \endcond */

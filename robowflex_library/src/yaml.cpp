@@ -1587,6 +1587,101 @@ namespace YAML
 
         return true;
     }
+
+    Node convert<trajectory_msgs::MultiDOFJointTrajectory>::encode(
+        const trajectory_msgs::MultiDOFJointTrajectory &rhs)
+    {
+        Node node;
+
+        if (!isHeaderEmpty(rhs.header))
+            node["header"] = rhs.header;
+
+        node["joint_names"] = rhs.joint_names;
+        node["points"] = rhs.points;
+
+        return node;
+    }
+
+    bool convert<trajectory_msgs::MultiDOFJointTrajectory>::decode(
+        const Node &node, trajectory_msgs::MultiDOFJointTrajectory &rhs)
+    {
+        rhs = trajectory_msgs::MultiDOFJointTrajectory();
+
+        if (node["header"])
+            rhs.header = node["header"].as<std_msgs::Header>();
+
+        if (node["joint_names"])
+            rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
+
+        if (node["points"])
+            rhs.points = node["points"].as<std::vector<trajectory_msgs::MultiDOFJointTrajectoryPoint>>();
+
+        return true;
+    }
+
+    Node convert<trajectory_msgs::MultiDOFJointTrajectoryPoint>::encode(
+        const trajectory_msgs::MultiDOFJointTrajectoryPoint &rhs)
+    {
+        Node node;
+
+        if (!rhs.transforms.empty())
+            node["transforms"] = rhs.transforms;
+
+        if (!rhs.velocities.empty())
+            node["velocities"] = rhs.velocities;
+
+        if (!rhs.accelerations.empty())
+            node["accelerations"] = rhs.accelerations;
+
+        node["time_from_start"] = rhs.time_from_start;
+
+        return node;
+    }
+
+    bool convert<trajectory_msgs::MultiDOFJointTrajectoryPoint>::decode(
+        const Node &node, trajectory_msgs::MultiDOFJointTrajectoryPoint &rhs)
+    {
+        rhs = trajectory_msgs::MultiDOFJointTrajectoryPoint();
+
+        if (node["transforms"])
+            rhs.transforms = node.as<std::vector<geometry_msgs::Transform>>();
+
+        if (node["velocities"])
+            rhs.velocities = node.as<std::vector<geometry_msgs::Twist>>();
+
+        if (node["accelerations"])
+            rhs.accelerations = node.as<std::vector<geometry_msgs::Twist>>();
+
+        rhs.time_from_start = node["time_from_start"].as<ros::Duration>();
+        return true;
+    }
+
+    Node convert<moveit_msgs::RobotTrajectory>::encode(const moveit_msgs::RobotTrajectory &rhs)
+    {
+        Node node;
+
+        if (!rhs.joint_trajectory.points.empty())
+            node["joint_trajectory"] = rhs.joint_trajectory;
+
+        if (!rhs.multi_dof_joint_trajectory.points.empty())
+            node["multi_dof_joint_trajectory"] = rhs.multi_dof_joint_trajectory;
+
+        return node;
+    }
+
+    bool convert<moveit_msgs::RobotTrajectory>::decode(const Node &node, moveit_msgs::RobotTrajectory &rhs)
+    {
+        rhs = moveit_msgs::RobotTrajectory();
+
+        if (node["joint_trajectory"])
+            rhs.joint_trajectory = node["joint_trajectory"].as<trajectory_msgs::JointTrajectory>();
+
+        if (node["multi_dof_joint_trajectory"])
+            rhs.multi_dof_joint_trajectory =
+                node["multi_dof_joint_trajectory"].as<trajectory_msgs::MultiDOFJointTrajectory>();
+
+        return true;
+    }
 }  // namespace YAML
 
 namespace robowflex
