@@ -1,18 +1,18 @@
-- visual:
+- collision:
     elements:
-      - color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+      - resource: package://ur_description/meshes/ur5/collision/base.stl
         type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/base.dae
-  name: base_link
-  collision:
+  visual:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/base.stl
+        resource: package://ur_description/meshes/ur5/visual/base.dae
+        color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+  name: base_link
 - name: box_link
   visual:
     elements:
-      - type: box
-        dimensions: [0.762, 1.524, 0.9144]
+      - dimensions: [0.762, 1.524, 0.9144]
+        type: box
   collision:
     elements:
       - type: box
@@ -24,152 +24,152 @@
         type: box
 - visual:
     elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/forearm.dae
+      - color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+        resource: package://ur_description/meshes/ur5/visual/forearm.dae
         type: mesh
-        color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
   name: forearm_link
   collision:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/forearm.stl
+        resource: package://ur_description/meshes/ur5/collision/forearm.stl
 - collision:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/robotiq_force_torque_sensor/meshes/collision/robotiq_fts300.stl
-  name: fts_robotside
+        resource: package://robotiq_force_torque_sensor/meshes/collision/robotiq_fts300.stl
   visual:
     elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/robotiq_force_torque_sensor/meshes/visual/robotiq_fts300.stl
+      - resource: package://robotiq_force_torque_sensor/meshes/visual/robotiq_fts300.stl
         color: [0, 0, 0, 1]
         type: mesh
-- name: robotiq_85_base_link
-  visual:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_base_link.dae
-  collision:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_base_link.stl
-- name: robotiq_85_left_finger_link
-  visual:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae
-  collision:
-    elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl
-        type: mesh
+  name: fts_robotside
 - collision:
     elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_base_link.stl
+        type: mesh
+  visual:
+    elements:
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_base_link.dae
+        type: mesh
+  name: robotiq_85_base_link
+- collision:
+    elements:
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl
+        type: mesh
+  visual:
+    elements:
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae
+        type: mesh
+  name: robotiq_85_left_finger_link
+- collision:
+    elements:
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl
+        type: mesh
+  visual:
+    elements:
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae
         type: mesh
   name: robotiq_85_left_finger_tip_link
+- collision:
+    elements:
+      - type: mesh
+        resource: package://robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl
   visual:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae
-- visual:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae
-  collision:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae
+        type: mesh
   name: robotiq_85_left_inner_knuckle_link
-- name: robotiq_85_left_knuckle_link
+- collision:
+    elements:
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl
+        type: mesh
   visual:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae
-  collision:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl
+        resource: package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae
+  name: robotiq_85_left_knuckle_link
 - collision:
     elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_finger_link.stl
         type: mesh
+  visual:
+    elements:
+      - type: mesh
+        resource: package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae
   name: robotiq_85_right_finger_link
-  visual:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae
-- name: robotiq_85_right_finger_tip_link
-  visual:
-    elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae
-  collision:
-    elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl
-        type: mesh
 - collision:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_finger_tip_link.stl
+        type: mesh
   visual:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae
+        type: mesh
+  name: robotiq_85_right_finger_tip_link
+- collision:
+    elements:
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_inner_knuckle_link.stl
+        type: mesh
+  visual:
+    elements:
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae
+        type: mesh
   name: robotiq_85_right_inner_knuckle_link
 - collision:
     elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl
+      - resource: package://robotiq_85_description/meshes/collision/robotiq_85_knuckle_link.stl
+        type: mesh
+  visual:
+    elements:
+      - resource: package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae
         type: mesh
   name: robotiq_85_right_knuckle_link
+- collision:
+    elements:
+      - resource: package://ur_description/meshes/ur5/collision/shoulder.stl
+        type: mesh
   visual:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/robotiq_85_gripper.git/robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae
-- visual:
-    elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/shoulder.dae
+        resource: package://ur_description/meshes/ur5/visual/shoulder.dae
         color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
-        type: mesh
-  collision:
-    elements:
-      - resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/shoulder.stl
-        type: mesh
   name: shoulder_link
 - collision:
     elements:
       - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/upperarm.stl
-  name: upper_arm_link
+        resource: package://ur_description/meshes/ur5/collision/upperarm.stl
   visual:
     elements:
-      - type: mesh
-        color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/upperarm.dae
+      - color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+        resource: package://ur_description/meshes/ur5/visual/upperarm.dae
+        type: mesh
+  name: upper_arm_link
 - collision:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/wrist1.stl
-  name: wrist_1_link
+      - resource: package://ur_description/meshes/ur5/collision/wrist1.stl
+        type: mesh
   visual:
     elements:
       - type: mesh
+        resource: package://ur_description/meshes/ur5/visual/wrist1.dae
         color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/wrist1.dae
-- visual:
+  name: wrist_1_link
+- collision:
     elements:
-      - type: mesh
-        color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/wrist2.dae
-  collision:
+      - resource: package://ur_description/meshes/ur5/collision/wrist2.stl
+        type: mesh
+  visual:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/wrist2.stl
+      - color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+        resource: package://ur_description/meshes/ur5/visual/wrist2.dae
+        type: mesh
   name: wrist_2_link
 - collision:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/collision/wrist3.stl
+      - resource: package://ur_description/meshes/ur5/collision/wrist3.stl
+        type: mesh
   visual:
     elements:
-      - type: mesh
-        resource: /home/brycew/ros/kinetic/repos/git_github.com_KavrakiLab/universal_robot.git/ur_description/meshes/ur5/visual/wrist3.dae
-        color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+      - color: [0.699999988079071, 0.699999988079071, 0.699999988079071, 1]
+        resource: package://ur_description/meshes/ur5/visual/wrist3.dae
+        type: mesh
   name: wrist_3_link
