@@ -1,6 +1,9 @@
+/* Author: Zachary Kingston */
+
 #include <geometric_shapes/shape_operations.h>
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/geometry.h>
 
 using namespace robowflex;
 

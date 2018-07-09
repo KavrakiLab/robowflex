@@ -1,9 +1,15 @@
+/* Author: Zachary Kingston */
+
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/tf.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/planning.h>
 
 using namespace robowflex;
 
@@ -84,7 +90,7 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const Geometry &geometry,
+                                         const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
@@ -104,7 +110,8 @@ void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
 }
 
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                                 const Eigen::Affine3d &pose, const Geometry &geometry,
+                                                 const Eigen::Affine3d &pose,
+                                                 const GeometryConstPtr &geometry,
                                                  const Eigen::Quaterniond &orientation,
                                                  const Eigen::Vector3d &tolerances)
 {
@@ -113,7 +120,8 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                     const Eigen::Affine3d &pose, const Geometry &geometry)
+                                                     const Eigen::Affine3d &pose,
+                                                     const GeometryConstPtr &geometry)
 {
     request_.path_constraints.position_constraints.push_back(
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
@@ -156,109 +164,10 @@ robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 {
-    return IO::messageToYAMLFile(request_, file);
+    return IO::YAMLtoFile(IO::toNode(request_), file);
 }
 
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
-    return IO::YAMLFileToMessage(request_, file);
-}
-
-planning_interface::MotionPlanResponse
-PipelinePlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
-{
-    planning_interface::MotionPlanResponse response;
-    if (pipeline_)
-        pipeline_->generatePlan(scene->getSceneConst(), request, response);
-
-    return response;
-}
-
-void OMPL::Settings::setParam(IO::Handler &handler) const
-{
-    const std::string prefix = "ompl/";
-    handler.setParam(prefix + "max_goal_samples", max_goal_samples);
-    handler.setParam(prefix + "max_goal_sampling_attempts", max_goal_sampling_attempts);
-    handler.setParam(prefix + "max_planning_threads", max_planning_threads);
-    handler.setParam(prefix + "max_solution_segment_length", max_solution_segment_length);
-    handler.setParam(prefix + "max_state_sampling_attempts", max_state_sampling_attempts);
-    handler.setParam(prefix + "minimum_waypoint_count", minimum_waypoint_count);
-    handler.setParam(prefix + "simplify_solutions", simplify_solutions);
-    handler.setParam(prefix + "use_constraints_approximations", use_constraints_approximations);
-    handler.setParam(prefix + "display_random_valid_states", display_random_valid_states);
-    handler.setParam(prefix + "link_for_exploration_tree", link_for_exploration_tree);
-    handler.setParam(prefix + "maximum_waypoint_distance", maximum_waypoint_distance);
-}
-
-const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN("ompl_interface/OMPLPlanner");
-const std::vector<std::string>                                        //
-    OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(                      //
-        {"default_planner_request_adapters/AddTimeParameterization",  //
-         "default_planner_request_adapters/FixWorkspaceBounds",       //
-         "default_planner_request_adapters/FixStartStateBounds",      //
-         "default_planner_request_adapters/FixStartStateCollision",   //
-         "default_planner_request_adapters/FixStartStatePathConstraints"});
-
-namespace
-{
-    bool loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
-                        std::vector<std::string> &configs)
-    {
-        if (config_file.empty())
-            return false;
-
-        auto &config = IO::loadFileToYAML(config_file);
-        if (!config.first)
-        {
-            ROS_ERROR("Failed to load planner configs.");
-            return false;
-        }
-
-        handler.loadYAMLtoROS(config.second);
-
-        auto &planner_configs = config.second["planner_configs"];
-        if (planner_configs)
-        {
-            for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
-                configs.push_back(it->first.as<std::string>());
-        }
-
-        return true;
-    }
-}  // namespace
-
-OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
-  : PipelinePlanner(robot, name)
-{
-}
-
-bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings settings,
-                                           const std::string &plugin,
-                                           const std::vector<std::string> &adapters)
-{
-    if (!loadOMPLConfig(handler_, config_file, configs_))
-        return false;
-
-    handler_.setParam("planning_plugin", plugin);
-
-    std::stringstream ss;
-    for (std::size_t i = 0; i < adapters.size(); ++i)
-    {
-        ss << adapters[i];
-        if (i < adapters.size() - 1)
-            ss << " ";
-    }
-
-    handler_.setParam("request_adapters", ss.str());
-    settings.setParam(handler_);
-
-    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
-                                                            "planning_plugin", "request_adapters"));
-
-    return true;
-}
-
-const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
-{
-    return configs_;
+    return IO::fromYAMLFile(request_, file);
 }

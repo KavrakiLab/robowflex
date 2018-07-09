@@ -1,5 +1,19 @@
-#include <robowflex_library/robowflex.h>
+/* Author: Zachary Kingston */
+
+#include <deque>
+#include <numeric>
+
 #include <moveit/robot_state/robot_state.h>
+#include <moveit/collision_detection/collision_common.h>
+#include <moveit/robot_state/robot_state.h>
+
+#include <robowflex_library/macros.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/tf.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/robot.h>
 
 using namespace robowflex;
 
@@ -132,6 +146,46 @@ bool Robot::loadKinematics(const std::string &name)
     return true;
 }
 
+const std::string &Robot::getModelName() const
+{
+    return model_->getName();
+}
+
+const std::string &Robot::getName() const
+{
+    return name_;
+}
+
+const robot_model::RobotModelPtr &Robot::getModelConst() const
+{
+    return model_;
+}
+
+robot_model::RobotModelPtr &Robot::getModel()
+{
+    return model_;
+}
+
+const robot_model::RobotStatePtr &Robot::getScratchState() const
+{
+    return scratch_;
+}
+
+robot_model::RobotStatePtr &Robot::getScratchState()
+{
+    return scratch_;
+}
+
+const IO::Handler &Robot::getHandlerConst() const
+{
+    return handler_;
+}
+
+IO::Handler &Robot::getHandler()
+{
+    return handler_;
+}
+
 void Robot::setState(const std::vector<double> &positions)
 {
     scratch_->setVariablePositions(positions);
@@ -169,13 +223,13 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-void Robot::setFromIK(const std::string &group,                             //
-                      const Geometry &region, const Eigen::Affine3d &pose,  //
+void Robot::setFromIK(const std::string &group,                                     //
+                      const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
     Eigen::Affine3d sampled_pose = pose;
 
-    sampled_pose.translate(region.sample());
+    sampled_pose.translate(region->sample());
     sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
 
     geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
@@ -194,15 +248,126 @@ bool Robot::inCollision(const SceneConstPtr &scene) const
 {
     collision_detection::CollisionRequest request;
     collision_detection::CollisionResult result;
-
     scene->getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
 
     return result.collision;
 }
 
+namespace
+{
+    YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry)
+    {
+        YAML::Node node;
+        switch (geometry->type)
+        {
+            case urdf::Geometry::MESH:
+            {
+                const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
+                node["type"] = "mesh";
+                node["resource"] = IO::resolvePath(mesh->filename);
+
+                if (mesh->scale.x != 1 || mesh->scale.y != 1 || mesh->scale.z != 1)
+                {
+                    node["dimensions"] = std::vector<double>({mesh->scale.x, mesh->scale.y, mesh->scale.z});
+                    ROBOWFLEX_YAML_FLOW(node["dimensions"]);
+                }
+                break;
+            }
+            case urdf::Geometry::BOX:
+            {
+                const auto &box = static_cast<urdf::Box *>(geometry.get());
+                node["type"] = "box";
+                node["dimensions"] = std::vector<double>({box->dim.x, box->dim.y, box->dim.z});
+                ROBOWFLEX_YAML_FLOW(node["dimensions"]);
+                break;
+            }
+            case urdf::Geometry::SPHERE:
+            {
+                const auto &sphere = static_cast<urdf::Sphere *>(geometry.get());
+                node["type"] = "sphere";
+                node["dimensions"] = std::vector<double>({sphere->radius});
+                ROBOWFLEX_YAML_FLOW(node["dimensions"]);
+                break;
+            }
+            case urdf::Geometry::CYLINDER:
+            {
+                const auto &cylinder = static_cast<urdf::Cylinder *>(geometry.get());
+                node["type"] = "cylinder";
+                node["dimensions"] = std::vector<double>({cylinder->length, cylinder->radius});
+                ROBOWFLEX_YAML_FLOW(node["dimensions"]);
+                break;
+            }
+            default:
+                break;
+        }
+
+        return node;
+    }
+
+    void addLinkMaterial(YAML::Node &node, const urdf::MaterialSharedPtr &material)
+    {
+        node["color"] =
+            std::vector<double>({material->color.r, material->color.g, material->color.b, material->color.a});
+
+        ROBOWFLEX_YAML_FLOW(node["color"]);
+        // node["texture"] = visual->texture_filename;
+    }
+
+    YAML::Node addLinkVisual(const urdf::VisualSharedPtr &visual)
+    {
+        YAML::Node node;
+        if (visual)
+        {
+            if (visual->geometry)
+            {
+                const auto &geometry = visual->geometry;
+                node = addLinkGeometry(geometry);
+
+                if (visual->material)
+                {
+                    const auto &material = visual->material;
+                    addLinkMaterial(node, material);
+                }
+            }
+        }
+
+        return node;
+    }
+
+    YAML::Node addLinkCollision(const urdf::CollisionSharedPtr &collision)
+    {
+        YAML::Node node;
+        if (collision)
+        {
+            if (collision->geometry)
+            {
+                const auto &geometry = collision->geometry;
+                node = addLinkGeometry(geometry);
+            }
+        }
+
+        return node;
+    }
+
+    Eigen::Affine3d urdfPoseToEigen(const urdf::Pose &pose)
+    {
+        geometry_msgs::Pose msg;
+        msg.position.x = pose.position.x;
+        msg.position.y = pose.position.y;
+        msg.position.z = pose.position.z;
+
+        msg.orientation.x = pose.rotation.x;
+        msg.orientation.y = pose.rotation.y;
+        msg.orientation.z = pose.rotation.z;
+        msg.orientation.w = pose.rotation.w;
+
+        return TF::poseMsgToEigen(msg);
+    }
+}  // namespace
+
 bool Robot::dumpGeometry(const std::string &filename) const
 {
-    YAML::Node node;
+    YAML::Node link_geometry;
     const auto &urdf = model_->getURDF();
 
     std::vector<urdf::LinkSharedPtr> links;
@@ -210,35 +375,96 @@ bool Robot::dumpGeometry(const std::string &filename) const
 
     for (const auto &link : links)
     {
-        if (link->visual && link->visual->geometry)
+        YAML::Node node;
+
+        YAML::Node visual;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+        for (const auto &element : link->visual_array)
+            if (element)
+                visual["elements"].push_back(addLinkVisual(element));
+#else
+        if (link->visual)
+            visual["elements"].push_back(addLinkVisual(link->visual));
+#endif
+
+        YAML::Node collision;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+        for (const auto &element : link->collision_array)
+            if (element)
+                collision["elements"].push_back(addLinkCollision(element));
+#else
+        if (link->collision)
+            collision["elements"].push_back(addLinkCollision(link->collision));
+#endif
+
+        if (!visual.IsNull() || !collision.IsNull())
         {
-            const auto &geometry = link->visual->geometry;
-            if (geometry->type == urdf::Geometry::MESH)
-            {
-                const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
-                node[link->name] = IO::resolvePath(mesh->filename);
-            }
+            YAML::Node add;
+            add["name"] = link->name;
+
+            if (!visual.IsNull())
+                add["visual"] = visual;
+
+            if (!collision.IsNull())
+                add["collision"] = collision;
+
+            link_geometry.push_back(add);
         }
     }
 
-    return IO::YAMLtoFile(node, filename);
+    return IO::YAMLtoFile(link_geometry, filename);
 }
 
-bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename)
+bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
+                               double fps, double threshold)
 {
-    YAML::Node node;
-    for (std::size_t k = 0; k < path.getWayPointCount(); ++k)
+    YAML::Node node, values;
+    const double rate = 1.0 / fps;
+
+    // Find the total duration of the path.
+    const std::deque<double> &durations = path.getWayPointDurations();
+    double total_duration = std::accumulate(durations.begin(), durations.end(), 0.0);
+
+    const auto &urdf = model_->getURDF();
+
+    robot_state::RobotStatePtr previous, state(new robot_state::RobotState(model_));
+
+    for (double duration = 0.0, delay = 0.0; duration < total_duration; duration += rate, delay += rate)
     {
         YAML::Node point;
-        const auto &state = path.getWayPoint(k);
+
+        path.getStateAtDurationFromStart(duration, state);
+        if (previous && state->distance(*previous) < threshold)
+            continue;
+
+        state->update();
         for (const auto &link_name : model_->getLinkModelNames())
-            point[link_name] = TF::poseEigenToMsg(state.getGlobalLinkTransform(link_name));
+        {
+            const auto &urdf_link = urdf->getLink(link_name);
+            if (urdf_link->visual)
+            {
+                const auto &link = model_->getLinkModel(link_name);
+                Eigen::Affine3d tf =
+                    state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
+                point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
+            }
+        }
 
         YAML::Node value;
         value["point"] = point;
-        value["duration"] = path.getWayPointDurationFromStart(k);
-        node.push_back(value);
+        value["duration"] = delay;
+        values.push_back(value);
+
+        delay = 0;
+
+        if (!previous)
+            previous.reset(new robot_state::RobotState(model_));
+
+        *previous = *state;
     }
+
+    node["transforms"] = values;
+    node["fps"] = fps;
 
     return IO::YAMLtoFile(node, filename);
 }

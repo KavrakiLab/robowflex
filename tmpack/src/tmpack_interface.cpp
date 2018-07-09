@@ -1,11 +1,12 @@
-#ifndef TMPACK_INTERFACE_CPP
-#define TMPACK_INTERFACE_CPP
+#ifndef ROBOWFLEX_TMPACK_INTERFACE_CPP
+#define ROBOWFLEX_TMPACK_INTERFACE_CPP
 
 #include <robowflex_library/robowflex.h>
+#include <robowflex_library/io/visualization.h>
 #include <ros/ros.h>
 #include <vector>
 
-#define MAX_STEP_ATTEMPTS 1
+#define MAX_STEP_ATTEMPTS 2
 
 namespace robowflex
 {
@@ -42,6 +43,8 @@ namespace robowflex
         ScenePtr scene;
         MotionRequestBuilderPtr request;
 
+        IO::RVIZHelper& rviz_helper;
+
         // We use these callbacks to implement domain semantics
         TMPConstraintHelper &constraint_helper;
         TMPSceneGraphHelper &scene_graph_helper;
@@ -57,8 +60,6 @@ namespace robowflex
 
             std::vector<double> next_start_joint_positions =
                 request->getRequest().start_state.joint_state.position;
-
-            std::cout<<"Request joint state size: "<<request->getRequest().start_state.joint_state.position.size()<<std::endl;
 
             // we manually specify these because the virtual_link isn't included in the above:
             //For r2_plan.yml
@@ -80,7 +81,7 @@ namespace robowflex
                 // }
 
                 // domain semantics can all be done here?
-                robot->setState(next_start_joint_positions);
+                //robot->setState(next_start_joint_positions);
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
@@ -116,7 +117,7 @@ namespace robowflex
     public:
         TMPackInterface(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
                         ScenePtr scene, MotionRequestBuilderPtr request, TMPConstraintHelper &constraint_helper,
-                        TMPSceneGraphHelper &scene_graph_helper)
+                        TMPSceneGraphHelper &scene_graph_helper, IO::RVIZHelper &rviz_helper)
           : robot(robot)
           , group_name(group_name)
           , planner(planner)
@@ -124,13 +125,27 @@ namespace robowflex
           , request(request)
           , constraint_helper(constraint_helper)
           , scene_graph_helper(scene_graph_helper)
+          , rviz_helper(rviz_helper)
         {
         }
 
         std::vector<planning_interface::MotionPlanResponse> plan()
         {
             std::vector<std::vector<double>> goals = getTaskPlan();
-            return plan_linearly(goals);
+            std::vector<planning_interface::MotionPlanResponse> res = plan_linearly(goals);
+            if(res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                std::vector<double> p = goals.back();
+                double x = 0, y = 0, z = -0.95;
+                x = p[0];
+                y = p[1];
+                // the measurements for the walker are in a different frame:
+                double tmp = x;
+                x = 2 + y / 84;
+                y = -tmp / 84;
+
+                //rviz_helper.addMarker(x, y, z);
+            }
+            return res;
         }
     };
 

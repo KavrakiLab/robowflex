@@ -1,4 +1,8 @@
+#ifndef ROBOWFLEX_MY_WALKER_CPP
+#define ROBOWFLEX_MY_WALKER_CPP
+
 #include <robowflex_library/robowflex.h>
+#include <robowflex_library/io/visualization.h>
 #include <random>
 #include <vector>
 
@@ -6,17 +10,6 @@
 #include "utils/util.h"
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"
-
-// #define GOAL_POSE                                                                                                      \
-//     {                                                                                                                  \
-//         1.07485, -0.019672, 0.000100924, 1.27794e-05, -3.73287e-06, 0.985502, 0.169662, -0.278892, -0.566762,          \
-//             -0.11038, 1.4638, -0.512414, 1.8041, 1.45799, 0, 0, 0, -1.47759, -0.40627, 0.166451, 1.38375, 0.293776,    \
-//             0.0480252, 1.57101, 8.88178e-16, 0, 0, -0.340968, 0.872665, -1.39626, -1.8326, -2.44346, 1.39626, 0, 0, 0, \
-//             0, 0, 0, 0, 1.77636e-15, 0, 1.77636e-15, -8.88178e-16, 0, -8.88178e-16, 8.88178e-16, 0, 8.88178e-16,       \
-//             8.88178e-16, 8.88178e-16, 0, 8.88178e-16, -0.872665, -1.39626, 1.8326, -2.44346, -1.39626, 8.88178e-16, 0, \
-//             0, 0, 0, 0, 0, 0, 0, 8.88178e-16, 0, 0, 0, 0, 0, 0, -8.88178e-16, -2.66454e-15, -2.66454e-15, 1.77636e-15, \
-//             -0.0872665, 1.77636e-15, 0                                                                                 \
-//     }
 
 namespace robowflex
 {
@@ -44,7 +37,7 @@ namespace robowflex
             MyWalkerConstraintHelper(){};
             void _getTaskPlan_Callback()
             {
-                // do nothing
+                last_foot_left = true;
             }
 
             void _planLinearly_Callback(MotionRequestBuilderPtr request, const std::vector<double> &task_op,
@@ -54,7 +47,6 @@ namespace robowflex
                 double x = 0, y = 0, z = -0.95;
                 x = task_op[0];
                 y = task_op[1];
-
                 // the measurements for the walker are in a different frame:
                 double tmp = x;
                 x = 2 + y / 84;
@@ -74,7 +66,7 @@ namespace robowflex
                 }
 
                 // Find the location of the stationary tip in the workspace
-//                robot.setState(joint_positions);
+                //robot.setState(joint_positions);
                 Eigen::Affine3d tip_tf = robot->getLinkTF(stationary_tip_name);
                 std::cout << "left: " << robot->getLinkTF("r2/left_leg/gripper/tip").translation() << std::endl;
                 std::cout << "right: " << robot->getLinkTF("r2/right_leg/gripper/tip").translation() << std::endl;
@@ -85,7 +77,7 @@ namespace robowflex
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
 
                 request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
-                                              Geometry(Geometry::ShapeType::SPHERE,
+                                              std::make_shared<Geometry>(Geometry::ShapeType::SPHERE,
                                                        Eigen::Vector3d(0.1, 0.1, 0.1),
                                                        "my_sphere_for_constraint_2"),
                                               tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
@@ -93,7 +85,7 @@ namespace robowflex
                 request->setGoalRegion(
                     moving_tip_name, "world",
                     Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
-                    Geometry(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
+                    std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
                              "my_sphere_for_constraint_1"),
                     Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d(0.01, 0.01, 0.01));
 
@@ -119,6 +111,9 @@ namespace robowflex
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
+        std::uniform_real_distribution<double> uni_rnd_smpl_ = std::uniform_real_distribution<double>(-100, 100);
+        std::default_random_engine rand_eng_;
+
         // returns vector of joint poses
         // the goal is to not have to build the motion requests by hand every time
         // TMP has a common pattern of using the last goal as the new start
@@ -127,9 +122,7 @@ namespace robowflex
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
-            // std::vector<double> goal = GOAL_POSE;
-            // my_plan.push_back(goal);
-
+            
             // is this good style? The superclass has a reference to these
             my_constraint_helper._getTaskPlan_Callback();
             my_scene_graph_helper._getTaskPlan_Callback();
@@ -139,27 +132,26 @@ namespace robowflex
                 my_step_planner.calculateFootPlacements(points, points[9], points[17],
                                                           footstep_planning::foot::left);
 
-            // Benchmarking code. We'll loop through random locations and try to plan to them.
-            // TODO: Get random pose for torso, plan to it and return plan
-            double rand_x, rand_y;
-            std::uniform_real_distribution<double> uni_rnd_smpl(-100, 100);
-            std::default_random_engine re;
-            rand_x = uni_rnd_smpl(re) * 0.75;
-            rand_y = uni_rnd_smpl(re) * 1.5;
+            // Benchmarking code. We loop through random locations and try to plan to them.
 
+            double rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
+            double rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
+
+            //TODO: This goal pose fails
+            // rand_x = 65.2039;
+            // rand_y = 5.8249;
+
+            
             foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
                                                           footstep_planning::foot::left);
+
+            std::cout<<"Torso pose: < "<<rand_x<<", "<<rand_y<<" >"<<std::endl;
 
             std::cout<<"Foot placements: "<<std::endl;
             for(footstep_planning::point_2D p : foot_placements) {
               std::cout<<p<<std::endl;
-              // my_plan.push_back({p.x, p.y});
+              my_plan.push_back({p.x, p.y});
             }
-
-            // TODO: Actually use the plan
-            my_plan.push_back({42, -42});
-            my_plan.push_back({-42, -42});
-            my_plan.push_back({0, 50});
 
             return my_plan;
         }
@@ -171,9 +163,9 @@ namespace robowflex
 
         // Loads the scene description and creates the graph we will use for planning
         MyWalker(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
-                 ScenePtr scene, MotionRequestBuilderPtr request)
+                 ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper& rviz_helper)
           : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
-                            my_scene_graph_helper)
+                            my_scene_graph_helper, rviz_helper)
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
@@ -200,3 +192,5 @@ namespace robowflex
     };
 
 }  // namespace robowflex
+
+#endif

@@ -1,0 +1,23 @@
+camera:
+  pose:
+    position: [-0.3, 0.0, 4.7]
+    orientation: [0.0, 0.0, 0.9, 1.0]
+lights:
+  - type: sun
+    pose:
+      position: [-1.873, 0.1984, 1.93]
+    shadow_method: 'RAY_SHADOW'
+    shadow_ray_samples: 6
+render:
+  image_settings:
+    file_format: 'FFMPEG'
+  ffmpeg:
+    format: 'MPEG4'
+    codec: 'H264'
+    constant_rate_factor: 'HIGH'
+light_settings:
+  use_environment_light: True
+  environment_energy: 0.63
+  use_ambient_occlusion: True
+  ao_factor: 0.44
+  samples: 15

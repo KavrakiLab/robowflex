@@ -1,23 +1,24 @@
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <memory>
-#include <string>
-#include <array>
+/* Author: Zachary Kingston */
 
-#include <boost/filesystem.hpp>
+#include <cstdlib>  // for std::getenv
+#include <memory>   // for std::shared_ptr
+#include <array>    // for std::array
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <boost/filesystem.hpp>  // for filesystem paths
 
-#include <boost/asio/ip/host_name.hpp>
+#include <boost/uuid/uuid.hpp>             // for UUID generation
+#include <boost/uuid/uuid_generators.hpp>  // for UUID generation
+#include <boost/uuid/uuid_io.hpp>          // for UUID generation
 
-#include <ros/package.h>
+#include <boost/asio/ip/host_name.hpp>  // for hostname
 
-#include <eigen_conversions/eigen_msg.h>
+#include <ros/package.h>  // for package resolving
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/macros.h>
+#include <robowflex_library/util.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/bag.h>
+#include <robowflex_library/io/handler.h>
 
 using namespace robowflex;
 
@@ -25,7 +26,7 @@ namespace
 {
     boost::filesystem::path expandHome(const boost::filesystem::path &in)
     {
-        const char *home = getenv("HOME");
+        const char *home = std::getenv("HOME");
         if (home == NULL)
         {
             ROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
@@ -224,6 +225,60 @@ bool IO::YAMLtoFile(const YAML::Node &node, const std::string &file)
     return true;
 }
 
+const std::string IO::Handler::generateUUID()
+{
+    boost::uuids::random_generator gen;
+    boost::uuids::uuid u = gen();
+
+    std::string s = boost::lexical_cast<std::string>(u);
+    std::replace(s.begin(), s.end(), '-', '_');
+
+    return s;
+}
+
+void IO::createFile(std::ofstream &out, const std::string &file)
+{
+    boost::filesystem::path path(file);
+    const auto parent = path.parent_path().string();
+
+    if (!parent.empty())
+        boost::filesystem::create_directories(parent);
+
+    out.open(file, std::ofstream::out | std::ofstream::trunc);
+}
+
+const std::string IO::getHostname()
+{
+    return boost::asio::ip::host_name();
+}
+
+boost::posix_time::ptime IO::getDate()
+{
+    return boost::posix_time::microsec_clock::local_time();
+}
+
+///
+/// IO::Bag
+///
+
+IO::Bag::Bag(const std::string &file, Mode mode)
+  : mode_(mode)
+  , file_((mode_ == WRITE) ? file : IO::resolvePath(file))
+  , bag_(file_, (mode_ == WRITE) ? rosbag::bagmode::Write : rosbag::bagmode::Read)
+{
+}
+
+IO::Bag::~Bag()
+{
+    bag_.close();
+}
+
+///
+/// IO::Handler
+///
+
+const std::string IO::Handler::UUID(generateUUID());
+
 namespace
 {
     class XmlRpcValueCreator : public XmlRpc::XmlRpcValue
@@ -319,8 +374,6 @@ namespace
     }
 }  // namespace
 
-const std::string IO::Handler::UUID(generateUUID());
-
 IO::Handler::Handler(const std::string &name)
   : name_(name), namespace_("robowflex_" + UUID + "/" + name_), nh_(namespace_)
 {
@@ -360,34 +413,22 @@ void IO::Handler::loadYAMLtoROS(const YAML::Node &node, const std::string &prefi
     }
 }
 
-const std::string IO::Handler::generateUUID()
+bool IO::Handler::hasParam(const std::string &key) const
 {
-    boost::uuids::random_generator gen;
-    boost::uuids::uuid u = gen();
-
-    std::string s = boost::lexical_cast<std::string>(u);
-    std::replace(s.begin(), s.end(), '-', '_');
-
-    return s;
+    return nh_.hasParam(key);
 }
 
-void IO::createFile(std::ofstream &out, const std::string &file)
+const ros::NodeHandle &IO::Handler::getHandle() const
 {
-    boost::filesystem::path path(file);
-    const auto parent = path.parent_path().string();
-
-    if (!parent.empty())
-        boost::filesystem::create_directories(parent);
-
-    out.open(file, std::ofstream::out | std::ofstream::trunc);
+    return nh_;
 }
 
-const std::string IO::getHostname()
+const std::string &IO::Handler::getName() const
 {
-    return boost::asio::ip::host_name();
+    return name_;
 }
 
-boost::posix_time::ptime IO::getDate()
+const std::string &IO::Handler::getNamespace() const
 {
-    return boost::posix_time::microsec_clock::local_time();
+    return namespace_;
 }
