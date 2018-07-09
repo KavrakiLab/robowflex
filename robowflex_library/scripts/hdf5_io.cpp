@@ -14,11 +14,5 @@ int main(int argc, char **argv)
 
     IO::HDF5File file("~/Downloads/left_foot.hdf5");
 
-    for (auto obj : file.listObjects())
-        std::cout << obj << std::endl;
-
-
-    file.loadData("captain");
-
     return 0;
 }
