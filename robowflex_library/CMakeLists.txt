@@ -22,13 +22,13 @@ endif()
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(HDF5 QUIET)
 
 ##
 ## Catkin setup
 ##
 
 find_package(catkin REQUIRED COMPONENTS
-  # moveit_planners_ompl
   moveit_ros_planning
   geometric_shapes
   eigen_conversions
@@ -39,7 +39,6 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
-    # moveit_planners_ompl
     moveit_ros_planning
     geometric_shapes
     eigen_conversions
@@ -80,10 +79,7 @@ endif()
 ## Library Creation
 ##
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} yaml-cpp)
-link_directories(${catkin_LIBRARY_DIRS})
-
-add_library(${LIBRARY_NAME}
+list(APPEND SOURCES
   src/planning.cpp
   src/builder.cpp
   src/scene.cpp
@@ -100,8 +96,42 @@ add_library(${LIBRARY_NAME}
   src/detail/ur5.cpp
   )
 
+list(APPEND INCLUDES
+  ${CMAKE_CURRENT_LIST_DIR}/include
+  ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  yaml-cpp
+  )
+
+list(APPEND LIBRARIES
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  yaml-cpp
+  )
+
+if (HDF5_FOUND)
+  list(APPEND SOURCES
+    src/io/hdf5.cpp
+    )
+
+  list(APPEND INCLUDES
+    ${HDF5_INCLUDE_DIRS}
+    )
+
+  list(APPEND LIBRARIES
+    ${HDF5_LIBRARIES}
+    )
+endif()
+
+include_directories(${INCLUDES})
+
+link_directories(${catkin_LIBRARY_DIRS})
+
+add_library(${LIBRARY_NAME} ${SOURCES})
+
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
+target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
 ##
 ## Scripts
