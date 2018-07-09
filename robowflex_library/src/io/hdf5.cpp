@@ -96,10 +96,54 @@ std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataPropert
 /// IO::HDF5File
 ///
 
-IO::HDF5File::HDF5File(const std::string &filename) : file_(IO::resolvePath(filename), H5F_ACC_RDONLY)
+IO::HDF5File::HDF5File(const std::string &filename)
+  : file_(IO::resolvePath(filename), H5F_ACC_RDONLY), data_(NodeMap())
 {
     for (auto obj : listObjects(file_))
         loadData(data_, file_, obj);
+}
+
+const IO::HDF5DataPtr &IO::HDF5File::getData(const std::vector<std::string> &keys)
+{
+    NodeMap &node = boost::get<NodeMap>(data_);
+    for (std::size_t i = 0; i < keys.size() - 1; ++i)
+        node = boost::get<NodeMap>(node[keys[i]]);
+
+    return boost::get<HDF5DataPtr>(node[keys.back()]);
+}
+
+namespace
+{
+    void getKeysHelper(std::vector<std::vector<std::string>> &keys, std::vector<std::string> key,
+                       IO::HDF5File::NodeMap &node)
+    {
+        for (auto &element : node)
+        {
+            try
+            {
+                auto &next = boost::get<IO::HDF5File::NodeMap>(element.second);
+                auto next_key = key;
+                next_key.push_back(element.first);
+
+                getKeysHelper(keys, next_key, next);
+            }
+            catch (std::exception &e)
+            {
+                keys.push_back(key);
+            }
+        }
+    }
+};  // namespace
+
+const std::vector<std::vector<std::string>> IO::HDF5File::getKeys()
+{
+    NodeMap &node = boost::get<NodeMap>(data_);
+    std::vector<std::vector<std::string>> keys;
+    std::vector<std::string> key;
+
+    getKeysHelper(keys, key, node);
+
+    return keys;
 }
 
 template <typename T>
@@ -116,31 +160,27 @@ template const std::vector<std::string> IO::HDF5File::listObjects(const H5::H5Fi
 template const std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &);
 
 template <typename T>
-void IO::HDF5File::loadData(std::map<std::string, Node> &node, const T &location, const std::string &name)
+void IO::HDF5File::loadData(Node &node, const T &location, const std::string &name)
 {
     H5O_type_t type = H5O_TYPE_GROUP;
     if (!name.empty())
         type = location.childObjType(name);
 
+    NodeMap &map = boost::get<NodeMap>(node);
     switch (type)
     {
         case H5O_TYPE_GROUP:
         {
+            map[name] = NodeMap();
             H5::Group group = location.openGroup(name);
             for (auto obj : listObjects(group))
-            {
-                node[obj] = std::map<std::string, Node>();
-                loadData(boost::get<std::map<std::string, Node>>(node[obj]), group, obj);
-            }
+                loadData(map[name], group, obj);
 
             break;
         }
         case H5O_TYPE_DATASET:
         {
-            auto data = std::make_shared<HDF5Data>(location, name);
-            // std::cout << data->getStatus() << std::endl;
-
-            node[name] = std::move(data);
+            map.emplace(name, std::make_shared<HDF5Data>(location, name));
             break;
         }
 
@@ -151,5 +191,5 @@ void IO::HDF5File::loadData(std::map<std::string, Node> &node, const T &location
     };
 }
 
-template void IO::HDF5File::loadData(std::map<std::string, Node> &, const H5::H5File &, const std::string &);
-template void IO::HDF5File::loadData(std::map<std::string, Node> &, const H5::Group &, const std::string &);
+template void IO::HDF5File::loadData(Node &, const H5::H5File &, const std::string &);
+template void IO::HDF5File::loadData(Node &, const H5::Group &, const std::string &);

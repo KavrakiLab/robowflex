@@ -51,18 +51,22 @@ namespace robowflex
         public:
             typedef boost::make_recursive_variant<
                 HDF5DataPtr, std::map<std::string, boost::recursive_variant_>>::type Node;
+            typedef std::map<std::string, Node> NodeMap;
 
             HDF5File(const std::string &filename);
+
+            const HDF5DataPtr &getData(const std::vector<std::string> &keys);
+            const std::vector<std::vector<std::string>> getKeys();
 
         private:
             template <typename T>
             const std::vector<std::string> listObjects(const T &location);
 
             template <typename T>
-            void loadData(std::map<std::string, Node> &node, const T &location, const std::string &name);
+            void loadData(Node &node, const T &location, const std::string &name);
 
             const H5::H5File file_;
-            std::map<std::string, Node> data_;
+            Node data_;
         };
     }  // namespace IO
 }  // namespace robowflex
