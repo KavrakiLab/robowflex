@@ -177,9 +177,7 @@ target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
 if (HDF5_FOUND)
   list(APPEND SCRIPTS hdf5_io)
   add_executable(hdf5_io scripts/hdf5_io.cpp)
-  target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES}
-    ${HDF5_LIBRARIES}
-    )
+  target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 endif()
 
 ##
