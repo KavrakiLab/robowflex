@@ -22,7 +22,7 @@ endif()
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(HDF5 QUIET)
+find_package(HDF5 QUIET COMPONENTS C CXX)
 
 ##
 ## Catkin setup
@@ -137,47 +137,57 @@ target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 ## Scripts
 ##
 
+list(APPEND SCRIPTS ur5_test)
 add_executable(ur5_test scripts/ur5_test.cpp)
 target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_benchmark)
 add_executable(ur5_benchmark scripts/ur5_benchmark.cpp)
 target_link_libraries(ur5_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_io)
 add_executable(ur5_io scripts/ur5_io.cpp)
 target_link_libraries(ur5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_pool)
 add_executable(ur5_pool scripts/ur5_pool.cpp)
 target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_visualization)
 add_executable(ur5_visualization scripts/ur5_visualization.cpp)
 target_link_libraries(ur5_visualization ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS r2_test)
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS wam7_test)
 add_executable(wam7_test scripts/wam7_test.cpp)
 target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS wam7_benchmark)
 add_executable(wam7_benchmark scripts/wam7_benchmark.cpp)
 target_link_libraries(wam7_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS tapedeck)
 add_executable(tapedeck scripts/tapedeck.cpp)
 target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+
+if (HDF5_FOUND)
+  list(APPEND SCRIPTS hdf5_io)
+  add_executable(hdf5_io scripts/hdf5_io.cpp)
+  target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES}
+    ${HDF5_LIBRARIES}
+    )
+endif()
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts
 ##
 
 install(TARGETS
-    ur5_test
-    ur5_benchmark
-    ur5_io
-    ur5_pool
-    ur5_visualization
-    r2_test
-    wam7_test
-    wam7_benchmark
-    tapedeck
+  ${SCRIPTS}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS ${LIBRARY_NAME}
