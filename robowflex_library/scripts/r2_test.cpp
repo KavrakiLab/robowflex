@@ -30,6 +30,13 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
+    planning_interface::MotionPlanResponse res;
+
+    // Do motion planning!
+    res = planner->plan(scene, request.getRequest());
+    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        return 1;
+
     // Clear path constraints so we can rebuild them.
     request.getPathConstraints().position_constraints.clear();
     request.getPathConstraints().orientation_constraints.clear();
@@ -62,7 +69,7 @@ int main(int argc, char **argv)
         Eigen::Quaterniond(waist_tf.rotation()), Eigen::Vector3d{0.005, 0.005, 1.58});
 
     // Do motion planning!
-    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
+    res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
