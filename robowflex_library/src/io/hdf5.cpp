@@ -167,6 +167,9 @@ namespace
             return nullptr;
 
         const auto &element = node.find(keys.front());
+        if (element == node.end())
+            return nullptr;
+
         try
         {
             const auto &next = boost::get<IO::HDF5File::NodeMap>(element->second);
