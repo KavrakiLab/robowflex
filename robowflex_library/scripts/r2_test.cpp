@@ -1,4 +1,5 @@
 #include <robowflex_library/util.h>
+#include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
@@ -29,7 +30,32 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
-   // Do motion planning!
+    // Clear path constraints so we can rebuild them.
+    request.getPathConstraints().position_constraints.clear();
+    request.getPathConstraints().orientation_constraints.clear();
+
+    // Set the scratch state of the robot.
+    r2->setState(request.getRequest().start_state);
+
+    const std::string world = "world";
+    const std::string waist = "r2/waist_center";
+    const std::string left_foot = "r2/left_leg/gripper/tip";
+    Eigen::Vector3d tolerances(0.01, 0.01, 0.01);
+
+    // Set a pose constraint on the left foot (keep fixed throughout the path).
+    auto foot_tf = r2->getLinkTF(left_foot);
+    request.addPathPoseConstraint(           //
+        left_foot, world,                    //
+        foot_tf, Geometry::makeSphere(0.1),  //
+        Eigen::Quaterniond(foot_tf.rotation()), tolerances);
+
+    // Set a orientation constraint on the waist (to keep it up throughout the path)
+    auto waist_tf = r2->getRelativeLinkTF(left_foot, waist);
+    request.addPathOrientationConstraint(  //
+        waist, left_foot,                  //
+        Eigen::Quaterniond(waist_tf.rotation()), tolerances);
+
+    // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;

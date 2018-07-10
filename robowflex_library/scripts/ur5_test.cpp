@@ -47,11 +47,10 @@ int main(int argc, char **argv)
         pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
         Eigen::Quaterniond orn{0, 0, 1, 0};
 
-        auto sphere = std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d{0.01, 0, 0});
-        request.setGoalRegion("ee_link", "world",      // links
-                              pose, sphere,            // position
-                              orn, {0.01, 0.01, 0.01}  // orientation
-        );
+        request.setGoalRegion("ee_link", "world",               // links
+                              pose, Geometry::makeSphere(0.1),  // position
+                              orn, {0.01, 0.01, 0.01}           // orientation
+                              );
 
         // Do motion planning!
         planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());

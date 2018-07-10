@@ -4,8 +4,8 @@
 #include <numeric>
 
 #include <moveit/robot_state/robot_state.h>
+#include <moveit/robot_state/conversions.h>
 #include <moveit/collision_detection/collision_common.h>
-#include <moveit/robot_state/robot_state.h>
 
 #include <robowflex_library/macros.h>
 #include <robowflex_library/io.h>
@@ -205,6 +205,12 @@ void Robot::setState(const std::vector<std::string> &variable_names,
     scratch_->update();
 }
 
+void Robot::setState(const moveit_msgs::RobotState &state)
+{
+    moveit::core::robotStateMsgToRobotState(state, *scratch_);
+    scratch_->update();
+}
+
 void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
 {
     scratch_->setJointGroupPositions(name, positions);
@@ -242,6 +248,14 @@ void Robot::setFromIK(const std::string &group,                                 
 const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);
+}
+
+const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
+{
+    auto base_tf = scratch_->getGlobalLinkTransform(base);
+    auto target_tf = scratch_->getGlobalLinkTransform(target);
+
+    return target_tf * base_tf.inverse();
 }
 
 bool Robot::inCollision(const SceneConstPtr &scene) const

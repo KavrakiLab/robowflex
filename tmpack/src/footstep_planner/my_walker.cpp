@@ -76,11 +76,27 @@ namespace robowflex
                 // it shouldn't matter that we have a rotation.
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
 
+                //Keep one foot fixed
                 request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
                                               std::make_shared<Geometry>(Geometry::ShapeType::SPHERE,
                                                        Eigen::Vector3d(0.1, 0.1, 0.1),
                                                        "my_sphere_for_constraint_2"),
                                               tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
+
+                auto waist = Eigen::Quaterniond(robot->getLinkTF("r2/waist_center").rotation());
+                std::cout<<waist.w()<<", "<<waist.x()<<", "<<waist.y()<<", "<<waist.z()<<std::endl;
+
+                auto stat = Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation());
+                std::cout<<stat.w()<<", "<<stat.x()<<", "<<stat.y()<<", "<<stat.z()<<std::endl;
+                // std::cout<<"stationary orientation: "<<Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation())<<std::endl;
+                // std::cout<<"waist orientation: "<<Eigen::Quaterniond(robot->getLinkTF("r2/waist_center").rotation())<<std::endl;
+
+                //TODO, this should be based on global z
+                //Keep the torso upright
+                request->addPathOrientationConstraint("r2/waist_center",
+                                                      stationary_tip_name,
+                                                      Eigen::Quaterniond::Identity(),
+                                                      Eigen::Vector3d(0.01, 0.01, 0.01));
 
                 request->setGoalRegion(
                     moving_tip_name, "world",

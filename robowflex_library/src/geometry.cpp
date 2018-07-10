@@ -43,6 +43,31 @@ const std::string &Geometry::ShapeType::toString(Type type)
     return STRINGS[type];
 }
 
+GeometryPtr Geometry::makeSphere(double radius)
+{
+    return std::make_shared<Geometry>(ShapeType::SPHERE, Eigen::Vector3d(radius, 0, 0));
+}
+
+GeometryPtr Geometry::makeBox(double x, double y, double z)
+{
+    return std::make_shared<Geometry>(ShapeType::BOX, Eigen::Vector3d(x, y, z));
+}
+
+GeometryPtr Geometry::makeCylinder(double radius, double length)
+{
+    return std::make_shared<Geometry>(ShapeType::CYLINDER, Eigen::Vector3d(radius, length, 0));
+}
+
+GeometryPtr Geometry::makeCone(double radius, double length)
+{
+    return std::make_shared<Geometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
+}
+
+GeometryPtr Geometry::makeMesh(const std::string resource, const Eigen::Vector3d &scale)
+{
+    return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
+}
+
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
   : type_(type)
   , dimensions_(dimensions)

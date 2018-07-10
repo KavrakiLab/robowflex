@@ -155,6 +155,11 @@ namespace robowflex
         void setState(const std::vector<std::string> &variable_names,
                       const std::vector<double> &variable_position);
 
+        /** \brief Sets the scratch state from a robot state message.
+         *  \param[in] state The state to set.
+         */
+        void setState(const moveit_msgs::RobotState &state);
+
         /** \brief Sets the group of the scratch state to a vector of joint positions.
          *  \param[in] name Name of group to set.
          *  \param[in] positions Positions to set.
@@ -184,9 +189,17 @@ namespace robowflex
         std::vector<std::string> getJointNames() const;
 
         /** \brief Get the current pose of a link on the scratch state.
+         *  \param[in] name The name of the link to find the transform of.
          *  \return The transform of link \a name.
          */
         const Eigen::Affine3d &getLinkTF(const std::string &name) const;
+
+        /** \brief Get the current pose of a link \a target in the frame of \a base.
+         *  \param[in] base The link to use as the base frame.
+         *  \param[in] target The link to find the transform of.
+         *  \return The transform of link \a target in the frame of \a base.
+         */
+        const Eigen::Affine3d getRelativeLinkTF(const std::string &base, const std::string &target) const;
 
         /** \brief Checks if the scratch state is in collision in \a scene.
          *  \param[in] scene Scene to check collision against.
@@ -200,7 +213,7 @@ namespace robowflex
             \{ */
 
         /** \brief Dumps the names of links and absolute paths to their visual mesh files to a YAML file.
-         *  \param[in] file File to save to.
+         *  \param[in] file File to save to.The name of the link to find the transform of.
          *  \return True on success, false on failure.
          */
         bool dumpGeometry(const std::string &file) const;
