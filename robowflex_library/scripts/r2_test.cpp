@@ -40,20 +40,26 @@ int main(int argc, char **argv)
     const std::string world = "world";
     const std::string waist = "r2/waist_center";
     const std::string left_foot = "r2/left_leg/gripper/tip";
-    Eigen::Vector3d tolerances(0.01, 0.01, 0.01);
+    const std::string right_foot = "r2/right_leg/gripper/tip";
+
+    // Set a goal region to plan to.
+    request.setGoalRegion(                                                                        //
+        right_foot, world,                                                                        //
+        Eigen::Affine3d(Eigen::Translation3d(1.126, -0.248, -1.104)), Geometry::makeSphere(0.1),  //
+        Eigen::Quaterniond(1, 0, 0, 0), Eigen::Vector3d{0.01, 0.01, 0.01});
 
     // Set a pose constraint on the left foot (keep fixed throughout the path).
     auto foot_tf = r2->getLinkTF(left_foot);
     request.addPathPoseConstraint(           //
         left_foot, world,                    //
         foot_tf, Geometry::makeSphere(0.1),  //
-        Eigen::Quaterniond(foot_tf.rotation()), tolerances);
+        Eigen::Quaterniond(foot_tf.rotation()), Eigen::Vector3d{0.01, 0.01, 0.01});
 
     // Set a orientation constraint on the waist (to keep it up throughout the path)
     auto waist_tf = r2->getRelativeLinkTF(left_foot, waist);
     request.addPathOrientationConstraint(  //
         waist, left_foot,                  //
-        Eigen::Quaterniond(waist_tf.rotation()), tolerances);
+        Eigen::Quaterniond(waist_tf.rotation()), Eigen::Vector3d{0.005, 0.005, 1.58});
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
