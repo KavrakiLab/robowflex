@@ -29,26 +29,31 @@ int main(int argc, char **argv)
     // Load a motion planning request (a step with a torso constraint).
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
-    r2->setState(request.getRequest().start_state);
 
+    // Clear path constraints so we can rebuild them.
     request.getPathConstraints().position_constraints.clear();
     request.getPathConstraints().orientation_constraints.clear();
 
-    // Leftfoot tip
+    // Set the scratch state of the robot.
+    r2->setState(request.getRequest().start_state);
+
+    const std::string world = "world";
     const std::string waist = "r2/waist_center";
     const std::string left_foot = "r2/left_leg/gripper/tip";
     Eigen::Vector3d tolerances(0.01, 0.01, 0.01);
 
+    // Set a pose constraint on the left foot (keep fixed throughout the path).
     auto foot_tf = r2->getLinkTF(left_foot);
-    request.addPathPoseConstraint(
-        left_foot, "world",  //
-        foot_tf, std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1)),
+    request.addPathPoseConstraint(           //
+        left_foot, world,                    //
+        foot_tf, Geometry::makeSphere(0.1),  //
         Eigen::Quaterniond(foot_tf.rotation()), tolerances);
 
-    // Waist up
+    // Set a orientation constraint on the waist (to keep it up throughout the path)
     auto waist_tf = r2->getRelativeLinkTF(left_foot, waist);
-    request.addPathOrientationConstraint(waist, left_foot,  //
-                                         Eigen::Quaterniond(waist_tf.rotation()), tolerances);
+    request.addPathOrientationConstraint(  //
+        waist, left_foot,                  //
+        Eigen::Quaterniond(waist_tf.rotation()), tolerances);
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());

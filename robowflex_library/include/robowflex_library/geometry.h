@@ -53,6 +53,41 @@ namespace robowflex
             static const std::string &toString(Type type);  ///< Converts a ShapeType to its string.
         };
 
+        /** \brief Create a sphere.
+         *  \param[in] radius The radius of the sphere.
+         *  \return The created sphere.
+         */
+        static GeometryPtr makeSphere(double radius);
+
+        /** \brief Create a box.
+         *  \param[in] x The box's x dimension.
+         *  \param[in] y The boy's y dimension.
+         *  \param[in] z The boz's z dimension.
+         *  \return The created box.
+         */
+        static GeometryPtr makeBox(double x, double y, double z);
+
+        /** \brief Create a cylinder.
+         *  \param[in] radius The radius of the cylinder.
+         *  \param[in] length The length of the cylinder.
+         *  \return The created cylinder.
+         */
+        static GeometryPtr makeCylinder(double radius, double length);
+
+        /** \brief Create a cone.
+         *  \param[in] radius The radius of the base of the cone.
+         *  \param[in] length The height of the cone.
+         *  \return The created cone.
+         */
+        static GeometryPtr makeCone(double radius, double length);
+
+        /** \brief Create a mesh.
+         *  \param[in] resource The resource to load for the mesh.
+         *  \param[in] scale The scale of the mesh.
+         *  \return The created mesh.
+         */
+        static GeometryPtr makeMesh(const std::string resource, const Eigen::Vector3d &scale = {1, 1, 1});
+
         /** \brief Constructor.
          *  Builds and loads the specified geometry.
          *  \param[in] type Type of the geometry to create.
