@@ -22,7 +22,7 @@ endif()
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(HDF5 QUIET COMPONENTS C CXX)
+find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 ##
 ## Catkin setup
@@ -89,6 +89,7 @@ list(APPEND SOURCES
   src/util.cpp
   src/io.cpp
   src/io/visualization.cpp
+  src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
   src/yaml.cpp
@@ -101,35 +102,20 @@ list(APPEND INCLUDES
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${HDF5_INCLUDE_DIRS}
   yaml-cpp
   )
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${HDF5_LIBRARIES}
   yaml-cpp
   )
 
-if (HDF5_FOUND)
-  list(APPEND SOURCES
-    src/io/hdf5.cpp
-    )
-
-  list(APPEND INCLUDES
-    ${HDF5_INCLUDE_DIRS}
-    )
-
-  list(APPEND LIBRARIES
-    ${HDF5_LIBRARIES}
-    )
-endif()
-
 include_directories(${INCLUDES})
-
 link_directories(${catkin_LIBRARY_DIRS})
-
 add_library(${LIBRARY_NAME} ${SOURCES})
-
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
@@ -173,12 +159,13 @@ list(APPEND SCRIPTS tapedeck)
 add_executable(tapedeck scripts/tapedeck.cpp)
 target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS hdf5_io)
+add_executable(hdf5_io scripts/hdf5_io.cpp)
+target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
-if (HDF5_FOUND)
-  list(APPEND SCRIPTS hdf5_io)
-  add_executable(hdf5_io scripts/hdf5_io.cpp)
-  target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
-endif()
+list(APPEND SCRIPTS r2_hdf5)
+add_executable(r2_hdf5 scripts/r2_hdf5.cpp)
+target_link_libraries(r2_hdf5 ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts
