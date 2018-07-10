@@ -70,6 +70,41 @@ const std::string IO::HDF5Data::getStatus() const
     return ss.str();
 }
 
+namespace
+{
+    hsize_t hpow(hsize_t base, hsize_t exp)
+    {
+        hsize_t result = 1;
+        while (exp)
+        {
+            if (exp & 1)
+                result *= base;
+            exp /= 2;
+            base *= base;
+        }
+
+        return result;
+    }
+};  // namespace
+
+template <typename T>
+const T &IO::HDF5Data::get(const std::vector<hsize_t> index) const
+{
+    if (index.size() != rank_)
+        throw std::invalid_argument("Index size must be the same as data rank!");
+
+    const T *data = reinterpret_cast<const T *>(data_);
+    unsigned int offset = 0;
+
+    for (int i = 0; i < rank_; ++i)
+        offset += hpow(dims_[i], i) * index[rank_ - (i + 1)];
+
+    return data[offset];
+}
+
+template const int &IO::HDF5Data::get(const std::vector<hsize_t> index) const;
+template const double &IO::HDF5Data::get(const std::vector<hsize_t> index) const;
+
 std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataProperties() const
 {
     switch (type_)

@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <cmath>
 
 #include <boost/variant.hpp>
 
@@ -66,18 +65,7 @@ namespace robowflex
              *  \tparam The return type of the data.
              */
             template <typename T>
-            const T &get(const std::vector<unsigned int> index) const
-            {
-                // TODO: Error if index.size() != rank
-                const T *data = reinterpret_cast<const T *>(data_);
-                unsigned int offset = 0;
-
-                // TODO: Better pow
-                for (unsigned int i = 0; i < rank_; ++i)
-                    offset += std::pow(dims_[i], i) * index[rank_ - (i + 1)];
-
-                return data[offset];
-            }
+            const T &get(const std::vector<hsize_t> index) const;
 
         private:
             /** \brief Return information about the data type of the data.
@@ -132,7 +120,8 @@ namespace robowflex
             template <typename T>
             const std::vector<std::string> listObjects(const T &location) const;
 
-            /** \brief Loads the data in the object \a name at the HDF5 location.
+            /** \brief Loads the data in the object \a name at the HDF5 location. Recursive.
+             *  \param[in] node The node to add data to.
              *  \param[in] location The location to search
              *  \param[in] name The name to search for.
              *  \tparam T A HDF5 object.
