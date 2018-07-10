@@ -3,6 +3,7 @@
 #include <iostream>
 #include <numeric>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/hdf5.h>
 
@@ -113,15 +114,15 @@ std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataPropert
             return std::make_tuple(H5::PredType::NATIVE_INT, sizeof(int), "integer");
         case H5T_FLOAT:
             return std::make_tuple(H5::PredType::NATIVE_DOUBLE, sizeof(double), "double");
-            // case H5T_TIME:
-            // case H5T_STRING:
-            // case H5T_BITFIELD:
-            // case H5T_OPAQUE:
-            // case H5T_COMPOUND:
-            // case H5T_REFERENCE:
-            // case H5T_ENUM:
-            // case H5T_VLEN:
-            // case H5T_ARRAY:
+        // case H5T_TIME:
+        // case H5T_STRING:
+        // case H5T_BITFIELD:
+        // case H5T_OPAQUE:
+        // case H5T_COMPOUND:
+        // case H5T_REFERENCE:
+        // case H5T_ENUM:
+        // case H5T_VLEN:
+        // case H5T_ARRAY:
         default:
             break;
     }
@@ -179,6 +180,30 @@ namespace
 
         return nullptr;
     }
+
+    template <typename T>
+    H5O_type_t childObjType(const T &location, const std::string &name)
+    {
+        H5O_info_t info;
+        H5O_type_t type = H5O_TYPE_UNKNOWN;
+
+        herr_t r = H5Oget_info_by_name(location.getId(), name.c_str(), &info, H5P_DEFAULT);
+
+        if (r < 0)
+            return type;
+        else
+            switch (info.type)
+            {
+                case H5O_TYPE_GROUP:
+                case H5O_TYPE_DATASET:
+                case H5O_TYPE_NAMED_DATATYPE:
+                    type = info.type;
+                default:
+                    break;
+            }
+
+        return (type);
+    }
 };  // namespace
 
 const IO::HDF5DataPtr IO::HDF5File::getData(const std::vector<std::string> &keys) const
@@ -216,7 +241,12 @@ void IO::HDF5File::loadData(Node &node, const T &location, const std::string &na
 {
     NodeMap &map = boost::get<NodeMap>(node);
 
+#if ROBOWFLEX_AT_LEAST_KINETIC
     H5O_type_t type = location.childObjType(name);
+#else
+    H5O_type_t type = childObjType(location, name);
+#endif
+
     switch (type)
     {
         case H5O_TYPE_GROUP:
