@@ -18,8 +18,7 @@ int main(int argc, char **argv)
         std::cout << std::endl;
     }
 
-    // IO::HDF5DataConstPtr data = file.getData({"captain", "r2", "left_leg", "joint0", "APS1"});
-    IO::HDF5DataPtr data = file.getData({"captain", "r2", "left_leg", "joint0"});
+    IO::HDF5DataConstPtr data = file.getData({"captain", "r2", "left_leg", "joint0", "APS1"});
     std::cout << data->getStatus() << std::endl;
 
     return 0;

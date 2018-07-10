@@ -55,12 +55,12 @@ namespace robowflex
 
             HDF5File(const std::string &filename);
 
-            const HDF5DataPtr &getData(const std::vector<std::string> &keys);
-            const std::vector<std::vector<std::string>> getKeys();
+            const HDF5DataPtr getData(const std::vector<std::string> &keys) const;
+            const std::vector<std::vector<std::string>> getKeys() const;
 
         private:
             template <typename T>
-            const std::vector<std::string> listObjects(const T &location);
+            const std::vector<std::string> listObjects(const T &location) const;
 
             template <typename T>
             void loadData(Node &node, const T &location, const std::string &name);

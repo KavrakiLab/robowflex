@@ -103,41 +103,58 @@ IO::HDF5File::HDF5File(const std::string &filename)
         loadData(data_, file_, obj);
 }
 
-const IO::HDF5DataPtr &IO::HDF5File::getData(const std::vector<std::string> &keys)
-{
-    NodeMap &node = boost::get<NodeMap>(data_);
-    for (std::size_t i = 0; i < keys.size() - 1; ++i)
-        node = boost::get<NodeMap>(node[keys[i]]);
-
-    return boost::get<HDF5DataPtr>(node[keys.back()]);
-}
-
 namespace
 {
-    void getKeysHelper(std::vector<std::vector<std::string>> &keys, std::vector<std::string> key,
-                       IO::HDF5File::NodeMap &node)
+    void getKeysHelper(std::vector<std::vector<std::string>> &keys, const std::vector<std::string> key,
+                       const IO::HDF5File::NodeMap &node)
     {
-        for (auto &element : node)
+        for (const auto &element : node)
         {
+            auto next_key = key;
+            next_key.push_back(element.first);
+
             try
             {
-                auto &next = boost::get<IO::HDF5File::NodeMap>(element.second);
-                auto next_key = key;
-                next_key.push_back(element.first);
-
+                const auto &next = boost::get<IO::HDF5File::NodeMap>(element.second);
                 getKeysHelper(keys, next_key, next);
             }
             catch (std::exception &e)
             {
-                keys.push_back(key);
+                keys.push_back(next_key);
             }
         }
     }
+
+    IO::HDF5DataPtr getDataHelper(const std::vector<std::string> keys, const IO::HDF5File::NodeMap &node)
+    {
+        if (keys.empty())
+            return nullptr;
+
+        const auto &element = node.find(keys.front());
+        try
+        {
+            const auto &next = boost::get<IO::HDF5File::NodeMap>(element->second);
+            std::vector<std::string> copy(keys.begin() + 1, keys.end());
+            return getDataHelper(copy, next);
+        }
+        catch (std::exception &e)
+        {
+            return boost::get<IO::HDF5DataPtr>(element->second);
+        }
+
+        return nullptr;
+    }
 };  // namespace
 
-const std::vector<std::vector<std::string>> IO::HDF5File::getKeys()
+const IO::HDF5DataPtr IO::HDF5File::getData(const std::vector<std::string> &keys) const
 {
-    NodeMap &node = boost::get<NodeMap>(data_);
+    const NodeMap &node = boost::get<NodeMap>(data_);
+    return getDataHelper(keys, node);
+}
+
+const std::vector<std::vector<std::string>> IO::HDF5File::getKeys() const
+{
+    const NodeMap &node = boost::get<NodeMap>(data_);
     std::vector<std::vector<std::string>> keys;
     std::vector<std::string> key;
 
@@ -147,7 +164,7 @@ const std::vector<std::vector<std::string>> IO::HDF5File::getKeys()
 }
 
 template <typename T>
-const std::vector<std::string> IO::HDF5File::listObjects(const T &location)
+const std::vector<std::string> IO::HDF5File::listObjects(const T &location) const
 {
     std::vector<std::string> names;
     for (hsize_t i = 0; i < location.getNumObjs(); ++i)
@@ -156,31 +173,31 @@ const std::vector<std::string> IO::HDF5File::listObjects(const T &location)
     return names;
 }
 
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &);
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &);
+template const std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &) const;
+template const std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &) const;
 
 template <typename T>
 void IO::HDF5File::loadData(Node &node, const T &location, const std::string &name)
 {
-    H5O_type_t type = H5O_TYPE_GROUP;
-    if (!name.empty())
-        type = location.childObjType(name);
-
     NodeMap &map = boost::get<NodeMap>(node);
+
+    H5O_type_t type = location.childObjType(name);
     switch (type)
     {
         case H5O_TYPE_GROUP:
         {
             map[name] = NodeMap();
+
             H5::Group group = location.openGroup(name);
-            for (auto obj : listObjects(group))
+            for (const auto &obj : listObjects(group))
                 loadData(map[name], group, obj);
 
             break;
         }
         case H5O_TYPE_DATASET:
         {
-            map.emplace(name, std::make_shared<HDF5Data>(location, name));
+            // std::cout << name << std::endl;
+            map[name] = std::make_shared<HDF5Data>(location, name);
             break;
         }
 
