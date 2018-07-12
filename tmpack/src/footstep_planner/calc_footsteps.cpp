@@ -23,7 +23,6 @@ namespace footstep_planning
                   "The max angular distance the feet can be placed from the "
                   "torso's yaw angle.");
 
-
     template <class PredecessorMap>
     class record_predecessors : public boost::dijkstra_visitor<>
     {
