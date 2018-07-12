@@ -29,7 +29,7 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
     //                        "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro");
 
     // These need to go in the node namespace
-    ros::NodeHandle nh("~");
+    ros::NodeHandle nh("/");
     nh.setParam("cached_ik_path", IO::resolvePath(CACHED));
 
     std::stringstream ss;
