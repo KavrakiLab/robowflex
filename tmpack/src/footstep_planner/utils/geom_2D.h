@@ -57,5 +57,21 @@ namespace footstep_planning
         return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
     }
 
+    // returns angle from -PI to PI
+    double normalizeAngle(double angle)
+    {
+        if (angle < -M_PI)
+        {
+            while (angle < -M_PI)
+                angle += 2 * M_PI;
+        }
+        else if (angle > M_PI)
+        {
+            while (angle > -M_PI)
+                angle -= 2 * M_PI;
+        }
+        return angle;
+    }
+
 }  // namespace footstep_planning
 #endif

@@ -2,14 +2,14 @@
 #define UTILS_UTIL_H
 
 #include <gflags/gflags.h>
+#include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <vector>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
+#include <vector>
 
 #include "geom_2D.h"
 
