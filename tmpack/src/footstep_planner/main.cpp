@@ -17,7 +17,7 @@ int main(int argc, char **argv)
     std::vector<std::string> line_names;
     size_t start = 0, goal = 0;
 
-    point_2D goal_pose(0, 0);
+    point_2D torso_goal_pose(0, 0);
 
     if (argc > 1)
     {
@@ -26,13 +26,12 @@ int main(int argc, char **argv)
             loadScene("../scenes/iss.txt", &line_segments, &line_names);
 
             std::cout << "str: " << argv[1] << " " << std::string(argv[1]).find(".") << std::endl;
-            if (std::string(argv[1]).find(".") == std::string::npos)
+            if (std::string(argv[1]).find(".") != std::string::npos)
             {
-                std::cout << "We're here!" << std::endl;
                 start = 9;
                 double x = std::stod(std::string(argv[1]));
                 double y = std::stod(std::string(argv[2]));
-                goal_pose = point_2D(x, y);
+                torso_goal_pose = point_2D(x, y);
                 goal = -1;
             }
             else
@@ -86,24 +85,28 @@ int main(int argc, char **argv)
 
     std::cout << "start: " << start << "; goal: " << goal << std::endl;
 
-    if (start >= points.size() || goal >= points.size())
+    // if we have the original torso point and no specified indices
+    if ((torso_goal_pose.x == 0 && torso_goal_pose.y == 0) &&
+        (start >= points.size() || goal >= points.size()))
     {
         std::cout << "Invalid start or goal" << std::endl;
         exit(1);
     }
 
     point_2D p = points[start];
-    point_2D p2 = points[goal];
-
     FootstepPlanner plnr;
     plnr.buildGraph(points);
-    std::vector<point_2D> steps = plnr.calculateFootPlacements(points, p, p2, start_foot);
-
-    steps = plnr.calculateFootPlacementsForTorso(points, p, p2, start_foot);
+    std::vector<point_2D> steps;
 
     if (goal == -1)
     {
-        steps = plnr.calculateFootPlacementsForTorso(points, p, goal_pose, start_foot);
+        steps = plnr.calculateFootPlacementsForTorso(points, p, torso_goal_pose, 0, start_foot);
+    }
+    else
+    {
+        point_2D p2 = points[goal];
+        steps = plnr.calculateFootPlacements(points, p, p2, start_foot, !start_foot);
+        steps = plnr.calculateFootPlacementsForTorso(points, p, p2, 0, start_foot);
     }
 
     std::cout << "Footsteps: " << std::endl;
