@@ -19,9 +19,9 @@ namespace footstep_planning
     DEFINE_double(step_qual_weight, 1.0, "The weight to give step quality when building the graph.");
     DEFINE_double(num_step_weight, 1000.0, "The weight to give the number of steps when building the graph.");
 
-    DEFINE_double(roll_range, M_PI / 2,
+    DEFINE_double(yaw_range, M_PI / 2,
                   "The max angular distance the feet can be placed from the "
-                  "torso's roll angle.");
+                  "torso's yaw angle.");
 
     template <class PredecessorMap>
     class record_predecessors : public boost::dijkstra_visitor<>
@@ -49,9 +49,9 @@ namespace footstep_planning
     }
 
     // TODO: A cool heuristic for footstep planning.
-    // I think you don't really need to consider the roll and
+    // I think you don't really need to consider the yaw and
     // moving foot because the ankles can rotate freely.
-    double eval_step(point_2D p1, point_2D p2, foot moving_foot, double start_roll)
+    double eval_step(point_2D p1, point_2D p2, foot moving_foot, double start_yaw)
     {
         return (FLAGS_walk_centroid - dist(p1, p2)) * (FLAGS_walk_centroid - dist(p1, p2)) *
                    FLAGS_step_qual_weight +
@@ -84,7 +84,7 @@ namespace footstep_planning
     // Returns the indices of the points that should be used with
     // the given torso location
     std::vector<point_2D> getFootPlacementsFromTorsoPose(std::vector<point_2D> points, point_2D torso_point,
-                                                         double torso_roll)
+                                                         double torso_yaw)
     {
         std::vector<point_2D> right_points;
         std::vector<point_2D> left_points;
@@ -94,14 +94,14 @@ namespace footstep_planning
             if (dist(torso_point, points[i]) < FLAGS_step_max_dist / 2)
             {
                 double angle = atan2(points[i].y - torso_point.y, points[i].x - torso_point.x);
-                angle = normalizeAngle(torso_roll - angle);
-                if (angle < normalizeAngle(M_PI / 2 + FLAGS_roll_range) &&
-                    angle > normalizeAngle(M_PI / 2 - FLAGS_roll_range))
+                angle = normalizeAngle(torso_yaw - angle);
+                if (angle < normalizeAngle(M_PI / 2 + FLAGS_yaw_range) &&
+                    angle > normalizeAngle(M_PI / 2 - FLAGS_yaw_range))
                 {
                     right_points.push_back(points[i]);
                 }
-                else if (angle > normalizeAngle(-M_PI / 2 - FLAGS_roll_range) &&
-                         angle < normalizeAngle(-M_PI / 2 + FLAGS_roll_range))
+                else if (angle > normalizeAngle(-M_PI / 2 - FLAGS_yaw_range) &&
+                         angle < normalizeAngle(-M_PI / 2 + FLAGS_yaw_range))
                 {
                     left_points.push_back(points[i]);
                 }
@@ -172,10 +172,10 @@ namespace footstep_planning
         // to ensure we finish facing the correct direction.
         std::vector<point_2D> calculateFootPlacementsForTorso(std::vector<point_2D> points, point_2D start,
                                                               point_2D torso_goal_point,
-                                                              double torso_goal_roll, foot start_foot)
+                                                              double torso_goal_yaw, foot start_foot)
         {
             std::vector<point_2D> final_feet_placements =
-                getFootPlacementsFromTorsoPose(points, torso_goal_point, torso_goal_roll);
+                getFootPlacementsFromTorsoPose(points, torso_goal_point, torso_goal_yaw);
 
             std::vector<point_2D> seq1 =
                 calculateFootPlacements(points, start, final_feet_placements[0], start_foot, !start_foot);
