@@ -3,24 +3,29 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/io/visualization.h>
 #include <robowflex_library/detail/r2.h>
 
 using namespace robowflex;
 
-int main(int argc, char **argv)
+int planFromFile()
 {
-    // Startup ROS.
-    startROS(argc, argv);
-
     // Create an R2 robot, initialize the `legsandtorso` kinematics solver.
     auto r2 = std::make_shared<R2Robot>();
     r2->initialize({"legsandtorso"});
 
-    // Dump the geometry information for visualization.
+    // Create an RViz visualizer
+    IO::RVIZHelper rviz(r2);
+
+    // Dump the geometry information for blender visualization.
     r2->dumpGeometry("r2.yml");
 
-    // Create an empty scene.
-    auto scene = std::make_shared<Scene>(r2);
+    // Load the ISS from a world file.
+    auto iss_scene = std::make_shared<Scene>(r2);
+    iss_scene->fromYAMLFile("package://robowflex_library/yaml/r2_world.yml");
+
+    // Display the scene geometry in RViz.
+    rviz.updateScene(iss_scene);
 
     // Create the default motion planner for R2.
     auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
@@ -30,12 +35,39 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
-    planning_interface::MotionPlanResponse res;
-
     // Do motion planning!
-    res = planner->plan(scene, request.getRequest());
+    planning_interface::MotionPlanResponse res = planner->plan(iss_scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
+
+    // Display the planned trajectory in RViz.
+    rviz.updateTrajectory(res);
+
+    // Spin once to let messages escape.
+    ros::spinOnce();
+
+    // Dump path transforms for visualization in blender.
+    r2->dumpPathTransforms(*res.trajectory_, "r2_path.yml", 30, 0.5);
+
+    return 0;
+}
+
+int planAndBuild()
+{
+    // Create an R2 robot, initialize the `legsandtorso` kinematics solver.
+    auto r2 = std::make_shared<R2Robot>();
+    r2->initialize({"legsandtorso"});
+
+    // Create an empty scene.
+    auto scene = std::make_shared<Scene>(r2);
+
+    // Create the default motion planner for R2.
+    auto planner = std::make_shared<OMPL::R2OMPLPipelinePlanner>(r2);
+    planner->initialize();
+
+    // Load a motion planning request (a step with a torso constraint, we only want the start state).
+    MotionRequestBuilder request(planner, "legsandtorso");
+    request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
     // Clear path constraints so we can rebuild them.
     request.getPathConstraints().position_constraints.clear();
@@ -59,8 +91,8 @@ int main(int argc, char **argv)
 
     // Set a pose constraint on the left foot (keep fixed throughout the path).
     auto foot_tf = r2->getLinkTF(left_foot);
-    request.addPathPoseConstraint(           //
-        left_foot, world,                    //
+    request.addPathPoseConstraint(            //
+        left_foot, world,                     //
         foot_tf, Geometry::makeSphere(0.01),  //
         Eigen::Quaterniond(foot_tf.rotation()), tolerance_feet);
 
@@ -70,20 +102,22 @@ int main(int argc, char **argv)
         waist, left_foot,                  //
         Eigen::Quaterniond(waist_tf.rotation()), tolerance_waist);
 
-    //The same goal as the yaml file
-    Eigen::Affine3d goal_tf = Eigen::Translation3d(1.80676028419, -0.248108850885, -1.10411526908) * Eigen::Quaterniond::Identity();
-    request.setGoalRegion(right_foot, world,
-                                         goal_tf, Geometry::makeSphere(0.01),
-                                         Eigen::Quaterniond(-0.999999999961, 1.82668011027e-06, 7.14501707513e-06, 4.90351543079e-06), tolerance_feet);
-
-
     // Do motion planning!
-    res = planner->plan(scene, request.getRequest());
+    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
-    // Output transforms from path to a file for visualization.
-    r2->dumpPathTransforms(*res.trajectory_, "r2_path.yml", 30, 0.5);
-
     return 0;
+}
+
+int main(int argc, char **argv)
+{
+    // Startup ROS.
+    startROS(argc, argv);
+
+    // Plan using configuration from files.
+    planFromFile();
+
+    // Plan by building a motion request.
+    planAndBuild();
 }

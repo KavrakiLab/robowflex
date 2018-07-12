@@ -151,6 +151,12 @@ bool Scene::fromYAMLFile(const std::string &file)
     if (!IO::fromYAMLFile(msg, file))
         return false;
 
+    auto acm(getACM());
     scene_->setPlanningSceneMsg(msg);
+
+    // Update ACM only if anything specified.
+    if (msg.allowed_collision_matrix.entry_names.empty())
+        getACM() = acm;
+
     return true;
 }
