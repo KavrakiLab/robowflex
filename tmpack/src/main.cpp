@@ -6,7 +6,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 1
+#define NUM_ITERATIONS 100
 
 using namespace robowflex;
 
@@ -52,8 +52,8 @@ int main(int argc, char **argv)
 
     MyWalker walker(r2, "legsandtorso", planner, scene, request, rviz);
 
-    int a;
-    std::cin >> a;
+    // int a;
+    // std::cin >> a;
     for (; count < NUM_ITERATIONS; count++)
     {
         size_t begin = ros::Time::now().nsec;
@@ -66,19 +66,19 @@ int main(int argc, char **argv)
         {
             success_count++;
         }
-        else
-        {
-            request->toYAMLFile("/home/awells/failed_motions/" + std::to_string(count) + ".yml");
-        }
+        // else
+        // {
+        //     request->toYAMLFile("/home/awells/failed_motions/" + std::to_string(count) + ".yml");
+        // }
 
-        rviz.updateTrajectories(res);
+        // rviz.updateTrajectories(res);
         // rviz.updateMarkers();
 
         time_spent += (ros::Time::now().nsec - begin);
     }
 
-    while (true)
-        ros::spinOnce();
+    // while (true)
+    //     ros::spinOnce();
 
     std::cout << "Time spent: " << time_spent << std::endl;
     std::cout << "Number of runs: " << count << std::endl;
