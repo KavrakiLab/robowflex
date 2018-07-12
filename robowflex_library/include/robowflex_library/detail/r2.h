@@ -34,6 +34,12 @@ namespace robowflex
          */
         bool initialize(const std::vector<std::string> kinematics);
 
+        /** \brief Loads telemetry data from SMT from an HDF5 file into a robot trajectory.
+         *  \param[in] filename Filename to load.
+         *  \return A robot trajectory corresponding to the data.
+         */
+        robot_trajectory::RobotTrajectoryPtr loadSMTData(const std::string &filename);
+
     private:
         static const std::string URDF;                   ///< Default URDF
         static const std::string SRDF;                   ///< Default SRDF

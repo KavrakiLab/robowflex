@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
+#include <robowflex_library/io/hdf5.h>
 #include <robowflex_library/detail/r2.h>
 
 using namespace robowflex;
@@ -46,6 +47,55 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
         loadKinematics(group);
 
     return success;
+}
+
+robot_trajectory::RobotTrajectoryPtr R2Robot::loadSMTData(const std::string &filename)
+{
+    IO::HDF5File file(filename);
+
+    std::map<std::string, IO::HDF5DataPtr> logs;
+    std::vector<hsize_t> dims;
+    for (const auto &joint_name : model_->getJointModelNames())
+    {
+        auto tokenized = IO::tokenize(joint_name, "/");
+        tokenized.insert(tokenized.begin(), "captain");
+        tokenized.push_back("APS1");
+
+        auto data = file.getData(tokenized);
+        if (data)
+        {
+            logs.emplace(joint_name, data);
+            if (dims.empty())
+                dims = data->getDims();
+        }
+    }
+
+    // Assume time correlation in data
+    std::map<std::string, double> values;
+    robot_state::RobotState scratch(model_);
+    robot_trajectory::RobotTrajectoryPtr trajectory(new robot_trajectory::RobotTrajectory(model_, ""));
+
+    double t = 0;
+    for (hsize_t j = 0; j < dims[0]; ++j)
+    {
+        double time = 0;
+        for (const auto &element : logs)
+        {
+            if (time == 0)
+                time = element.second->get<double>({j, 0});
+
+            values[element.first] = element.second->get<double>({j, 1});
+        }
+
+        if (t == 0)
+            t = time;
+
+        scratch.setVariablePositions(values);
+        trajectory->addSuffixWayPoint(scratch, time - t);
+        t = time;
+    }
+
+    return trajectory;
 }
 
 OMPL::R2OMPLPipelinePlanner::R2OMPLPipelinePlanner(const R2RobotPtr &robot, const std::string &name)

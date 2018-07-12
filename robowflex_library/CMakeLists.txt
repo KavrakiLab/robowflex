@@ -22,13 +22,13 @@ endif()
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 ##
 ## Catkin setup
 ##
 
 find_package(catkin REQUIRED COMPONENTS
-  # moveit_planners_ompl
   moveit_ros_planning
   geometric_shapes
   eigen_conversions
@@ -39,7 +39,6 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
-    # moveit_planners_ompl
     moveit_ros_planning
     geometric_shapes
     eigen_conversions
@@ -80,10 +79,7 @@ endif()
 ## Library Creation
 ##
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} yaml-cpp)
-link_directories(${catkin_LIBRARY_DIRS})
-
-add_library(${LIBRARY_NAME}
+list(APPEND SOURCES
   src/planning.cpp
   src/builder.cpp
   src/scene.cpp
@@ -93,6 +89,7 @@ add_library(${LIBRARY_NAME}
   src/util.cpp
   src/io.cpp
   src/io/visualization.cpp
+  src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
   src/yaml.cpp
@@ -100,40 +97,83 @@ add_library(${LIBRARY_NAME}
   src/detail/ur5.cpp
   )
 
+list(APPEND INCLUDES
+  ${CMAKE_CURRENT_LIST_DIR}/include
+  ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${HDF5_INCLUDE_DIRS}
+  yaml-cpp
+  )
+
+list(APPEND LIBRARIES
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${HDF5_LIBRARIES}
+  yaml-cpp
+  )
+
+include_directories(${INCLUDES})
+link_directories(${catkin_LIBRARY_DIRS})
+add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
+target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
 ##
 ## Scripts
 ##
 
+list(APPEND SCRIPTS ur5_test)
 add_executable(ur5_test scripts/ur5_test.cpp)
 target_link_libraries(ur5_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_benchmark)
 add_executable(ur5_benchmark scripts/ur5_benchmark.cpp)
 target_link_libraries(ur5_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_io)
 add_executable(ur5_io scripts/ur5_io.cpp)
 target_link_libraries(ur5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_pool)
 add_executable(ur5_pool scripts/ur5_pool.cpp)
 target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS ur5_visualization)
 add_executable(ur5_visualization scripts/ur5_visualization.cpp)
 target_link_libraries(ur5_visualization ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS r2_test)
 add_executable(r2_test scripts/r2_test.cpp)
 target_link_libraries(r2_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS wam7_test)
 add_executable(wam7_test scripts/wam7_test.cpp)
 target_link_libraries(wam7_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS wam7_benchmark)
 add_executable(wam7_benchmark scripts/wam7_benchmark.cpp)
 target_link_libraries(wam7_benchmark ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+list(APPEND SCRIPTS tapedeck)
+add_executable(tapedeck scripts/tapedeck.cpp)
+target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+list(APPEND SCRIPTS hdf5_io)
+add_executable(hdf5_io scripts/hdf5_io.cpp)
+target_link_libraries(hdf5_io ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+list(APPEND SCRIPTS r2_hdf5)
+add_executable(r2_hdf5 scripts/r2_hdf5.cpp)
+target_link_libraries(r2_hdf5 ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
 ##
-## Installation of library, headers, and YAML used by scripts
+## Installation of programs, library, headers, and YAML used by scripts
 ##
+
+install(TARGETS
+  ${SCRIPTS}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS ${LIBRARY_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

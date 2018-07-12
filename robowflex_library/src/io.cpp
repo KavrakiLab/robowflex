@@ -251,6 +251,13 @@ boost::posix_time::ptime IO::getDate()
     return boost::posix_time::microsec_clock::local_time();
 }
 
+std::vector<std::string> IO::tokenize(const std::string &s, const std::string &separators)
+{
+    boost::char_separator<char> seps(separators.c_str());
+    boost::tokenizer<boost::char_separator<char>> tokenizer(s, seps);
+    return std::vector<std::string>(tokenizer.begin(), tokenizer.end());
+}
+
 ///
 /// IO::Bag
 ///

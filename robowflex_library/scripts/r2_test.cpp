@@ -30,6 +30,13 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "legsandtorso");
     request.fromYAMLFile("package://robowflex_library/yaml/r2_plan_waist.yml");
 
+    planning_interface::MotionPlanResponse res;
+
+    // Do motion planning!
+    res = planner->plan(scene, request.getRequest());
+    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        return 1;
+
     // Clear path constraints so we can rebuild them.
     request.getPathConstraints().position_constraints.clear();
     request.getPathConstraints().orientation_constraints.clear();
@@ -44,6 +51,11 @@ int main(int argc, char **argv)
 
     Eigen::Vector3d tolerance_feet(0.01, 0.01, 0.01);
     Eigen::Vector3d tolerance_waist(0.005, 0.005, 0.005);
+    // Set a goal region to plan to.
+    request.setGoalRegion(                                                                        //
+        right_foot, world,                                                                        //
+        Eigen::Affine3d(Eigen::Translation3d(1.126, -0.248, -1.104)), Geometry::makeSphere(0.1),  //
+        Eigen::Quaterniond(1, 0, 0, 0), Eigen::Vector3d{0.01, 0.01, 0.01});
 
     // Set a pose constraint on the left foot (keep fixed throughout the path).
     auto foot_tf = r2->getLinkTF(left_foot);
@@ -58,18 +70,15 @@ int main(int argc, char **argv)
         waist, left_foot,                  //
         Eigen::Quaterniond(waist_tf.rotation()), tolerance_waist);
 
-
-    //should be the same goal as the yaml file
+    //The same goal as the yaml file
     Eigen::Affine3d goal_tf = Eigen::Translation3d(1.80676028419, -0.248108850885, -1.10411526908) * Eigen::Quaterniond::Identity();
     request.setGoalRegion(right_foot, world,
                                          goal_tf, Geometry::makeSphere(0.01),
                                          Eigen::Quaterniond(-0.999999999961, 1.82668011027e-06, 7.14501707513e-06, 4.90351543079e-06), tolerance_feet);
-    // request.setGoalRegion(right_foot, world,
-    //                              goal_tf, Geometry::makeSphere(0.1),
-    //                              Eigen::Quaterniond(0, 0, 1, 0), tolerances);
+
 
     // Do motion planning!
-    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
+    res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
