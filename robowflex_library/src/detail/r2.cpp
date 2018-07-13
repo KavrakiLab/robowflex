@@ -19,6 +19,10 @@ const std::vector<std::string> R2Robot::SAMPLERS{
 const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_config/config/ompl_planning.yaml"};
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
 
+const std::map<std::string, std::string> R2Robot::CREEPY{
+    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},
+    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}};
+
 R2Robot::R2Robot() : Robot("r2")
 {
 }
@@ -26,8 +30,8 @@ R2Robot::R2Robot() : Robot("r2")
 bool R2Robot::initialize(const std::vector<std::string> kinematics)
 {
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
-    // success &= loadXMLFile("legs/simplified_robot_description",  //
-    //                        "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro");
+    if (!success)
+        return success;
 
     // These need to go in the node namespace
     ros::NodeHandle nh("/");
@@ -43,8 +47,18 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
 
     nh.setParam("constraint_samplers", ss.str());
 
-    for (auto &group : kinematics)
+    for (const auto &group : kinematics)
+    {
+        ROS_ERROR("HERE WE GO BOYS %s", group.c_str());
+        auto creepy = CREEPY.find(group);
+        if (creepy != CREEPY.end())
+        {
+            ROS_ERROR("HERE WE GO BOYS");
+            loadXMLFile(group + "/simplified_robot_description", creepy->second);
+        }
+
         loadKinematics(group);
+    }
 
     return success;
 }
