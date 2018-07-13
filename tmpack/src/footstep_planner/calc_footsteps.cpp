@@ -19,7 +19,7 @@ namespace footstep_planning
     DEFINE_double(step_qual_weight, 1.0, "The weight to give step quality when building the graph.");
     DEFINE_double(num_step_weight, 1000.0, "The weight to give the number of steps when building the graph.");
 
-    DEFINE_double(yaw_range, M_PI / 2,
+    DEFINE_double(yaw_range, M_PI / 4,
                   "The max angular distance the feet can be placed from the "
                   "torso's yaw angle.");
 

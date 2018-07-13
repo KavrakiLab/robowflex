@@ -38,6 +38,7 @@ namespace robowflex
 
     class TMPackInterface
     {
+    protected:
         RobotPtr robot;
         const std::string &group_name;
         OMPL::OMPLPipelinePlannerPtr planner;
@@ -142,6 +143,8 @@ namespace robowflex
 
         std::vector<planning_interface::MotionPlanResponse> plan()
         {
+            std::cout<<"We are calling the wrong plan() method!"<<std::endl;
+
             std::vector<std::vector<double>> goals = getTaskPlan();
             std::vector<planning_interface::MotionPlanResponse> res = plan_linearly(goals);
             if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)

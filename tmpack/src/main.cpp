@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         r2->setState(start_joint_positions);
         std::vector<planning_interface::MotionPlanResponse> res = walker.plan();
         // planning_interface::MotionPlanResponse res = planner.plan(scene, request.getRequest());
-        if (res.back().error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+        if (!res.empty() && res.back().error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
             success_count++;
         }
