@@ -118,7 +118,7 @@ OMPL::R2OMPLPipelinePlanner::R2OMPLPipelinePlanner(const R2RobotPtr &robot, cons
 {
 }
 
-bool OMPL::R2OMPLPipelinePlanner::initialize(const std::string &config_file, const Settings settings,
+bool OMPL::R2OMPLPipelinePlanner::initialize(const std::string &config_file, const Settings &settings,
                                              const std::string &plugin,
                                              const std::vector<std::string> &adapters)
 {

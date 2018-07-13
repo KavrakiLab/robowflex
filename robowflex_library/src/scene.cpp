@@ -134,6 +134,7 @@ bool Scene::detachObject(const std::string &name)
     }
 
     world->addToObject(name, body->getShapes(), body->getFixedTransforms());
+    return true;
 }
 
 bool Scene::toYAMLFile(const std::string &file)

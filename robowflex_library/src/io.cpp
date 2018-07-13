@@ -27,14 +27,14 @@ namespace
     boost::filesystem::path expandHome(const boost::filesystem::path &in)
     {
         const char *home = std::getenv("HOME");
-        if (home == NULL)
+        if (home == nullptr)
         {
             ROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
             return in;
         }
 
         boost::filesystem::path out;
-        for (auto p : in)
+        for (const auto &p : in)
             out /= (p.string() == "~") ? home : p;
 
         return out;
@@ -43,7 +43,7 @@ namespace
     boost::filesystem::path expandSymlinks(const boost::filesystem::path &in)
     {
         boost::filesystem::path out;
-        for (auto p : in)
+        for (const auto &p : in)
         {
             auto tmp = out / p;
             if (boost::filesystem::is_symlink(tmp))
@@ -387,7 +387,7 @@ IO::Handler::Handler(const IO::Handler &handler, const std::string &name)
 
 IO::Handler::~Handler()
 {
-    for (auto key : params_)
+    for (const auto &key : params_)
         nh_.deleteParam(key);
 }
 

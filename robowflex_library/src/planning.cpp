@@ -166,7 +166,7 @@ OMPL::OMPLPipelinePlanner::OMPLPipelinePlanner(const RobotPtr &robot, const std:
 {
 }
 
-bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings settings,
+bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const OMPL::Settings &settings,
                                            const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {

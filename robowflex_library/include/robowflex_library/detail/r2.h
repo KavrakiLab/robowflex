@@ -80,7 +80,7 @@ namespace robowflex
              *  \param[in] adapters Planning adapters to load.
              *  \return True on success, false on failure.
              */
-            bool initialize(const std::string &config_file = CONFIG, const Settings settings = Settings(),
+            bool initialize(const std::string &config_file = CONFIG, const Settings &settings = Settings(),
                             const std::string &plugin = PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 

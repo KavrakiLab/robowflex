@@ -89,7 +89,7 @@ namespace
 };  // namespace
 
 template <typename T>
-const T &IO::HDF5Data::get(const std::vector<hsize_t> index) const
+const T &IO::HDF5Data::get(const std::vector<hsize_t> &index) const
 {
     if (index.size() != rank_)
         throw std::invalid_argument("Index size must be the same as data rank!");
@@ -103,8 +103,8 @@ const T &IO::HDF5Data::get(const std::vector<hsize_t> index) const
     return data[offset];
 }
 
-template const int &IO::HDF5Data::get(const std::vector<hsize_t> index) const;
-template const double &IO::HDF5Data::get(const std::vector<hsize_t> index) const;
+template const int &IO::HDF5Data::get(const std::vector<hsize_t> &index) const;
+template const double &IO::HDF5Data::get(const std::vector<hsize_t> &index) const;
 
 std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataProperties() const
 {
@@ -135,13 +135,13 @@ std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataPropert
 IO::HDF5File::HDF5File(const std::string &filename)
   : file_(IO::resolvePath(filename), H5F_ACC_RDONLY), data_(NodeMap())
 {
-    for (auto obj : listObjects(file_))
+    for (const auto &obj : listObjects(file_))
         loadData(data_, file_, obj);
 }
 
 namespace
 {
-    void getKeysHelper(std::vector<std::vector<std::string>> &keys, const std::vector<std::string> key,
+    void getKeysHelper(std::vector<std::vector<std::string>> &keys, const std::vector<std::string> &key,
                        const IO::HDF5File::NodeMap &node)
     {
         for (const auto &element : node)
@@ -161,7 +161,7 @@ namespace
         }
     }
 
-    IO::HDF5DataPtr getDataHelper(const std::vector<std::string> keys, const IO::HDF5File::NodeMap &node)
+    IO::HDF5DataPtr getDataHelper(const std::vector<std::string> &keys, const IO::HDF5File::NodeMap &node)
     {
         if (keys.empty())
             return nullptr;

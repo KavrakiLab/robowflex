@@ -63,7 +63,7 @@ GeometryPtr Geometry::makeCone(double radius, double length)
     return std::make_shared<Geometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
 }
 
-GeometryPtr Geometry::makeMesh(const std::string resource, const Eigen::Vector3d &scale)
+GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3d &scale)
 {
     return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
 }
