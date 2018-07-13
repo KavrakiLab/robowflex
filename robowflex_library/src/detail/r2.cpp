@@ -50,13 +50,9 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
 
     for (const auto &group : kinematics)
     {
-        ROS_ERROR("HERE WE GO BOYS %s", group.c_str());
         auto creepy = CREEPY.find(group);
         if (creepy != CREEPY.end())
-        {
-            ROS_ERROR("HERE WE GO BOYS");
             loadXMLFile(group + "/simplified_robot_description", creepy->second);
-        }
 
         loadKinematics(group);
     }
