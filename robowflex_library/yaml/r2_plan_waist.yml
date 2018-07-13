@@ -18,7 +18,7 @@ goal_constraints:
             - type: 2
               dimensions: [0.01]
           primitive_poses:
-            - position: [1.80676028419, -0.248108850885, -1.10411526908]
+            - position: [0.80676028419, -0.248108850885, -1.10411526908]
               orientation: [0.0, 0.0, 0.0, 1.0]
     orientation_constraints:
       - orientation: [-0.999999999961, 1.82668011027e-06, 7.14501707513e-06, 4.90351543079e-06]
