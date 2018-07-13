@@ -52,8 +52,6 @@ namespace robowflex
                 x = 2 + y / 84;
                 y = -tmp / 84;
 
-                // Path constraint from r2_plan.yml. We'll want to alternate feet for these.
-                // For now, we hope there's only the one important constraint.
                 request->getPathConstraints().position_constraints.clear();
                 request->getPathConstraints().orientation_constraints.clear();
 
@@ -85,14 +83,9 @@ namespace robowflex
                 request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
                                                Geometry::makeSphere(0.01), tip_orientation, feet_tolerance);
 
-                // Keep the foot upright
-                // auto waist = Eigen::Quaterniond(robot->getLinkTF("r2/waist_center").rotation());
-                // std::cout << waist.w() << ", " << waist.x() << ", " << waist.y() << ", " << waist.z()
+                // auto stat = Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation());
+                // std::cout << stat.w() << ", " << stat.x() << ", " << stat.y() << ", " << stat.z()
                 //           << std::endl;
-
-                auto stat = Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation());
-                std::cout << stat.w() << ", " << stat.x() << ", " << stat.y() << ", " << stat.z()
-                          << std::endl;
                 // std::cout<<"stationary orientation:
                 // "<<Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation())<<std::endl;
                 // std::cout<<"waist orientation:
@@ -103,10 +96,11 @@ namespace robowflex
                 std::string waist_name = "r2/waist_center";
                 auto waist_tf = robot->getRelativeLinkTF(stationary_tip_name, waist_name);
 
-                std::cout << "wait orientation constraint: " << waist_tf.rotation() << std::endl;
-
+                // std::cout << "waist orientation constraint: " << waist_tf.rotation() << std::endl;
                 request->addPathOrientationConstraint(waist_name, stationary_tip_name,
-                                                      Eigen::Quaterniond(0, 0, 1, 0), waist_tolerance);
+                                                      Eigen::Quaterniond(waist_tf.rotation()), waist_tolerance);
+                // request->addPathOrientationConstraint(waist_name, stationary_tip_name,
+                //                                       Eigen::Quaterniond(0, 0, 1, 0), waist_tolerance);
 
                 request->setGoalRegion(
                     moving_tip_name, "world",
