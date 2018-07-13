@@ -29,7 +29,7 @@ OMPL::UR5OMPLPipelinePlanner::UR5OMPLPipelinePlanner(const RobotPtr &robot, cons
 {
 }
 
-bool OMPL::UR5OMPLPipelinePlanner::initialize(const Settings settings, const std::string &config_file,
+bool OMPL::UR5OMPLPipelinePlanner::initialize(const Settings &settings, const std::string &config_file,
                                               const std::string &plugin,
                                               const std::vector<std::string> &adapters)
 {

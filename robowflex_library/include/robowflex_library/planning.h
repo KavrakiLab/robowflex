@@ -102,6 +102,7 @@ namespace robowflex
          *  \param[in] args Arguments to initializer of planner \a P.
          *  \tparam P The robowflex::Planner to pool.
          *  \tparam Args Argument types to initializer of planner \a P.
+         *  \return True on success, false on failure.
          */
         template <typename P, typename... Args>
         bool initialize(Args &&... args)
@@ -110,9 +111,13 @@ namespace robowflex
             {
                 auto planner = std::make_shared<P>(robot_, name_);
 
-                planner->initialize(std::forward<Args>(args)...);
+                if (!planner->initialize(std::forward<Args>(args)...))
+                    return false;
+
                 planners_.emplace(std::move(planner));
             }
+
+            return true;
         }
 
         /** \brief Submit a motion planning request job to the queue.
@@ -389,7 +394,7 @@ namespace robowflex
              *  \param[in] adapters Planning adapters to load.
              *  \return True upon success, false on failure.
              */
-            bool initialize(const std::string &config_file = "", const Settings settings = Settings(),
+            bool initialize(const std::string &config_file = "", const Settings &settings = Settings(),
                             const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 

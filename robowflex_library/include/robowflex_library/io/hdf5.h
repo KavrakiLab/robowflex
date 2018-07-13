@@ -63,9 +63,10 @@ namespace robowflex
             /** \brief Get the value at an index.
              *  \param[in] index The indices at each dimension.
              *  \tparam The return type of the data.
+             *  \return The value at the index in the data.
              */
             template <typename T>
-            const T &get(const std::vector<hsize_t> index) const;
+            const T &get(const std::vector<hsize_t> &index) const;
 
         private:
             /** \brief Return information about the data type of the data.

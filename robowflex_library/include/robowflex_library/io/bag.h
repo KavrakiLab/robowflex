@@ -71,6 +71,8 @@ namespace robowflex
                     if (ptr != nullptr)
                         msgs.emplace_back(*ptr);
                 }
+
+                return msgs;
             }
 
         private:

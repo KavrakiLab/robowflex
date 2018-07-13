@@ -89,7 +89,7 @@ void Robot::loadRobotModel()
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
 
-    model_ = std::move(loader_->getModel());
+    model_ = loader_->getModel();
     scratch_.reset(new robot_state::RobotState(model_));
 }
 

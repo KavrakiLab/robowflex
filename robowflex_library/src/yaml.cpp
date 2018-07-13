@@ -22,7 +22,7 @@ namespace
     {
         std::string s = n.as<std::string>();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-        return (s == "true") ? true : false;
+        return s == "true";
     }
 
     static bool isHeaderEmpty(const std_msgs::Header &h)

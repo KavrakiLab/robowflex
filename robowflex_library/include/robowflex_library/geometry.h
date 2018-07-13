@@ -86,7 +86,7 @@ namespace robowflex
          *  \param[in] scale The scale of the mesh.
          *  \return The created mesh.
          */
-        static GeometryPtr makeMesh(const std::string resource, const Eigen::Vector3d &scale = {1, 1, 1});
+        static GeometryPtr makeMesh(const std::string &resource, const Eigen::Vector3d &scale = {1, 1, 1});
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry.
