@@ -34,8 +34,9 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
         return success;
 
     // These need to go in the node namespace
-    ros::NodeHandle nh("/");
-    nh.setParam("cached_ik_path", IO::resolvePath(CACHED));
+    ros::NodeHandle nha("~");
+    ros::NodeHandle nhg("/");
+    nhg.setParam("cached_ik_path", IO::resolvePath(CACHED));
 
     std::stringstream ss;
     for (std::size_t i = 0; i < SAMPLERS.size(); ++i)
@@ -45,7 +46,7 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
             ss << " ";
     }
 
-    nh.setParam("constraint_samplers", ss.str());
+    nha.setParam("constraint_samplers", ss.str());
 
     for (const auto &group : kinematics)
     {

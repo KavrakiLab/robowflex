@@ -115,7 +115,7 @@ const std::string IO::resolvePath(const std::string &path)
 
     if (!boost::filesystem::exists(file))
     {
-        ROS_WARN("File `%s` does not exist.", file.string().c_str());
+        ROS_WARN("File `%s` does not exist.", path.c_str());
         return "";
     }
 
