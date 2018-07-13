@@ -86,6 +86,7 @@ namespace robowflex
                 // auto stat = Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation());
                 // std::cout << stat.w() << ", " << stat.x() << ", " << stat.y() << ", " << stat.z()
                 //           << std::endl;
+
                 // std::cout<<"stationary orientation:
                 // "<<Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation())<<std::endl;
                 // std::cout<<"waist orientation:
