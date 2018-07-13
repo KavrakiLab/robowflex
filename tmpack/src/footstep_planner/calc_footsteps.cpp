@@ -52,7 +52,6 @@ namespace footstep_planning
     // I think you don't really need to consider the yaw and
     // moving foot because the ankles can rotate freely.
     double eval_step(point_2D p1, point_2D p2, foot moving_foot, double start_yaw)
-
     {
         return (FLAGS_walk_centroid - dist(p1, p2)) * (FLAGS_walk_centroid - dist(p1, p2)) *
                    FLAGS_step_qual_weight +
