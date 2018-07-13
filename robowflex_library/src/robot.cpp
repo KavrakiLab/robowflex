@@ -249,7 +249,7 @@ const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const st
     auto base_tf = scratch_->getGlobalLinkTransform(base);
     auto target_tf = scratch_->getGlobalLinkTransform(target);
 
-    return target_tf * base_tf.inverse();
+    return base_tf.inverse() * target_tf;
 }
 
 bool Robot::inCollision(const SceneConstPtr &scene) const
