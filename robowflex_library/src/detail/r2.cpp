@@ -13,8 +13,9 @@ const std::string R2Robot::KINEMATICS{"package://r2_moveit_config/config/kinemat
 const std::string R2Robot::CACHED{"package://robot_ragdoll_demos/config"};
 const std::vector<std::string> R2Robot::SAMPLERS{
     "moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator",  //
-    "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",        //
-    "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"};
+    // "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",            //
+    // "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"  //
+};
 
 const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_config/config/ompl_planning.yaml"};
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
@@ -34,9 +35,7 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
         return success;
 
     // These need to go in the node namespace
-    ros::NodeHandle nha("~");
-    ros::NodeHandle nhg("/");
-    nhg.setParam("cached_ik_path", IO::resolvePath(CACHED));
+    ros::NodeHandle nh("~");
 
     std::stringstream ss;
     for (std::size_t i = 0; i < SAMPLERS.size(); ++i)
@@ -46,10 +45,15 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
             ss << " ";
     }
 
-    nha.setParam("constraint_samplers", ss.str());
+    nh.setParam("constraint_samplers", ss.str());
 
     for (const auto &group : kinematics)
     {
+        nh.setParam(group + "/max_cache_size", 10000);
+        nh.setParam(group + "/min_pose_distance", 0.5);
+        nh.setParam(group + "/min_config_distance", 2.0);
+        nh.setParam(group + "/cached_ik_path", IO::resolvePath(CACHED));
+
         auto creepy = CREEPY.find(group);
         if (creepy != CREEPY.end())
             loadXMLFile(group + "/simplified_robot_description", creepy->second);
