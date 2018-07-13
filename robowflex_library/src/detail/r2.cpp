@@ -13,11 +13,16 @@ const std::string R2Robot::KINEMATICS{"package://r2_moveit_config/config/kinemat
 const std::string R2Robot::CACHED{"package://robot_ragdoll_demos/config"};
 const std::vector<std::string> R2Robot::SAMPLERS{
     "moveit_r2_constraints/MoveItR2ConstraintSamplerAllocator",  //
-    "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",        //
-    "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"};
+    // "moveit_r2_constraints/MoveItR2PoseSamplerAllocator",            //
+    // "moveit_r2_constraints/MoveItR2JointConstraintSamplerAllocator"  //
+};
 
 const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_config/config/ompl_planning.yaml"};
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
+
+const std::map<std::string, std::string> R2Robot::CREEPY{
+    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},
+    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}};
 
 R2Robot::R2Robot() : Robot("r2")
 {
@@ -26,12 +31,11 @@ R2Robot::R2Robot() : Robot("r2")
 bool R2Robot::initialize(const std::vector<std::string> kinematics)
 {
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
-    // success &= loadXMLFile("legs/simplified_robot_description",  //
-    //                        "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro");
+    if (!success)
+        return success;
 
     // These need to go in the node namespace
     ros::NodeHandle nh("~");
-    nh.setParam("cached_ik_path", IO::resolvePath(CACHED));
 
     std::stringstream ss;
     for (std::size_t i = 0; i < SAMPLERS.size(); ++i)
@@ -43,8 +47,19 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
 
     nh.setParam("constraint_samplers", ss.str());
 
-    for (auto &group : kinematics)
+    for (const auto &group : kinematics)
+    {
+        nh.setParam(group + "/max_cache_size", 20000);
+        nh.setParam(group + "/min_pose_distance", 1.0);
+        nh.setParam(group + "/min_config_distance", 4.0);
+        nh.setParam(group + "/cached_ik_path", IO::resolvePath(CACHED));
+
+        auto creepy = CREEPY.find(group);
+        if (creepy != CREEPY.end())
+            loadXMLFile(group + "/simplified_robot_description", creepy->second);
+
         loadKinematics(group);
+    }
 
     return success;
 }

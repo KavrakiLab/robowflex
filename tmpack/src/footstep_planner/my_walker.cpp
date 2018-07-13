@@ -30,13 +30,21 @@ namespace robowflex
         class MyWalkerConstraintHelper : public TMPConstraintHelper
         {
             bool last_foot_left = true;
-            std::vector<std::vector<double>> my_foot_placements;
-            size_t op_index = 0;
+            // std::vector<std::vector<double>> my_foot_placements;
+            // size_t op_index = 0;
+
+            std::vector<std::vector<footstep_planning::point_2D>> my_possible_plans;
 
         public:
             MyWalkerConstraintHelper(){};
             void _getTaskPlan_Callback()
             {
+                last_foot_left = true;
+            }
+
+            void _getTaskPlan_Callback(std::vector<std::vector<footstep_planning::point_2D>> possible_plans)
+            {
+                my_possible_plans = possible_plans;
                 last_foot_left = true;
             }
 
@@ -52,8 +60,6 @@ namespace robowflex
                 x = 2 + y / 84;
                 y = -tmp / 84;
 
-                // Path constraint from r2_plan.yml. We'll want to alternate feet for these. 
-                // For now, we hope there's only the one important constraint.
                 request->getPathConstraints().position_constraints.clear();
                 request->getPathConstraints().orientation_constraints.clear();
 
@@ -66,47 +72,45 @@ namespace robowflex
                 }
 
                 // Find the location of the stationary tip in the workspace
-                //robot.setState(joint_positions);
+                // robot.setState(joint_positions);
                 Eigen::Affine3d tip_tf = robot->getLinkTF(stationary_tip_name);
-                std::cout << "left: " << robot->getLinkTF("r2/left_leg/gripper/tip").translation() << std::endl;
-                std::cout << "right: " << robot->getLinkTF("r2/right_leg/gripper/tip").translation() << std::endl;
-                std::cout<< "moving: "<<moving_tip_name<<std::endl;
+                std::cout << "left: " << robot->getLinkTF("r2/left_leg/gripper/tip").translation()
+                          << std::endl;
+                std::cout << "right: " << robot->getLinkTF("r2/right_leg/gripper/tip").translation()
+                          << std::endl;
+                std::cout << "moving: " << moving_tip_name << std::endl;
 
                 // I think this works? It sets the orientation correctly. The pose is for a sphere so
                 // it shouldn't matter that we have a rotation.
                 Eigen::Quaterniond tip_orientation = Eigen::Quaterniond(tip_tf.rotation());
 
-                //Keep one foot fixed
+                Eigen::Vector3d feet_tolerance = Eigen::Vector3d(0.01, 0.01, 0.01);
+                Eigen::Vector3d waist_tolerance = Eigen::Vector3d(0.005, 0.005, 0.005);
+
+                // Keep one foot fixed
                 request->addPathPoseConstraint(stationary_tip_name, "world", tip_tf,
-                                              std::make_shared<Geometry>(Geometry::ShapeType::SPHERE,
-                                                       Eigen::Vector3d(0.1, 0.1, 0.1),
-                                                       "my_sphere_for_constraint_2"),
-                                              tip_orientation, Eigen::Vector3d(0.01, 0.01, 0.01));
+                                               Geometry::makeSphere(0.01), tip_orientation, feet_tolerance);
 
-                auto waist = Eigen::Quaterniond(robot->getLinkTF("r2/waist_center").rotation());
-                std::cout<<waist.w()<<", "<<waist.x()<<", "<<waist.y()<<", "<<waist.z()<<std::endl;
-
-                auto stat = Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation());
-                std::cout<<stat.w()<<", "<<stat.x()<<", "<<stat.y()<<", "<<stat.z()<<std::endl;
-                // std::cout<<"stationary orientation: "<<Eigen::Quaterniond(robot->getLinkTF(stationary_tip_name).rotation())<<std::endl;
-                // std::cout<<"waist orientation: "<<Eigen::Quaterniond(robot->getLinkTF("r2/waist_center").rotation())<<std::endl;
-
-                //TODO, this should be based on global z
-                //Keep the torso upright
-                request->addPathOrientationConstraint("r2/waist_center",
-                                                      stationary_tip_name,
-                                                      Eigen::Quaterniond::Identity(),
-                                                      Eigen::Vector3d(0.01, 0.01, 0.01));
+                // TODO, this should be based on global z
+                // Keep the torso upright
+                std::string waist_name = "r2/waist_center";
+                auto waist_tf = robot->getRelativeLinkTF(stationary_tip_name, waist_name);
+                request->addPathOrientationConstraint(waist_name, stationary_tip_name,
+                                                      Eigen::Quaterniond(waist_tf.rotation()), waist_tolerance);
 
                 request->setGoalRegion(
                     moving_tip_name, "world",
                     Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
-                    std::make_shared<Geometry>(Geometry::ShapeType::SPHERE, Eigen::Vector3d(0.1, 0.1, 0.1),
-                             "my_sphere_for_constraint_1"),
-                    Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d(0.01, 0.01, 0.01));
+                    Geometry::makeSphere(0.01), Eigen::Quaterniond(0, 0, 1, 0), feet_tolerance);
 
                 last_foot_left = !last_foot_left;
             }
+
+            //We call this when a plan fails and we want to get a new plan for the same goal
+            void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan, size_t failed_index) {
+
+            }
+
         } my_constraint_helper;
 
         class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
@@ -127,7 +131,8 @@ namespace robowflex
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
-        std::uniform_real_distribution<double> uni_rnd_smpl_ = std::uniform_real_distribution<double>(-100, 100);
+        std::uniform_real_distribution<double> uni_rnd_smpl_ =
+            std::uniform_real_distribution<double>(-100, 100);
         std::default_random_engine rand_eng_;
 
         // returns vector of joint poses
@@ -138,39 +143,86 @@ namespace robowflex
         std::vector<std::vector<double>> getTaskPlan()
         {
             std::vector<std::vector<double>> my_plan;
-            
+
             // is this good style? The superclass has a reference to these
             my_constraint_helper._getTaskPlan_Callback();
             my_scene_graph_helper._getTaskPlan_Callback();
 
-            // Not currently used, just seeing if the interface works
-            std::vector<footstep_planning::point_2D> foot_placements =
-                my_step_planner.calculateFootPlacements(points, points[9], points[17],
-                                                          footstep_planning::foot::left);
-
             // Benchmarking code. We loop through random locations and try to plan to them.
-
             double rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
             double rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
 
-            //TODO: This goal pose fails
-            // rand_x = 65.2039;
-            // rand_y = 5.8249;
+            std::vector<footstep_planning::point_2D> foot_placements = my_step_planner.calculateFootPlacementsForTorso(
+                points, points[9], footstep_planning::point_2D(rand_x, rand_y),
+                0.0, footstep_planning::foot::left);
 
-            
-            foot_placements =  my_step_planner.calculateFootPlacementsForTorso(points, points[9], footstep_planning::point_2D(rand_x, rand_y),
-                                                          footstep_planning::foot::left);
+            std::cout << "Torso pose: < " << rand_x << ", " << rand_y << " >" << std::endl;
 
-            std::cout<<"Torso pose: < "<<rand_x<<", "<<rand_y<<" >"<<std::endl;
-
-            std::cout<<"Foot placements: "<<std::endl;
-            for(footstep_planning::point_2D p : foot_placements) {
-              std::cout<<p<<std::endl;
-              my_plan.push_back({p.x, p.y});
+            std::cout << "Foot placements: " << std::endl;
+            for (footstep_planning::point_2D p : foot_placements)
+            {
+                std::cout << p << std::endl;
+                my_plan.push_back({p.x, p.y});
             }
-
             return my_plan;
         }
+
+
+        std::vector<planning_interface::MotionPlanResponse>
+        planUsingFeedback(std::vector<std::vector<double>> goals)
+        {
+            std::vector<planning_interface::MotionPlanResponse> responses;
+
+            std::vector<double> next_start_joint_positions =
+                request->getRequest().start_state.joint_state.position;
+
+            // we manually specify these because the virtual_link isn't included in the above:
+            std::vector<double> tmp = {1.98552,     0.0242871, 9.14127e-05, 4.8366e-06,
+                                       -2.4964e-06, 1,         -6.53607e-07};
+
+            tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
+            next_start_joint_positions = tmp;
+
+            for (std::vector<double> goal_conf : goals)
+            {
+                // domain semantics can all be done here?
+                // robot->setState(next_start_joint_positions);
+                constraint_helper._planLinearly_Callback(request, goal_conf, robot,
+                                                         next_start_joint_positions);
+                scene_graph_helper._planLinearly_Callback(request, goal_conf);
+
+                for (size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++)
+                {
+                    request->setStartConfiguration(robot->getScratchState());
+                    planning_interface::MotionPlanResponse response =
+                        planner->plan(scene, request->getRequest());
+
+                    std::cout << "planner finished" << std::endl;
+
+                    // only update if the motion was successful:
+                    if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                    {
+                        responses.push_back(response);
+                        std::map<std::string, double> named_joint_positions =
+                            getFinalJointPositions(response);
+                        robot->setState(named_joint_positions);
+                        next_start_joint_positions = robot->getState();
+                        break;
+                    }
+                    else if (step_attempts >= MAX_STEP_ATTEMPTS - 1)
+                    {  // We always want to have some response
+                        responses.push_back(response);
+                    }
+                }
+                // stop once a motion fails
+                if (responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+                {
+                    break;
+                }
+            }
+            return responses;
+        }
+
 
     public:
         int start_index, goal_index;
@@ -179,7 +231,7 @@ namespace robowflex
 
         // Loads the scene description and creates the graph we will use for planning
         MyWalker(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
-                 ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper& rviz_helper)
+                 ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper &rviz_helper)
           : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
                             my_scene_graph_helper, rviz_helper)
         {
@@ -199,6 +251,28 @@ namespace robowflex
 
             my_step_planner.buildGraph(points);
         }
+
+
+        std::vector<planning_interface::MotionPlanResponse> plan()
+        {
+            std::vector<std::vector<double>> goals = getTaskPlan();
+            std::vector<planning_interface::MotionPlanResponse> res = planUsingFeedback(goals);
+            if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+            {
+                std::vector<double> p = goals.back();
+                double x = 0, y = 0, z = -0.95;
+                x = p[0];
+                y = p[1];
+                // the measurements for the walker are in a different frame:
+                double tmp = x;
+                x = 2 + y / 84;
+                y = -tmp / 84;
+
+                // rviz_helper.addMarker(x, y, z);
+            }
+            return res;
+        }
+
 
         void setStartAndGoal(int s, int g)
         {

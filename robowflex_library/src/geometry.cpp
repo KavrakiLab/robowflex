@@ -71,7 +71,7 @@ GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
   : type_(type)
   , dimensions_(dimensions)
-  , resource_("file://" + IO::resolvePath(resource))
+  , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
 {

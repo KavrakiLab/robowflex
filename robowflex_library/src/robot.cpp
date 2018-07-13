@@ -49,34 +49,28 @@ bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string
 
 bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
 {
-    if (!handler_.hasParam(name))
+    auto &yaml = IO::loadFileToYAML(file);
+    if (!yaml.first)
     {
-        auto &yaml = IO::loadFileToYAML(file);
-        if (!yaml.first)
-        {
-            ROS_ERROR("Failed to load YAML file `%s`.", file.c_str());
-            return false;
-        }
-
-        handler_.loadYAMLtoROS(yaml.second, name);
+        ROS_ERROR("Failed to load YAML file `%s`.", file.c_str());
+        return false;
     }
+
+    handler_.loadYAMLtoROS(yaml.second, name);
 
     return true;
 }
 
 bool Robot::loadXMLFile(const std::string &name, const std::string &file)
 {
-    if (!handler_.hasParam(name))
+    const std::string string = IO::loadXMLToString(file);
+    if (string.empty())
     {
-        const std::string string = IO::loadXMLToString(file);
-        if (string.empty())
-        {
-            ROS_ERROR("Failed to load XML file `%s`.", file.c_str());
-            return false;
-        }
-
-        handler_.setParam(name, string);
+        ROS_ERROR("Failed to load XML file `%s`.", file.c_str());
+        return false;
     }
+
+    handler_.setParam(name, string);
 
     return true;
 }
@@ -255,7 +249,7 @@ const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const st
     auto base_tf = scratch_->getGlobalLinkTransform(base);
     auto target_tf = scratch_->getGlobalLinkTransform(target);
 
-    return target_tf * base_tf.inverse();
+    return base_tf.inverse() * target_tf;
 }
 
 bool Robot::inCollision(const SceneConstPtr &scene) const

@@ -41,12 +41,13 @@ namespace robowflex
         robot_trajectory::RobotTrajectoryPtr loadSMTData(const std::string &filename);
 
     private:
-        static const std::string URDF;                   ///< Default URDF
-        static const std::string SRDF;                   ///< Default SRDF
-        static const std::string LIMITS;                 ///< Default Limits
-        static const std::string KINEMATICS;             ///< Default kinematics
-        static const std::string CACHED;                 ///< IK Cache location
-        static const std::vector<std::string> SAMPLERS;  ///< Constraint samplers
+        static const std::string URDF;                           ///< Default URDF
+        static const std::string SRDF;                           ///< Default SRDF
+        static const std::string LIMITS;                         ///< Default Limits
+        static const std::string KINEMATICS;                     ///< Default kinematics
+        static const std::string CACHED;                         ///< IK Cache location
+        static const std::vector<std::string> SAMPLERS;          ///< Constraint samplers
+        static const std::map<std::string, std::string> CREEPY;  ///< Faster IK chains
     };
 
     namespace OMPL

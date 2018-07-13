@@ -19,8 +19,9 @@ namespace robowflex
     public:
         // TMPConstraintHelper() = 0;
         virtual void _getTaskPlan_Callback() = 0;
-        virtual void _planLinearly_Callback(MotionRequestBuilderPtr request, const std::vector<double> &task_op,
-                                            RobotPtr robot, const std::vector<double> &joint_positions) = 0;
+        virtual void _planLinearly_Callback(MotionRequestBuilderPtr request,
+                                            const std::vector<double> &task_op, RobotPtr robot,
+                                            const std::vector<double> &joint_positions) = 0;
     };
 
     // Class to help manipulate the scene graph when running the plan linearly
@@ -37,13 +38,14 @@ namespace robowflex
 
     class TMPackInterface
     {
+    protected:
         RobotPtr robot;
         const std::string &group_name;
         OMPL::OMPLPipelinePlannerPtr planner;
         ScenePtr scene;
         MotionRequestBuilderPtr request;
 
-        IO::RVIZHelper& rviz_helper;
+        IO::RVIZHelper &rviz_helper;
 
         // We use these callbacks to implement domain semantics
         TMPConstraintHelper &constraint_helper;
@@ -62,52 +64,61 @@ namespace robowflex
                 request->getRequest().start_state.joint_state.position;
 
             // we manually specify these because the virtual_link isn't included in the above:
-            //For r2_plan.yml
-            // std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644, 0.00469409498409,
+            // For r2_plan.yml
+            // std::vector<double> tmp = {1.97695540603,    0.135286119285,  0.0538594464644,
+            // 0.00469409498409,
             //                            -0.0735915747411, -0.996745300836, 0.0325737756642};
 
-            //For r2_start.yml
-            std::vector<double> tmp = {1.98552, 0.0242871, 9.14127e-05, 4.8366e-06, -2.4964e-06, 1, -6.53607e-07};
+            // For r2_start.yml
+            std::vector<double> tmp = {1.98552,     0.0242871, 9.14127e-05, 4.8366e-06,
+                                       -2.4964e-06, 1,         -6.53607e-07};
 
             tmp.insert(tmp.end(), next_start_joint_positions.begin(), next_start_joint_positions.end());
             next_start_joint_positions = tmp;
 
             for (std::vector<double> goal_conf : goals)
             {
-                std::cout<<"setting start state with: "<<next_start_joint_positions.size()<<" joints"<<std::endl;
+                std::cout << "setting start state with: " << next_start_joint_positions.size() << " joints"
+                          << std::endl;
                 // std::vector<std::string> names = robot->getJointNames();
                 // for(int i= 0; i <names.size(); i++) {
                 //   std::cout<<names[i]<<": "<<next_start_joint_positions[i]<<std::endl;
                 // }
 
                 // domain semantics can all be done here?
-                //robot->setState(next_start_joint_positions);
+                // robot->setState(next_start_joint_positions);
                 constraint_helper._planLinearly_Callback(request, goal_conf, robot,
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
-                std::cout<<"state set"<<std::endl;
+                std::cout << "state set" << std::endl;
 
-                for(size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++) {
+                for (size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++)
+                {
                     request->setStartConfiguration(robot->getScratchState());
-                    planning_interface::MotionPlanResponse response = planner->plan(scene, request->getRequest());
-                    
+                    planning_interface::MotionPlanResponse response =
+                        planner->plan(scene, request->getRequest());
 
-                    std::cout<<"planner finished"<<std::endl;
+                    std::cout << "planner finished" << std::endl;
 
-                    //only update if the motion was successful:
-                    if(response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                    // only update if the motion was successful:
+                    if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+                    {
                         responses.push_back(response);
-                        std::map<std::string, double> named_joint_positions = getFinalJointPositions(response);
+                        std::map<std::string, double> named_joint_positions =
+                            getFinalJointPositions(response);
                         robot->setState(named_joint_positions);
                         next_start_joint_positions = robot->getState();
-                        break;            
-                    } else if(step_attempts >= MAX_STEP_ATTEMPTS-1) { //We always want to have some response
+                        break;
+                    }
+                    else if (step_attempts >= MAX_STEP_ATTEMPTS - 1)
+                    {  // We always want to have some response
                         responses.push_back(response);
                     }
                 }
-                //stop once a motion fails
-                if(responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS) {
+                // stop once a motion fails
+                if (responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+                {
                     break;
                 }
             }
@@ -116,8 +127,9 @@ namespace robowflex
 
     public:
         TMPackInterface(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
-                        ScenePtr scene, MotionRequestBuilderPtr request, TMPConstraintHelper &constraint_helper,
-                        TMPSceneGraphHelper &scene_graph_helper, IO::RVIZHelper &rviz_helper)
+                        ScenePtr scene, MotionRequestBuilderPtr request,
+                        TMPConstraintHelper &constraint_helper, TMPSceneGraphHelper &scene_graph_helper,
+                        IO::RVIZHelper &rviz_helper)
           : robot(robot)
           , group_name(group_name)
           , planner(planner)
@@ -131,9 +143,12 @@ namespace robowflex
 
         std::vector<planning_interface::MotionPlanResponse> plan()
         {
+            std::cout<<"We are calling the wrong plan() method!"<<std::endl;
+
             std::vector<std::vector<double>> goals = getTaskPlan();
             std::vector<planning_interface::MotionPlanResponse> res = plan_linearly(goals);
-            if(res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS) {
+            if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+            {
                 std::vector<double> p = goals.back();
                 double x = 0, y = 0, z = -0.95;
                 x = p[0];
@@ -143,7 +158,7 @@ namespace robowflex
                 x = 2 + y / 84;
                 y = -tmp / 84;
 
-                //rviz_helper.addMarker(x, y, z);
+                // rviz_helper.addMarker(x, y, z);
             }
             return res;
         }
