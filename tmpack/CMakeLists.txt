@@ -36,3 +36,5 @@ if (GFLAGS_FOUND)
 else()
   message("`gflags` not found, not compiling TMPack executables.")
 endif()
+
+install(DIRECTORY src/footstep_planner/scenes/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scenes)

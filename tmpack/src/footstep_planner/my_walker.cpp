@@ -245,7 +245,10 @@ namespace robowflex
             std::vector<std::string> line_names;
 
             std::string user_name = getenv("USER");
-            footstep_planning::loadScene(std::string("/home/")+std::string(user_name)+std::string("/r2_ws/src/robowflex/tmpack/src/footstep_planner/scenes/iss.txt"),
+
+//std::string("/home/")+std::string(user_name)+std::string("/r2_ws/src/robowflex/tmpack/src/footstep_planner/scenes/iss.txt")
+
+            footstep_planning::loadScene(IO::resolvePath("package://tmpack/scenes/iss.txt"),
                                          &line_segments, &line_names);
             // we only use the end points and the centers
             for (size_t i = 0; i < line_segments.size(); i++)
