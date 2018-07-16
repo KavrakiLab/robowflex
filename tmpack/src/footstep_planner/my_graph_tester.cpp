@@ -98,7 +98,8 @@ namespace robowflex
                 std::string waist_name = "r2/waist_center";
                 auto waist_tf = robot->getRelativeLinkTF(stationary_tip_name, waist_name);
                 request->addPathOrientationConstraint(waist_name, stationary_tip_name,
-                                                      Eigen::Quaterniond(waist_tf.rotation()), waist_tolerance);
+                                                      Eigen::Quaterniond(waist_tf.rotation()),
+                                                      waist_tolerance);
 
                 request->setGoalRegion(
                     moving_tip_name, "world",
@@ -108,9 +109,10 @@ namespace robowflex
                 last_foot_left = !last_foot_left;
             }
 
-            //We call this when a plan fails and we want to get a new plan for the same goal
-            void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan, size_t failed_index) {
-
+            // We call this when a plan fails and we want to get a new plan for the same goal
+            void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan,
+                                             size_t failed_index)
+            {
             }
 
         } my_constraint_helper;
@@ -144,7 +146,7 @@ namespace robowflex
         // return one step each time. We need to test left and right foot steps.
         std::vector<std::vector<double>> getTaskPlan()
         {
-            std::cout<<"Getting task plan within my graph tester"<<std::endl;
+            std::cout << "Getting task plan within my graph tester" << std::endl;
 
             std::vector<std::vector<double>> my_plan;
 
@@ -156,47 +158,58 @@ namespace robowflex
             double rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
             double rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
 
-            std::vector<footstep_planning::point_2D> foot_placements = my_step_planner.calculateFootPlacementsForTorso(
-                points, points[9], footstep_planning::point_2D(rand_x, rand_y),
-                0.0, footstep_planning::foot::left);
+            std::vector<std::vector<footstep_planning::point_2D>> all_foot_placements =
+                my_step_planner.calculateFootPlacementsForTorso(points, points[9],
+                                                                footstep_planning::point_2D(rand_x, rand_y),
+                                                                0.0, footstep_planning::foot::left);
+
+            std::vector<footstep_planning::point_2D> foot_placements = all_foot_placements[0];
 
             std::cout << "Torso pose: < " << rand_x << ", " << rand_y << " >" << std::endl;
 
             std::cout << "Foot placements: " << std::endl;
-            
+
             // Return a step for each edge
 
             // Run Djikstra on our weighted graph to find the optimal foot
             // placements
             // std::vector<int> d(num_vertices(my_step_planner.foot_graph));
             // std::vector<footstep_planning::Vertex> p(boost::num_vertices(my_step_planner.foot_graph),
-            //                       boost::graph_traits<footstep_planning::Graph>::null_vertex());  // the predecessor
+            //                       boost::graph_traits<footstep_planning::Graph>::null_vertex());  // the
+            //                       predecessor
             //                                                                    // array
             // boost::dijkstra_shortest_paths(
-            //     my_step_planner.foot_graph, 0, boost::distance_map(&d[0]).visitor(footstep_planning::make_predecessor_recorder(&p[0])));
+            //     my_step_planner.foot_graph, 0,
+            //     boost::distance_map(&d[0]).visitor(footstep_planning::make_predecessor_recorder(&p[0])));
 
             // std::cout << "parents in the tree of shortest paths:" << std::endl;
-            // for(auto vi = vertices(my_step_planner.foot_graph).first; vi != vertices(my_step_planner.foot_graph).second; ++vi) {
+            // for(auto vi = vertices(my_step_planner.foot_graph).first; vi !=
+            // vertices(my_step_planner.foot_graph).second; ++vi) {
             //     std::cout << "parent(" << *vi;
             //     if (p[*vi] == boost::graph_traits<footstep_planning::Graph>::null_vertex())
-            //       std::cout << ") = no parent" << std::endl; 
-            //     else 
+            //       std::cout << ") = no parent" << std::endl;
+            //     else
             //       std::cout << ") = " << p[*vi] << std::endl;
             // }
 
             size_t edge_count = 0;
-            for(auto vi = vertices(my_step_planner.foot_graph).first; vi != vertices(my_step_planner.foot_graph).second; ++vi) {
-                for(auto ui = vertices(my_step_planner.foot_graph).first; ui != vertices(my_step_planner.foot_graph).second; ++ui) {
-                    std::pair<footstep_planning::Edge, bool> ed = boost::edge(*vi, *ui, my_step_planner.foot_graph);
-                    if(ed.second) {
+            for (auto vi = vertices(my_step_planner.foot_graph).first;
+                 vi != vertices(my_step_planner.foot_graph).second; ++vi)
+            {
+                for (auto ui = vertices(my_step_planner.foot_graph).first;
+                     ui != vertices(my_step_planner.foot_graph).second; ++ui)
+                {
+                    std::pair<footstep_planning::Edge, bool> ed =
+                        boost::edge(*vi, *ui, my_step_planner.foot_graph);
+                    if (ed.second)
+                    {
                         auto c = boost::get(boost::edge_weight_t(), my_step_planner.foot_graph, ed.first);
-                        std::cout<<"Edge: "<<c<<"< "<<*vi<<", "<<*ui<<" >"<<std::endl;
+                        std::cout << "Edge: " << c << "< " << *vi << ", " << *ui << " >" << std::endl;
                         edge_count++;
                     }
                 }
             }
-            std::cout<<"Edge count: "<<edge_count<<std::endl;
-
+            std::cout << "Edge count: " << edge_count << std::endl;
 
             for (footstep_planning::point_2D p : foot_placements)
             {
@@ -205,7 +218,6 @@ namespace robowflex
             }
             return my_plan;
         }
-
 
         std::vector<planning_interface::MotionPlanResponse>
         planUsingFeedback(std::vector<std::vector<double>> goals)
@@ -262,7 +274,6 @@ namespace robowflex
             return responses;
         }
 
-
     public:
         int start_index, goal_index;
 
@@ -270,7 +281,7 @@ namespace robowflex
 
         // Loads the scene description and creates the graph we will use for planning
         MyGraphTester(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
-                 ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper &rviz_helper)
+                      ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper &rviz_helper)
           : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
                             my_scene_graph_helper, rviz_helper)
         {
@@ -291,10 +302,9 @@ namespace robowflex
             my_step_planner.buildGraph(points);
         }
 
-
         std::vector<planning_interface::MotionPlanResponse> plan() override
         {
-            std::cout<<"planning within my graph tester"<<std::endl;
+            std::cout << "planning within my graph tester" << std::endl;
             std::vector<std::vector<double>> goals = getTaskPlan();
             std::vector<planning_interface::MotionPlanResponse> res = planUsingFeedback(goals);
             if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -312,7 +322,6 @@ namespace robowflex
             }
             return res;
         }
-
 
         void setStartAndGoal(int s, int g)
         {

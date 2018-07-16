@@ -96,7 +96,8 @@ namespace robowflex
                 std::string waist_name = "r2/waist_center";
                 auto waist_tf = robot->getRelativeLinkTF(stationary_tip_name, waist_name);
                 request->addPathOrientationConstraint(waist_name, stationary_tip_name,
-                                                      Eigen::Quaterniond(waist_tf.rotation()), waist_tolerance);
+                                                      Eigen::Quaterniond(waist_tf.rotation()),
+                                                      waist_tolerance);
 
                 request->setGoalRegion(
                     moving_tip_name, "world",
@@ -106,9 +107,10 @@ namespace robowflex
                 last_foot_left = !last_foot_left;
             }
 
-            //We call this when a plan fails and we want to get a new plan for the same goal
-            void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan, size_t failed_index) {
-
+            // We call this when a plan fails and we want to get a new plan for the same goal
+            void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan,
+                                             size_t failed_index)
+            {
             }
 
         } my_constraint_helper;
@@ -152,9 +154,12 @@ namespace robowflex
             double rand_x = uni_rnd_smpl_(rand_eng_) * 0.75;
             double rand_y = uni_rnd_smpl_(rand_eng_) * 1.5;
 
-            std::vector<footstep_planning::point_2D> foot_placements = my_step_planner.calculateFootPlacementsForTorso(
-                points, points[9], footstep_planning::point_2D(rand_x, rand_y),
-                0.0, footstep_planning::foot::left);
+            std::vector<std::vector<footstep_planning::point_2D>> all_foot_placements =
+                my_step_planner.calculateFootPlacementsForTorso(points, points[9],
+                                                                footstep_planning::point_2D(rand_x, rand_y),
+                                                                0.0, footstep_planning::foot::left);
+
+            std::vector<footstep_planning::point_2D> foot_placements = all_foot_placements[0];
 
             std::cout << "Torso pose: < " << rand_x << ", " << rand_y << " >" << std::endl;
 
@@ -166,7 +171,6 @@ namespace robowflex
             }
             return my_plan;
         }
-
 
         std::vector<planning_interface::MotionPlanResponse>
         planUsingFeedback(std::vector<std::vector<double>> goals)
@@ -191,7 +195,7 @@ namespace robowflex
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
-                //request->setConfig("CBiRRT2");
+                // request->setConfig("CBiRRT2");
                 for (size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++)
                 {
                     request->setStartConfiguration(robot->getScratchState());
@@ -214,7 +218,7 @@ namespace robowflex
                     {  // We always want to have some response
                         responses.push_back(response);
                     }
-                    //request->setConfig("PRM");
+                    // request->setConfig("PRM");
                 }
                 // stop once a motion fails
                 if (responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -224,7 +228,6 @@ namespace robowflex
             }
             return responses;
         }
-
 
     public:
         int start_index, goal_index;
@@ -254,7 +257,6 @@ namespace robowflex
             my_step_planner.buildGraph(points);
         }
 
-
         std::vector<planning_interface::MotionPlanResponse> plan() override
         {
             std::vector<std::vector<double>> goals = getTaskPlan();
@@ -274,7 +276,6 @@ namespace robowflex
             }
             return res;
         }
-
 
         void setStartAndGoal(int s, int g)
         {
