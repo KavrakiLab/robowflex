@@ -25,7 +25,7 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-if (MOVEIT_PLANNERS_OMPL_FOUND)
+if (moveit_planners_ompl_DIR)
   include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
   link_directories(${catkin_LIBRARY_DIRS})
 
