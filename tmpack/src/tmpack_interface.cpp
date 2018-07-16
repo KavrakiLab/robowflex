@@ -141,7 +141,7 @@ namespace robowflex
         {
         }
 
-        std::vector<planning_interface::MotionPlanResponse> plan()
+        virtual std::vector<planning_interface::MotionPlanResponse> plan()
         {
             std::cout<<"We are calling the wrong plan() method!"<<std::endl;
 

@@ -49,9 +49,9 @@ bool R2Robot::initialize(const std::vector<std::string> kinematics)
 
     for (const auto &group : kinematics)
     {
-        nh.setParam(group + "/max_cache_size", 20000);
-        nh.setParam(group + "/min_pose_distance", 1.0);
-        nh.setParam(group + "/min_config_distance", 4.0);
+        nh.setParam(group + "/max_cache_size", 50000);
+        nh.setParam(group + "/min_pose_distance", 2.0);
+        nh.setParam(group + "/min_config_distance", 8.0);
         nh.setParam(group + "/cached_ik_path", IO::resolvePath(CACHED));
 
         auto creepy = CREEPY.find(group);

@@ -144,7 +144,7 @@ namespace footstep_planning
     class FootstepPlanner
     {
         Graph g;
-
+    public:
         Graph foot_graph;
 
     public:
@@ -160,8 +160,10 @@ namespace footstep_planning
                         point_2D p2 = points[j];
                         boost::add_edge(i, j, eval_step(p, p2, foot::left, 0), g);
 
-                        boost::add_edge(2 * i, 2 * j + 1, eval_step(p, p2, foot::left, 0), foot_graph);
-                        boost::add_edge(2 * i + 1, 2 * j, eval_step(p, p2, foot::left, 0), foot_graph);
+                        if(eval_step(p, p2, foot::left, 0) < 1000000) {
+                            boost::add_edge(2 * i, 2 * j + 1, eval_step(p, p2, foot::left, 0), foot_graph);
+                            boost::add_edge(2 * i + 1, 2 * j, eval_step(p, p2, foot::left, 0), foot_graph);
+                        }
                     }
                 }
             }
