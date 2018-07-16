@@ -7,7 +7,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 10
+#define NUM_ITERATIONS 1
 
 using namespace robowflex;
 
