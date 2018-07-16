@@ -57,6 +57,14 @@ namespace robowflex
             planning_interface::MotionPlanResponse
             plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
+            /** \brief Returns the planning context used for this motion planning request.
+             *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+             *  \param[in] request The motion planning request to solve.
+             *  \return The motion planning context used by the planner.
+             */
+            ompl_interface::ModelBasedPlanningContextPtr
+            getPlanningContext(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
+
             const std::vector<std::string> getPlannerConfigs() const override;
 
         private:
