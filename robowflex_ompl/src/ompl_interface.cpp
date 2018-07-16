@@ -38,14 +38,19 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     return true;
 }
 
+ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlanningContext(
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+{
+    return interface_.getPlanningContext(scene->getSceneConst(), request);
+}
+
 planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
 
-    ompl_interface::ModelBasedPlanningContextPtr context =
-        interface_.getPlanningContext(scene->getSceneConst(), request);
+    auto context = getPlanningContext(scene, request);
 
     if (!context)
         return response;
