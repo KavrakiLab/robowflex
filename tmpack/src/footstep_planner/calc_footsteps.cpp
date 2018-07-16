@@ -72,6 +72,7 @@ namespace footstep_planning
             return torsoFootPlacementEval(i) < torsoFootPlacementEval(j);
         }
 
+        //TODO: Evaluate the angle when choosing feet placements
         double torsoFootPlacementEval(std::pair<point_2D, point_2D> i)
         {
             return (dist(i.first, torso_pose) - FLAGS_step_max_dist / 2) *

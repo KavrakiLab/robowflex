@@ -11,6 +11,7 @@
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"
 
+
 namespace robowflex
 {
     // Things this should implement:
@@ -242,7 +243,9 @@ namespace robowflex
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
-            footstep_planning::loadScene("/home/awells/Development/nasa_footstep_planning/scenes/iss.txt",
+
+            std::string user_name = getenv("USER");
+            footstep_planning::loadScene(std::string("/home/")+std::string(user_name)+std::string("/r2_ws/src/robowflex/tmpack/src/footstep_planner/scenes/iss.txt"),
                                          &line_segments, &line_names);
             // we only use the end points and the centers
             for (size_t i = 0; i < line_segments.size(); i++)
