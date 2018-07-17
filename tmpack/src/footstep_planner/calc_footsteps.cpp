@@ -142,6 +142,8 @@ class FootstepPlanner {
     }
   }
 
+  // Returns n (default 1) paths for each pair of <left, right> final
+  // placements found for the torso pose.
   // From the torso pose we can back out pairs of foot placements
   // that may work. We know which foot we start with and we use end_foot
   // to ensure we finish facing the correct direction.
@@ -164,6 +166,7 @@ class FootstepPlanner {
       // seq1.push_back(p.second);
       for(auto seq : seqs1) {
         seq.push_back(p.second);
+        std::cout<<"path length left: "<<seq.size()<<std::endl;
         walks.push_back(seq);
       }
 
@@ -172,31 +175,11 @@ class FootstepPlanner {
       // seq2.push_back(p.first);
       for(auto seq : seqs2) {
         seq.push_back(p.first);
-        std::cout<<"path length: "<<seq.size()<<std::endl;
+        std::cout<<"path length right: "<<seq.size()<<std::endl;
         walks.push_back(seq);
       }
     }
-
     return walks;
-
-    //Each pair is <left_index, right_index>
-    std::vector<std::vector<point_2D>> seq1;
-    seq1.push_back(calculateFootPlacements(
-        points, start, final_feet_placements[0].first, start_foot, foot::left));
-    std::vector<std::vector<point_2D>> seq2;
-    seq2.push_back(calculateFootPlacements(
-        points, start, final_feet_placements[0].second, start_foot, foot::right));
-    std::cout << "seq1: " << seq1[0].size() << std::endl;
-    std::cout << "seq2: " << seq2[0].size() << std::endl;
-
-    //finish the shorter walk by taking the step to the other point
-    if (seq1[0].size() < seq2[0].size()) {
-      seq1[0].push_back(final_feet_placements[0].second);
-      return seq1;
-    } else {
-      seq2[0].push_back(final_feet_placements[0].first);
-      return seq2;
-    }
   }
 
 // returns pair of indices: <start_index, goal_index>
@@ -240,56 +223,10 @@ class FootstepPlanner {
                                                 point_2D start, point_2D goal,
                                                 foot start_foot,
                                                 foot end_foot) {
-    if (boost::num_edges(foot_graph) == 0) {
-      std::cout << "The graph has no edges. Did you forget to call buildGraph?"
-                << std::endl;
-      buildGraph(points);
-    }
-
-    std::pair<size_t, size_t> start_and_goal = getStartAndGoalIndices(points, start, goal, start_foot, end_foot);
-    size_t startI = start_and_goal.first;
-    size_t goalI = start_and_goal.second;
-
-
-    std::cout<<"start and goal indices: "<<startI<<", "<<goalI<<"; "<< num_vertices(foot_graph) <<std::endl; 
-
-    // Run Djikstra on our weighted graph to find the optimal foot
-    // placements
-    std::vector<int> d(num_vertices(foot_graph));
-    std::vector<Vertex> p(
-        boost::num_vertices(foot_graph),
-        boost::graph_traits<Graph>::null_vertex());  // the predecessor
-                                                     // array
-    boost::dijkstra_shortest_paths(
-        foot_graph, startI,
-        boost::distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
-
-
-    std::vector<point_2D> foot_steps;
-    // walk up the tree to get our path
-    int vi = goalI;
-    foot curr_foot = end_foot;
-    while (vi != startI) {
-      if(p[vi] == boost::graph_traits<Graph>::null_vertex()) {
-        std::cout<<"We reached a null vertex (perhaps the graph is disconnected). Aborting."<<std::endl;
-        return std::vector<point_2D>();
-      }
-      foot_steps.push_back(points[getPointIndexFromVertex(vi,curr_foot)]);
-      curr_foot = !curr_foot;
-      vi = p[vi];
-    }
-    // include the start point
-    assert(curr_foot == start_foot);
-    foot_steps.push_back(points[getPointIndexFromVertex(vi, curr_foot)]);
-
-
-    // walking up the tree means the path is backwards
-    std::reverse(foot_steps.begin(), foot_steps.end());
-
-    return foot_steps;
+    return calculateNFootPlacements(points, start, goal, start_foot, end_foot)[0];
   }
 
-
+  // Returns n (default 1) paths from start to goal
   std::vector<std::vector<point_2D>> calculateNFootPlacements(std::vector<point_2D> points,
                                                 point_2D start, point_2D goal,
                                                 foot start_foot,
@@ -304,17 +241,6 @@ class FootstepPlanner {
     std::pair<size_t, size_t> start_and_goal = getStartAndGoalIndices(points, start, goal, start_foot, end_foot);
     size_t startI = start_and_goal.first;
     size_t goalI = start_and_goal.second;
-
-    // Run Djikstra on our weighted graph to find the optimal foot
-    // placements
-    std::vector<int> d(num_vertices(foot_graph));
-    std::vector<Vertex> p(
-        boost::num_vertices(foot_graph),
-        boost::graph_traits<Graph>::null_vertex());  // the predecessor
-                                                     // array
-    boost::dijkstra_shortest_paths(
-        foot_graph, startI,
-        boost::distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
 
     std::list<std::pair<double, std::list<typename Graph::edge_descriptor>>> pairs = yen_ksp(foot_graph, startI, goalI, num_paths);
 
@@ -332,27 +258,14 @@ class FootstepPlanner {
       points_on_path.push_back(points[getPointIndexFromVertex(i, curr_foot)]);
 
       return_paths.push_back(std::vector<point_2D>());
-      std::copy( return_paths.back().begin(), return_paths.back().end(), std::back_inserter( points_on_path ) );
 
-      // return_paths.push_back(points_on_path);
+      std::cout<<"points on path: "<<points_on_path.size()<<std::endl;
+
+
+      std::copy( points_on_path.begin(), points_on_path.end(), std::back_inserter( return_paths.back() ) );
     }
 
     return return_paths;
-
-    // std::vector<point_2D> foot_steps;
-    // // walk up the tree to get our path
-    // int vi = goalI;
-    // while (vi != startI) {
-    //   foot_steps.push_back(points[vi]);
-    //   vi = p[vi];
-    // }
-    // // include the start point
-    // foot_steps.push_back(points[vi]);
-
-    // // walking up the tree means the path is backwards
-    // std::reverse(foot_steps.begin(), foot_steps.end());
-
-    // return foot_steps;
   }
 
 };
