@@ -134,6 +134,8 @@ namespace robowflex
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
+        std::list<std::list<footstep_planning::point_2D>> list_of_paths;
+
         std::uniform_real_distribution<double> uni_rnd_smpl_ =
             std::uniform_real_distribution<double>(-100, 100);
         std::default_random_engine rand_eng_;
@@ -160,6 +162,14 @@ namespace robowflex
                                                                 footstep_planning::point_2D(rand_x, rand_y),
                                                                 0.0, footstep_planning::foot::left);
 
+            std::cout<<"We found: "<<all_foot_placements.size()<<" potential paths"<<std::endl;
+            for(auto pth : all_foot_placements) {
+                std::cout<<"============="<<std::endl;
+                for(auto pt : pth) {
+                    std::cout<<pt<<std::endl;
+                }
+            }
+
             std::vector<footstep_planning::point_2D> foot_placements = all_foot_placements[0];
 
             std::cout << "Torso pose: < " << rand_x << ", " << rand_y << " >" << std::endl;
@@ -170,6 +180,11 @@ namespace robowflex
                 std::cout << p << std::endl;
                 my_plan.push_back({p.x, p.y});
             }
+            return my_plan;
+        }
+
+        std::vector<std::vector<double>> getNextTaskPlan(size_t failure) {
+            std::vector<std::vector<double>> my_plan;
             return my_plan;
         }
 
@@ -243,10 +258,6 @@ namespace robowflex
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
-
-            std::string user_name = getenv("USER");
-
-//std::string("/home/")+std::string(user_name)+std::string("/r2_ws/src/robowflex/tmpack/src/footstep_planner/scenes/iss.txt")
 
             footstep_planning::loadScene(IO::resolvePath("package://tmpack/scenes/iss.txt"),
                                          &line_segments, &line_names);
