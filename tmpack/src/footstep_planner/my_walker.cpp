@@ -160,7 +160,7 @@ namespace robowflex
             std::vector<std::vector<footstep_planning::point_2D>> all_foot_placements =
                 my_step_planner.calculateFootPlacementsForTorso(points, points[9],
                                                                 footstep_planning::point_2D(rand_x, rand_y),
-                                                                0.0, footstep_planning::foot::left);
+                                                                0.0, footstep_planning::foot::left, 5);
 
             std::cout<<"We found: "<<all_foot_placements.size()<<" potential paths"<<std::endl;
             for(auto pth : all_foot_placements) {
@@ -169,6 +169,8 @@ namespace robowflex
                     std::cout<<pt<<std::endl;
                 }
             }
+
+            std::cout<<"Finished printing paths"<<std::endl;
 
             std::vector<footstep_planning::point_2D> foot_placements = all_foot_placements[0];
 
