@@ -1,4 +1,5 @@
 #include "footstep_planner/my_walker.cpp"
+#include "footstep_planner/my_graph_tester.cpp"
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/detail/r2.h>
 #include <robowflex_library/io/visualization.h>
@@ -6,7 +7,7 @@
 #include <signal.h>
 #include <iostream>
 
-#define NUM_ITERATIONS 100
+#define NUM_ITERATIONS 1
 
 using namespace robowflex;
 
