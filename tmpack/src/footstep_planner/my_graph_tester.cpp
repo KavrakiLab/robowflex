@@ -11,7 +11,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 
-#include "../tmpack_interface.cpp"
+#include <tmpack/tmpack_interface.cpp>
 #include "utils/util.h"
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"

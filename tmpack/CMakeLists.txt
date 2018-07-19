@@ -23,8 +23,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   CATKIN_DEPENDS
-   robowflex_library
-   roscpp
+    robowflex_library
+    roscpp
+  DEPENDS
+  INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
 include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
@@ -37,5 +39,12 @@ else()
   message("`gflags` not found, not compiling TMPack executables.")
 endif()
 
+list(APPEND INCLUDES
+  ${CMAKE_CURRENT_LIST_DIR}/include)
+
+include_directories(${INCLUDES})
+
+
+
 install(DIRECTORY src/footstep_planner/scenes/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scenes)
-install(DIRECTORY include DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install(DIRECTORY include/tmpack/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
