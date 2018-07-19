@@ -38,3 +38,4 @@ else()
 endif()
 
 install(DIRECTORY src/footstep_planner/scenes/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scenes)
+install(DIRECTORY include DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/include)
