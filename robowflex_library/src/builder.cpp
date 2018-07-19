@@ -82,11 +82,17 @@ void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePt
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
-    robot_state::RobotState goal_state(robot_->getModelConst());
-    goal_state.setJointGroupPositions(jmg_, joints);
+    robot_state::RobotStatePtr state;
+    state.reset(new robot_state::RobotState(robot_->getModelConst()));
+    state->setJointGroupPositions(jmg_, joints);
 
+    setGoalConfiguration(state);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
+{
     request_.goal_constraints.clear();
-    request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(goal_state, jmg_));
+    request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,

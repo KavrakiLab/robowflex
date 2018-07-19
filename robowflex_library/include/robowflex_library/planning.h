@@ -227,6 +227,11 @@ namespace robowflex
          */
         void setGoalConfiguration(const std::vector<double> &joints);
 
+        /** \brief Set the goal configuration from a robot state.
+         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+         */
+        void setGoalConfiguration(const robot_state::RobotStatePtr &state);
+
         /** \brief Set a goal region for an end-effector \a ee_name.
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.

@@ -83,11 +83,11 @@ def add_mesh(mesh):
 
     '''
     mesh_file = utils.resolvePackage(mesh['resource'])
-    if '.dae' in mesh_file:
+    if '.dae' in mesh_file.lower():
         bpy.ops.wm.collada_import(filepath = mesh_file)
-    elif '.stl' in mesh_file:
+    elif '.stl' in mesh_file.lower():
         bpy.ops.import_mesh.stl(filepath = mesh_file)
-    elif '.ply' in mesh_file:
+    elif '.ply' in mesh_file.lower():
         bpy.ops.import_mesh.ply(filepath = mesh_file)
     else:
         return None

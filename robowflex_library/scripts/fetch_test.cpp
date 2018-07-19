@@ -8,6 +8,8 @@
 
 using namespace robowflex;
 
+static const std::string GROUP = "arm_with_torso";
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -27,10 +29,16 @@ int main(int argc, char **argv)
     auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
     planner->initialize();
 
+    // Sets the Fetch's base pose.
+    fetch->setBasePose(1, 1, 0.5);
+
     // Create a motion planning request with a pose goal.
-    MotionRequestBuilder request(planner, "arm_with_torso");
-    request.setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    request.setGoalConfiguration({0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});
+    MotionRequestBuilder request(planner, GROUP);
+    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0}); // Stow
+    request.setStartConfiguration(fetch->getScratchState());
+
+    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007}); // Unfurl
+    request.setGoalConfiguration(fetch->getScratchState());
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
