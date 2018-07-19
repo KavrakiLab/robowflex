@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <tinyxml2.h>
+#include <robowflex_library/io.h>
 #include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
@@ -18,12 +20,53 @@ FetchRobot::FetchRobot() : Robot("fetch")
 
 bool FetchRobot::initialize()
 {
-    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
+    bool success = loadXMLFile(ROBOT_DESCRIPTION, URDF)                                // urdf
+                   && loadSRDFFile()                                                   // srdf
+                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, LIMITS)         // joint limits
+                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, KINEMATICS);  // kinematics
+
+    loadRobotModel();
 
     loadKinematics("arm");
     loadKinematics("arm_with_torso");
 
-    return success;
+    return true;
+}
+
+bool FetchRobot::loadSRDFFile()
+{
+    const std::string string = IO::loadXMLToString(SRDF);
+    if (string.empty())
+    {
+        ROS_ERROR("Failed to load XML file `%s`.", SRDF.c_str());
+        return false;
+    }
+
+    tinyxml2::XMLDocument doc;
+    doc.Parse(string.c_str());
+
+    tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+    virtual_joint->SetAttribute("name", "base_joint");
+    virtual_joint->SetAttribute("type", "planar");
+    virtual_joint->SetAttribute("parent_frame", "world");
+    virtual_joint->SetAttribute("child_link", "base_link");
+
+    doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+    tinyxml2::XMLPrinter printer;
+    doc.Print(&printer);
+
+    handler_.setParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, std::string(printer.CStr()));
+    return true;
+}
+
+void FetchRobot::setBasePose(double x, double y, double theta)
+{
+    std::map<std::string, double> pose = {
+        {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
+
+    scratch_->setVariablePositions(pose);
+    scratch_->update();
 }
 
 OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

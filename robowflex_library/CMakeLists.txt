@@ -21,6 +21,7 @@ endif()
 
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
+find_package(TinyXML2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
@@ -37,7 +38,8 @@ find_package(catkin REQUIRED COMPONENTS
   )
 
 catkin_package(
-  LIBRARIES ${LIBRARY_NAME}
+  LIBRARIES
+    ${LIBRARY_NAME}
   CATKIN_DEPENDS
     moveit_ros_planning
     geometric_shapes
@@ -45,7 +47,8 @@ catkin_package(
     rosbag
     roscpp
   DEPENDS
-  INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
+  INCLUDE_DIRS
+    ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
 ##
@@ -103,6 +106,7 @@ list(APPEND INCLUDES
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${TINYXML2_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   yaml-cpp
   )
@@ -110,6 +114,7 @@ list(APPEND INCLUDES
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${TINYXML2_LIBRARIES}
   ${HDF5_LIBRARIES}
   yaml-cpp
   )

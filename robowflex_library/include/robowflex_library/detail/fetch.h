@@ -19,7 +19,8 @@ namespace robowflex
     /** \class robowflex::FetchRobotConstPtr
         \brief A const shared pointer wrapper for robowflex::FetchRobot. */
 
-    /** \brief Convenience class that describes the default setup for Fetch (with robotiq gripper and load cell)
+    /** \brief Convenience class that describes the default setup for Fetch (with robotiq gripper and load
+     * cell)
      */
     class FetchRobot : public Robot
     {
@@ -28,10 +29,22 @@ namespace robowflex
          */
         FetchRobot();
 
-        /** \brief Initialize the robot with manipulator kinematics.
+        /** \brief Initialize the robot with arm and arm_with_torso kinematics.
          *  \return True on success, false on failure.
          */
         bool initialize();
+
+        /** \brief Loads the Fetch's SRDF file and inserts a virtual joint.
+         *  \return True on success.
+         */
+        bool loadSRDFFile();
+
+        /** \brief Sets the base pose of the Fetch robot (a virtual planar joint)
+         *  \param[in] x The x position.
+         *  \param[in] y The y position.
+         *  \param[in] theta The angle.
+         */
+        void setBasePose(double x, double y, double theta);
 
     private:
         static const std::string URDF;        ///< Default URDF
@@ -81,4 +94,3 @@ namespace robowflex
 }  // namespace robowflex
 
 #endif
-
