@@ -293,10 +293,10 @@ namespace robowflex
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
-        PostProcessXMLFunction urdf_function_;
-        PostProcessXMLFunction srdf_function_;
-        PostProcessYAMLFunction limits_function_;
-        PostProcessYAMLFunction kinematics_function_;
+        PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
+        PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.
+        PostProcessYAMLFunction limits_function_;      ///< Limits YAML post-processing function.
+        PostProcessYAMLFunction kinematics_function_;  ///< Kinematics plugin YAML post-processing function.
 
         std::shared_ptr<robot_model_loader::RobotModelLoader> loader_;    ///< Robot model loader.
         robot_model::RobotModelPtr model_;                                ///< Loaded robot model.
