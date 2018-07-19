@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <cmath>
+
 #include <robowflex_library/io.h>
 #include <robowflex_library/detail/fetch.h>
 
@@ -41,9 +43,25 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
     return true;
 }
 
+void FetchRobot::pointHead(const Eigen::Vector3d &point)
+{
+    const Eigen::Affine3d point_pose = Eigen::Affine3d(Eigen::Translation3d(point));
+    const Eigen::Affine3d point_pan = getLinkTF("head_pan_link").inverse() * point_pose;
+    const Eigen::Affine3d point_tilt = getLinkTF("head_tilt_link").inverse() * point_pose;
+
+    const double pan = atan2(point_pan.translation().y(), point_pan.translation().x());
+    const double tilt = -atan2(point_tilt.translation().z(),
+                               hypot(point_tilt.translation().x(), point_tilt.translation().y()));
+
+    const std::map<std::string, double> angles = {{"head_pan_joint", pan}, {"head_tilt_joint", tilt}};
+
+    scratch_->setVariablePositions(angles);
+    scratch_->update();
+}
+
 void FetchRobot::setBasePose(double x, double y, double theta)
 {
-    std::map<std::string, double> pose = {
+    const std::map<std::string, double> pose = {
         {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
 
     scratch_->setVariablePositions(pose);

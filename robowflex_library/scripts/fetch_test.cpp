@@ -32,12 +32,15 @@ int main(int argc, char **argv)
     // Sets the Fetch's base pose.
     fetch->setBasePose(1, 1, 0.5);
 
+    // Sets the Fetch's head pose to look at a point.
+    fetch->pointHead({2, 1, 1.5});
+
     // Create a motion planning request with a pose goal.
     MotionRequestBuilder request(planner, GROUP);
-    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0}); // Stow
+    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
     request.setStartConfiguration(fetch->getScratchState());
 
-    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007}); // Unfurl
+    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
     request.setGoalConfiguration(fetch->getScratchState());
 
     // Do motion planning!

@@ -45,6 +45,11 @@ namespace robowflex
          */
         void setBasePose(double x, double y, double theta);
 
+        /** \brief Points the Fetch's head to a point in the world frame.
+         *  \param[in] point The point to look at.
+         */
+        void pointHead(const Eigen::Vector3d &point);
+
     private:
         static const std::string URDF;        ///< Default URDF
         static const std::string SRDF;        ///< Default SRDF
