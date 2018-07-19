@@ -39,15 +39,43 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
 bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
                                  const std::string &limits_file, const std::string &kinematics_file)
 {
-    bool success = loadXMLFile(ROBOT_DESCRIPTION, urdf_file)                                // urdf
-                   && loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file)            // srdf
-                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file)         // joint limits
-                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file);  // kinematics
+    bool success =
+        loadXMLFile(ROBOT_DESCRIPTION, urdf_file, urdf_function_)                           // urdf
+        && loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file, srdf_function_)       // srdf
+        && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_)  // joint limits
+        && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file, kinematics_function_);
 
     return success;
 }
 
+void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
+{
+    urdf_function_ = function;
+}
+
+void Robot::setSRDFPostProcessFunction(const PostProcessXMLFunction &function)
+{
+    srdf_function_ = function;
+}
+
+void Robot::setLimitsPostProcessFunction(const PostProcessYAMLFunction &function)
+{
+    limits_function_ = function;
+}
+
+void Robot::setKinematicsPostProcessFunction(const PostProcessYAMLFunction &function)
+{
+    kinematics_function_ = function;
+}
+
 bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
+{
+    PostProcessYAMLFunction function;
+    return loadYAMLFile(name, file, function);
+}
+
+bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
+                         const PostProcessYAMLFunction &function)
 {
     auto &yaml = IO::loadFileToYAML(file);
     if (!yaml.first)
@@ -56,12 +84,31 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
         return false;
     }
 
-    handler_.loadYAMLtoROS(yaml.second, name);
+    if (function)
+    {
+        YAML::Node copy = yaml.second;
+        if (!function(copy))
+        {
+            ROS_ERROR("Failed to process YAML file `%s`.", file.c_str());
+            return false;
+        }
+
+        handler_.loadYAMLtoROS(copy, name);
+    }
+    else
+        handler_.loadYAMLtoROS(yaml.second, name);
 
     return true;
 }
 
 bool Robot::loadXMLFile(const std::string &name, const std::string &file)
+{
+    PostProcessXMLFunction function;
+    return loadXMLFile(name, file, function);
+}
+
+bool Robot::loadXMLFile(const std::string &name, const std::string &file,
+                        const PostProcessXMLFunction &function)
 {
     const std::string string = IO::loadXMLToString(file);
     if (string.empty())
@@ -70,7 +117,24 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file)
         return false;
     }
 
-    handler_.setParam(name, string);
+    if (function)
+    {
+        tinyxml2::XMLDocument doc;
+        doc.Parse(string.c_str());
+
+        if (!function(doc))
+        {
+            ROS_ERROR("Failed to process XML file `%s`.", file.c_str());
+            return false;
+        }
+
+        tinyxml2::XMLPrinter printer;
+        doc.Print(&printer);
+
+        handler_.setParam(name, std::string(printer.CStr()));
+    }
+    else
+        handler_.setParam(name, string);
 
     return true;
 }

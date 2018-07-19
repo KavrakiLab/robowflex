@@ -1,6 +1,5 @@
 /* Author: Zachary Kingston */
 
-#include <tinyxml2.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/detail/fetch.h>
 
@@ -20,31 +19,17 @@ FetchRobot::FetchRobot() : Robot("fetch")
 
 bool FetchRobot::initialize()
 {
-    bool success = loadXMLFile(ROBOT_DESCRIPTION, URDF)                                // urdf
-                   && loadSRDFFile()                                                   // srdf
-                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, LIMITS)         // joint limits
-                   && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, KINEMATICS);  // kinematics
+    setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
 
-    loadRobotModel();
-
+    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
     loadKinematics("arm");
     loadKinematics("arm_with_torso");
 
     return true;
 }
 
-bool FetchRobot::loadSRDFFile()
+bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 {
-    const std::string string = IO::loadXMLToString(SRDF);
-    if (string.empty())
-    {
-        ROS_ERROR("Failed to load XML file `%s`.", SRDF.c_str());
-        return false;
-    }
-
-    tinyxml2::XMLDocument doc;
-    doc.Parse(string.c_str());
-
     tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
     virtual_joint->SetAttribute("name", "base_joint");
     virtual_joint->SetAttribute("type", "planar");
@@ -53,10 +38,6 @@ bool FetchRobot::loadSRDFFile()
 
     doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
 
-    tinyxml2::XMLPrinter printer;
-    doc.Print(&printer);
-
-    handler_.setParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, std::string(printer.CStr()));
     return true;
 }
 

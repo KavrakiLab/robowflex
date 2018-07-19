@@ -10,6 +10,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <tinyxml2.h>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
@@ -40,6 +42,9 @@ namespace robowflex
     class Robot
     {
     public:
+        typedef std::function<bool(YAML::Node &)> PostProcessYAMLFunction;
+        typedef std::function<bool(tinyxml2::XMLDocument &)> PostProcessXMLFunction;
+
         static const std::string ROBOT_DESCRIPTION;  ///< Default robot description name.
         static const std::string ROBOT_SEMANTIC;     ///< Default robot semantic description suffix.
         static const std::string ROBOT_PLANNING;     ///< Default robot planning description suffix.
@@ -69,18 +74,57 @@ namespace robowflex
                         const std::string &limits_file, const std::string &kinematics_file);
 
         /** \brief Loads a YAML file into the robot's namespace under \a name.
-         * \param[in] name Name to load file under.
-         * \param[in] file File to load.
-         * \return True on success, false on failure.
+         *  \param[in] name Name to load file under.
+         *  \param[in] file File to load.
+         *  \return True on success, false on failure.
          */
         bool loadYAMLFile(const std::string &name, const std::string &file);
+
+        /** \brief Loads a YAML file into the robot's namespace under \a name, with a post-process function.
+         *  \param[in] name Name to load file under.
+         *  \param[in] file File to load.
+         *  \param[in] function Optional post processing function.
+         *  \return True on success, false on failure.
+         */
+        bool loadYAMLFile(const std::string &name, const std::string &file,
+                          const PostProcessYAMLFunction &function);
+
+        /** \brief Loads an XML or .xacro file into the robot's namespace under \a name, with a post-process
+         *  function.
+         *  \param[in] name Name to load file under.
+         *  \param[in] file File to load.
+         *  \return True on success, false on failure.
+         */
+        bool loadXMLFile(const std::string &name, const std::string &file);
 
         /** \brief Loads an XML or .xacro file into the robot's namespace under \a name.
          * \param[in] name Name to load file under.
          * \param[in] file File to load.
+         * \param[in] function Optional post processing function.
          * \return True on success, false on failure.
          */
-        bool loadXMLFile(const std::string &name, const std::string &file);
+        bool loadXMLFile(const std::string &name, const std::string &file,
+                         const PostProcessXMLFunction &function);
+
+        /** \brief Sets a post processing function for loading the URDF.
+         *  \param[in] function The function to use.
+         */
+        void setURDFPostProcessFunction(const PostProcessXMLFunction &function);
+
+        /** \brief Sets a post processing function for loading the SRDF.
+         *  \param[in] function The function to use.
+         */
+        void setSRDFPostProcessFunction(const PostProcessXMLFunction &function);
+
+        /** \brief Sets a post processing function for loading the joint limits file.
+         *  \param[in] function The function to use.
+         */
+        void setLimitsPostProcessFunction(const PostProcessYAMLFunction &function);
+
+        /** \brief Sets a post processing function for loading the kinematics plugin file.
+         *  \param[in] function The function to use.
+         */
+        void setKinematicsPostProcessFunction(const PostProcessYAMLFunction &function);
 
         /** \brief Loads the kinematics plugin for a joint group. No kinematics are loaded by default.
          *  \param[in] group Joint group name to load.
@@ -248,6 +292,11 @@ namespace robowflex
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
+
+        PostProcessXMLFunction urdf_function_;
+        PostProcessXMLFunction srdf_function_;
+        PostProcessYAMLFunction limits_function_;
+        PostProcessYAMLFunction kinematics_function_;
 
         std::shared_ptr<robot_model_loader::RobotModelLoader> loader_;    ///< Robot model loader.
         robot_model::RobotModelPtr model_;                                ///< Loaded robot model.

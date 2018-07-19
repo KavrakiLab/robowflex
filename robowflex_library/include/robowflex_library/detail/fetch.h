@@ -34,10 +34,10 @@ namespace robowflex
          */
         bool initialize();
 
-        /** \brief Loads the Fetch's SRDF file and inserts a virtual joint.
+        /** \brief Inserts a virtual joint "base_joint" into the Fetch's SRDF.
          *  \return True on success.
          */
-        bool loadSRDFFile();
+        bool addVirtualJointSRDF(tinyxml2::XMLDocument &doc);
 
         /** \brief Sets the base pose of the Fetch robot (a virtual planar joint)
          *  \param[in] x The x position.
