@@ -95,6 +95,7 @@ list(APPEND SOURCES
   src/yaml.cpp
   src/detail/r2.cpp
   src/detail/ur5.cpp
+  src/detail/fetch.cpp
   )
 
 list(APPEND INCLUDES
@@ -142,6 +143,10 @@ target_link_libraries(ur5_pool ${LIBRARY_NAME} ${catkin_LIBRARIES})
 list(APPEND SCRIPTS ur5_visualization)
 add_executable(ur5_visualization scripts/ur5_visualization.cpp)
 target_link_libraries(ur5_visualization ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+list(APPEND SCRIPTS fetch_test)
+add_executable(fetch_test scripts/fetch_test.cpp)
+target_link_libraries(fetch_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
 list(APPEND SCRIPTS r2_test)
 add_executable(r2_test scripts/r2_test.cpp)

@@ -1,6 +1,6 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/detail/ur5.h>
+#include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
 
@@ -12,7 +12,7 @@ const std::string FetchRobot::KINEMATICS{"package://fetch_moveit_config/config/k
 const std::string  //
     OMPL::FetchOMPLPipelinePlanner::CONFIG{"package://fetch_moveit_config/config/ompl_planning.yaml"};
 
-FetchRobot::FetchRobot() : Robot("ur5")
+FetchRobot::FetchRobot() : Robot("fetch")
 {
 }
 
