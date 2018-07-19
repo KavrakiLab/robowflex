@@ -6,11 +6,11 @@
 #include <random>
 #include <vector>
 
-#include "../tmpack_interface.cpp"
-#include "../../include/myWalker.h"
-#include "utils/util.h"
-#include "utils/geom_2D.h"
-#include "calc_footsteps.cpp"
+#include <tmpack/tmpack_interface.cpp>
+#include <tmpack/myWalker.h>
+#include <tmpack/utils/util.h>
+#include <tmpack/utils/geom_2D.h>
+#include <tmpack/calc_footsteps.cpp>
 
 namespace robowflex
 {

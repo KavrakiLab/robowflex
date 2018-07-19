@@ -6,10 +6,10 @@
 #include <random>
 #include <vector>
 
-#include "../src/tmpack_interface.cpp"
-#include "../src/footstep_planner/utils/util.h"
-#include "../src/footstep_planner/utils/geom_2D.h"
-#include "../src/footstep_planner/calc_footsteps.cpp"
+#include "tmpack_interface.cpp"
+#include "utils/util.h"
+#include "utils/geom_2D.h"
+#include "calc_footsteps.cpp"
 
 
 namespace robowflex
