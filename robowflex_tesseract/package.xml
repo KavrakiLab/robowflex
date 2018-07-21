@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robowflex_ompl</name>
+  <name>robowflex_tesseract</name>
   <version>0.0.1</version>
-  <description>The Better Benchmarking Package: OMPL Interface</description>
+  <description>The Better Benchmarking Package: Tesseract Interface</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
-  <author email="zak@rice.edu">Zachary Kingston</author>
+  <author email="bsw2@rice.edu">Bryce Willey</author>
 
   <license>TODO</license>
 
