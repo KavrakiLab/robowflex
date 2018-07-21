@@ -10,6 +10,9 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <urdf/model.h>
+#include <srdfdom/model.h>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
@@ -112,6 +115,16 @@ namespace robowflex
          *  \return The robot model.
          */
         robot_model::RobotModelPtr &getModel();
+
+        /** \brief Get the raw URDF Model.
+         *  \return The URDF Model.
+         */
+        urdf::ModelInterfaceConstSharedPtr getURDF() const;
+
+        /** \brief Get the raw SRDF Model.
+         *  \return The SRDF model.
+         */
+        srdf::ModelConstSharedPtr getSRDF() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
@@ -251,6 +264,8 @@ namespace robowflex
 
         std::shared_ptr<robot_model_loader::RobotModelLoader> loader_;    ///< Robot model loader.
         robot_model::RobotModelPtr model_;                                ///< Loaded robot model.
+        urdf::ModelInterfaceSharedPtr urdf_model_;                        ///< URDF robot model.
+        srdf::ModelSharedPtr srdf_model_;                                 ///< SRDF robot model.
         std::map<std::string, robot_model::SolverAllocatorFn> imap_;      ///< Kinematic solver allocator map.
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
