@@ -1,8 +1,13 @@
 /* Author: Bryce Willey */
 
+#include <robowflex_tesseract/conversions.h>
+
+#include <tesseract_msgs/AttachableObject.h>
+#include <tesseract_ros/ros_tesseract_utils.h>
+
 using namespace robowflex::robow_tesseract;
 
-tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot)
+tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot)
 {
     moveit_msgs::PlanningScene scene_msg = scene->getMessage();
     tesseract::tesseract_ros::KDLEnvPtr env(new tesseract::tesseract_ros::KDLEnv);
@@ -11,20 +16,20 @@ tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstP
     // Add all of the collision objects in the scene message.
     // So there's a name, robot_state, and robot_model_name. Going to ignore most of that.
     // Ignore the ACM, we get that from the robot.
-    std::vector<std::string> link_names = robot->getModel()->getLinkModelNames();
+    std::vector<std::string> link_names = robot->getModelConst()->getLinkModelNames();
 
     // Add all of the collision objects in the scene message.
     for (auto collision_object : scene_msg.world.collision_objects)
     {
-        tesseract_msgs::AttachableObject obj(new tesseract::AttachableObject());
+        tesseract_msgs::AttachableObject obj;
         obj.name = collision_object.id;
         obj.operation = tesseract_msgs::AttachableObject::ADD;
         
         // Add all of the objects.
         for (shape_msgs::SolidPrimitive primitive : collision_object.primitives)
         {
-            obj.visual.shapes.push_back(primitive);
-            obj.collision.shapes.push_back(primitive);
+            obj.visual.primitives.push_back(primitive);
+            obj.collision.primitives.push_back(primitive);
         }
         for (shape_msgs::Mesh mesh : collision_object.meshes)
         {
@@ -34,13 +39,13 @@ tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstP
         for (shape_msgs::Plane plane : collision_object.planes)
         {
             obj.visual.planes.push_back(plane);
-            obj.collision.plane.push_back(plane);
+            obj.collision.planes.push_back(plane);
         }
 
         for (geometry_msgs::Pose pose : collision_object.primitive_poses)
         {
-            obj.visual.shape_poses.push_back(pose);
-            obj.collision.shape_poses.push_back(pose);
+            obj.visual.primitive_poses.push_back(pose);
+            obj.collision.primitive_poses.push_back(pose);
         }
         for (geometry_msgs::Pose pose : collision_object.mesh_poses)
         {
@@ -53,8 +58,8 @@ tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstP
             obj.collision.plane_poses.push_back(pose);
         }
         tesseract::AttachableObjectPtr ao(new tesseract::AttachableObject());
-        attachableObjectMsgToAttachableObject(obj, ao);
-        env.addAttachableObject(ao);
+        tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
+        env->addAttachableObject(ao);
 
         // Determine where this collision object should be attached to the robot.
         // Tesseract doesn't allow objects to be just in the scene.
@@ -77,7 +82,7 @@ tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstP
                     scene->getFramePose("base_link").inverse();
         }
 
-        env.attachBody(attached_body);
+        env->attachBody(attached_body);
     }
     // TODO: fixed_frame_transforms?
     // TODO: actually use LinkPadding and LinkScales.

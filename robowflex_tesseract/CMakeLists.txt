@@ -14,7 +14,6 @@ find_package(Boost REQUIRED)
 find_package(catkin QUIET COMPONENTS
   moveit_planners_ompl
   robowflex_library
-  tesseract_core
   tesseract_planning
   tesseract_ros
 )
@@ -24,7 +23,6 @@ catkin_package(
   CATKIN_DEPENDS
     moveit_planners_ompl
     robowflex_library
-    tesseract_core
     tesseract_planning
     tesseract_ros
   DEPENDS

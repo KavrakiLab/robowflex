@@ -1,6 +1,9 @@
 /* Author: Bryce Willey */
 
-#include <tesseract_planners.h>
+#include <robowflex_tesseract/tesseract_planners.h>
+#include <robowflex_tesseract/conversions.h>
+#include <tesseract_planning/ompl/continuous_motion_validator.h>
+#include <moveit/robot_state/conversions.h>
 
 #include <ompl/geometric/planners/rrt/RRT.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -35,8 +38,6 @@
 #include <ompl/geometric/planners/pdst/PDST.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
 
-using namespace robowflex::robow_tesseract;
-
 namespace
 {
     using namespace robowflex::robow_tesseract;
@@ -55,8 +56,9 @@ namespace
     }
 }
 
+using namespace robowflex::robow_tesseract;
 
-OMPLChainPlanner::Settings()
+Settings::Settings()
   : simplify_solutions(true)
   , max_solution_segment_length(0.0)
   , use_continuous_validator(false)
@@ -65,35 +67,45 @@ OMPLChainPlanner::Settings()
 
 void OMPLChainPlanner::registerDefaultPlanners()
 {
-    known_planners_["geometric::RRT"] = std::bind(&allocatePlanner<ompl::geometric::RRT>, _1, _2, _3));
-    known_planners_["geometric::RRTConnect"] = std::bind(&allocatePlanner<ompl::geometric::RRTConnect>, _1, _2, _3));
-    known_planners_["geometric::LazyRRT"] = std::bind(&allocatePlanner<ompl::geometric::LazyRRT>, _1, _2, _3));
-    known_planners_["geometric::RRTstar"] = std::bind(&allocatePlanner<ompl::geometric::RRTstar>, _1, _2, _3));
-    known_planners_["geometric::InformedRRTstar"] = std::bind(&allocatePlanner<ompl::geometric::InformedRRTstar>, _1, _2, _3));
-    known_planners_["geometric::TRRT"] = std::bind(&allocatePlanner<ompl::geometric::TRRT>, _1, _2, _3));
-    known_planners_["geometric::BiTRRT"] = std::bind(&allocatePlanner<ompl::geometric::BiTRRT>, _1, _2, _3));
-    known_planners_["geometric::LBTRRT"] = std::bind(&allocatePlanner<ompl::geometric::LBTRRT>, _1, _2, _3));
-    known_planners_["geometric::LazyLBTRRT"] = std::bind(&allocatePlanner<ompl::geometric::LazyLBTRRT>, _1, _2, _3));
-    known_planners_["geometric::EST"] = std::bind(&allocatePlanner<ompl::geometric::EST>, _1, _2, _3));
-    known_planners_["geometric::ProjEST"] = std::bind(&allocatePlanner<ompl::geometric::ProjEST>, _1, _2, _3));
-    known_planners_["geometric::SBL"] = std::bind(&allocatePlanner<ompl::geometric::SBL>, _1, _2, _3));
-    known_planners_["geometric::KPIECE"] = std::bind(&allocatePlanner<ompl::geometric::KPIECE>, _1, _2, _3));
-    known_planners_["geometric::BKPIECE"] = std::bind(&allocatePlanner<ompl::geometric::BKPIECE>, _1, _2, _3));
-    known_planners_["geometric::LBKPIECE"] = std::bind(&allocatePlanner<ompl::geometric::LBKPIECE>, _1, _2, _3));
-    known_planners_["geometric::PRM"] = std::bind(&allocatePlanner<ompl::geometric::PRM>, _1, _2, _3));
-    known_planners_["geometric::PRMstar"] = std::bind(&allocatePlanner<ompl::geometric::PRMstar>, _1, _2, _3));
-    known_planners_["geometric::LazyPRM"] = std::bind(&allocatePlanner<ompl::geometric::LazyPRM>, _1, _2, _3));
-    known_planners_["geometric::LazyPRMstar"] = std::bind(&allocatePlanner<ompl::geometric::LazyPRMstar>, _1, _2, _3));
-    known_planners_["geometric::SPARS"] = std::bind(&allocatePlanner<ompl::geometric::SPARS>, _1, _2, _3));
-    known_planners_["geometric::SPARStwo"] = std::bind(&allocatePlanner<ompl::geometric::SPARStwo>, _1, _2, _3));
-    known_planners_["geometric::FMT"] = std::bind(&allocatePlanner<ompl::geometric::FMT>, _1, _2, _3));
-    known_planners_["geometric::BFMT"] = std::bind(&allocatePlanner<ompl::geometric::BFMT>, _1, _2, _3));
-    known_planners_["geometric::BITstar"] = std::bind(&allocatePlanner<ompl::geometric::BITstar>, _1, _2, _3));
-    known_planners_["geometric::PDST"] = std::bind(&allocatePlanner<ompl::geometric::PDST>, _1, _2, _3));
-    known_planners_["geometric::STRIDE"] = std::bind(&allocatePlanner<ompl::geometric::STRIDE>, _1, _2, _3));
+  registerPlannerAllocator("geometric::RRT", boost::bind(&allocatePlanner<ompl::geometric::RRT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::RRTConnect",
+                           boost::bind(&allocatePlanner<ompl::geometric::RRTConnect>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LazyRRT", boost::bind(&allocatePlanner<ompl::geometric::LazyRRT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::RRTstar", boost::bind(&allocatePlanner<ompl::geometric::RRTstar>, _1, _2, _3));
+  registerPlannerAllocator("geometric::InformedRRTstar",
+                           boost::bind(&allocatePlanner<ompl::geometric::RRTstar>, _1, _2, _3));
+  registerPlannerAllocator("geometric::TRRT", boost::bind(&allocatePlanner<ompl::geometric::TRRT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::BiTRRT", boost::bind(&allocatePlanner<ompl::geometric::BiTRRT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LBTRRT", boost::bind(&allocatePlanner<ompl::geometric::LBTRRT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LazyLBTRRT", boost::bind(&allocatePlanner<ompl::geometric::LBTRRT>, _1, _2, _3));
+
+  registerPlannerAllocator("geometric::EST", boost::bind(&allocatePlanner<ompl::geometric::EST>, _1, _2, _3));
+  registerPlannerAllocator("geometric::BiEST", boost::bind(&allocatePlanner<ompl::geometric::BiEST>, _1, _2, _3));
+  registerPlannerAllocator("geometric::ProjEST", boost::bind(&allocatePlanner<ompl::geometric::ProjEST>, _1, _2, _3));
+  registerPlannerAllocator("geometric::SBL", boost::bind(&allocatePlanner<ompl::geometric::SBL>, _1, _2, _3));
+
+  registerPlannerAllocator("geometric::KPIECE", boost::bind(&allocatePlanner<ompl::geometric::KPIECE1>, _1, _2, _3));
+  registerPlannerAllocator("geometric::BKPIECE", boost::bind(&allocatePlanner<ompl::geometric::BKPIECE1>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LBKPIECE",
+                           boost::bind(&allocatePlanner<ompl::geometric::LBKPIECE1>, _1, _2, _3));
+
+  registerPlannerAllocator("geometric::PRM", boost::bind(&allocatePlanner<ompl::geometric::PRM>, _1, _2, _3));
+  registerPlannerAllocator("geometric::PRMstar", boost::bind(&allocatePlanner<ompl::geometric::PRMstar>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LazyPRM", boost::bind(&allocatePlanner<ompl::geometric::LazyPRM>, _1, _2, _3));
+  registerPlannerAllocator("geometric::LazyPRMstar",
+                           boost::bind(&allocatePlanner<ompl::geometric::LazyPRMstar>, _1, _2, _3));
+  registerPlannerAllocator("geometric::SPARS", boost::bind(&allocatePlanner<ompl::geometric::SPARS>, _1, _2, _3));
+  registerPlannerAllocator("geometric::SPARStwo", boost::bind(&allocatePlanner<ompl::geometric::SPARStwo>, _1, _2, _3));
+
+  registerPlannerAllocator("geometric::FMT", boost::bind(&allocatePlanner<ompl::geometric::FMT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::BFMT", boost::bind(&allocatePlanner<ompl::geometric::BFMT>, _1, _2, _3));
+  registerPlannerAllocator("geometric::BITstar", boost::bind(&allocatePlanner<ompl::geometric::BITstar>, _1, _2, _3));
+
+  registerPlannerAllocator("geometric::PDST", boost::bind(&allocatePlanner<ompl::geometric::PDST>, _1, _2, _3));
+registerPlannerAllocator("geometric::STRIDE", boost::bind(&allocatePlanner<ompl::geometric::STRIDE>, _1, _2, _3));
 }
 
-bool OMPLChainPlanner::initialize(const std::string &config_file, const OMPLChainPlanner::Settings &settings)
+bool OMPLChainPlanner::initialize(const std::string &config_file, const Settings &settings)
 {
     // TODO: Actually do something with the config file, for now it seems like we have to duplicate all of MoveIt's ompl_interface.
     //if (not OMPL::loadOMPLConfig(handler_, config_file, configs_))
@@ -106,10 +118,9 @@ bool OMPLChainPlanner::initialize(const std::string &config_file, const OMPLChai
     settings_.use_continuous_validator = settings.use_continuous_validator;
 }
 
-planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override
+planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) 
 {
     planning_interface::MotionPlanResponse res;
-    res.group_name = request.group_name;
 
     tesseract::tesseract_ros::KDLEnvPtr env = constructTesseractEnv(scene, getRobot());
 
@@ -119,8 +130,8 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
     // Set the Motion Validator in chain_interface_.
     if (settings_.use_continuous_validator)
     {
-        ompl::base::MotionValidatorPtr mv(new tesseract::tesseract_planning::ContinuousMotionValidator(chain_interface->spaceInformation(), env, request.group_name));
-        chain_interface->setMotionValidator(mv);
+        ompl::base::MotionValidatorPtr mv(new tesseract::tesseract_planning::ContinuousMotionValidator(chain_interface_->spaceInformation(), env, request.group_name));
+        chain_interface_->setMotionValidator(mv);
     }
 
     ompl::base::PlannerPtr planner;
@@ -133,16 +144,15 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
     else
     {
         ROS_ERROR("Unknown planner: '%s'", request.planner_id.c_str());
-        res.error_code = moveit_msgs::MoveItErrorCodes::FAILURE;
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
         return res;
     }
 
     // Get start and goal pos.
     // TODO: somehow handle pose targets, not just config targets.
     robot_state::RobotStatePtr state = robot_->getScratchState(); 
-    moveit::core::robotStateMsgToRobotState(request_.start_state, *state);
+    robot_state::robotStateMsgToRobotState(request.start_state, *state);
     state->update();
-    res.trajectory_start = *state;
     std::vector<double> start_joints; 
     state->copyJointGroupPositions(request.group_name, start_joints);
 
@@ -168,12 +178,12 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
     if (goal_joints.empty())
     {
         ROS_ERROR("We can only handle Joint Goals at the moment. Sorry.");
-        res.error_code = moveit_msgs::MoveItErrorCodes::FAILURE;
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
         return res;
     }
 
     tesseract::tesseract_planning::OmplPlanParameters params;
-    params.planning_time = request.planning_time;
+    params.planning_time = request.allowed_planning_time;
     params.simplify = settings_.simplify_solutions;
 
     // Call plan.
@@ -186,18 +196,18 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
         res.trajectory_.reset(new robot_trajectory::RobotTrajectory(robot_->getModel(), request.group_name));
         for (std::size_t i = 0; i < path.getStateCount(); i++)
         {
-            state->copyJointGroupPositions(request.group_name, path.getState(i)->as<ompl::base::RealVectorStateSpace>()->values);
+            state->copyJointGroupPositions(request.group_name, path.getState(i)->as<ompl::base::RealVectorStateSpace::StateType>()->values);
             state->update();
-            res.trajectory_.addSuffixWayPoint(state, 0.0);
+            res.trajectory_->addSuffixWayPoint(state, 0.0);
         }
-        res.planning_time_  = total_time; 
-        res.error_code = moveit_msgs::MoveItErrorCodes::SUCCESS;
-        return res
+        res.planning_time_  = ompl::time::seconds(total_time); 
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+        return res;
     }
     else
     {
         ROS_WARN("Planning failed");
-        res.error_code = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
         return res;
     }
 }
