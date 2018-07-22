@@ -2,7 +2,7 @@
 
 using namespace robowflex::robow_tesseract;
 
-tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::ScenePtr scene, robowflex::RobotConstPtr robot)
+tesseract::tesseract_ros::KdlEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot)
 {
     moveit_msgs::PlanningScene scene_msg = scene->getMessage();
     tesseract::tesseract_ros::KDLEnvPtr env(new tesseract::tesseract_ros::KDLEnv);
