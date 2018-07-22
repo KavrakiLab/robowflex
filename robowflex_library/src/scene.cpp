@@ -78,7 +78,7 @@ Eigen::Affine3d Scene::getObjectPose(const std::string &name)
     return Eigen::Affine3d::Identity();
 }
 
-Eigen::Affine3d Scene::getFramePose(const std::string &id)
+Eigen::Affine3d Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
     {

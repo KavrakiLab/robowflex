@@ -112,7 +112,7 @@ namespace robowflex
          *  \param[in] id The ID of the frame to look for.
          *  \return Pose of the object, Identity if frame is not present.
          */
-        Eigen::Affine3d getFramePose(const std::string &id);
+        Eigen::Affine3d getFramePose(const std::string &id) const;
 
         /** \brief Attach the named collision object \a name to the default end-effector of the robot.
          *  Only works if there is one end-effector in the system. Uses all end-effector links as allowed
