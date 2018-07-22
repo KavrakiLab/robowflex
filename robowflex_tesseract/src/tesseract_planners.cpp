@@ -37,7 +37,6 @@
 
 using namespace robowflex::robow_tesseract;
 
-
 namespace
 {
     using namespace robowflex::robow_tesseract;
@@ -110,6 +109,7 @@ bool OMPLChainPlanner::initialize(const std::string &config_file, const OMPLChai
 planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override
 {
     planning_interface::MotionPlanResponse res;
+    res.group_name = request.group_name;
 
     tesseract::tesseract_ros::KDLEnvPtr env = constructTesseractEnv(scene, getRobot());
 
@@ -139,8 +139,10 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
 
     // Get start and goal pos.
     // TODO: somehow handle pose targets, not just config targets.
-    robot_state::RobotStatePtr state; // TODO: get this somehow.
+    robot_state::RobotStatePtr state = robot_->getScratchState(); 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *state);
+    state->update();
+    res.trajectory_start = *state;
     std::vector<double> start_joints; 
     state->copyJointGroupPositions(request.group_name, start_joints);
 
@@ -175,15 +177,27 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
     params.simplify = settings_.simplify_solutions;
 
     // Call plan.
+    ompl::time::point start = ompl::time::now();
     auto maybe_path = chain_interface_->plan(planner, start_joints, goal_joints, params);
+    ompl::time::duration total_time = ompl::time::now() - start;
     if (maybe_path)
     {
         const ompl::geometric::PathGeometric& path = *maybe_path;
+        res.trajectory_.reset(new robot_trajectory::RobotTrajectory(robot_->getModel(), request.group_name));
+        for (std::size_t i = 0; i < path.getStateCount(); i++)
+        {
+            state->copyJointGroupPositions(request.group_name, path.getState(i)->as<ompl::base::RealVectorStateSpace>()->values);
+            state->update();
+            res.trajectory_.addSuffixWayPoint(state, 0.0);
+        }
+        res.planning_time_  = total_time; 
+        res.error_code = moveit_msgs::MoveItErrorCodes::SUCCESS;
+        return res
     }
     else
     {
         ROS_WARN("Planning failed");
+        res.error_code = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
+        return res;
     }
-
-
 }
