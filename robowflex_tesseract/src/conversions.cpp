@@ -5,9 +5,9 @@
 #include <tesseract_msgs/AttachableObject.h>
 #include <tesseract_ros/ros_tesseract_utils.h>
 
-using namespace robowflex::robow_tesseract;
+using namespace robowflex;
 
-tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot)
+tesseract::tesseract_ros::KDLEnvPtr robow_tesseract::constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot)
 {
     moveit_msgs::PlanningScene scene_msg = scene->getMessage();
     tesseract::tesseract_ros::KDLEnvPtr env(new tesseract::tesseract_ros::KDLEnv);

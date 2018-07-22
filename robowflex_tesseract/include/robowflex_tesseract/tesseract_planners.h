@@ -35,6 +35,7 @@ namespace robowflex
         class OMPLChainPlanner : public Planner
         {
         public:
+            OMPLChainPlanner(const RobotPtr &robot, const std::string &name = "");
             
             bool initialize(const std::string &config_file, const Settings &settings);
 
@@ -44,6 +45,8 @@ namespace robowflex
             }            
 
             planning_interface::MotionPlanResponse plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
+            
+            const std::vector<std::string> getPlannerConfigs() const override;
 
         protected:
             std::shared_ptr<tesseract::tesseract_planning::ChainOmplInterface> chain_interface_;

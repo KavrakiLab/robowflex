@@ -105,6 +105,10 @@ void OMPLChainPlanner::registerDefaultPlanners()
 registerPlannerAllocator("geometric::STRIDE", boost::bind(&allocatePlanner<ompl::geometric::STRIDE>, _1, _2, _3));
 }
 
+OMPLChainPlanner::OMPLChainPlanner(const RobotPtr &robot, const std::string &name) : Planner(robot, name)
+{
+}
+
 bool OMPLChainPlanner::initialize(const std::string &config_file, const Settings &settings)
 {
     // TODO: Actually do something with the config file, for now it seems like we have to duplicate all of MoveIt's ompl_interface.
@@ -210,4 +214,15 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
         return res;
     }
+}
+            
+const std::vector<std::string> OMPLChainPlanner::getPlannerConfigs() const
+{
+    std::vector<std::string> toReturn;
+    toReturn.reserve(known_planners_.size());
+    for (auto it = known_planners_.begin(); it != known_planners_.end(); it++)
+    {
+        toReturn.push_back(it->first);
+    }
+    return toReturn;
 }

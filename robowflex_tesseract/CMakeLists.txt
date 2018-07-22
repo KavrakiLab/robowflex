@@ -41,6 +41,9 @@ if (tesseract_planning_DIR)
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
+  add_executable(wam7_tesseract_interface scripts/wam7_benchmark.cpp)
+  target_link_libraries(wam7_tesseract_interface ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
   install(TARGETS ${LIBRARY_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

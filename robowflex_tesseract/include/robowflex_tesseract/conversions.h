@@ -13,7 +13,6 @@ namespace robowflex
     namespace robow_tesseract
     {
         tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot);
-
     }
 }
 
