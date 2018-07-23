@@ -193,7 +193,10 @@ const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
     YAML::Node file;
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
+    {
+        ROS_WARN("Input file doesn't exist");
         return std::make_pair(false, file);
+    }
 
     try
     {

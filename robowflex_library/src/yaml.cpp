@@ -39,17 +39,23 @@ namespace
 
     static unsigned int nodeToCollisionObject(const YAML::Node &n)
     {
-        std::string s = n.as<std::string>();
-        std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-
-        if (s == "move")
-            return moveit_msgs::CollisionObject::MOVE;
-        else if (s == "remove")
-            return moveit_msgs::CollisionObject::REMOVE;
-        else if (s == "append")
-            return moveit_msgs::CollisionObject::APPEND;
+        int i = n.as<int>();
+        if (i == 0)
+            return moveit_msgs::CollisionObject::ADD;
         else
             return moveit_msgs::CollisionObject::ADD;
+
+        //std::string s = n.as<std::string>();
+        //std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+        //if (s == "move")
+        //    return moveit_msgs::CollisionObject::MOVE;
+        //else if (s == "remove")
+        //    return moveit_msgs::CollisionObject::REMOVE;
+        //else if (s == "append")
+        //    return moveit_msgs::CollisionObject::APPEND;
+        //else
+        //    return moveit_msgs::CollisionObject::ADD;
     }
 
     static const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
@@ -293,8 +299,8 @@ namespace YAML
 
         if (!rhs.stamp.isZero())
         {
-            node["stamp"]["sec"] = rhs.stamp.sec;
-            node["stamp"]["nsec"] = rhs.stamp.nsec;
+            node["stamp"]["secs"] = rhs.stamp.sec;
+            node["stamp"]["nsecs"] = rhs.stamp.nsec;
         }
 
         if (rhs.frame_id != "world")
@@ -313,8 +319,8 @@ namespace YAML
 
         if (node["stamp"])
         {
-            rhs.stamp.sec = node["stamp"]["sec"].as<int>();
-            rhs.stamp.nsec = node["stamp"]["nsec"].as<int>();
+            rhs.stamp.sec = node["stamp"]["secs"].as<int>();
+            rhs.stamp.nsec = node["stamp"]["nsecs"].as<int>();
         }
 
         if (node["frame_id"])

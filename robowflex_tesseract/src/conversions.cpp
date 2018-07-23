@@ -30,6 +30,9 @@ tesseract::tesseract_ros::KDLEnvPtr robow_tesseract::constructTesseractEnv(robow
         {
             obj.visual.primitives.push_back(primitive);
             obj.collision.primitives.push_back(primitive);
+            std_msgs::Int32 cot;
+            cot.data = tesseract::CollisionObjectTypes::CollisionObjectType::UseShapeType;
+            obj.collision.primitive_collision_object_types.push_back(cot);
         }
         for (shape_msgs::Mesh mesh : collision_object.meshes)
         {
@@ -80,6 +83,9 @@ tesseract::tesseract_ros::KDLEnvPtr robow_tesseract::constructTesseractEnv(robow
             attached_body.transform = 
                     scene->getFramePose(collision_object.header.frame_id) *
                     scene->getFramePose("base_link").inverse();
+            std::cerr << attached_body.transform.rotation() << std::endl;
+            std::cerr << "Above: rotation. Below, translation:" << std::endl;
+            std::cerr << attached_body.transform.translation() << std::endl;
         }
 
         env->attachBody(attached_body);

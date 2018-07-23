@@ -1,0 +1,183 @@
+name: "(noname)++++++++"
+robot_state: 
+  joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    name: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+  wrist_3_joint]
+    position: [-0.2764601532000004, -0.4435928821799999, 0.7162831242000003, 0.6697875529799999, 0.0, 0.0]
+    velocity: []
+    effort: []
+  multi_dof_joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    joint_names: []
+    transforms: []
+    twist: []
+    wrench: []
+  attached_collision_objects: []
+  is_diff: False
+robot_model_name: "ur5"
+fixed_frame_transforms: 
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    child_frame_id: "/world"
+    transform: 
+      translation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+allowed_collision_matrix: 
+  entry_names: [base_link, ee_link, forearm_link, shoulder_link, upper_arm_link, wrist_1_link, wrist_2_link,
+  wrist_3_link]
+  entry_values: 
+    - 
+      enabled: [False, False, False, True, False, False, False, False]
+    - 
+      enabled: [False, False, False, False, False, True, True, True]
+    - 
+      enabled: [False, False, False, False, True, True, False, False]
+    - 
+      enabled: [True, False, False, False, True, False, False, False]
+    - 
+      enabled: [False, False, True, True, False, False, False, False]
+    - 
+      enabled: [False, True, True, False, False, False, True, True]
+    - 
+      enabled: [False, True, False, False, False, True, False, True]
+    - 
+      enabled: [False, True, False, False, False, True, True, False]
+  default_entry_names: []
+  default_entry_values: []
+link_padding: 
+  - 
+    link_name: "base_link"
+    padding: 0.0
+  - 
+    link_name: "ee_link"
+    padding: 0.0
+  - 
+    link_name: "forearm_link"
+    padding: 0.0
+  - 
+    link_name: "shoulder_link"
+    padding: 0.0
+  - 
+    link_name: "upper_arm_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_1_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_2_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_3_link"
+    padding: 0.0
+link_scale: 
+  - 
+    link_name: "base_link"
+    scale: 1.0
+  - 
+    link_name: "ee_link"
+    scale: 1.0
+  - 
+    link_name: "forearm_link"
+    scale: 1.0
+  - 
+    link_name: "shoulder_link"
+    scale: 1.0
+  - 
+    link_name: "upper_arm_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_1_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_2_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_3_link"
+    scale: 1.0
+object_colors: []
+world: 
+  collision_objects: 
+    - 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: "/world"
+      id: "column1"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - 
+          type: 1
+          dimensions: [0.3, 0.3, 0.3]
+      primitive_poses: 
+        - 
+          position: 
+            x: 0.5
+            y: 0.0
+            z: 0.0
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0
+  octomap: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    origin: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    octomap: 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: ''
+      binary: False
+      id: ''
+      resolution: 0.0
+      data: []
+is_diff: True
+---
