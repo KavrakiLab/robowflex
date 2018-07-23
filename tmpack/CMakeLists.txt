@@ -4,7 +4,7 @@ project(tmpack)
 set(CMAKE_MODULE_PATH
   "${CMAKE_MODULE_PATH}"
   "${CMAKE_ROOT_DIR}/cmake/Modules"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../CMakeModules")
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 add_compile_options(-std=c++11)
 
