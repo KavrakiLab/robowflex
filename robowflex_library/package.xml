@@ -13,6 +13,8 @@
   <depend>roscpp</depend>
   <depend>rosbag</depend>
   <depend>yaml-cpp</depend>
+  <depend>hdf5</depend>
+  <depend>tinyxml2</depend>
   <depend>geometric_shapes</depend>
   <depend>eigen_conversions</depend>
   <depend>eigen</depend>

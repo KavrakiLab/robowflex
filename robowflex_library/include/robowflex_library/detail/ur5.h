@@ -3,7 +3,6 @@
 #ifndef ROBOWFLEX_UR5_
 #define ROBOWFLEX_UR5_
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
 

@@ -3,6 +3,11 @@ project(robowflex_ompl)
 
 set(LIBRARY_NAME robowflex_ompl)
 
+set(CMAKE_MODULE_PATH
+  "${CMAKE_MODULE_PATH}"
+  "${CMAKE_ROOT_DIR}/cmake/Modules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+
 add_compile_options(-std=c++11)
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)

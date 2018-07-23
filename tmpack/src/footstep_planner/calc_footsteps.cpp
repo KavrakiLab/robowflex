@@ -12,6 +12,8 @@
 #include "utils/geom_2D.h"
 #include "utils/util.h"
 
+#define BIG_NUM 1000000000
+
 namespace footstep_planning
 {
     DEFINE_double(walk_centroid, 40 * 2.54, "The (scaled) \"optimal\" step distance.");
@@ -19,7 +21,7 @@ namespace footstep_planning
     DEFINE_double(step_qual_weight, 1.0, "The weight to give step quality when building the graph.");
     DEFINE_double(num_step_weight, 1000.0, "The weight to give the number of steps when building the graph.");
 
-    DEFINE_double(yaw_range, M_PI / 4,
+    DEFINE_double(yaw_range, M_PI / 2,
                   "The max angular distance the feet can be placed from the "
                   "torso's yaw angle.");
 
@@ -55,7 +57,7 @@ namespace footstep_planning
     {
         return (FLAGS_walk_centroid - dist(p1, p2)) * (FLAGS_walk_centroid - dist(p1, p2)) *
                    FLAGS_step_qual_weight +
-               1.0 * FLAGS_num_step_weight + (dist(p1, p2) > FLAGS_step_max_dist ? 1000000000 : 0);
+               1.0 * FLAGS_num_step_weight + (dist(p1, p2) > FLAGS_step_max_dist ? BIG_NUM : 0);
     }
     // Vertex i cooresponds to point(i)
     // try to prevent rotating feet
@@ -65,15 +67,18 @@ namespace footstep_planning
     struct torsoFootPlacementComparator
     {
         const point_2D &torso_pose;
-        bool operator()(point_2D i, point_2D j)
+        bool operator()(std::pair<point_2D, point_2D> i, std::pair<point_2D, point_2D> j)
         {
             return torsoFootPlacementEval(i) < torsoFootPlacementEval(j);
         }
 
-        double torsoFootPlacementEval(point_2D i)
+        //TODO: Evaluate the angle when choosing feet placements
+        double torsoFootPlacementEval(std::pair<point_2D, point_2D> i)
         {
-            return (dist(i, torso_pose) - FLAGS_step_max_dist / 2) *
-                   (dist(i, torso_pose) - FLAGS_step_max_dist / 2);
+            return (dist(i.first, torso_pose) - FLAGS_step_max_dist / 2) *
+                       (dist(i.first, torso_pose) - FLAGS_step_max_dist / 2) +
+                   (dist(i.second, torso_pose) - FLAGS_step_max_dist / 2) *
+                       (dist(i.second, torso_pose) - FLAGS_step_max_dist / 2);
         }
 
         torsoFootPlacementComparator(const point_2D &torso_pose) : torso_pose(torso_pose)
@@ -81,10 +86,10 @@ namespace footstep_planning
         }
     };
 
-    // Returns the indices of the points that should be used with
-    // the given torso location
-    std::vector<point_2D> getFootPlacementsFromTorsoPose(std::vector<point_2D> points, point_2D torso_point,
-                                                         double torso_yaw)
+    // Returns sorted vector of pairs of points. Pairs are given as <left, right>
+    std::vector<std::pair<point_2D, point_2D>> getFootPlacementsFromTorsoPose(std::vector<point_2D> points,
+                                                                              point_2D torso_point,
+                                                                              double torso_yaw)
     {
         std::vector<point_2D> right_points;
         std::vector<point_2D> left_points;
@@ -110,41 +115,25 @@ namespace footstep_planning
         std::cout << "number of left points: " << left_points.size() << std::endl;
         std::cout << "number of right points: " << right_points.size() << std::endl;
 
-        torsoFootPlacementComparator myComparator(torso_point);
-        std::vector<point_2D> return_points;
+        std::vector<std::pair<point_2D, point_2D>> combined_points;
 
-        double best_pair_score = 1000000000;
-        point_2D left_point(0, 0);
-        point_2D right_point(0, 0);
-
-        for (auto p1 : right_points)
+        for (auto r : right_points)
         {
-            for (auto p2 : left_points)
+            for (auto l : left_points)
             {
-                if (myComparator.torsoFootPlacementEval(p1) + myComparator.torsoFootPlacementEval(p2) <
-                    best_pair_score)
-                {
-                    best_pair_score =
-                        myComparator.torsoFootPlacementEval(p1) + myComparator.torsoFootPlacementEval(p2);
-                    left_point = p2;
-                    right_point = p1;
-                }
+                combined_points.push_back(std::make_pair(l, r));
             }
         }
 
-        std::cout << left_point << std::endl;
-        std::cout << right_point << std::endl;
+        torsoFootPlacementComparator myComparator(torso_point);
+        std::sort(combined_points.begin(), combined_points.end(), myComparator);
 
-        return_points.push_back(left_point);
-        return_points.push_back(right_point);
-
-        return return_points;
+        return combined_points;
     }
 
     class FootstepPlanner
     {
-        Graph g;
-
+    public:
         Graph foot_graph;
 
     public:
@@ -158,10 +147,11 @@ namespace footstep_planning
                     {
                         point_2D p = points[i];
                         point_2D p2 = points[j];
-                        boost::add_edge(i, j, eval_step(p, p2, foot::left, 0), g);
-
-                        boost::add_edge(2 * i, 2 * j + 1, eval_step(p, p2, foot::left, 0), foot_graph);
-                        boost::add_edge(2 * i + 1, 2 * j, eval_step(p, p2, foot::left, 0), foot_graph);
+                        if (eval_step(p, p2, foot::left, 0) < BIG_NUM)
+                        {
+                            boost::add_edge(2 * i, 2 * j + 1, eval_step(p, p2, foot::left, 0), foot_graph);
+                            boost::add_edge(2 * i + 1, 2 * j, eval_step(p, p2, foot::left, 0), foot_graph);
+                        }
                     }
                 }
             }
@@ -170,46 +160,58 @@ namespace footstep_planning
         // From the torso pose we can back out pairs of foot placements
         // that may work. We know which foot we start with and we use end_foot
         // to ensure we finish facing the correct direction.
-        std::vector<point_2D> calculateFootPlacementsForTorso(std::vector<point_2D> points, point_2D start,
-                                                              point_2D torso_goal_point,
-                                                              double torso_goal_yaw, foot start_foot)
+        std::vector<std::vector<point_2D>> calculateFootPlacementsForTorso(std::vector<point_2D> points,
+                                                                           point_2D start,
+                                                                           point_2D torso_goal_point,
+                                                                           double torso_goal_yaw,
+                                                                           foot start_foot)
         {
-            std::vector<point_2D> final_feet_placements =
+            std::vector<std::vector<point_2D>> walks;
+
+            std::vector<std::pair<point_2D, point_2D>> final_feet_placements =
                 getFootPlacementsFromTorsoPose(points, torso_goal_point, torso_goal_yaw);
 
-            std::vector<point_2D> seq1 =
-                calculateFootPlacements(points, start, final_feet_placements[0], start_foot, !start_foot);
-            std::vector<point_2D> seq2 =
-                calculateFootPlacements(points, start, final_feet_placements[1], start_foot, !start_foot);
-            std::cout << "seq1: " << seq1.size() << std::endl;
-            std::cout << "seq2: " << seq2.size() << std::endl;
-
-            if (seq1.size() < seq2.size())
+            for (auto p : final_feet_placements)
             {
-                seq1.push_back(final_feet_placements[1]);
+                // Each pair is <left_index, right_index>
+                std::vector<point_2D> seq1 =
+                    calculateFootPlacements(points, start, p.first, start_foot, foot::left);
+                std::vector<point_2D> seq2 =
+                    calculateFootPlacements(points, start, p.second, start_foot, foot::right);
+                std::cout << "seq1: " << seq1.size() << std::endl;
+                std::cout << "seq2: " << seq2.size() << std::endl;
+                walks.push_back(seq1);
+                walks.push_back(seq2);
+            }
+
+            // Each pair is <left_index, right_index>
+            std::vector<std::vector<point_2D>> seq1;
+            seq1.push_back(calculateFootPlacements(points, start, final_feet_placements[0].first, start_foot,
+                                                   foot::left));
+            std::vector<std::vector<point_2D>> seq2;
+            seq2.push_back(calculateFootPlacements(points, start, final_feet_placements[0].second, start_foot,
+                                                   foot::right));
+            std::cout << "seq1: " << seq1[0].size() << std::endl;
+            std::cout << "seq2: " << seq2[0].size() << std::endl;
+
+            // finish the shorter walk by taking the step to the other point
+            if (seq1[0].size() < seq2[0].size())
+            {
+                seq1[0].push_back(final_feet_placements[0].second);
                 return seq1;
             }
             else
             {
-                seq2.push_back(final_feet_placements[0]);
+                seq2[0].push_back(final_feet_placements[0].first);
                 return seq2;
             }
         }
 
-        std::vector<point_2D> calculateFootPlacements(std::vector<point_2D> points, point_2D start,
-                                                      point_2D goal, foot start_foot, foot end_foot)
+        // returns pair of indices: <start_index, goal_index>
+        std::pair<size_t, size_t> getStartAndGoalIndices(std::vector<point_2D> points, point_2D start,
+                                                         point_2D goal, foot start_foot, foot end_foot)
         {
-            if (boost::num_edges(g) == 0)
-            {
-                std::cout << "The graph has no edges. Did you forget to call buildGraph?" << std::endl;
-
-                buildGraph(points);
-            }
-
-            std::vector<point_2D> foot_steps;
-
-            // Find the indicies of the start and goal points
-            int startI, goalI;
+            size_t startI, goalI;
             for (size_t i = 0; i < points.size(); i++)
             {
                 if (points[i] == start)
@@ -217,8 +219,6 @@ namespace footstep_planning
                 if (points[i] == goal)
                     goalI = i;
             }
-
-            foot_steps.clear();
 
             if (start_foot == foot::left)
             {
@@ -238,6 +238,23 @@ namespace footstep_planning
                 goalI = 2 * goalI + 1;
             }
 
+            return std::make_pair(startI, goalI);
+        }
+
+        std::vector<point_2D> calculateFootPlacements(std::vector<point_2D> points, point_2D start,
+                                                      point_2D goal, foot start_foot, foot end_foot)
+        {
+            if (boost::num_edges(foot_graph) == 0)
+            {
+                std::cout << "The graph has no edges. Did you forget to call buildGraph?" << std::endl;
+                buildGraph(points);
+            }
+
+            std::pair<size_t, size_t> start_and_goal =
+                getStartAndGoalIndices(points, start, goal, start_foot, end_foot);
+            size_t startI = start_and_goal.first;
+            size_t goalI = start_and_goal.second;
+
             // Run Djikstra on our weighted graph to find the optimal foot
             // placements
             std::vector<int> d(num_vertices(foot_graph));
@@ -247,6 +264,7 @@ namespace footstep_planning
             boost::dijkstra_shortest_paths(
                 foot_graph, startI, boost::distance_map(&d[0]).visitor(make_predecessor_recorder(&p[0])));
 
+            std::vector<point_2D> foot_steps;
             // walk up the tree to get our path
             int vi = goalI;
             while (vi != startI)

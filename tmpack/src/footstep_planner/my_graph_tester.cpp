@@ -1,16 +1,20 @@
-#ifndef ROBOWFLEX_MY_WALKER_CPP
-#define ROBOWFLEX_MY_WALKER_CPP
+#ifndef ROBOWFLEX_MY_GRAPH_TESTER_CPP
+#define ROBOWFLEX_MY_GRAPH_TESTER_CPP
 
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/io/visualization.h>
 #include <random>
 #include <vector>
 
+#include <algorithm>
+#include <utility>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+
 #include "../tmpack_interface.cpp"
 #include "utils/util.h"
 #include "utils/geom_2D.h"
 #include "calc_footsteps.cpp"
-
 
 namespace robowflex
 {
@@ -24,20 +28,18 @@ namespace robowflex
     // want to get feedback on how the motion planner did
 
     // parses PDDL and solves
-    class MyWalker : public TMPackInterface
+    class MyGraphTester : public TMPackInterface
     {
         // Domain semantics are implemented by using callbacks in the getTaskPlan
         // and planLinearly functions
-        class MyWalkerConstraintHelper : public TMPConstraintHelper
+        class MyGraphTesterConstraintHelper : public TMPConstraintHelper
         {
             bool last_foot_left = true;
             // std::vector<std::vector<double>> my_foot_placements;
             // size_t op_index = 0;
 
-            std::vector<std::vector<footstep_planning::point_2D>> my_possible_plans;
-
         public:
-            MyWalkerConstraintHelper(){};
+            MyGraphTesterConstraintHelper(){};
             void _getTaskPlan_Callback()
             {
                 last_foot_left = true;
@@ -45,7 +47,6 @@ namespace robowflex
 
             void _getTaskPlan_Callback(std::vector<std::vector<footstep_planning::point_2D>> possible_plans)
             {
-                my_possible_plans = possible_plans;
                 last_foot_left = true;
             }
 
@@ -116,10 +117,10 @@ namespace robowflex
 
         } my_constraint_helper;
 
-        class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
+        class MyGraphTesterSceneGraphHelper : public TMPSceneGraphHelper
         {
         public:
-            MyWalkerSceneGraphHelper(){};
+            MyGraphTesterSceneGraphHelper(){};
             void _getTaskPlan_Callback()
             {
                 // do nothing
@@ -138,13 +139,15 @@ namespace robowflex
             std::uniform_real_distribution<double>(-100, 100);
         std::default_random_engine rand_eng_;
 
+        size_t edge_index = 0;
+
         // returns vector of joint poses
-        // the goal is to not have to build the motion requests by hand every time
-        // TMP has a common pattern of using the last goal as the new start
-        // However, we need a way to pass in new constraints for each step
-        // For example, in walking the constraints cause the alternating legs to stay still
+        // Since we are testing the graph this should loop through the edges and
+        // return one step each time. We need to test left and right foot steps.
         std::vector<std::vector<double>> getTaskPlan()
         {
+            std::cout << "Getting task plan within my graph tester" << std::endl;
+
             std::vector<std::vector<double>> my_plan;
 
             // is this good style? The superclass has a reference to these
@@ -165,6 +168,49 @@ namespace robowflex
             std::cout << "Torso pose: < " << rand_x << ", " << rand_y << " >" << std::endl;
 
             std::cout << "Foot placements: " << std::endl;
+
+            // Return a step for each edge
+
+            // Run Djikstra on our weighted graph to find the optimal foot
+            // placements
+            // std::vector<int> d(num_vertices(my_step_planner.foot_graph));
+            // std::vector<footstep_planning::Vertex> p(boost::num_vertices(my_step_planner.foot_graph),
+            //                       boost::graph_traits<footstep_planning::Graph>::null_vertex());  // the
+            //                       predecessor
+            //                                                                    // array
+            // boost::dijkstra_shortest_paths(
+            //     my_step_planner.foot_graph, 0,
+            //     boost::distance_map(&d[0]).visitor(footstep_planning::make_predecessor_recorder(&p[0])));
+
+            // std::cout << "parents in the tree of shortest paths:" << std::endl;
+            // for(auto vi = vertices(my_step_planner.foot_graph).first; vi !=
+            // vertices(my_step_planner.foot_graph).second; ++vi) {
+            //     std::cout << "parent(" << *vi;
+            //     if (p[*vi] == boost::graph_traits<footstep_planning::Graph>::null_vertex())
+            //       std::cout << ") = no parent" << std::endl;
+            //     else
+            //       std::cout << ") = " << p[*vi] << std::endl;
+            // }
+
+            size_t edge_count = 0;
+            for (auto vi = vertices(my_step_planner.foot_graph).first;
+                 vi != vertices(my_step_planner.foot_graph).second; ++vi)
+            {
+                for (auto ui = vertices(my_step_planner.foot_graph).first;
+                     ui != vertices(my_step_planner.foot_graph).second; ++ui)
+                {
+                    std::pair<footstep_planning::Edge, bool> ed =
+                        boost::edge(*vi, *ui, my_step_planner.foot_graph);
+                    if (ed.second)
+                    {
+                        auto c = boost::get(boost::edge_weight_t(), my_step_planner.foot_graph, ed.first);
+                        std::cout << "Edge: " << c << "< " << *vi << ", " << *ui << " >" << std::endl;
+                        edge_count++;
+                    }
+                }
+            }
+            std::cout << "Edge count: " << edge_count << std::endl;
+
             for (footstep_planning::point_2D p : foot_placements)
             {
                 std::cout << p << std::endl;
@@ -196,7 +242,6 @@ namespace robowflex
                                                          next_start_joint_positions);
                 scene_graph_helper._planLinearly_Callback(request, goal_conf);
 
-                // request->setConfig("CBiRRT2");
                 for (size_t step_attempts = 0; step_attempts < MAX_STEP_ATTEMPTS; step_attempts++)
                 {
                     request->setStartConfiguration(robot->getScratchState());
@@ -219,7 +264,6 @@ namespace robowflex
                     {  // We always want to have some response
                         responses.push_back(response);
                     }
-                    // request->setConfig("PRM");
                 }
                 // stop once a motion fails
                 if (responses.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -236,19 +280,14 @@ namespace robowflex
         std::vector<double> goal_pose;
 
         // Loads the scene description and creates the graph we will use for planning
-        MyWalker(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
-                 ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper &rviz_helper)
+        MyGraphTester(RobotPtr robot, const std::string &group_name, OMPL::OMPLPipelinePlannerPtr planner,
+                      ScenePtr scene, MotionRequestBuilderPtr request, IO::RVIZHelper &rviz_helper)
           : TMPackInterface(robot, group_name, planner, scene, request, my_constraint_helper,
                             my_scene_graph_helper, rviz_helper)
         {
             std::vector<footstep_planning::line_segment> line_segments;
             std::vector<std::string> line_names;
-
-            std::string user_name = getenv("USER");
-
-//std::string("/home/")+std::string(user_name)+std::string("/r2_ws/src/robowflex/tmpack/src/footstep_planner/scenes/iss.txt")
-
-            footstep_planning::loadScene(IO::resolvePath("package://tmpack/scenes/iss.txt"),
+            footstep_planning::loadScene("/home/awells/Development/nasa_footstep_planning/scenes/iss.txt",
                                          &line_segments, &line_names);
             // we only use the end points and the centers
             for (size_t i = 0; i < line_segments.size(); i++)
@@ -265,6 +304,7 @@ namespace robowflex
 
         std::vector<planning_interface::MotionPlanResponse> plan() override
         {
+            std::cout << "planning within my graph tester" << std::endl;
             std::vector<std::vector<double>> goals = getTaskPlan();
             std::vector<planning_interface::MotionPlanResponse> res = planUsingFeedback(goals);
             if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
