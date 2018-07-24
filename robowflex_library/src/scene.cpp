@@ -71,7 +71,7 @@ namespace robowflex
                 if (plugin)
                     return plugin->initialize(scene, exclusive);
             }
-            else if (it->second
+            else if (it->second)
                 return it->second->initialize(scene, exclusive);
 
             return false;
