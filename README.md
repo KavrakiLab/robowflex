@@ -10,5 +10,16 @@ Documentation is automatically generated using [Doxygen](http://www.stack.nl/~di
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
 See `robowflex_visualization/README.md` for more information on how to use.
 
+## robowflex_ompl
+An optionally compiled library component that adds more direct access to [OMPL](http://ompl.kavrakilab.org/) through a new `robowflex::Planner`.
+Requires [`moveit_planners_ompl`](https://github.com/ros-planning/moveit/tree/kinetic-devel/moveit_planners/ompl), from [_MoveIt!_](https://github.com/ros-planning/moveit).
+Some basic examples of how to use the new planner are in `robowflex_ompl/scripts`.
+
+## robowflex_tesseract
+An optionally compiled library component that adds support for [tesseract](https://github.com/ros-industrial-consortium/tesseract)-based planners.
+Currently, only [OMPL](http://ompl.kavrakilab.org/)-based planning is available.
+Requires both [tesseract](https://github.com/ros-industrial-consortium/tesseract) and [trajopt](https://github.com/ros-industrial-consortium/trajopt_ros).
+Some basic examples of how to use the new planner(s) are in `robowflex_tesseract/scripts`.
+
 ## tmpack
-Task and motion planning using `robowflex_library` as the motion planning layer.
+Task and motion planning using `robowflex` as the motion planning layer.
