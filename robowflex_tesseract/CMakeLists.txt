@@ -47,6 +47,9 @@ if (tesseract_planning_DIR)
   add_executable(ur5_tesseract scripts/ur5_tesseract.cpp)
   target_link_libraries(ur5_tesseract ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
+  add_executable(ur_env_test test/ur_test_env_placement.cpp)
+  target_link_libraries(ur_env_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
+
   install(TARGETS ${LIBRARY_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
