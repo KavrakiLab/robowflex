@@ -39,23 +39,38 @@ namespace
 
     static unsigned int nodeToCollisionObject(const YAML::Node &n)
     {
-        int i = n.as<int>();
-        if (i == 0)
-            return moveit_msgs::CollisionObject::ADD;
-        else
-            return moveit_msgs::CollisionObject::ADD;
+        try 
+        {
+            std::string s = n.as<std::string>();
+            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 
-        //std::string s = n.as<std::string>();
-        //std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-
-        //if (s == "move")
-        //    return moveit_msgs::CollisionObject::MOVE;
-        //else if (s == "remove")
-        //    return moveit_msgs::CollisionObject::REMOVE;
-        //else if (s == "append")
-        //    return moveit_msgs::CollisionObject::APPEND;
-        //else
-        //    return moveit_msgs::CollisionObject::ADD;
+            if (s == "move")
+                return moveit_msgs::CollisionObject::MOVE;
+            else if (s == "remove")
+                return moveit_msgs::CollisionObject::REMOVE;
+            else if (s == "append")
+                return moveit_msgs::CollisionObject::APPEND;
+            else
+                return moveit_msgs::CollisionObject::ADD;
+        }
+        catch (const YAML::BadConversion& e)
+        {
+            // Sometimes it is specified as the int.
+            int op = n.as<int>();
+            switch(op)
+            {
+                case 0:
+                    return moveit_msgs::CollisionObject::ADD;
+                case 1:
+                    return moveit_msgs::CollisionObject::REMOVE;
+                case 2:
+                    return moveit_msgs::CollisionObject::APPEND;
+                case 3:
+                    return moveit_msgs::CollisionObject::MOVE;
+                default:
+                    return moveit_msgs::CollisionObject::ADD;
+            }
+        }
     }
 
     static const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)

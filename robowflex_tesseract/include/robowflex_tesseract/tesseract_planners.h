@@ -18,6 +18,7 @@ namespace robowflex
     namespace robow_tesseract
     {
 
+        /** \brief A function than creates a new OMPL planner. Shamelessly inspired from MoveIt's OMPL plugin. */
         typedef std::function<ompl::base::PlannerPtr(const ompl::base::SpaceInformationPtr &si, const std::string&name, const std::map<std::string, std::string>& map)>  ConfiguredPlannerAllocator;
 
         class Settings
@@ -32,6 +33,8 @@ namespace robowflex
             bool use_continuous_validator;    ///< Uses TrajOpt's continuous convex hull collision checking.
         };
 
+        /** \brief A light wrapper over tesseract's ChainOMPLPlanner
+         */
         class OMPLChainPlanner : public Planner
         {
         public:
@@ -44,6 +47,9 @@ namespace robowflex
                 known_planners_[planner_id] = pa;
             }            
 
+            /** \brief Plans using the given scene and planning request
+             *  Each time this is called, a new tesseract scene is created.
+             */
             planning_interface::MotionPlanResponse plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
             
             const std::vector<std::string> getPlannerConfigs() const override;
