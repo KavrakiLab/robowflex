@@ -3,12 +3,17 @@
 #ifndef ROBOWFLEX_TESSERACT_CONVERSIONS_
 #define ROBOWFLEX_TESSERACT_CONVERSIONS_
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/macros.h>
+
 #include <tesseract_ros/kdl/kdl_env.h>
-#include <moveit_msgs/PlanningScene.h>
 
 namespace robowflex
 {
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Robot);
+    /** \endcond */
+
     namespace hypercube
     {
         tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene,

@@ -1,10 +1,5 @@
 /* Author: Bryce Willey */
 
-#include <robowflex_tesseract/tesseract_planners.h>
-#include <robowflex_tesseract/conversions.h>
-#include <tesseract_planning/ompl/continuous_motion_validator.h>
-#include <moveit/robot_state/conversions.h>
-
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 
 #include <ompl/geometric/planners/rrt/RRT.h>
@@ -39,6 +34,16 @@
 
 #include <ompl/geometric/planners/pdst/PDST.h>
 #include <ompl/geometric/planners/stride/STRIDE.h>
+
+#include <robowflex_library/scene.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/planning.h>
+
+#include <robowflex_tesseract/tesseract_planners.h>
+#include <robowflex_tesseract/conversions.h>
+
+#include <tesseract_planning/ompl/continuous_motion_validator.h>
+#include <moveit/robot_state/conversions.h>
 
 using namespace robowflex::hypercube;
 

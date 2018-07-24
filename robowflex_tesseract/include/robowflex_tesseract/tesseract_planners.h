@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_TESSERACT_PLANNERS_
 #define ROBOWFLEX_TESSERACT_PLANNERS_
 
-#include <robowflex_library/robowflex.h>
+#include <robowflex_library/macros.h>
 
 #include <tesseract_planning/basic_planner.h>
 #include <tesseract_planning/ompl/chain_ompl_interface.h>
@@ -11,10 +11,14 @@
 #include <moveit/planning_interface/planning_request.h>
 #include <moveit/planning_interface/planning_response.h>
 
-#include <moveit/ompl_interface/model_based_planning_context.h>
-
 namespace robowflex
 {
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Robot);
+    ROBOWFLEX_CLASS_FORWARD(Planner);
+    /** \endcond */
+
     namespace hypercube
     {
         /** \brief A function than creates a new OMPL planner. Shamelessly inspired from MoveIt's OMPL plugin.
