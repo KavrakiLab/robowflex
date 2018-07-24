@@ -4,6 +4,7 @@
 #define ROBOWFLEX_TESSERACT_PLANNERS_
 
 #include <robowflex_library/macros.h>
+#include <robowflex_library/planning.h>
 
 #include <tesseract_planning/basic_planner.h>
 #include <tesseract_planning/ompl/chain_ompl_interface.h>
