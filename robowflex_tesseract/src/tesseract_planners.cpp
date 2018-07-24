@@ -5,6 +5,8 @@
 #include <tesseract_planning/ompl/continuous_motion_validator.h>
 #include <moveit/robot_state/conversions.h>
 
+#include <ompl/base/spaces/RealVectorStateSpace.h>
+
 #include <ompl/geometric/planners/rrt/RRT.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 #include <ompl/geometric/planners/rrt/LazyRRT.h>
