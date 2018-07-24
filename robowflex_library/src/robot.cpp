@@ -3,6 +3,8 @@
 #include <deque>
 #include <numeric>
 
+#include <urdf_parser/urdf_parser.h>
+
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_state/conversions.h>
 #include <moveit/collision_detection/collision_common.h>
@@ -33,6 +35,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
 
     loadRobotModel();
+
     return true;
 }
 
@@ -222,6 +225,16 @@ const robot_model::RobotModelPtr &Robot::getModelConst() const
 robot_model::RobotModelPtr &Robot::getModel()
 {
     return model_;
+}
+
+const urdf::ModelInterfaceSharedPtr &Robot::getURDF() const
+{
+    return model_->getURDF();
+}
+
+const srdf::ModelConstSharedPtr &Robot::getSRDF() const
+{
+    return model_->getSRDF();
 }
 
 const robot_model::RobotStatePtr &Robot::getScratchState() const

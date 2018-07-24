@@ -10,6 +10,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <urdf/model.h>
+#include <srdfdom/model.h>
 #include <tinyxml2.h>
 
 #include <moveit/robot_model/robot_model.h>
@@ -156,6 +158,16 @@ namespace robowflex
          *  \return The robot model.
          */
         robot_model::RobotModelPtr &getModel();
+
+        /** \brief Get the raw URDF Model.
+         *  \return The URDF Model.
+         */
+        const urdf::ModelInterfaceSharedPtr &getURDF() const;
+
+        /** \brief Get the raw SRDF Model.
+         *  \return The SRDF model.
+         */
+        const srdf::ModelConstSharedPtr &getSRDF() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.

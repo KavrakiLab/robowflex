@@ -1,0 +1,58 @@
+robot_state: 
+  joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    name: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+  wrist_3_joint]
+    position: [-0.2764601532000004, -0.4435928821799999, 0.7162831242000003, 0.6697875529799999, 0.0, 0.0]
+    velocity: []
+    effort: []
+  multi_dof_joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    joint_names: []
+    transforms: []
+    twist: []
+    wrench: []
+  attached_collision_objects: []
+  is_diff: False
+robot_model_name: "ur5"
+world: 
+  collision_objects: 
+    - header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs: 0
+        frame_id: "/world"
+      id: "column1"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - type: 1
+          dimensions: [0.3, 0.3, 0.3]
+      primitive_poses: 
+        - 
+          position: 
+            x: 0.5
+            y: 0.0
+            z: 0.0
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0

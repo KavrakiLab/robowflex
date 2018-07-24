@@ -78,6 +78,15 @@ Eigen::Affine3d Scene::getObjectPose(const std::string &name)
     return Eigen::Affine3d::Identity();
 }
 
+Eigen::Affine3d Scene::getFramePose(const std::string &id) const
+{
+    if (not scene_->knowsFrameTransform(id))
+    {
+        ROS_WARN("Frame %s in not present in the scene!", id.c_str());
+    }
+    return scene_->getFrameTransform(id);
+}
+
 bool Scene::attachObject(const std::string &name)
 {
     const auto &robot = scene_->getCurrentState().getRobotModel();
