@@ -202,6 +202,7 @@ planning_interface::MotionPlanResponse OMPLChainPlanner::plan(const SceneConstPt
         {
             state->copyJointGroupPositions(request.group_name, path.getState(i)->as<ompl::base::RealVectorStateSpace::StateType>()->values);
             state->update();
+            ROS_INFO("Adding point to final path");
             res.trajectory_->addSuffixWayPoint(state, 0.0);
         }
         res.planning_time_  = ompl::time::seconds(total_time); 

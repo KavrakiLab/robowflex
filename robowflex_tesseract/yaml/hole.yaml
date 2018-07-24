@@ -1,0 +1,225 @@
+name: "(noname)++"
+robot_state: 
+  joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    name: [shoulder_pan_joint, shoulder_lift_joint, elbow_joint, wrist_1_joint, wrist_2_joint,
+  wrist_3_joint]
+    position: [0.0, 0.12440706894000009, 0.0, -0.0031415926500000246, 0.0, 0.0]
+    velocity: []
+    effort: []
+  multi_dof_joint_state: 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    joint_names: []
+    transforms: []
+    twist: []
+    wrench: []
+  attached_collision_objects: []
+  is_diff: False
+robot_model_name: "ur5"
+fixed_frame_transforms: 
+  - 
+    header: 
+      seq: 0
+      stamp: 
+        secs: 0
+        nsecs:         0
+      frame_id: "/world"
+    child_frame_id: "/world"
+    transform: 
+      translation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      rotation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+link_padding: 
+  - 
+    link_name: "base_link"
+    padding: 0.0
+  - 
+    link_name: "ee_link"
+    padding: 0.0
+  - 
+    link_name: "forearm_link"
+    padding: 0.0
+  - 
+    link_name: "shoulder_link"
+    padding: 0.0
+  - 
+    link_name: "upper_arm_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_1_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_2_link"
+    padding: 0.0
+  - 
+    link_name: "wrist_3_link"
+    padding: 0.0
+link_scale: 
+  - 
+    link_name: "base_link"
+    scale: 1.0
+  - 
+    link_name: "ee_link"
+    scale: 1.0
+  - 
+    link_name: "forearm_link"
+    scale: 1.0
+  - 
+    link_name: "shoulder_link"
+    scale: 1.0
+  - 
+    link_name: "upper_arm_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_1_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_2_link"
+    scale: 1.0
+  - 
+    link_name: "wrist_3_link"
+    scale: 1.0
+object_colors: []
+world: 
+  collision_objects: 
+    - 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: "/world"
+      id: "bottom"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - 
+          type: 1
+          dimensions: [0.7, 0.25, 0.25]
+      primitive_poses: 
+        - 
+          position: 
+            x: 0.0
+            y: 0.45
+            z: 0.6
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0
+    - 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: "/world"
+      id: "side1"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - 
+          type: 1
+          dimensions: [0.25, 0.25, 0.7]
+      primitive_poses: 
+        - 
+          position: 
+            x: -0.35
+            y: 0.45
+            z: 0.2
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0
+    - 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: "/world"
+      id: "side2"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - 
+          type: 1
+          dimensions: [0.25, 0.25, 0.7]
+      primitive_poses: 
+        - 
+          position: 
+            x: 0.35
+            y: 0.45
+            z: 0.2
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0
+    - 
+      header: 
+        seq: 0
+        stamp: 
+          secs: 0
+          nsecs:         0
+        frame_id: "/world"
+      id: "top"
+      type: 
+        key: ''
+        db: ''
+      primitives: 
+        - 
+          type: 1
+          dimensions: [0.7, 0.25, 0.25]
+      primitive_poses: 
+        - 
+          position: 
+            x: 0.0
+            y: 0.45
+            z: -0.2
+          orientation: 
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+      meshes: []
+      mesh_poses: []
+      planes: []
+      plane_poses: []
+      operation: 0
+is_diff: True 

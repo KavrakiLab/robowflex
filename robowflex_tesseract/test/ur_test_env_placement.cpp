@@ -92,9 +92,6 @@ void test_positions()
     }
 }
 
-
-
-
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "tester");

@@ -83,9 +83,6 @@ tesseract::tesseract_ros::KDLEnvPtr robow_tesseract::constructTesseractEnv(robow
             attached_body.transform = 
                     scene->getFramePose(collision_object.header.frame_id) *
                     scene->getFramePose("base_link").inverse();
-            std::cerr << attached_body.transform.rotation() << std::endl;
-            std::cerr << "Above: rotation. Below, translation:" << std::endl;
-            std::cerr << attached_body.transform.translation() << std::endl;
         }
 
         env->attachBody(attached_body);

@@ -41,8 +41,8 @@ if (tesseract_planning_DIR)
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-  add_executable(wam7_tesseract_interface scripts/wam7_benchmark.cpp)
-  target_link_libraries(wam7_tesseract_interface ${LIBRARY_NAME} ${catkin_LIBRARIES})
+  add_executable(tesseract_interface scripts/tesseract_benchmark.cpp)
+  target_link_libraries(tesseract_interface ${LIBRARY_NAME} ${catkin_LIBRARIES})
 
   add_executable(ur_env_test test/ur_test_env_placement.cpp)
   target_link_libraries(ur_env_test ${LIBRARY_NAME} ${catkin_LIBRARIES})
