@@ -7,13 +7,13 @@
 #include <tesseract_ros/kdl/kdl_env.h>
 #include <moveit_msgs/PlanningScene.h>
 
-
 namespace robowflex
 {
     namespace hypercube
     {
-        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(robowflex::SceneConstPtr scene, robowflex::RobotConstPtr robot);
+        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene,
+                                                                  const robowflex::RobotConstPtr &robot);
     }
-}
+}  // namespace robowflex
 
 #endif
