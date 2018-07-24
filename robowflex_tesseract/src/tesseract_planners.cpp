@@ -270,7 +270,7 @@ OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::Mot
         res.trajectory_.reset(new robot_trajectory::RobotTrajectory(robot_->getModel(), request.group_name));
         for (std::size_t i = 0; i < path.getStateCount(); i++)
         {
-            state.copyJointGroupPositions(
+            state.setJointGroupPositions(
                 request.group_name,
                 path.getState(i)->as<ompl::base::RealVectorStateSpace::StateType>()->values);
             state.update();
