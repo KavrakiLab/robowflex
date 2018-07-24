@@ -65,7 +65,7 @@ namespace
 }  // namespace
 
 Settings::Settings()
-  : simplify_solutions(true), max_solution_segment_length(0.0), use_continuous_validator(false)
+  : simplify_solutions(true), longest_valid_segment_fraction(0.01), use_continuous_validator(false)
 {
 }
 
@@ -173,7 +173,7 @@ bool OMPLChainPlanner::initialize(const std::string &config_file, const Settings
     registerDefaultPlanners();
 
     settings_.simplify_solutions = settings.simplify_solutions;
-    settings_.max_solution_segment_length = settings.max_solution_segment_length;
+    settings_.longest_valid_segment_fraction = settings.longest_valid_segment_fraction;
     settings_.use_continuous_validator = settings.use_continuous_validator;
 }
 
@@ -201,6 +201,11 @@ OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::Mot
             chain_interface_->spaceInformation(), env, request.group_name);
         chain_interface_->setMotionValidator(mv);
     }
+    chain_interface_->spaceInformation()->setup();
+    std::map<std::string, std::string> config;
+    config["longest_valid_segment_fraction"] = std::to_string(settings_.longest_valid_segment_fraction);
+    chain_interface_->spaceInformation()->params().setParams(config, true);
+    chain_interface_->spaceInformation()->setup();
 
     ompl::base::PlannerPtr planner;
     auto it = known_planners_.find(request.planner_id);
@@ -269,7 +274,6 @@ OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::Mot
                 request.group_name,
                 path.getState(i)->as<ompl::base::RealVectorStateSpace::StateType>()->values);
             state.update();
-            ROS_INFO("Adding point to final path");
             res.trajectory_->addSuffixWayPoint(state, 0.0);
         }
 
