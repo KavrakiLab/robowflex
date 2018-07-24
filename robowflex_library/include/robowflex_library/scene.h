@@ -114,6 +114,15 @@ namespace robowflex
          */
         Eigen::Affine3d getFramePose(const std::string &id) const;
 
+        /** \brief Attempts to set the collision detector plugin used by the scene to \a name.
+         *  In MoveIt by default, 'Hybrid' is the only plugin defined.
+         *  However, you can define your own libraries that contain classes that extend the
+         *  collision_detection::CollisionPlugin class, and load them here as well.
+         *  See http://moveit.ros.org/documentation/plugins/#collisionplugin for more details.
+         *  \return True if sucessful, false otherwise.
+         */
+        bool setCollisionDetector(const std::string &detector_name) const;
+
         /** \brief Attach the named collision object \a name to the default end-effector of the robot.
          *  Only works if there is one end-effector in the system. Uses all end-effector links as allowed
          *  touch links.
@@ -157,6 +166,11 @@ namespace robowflex
         /** \} */
 
     private:
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(CollisionPluginLoader);
+        /** \endcond */
+
+        CollisionPluginLoaderPtr loader_;  ///< Plugin loader that sets collision detectors for the scene.
         planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
     };
 }  // namespace robowflex
