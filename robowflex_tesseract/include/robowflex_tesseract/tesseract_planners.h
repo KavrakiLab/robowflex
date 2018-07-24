@@ -35,10 +35,21 @@ namespace robowflex
              */
             Settings();
 
-            bool simplify_solutions;             ///< Whether or not planner should simplify solutions.
-            double max_solution_segment_length;  ///< Maximum solution segment length.
-            bool use_continuous_validator;  ///< Uses TrajOpt's continuous convex hull collision checking.
+            bool simplify_solutions;               ///< Whether or not planner should simplify solutions.
+            double longest_valid_segment_fraction; ///< Fraction of the C-space under which any segment is
+                                                   ///< automatically considered valid.
+            bool use_continuous_validator;         ///< Uses TrajOpt's continuous convex hull collision checking.
         };
+        
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(OMPLChainPlanner);
+        /** \endcond */
+
+        /** \class robowflex::robow_tesseract::OMPLChainPlannerPtr
+         *  \brief A shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
+
+        /** \class robowflex::robow_tesseract::OMPLInterfacePlannerConstPtr
+         *  \brief A const shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
 
         /** \brief A light wrapper over tesseract's ChainOMPLPlanner
          */
