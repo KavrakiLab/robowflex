@@ -166,13 +166,12 @@ namespace robowflex
         /** \} */
 
     private:
-        planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
-
         /** \cond IGNORE */
-        ROBOWFLEX_CLASS_FORWARD(CollisionPluginLoaderImpl);
+        ROBOWFLEX_CLASS_FORWARD(CollisionPluginLoader);
         /** \endcond */
 
-        CollisionPluginLoaderImplPtr plugin_loader_; ///< Plugin loader that sets collision detectors for the scene.
+        CollisionPluginLoaderPtr loader_;  ///< Plugin loader that sets collision detectors for the scene.
+        planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
     };
 }  // namespace robowflex
 

@@ -13,14 +13,20 @@ namespace robowflex
 {
     /** \brief The actual plugin loader for collision plugins.
      *  Heavily inspired by code in moveit_ros/planning. */
-    class Scene::CollisionPluginLoaderImpl
+    class Scene::CollisionPluginLoader
     {
+        /** \brief The pluginlib loader for collision detection plugins.
+         */
+        typedef pluginlib::ClassLoader<collision_detection::CollisionPlugin> PluginLoader;
+
     public:
-        CollisionPluginLoaderImpl()
+        /** \brief Constructor. Attempts to create the pluginlib loader for collision plugins.
+         */
+        CollisionPluginLoader()
         {
             try
             {
-                loader_.reset(new pluginlib::ClassLoader<collision_detection::CollisionPlugin>("moveit_core", "collision_detection::CollisionPlugin"));
+                loader_.reset(new PluginLoader("moveit_core", "collision_detection::CollisionPlugin"));
             }
             catch (pluginlib::PluginlibException &e)
             {
@@ -30,10 +36,13 @@ namespace robowflex
 
         /** \brief Attempts to load the collision detector plugin by the given \a name.
          *  Saves the plugin in an internal map and returns it if found.
+         *  \param[in] name Name of the plugin to load.
+         *  \return An allocated collision plugin.
          */
         collision_detection::CollisionPluginPtr load(const std::string &name)
         {
             collision_detection::CollisionPluginPtr plugin;
+
             try
             {
                 plugin.reset(loader_->createUnmanagedInstance(name));
@@ -43,51 +52,46 @@ namespace robowflex
             {
                 ROS_ERROR_STREAM("Exception while loading " << name << ": " << ex.what());
             }
+
             return plugin;
         }
 
         /** \brief Loads a collision detector into a planning scene instance.
          *  \param[in] name the plugin name
          *  \param[in] scene the planning scene instance.
-         *  \param[it] exclusive If true, the new collision detector is the only one.
+         *  \param[in] exclusive If true, the new collision detector is the only one.
          *  \return True if the new collision detector is added to the scene.
          */
-        bool activate(const std::string& name, const planning_scene::PlanningScenePtr& scene, bool exclusive)
+        bool activate(const std::string &name, const planning_scene::PlanningScenePtr &scene, bool exclusive)
         {
             auto it = plugins_.find(name);
             if (it == plugins_.end())
             {
                 collision_detection::CollisionPluginPtr plugin = load(name);
                 if (plugin)
-                {
                     return plugin->initialize(scene, exclusive);
-                }
-                return false;
             }
-            if (it->second)
-            {
+            else if (it->second
                 return it->second->initialize(scene, exclusive);
-            }
+
+            return false;
         }
 
     private:
-        std::shared_ptr<pluginlib::ClassLoader<collision_detection::CollisionPlugin> > loader_;
-        std::map<std::string, collision_detection::CollisionPluginPtr> plugins_; ///< A map of already loaded plugins.
+        std::shared_ptr<PluginLoader> loader_;                                    // The pluginlib loader.
+        std::map<std::string, collision_detection::CollisionPluginPtr> plugins_;  ///< Loaded plugins.
     };
-}
-
-
+}  // namespace robowflex
 
 using namespace robowflex;
 
-Scene::Scene(const RobotConstPtr &robot) : scene_(new planning_scene::PlanningScene(robot->getModelConst()))
+Scene::Scene(const RobotConstPtr &robot)
+  : loader_(new CollisionPluginLoader()), scene_(new planning_scene::PlanningScene(robot->getModelConst()))
 {
-    plugin_loader_.reset(new CollisionPluginLoaderImpl());
 }
 
-Scene::Scene(const Scene &other) : scene_(other.getSceneConst())
+Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(other.getSceneConst())
 {
-    plugin_loader_.reset(new CollisionPluginLoaderImpl());
 }
 
 void Scene::operator=(const Scene &other)
@@ -164,7 +168,7 @@ Eigen::Affine3d Scene::getFramePose(const std::string &id) const
 bool Scene::setCollisionDetector(const std::string &detector_name) const
 {
     bool success = true;
-    if (not plugin_loader_->activate(detector_name, scene_, true))
+    if (not loader_->activate(detector_name, scene_, true))
     {
         success = false;
         ROS_WARN("Was not able to load collision detector plugin '%s'", detector_name.c_str());
