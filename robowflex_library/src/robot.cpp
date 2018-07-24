@@ -35,6 +35,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
 
     loadRobotModel();
+
     return true;
 }
 
@@ -46,14 +47,6 @@ bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string
         && loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file, srdf_function_)       // srdf
         && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_)  // joint limits
         && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file, kinematics_function_);
-
-    std::string urdf_xml_string;
-    std::string srdf_xml_string;
-    handler_.getParam(ROBOT_DESCRIPTION, urdf_xml_string);
-    handler_.getParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_xml_string);
-    urdf_model_ = urdf::parseURDF(urdf_xml_string);
-    srdf_model_ = srdf::ModelSharedPtr(new srdf::Model);
-    srdf_model_->initString(*urdf_model_, srdf_xml_string);
 
     return success;
 }
@@ -234,14 +227,14 @@ robot_model::RobotModelPtr &Robot::getModel()
     return model_;
 }
 
-urdf::ModelInterfaceConstSharedPtr Robot::getURDF() const
+const urdf::ModelInterfaceSharedPtr &Robot::getURDF() const
 {
-    return urdf_model_;
+    return model_->getURDF();
 }
 
-srdf::ModelConstSharedPtr Robot::getSRDF() const
+const srdf::ModelConstSharedPtr &Robot::getSRDF() const
 {
-    return srdf_model_;
+    return model_->getSRDF();
 }
 
 const robot_model::RobotStatePtr &Robot::getScratchState() const

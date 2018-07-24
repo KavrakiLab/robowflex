@@ -162,12 +162,12 @@ namespace robowflex
         /** \brief Get the raw URDF Model.
          *  \return The URDF Model.
          */
-        urdf::ModelInterfaceConstSharedPtr getURDF() const;
+        const urdf::ModelInterfaceSharedPtr &getURDF() const;
 
         /** \brief Get the raw SRDF Model.
          *  \return The SRDF model.
          */
-        srdf::ModelConstSharedPtr getSRDF() const;
+        const srdf::ModelConstSharedPtr &getSRDF() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
@@ -312,8 +312,6 @@ namespace robowflex
 
         std::shared_ptr<robot_model_loader::RobotModelLoader> loader_;    ///< Robot model loader.
         robot_model::RobotModelPtr model_;                                ///< Loaded robot model.
-        urdf::ModelInterfaceSharedPtr urdf_model_;                        ///< URDF robot model.
-        srdf::ModelSharedPtr srdf_model_;                                 ///< SRDF robot model.
         std::map<std::string, robot_model::SolverAllocatorFn> imap_;      ///< Kinematic solver allocator map.
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
