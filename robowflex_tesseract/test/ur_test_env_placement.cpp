@@ -34,7 +34,7 @@ void test_positions()
     auto scene = std::make_shared<robowflex::Scene>(ur5_plain);
     scene->fromYAMLFile("package://robowflex_tesseract/yaml/test_box.yaml");
 
-    tesseract::tesseract_ros::KDLEnvPtr env = robowflex::robow_tesseract::constructTesseractEnv(scene, ur5_plain);
+    tesseract::tesseract_ros::KDLEnvPtr env = robowflex::hypercube::constructTesseractEnv(scene, ur5_plain);
 
     const auto& manip = env->getManipulator("manipulator");
 

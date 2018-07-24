@@ -27,17 +27,17 @@ int main(int argc, char **argv)
     auto scene = std::make_shared<Scene>(ur5_plain);
 
     // Create the default OMPL planner, with the WAM7 planning configuration.
-    robow_tesseract::Settings settings;
+    hypercube::Settings settings;
     settings.simplify_solutions = true;
     settings.use_continuous_validator = true;
-    auto planner_continuous = std::make_shared<robow_tesseract::OMPLChainPlanner>(ur5_plain);
+    auto planner_continuous = std::make_shared<hypercube::OMPLChainPlanner>(ur5_plain);
     planner_continuous->initialize(
         "package://ur5_moveit_config/config/ompl_planning.yaml", settings);
 
-    robow_tesseract::Settings discrete_settings;
+    hypercube::Settings discrete_settings;
     discrete_settings.simplify_solutions = true;
     settings.use_continuous_validator = false;
-    auto planner_discrete = std::make_shared<robow_tesseract::OMPLChainPlanner>(ur5_plain);
+    auto planner_discrete = std::make_shared<hypercube::OMPLChainPlanner>(ur5_plain);
     planner_discrete->initialize(
         "package://ur5_moveit_config/config/ompl_planning.yaml", discrete_settings);
 

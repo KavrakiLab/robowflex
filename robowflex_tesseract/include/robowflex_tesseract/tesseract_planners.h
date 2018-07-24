@@ -15,7 +15,7 @@
 
 namespace robowflex
 {
-    namespace robow_tesseract
+    namespace hypercube
     {
 
         /** \brief A function than creates a new OMPL planner. Shamelessly inspired from MoveIt's OMPL plugin. */

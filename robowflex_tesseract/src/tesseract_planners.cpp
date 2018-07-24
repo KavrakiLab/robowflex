@@ -40,8 +40,8 @@
 
 namespace
 {
-    using namespace robowflex::robow_tesseract;
-    
+    using namespace robowflex::hypercube;
+
     template <typename T>
     static ompl::base::PlannerPtr allocatePlanner(const ompl::base::SpaceInformationPtr& si, const std::string &new_name, std::map<std::string, std::string> config)
     {
@@ -56,7 +56,7 @@ namespace
     }
 }
 
-using namespace robowflex::robow_tesseract;
+using namespace robowflex::hypercube;
 
 Settings::Settings()
   : simplify_solutions(true)
