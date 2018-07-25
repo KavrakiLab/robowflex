@@ -141,15 +141,16 @@ const bool Geometry::contains(const Eigen::Vector3d &point) const
     return body_->containsPoint(point[0], point[1], point[2]);
 }
 
-Eigen::Vector3d Geometry::sample(const unsigned int attempts) const
+std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) const
 {
+    bool success;
     Eigen::Vector3d point;
     random_numbers::RandomNumberGenerator rng;
 
-    if (!body_->samplePointInside(rng, attempts, point))
+    if (!(success = body_->samplePointInside(rng, attempts, point)))
         point = Eigen::Vector3d{0, 0, 0};
 
-    return point;
+    return std::make_pair(success, point);
 }
 
 const bool Geometry::isMesh() const

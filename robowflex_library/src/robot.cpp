@@ -300,20 +300,28 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-void Robot::setFromIK(const std::string &group,                                     //
+bool Robot::setFromIK(const std::string &group,                                     //
                       const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
     Eigen::Affine3d sampled_pose = pose;
+    auto sample = region->sample();
+    if (!sample.first)
+        return false;
 
-    sampled_pose.translate(region->sample());
+    sampled_pose.translate(sample.second);
     sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
 
     geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
-
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-    scratch_->setFromIK(jmg, msg);
-    scratch_->update();
+
+    if (scratch_->setFromIK(jmg, msg))
+    {
+        scratch_->update();
+        return true;
+    }
+
+    return false;
 }
 
 const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const

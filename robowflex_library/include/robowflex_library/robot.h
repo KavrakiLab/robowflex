@@ -230,8 +230,9 @@ namespace robowflex
          *  \param[in] pose Pose of the \a region.
          *  \param[in] orientation Mean orientation
          *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
          */
-        void setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
         /** \brief Gets the current joint positions of the scratch state.

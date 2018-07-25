@@ -109,9 +109,9 @@ namespace robowflex
 
         /** \brief Tries to sample a point in the geometry.
          *  \param[in] attempts Number of attempts to sample.
-         *  \return The sampled point, or the 0 vector on failure (TODO: fix)
+         *  \return The sampled point and true, or the 0 vector and false on failure.
          */
-        Eigen::Vector3d sample(const unsigned int attempts = 50) const;
+        std::pair<bool, Eigen::Vector3d> sample(const unsigned int attempts = 50) const;
 
         /** \brief Checks if the geometry is a mesh geometry.
          *  \return True if the \a type_ is a mesh (ShapeType::MESH).
