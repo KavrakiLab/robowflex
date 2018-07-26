@@ -55,7 +55,7 @@ if (tesseract_planning_DIR)
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-  install(DIRECTORY include/robowflex_tesseract/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+  install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 else()
   message("`tesseract_planning` not found, not compiling robowflex_tesseract library or executables.")
 endif()

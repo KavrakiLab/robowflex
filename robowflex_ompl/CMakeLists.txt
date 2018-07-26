@@ -49,7 +49,7 @@ if (moveit_planners_ompl_DIR)
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-  install(DIRECTORY include/robowflex_ompl/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+  install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 else()
   message("`moveit_planners_ompl` not found, not compiling robowflex_ompl library or executables.")
 endif()
