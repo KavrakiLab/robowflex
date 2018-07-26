@@ -242,7 +242,7 @@ bool Scene::toYAMLFile(const std::string &file)
     scene_->getPlanningSceneMsg(msg);
 
     YAML::Node node = IO::toNode(msg);
-    return IO::YAMLtoFile(node, file);
+    return IO::YAMLToFile(node, file);
 }
 
 bool Scene::fromYAMLFile(const std::string &file)

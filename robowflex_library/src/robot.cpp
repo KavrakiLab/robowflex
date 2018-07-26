@@ -505,7 +505,7 @@ bool Robot::dumpGeometry(const std::string &filename) const
         }
     }
 
-    return IO::YAMLtoFile(link_geometry, filename);
+    return IO::YAMLToFile(link_geometry, filename);
 }
 
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
@@ -559,5 +559,5 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     node["transforms"] = values;
     node["fps"] = fps;
 
-    return IO::YAMLtoFile(node, filename);
+    return IO::YAMLToFile(node, filename);
 }

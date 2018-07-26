@@ -76,7 +76,7 @@ public:
         node["scene"] = request->second.first;
         node["request"] = request->second.second;
 
-        IO::YAMLtoFile(node, to_iso_string(time.toBoost()) + ".yml");
+        IO::YAMLToFile(node, "~/robowflex_tapedeck/" + to_iso_string(time.toBoost()) + ".yml");
         ROS_WARN("  Wrote YAML for ID: `%s`", id.c_str());
 
         requests_.erase(request);

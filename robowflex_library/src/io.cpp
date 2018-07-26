@@ -205,7 +205,7 @@ const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
     }
 }
 
-bool IO::YAMLtoFile(const YAML::Node &node, const std::string &file)
+bool IO::YAMLToFile(const YAML::Node &node, const std::string &file)
 {
     YAML::Emitter out;
     out << node;
@@ -233,12 +233,15 @@ const std::string IO::Handler::generateUUID()
 void IO::createFile(std::ofstream &out, const std::string &file)
 {
     boost::filesystem::path path(file);
+    path = expandHome(path);
+    path = expandSymlinks(path);
+
     const auto parent = path.parent_path().string();
 
     if (!parent.empty())
         boost::filesystem::create_directories(parent);
 
-    out.open(file, std::ofstream::out | std::ofstream::trunc);
+    out.open(path.string(), std::ofstream::out | std::ofstream::trunc);
 }
 
 const std::string IO::getHostname()
