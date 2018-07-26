@@ -1,29 +1,36 @@
 /* Author: Zachary Kingston */
 
+// #include <sensor_msgs/JointState.h>
+#include <moveit_msgs/ExecuteTrajectoryGoal.h>
+#include <moveit_msgs/ExecuteTrajectoryResult.h>
+#include <moveit_msgs/GetPlanningScene.h>
+#include <moveit_msgs/ApplyPlanningScene.h>
+
 #include <robowflex_movegroup/services.h>
+
+using namespace robowflex;
+using namespace robowflex::movegroup;
 
 const std::string MoveGroupHelper::MOVE_GROUP{"/move_group"};
 const std::string MoveGroupHelper::GET_SCENE{"get_planning_scene"};
 const std::string MoveGroupHelper::APPLY_SCENE{"apply_planning_scene"};
 const std::string MoveGroupHelper::EXECUTE{"execute_trajectory"};
 
-MoveGroupHelper::MoveGroupHelper(const std::string &move_group) : nh_("~")
+MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
+  : nh_("~")
+  , goal_sub_(nh_.subscribe(move_group + "/goal", 10, &MoveGroupHelper::moveGroupGoalCallback, this))
+  , result_sub_(nh_.subscribe(move_group + "/result", 10, &MoveGroupHelper::moveGroupResultCallback, this))
+  , gpsc_(nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true))
+  , apsc_(nh_.serviceClient<moveit_msgs::ApplyPlanningScene>(APPLY_SCENE, true))
+  , eac_(nh_, EXECUTE, false)
 {
-    gpsc_ = nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true);
-    apsc_ = nh_.serviceClient<moveit_msgs::ApplyPlanningScene>(APPLY_SCENE, true);
-
-    eac_ = actionlib::SimpleActionClient<moveit_msgs::ExecuteTrajectoryAction>(
-        nh_, EXECUTE, false);
-
-    goal_sub_ = nh_.subscribe(move_group + "/goal", 10, &MoveGroupHelper::moveGroupGoalCallback, this);
-    result_sub_ = nh_.subscribe(move_group + "/result", 10, &MoveGroupHelper::moveGroupResultCallback, this);
 }
 
 MoveGroupHelper::~MoveGroupHelper()
 {
 }
 
-void MoveGroupHelper::setGoalCallback(const GoalCallback &callback)
+void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
 {
     callback_ = callback;
 }
@@ -45,7 +52,7 @@ void MoveGroupHelper::pushScene(const SceneConstPtr &scene) const
 {
 }
 
-void moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
+void MoveGroupHelper::moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
 {
     // const std::string &id = msg.goal_id.id;
     // ROS_INFO("Intercepted request goal ID: `%s`", id.c_str());
@@ -54,7 +61,7 @@ void moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
     //                   std::forward_as_tuple(id), std::forward_as_tuple(retrieveScene(), msg.goal.request));
 }
 
-void moveGroupResultCallback(const moveit_msgs::MoveGroupActionResult &msg)
+void MoveGroupHelper::moveGroupResultCallback(const moveit_msgs::MoveGroupActionResult &msg)
 {
     // const std::string &id = msg.status.goal_id.id;
 

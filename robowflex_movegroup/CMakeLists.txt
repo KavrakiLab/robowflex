@@ -15,12 +15,16 @@ find_package(Boost REQUIRED filesystem)
 
 find_package(catkin QUIET COMPONENTS
   robowflex_library
+  actionlib
+  moveit_msgs
 )
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
     robowflex_library
+    actionlib
+    moveit_msgs
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )

@@ -3,8 +3,18 @@
 #ifndef ROBOWFLEX_MOVEGROUP_SERVICES_
 #define ROBOWFLEX_MOVEGROUP_SERVICES_
 
+#include <ros/node_handle.h>
+
+#include <moveit_msgs/MoveGroupActionGoal.h>
+#include <moveit_msgs/MoveGroupActionResult.h>
+#include <moveit_msgs/ExecuteTrajectoryAction.h>
+
 #include <actionlib/client/simple_action_client.h>
-#include <moveit/move_group_interface/move_group_interface.h>
+
+#include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+
+#include <robowflex_library/macros.h>
 
 namespace robowflex
 {
