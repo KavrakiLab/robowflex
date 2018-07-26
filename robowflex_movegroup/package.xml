@@ -1,16 +1,14 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robowflex_visualization</name>
+  <name>robowflex_movegroup</name>
   <version>0.0.1</version>
-  <description>The robowflex_visualization package</description>
+  <description>Interaction of robowflex with a live move_group process.</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
-  <author email="bryce.steven.willey@gmail.com">Bryce Willey</author>
 
   <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>robowflex_library</depend>
-  <depend>rospy</depend>
 </package>

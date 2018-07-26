@@ -6,13 +6,15 @@
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
-  <license>TODO</license>
+  <license>MIT</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>robowflex_library</exec_depend>
-  <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>robowflex_ompl</exec_depend>
+  <exec_depend>robowflex_tesseract</exec_depend>
+  <exec_depend>robowflex_movegroup</exec_depend>
+  <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>tmpack</exec_depend>
 
   <export>
