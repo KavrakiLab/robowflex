@@ -13,7 +13,7 @@ static const std::string GROUP = "arm_with_torso";
 int main(int argc, char **argv)
 {
     // Startup ROS
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();

@@ -9,7 +9,7 @@ using namespace robowflex;
 int main(int argc, char **argv)
 {
     // Startup ROS.
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Create an R2 robot, initialize the `legsandtorso` kinematics solver.
     auto r2 = std::make_shared<R2Robot>();

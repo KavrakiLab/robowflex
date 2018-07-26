@@ -113,7 +113,7 @@ int planAndBuild()
 int main(int argc, char **argv)
 {
     // Startup ROS.
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Plan using configuration from files.
     planFromFile();

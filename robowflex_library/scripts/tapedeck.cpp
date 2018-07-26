@@ -95,7 +95,7 @@ private:
 int main(int argc, char **argv)
 {
     // Startup ROS
-    startROS(argc, argv);
+    ROS ros(argc, argv);
     Tapedeck deck;
 
     ros::Rate r(10); // 10 hz

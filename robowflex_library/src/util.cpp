@@ -15,6 +15,8 @@ using namespace robowflex;
 
 namespace
 {
+    static std::shared_ptr<ros::AsyncSpinner> spinner;
+
 #if IS_BOOST_164
     static boost::process::child roscore;
     static bool roscore_init{false};
@@ -22,6 +24,14 @@ namespace
 
     void shutdown(int sig)
     {
+        if (sig)
+            ROS_INFO("Shutting down with signal %s.", strsignal(sig));
+        else
+            ROS_INFO("Shutting down.");
+
+        if (spinner)
+            spinner->stop();
+
         // Some stuff for later
         ros::shutdown();
 
@@ -54,14 +64,32 @@ namespace
     }
 }  // namespace
 
-// TODO: use ros::removeROSArgs to strip ROS arguments so other arg parsers can be used in tandem.
-void robowflex::startROS(int argc, char **argv, const std::string &name)
+ROS::ROS(int argc, char **argv, const std::string &name, unsigned int threads) : argc_(argc), argv_(argv)
 {
     ros::init(argc, argv, name, ros::init_options::NoSigintHandler);
     startup();
 
     signal(SIGINT, shutdown);
     signal(SIGSEGV, shutdown);
+
+    if (threads)
+    {
+        spinner.reset(new ros::AsyncSpinner(threads));
+        spinner->start();
+    }
+}
+
+ROS::~ROS()
+{
+    shutdown(0);
+}
+
+std::vector<std::string> ROS::getArgs() const
+{
+    std::vector<std::string> args;
+    ros::removeROSArgs(argc_, argv_, args);
+
+    return args;
 }
 
 void robowflex::explode()
