@@ -15,7 +15,6 @@ find_package(Boost REQUIRED filesystem)
 
 find_package(catkin QUIET COMPONENTS
   robowflex_library
-  moveit_planning_interface
 )
 
 catkin_package(
