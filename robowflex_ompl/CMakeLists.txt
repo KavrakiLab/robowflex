@@ -1,18 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(robowflex_ompl)
 
-set(LIBRARY_NAME robowflex_ompl)
+set(LIBRARY_NAME ${PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH
   "${CMAKE_MODULE_PATH}"
   "${CMAKE_ROOT_DIR}/cmake/Modules"
   "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
-add_compile_options(-std=c++11)
-
-if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+include(CompileOptions)
+include(HelperFunctions)
 
 find_package(Boost REQUIRED)
 
@@ -41,15 +38,10 @@ if (moveit_planners_ompl_DIR)
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-  add_executable(ur5_ompl_interface scripts/ur5_ompl_interface.cpp)
-  target_link_libraries(ur5_ompl_interface ${LIBRARY_NAME} ${catkin_LIBRARIES})
+  add_script(ur5_ompl_interface)
 
-  install(TARGETS ${LIBRARY_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-  install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+  install_scripts()
+  install_library()
 else()
   message("`moveit_planners_ompl` not found, not compiling robowflex_ompl library or executables.")
 endif()

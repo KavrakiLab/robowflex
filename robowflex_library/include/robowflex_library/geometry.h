@@ -105,7 +105,7 @@ namespace robowflex
          *  \param[in] point The point to check, in the geometry's frame.
          *  \return True if the geometry contains the point, false otherwise.
          */
-        const bool contains(const Eigen::Vector3d &point) const;
+        bool contains(const Eigen::Vector3d &point) const;
 
         /** \brief Tries to sample a point in the geometry.
          *  \param[in] attempts Number of attempts to sample.
@@ -116,7 +116,7 @@ namespace robowflex
         /** \brief Checks if the geometry is a mesh geometry.
          *  \return True if the \a type_ is a mesh (ShapeType::MESH).
          */
-        const bool isMesh() const;
+        bool isMesh() const;
 
         /** \brief Gets the message form of solid primitive geometry (all but ShapeType::MESH).
          *  \return The message.
@@ -156,8 +156,8 @@ namespace robowflex
         bodies::Body *loadBody() const;
 
         ShapeType::Type type_{ShapeType::Type::BOX};                 ///< Geometry Type.
-        std::string resource_{""};                                   ///< Resource locator for MESH types.
         const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
+        std::string resource_{""};                                   ///< Resource locator for MESH types.
         const shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
         const bodies::BodyPtr body_{nullptr};                        ///< Body operation.
     };

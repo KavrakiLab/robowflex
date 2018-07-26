@@ -3,14 +3,19 @@ project(robowflex_movegroup)
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 
-add_compile_options(-std=c++11)
+set(CMAKE_MODULE_PATH
+  "${CMAKE_MODULE_PATH}"
+  "${CMAKE_ROOT_DIR}/cmake/Modules"
+  "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
-if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+include(CompileOptions)
+include(HelperFunctions)
+
+find_package(Boost REQUIRED filesystem)
 
 find_package(catkin QUIET COMPONENTS
   robowflex_library
+  moveit_planning_interface
 )
 
 catkin_package(
@@ -31,12 +36,7 @@ add_library(${LIBRARY_NAME}
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(tapedeck scripts/tapedeck.cpp)
-target_link_libraries(tapedeck ${LIBRARY_NAME} ${catkin_LIBRARIES})
+add_script(tapedeck)
 
-install(TARGETS ${LIBRARY_NAME}
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+install_scripts()
+install_library()

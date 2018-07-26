@@ -39,7 +39,7 @@ namespace
 
     static unsigned int nodeToCollisionObject(const YAML::Node &n)
     {
-        try 
+        try
         {
             std::string s = n.as<std::string>();
             std::transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -53,11 +53,11 @@ namespace
             else
                 return moveit_msgs::CollisionObject::ADD;
         }
-        catch (const YAML::BadConversion& e)
+        catch (const YAML::BadConversion &e)
         {
             // Sometimes it is specified as the int.
             int op = n.as<int>();
-            switch(op)
+            switch (op)
             {
                 case 0:
                     return moveit_msgs::CollisionObject::ADD;
@@ -75,7 +75,6 @@ namespace
 
     static const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
     {
-        // geometric_shapes::SolidPrimitiveDimCount<shape_msgs::SolidPrimitive::BOX>::value;
         switch (shape.type)
         {
             case shape_msgs::SolidPrimitive::BOX:
@@ -89,6 +88,9 @@ namespace
                 break;
             case shape_msgs::SolidPrimitive::CONE:
                 return "cone";
+                break;
+            default:
+                return "invalid";
                 break;
         }
     }
