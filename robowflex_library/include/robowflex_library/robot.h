@@ -301,7 +301,7 @@ namespace robowflex
 
         /** \brief Loads a robot model from the loaded information on the parameter server.
          */
-        void loadRobotModel();
+        void loadRobotModel(bool namespaced = true);
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
@@ -317,6 +317,27 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+    };
+
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(ParamRobot);
+    /** \endcond */
+
+    /** \class robowflex::ParamRobotPtr
+        \brief A shared pointer wrapper for robowflex::ParamRobot. */
+
+    /** \class robowflex::ParamRobotConstPtr
+        \brief A const shared pointer wrapper for robowflex::ParamRobot. */
+
+    /** \brief Loads information about a robot from the parameter server.
+     */
+    class ParamRobot : public Robot
+    {
+    public:
+        /** Constructor. Loads robot from parameter server.
+         *  \param[in] name Name for this robot.
+         */
+        ParamRobot(const std::string &name = "DEFAULT");
     };
 }  // namespace robowflex
 

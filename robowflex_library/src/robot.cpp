@@ -142,10 +142,11 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file,
     return true;
 }
 
-void Robot::loadRobotModel()
+void Robot::loadRobotModel(bool namespaced)
 {
-    robot_model_loader::RobotModelLoader::Options options(handler_.getNamespace() + "/" + ROBOT_DESCRIPTION);
-    options.load_kinematics_solvers_ = false;
+    robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
+                                                          "/" + ROBOT_DESCRIPTION);
+    options.load_kinematics_solvers_ = !namespaced;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
@@ -560,4 +561,13 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     node["fps"] = fps;
 
     return IO::YAMLToFile(node, filename);
+}
+
+///
+/// robowflex::ParamRobot
+///
+
+ParamRobot::ParamRobot(const std::string &name) : Robot(name)
+{
+    loadRobotModel(false);
 }

@@ -81,6 +81,12 @@ namespace robowflex
          */
         collision_detection::AllowedCollisionMatrix &getACM();
 
+        /** \brief Set the planning scene to be the same as a message.
+         *  \param[in] msg Message to use to set planning scene.
+         *  \param[in] diff If true, uses the message as a diff.
+         */
+        void useMessage(const moveit_msgs::PlanningScene &msg, bool diff = false);
+
         /** \} */
 
         /** \name Collision Object Management
