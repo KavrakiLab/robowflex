@@ -12,6 +12,7 @@ include(CompileOptions)
 include(HelperFunctions)
 
 find_package(Boost REQUIRED filesystem)
+find_library(YAML yaml-cpp REQUIRED)
 
 find_package(catkin QUIET COMPONENTS
   robowflex_library
@@ -29,7 +30,7 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME}
@@ -37,7 +38,7 @@ add_library(${LIBRARY_NAME}
   )
 
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
 add_script(tapedeck)
 

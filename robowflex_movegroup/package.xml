@@ -13,4 +13,5 @@
   <depend>robowflex_library</depend>
   <depend>actionlib</depend>
   <depend>moveit_msgs</depend>
+  <depend>yaml-cpp</depend>
 </package>
