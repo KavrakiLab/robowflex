@@ -1,6 +1,5 @@
 /* Author: Zachary Kingston */
 
-// #include <sensor_msgs/JointState.h>
 #include <moveit_msgs/ExecuteTrajectoryGoal.h>
 #include <moveit_msgs/ExecuteTrajectoryResult.h>
 #include <moveit_msgs/GetPlanningScene.h>
