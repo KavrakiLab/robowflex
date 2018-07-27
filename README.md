@@ -24,5 +24,9 @@ Currently, only [OMPL](http://ompl.kavrakilab.org/)-based planning is available.
 Requires both [tesseract](https://github.com/ros-industrial-consortium/tesseract) and [trajopt](https://github.com/ros-industrial-consortium/trajopt_ros).
 Some basic examples of how to use the new planner(s) are in `robowflex_tesseract/scripts`.
 
+## robowflex_movegroup
+A library component with helper classes and functions to interact with a `move_group` process being used for motion planning.
+Scenes can be pushed and pulled and trajectories can be executed with this component through `move_group`.
+
 ## tmpack
 Task and motion planning using `robowflex` as the motion planning layer.
