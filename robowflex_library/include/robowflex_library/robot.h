@@ -61,7 +61,7 @@ namespace robowflex
         Robot(Robot const &) = delete;
         void operator=(Robot const &) = delete;
 
-        /** \name Initialization and loading.
+        /** \name Initialization and Loading
             \{ */
 
         /** \brief Initializes a robot from a kinematic and semantic description.
@@ -162,12 +162,12 @@ namespace robowflex
         /** \brief Get the raw URDF Model.
          *  \return The URDF Model.
          */
-        const urdf::ModelInterfaceSharedPtr &getURDF() const;
+        urdf::ModelInterfaceConstSharedPtr getURDF() const;
 
         /** \brief Get the raw SRDF Model.
          *  \return The SRDF model.
          */
-        const srdf::ModelConstSharedPtr &getSRDF() const;
+        srdf::ModelConstSharedPtr getSRDF() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.

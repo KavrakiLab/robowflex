@@ -228,12 +228,12 @@ robot_model::RobotModelPtr &Robot::getModel()
     return model_;
 }
 
-const urdf::ModelInterfaceSharedPtr &Robot::getURDF() const
+urdf::ModelInterfaceConstSharedPtr Robot::getURDF() const
 {
     return model_->getURDF();
 }
 
-const srdf::ModelConstSharedPtr &Robot::getSRDF() const
+srdf::ModelConstSharedPtr Robot::getSRDF() const
 {
     return model_->getSRDF();
 }

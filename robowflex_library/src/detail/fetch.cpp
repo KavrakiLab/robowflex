@@ -23,11 +23,10 @@ bool FetchRobot::initialize()
 {
     setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
 
-    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
-    loadKinematics("arm");
-    loadKinematics("arm_with_torso");
+    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
+                   loadKinematics("arm") && loadKinematics("arm_with_torso");
 
-    return true;
+    return success;
 }
 
 bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
