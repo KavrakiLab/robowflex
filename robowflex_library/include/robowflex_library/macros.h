@@ -9,6 +9,10 @@
 
 /** \file */
 
+///
+/// ROS Version Checking
+///
+
 /** \brief Tests if the ROS version is Indigo or higher. */
 #define ROBOWFLEX_AT_LEAST_INDIGO ROS_VERSION_MINIMUM(1, 11, 0)
 
@@ -31,5 +35,42 @@
 #define ROBOWFLEX_YAML_FLOW(n)
 #endif
 
+///
+/// Compiler Warning Helpers
+///
+
+/** \brief Stringify helper macro. */
+#define ROBOWFLEX_PRAGMA_HELPER0(x) #x
+/** \brief Pragma generator helper macro. */
+#define ROBOWFLEX_PRAGMA_HELPER1(x, y) ROBOWFLEX_PRAGMA_HELPER0(x diagnostic ignored y)
+
+/** \brief Push a pragma to disable a compiler warning for GCC. */
+#define ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(warning)
+
+/** \brief Pop a compiler warning for GCC. */
+#define ROBOWFLEX_POP_GCC
+
+/** \brief Push a pragma to disable a compiler warning for clang. */
+#define ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING(warning)
+
+/** \brief Pop a compiler warning for clang. */
+#define ROBOWFLEX_POP_CLANG
+
+/** \cond IGNORE */
+#if defined(__clang__)
+#undef ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING
+#undef ROBOWFLEX_POP_CLANG
+#define ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING(warning)                                                        \
+    _Pragma("clang diagnostic push")                                                                         \
+        _Pragma(ROBOWFLEX_PRAGMA_HELPER1(clang, ROBOWFLEX_PRAGMA_HELPER0(warning)))
+#define ROBOWFLEX_POP_CLANG _Pragma("GCC diagnostic pop")
+#elif defined __GNUC__
+#undef ROBOWFLEX_PUSH_DISABLE_GCC_WARNING
+#undef ROBOWFLEX_POP_GCC
+#define ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(warning)                                                          \
+    _Pragma("GCC diagnostic push") _Pragma(ROBOWFLEX_PRAGMA_HELPER1(GCC, ROBOWFLEX_PRAGMA_HELPER0(warning)))
+#define ROBOWFLEX_POP_GCC _Pragma("GCC diagnostic pop")
+#endif
+/** \endcond */
 
 #endif

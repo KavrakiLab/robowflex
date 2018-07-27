@@ -3,7 +3,12 @@
 #ifndef ROBOWFLEX_IO_BAG_
 #define ROBOWFLEX_IO_BAG_
 
+#include <robowflex_library/macros.h>
+
+ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)
 #include <rosbag/bag.h>
+ROBOWFLEX_POP_GCC
+
 #include <rosbag/view.h>
 
 namespace robowflex
@@ -40,7 +45,7 @@ namespace robowflex
              *  \tparam T Type of message.
              */
             template <typename T>
-            bool addMessage(const std::string &topic, T msg)
+            bool addMessage(const std::string &topic, const T &msg)
             {
                 if (mode_ == WRITE)
                 {

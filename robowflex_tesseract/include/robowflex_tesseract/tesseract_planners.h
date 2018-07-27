@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_TESSERACT_PLANNERS_
 #define ROBOWFLEX_TESSERACT_PLANNERS_
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/class_forward.h>
 #include <robowflex_library/planning.h>
 
 #include <tesseract_planning/basic_planner.h>
@@ -36,12 +36,12 @@ namespace robowflex
              */
             Settings();
 
-            bool simplify_solutions;               ///< Whether or not planner should simplify solutions.
-            double longest_valid_segment_fraction; ///< Fraction of the C-space under which any segment is
-                                                   ///< automatically considered valid.
-            bool use_continuous_validator;         ///< Uses TrajOpt's continuous convex hull collision checking.
+            bool simplify_solutions;                ///< Whether or not planner should simplify solutions.
+            double longest_valid_segment_fraction;  ///< Fraction of the C-space under which any segment is
+                                                    ///< automatically considered valid.
+            bool use_continuous_validator;  ///< Uses TrajOpt's continuous convex hull collision checking.
         };
-        
+
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(OMPLChainPlanner);
         /** \endcond */
