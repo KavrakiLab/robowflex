@@ -137,6 +137,7 @@ void MoveGroupHelper::moveGroupResultCallback(const moveit_msgs::MoveGroupAction
     ROS_DEBUG("Intercepted request response ID: `%s`", id.c_str());
 
     Action &action = request->second;
+    action.id = id;
     action.success = msg.result.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
     action.time = msg.result.planning_time;
     action.trajectory = msg.result.planned_trajectory;

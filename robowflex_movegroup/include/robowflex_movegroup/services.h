@@ -29,6 +29,7 @@ namespace robowflex
              */
             struct Action
             {
+                std::string id;                           ///< Goal ID.
                 ScenePtr scene;                           ///< Scene used for planning.
                 moveit_msgs::MotionPlanRequest request;   ///< Motion planning request.
                 bool success;                             ///< Planning success.

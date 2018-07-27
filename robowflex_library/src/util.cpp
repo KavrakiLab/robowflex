@@ -92,6 +92,11 @@ std::vector<std::string> ROS::getArgs() const
     return args;
 }
 
+void ROS::wait() const
+{
+    ros::waitForShutdown();
+}
+
 void robowflex::explode()
 {
     raise(SIGSEGV);

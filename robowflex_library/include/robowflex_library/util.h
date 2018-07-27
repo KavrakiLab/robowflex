@@ -70,6 +70,10 @@ namespace robowflex
          */
         std::vector<std::string> getArgs() const;
 
+        /** \brief Waits for the process to be killed via some means (normally Ctrl-C)
+         */
+        void wait() const;
+
     private:
         int argc_;     ///< Argument count.
         char **argv_;  ///< Arguments.

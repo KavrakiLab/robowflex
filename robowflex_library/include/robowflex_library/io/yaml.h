@@ -7,6 +7,7 @@
 
 #include <moveit_msgs/PlanningScene.h>
 #include <moveit_msgs/MotionPlanRequest.h>
+#include <moveit_msgs/RobotTrajectory.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -33,6 +34,12 @@ namespace robowflex
          *  \return The converted message.
          */
         YAML::Node toNode(const moveit_msgs::MotionPlanRequest &msg);
+
+        /** \brief Converts a motion plan to YAML.
+         *  \param[in] msg Message to convert.
+         *  \return The converted message.
+         */
+        YAML::Node toNode(const moveit_msgs::RobotTrajectory &msg);
 
         /** \brief Loads a planning scene from a YAML file.
          *  \param[out] msg Message to load into.

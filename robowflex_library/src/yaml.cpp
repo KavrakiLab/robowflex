@@ -1745,6 +1745,13 @@ namespace robowflex
             return node;
         }
 
+        YAML::Node toNode(const moveit_msgs::RobotTrajectory &msg)
+        {
+            YAML::Node node;
+            node = msg;
+            return node;
+        }
+
         bool fromYAMLFile(moveit_msgs::PlanningScene &msg, const std::string &file)
         {
             return IO::YAMLFileToMessage(msg, file);
