@@ -55,8 +55,7 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     if (!context)
         return response;
 
-    bool result = context->solve(response);
-
+    context->solve(response);
     return response;
 }
 

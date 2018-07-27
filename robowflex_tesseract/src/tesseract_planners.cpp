@@ -175,6 +175,8 @@ bool OMPLChainPlanner::initialize(const std::string &config_file, const Settings
     settings_.simplify_solutions = settings.simplify_solutions;
     settings_.longest_valid_segment_fraction = settings.longest_valid_segment_fraction;
     settings_.use_continuous_validator = settings.use_continuous_validator;
+
+    return true;
 }
 
 void OMPLChainPlanner::registerPlannerAllocator(const std::string &planner_id,
