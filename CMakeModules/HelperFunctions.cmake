@@ -42,5 +42,8 @@ macro(add_doc project)
   get_filename_component(ABS_FILENAME_INCLUDE "../${project}/include"
     REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
+  get_filename_component(ABS_FILENAME_SRC "../${project}/README.md"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
   set(DOC_SOURCES "${DOC_SOURCES} ${ABS_FILENAME_SRC} ${ABS_FILENAME_INCLUDE}")
 endmacro(add_doc)

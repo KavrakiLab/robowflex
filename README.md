@@ -1,9 +1,5 @@
-# robowflex 💪🤖
+# robowflex 💪🤖 {#mainpage}
 The Better Robot Benching Framework™.
-
-## robowflex_doc
-Documentation for all library and module components in robowflex.
-Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.
 
 ## robowflex_library
 A library that simplifies using [_MoveIt!_](https://github.com/ros-planning/moveit) in applications.
@@ -11,7 +7,7 @@ Examples of basic motion planning, benchmarking of planning requests, and input/
 
 ## robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
-See `robowflex_visualization/README.md` for more information on how to use.
+See [`robowflex_visualization/README.md`](robowflex_visualization.html) for more information on how to use.
 
 ## robowflex_ompl
 An optionally compiled library component that adds more direct access to [OMPL](http://ompl.kavrakilab.org/) through a new `robowflex::Planner`.
@@ -30,3 +26,7 @@ Scenes can be pushed and pulled and trajectories can be executed with this compo
 
 ## tmpack
 Task and motion planning using `robowflex` as the motion planning layer.
+
+## robowflex_doc
+Documentation for all library and module components in robowflex (sans `tmpack`).
+Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.

@@ -782,7 +782,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @DOXYGEN_SOURCE_DIRS@
+INPUT                  = @DOXYGEN_SOURCE_DIRS@ @DOXYGEN_DOC_DIR@ @DOXYGEN_README@
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -935,7 +935,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = @DOXYGEN_README@
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -2070,7 +2070,7 @@ SKIP_FUNCTION_MACROS   = YES
 # run, you must also specify the path to the tagfile here.
 
 TAGFILES               = @DOXYGEN_TAG_DIR@/cppreference.tag=http://en.cppreference.com/w/ \
-                         @DOXYGEN_TAG_DIR@/moveit_core.tag=http://docs.ros.org/melodic/api/moveit_core/html/
+                         @DOXYGEN_TAG_DIR@/moveit_core.tag=http://docs.ros.org/@DOXYGEN_ROS_VERSION@/api/moveit_core/html/
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create a
 # tag file that is based on the input files it reads. See section "Linking to

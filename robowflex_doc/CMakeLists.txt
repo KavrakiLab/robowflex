@@ -15,6 +15,7 @@ add_doc(robowflex_library)
 add_doc(robowflex_movegroup)
 add_doc(robowflex_ompl)
 add_doc(robowflex_tesseract)
+add_doc(robowflex_visualization)
 
 find_package(Doxygen QUIET)
 if (DOXYGEN_FOUND)
@@ -22,10 +23,14 @@ if (DOXYGEN_FOUND)
 
   set(DOXYGEN_SOURCE_DIRS ${DOC_SOURCES})
 
+  get_filename_component(DOXYGEN_README "../README.md"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
   set(DOXYGEN_DOC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
   set(DOXYGEN_TAG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/tag)
   set(DOXYGEN_HTML_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/html)
   set(DOXYGEN_CATKIN_DOC_DIR "${CATKIN_DEVEL_PREFIX}/share/${PROJECT_NAME}/doc")
+  set(DOXYGEN_ROS_VERSION $ENV{ROS_DISTRO})
 
   file(MAKE_DIRECTORY ${DOXYGEN_CATKIN_DOC_DIR})
 
