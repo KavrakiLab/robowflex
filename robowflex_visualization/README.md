@@ -1,4 +1,4 @@
-# Robowflex Visualization {#robowflex_visualization}
+# Robowflex Visualization
 Visualize motion plans and robots in tandem with `robowflex_library` in [Blender](https://www.blender.org/).
 
 ## Requirements

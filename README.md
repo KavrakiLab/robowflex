@@ -1,5 +1,6 @@
-# robowflex 💪🤖 {#mainpage}
+# robowflex 💪🤖
 The Better Robot Benching Framework™.
+Documentation for this projection can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
 ## robowflex_library
 A library that simplifies using [_MoveIt!_](https://github.com/ros-planning/moveit) in applications.
