@@ -11,8 +11,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-/** This file isn't necessary, but used to cut down on compile times. */
-
 namespace robowflex
 {
     namespace IO
