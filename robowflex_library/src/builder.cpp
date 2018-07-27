@@ -32,7 +32,6 @@ MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const
     request_.allowed_planning_time = 5.0;
 
     // Default planner (find an RRTConnect config, for Indigo)
-    const auto &configs = planner->getPlannerConfigs();
     for (const auto &config : DEFAULT_CONFIGS)
         if (setConfig(config))
             break;

@@ -31,10 +31,10 @@ int main(int argc, char **argv)
         for (unsigned int j = 0; j < dims[1]; ++j)
         {
             double v = data->get<double>({i, j});
-            // std::cout << v << ", ";
+            std::cout << v << ", ";
         }
 
-        // std::cout << std::endl;
+        std::cout << std::endl;
     }
 
     return 0;
