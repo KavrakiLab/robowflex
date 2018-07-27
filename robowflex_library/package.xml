@@ -20,4 +20,7 @@
   <depend>eigen_conversions</depend>
   <depend>eigen</depend>
   <depend>moveit_ros_planning</depend>
+
+  <doc_depend>doxygen</doc_depend>
+  <doc_depend>dot</doc_depend>
 </package>
