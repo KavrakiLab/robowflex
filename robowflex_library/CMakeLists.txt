@@ -47,8 +47,6 @@ catkin_package(
     ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-generate_doxygen()
-
 ##
 ## Library Creation
 ##

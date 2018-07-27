@@ -20,6 +20,8 @@ namespace robowflex
     ROBOWFLEX_CLASS_FORWARD(Planner);
     /** \endcond */
 
+    /** \brief Tesseract-based planners and features.
+     */
     namespace hypercube
     {
         /** \brief A function than creates a new OMPL planner. Shamelessly inspired from MoveIt's OMPL plugin.
@@ -46,11 +48,11 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(OMPLChainPlanner);
         /** \endcond */
 
-        /** \class robowflex::robow_tesseract::OMPLChainPlannerPtr
-         *  \brief A shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
+        /** \class robowflex::hypercube::OMPLChainPlannerPtr
+         *  \brief A shared pointer wrapper for robowflex::hypercube::OMPLChainPlanner. */
 
-        /** \class robowflex::robow_tesseract::OMPLInterfacePlannerConstPtr
-         *  \brief A const shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
+        /** \class robowflex::hypercube::OMPLInterfacePlannerConstPtr
+         *  \brief A const shared pointer wrapper for robowflex::hypercube::OMPLChainPlanner. */
 
         /** \brief A light wrapper over tesseract's ChainOMPLPlanner
          */

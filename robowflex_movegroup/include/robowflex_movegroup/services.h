@@ -16,6 +16,8 @@
 
 namespace robowflex
 {
+    /** \brief Move group interaction related classes and features.
+     */
     namespace movegroup
     {
         /** \brief A helper class that allows for pulling and pushing of scenes, robots, and trajectories to
@@ -80,12 +82,12 @@ namespace robowflex
 
         private:
             /** \brief Callback function for a move group goal.
-             *  \param[in] Goal message.
+             *  \param[in] msg Goal message.
              */
             void moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg);
 
             /** \brief Callback function for a move group result.
-             *  \param[in] Result message.
+             *  \param[in] msg Result message.
              */
             void moveGroupResultCallback(const moveit_msgs::MoveGroupActionResult &msg);
 
