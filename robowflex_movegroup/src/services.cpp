@@ -23,11 +23,16 @@ MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
   , gpsc_(nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true))
   , apsc_(nh_.serviceClient<moveit_msgs::ApplyPlanningScene>(APPLY_SCENE, true))
   , eac_(nh_, EXECUTE, false)
+  , robot_(std::make_shared<ParamRobot>())
 {
 }
 
 MoveGroupHelper::~MoveGroupHelper()
 {
+    goal_sub_.shutdown();
+    result_sub_.shutdown();
+    gpsc_.shutdown();
+    apsc_.shutdown();
 }
 
 void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
@@ -35,63 +40,109 @@ void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
     callback_ = callback;
 }
 
-void MoveGroupHelper::executeTrajectory(const std::string &group,
-                                        const robot_trajectory::RobotTrajectory &path) const
+bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory &path)
 {
+    if (!eac_.isServerConnected())
+        return false;
+
+    moveit_msgs::ExecuteTrajectoryGoal goal;
+    path.getRobotTrajectoryMsg(goal.trajectory);
+
+    eac_.sendGoal(goal);
+    if (!eac_.waitForResult())
+        ROS_INFO("ExecuteTrajectory action returned early");
+
+    if (eac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        return true;
+    else
+        return false;
 }
 
-void MoveGroupHelper::pullState(RobotPtr &robot) const
+bool MoveGroupHelper::pullState(RobotPtr &robot)
 {
+    moveit_msgs::GetPlanningScene::Request request;
+    moveit_msgs::GetPlanningScene::Response response;
+    request.components.components = moveit_msgs::PlanningSceneComponents::ROBOT_STATE;
+
+    if (gpsc_.call(request, response))
+    {
+        robot->setState(response.scene.robot_state);
+        return true;
+    }
+
+    return false;
 }
 
-void MoveGroupHelper::pullScene(ScenePtr &scene) const
+bool MoveGroupHelper::pullScene(ScenePtr &scene)
 {
+    moveit_msgs::GetPlanningScene::Request request;
+    moveit_msgs::GetPlanningScene::Response response;
+    request.components.components = moveit_msgs::PlanningSceneComponents::SCENE_SETTINGS |
+                                    moveit_msgs::PlanningSceneComponents::ROBOT_STATE |
+                                    moveit_msgs::PlanningSceneComponents::ROBOT_STATE_ATTACHED_OBJECTS |
+                                    moveit_msgs::PlanningSceneComponents::WORLD_OBJECT_NAMES |
+                                    moveit_msgs::PlanningSceneComponents::WORLD_OBJECT_GEOMETRY |
+                                    moveit_msgs::PlanningSceneComponents::OCTOMAP |
+                                    moveit_msgs::PlanningSceneComponents::TRANSFORMS |
+                                    moveit_msgs::PlanningSceneComponents::ALLOWED_COLLISION_MATRIX |
+                                    moveit_msgs::PlanningSceneComponents::LINK_PADDING_AND_SCALING |
+                                    moveit_msgs::PlanningSceneComponents::OBJECT_COLORS;
+
+    if (gpsc_.call(request, response))
+    {
+        scene->useMessage(response.scene);
+        return true;
+    }
+
+    return false;
 }
 
-void MoveGroupHelper::pushScene(const SceneConstPtr &scene) const
+bool MoveGroupHelper::pushScene(const SceneConstPtr &scene)
 {
+    moveit_msgs::ApplyPlanningScene::Request request;
+    moveit_msgs::ApplyPlanningScene::Response response;
+    request.scene = scene->getMessage();
+
+    if (gpsc_.call(request, response))
+        return true;
+
+    return false;
 }
 
 void MoveGroupHelper::moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
 {
-    // const std::string &id = msg.goal_id.id;
-    // ROS_INFO("Intercepted request goal ID: `%s`", id.c_str());
+    const std::string &id = msg.goal_id.id;
+    ROS_DEBUG("Intercepted request goal ID: `%s`", id.c_str());
 
-    // requests_.emplace(std::piecewise_construct,  //
-    //                   std::forward_as_tuple(id), std::forward_as_tuple(retrieveScene(), msg.goal.request));
+    Action action;
+    action.scene.reset(new Scene(robot_));
+    pullScene(action.scene);
+    action.scene->useMessage(msg.goal.planning_options.planning_scene_diff);
+    action.request = msg.goal.request;
+
+    requests_.emplace(id, action);
 }
 
 void MoveGroupHelper::moveGroupResultCallback(const moveit_msgs::MoveGroupActionResult &msg)
 {
-    // const std::string &id = msg.status.goal_id.id;
+    const std::string &id = msg.status.goal_id.id;
 
-    // auto request = requests_.find(id);
-    // if (request == requests_.end())
-    // {
-    //     ROS_WARN("Intercepted unknown request response ID: `%s`", id.c_str());
-    //     return;
-    // }
+    auto request = requests_.find(id);
+    if (request == requests_.end())
+    {
+        ROS_WARN("Intercepted unknown request response ID: `%s`", id.c_str());
+        return;
+    }
 
-    // ROS_WARN("Intercepted request response ID: `%s`", id.c_str());
+    ROS_DEBUG("Intercepted request response ID: `%s`", id.c_str());
 
-    // YAML::Node node;
+    Action &action = request->second;
+    action.success = msg.result.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
+    action.time = msg.result.planning_time;
+    action.trajectory = msg.result.planned_trajectory;
 
-    // if (msg.result.error_code.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-    // {
-    //     node["success"] = "true";
-    //     node["trajectory"] = msg.result.planned_trajectory;
-    // }
-    // else
-    //     node["success"] = "false";
+    if (callback_)
+        callback_(action);
 
-    // ros::Time time = ros::Time::now();
-    // node["id"] = id;
-    // node["time"] = time;
-    // node["scene"] = request->second.first;
-    // node["request"] = request->second.second;
-
-    // IO::YAMLToFile(node, "~/robowflex_tapedeck/" + to_iso_string(time.toBoost()) + ".yml");
-    // ROS_WARN("  Wrote YAML for ID: `%s`", id.c_str());
-
-    // requests_.erase(request);
+    requests_.erase(request);
 }

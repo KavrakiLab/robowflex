@@ -14,8 +14,6 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 
-#include <robowflex_library/macros.h>
-
 namespace robowflex
 {
     namespace movegroup
@@ -26,13 +24,22 @@ namespace robowflex
         class MoveGroupHelper
         {
         public:
-            typedef std::function<void(
-                const SceneConstPtr &scene, const moveit_msgs::MotionPlanRequest &request,
-                moveit_msgs::MoveItErrorCodes code,
-                const robot_trajectory::RobotTrajectoryConstPtr &trajectory, double time)>
-                ResultCallback;
+            /** \brief A container struct for all relevant information about a motion planning request to move
+             *  group.
+             */
+            struct Action
+            {
+                ScenePtr scene;                           ///< Scene used for planning.
+                moveit_msgs::MotionPlanRequest request;   ///< Motion planning request.
+                bool success;                             ///< Planning success.
+                double time;                              ///< Planning time.
+                moveit_msgs::RobotTrajectory trajectory;  ///< Planned trajectory on success.
+            };
+
+            typedef std::function<void(Action &)> ResultCallback;
 
             /** \brief Constructor. Sets up service clients.
+             *  \param[in] move_group Name of the move group namespace.
              */
             MoveGroupHelper(const std::string &move_group = MOVE_GROUP);
 
@@ -41,33 +48,34 @@ namespace robowflex
             ~MoveGroupHelper();
 
             /** \brief Sets a callback function that is called whenever a motion plan request is serviced by
-             *  move group. Callback is called with the planning scene, planning request, resulting error
-             * code, and the trajectory and planning time upon success. \param[in] callback Callback function
-             * to call upon move group requests.
+             *  move group.
+             *  \param[in] callback Callback function to call upon move group requests.
              */
             void setResultCallback(const ResultCallback &callback);
 
             /** \brief Executes a planned trajectory through move group.
-             *  \param[in] group Planning group to plan for.
              *  \param[in] path Path to execute.
+             *  \return True on success, false on failure.
              */
-            void executeTrajectory(const std::string &group,
-                                   const robot_trajectory::RobotTrajectory &path) const;
+            bool executeTrajectory(const robot_trajectory::RobotTrajectory &path);
 
             /** \brief Pulls the current robot state from move group.
              *  \param[out] robot Robot whose state to set.
+             *  \return True on success, false on failure.
              */
-            void pullState(RobotPtr &robot) const;
+            bool pullState(RobotPtr &robot);
 
             /** \brief Pulls the current planning scene from move group.
              *  \param[out] scene Scene to set to the current scene observed by move group.
+             *  \return True on success, false on failure.
              */
-            void pullScene(ScenePtr &scene) const;
+            bool pullScene(ScenePtr &scene);
 
             /** \brief Pushes the current planning scene to move group.
              *  \param[in] scene Scene to use to set move group's current scene.
+             *  \return True on success, false on failure.
              */
-            void pushScene(const SceneConstPtr &scene) const;
+            bool pushScene(const SceneConstPtr &scene);
 
         private:
             /** \brief Callback function for a move group goal.
@@ -90,6 +98,10 @@ namespace robowflex
                                                                                        ///< client.
 
             ResultCallback callback_;  ///< Callback function for move group results.
+
+            std::map<std::string, Action> requests_;  ///< Move group requests
+
+            RobotPtr robot_;  ///< Robot on the parameter server used by move group.
 
             static const std::string MOVE_GROUP;   ///< Name of move_group namespace.
             static const std::string GET_SCENE;    ///< Name of get scene service.
