@@ -5,7 +5,7 @@
 
 #include <moveit/ompl_interface/ompl_interface.h>
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/class_forward.h>
 
 namespace robowflex
 {

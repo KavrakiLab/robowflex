@@ -10,7 +10,7 @@ using namespace robowflex;
 int main(int argc, char **argv)
 {
     // Startup ROS
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Create a WAM7 robot, specifying all necessary files.
     auto wam7 = std::make_shared<Robot>("wam7");

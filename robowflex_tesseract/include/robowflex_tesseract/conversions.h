@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_TESSERACT_CONVERSIONS_
 #define ROBOWFLEX_TESSERACT_CONVERSIONS_
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/class_forward.h>
 
 #include <tesseract_ros/kdl/kdl_env.h>
 

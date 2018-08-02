@@ -41,7 +41,10 @@ template IO::HDF5Data::HDF5Data(const H5::Group &, const std::string &);
 IO::HDF5Data::~HDF5Data()
 {
     delete dims_;
+
+    ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)
     std::free((void *)data_);
+    ROBOWFLEX_POP_GCC
 }
 
 const std::vector<hsize_t> IO::HDF5Data::getDims() const
@@ -91,7 +94,7 @@ namespace
 template <typename T>
 const T &IO::HDF5Data::get(const std::vector<hsize_t> &index) const
 {
-    if (index.size() != rank_)
+    if (index.size() != (unsigned int)rank_)
         throw std::invalid_argument("Index size must be the same as data rank!");
 
     const T *data = reinterpret_cast<const T *>(data_);
@@ -124,6 +127,7 @@ std::tuple<H5::PredType, unsigned int, std::string> IO::HDF5Data::getDataPropert
         // case H5T_VLEN:
         // case H5T_ARRAY:
         default:
+            return std::make_tuple(H5::PredType::NATIVE_OPAQUE, 0, "unknown");
             break;
     }
 }

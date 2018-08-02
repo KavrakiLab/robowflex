@@ -88,7 +88,7 @@ namespace robowflex
          *  \param[in] file Filename to open.
          *  \return True on success, false otherwise.
          */
-        bool YAMLtoFile(const YAML::Node &node, const std::string &file);
+        bool YAMLToFile(const YAML::Node &node, const std::string &file);
 
         /** \brief Dump a message (or YAML convertable object) to a file.
          *  \param[in] msg Message to dump.
@@ -101,7 +101,7 @@ namespace robowflex
             YAML::Node yaml;
             yaml = msg;
 
-            return YAMLtoFile(yaml, file);
+            return YAMLToFile(yaml, file);
         }
 
         /** \brief Load a message (or YAML convertable object) from a file.

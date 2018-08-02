@@ -10,7 +10,7 @@ using namespace robowflex;
 int main(int argc, char **argv)
 {
     // Startup ROS
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Create a UR5 robot, specifying all necessary files.
     auto ur5 = std::make_shared<Robot>("ur5");

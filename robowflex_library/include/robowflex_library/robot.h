@@ -61,7 +61,7 @@ namespace robowflex
         Robot(Robot const &) = delete;
         void operator=(Robot const &) = delete;
 
-        /** \name Initialization and loading.
+        /** \name Initialization and Loading
             \{ */
 
         /** \brief Initializes a robot from a kinematic and semantic description.
@@ -162,12 +162,12 @@ namespace robowflex
         /** \brief Get the raw URDF Model.
          *  \return The URDF Model.
          */
-        const urdf::ModelInterfaceSharedPtr &getURDF() const;
+        urdf::ModelInterfaceConstSharedPtr getURDF() const;
 
         /** \brief Get the raw SRDF Model.
          *  \return The SRDF model.
          */
-        const srdf::ModelConstSharedPtr &getSRDF() const;
+        srdf::ModelConstSharedPtr getSRDF() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
@@ -230,8 +230,9 @@ namespace robowflex
          *  \param[in] pose Pose of the \a region.
          *  \param[in] orientation Mean orientation
          *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
          */
-        void setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
         /** \brief Gets the current joint positions of the scratch state.
@@ -300,7 +301,7 @@ namespace robowflex
 
         /** \brief Loads a robot model from the loaded information on the parameter server.
          */
-        void loadRobotModel();
+        void loadRobotModel(bool namespaced = true);
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
@@ -316,6 +317,27 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+    };
+
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(ParamRobot);
+    /** \endcond */
+
+    /** \class robowflex::ParamRobotPtr
+        \brief A shared pointer wrapper for robowflex::ParamRobot. */
+
+    /** \class robowflex::ParamRobotConstPtr
+        \brief A const shared pointer wrapper for robowflex::ParamRobot. */
+
+    /** \brief Loads information about a robot from the parameter server.
+     */
+    class ParamRobot : public Robot
+    {
+    public:
+        /** Constructor. Loads robot from parameter server.
+         *  \param[in] name Name for this robot.
+         */
+        ParamRobot(const std::string &name = "DEFAULT");
     };
 }  // namespace robowflex
 

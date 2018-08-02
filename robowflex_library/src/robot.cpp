@@ -142,10 +142,11 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file,
     return true;
 }
 
-void Robot::loadRobotModel()
+void Robot::loadRobotModel(bool namespaced)
 {
-    robot_model_loader::RobotModelLoader::Options options(handler_.getNamespace() + "/" + ROBOT_DESCRIPTION);
-    options.load_kinematics_solvers_ = false;
+    robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
+                                                          "/" + ROBOT_DESCRIPTION);
+    options.load_kinematics_solvers_ = !namespaced;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
@@ -227,12 +228,12 @@ robot_model::RobotModelPtr &Robot::getModel()
     return model_;
 }
 
-const urdf::ModelInterfaceSharedPtr &Robot::getURDF() const
+urdf::ModelInterfaceConstSharedPtr Robot::getURDF() const
 {
     return model_->getURDF();
 }
 
-const srdf::ModelConstSharedPtr &Robot::getSRDF() const
+srdf::ModelConstSharedPtr Robot::getSRDF() const
 {
     return model_->getSRDF();
 }
@@ -300,20 +301,28 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-void Robot::setFromIK(const std::string &group,                                     //
+bool Robot::setFromIK(const std::string &group,                                     //
                       const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
     Eigen::Affine3d sampled_pose = pose;
+    auto sample = region->sample();
+    if (!sample.first)
+        return false;
 
-    sampled_pose.translate(region->sample());
+    sampled_pose.translate(sample.second);
     sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
 
     geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
-
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-    scratch_->setFromIK(jmg, msg);
-    scratch_->update();
+
+    if (scratch_->setFromIK(jmg, msg))
+    {
+        scratch_->update();
+        return true;
+    }
+
+    return false;
 }
 
 const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
@@ -497,7 +506,7 @@ bool Robot::dumpGeometry(const std::string &filename) const
         }
     }
 
-    return IO::YAMLtoFile(link_geometry, filename);
+    return IO::YAMLToFile(link_geometry, filename);
 }
 
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
@@ -551,5 +560,14 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     node["transforms"] = values;
     node["fps"] = fps;
 
-    return IO::YAMLtoFile(node, filename);
+    return IO::YAMLToFile(node, filename);
+}
+
+///
+/// robowflex::ParamRobot
+///
+
+ParamRobot::ParamRobot(const std::string &name) : Robot(name)
+{
+    loadRobotModel(false);
 }

@@ -11,7 +11,7 @@ using namespace robowflex;
 int main(int argc, char **argv)
 {
     // Startup ROS
-    startROS(argc, argv);
+    ROS ros(argc, argv);
 
     // Create a UR5 robot, specifying all necessary files.
     auto ur5_plain = std::make_shared<robowflex::Robot>("ur5");

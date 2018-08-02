@@ -201,7 +201,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         Results results(name, scene, planner, builder, options);
 
-        for (int j = 0; j < options.runs; ++j)
+        for (unsigned int j = 0; j < options.runs; ++j)
         {
             ros::WallTime start;
 

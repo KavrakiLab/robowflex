@@ -32,7 +32,6 @@ MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const
     request_.allowed_planning_time = 5.0;
 
     // Default planner (find an RRTConnect config, for Indigo)
-    const auto &configs = planner->getPlannerConfigs();
     for (const auto &config : DEFAULT_CONFIGS)
         if (setConfig(config))
             break;
@@ -154,7 +153,7 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() 
 
 bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 {
-    return IO::YAMLtoFile(IO::toNode(request_), file);
+    return IO::YAMLToFile(IO::toNode(request_), file);
 }
 
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)

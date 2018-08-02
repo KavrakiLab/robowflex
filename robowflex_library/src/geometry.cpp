@@ -2,6 +2,7 @@
 
 #include <geometric_shapes/shape_operations.h>
 
+#include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
 
@@ -26,9 +27,7 @@ Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
         }
 
     if (i == MAX)
-    {
-        // TODO: Throw
-    }
+        throw Exception(1, "Invalid type for geometry.");
 
     return type;
 }
@@ -36,9 +35,7 @@ Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
 const std::string &Geometry::ShapeType::toString(Type type)
 {
     if (type > MAX)
-    {
-        // TODO: Throw
-    }
+        throw Exception(1, "Invalid type for geometry.");
 
     return STRINGS[type];
 }
@@ -136,23 +133,24 @@ bodies::Body *Geometry::loadBody() const
     return nullptr;
 }
 
-const bool Geometry::contains(const Eigen::Vector3d &point) const
+bool Geometry::contains(const Eigen::Vector3d &point) const
 {
     return body_->containsPoint(point[0], point[1], point[2]);
 }
 
-Eigen::Vector3d Geometry::sample(const unsigned int attempts) const
+std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) const
 {
+    bool success;
     Eigen::Vector3d point;
     random_numbers::RandomNumberGenerator rng;
 
-    if (!body_->samplePointInside(rng, attempts, point))
+    if (!(success = body_->samplePointInside(rng, attempts, point)))
         point = Eigen::Vector3d{0, 0, 0};
 
-    return point;
+    return std::make_pair(success, point);
 }
 
-const bool Geometry::isMesh() const
+bool Geometry::isMesh() const
 {
     return type_ == ShapeType::MESH;
 }
@@ -160,7 +158,7 @@ const bool Geometry::isMesh() const
 const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
 {
     shapes::ShapeMsg msg;
-    if (type_ != ShapeType::MESH)
+    if (!isMesh())
         shapes::constructMsgFromShape(shape_.get(), msg);
 
     return boost::get<shape_msgs::SolidPrimitive>(msg);
@@ -169,7 +167,7 @@ const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
 const shape_msgs::Mesh Geometry::getMeshMsg() const
 {
     shapes::ShapeMsg msg;
-    if (type_ == ShapeType::MESH)
+    if (isMesh())
         shapes::constructMsgFromShape(shape_.get(), msg);
 
     return boost::get<shape_msgs::Mesh>(msg);

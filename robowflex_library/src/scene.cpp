@@ -126,6 +126,14 @@ collision_detection::AllowedCollisionMatrix &Scene::getACM()
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
+void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
+{
+    if (!diff)
+        scene_->setPlanningSceneMsg(msg);
+    else
+        scene_->setPlanningSceneDiffMsg(msg);
+}
+
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                   const Eigen::Affine3d &pose)
 {
@@ -242,7 +250,7 @@ bool Scene::toYAMLFile(const std::string &file)
     scene_->getPlanningSceneMsg(msg);
 
     YAML::Node node = IO::toNode(msg);
-    return IO::YAMLtoFile(node, file);
+    return IO::YAMLToFile(node, file);
 }
 
 bool Scene::fromYAMLFile(const std::string &file)
@@ -252,7 +260,7 @@ bool Scene::fromYAMLFile(const std::string &file)
         return false;
 
     auto acm(getACM());
-    scene_->setPlanningSceneMsg(msg);
+    useMessage(msg);
 
     // Update ACM only if anything specified.
     if (msg.allowed_collision_matrix.entry_names.empty())

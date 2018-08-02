@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_TESSERACT_PLANNERS_
 #define ROBOWFLEX_TESSERACT_PLANNERS_
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/class_forward.h>
 #include <robowflex_library/planning.h>
 
 #include <tesseract_planning/basic_planner.h>
@@ -20,6 +20,8 @@ namespace robowflex
     ROBOWFLEX_CLASS_FORWARD(Planner);
     /** \endcond */
 
+    /** \brief Tesseract-based planners and features.
+     */
     namespace hypercube
     {
         /** \brief A function than creates a new OMPL planner. Shamelessly inspired from MoveIt's OMPL plugin.
@@ -36,21 +38,21 @@ namespace robowflex
              */
             Settings();
 
-            bool simplify_solutions;               ///< Whether or not planner should simplify solutions.
-            double longest_valid_segment_fraction; ///< Fraction of the C-space under which any segment is
-                                                   ///< automatically considered valid.
-            bool use_continuous_validator;         ///< Uses TrajOpt's continuous convex hull collision checking.
+            bool simplify_solutions;                ///< Whether or not planner should simplify solutions.
+            double longest_valid_segment_fraction;  ///< Fraction of the C-space under which any segment is
+                                                    ///< automatically considered valid.
+            bool use_continuous_validator;  ///< Uses TrajOpt's continuous convex hull collision checking.
         };
-        
+
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(OMPLChainPlanner);
         /** \endcond */
 
-        /** \class robowflex::robow_tesseract::OMPLChainPlannerPtr
-         *  \brief A shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
+        /** \class robowflex::hypercube::OMPLChainPlannerPtr
+         *  \brief A shared pointer wrapper for robowflex::hypercube::OMPLChainPlanner. */
 
-        /** \class robowflex::robow_tesseract::OMPLInterfacePlannerConstPtr
-         *  \brief A const shared pointer wrapper for robowflex::robow_tesseract::OMPLChainPlanner. */
+        /** \class robowflex::hypercube::OMPLInterfacePlannerConstPtr
+         *  \brief A const shared pointer wrapper for robowflex::hypercube::OMPLChainPlanner. */
 
         /** \brief A light wrapper over tesseract's ChainOMPLPlanner
          */
