@@ -91,9 +91,10 @@ tesseract::tesseract_ros::KDLEnvPtr hypercube::constructTesseractEnv(const robow
             // The header frame_id is somewhere else in the scene.
             // Attach it to the base link, but make the transform go from frame_id to
             // world to base_link.
-            attached_body.parent_link_name = "base_link";
+            const std::string &root_name = robot->getModelConst()->getRootLinkName();
+            attached_body.parent_link_name = root_name;
             attached_body.transform = scene->getFramePose(collision_object.header.frame_id) *
-                                      scene->getFramePose("base_link").inverse();
+                                      scene->getFramePose(root_name).inverse();
         }
 
         env->attachBody(attached_body);

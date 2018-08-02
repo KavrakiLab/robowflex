@@ -266,7 +266,9 @@ OMPLChainPlanner::plan(const SceneConstPtr &scene, const planning_interface::Mot
 
     if (maybe_path)
     {
-        const ompl::geometric::PathGeometric &path = *maybe_path;
+        ompl::geometric::PathGeometric &path = *maybe_path;
+        // Go ahead and interpolate.
+        path.interpolate();
         res.trajectory_.reset(new robot_trajectory::RobotTrajectory(robot_->getModel(), request.group_name));
         for (std::size_t i = 0; i < path.getStateCount(); i++)
         {
