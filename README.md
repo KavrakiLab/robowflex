@@ -8,7 +8,7 @@ Examples of basic motion planning, benchmarking of planning requests, and input/
 
 ## robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
-See [`robowflex_visualization/README.md`](robowflex_visualization.html) for more information on how to use.
+See [`robowflex_visualization/README.md`](robowflex_visualization/README.md) for more information on how to use.
 
 ## robowflex_ompl
 An optionally compiled library component that adds more direct access to [OMPL](http://ompl.kavrakilab.org/) through a new `robowflex::Planner`.
