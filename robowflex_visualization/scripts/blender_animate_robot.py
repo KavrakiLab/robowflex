@@ -77,14 +77,7 @@ class RobotFrames(object):
             for name in imported_names:
                 bpy.ops.object.select_all(action = 'DESELECT')
 
-                # For some dumb reason, loading robotiq's meshes loads in extra
-                # cameras and lamps. Delete those.
                 i_obj = bpy.data.objects[name]
-
-                if 'Camera' in name or 'Lamp' in name:
-                    i_obj.select = True
-                    bpy.ops.object.delete()
-                    continue
 
                 blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
                 i_obj.keyframe_insert(data_path = "location", index = -1)
