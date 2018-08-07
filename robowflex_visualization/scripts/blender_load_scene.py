@@ -115,8 +115,6 @@ def add_mesh(mesh):
         
         if 'dimensions' in mesh:
             i_obj.scale = mesh['dimensions']
-        else:
-            i_obj.scale = (1, 1, 1)
 
         obj_list.append(i_obj)
     
