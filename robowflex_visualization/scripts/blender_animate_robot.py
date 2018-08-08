@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Reads in a static file of transforms of different parts of the ur5 robot and animates them in blender.
+'''Reads in a static file of transforms of different parts of the robot and animates them in blender.
 
 '''
 import json
@@ -132,7 +132,7 @@ def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
     animate its path.
 
-    WARNING: well delete all existing objects in the scene.
+    WARNING: will delete all existing objects in the scene.
     '''
     blender_utils.delete_all()
 
