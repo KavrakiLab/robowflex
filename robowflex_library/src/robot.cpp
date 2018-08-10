@@ -407,6 +407,15 @@ namespace
         // node["texture"] = visual->texture_filename;
     }
 
+    void addLinkOrigin(YAML::Node &node, const urdf::Pose &pose)
+    {
+        YAML::Node origin;
+        origin["position"] = std::vector<double>({pose.position.x, pose.position.y, pose.position.z});
+        origin["rotation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        node["origin"] = origin;
+        ROBOWFLEX_YAML_FLOW(node["origin"]);
+    }
+
     YAML::Node addLinkVisual(const urdf::VisualSharedPtr &visual)
     {
         YAML::Node node;
@@ -421,6 +430,13 @@ namespace
                 {
                     const auto &material = visual->material;
                     addLinkMaterial(node, material);
+                }
+
+                const auto &pose = visual->origin;
+                // TODO Also check if rotation is not zero.
+                if (pose.position.x != 0 || pose.position.y != 0 || pose.position.z != 0)
+                {
+                    addLinkOrigin(node, pose);
                 }
             }
         }
