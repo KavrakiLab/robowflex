@@ -75,7 +75,16 @@ def add_cone(cone):
     return obj
 
 
-SHAPE_MAP = {'box': add_box, 'sphere': add_sphere, 'cylinder': add_cylinder, 'cone': add_cone}
+SHAPE_MAP = {
+    'box': add_box, 
+    1    : add_box,
+    'sphere': add_sphere, 
+    2       : add_sphere,
+    'cylinder': add_cylinder, 
+    3         : add_cylinder,
+    'cone': add_cone,
+    4     : add_cone
+}
 
 
 def add_mesh(mesh):

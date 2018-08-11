@@ -87,6 +87,10 @@ def pose_to_quat(pose):
     reorder them.
 
     '''
+    if 'x' in pose['orientation']:
+        q = pose['orientation']
+        return [q['w'], q['x'], q['y'], q['z']]
+
     if isinstance(pose['orientation'][0], str):
         # Means there's a NAN somewhere.
         return (1.0, 0.0, 0.0, 0.0)
@@ -98,6 +102,8 @@ def pose_to_vec(pose):
     '''Takes a pose dict and extracts the position vector.
 
     '''
+    if 'x' in pose['position']:
+        return [pose['position']['x'], pose['position']['y'], pose['position']['z']]
 
     return pose['position']
 
