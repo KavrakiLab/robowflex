@@ -103,6 +103,7 @@ def pose_to_vec(pose):
 
 def quat_by_quat(q1, q2):
     '''Multiply two quaternions. Remember, these are WXYZ.
+       Actually tested, should be right.
     '''
     return [
         q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3], # w
@@ -122,11 +123,11 @@ def pose_add(obj, pose1, pose2):
     translation_quat = [0] + pose_to_vec(pose2)
     q1 = pose_to_quat(pose1)
     q1_cong = [q1[0], -q1[1], -q1[2], -q1[3]]
-    rotated_translation = quat_by_quat(quat_by_quat(q1, translation_quat), q1_cong)
+    rotated_translation = quat_by_quat(quat_by_quat(q1, translation_quat), q1_cong)[1:]
     obj.location = [a[0] + a[1] for a in zip(obj.location, rotated_translation)]
 
     # Apply pose2's quaternion to the existing rotation.
-    obj.rotation_quaternion = quat_by_quat(pose_to_quat(pose2), obj.rotation_quaternion)
+    obj.rotation_quaternion = quat_by_quat(obj.rotation_quaternion, pose_to_quat(pose2))
 
 
 def set_pose(obj, pose):

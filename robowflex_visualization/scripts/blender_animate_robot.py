@@ -67,33 +67,36 @@ class RobotFrames(object):
                 self.link_to_parts[link_name] = []
                 continue
 
+            imported_name_sets = []
             for link_element in link['visual']['elements']:
                 blender_scene.add_shape(link_element)
-
-            new = set([obj.name for obj in bpy.data.objects])
-            imported_names = new - old
+                new = set([obj.name for obj in bpy.data.objects])
+                imported_name_sets.append(new - old)
+                old = new
 
             remaining = []
-            for name in imported_names:
-                bpy.ops.object.select_all(action = 'DESELECT')
+            for names, elem in zip(imported_name_sets, link['visual']['elements']):
+                sublist = []
+                for name in names:
+                    bpy.ops.object.select_all(action = 'DESELECT')
 
-                # For some dumb reason, loading robotiq's meshes loads in extra
-                # cameras and lamps. Delete those.
-                i_obj = bpy.data.objects[name]
+                    # For some dumb reason, loading robotiq's meshes loads in extra
+                    # cameras and lamps. Delete those.
+                    i_obj = bpy.data.objects[name]
 
-                if 'Camera' in name or 'Lamp' in name:
-                    i_obj.select = True
-                    bpy.ops.object.delete()
-                    continue
+                    if 'Camera' in name or 'Lamp' in name:
+                        i_obj.select = True
+                        bpy.ops.object.delete()
+                        continue
 
-                if 'origin' in link:
-                    blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link['origin'])
-                else:
-                    blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
-                i_obj.keyframe_insert(data_path = "location", index = -1)
-                i_obj.name = link_name
-
-                remaining.append(i_obj.name)
+                    if 'origin' in elem:
+                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], elem['origin'])
+                    else:
+                        blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.name = link_name
+                    sublist.append(i_obj.name)
+                remaining.append(sublist)
 
             self.link_to_parts[link_name] = remaining
 
@@ -112,22 +115,24 @@ class RobotFrames(object):
         # Sometimes, weird keyframes are being added way after finish. Delete those.
         for link in self.link_list:
             link_name = link['name']
-            for name in self.link_to_parts[link_name]:
-                i_obj = bpy.data.objects[name]
-                i_obj.animation_data_clear()
+            for names in self.link_to_parts[link_name]:
+                for name in names:
+                    i_obj = bpy.data.objects[name]
+                    i_obj.animation_data_clear()
         current_frame = self.start_frame
         for point in self.points:
             bpy.context.scene.frame_set(current_frame)
             for link in self.link_list:
                 link_name = link['name']
-                for name in self.link_to_parts[link_name]:
-                    i_obj = bpy.data.objects[name]
-                    if 'origin' in link:
-                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link['origin'])
-                    else:
-                        blender_utils.set_pose(i_obj, point['point'][link_name])
-                    i_obj.keyframe_insert(data_path = "location", index = -1)
-                    i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
+                for names, elem in zip(self.link_to_parts[link_name], link['visual']['elements']):
+                    for name in names:
+                        i_obj = bpy.data.objects[name]
+                        if 'origin' in elem:
+                            blender_utils.pose_add(i_obj, point['point'][link_name], elem['origin'])
+                        else:
+                            blender_utils.set_pose(i_obj, point['point'][link_name])
+                        i_obj.keyframe_insert(data_path = "location", index = -1)
+                        i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
             current_frame += fps * point['duration']
 
         bpy.context.scene.render.fps = fps

@@ -411,7 +411,7 @@ namespace
     {
         YAML::Node origin;
         origin["position"] = std::vector<double>({pose.position.x, pose.position.y, pose.position.z});
-        origin["rotation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        origin["orientation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
         node["origin"] = origin;
         ROBOWFLEX_YAML_FLOW(node["origin"]);
     }

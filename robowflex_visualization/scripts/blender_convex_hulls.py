@@ -42,30 +42,36 @@ class RobotHulls(RobotFrames):
                 self.link_to_parts[link_name] = []
                 continue
 
+            imported_name_sets = []
             for link_element in link['visual']['elements']:
                 blender_scene.add_shape(link_element)
-
-            new = set([obj.name for obj in bpy.data.objects])
-            imported_names = new - old
+                new = set([obj.name for obj in bpy.data.objects])
+                imported_name_sets.append(new - old)
+                old = new
 
             remaining = []
-            for name in imported_names:
-                bpy.ops.object.select_all(action = 'DESELECT')
+            for names, elem in zip(imported_name_sets, link['visual']['elements']):
+                sublist = []
+                for name in names:
+                    bpy.ops.object.select_all(action = 'DESELECT')
 
-                # For some dumb reason, loading robotiq's meshes loads in extra
-                # cameras and lamps. Delete those.
-                i_obj = bpy.data.objects[name]
+                    # For some dumb reason, loading robotiq's meshes loads in extra
+                    # cameras and lamps. Delete those.
+                    i_obj = bpy.data.objects[name]
 
-                if 'Camera' in name or 'Lamp' in name:
-                    i_obj.select = True
-                    bpy.ops.object.delete()
-                    continue
+                    if 'Camera' in name or 'Lamp' in name:
+                        i_obj.select = True
+                        bpy.ops.object.delete()
+                        continue
 
-                blender_utils.set_pose(i_obj, self.points[idx1]['point'][link_name])
-                i_obj.keyframe_insert(data_path = "location", index = -1)
-                i_obj.name = link_name
-
-                remaining.append(i_obj.name)
+                    if 'origin' in elem:
+                        blender_utils.pose_add(i_obj, self.points[idx1]['point'][link_name], elem['origin'])
+                    else:
+                        blender_utils.set_pose(i_obj, self.points[idx1]['point'][link_name])
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.name = link_name
+                    sublist.append(i_obj.name)
+                remaining.append(sublist)
 
             # Do it again.
             old2 = set([obj.name for obj in bpy.data.objects])
@@ -74,36 +80,44 @@ class RobotHulls(RobotFrames):
                 self.link_to_parts[link_name] = []
                 continue
 
+            imported_name_sets2 = []
             for link_element in link['visual']['elements']:
-                #blender_scene.add_shape(link_element)
-                pass
+                blender_scene.add_shape(link_element)
+                new2 = set([obj.name for obj in bpy.data.objects])
+                imported_name_sets2.append(new2 - old2)
+                old2 = new2
 
-            new2 = set([obj.name for obj in bpy.data.objects])
             imported_names2 = new2 - old2
 
-            for name in imported_names2:
-                bpy.ops.object.select_all(action = 'DESELECT')
+            for names, elem in zip(imported_name_sets2, link['visual']['elements']):
+                sublist = []
+                for name in names:
+                    bpy.ops.object.select_all(action = 'DESELECT')
 
-                # For some dumb reason, loading robotiq's meshes loads in extra
-                # cameras and lamps. Delete those.
-                i_obj = bpy.data.objects[name]
+                    # For some dumb reason, loading robotiq's meshes loads in extra
+                    # cameras and lamps. Delete those.
+                    i_obj = bpy.data.objects[name]
 
-                if 'Camera' in name or 'Lamp' in name:
-                    i_obj.select = True
-                    bpy.ops.object.delete()
-                    continue
+                    if 'Camera' in name or 'Lamp' in name:
+                        i_obj.select = True
+                        bpy.ops.object.delete()
+                        continue
 
-                blender_utils.set_pose(i_obj, self.points[idx2]['point'][link_name])
-                i_obj.keyframe_insert(data_path = "location", index = -1)
-                i_obj.name = link_name
-
-                remaining.append(i_obj.name)
+                    if 'origin' in elem:
+                        blender_utils.pose_add(i_obj, self.points[idx2]['point'][link_name], elem['origin'])
+                    else:
+                        blender_utils.set_pose(i_obj, self.points[idx2]['point'][link_name])
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.name = link_name
+                    sublist.append(i_obj.name)
+                remaining.append(sublist)
 
             # Join all of the objects for this link.
             bpy.ops.object.select_all(action = 'DESELECT')
-            for name in remaining:
-                i_obj = bpy.data.objects[name]
-                i_obj.select = True
+            for names in remaining:
+                for name in names:
+                    i_obj = bpy.data.objects[name]
+                    i_obj.select = True
             bpy.ops.object.join()
             last_name = name # the new object is last name
 
@@ -113,18 +127,10 @@ class RobotHulls(RobotFrames):
             for v in mesh.verts:
                 v.select = True
 
-            #bpy.ops.mesh.convex_hull()
+            bpy.ops.mesh.convex_hull()
             bpy.ops.object.mode_set(mode = 'OBJECT')
-            
 
             self.link_to_parts[link_name] = remaining
-
-        # Apply smooth shading and edge split to each object for aesthetics
-        #for obj in bpy.data.objects:
-            #bpy.context.scene.objects.active = obj
-
-            #blender_utils.apply_smooth()
-            #blender_utils.apply_edge_split()
 
 
 def convex_hull_robot(mesh_map_file, path_file):
@@ -139,4 +145,4 @@ def convex_hull_robot(mesh_map_file, path_file):
     link_map = utils.read_yaml_data(mesh_map_file)
 
     robot_frames = RobotHulls(points, link_map)
-    robot_frames.load_hulls(0, 0)
+    robot_frames.load_hulls(0, 20)
