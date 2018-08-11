@@ -86,7 +86,10 @@ class RobotFrames(object):
                     bpy.ops.object.delete()
                     continue
 
-                blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
+                if 'origin' in link:
+                    blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link['origin'])
+                else:
+                    blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
                 i_obj.keyframe_insert(data_path = "location", index = -1)
                 i_obj.name = link_name
 
@@ -119,7 +122,10 @@ class RobotFrames(object):
                 link_name = link['name']
                 for name in self.link_to_parts[link_name]:
                     i_obj = bpy.data.objects[name]
-                    blender_utils.set_pose(i_obj, point['point'][link_name])
+                    if 'origin' in link:
+                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link['origin'])
+                    else:
+                        blender_utils.set_pose(i_obj, point['point'][link_name])
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
             current_frame += fps * point['duration']

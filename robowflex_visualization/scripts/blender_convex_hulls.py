@@ -139,4 +139,4 @@ def convex_hull_robot(mesh_map_file, path_file):
     link_map = utils.read_yaml_data(mesh_map_file)
 
     robot_frames = RobotHulls(points, link_map)
-    robot_frames.load_hulls(20, 20)
+    robot_frames.load_hulls(0, 0)
