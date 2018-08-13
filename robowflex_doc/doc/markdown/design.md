@@ -1,4 +1,4 @@
-# Robowflex Design and API
+# Robowflex Design Notes
 
 ## Introduction (What is Robowflex?)
 
@@ -67,4 +67,10 @@ Offline visualization can be done with Blender through `robowflex_visualization`
 See the [readme](robowflex_visualization/README.html) for more details.
 
 Additionally, there are a few implementations of robowflex::Robot for some commonly used robots, such as robowflex::UR5Robot, robowflex::FetchRobot, and robowflex::R2Robot.
+
+## Documentation
+
+All visible documentation (through [Doxygen](http://www.stack.nl/~dimitri/doxygen/))is done in the `robowflex_doc` package.
+This pulls in all code in the other Robowflex projects, as well as their `README.md` files if they exist.
+Additional written documentation is in the `doc/markdown` folder in the `robowflex_doc` package.
 

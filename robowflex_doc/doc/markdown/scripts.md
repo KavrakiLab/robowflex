@@ -1,6 +1,6 @@
 # Scripts
 
-A list of provided example scripts that demonstrate some of the functionality of robowflex.
+A list of provided example scripts that demonstrate some of the functionality of Robowflex.
 
 ## robowflex_library
 
