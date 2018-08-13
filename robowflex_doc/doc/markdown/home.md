@@ -1,5 +1,8 @@
-# robowflex 💪🤖
-The Better Robot Benching Framework™.
+# Robowflex 
+
+<i class="fas fa-dumbbell fa-3x"></i>&nbsp;&nbsp;<i class="fas fa-robot fa-3x"></i>&nbsp;&nbsp;<i class="fas fa-dumbbell fa-3x"></i>
+
+The Better Robot Benching Framework™ .
 An overview of what this project is can be found in the [design description](design.html).
 
 ## robowflex_library

@@ -1,4 +1,4 @@
-# Scripts
+#Scripts
 
 A list of provided example scripts that demonstrate some of the functionality of robowflex.
 
@@ -62,3 +62,6 @@ An example of motion planning using the tesseract-based motion planner robowflex
 - [tapedeck.cpp](tapedeck_8cpp_source.html)
 A utility script that saves all motion plan requests that go to a `move_group` instance to YAML files. 
 Demonstrates the robowflex::movegroup::MoveGroupHelper class.
+
+- [mixtape.cpp](tapedeck_8cpp_source.html)
+A utility script that reads motion plan requests from `tapedeck`.
