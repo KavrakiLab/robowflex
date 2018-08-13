@@ -66,6 +66,13 @@ namespace robowflex
          */
         void createFile(std::ofstream &out, const std::string &file);
 
+        /** \brief Lists of the contents of a directory.
+         *  \param[in] directory Directory to list.
+         *  \return A pair of a bool and a vector of strings of filenames of the directories contents. The
+         * first element will be true on success, false on failure. These filenames are absolute paths.
+         */
+        const std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
+
         /** \brief Get the hostname of the system.
          *  \return String of the hostname.
          */
