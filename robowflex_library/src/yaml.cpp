@@ -320,7 +320,7 @@ namespace YAML
             node["stamp"]["nsecs"] = rhs.stamp.nsec;
         }
 
-        if (rhs.frame_id != "world")
+        if (rhs.frame_id != "world" && rhs.frame_id != "/world")
             node["frame_id"] = rhs.frame_id;
 
         return node;
@@ -336,8 +336,8 @@ namespace YAML
 
         if (node["stamp"])
         {
-            rhs.stamp.sec = node["stamp"]["secs"].as<int>();
-            rhs.stamp.nsec = node["stamp"]["nsecs"].as<int>();
+            rhs.stamp.sec = node["stamp"]["sec"].as<int>();
+            rhs.stamp.nsec = node["stamp"]["nsec"].as<int>();
         }
 
         if (node["frame_id"])
@@ -1573,10 +1573,10 @@ namespace YAML
         if (rhs.allowed_planning_time != 0)
             node["allowed_planning_time"] = rhs.allowed_planning_time;
 
-        if (rhs.max_velocity_scaling_factor > 0)
+        if (rhs.max_velocity_scaling_factor < 1)
             node["max_velocity_scaling_factor"] = rhs.max_velocity_scaling_factor;
 
-        if (rhs.max_acceleration_scaling_factor > 0)
+        if (rhs.max_acceleration_scaling_factor < 1)
             node["max_acceleration_scaling_factor"] = rhs.max_acceleration_scaling_factor;
 
         return node;
@@ -1611,15 +1611,23 @@ namespace YAML
 
         if (node["num_planning_attempts"])
             rhs.num_planning_attempts = node["num_planning_attempts"].as<int>();
+        else
+            rhs.num_planning_attempts = 0;
 
         if (node["allowed_planning_time"])
             rhs.allowed_planning_time = node["allowed_planning_time"].as<double>();
+        else
+            rhs.allowed_planning_time = 0;
 
         if (node["max_velocity_scaling_factor"])
             rhs.max_velocity_scaling_factor = node["max_velocity_scaling_factor"].as<double>();
+        else
+            rhs.max_velocity_scaling_factor = 1;
 
         if (node["max_acceleration_scaling_factor"])
             rhs.max_acceleration_scaling_factor = node["max_acceleration_scaling_factor"].as<double>();
+        else
+            rhs.max_acceleration_scaling_factor = 1;
 
         return true;
     }
@@ -1680,13 +1688,13 @@ namespace YAML
         rhs = trajectory_msgs::MultiDOFJointTrajectoryPoint();
 
         if (node["transforms"])
-            rhs.transforms = node.as<std::vector<geometry_msgs::Transform>>();
+            rhs.transforms = node["transforms"].as<std::vector<geometry_msgs::Transform>>();
 
         if (node["velocities"])
-            rhs.velocities = node.as<std::vector<geometry_msgs::Twist>>();
+            rhs.velocities = node["velocities"].as<std::vector<geometry_msgs::Twist>>();
 
         if (node["accelerations"])
-            rhs.accelerations = node.as<std::vector<geometry_msgs::Twist>>();
+            rhs.accelerations = node["accelerations"].as<std::vector<geometry_msgs::Twist>>();
 
         rhs.time_from_start = node["time_from_start"].as<ros::Duration>();
         return true;
