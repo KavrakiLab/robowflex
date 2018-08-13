@@ -12,6 +12,6 @@
 
   <depend>roscpp</depend>
   <depend>robowflex_library</depend>
-  <depend>gflags</depend>  
+  <depend>gflags</depend>
 
 </package>
