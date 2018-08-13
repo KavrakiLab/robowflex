@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tmpack)
 
+set(LIBRARY_NAME tmpack)
+
 set(CMAKE_MODULE_PATH
   "${CMAKE_MODULE_PATH}"
   "${CMAKE_ROOT_DIR}/cmake/Modules"
@@ -22,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 catkin_package(
+  LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
     robowflex_library
     roscpp
@@ -45,6 +48,32 @@ list(APPEND INCLUDES
 include_directories(${INCLUDES})
 
 
+##
+## Library Creation
+##
+
+list(APPEND SOURCES
+  src/footstep_planner/my_walker.cpp
+  )
+
+list(APPEND INCLUDES
+  ${CMAKE_CURRENT_LIST_DIR}/include
+  )
+
+list(APPEND LIBRARIES
+  ${catkin_LIBRARIES}
+  )
+
+include_directories(${INCLUDES})
+link_directories(${catkin_LIBRARY_DIRS})
+add_library(${LIBRARY_NAME} ${SOURCES})
+set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
+
+install(TARGETS ${LIBRARY_NAME} 
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY src/footstep_planner/scenes/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scenes)
 install(DIRECTORY include/tmpack/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})

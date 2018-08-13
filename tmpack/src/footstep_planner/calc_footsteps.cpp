@@ -9,9 +9,9 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-#include "utils/geom_2D.h"
-#include "utils/util.h"
-#include "utils/yen_ksp.hpp"
+#include <tmpack/utils/geom_2D.h>
+#include <tmpackutils/util.h>
+#include <tmpackutils/yen_ksp.hpp>
 
 #define BIG_NUM 1000000000
 

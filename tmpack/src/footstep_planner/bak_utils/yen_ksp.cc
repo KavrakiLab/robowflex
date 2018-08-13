@@ -1,6 +1,9 @@
+#ifndef YEN_KSP_CPP
+#define YEN_KSP_CPP
+
 #define BOOST_TEST_MODULE yen_ksp
 
-#include "yen_ksp.hpp"
+#include <tmpack/utils/yen_ksp.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/unit_test.hpp>
@@ -208,3 +211,5 @@ BOOST_AUTO_TEST_CASE(yen_ksp_test2)
   BOOST_CHECK(check_result(r, result(3, path{ab, bc2})));
   BOOST_CHECK(check_result(r, result(4, path{ac})));
 }
+
+#endif

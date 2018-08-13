@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <tmpack/tmpack_interface.cpp>
-#include <tmpack/myWalker.h>
+#include <tmpack/my_walker.h>
 #include <tmpack/utils/util.h>
 #include <tmpack/utils/geom_2D.h>
 #include <tmpack/calc_footsteps.cpp>

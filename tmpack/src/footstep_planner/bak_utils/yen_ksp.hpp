@@ -35,7 +35,7 @@
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/optional.hpp>
 
-#include "custom_dijkstra_call.hpp"
+#include <tmpack/utils/custom_dijkstra_call.hpp>
 
 namespace boost {
 

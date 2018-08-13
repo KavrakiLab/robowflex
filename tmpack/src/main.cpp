@@ -1,4 +1,4 @@
-#include "footstep_planner/my_walker.cpp"
+#include <tmpack/my_walker.h>
 #include "footstep_planner/my_graph_tester.cpp"
 #include <robowflex_library/robowflex.h>
 #include <robowflex_library/detail/r2.h>
