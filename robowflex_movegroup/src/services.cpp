@@ -5,10 +5,62 @@
 #include <moveit_msgs/GetPlanningScene.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
 
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/yaml.h>
+
 #include <robowflex_movegroup/services.h>
 
 using namespace robowflex;
 using namespace robowflex::movegroup;
+
+///
+/// MoveGroupHelper::Action
+///
+
+bool MoveGroupHelper::Action::fromYAMLFile(const std::string &filename)
+{
+    movegroup::MoveGroupHelper::Action action;
+    const auto file = IO::loadFileToYAML(filename);
+
+    if (!file.first)
+    {
+        ROS_WARN("Failed to open file %s!", filename.c_str());
+        return false;
+    }
+
+    id = file.second["id"].as<std::string>();
+    request = file.second["request"].as<moveit_msgs::MotionPlanRequest>();
+    success = file.second["success"].as<bool>();
+    time = file.second["time"].as<double>();
+
+    if (IO::isNode(file.second["trajectory"]))
+        trajectory = file.second["trajectory"].as<moveit_msgs::RobotTrajectory>();
+
+    return true;
+}
+
+bool MoveGroupHelper::Action::toYAMLFile(const std::string &filename)
+{
+    YAML::Node node;
+
+    node["id"] = id;
+
+    moveit_msgs::PlanningScene scene_msg;
+    scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
+    node["scene"] = IO::toNode(scene_msg);
+
+    node["request"] = IO::toNode(request);
+    node["success"] = success ? "true" : "false";
+    node["time"] = time;
+    node["trajectory"] = IO::toNode(trajectory);
+
+    return IO::YAMLToFile(node, filename);
+}
+
+///
+/// MoveGroupHelper
+///
 
 const std::string MoveGroupHelper::MOVE_GROUP{"/move_group"};
 const std::string MoveGroupHelper::GET_SCENE{"get_planning_scene"};

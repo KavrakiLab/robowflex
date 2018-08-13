@@ -6,37 +6,11 @@
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
-#include <robowflex_library/io/yaml.h>
-#include <robowflex_library/yaml.h>
 
 #include <robowflex_movegroup/services.h>
 
 using namespace robowflex;
-
-movegroup::MoveGroupHelper::Action loadFile(const std::string &filename)
-{
-    const auto file = IO::loadFileToYAML(filename);
-    movegroup::MoveGroupHelper::Action action;
-
-    if (!file.first)
-    {
-        ROS_DEBUG("Failed to open file %s!", filename.c_str());
-        return action;
-    }
-    else
-        ROS_INFO("Opened YAML file %s...", filename.c_str());
-
-    action.id = file.second["id"].as<std::string>();
-    action.scene = nullptr;
-    action.request = file.second["request"].as<moveit_msgs::MotionPlanRequest>();
-    action.success = file.second["success"].as<bool>();
-    action.time = file.second["time"].as<double>();
-
-    if (IO::isNode(file.second["trajectory"]))
-        action.trajectory = file.second["trajectory"].as<moveit_msgs::RobotTrajectory>();
-
-    return action;
-}
+using namespace robowflex::movegroup;
 
 int main(int argc, char **argv)
 {
@@ -46,7 +20,21 @@ int main(int argc, char **argv)
     auto dirs = ros.getArgs();
     dirs.erase(dirs.begin());  // Erase program name (first arg)
 
+    unsigned int success = 0;
+    unsigned int total = 0;
     for (const auto &dir : dirs)
         for (const auto &file : IO::listDirectory(dir).second)
-            loadFile(file);
+        {
+            MoveGroupHelper::Action action;
+            if (action.fromYAMLFile(file))
+            {
+                success += action.success;
+                total++;
+            }
+        }
+
+    std::cout << success << std::endl;
+    std::cout << total << std::endl;
+
+    return 0;
 }
