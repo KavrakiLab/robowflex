@@ -6,6 +6,7 @@
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
 
 #include <robowflex_movegroup/services.h>
@@ -31,7 +32,7 @@ movegroup::MoveGroupHelper::Action loadFile(const std::string &filename)
     action.success = file.second["success"].as<bool>();
     action.time = file.second["time"].as<double>();
 
-    if (file.second["trajectory"])
+    if (IO::isNode(file.second["trajectory"]))
         action.trajectory = file.second["trajectory"].as<moveit_msgs::RobotTrajectory>();
 
     return action;
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
     ROS ros(argc, argv);
 
     auto dirs = ros.getArgs();
-    dirs.erase(dirs.begin());
+    dirs.erase(dirs.begin());  // Erase program name (first arg)
 
     for (const auto &dir : dirs)
         for (const auto &file : IO::listDirectory(dir).second)
