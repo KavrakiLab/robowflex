@@ -15,19 +15,26 @@
 
 #define BIG_NUM 1000000000
 
-namespace footstep_planning {
-DEFINE_double(walk_centroid, 40 * 2.54,
-              "The (scaled) \"optimal\" step distance.");
-DEFINE_double(step_max_dist, 75 * 2.54, "The (scaled) maximum step distance.");
-DEFINE_double(step_qual_weight, 1.0,
-              "The weight to give step quality when building the graph.");
-DEFINE_double(
-    num_step_weight, 1000.0,
-    "The weight to give the number of steps when building the graph.");
+#define FLAGS_walk_centroid (40*2.54)
+#define FLAGS_step_max_dist (75*2.54)
+#define FLAGS_step_qual_weight (1.0)
+#define FLAGS_num_step_weight (1000.0)
+#define FLAGS_yaw_range (M_PI / 2)
 
-DEFINE_double(yaw_range, M_PI / 2,
-              "The max angular distance the feet can be placed from the "
-              "torso's yaw angle.");
+
+namespace footstep_planning {
+// DEFINE_double(walk_centroid, 40 * 2.54,
+//               "The (scaled) \"optimal\" step distance.");
+// DEFINE_double(step_max_dist, 75 * 2.54, "The (scaled) maximum step distance.");
+// DEFINE_double(step_qual_weight, 1.0,
+//               "The weight to give step quality when building the graph.");
+// DEFINE_double(
+//     num_step_weight, 1000.0,
+//     "The weight to give the number of steps when building the graph.");
+
+// DEFINE_double(yaw_range, M_PI / 2,
+//               "The max angular distance the feet can be placed from the "
+//               "torso's yaw angle.");
 
 template <class PredecessorMap>
 class record_predecessors : public boost::dijkstra_visitor<> {
