@@ -146,7 +146,7 @@ void Robot::loadRobotModel(bool namespaced)
 {
     robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
                                                           "/" + ROBOT_DESCRIPTION);
-    options.load_kinematics_solvers_ = !namespaced;
+    options.load_kinematics_solvers_ = false;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));

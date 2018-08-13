@@ -34,6 +34,10 @@ namespace robowflex
         \brief A const shared pointer wrapper for robowflex::Scene. */
 
     /** \brief Wrapper class around the planning scene and collision geometry.
+     *
+     *  The Scene class is a wrapper around _MoveIt!_'s planning_scene::PlanningScene, providing access to set and
+     *  manipulate collision objects, attach and detach objects to the robot, and so on. There are also utilities to
+     *  load and save planning scenes from YAML files (toYAMLFile() and fromYAMLFile()).
      */
     class Scene
     {
@@ -125,6 +129,7 @@ namespace robowflex
          *  However, you can define your own libraries that contain classes that extend the
          *  collision_detection::CollisionPlugin class, and load them here as well.
          *  See http://moveit.ros.org/documentation/plugins/#collisionplugin for more details.
+         *  \param[in] detector_name Name of the collision detection plugin.
          *  \return True if sucessful, false otherwise.
          */
         bool setCollisionDetector(const std::string &detector_name) const;

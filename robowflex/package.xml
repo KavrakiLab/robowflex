@@ -15,6 +15,7 @@
   <exec_depend>robowflex_tesseract</exec_depend>
   <exec_depend>robowflex_movegroup</exec_depend>
   <exec_depend>robowflex_visualization</exec_depend>
+  <exec_depend>robowflex_doc</exec_depend>
   <exec_depend>tmpack</exec_depend>
 
   <export>
