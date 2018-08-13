@@ -97,12 +97,12 @@ def add_mesh(mesh):
 
     new = set([obj.name for obj in bpy.data.objects])
     imported_names = new - old
-    obj_list = [] 
+    obj_list = []
 
     for name in imported_names:
         bpy.ops.object.select_all(action = 'DESELECT')
         i_obj = bpy.data.objects[name]
- 
+
         # For some dumb reason, loading robotiq's meshes loads in extra
         # cameras and lamps. Delete those.
         if 'Camera' in name or 'Lamp' in name:
@@ -112,12 +112,12 @@ def add_mesh(mesh):
 
         if not i_obj.data.materials:
             set_color(i_obj, mesh)
-        
+
         if 'dimensions' in mesh:
             i_obj.scale = mesh['dimensions']
 
         obj_list.append(i_obj)
-    
+
     return obj_list
 
 
@@ -144,7 +144,7 @@ def add_collision_objects(collision_objects):
             poses = coll_obj['mesh_poses']
         for shape, pose in zip(shapes, poses):
             if not 'color' in shape:
-                shape['color'] = (0.0, 0.9, 0.2)#GREEN
+                shape['color'] = (0.0, 0.9, 0.2)    #GREEN
             obj = add_shape(shape)
             for i_obj in obj:
                 blender_utils.set_pose(i_obj, pose)

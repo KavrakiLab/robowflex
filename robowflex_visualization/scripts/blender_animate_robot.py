@@ -94,7 +94,6 @@ class RobotFrames(object):
             blender_utils.apply_smooth()
             blender_utils.apply_edge_split()
 
-
     def animate(self, fps = 30):
         '''Adds key frames for each of the robot's links according to point data.
 
@@ -120,6 +119,7 @@ class RobotFrames(object):
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = 0
         bpy.context.scene.frame_end = current_frame + self.frame_extra_count
+
 
 def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
