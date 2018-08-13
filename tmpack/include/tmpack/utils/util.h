@@ -10,13 +10,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <tmpack/utils/geom_2D.h>
 
-#include "geom_2D.h"
+#define FLAGS_scaling_factor (66*2.54)
 
 namespace footstep_planning {
-DEFINE_double(scaling_factor, 66 * 2.54,
-              "The scaling factor to by applied (multiplied) to each point in "
-              "the scene file.");
+// DEFINE_double(scaling_factor, 66 * 2.54,
+//               "The scaling factor to by applied (multiplied) to each point in "
+//               "the scene file.");
 
 typedef boost::property<boost::edge_weight_t, double> edge_weight_property;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
