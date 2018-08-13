@@ -15,6 +15,12 @@ namespace robowflex
 {
     namespace IO
     {
+        /** \brief Checks if a key exists within a YAML node.
+         *  \param[in] node Node to check.
+         *  \return True if the node exists and is not null.
+         */
+        bool isNode(const YAML::Node &node);
+
         /** \brief Converts a pose message to YAML.
          *  \param[in] msg Message to convert.
          *  \return The converted message.
