@@ -70,7 +70,7 @@ Additionally, there are a few implementations of robowflex::Robot for some commo
 
 ## Documentation
 
-All visible documentation (through [Doxygen](http://www.stack.nl/~dimitri/doxygen/))is done in the `robowflex_doc` package.
-This pulls in all code in the other Robowflex projects, as well as their `README.md` files if they exist.
+All documentation (through [Doxygen](http://www.stack.nl/~dimitri/doxygen/)) is done in the `robowflex_doc` package.
+This documents all code in the other Robowflex projects, as well as their `README.md` files if they exist (see the `add_doc` macro in `robowflex_doc/CMakeLists.txt`).
 Additional written documentation is in the `doc/markdown` folder in the `robowflex_doc` package.
 
