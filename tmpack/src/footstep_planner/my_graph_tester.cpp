@@ -310,7 +310,7 @@ namespace robowflex
             if (res.back().error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             {
                 std::vector<double> p = goals.back();
-                double x = 0, y = 0, z = -0.95;
+                double x = 0, y = 0;//, z = -0.95;
                 x = p[0];
                 y = p[1];
                 // the measurements for the walker are in a different frame:

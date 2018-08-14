@@ -26,7 +26,6 @@ namespace robowflex
     // parses PDDL and solves
     class MyWalker : public TMPackInterface
     {
-        
         footstep_planning::FootstepPlanner my_step_planner;
         std::vector<footstep_planning::point_2D> points;
 
@@ -59,7 +58,7 @@ namespace robowflex
             void _planUsingFeedback_Callback(std::vector<footstep_planning::point_2D> attempted_plan,
                                              size_t failed_index);
         } my_constraint_helper;
-        
+
         class MyWalkerSceneGraphHelper : public TMPSceneGraphHelper
         {
         public:

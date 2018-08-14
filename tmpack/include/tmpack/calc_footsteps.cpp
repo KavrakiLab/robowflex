@@ -134,7 +134,7 @@ class FootstepPlanner {
  public:
   void buildGraph(std::vector<point_2D> points) {
     for (size_t i = 0; i < points.size(); i++) {
-      for (int j = i; j < points.size(); j++) {
+      for (size_t j = i; j < points.size(); j++) {
         if (i != j) {
           point_2D p = points[i];
           point_2D p2 = points[j];
@@ -194,11 +194,13 @@ class FootstepPlanner {
                                                 point_2D start, point_2D goal,
                                                 foot start_foot,
                                                 foot end_foot) {
-    size_t startI, goalI;
+    size_t startI = -1, goalI = -1;
     for (size_t i = 0; i < points.size(); i++) {
       if (points[i] == start) startI = i;
       if (points[i] == goal) goalI = i;
     }
+
+    assert(startI >= 0 && goalI >= 0);
 
     if (start_foot == foot::left) {
       startI = 2 * startI;

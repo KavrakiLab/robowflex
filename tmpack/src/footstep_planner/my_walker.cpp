@@ -12,6 +12,8 @@
 #include <tmpack/utils/geom_2D.h>
 #include <tmpack/calc_footsteps.cpp>
 
+#define SHOW_FAILING_MARKER 0
+
 namespace robowflex
 {
     // TODO: want to get feedback on how the motion planner did
@@ -232,7 +234,8 @@ namespace robowflex
             x = 2 + y / 84;
             y = -tmp / 84;
 
-            // rviz_helper.addMarker(x, y, z);
+            if(SHOW_FAILING_MARKER)
+                rviz_helper.addMarker(x, y, z);
         }
         return res;
     }
@@ -252,7 +255,8 @@ namespace robowflex
             x = 2 + y / 84;
             y = -tmp / 84;
 
-            // rviz_helper.addMarker(x, y, z);
+            if(SHOW_FAILING_MARKER)
+                rviz_helper.addMarker(x, y, z);
         }
         return res;
     }
