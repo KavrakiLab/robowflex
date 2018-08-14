@@ -272,12 +272,6 @@ namespace robowflex
          */
         const Eigen::Affine3d getRelativeLinkTF(const std::string &base, const std::string &target) const;
 
-        /** \brief Checks if the scratch state is in collision in \a scene.
-         *  \param[in] scene Scene to check collision against.
-         *  \return True if in collision, false otherwise.
-         */
-        bool inCollision(const SceneConstPtr &scene) const;
-
         /** \} */
 
         /** \name IO

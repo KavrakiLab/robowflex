@@ -63,6 +63,7 @@ list(APPEND SOURCES
   src/pool.cpp
   src/tf.cpp
   src/yaml.cpp
+  src/path.cpp
   src/detail/r2.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp

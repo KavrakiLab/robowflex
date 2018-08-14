@@ -338,15 +338,6 @@ const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const st
     return base_tf.inverse() * target_tf;
 }
 
-bool Robot::inCollision(const SceneConstPtr &scene) const
-{
-    collision_detection::CollisionRequest request;
-    collision_detection::CollisionResult result;
-    scene->getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
-
-    return result.collision;
-}
-
 namespace
 {
     YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry)

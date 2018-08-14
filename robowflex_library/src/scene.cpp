@@ -244,6 +244,20 @@ bool Scene::detachObject(const std::string &name)
     return true;
 }
 
+collision_detection::CollisionResult Scene::checkCollision(
+    const robot_state::RobotStatePtr &state, collision_detection::CollisionRequest request) const
+{
+    collision_detection::CollisionResult result;
+    scene_->checkCollision(request, result, *state);
+
+    return result;
+}
+
+double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
+{
+    return scene_->distanceToCollision(*state);
+}
+
 bool Scene::toYAMLFile(const std::string &file)
 {
     moveit_msgs::PlanningScene msg;

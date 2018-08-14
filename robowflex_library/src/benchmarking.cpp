@@ -1,6 +1,5 @@
 /* Author: Zachary Kingston, Bryce Willey */
 
-#include <boost/math/constants/constants.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <moveit/version.h>
@@ -8,6 +7,7 @@
 
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/benchmarking.h>
@@ -74,7 +74,6 @@ void Benchmarker::Results::addRun(int num, double time, planning_interface::Moti
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
-    const planning_scene::PlanningScene &s = *scene->getSceneConst();
 
     if (options.options & MetricOptions::WAYPOINTS)
         metrics.metrics["waypoints"] = (int)p.getWayPointCount();
@@ -83,95 +82,16 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         p.getRobotTrajectoryMsg(metrics.path);
 
     if (options.options & MetricOptions::LENGTH)
-    {
-        double length = 0.0;
-        // compute path length
-        for (std::size_t k = 1; k < p.getWayPointCount(); ++k)
-            length += p.getWayPoint(k - 1).distance(p.getWayPoint(k));
+        metrics.metrics["length"] = path::getLength(p);
 
-        metrics.metrics["length"] = length;
-    }
+    if (options.options & MetricOptions::CORRECT)
+        metrics.metrics["correct"] = path::isCorrect(p, scene);
 
-    // compute correctness and clearance
-    if (options.options & (MetricOptions::CORRECT | MetricOptions::CLEARANCE))
-    {
-        bool correct = true;
-        double clearance = 0.0;
-
-        collision_detection::CollisionRequest request;
-        for (std::size_t k = 0; k < p.getWayPointCount(); ++k)
-        {
-            if (options.options & MetricOptions::CORRECT)
-            {
-                collision_detection::CollisionResult result;
-                s.checkCollisionUnpadded(request, result, p.getWayPoint(k));
-
-                if (result.collision)
-                    correct = false;
-
-                if (!p.getWayPoint(k).satisfiesBounds())
-                    correct = false;
-            }
-
-            if (options.options & MetricOptions::CLEARANCE)
-            {
-                double d = s.distanceToCollisionUnpadded(p.getWayPoint(k));
-                if (d > 0.0)  // in case of collision, distance is negative
-                    clearance += d;
-            }
-        }
-
-        if (options.options & MetricOptions::CORRECT)
-            metrics.metrics["correct"] = correct;
-
-        if (options.options & MetricOptions::CLEARANCE)
-        {
-            clearance /= (double)p.getWayPointCount();
-            metrics.metrics["clearance"] = clearance;
-        }
-    }
+    if (options.options & MetricOptions::CLEARANCE)
+        metrics.metrics["clearance"] = std::get<0>(path::getClearance(p, scene));
 
     if (options.options & MetricOptions::SMOOTHNESS)
-    {
-        double smoothness = 0.0;
-
-        // compute smoothness
-        if (p.getWayPointCount() > 2)
-        {
-            double a = p.getWayPoint(0).distance(p.getWayPoint(1));
-            for (std::size_t k = 2; k < p.getWayPointCount(); ++k)
-            {
-                // view the path as a sequence of segments, and look at the triangles it forms:
-                //          s1
-                //          /\          s4
-                //      a  /  \ b       |
-                //        /    \        |
-                //       /......\_______|
-                //     s0    c   s2     s3
-                //
-
-                // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
-                double b = p.getWayPoint(k - 1).distance(p.getWayPoint(k));
-                double cdist = p.getWayPoint(k - 2).distance(p.getWayPoint(k));
-                double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
-                if (acosValue > -1.0 && acosValue < 1.0)
-                {
-                    // the smoothness is actually the outside angle of the one we compute
-                    double angle = (boost::math::constants::pi<double>() - acos(acosValue));
-
-                    // and we normalize by the length of the segments
-                    double u = 2.0 * angle;  /// (a + b);
-                    smoothness += u * u;
-                }
-
-                a = b;
-            }
-
-            smoothness /= (double)p.getWayPointCount();
-        }
-
-        metrics.metrics["smoothness"] = smoothness;
-    }
+        metrics.metrics["smoothness"] = path::getSmoothness(p);
 }
 
 ///
