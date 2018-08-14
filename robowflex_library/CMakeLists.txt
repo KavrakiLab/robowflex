@@ -34,8 +34,7 @@ find_package(catkin REQUIRED COMPONENTS
   )
 
 catkin_package(
-  LIBRARIES
-    ${LIBRARY_NAME}
+  LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
     moveit_ros_planning
     geometric_shapes
@@ -43,8 +42,7 @@ catkin_package(
     rosbag
     roscpp
   DEPENDS
-  INCLUDE_DIRS
-    ${CMAKE_CURRENT_LIST_DIR}/include
+  INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
 ##

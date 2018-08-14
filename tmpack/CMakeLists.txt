@@ -1,27 +1,32 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tmpack)
 
-set(LIBRARY_NAME tmpack)
+set(LIBRARY_NAME ${PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH
   "${CMAKE_MODULE_PATH}"
   "${CMAKE_ROOT_DIR}/cmake/Modules"
   "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
-add_compile_options(-std=c++11)
+include(CompileOptions)
+include(HelperFunctions)
 
-if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+##
+## Non-ROS libraries
+##
 
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(GFlags QUIET)
 
+##
+## Catkin setup
+##
+
 find_package(catkin REQUIRED COMPONENTS
   robowflex_library
   roscpp
-)
+  )
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
@@ -30,23 +35,7 @@ catkin_package(
     roscpp
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-)
-
-include_directories(${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
-link_directories(${catkin_LIBRARY_DIRS})
-
-if (GFLAGS_FOUND)
-  add_executable(toy_planner src/main.cpp)
-  target_link_libraries(toy_planner ${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp gflags)
-else()
-  message("`gflags` not found, not compiling TMPack executables.")
-endif()
-
-list(APPEND INCLUDES
-  ${CMAKE_CURRENT_LIST_DIR}/include)
-
-include_directories(${INCLUDES})
-
+  )
 
 ##
 ## Library Creation
@@ -58,10 +47,16 @@ list(APPEND SOURCES
 
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
+  ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  yaml-cpp
   )
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  yaml-cpp
+  gflags
   )
 
 include_directories(${INCLUDES})
@@ -70,10 +65,25 @@ add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
-install(TARGETS ${LIBRARY_NAME} 
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+##
+## Scripts
+##
+
+if (GFLAGS_FOUND)
+  list(APPEND SCRIPTS toy_planner)
+  add_executable(toy_planner src/main.cpp)
+  target_link_libraries(toy_planner ${LIBRARY_NAME} ${catkin_LIBRARIES})
+else()
+  message("`gflags` not found, not compiling TMPack executables.")
+endif()
+
+##
+## Install Files
+##
+
+install(TARGETS
+  ${SCRIPTS}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+install_library()
 install(DIRECTORY src/footstep_planner/scenes/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scenes)
-install(DIRECTORY include/tmpack/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
