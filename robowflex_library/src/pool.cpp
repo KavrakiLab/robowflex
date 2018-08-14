@@ -33,8 +33,8 @@ Pool::~Pool()
     active_ = false;
     cv_.notify_all();
 
-    for (unsigned int i = 0; i < threads_.size(); ++i)
-        threads_[i].join();
+    for (auto &thread : threads_)
+        thread.join();
 }
 
 unsigned int Pool::getThreadCount() const

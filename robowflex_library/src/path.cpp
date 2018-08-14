@@ -5,7 +5,7 @@
 #include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 
-double robowflex::path::getLength(const robot_trajectory::RobotTrajectory &path, PathMetric metric)
+double robowflex::path::getLength(const robot_trajectory::RobotTrajectory &path, const PathMetric &metric)
 {
     double length = 0.0;
 
@@ -67,7 +67,7 @@ robowflex::path::getClearance(const robot_trajectory::RobotTrajectory &path, con
     return std::make_tuple(average, minimum, maximum);
 }
 
-double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &path, PathMetric metric)
+double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &path, const PathMetric &metric)
 {
     double smoothness = 0.0;
 

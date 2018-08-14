@@ -169,7 +169,7 @@ namespace robowflex
          */
         collision_detection::CollisionResult
         checkCollision(const robot_state::RobotStatePtr &state,
-                       collision_detection::CollisionRequest request = {}) const;
+                       const collision_detection::CollisionRequest &request = {}) const;
 
         /** \brief Get distance to a collision for a robot state.
          *  \param[in] state State to get distance to collision for.

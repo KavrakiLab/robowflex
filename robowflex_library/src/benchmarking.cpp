@@ -28,7 +28,7 @@ Benchmarker::Options::Options(unsigned int runs, uint32_t options) : runs(runs),
 
 const std::string Benchmarker::Results::Run::toString::operator()(int value) const
 {
-    return boost::lexical_cast<std::string>(boost::get<int>(value));
+    return std::to_string(boost::get<int>(value));
 }
 
 const std::string Benchmarker::Results::Run::toString::operator()(double value) const
@@ -135,7 +135,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         results.finish = IO::getDate();
 
-        for (BenchmarkOutputterPtr output : outputs)
+        for (const BenchmarkOutputterPtr& output : outputs)
             output->dumpResult(results);
     }
 }
@@ -174,7 +174,7 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         const Benchmarker::Results::Run &run = results.runs[i];
         outfile_ << "{";
 
-        outfile_ << "\"name\": \"run_" << run.num << "\",";
+        outfile_ << R"("name": "run_)" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
         outfile_ << "\"success\":" << run.success;
 

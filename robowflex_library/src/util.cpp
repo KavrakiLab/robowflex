@@ -1,5 +1,5 @@
 /* Author: Zachary Kingston */
-#include <signal.h>
+#include <csignal>
 
 #include <ros/init.h>
 #include <ros/master.h>

@@ -17,7 +17,7 @@ namespace robowflex
     {
         /** \brief The pluginlib loader for collision detection plugins.
          */
-        typedef pluginlib::ClassLoader<collision_detection::CollisionPlugin> PluginLoader;
+        using PluginLoader = pluginlib::ClassLoader<collision_detection::CollisionPlugin>;
 
     public:
         /** \brief Constructor. Attempts to create the pluginlib loader for collision plugins.
@@ -245,7 +245,7 @@ bool Scene::detachObject(const std::string &name)
 }
 
 collision_detection::CollisionResult Scene::checkCollision(
-    const robot_state::RobotStatePtr &state, collision_detection::CollisionRequest request) const
+    const robot_state::RobotStatePtr &state, const collision_detection::CollisionRequest &request) const
 {
     collision_detection::CollisionResult result;
     scene_->checkCollision(request, result, *state);

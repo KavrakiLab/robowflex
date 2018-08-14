@@ -32,7 +32,7 @@ namespace robowflex
          *  \param[in] metric An optional metric to use to compute the length of the path.
          *  \return Length of the path according to the metric.
          */
-        double getLength(const robot_trajectory::RobotTrajectory &path, PathMetric metric = {});
+        double getLength(const robot_trajectory::RobotTrajectory &path, const PathMetric &metric = {});
 
         /** \brief Checks if a path is correct.
          *  \param[in] path Path to check.
@@ -55,7 +55,7 @@ namespace robowflex
          *  \param[in] metric An optional metric to use to compute the length of the path segments.
          *  \return Smoothness of the path.
          */
-        double getSmoothness(const robot_trajectory::RobotTrajectory &path, PathMetric metric = {});
+        double getSmoothness(const robot_trajectory::RobotTrajectory &path, const PathMetric &metric = {});
     }  // namespace path
 };     // namespace robowflex
 

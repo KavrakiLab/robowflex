@@ -1022,8 +1022,8 @@ namespace YAML
         if (IO::isNode(node["default_entry_values"]))
         {
             const auto &dev = node["default_entry_values"];
-            for (std::size_t i = 0; i < dev.size(); i++)
-                rhs.default_entry_values.push_back(nodeToBool(dev[i]));
+            for (const auto &b : dev)
+                rhs.default_entry_values.push_back(nodeToBool(b));
         }
 
         return true;
@@ -1046,8 +1046,8 @@ namespace YAML
     {
         rhs = moveit_msgs::AllowedCollisionEntry();
 
-        for (std::size_t i = 0; i < node.size(); i++)
-            rhs.enabled.push_back(nodeToBool(node[i]));
+        for (const auto &b : node)
+            rhs.enabled.push_back(nodeToBool(b));
 
         return true;
     }
