@@ -7,7 +7,7 @@
   <author email="zak@rice.edu">Zachary Kingston</author>
   <author email="bryce.steven.willey@gmail.com">Bryce Willey</author>
 
-  <license>MIT</license>
+  <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
