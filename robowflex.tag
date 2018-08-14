@@ -1,6 +1,16 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <tagfile>
   <compound kind="file">
+    <name>design.md</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
+    <filename>design_8md</filename>
+  </compound>
+  <compound kind="file">
+    <name>home.md</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
+    <filename>home_8md</filename>
+  </compound>
+  <compound kind="file">
     <name>scripts.md</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
     <filename>scripts_8md</filename>
@@ -139,6 +149,13 @@
       <arglist>(std::ofstream &amp;out, const std::string &amp;file)</arglist>
     </member>
     <member kind="function">
+      <type>const std::pair&lt; bool, std::vector&lt; std::string &gt; &gt;</type>
+      <name>listDirectory</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>a7bce336f927ad6de91f66790fdf9efab</anchor>
+      <arglist>(const std::string &amp;directory)</arglist>
+    </member>
+    <member kind="function">
       <type>const std::string</type>
       <name>getHostname</name>
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
@@ -223,6 +240,13 @@
     <filename>io_2yaml_8h</filename>
     <namespace>robowflex</namespace>
     <namespace>robowflex::IO</namespace>
+    <member kind="function">
+      <type>bool</type>
+      <name>isNode</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>a23927fb72a17ab8ce0d0654d06b5532e</anchor>
+      <arglist>(const YAML::Node &amp;node)</arglist>
+    </member>
     <member kind="function">
       <type>YAML::Node</type>
       <name>toNode</name>
@@ -888,6 +912,13 @@
     <namespace>robowflex</namespace>
     <namespace>robowflex::IO</namespace>
     <member kind="function">
+      <type>bool</type>
+      <name>isNode</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>a23927fb72a17ab8ce0d0654d06b5532e</anchor>
+      <arglist>(const YAML::Node &amp;node)</arglist>
+    </member>
+    <member kind="function">
       <type>YAML::Node</type>
       <name>toNode</name>
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
@@ -942,12 +973,25 @@
     <namespace>robowflex::movegroup</namespace>
   </compound>
   <compound kind="file">
+    <name>mixtape.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_movegroup/scripts/</path>
+    <filename>mixtape_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
+    <includes id="services_8h" name="services.h" local="no" imported="no">robowflex_movegroup/services.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>mixtape_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
     <name>tapedeck.cpp</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_movegroup/scripts/</path>
     <filename>tapedeck_8cpp</filename>
     <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
-    <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
-    <includes id="io_2yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/io/yaml.h</includes>
     <includes id="services_8h" name="services.h" local="no" imported="no">robowflex_movegroup/services.h</includes>
     <member kind="function">
       <type>void</type>
@@ -968,6 +1012,9 @@
     <name>services.cpp</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_movegroup/src/</path>
     <filename>services_8cpp</filename>
+    <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
+    <includes id="io_2yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/io/yaml.h</includes>
+    <includes id="yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/yaml.h</includes>
     <includes id="services_8h" name="services.h" local="no" imported="no">robowflex_movegroup/services.h</includes>
   </compound>
   <compound kind="file">
@@ -1099,11 +1146,6 @@
   <compound kind="file">
     <name>README.md</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_visualization/</path>
-    <filename>robowflex__visualization_2README_8md</filename>
-  </compound>
-  <compound kind="file">
-    <name>README.md</name>
-    <path>/home/zak/ros/melodic/dev/src/robowflex/</path>
     <filename>README_8md</filename>
   </compound>
   <compound kind="class">
@@ -2790,6 +2832,20 @@
   <compound kind="struct">
     <name>robowflex::movegroup::MoveGroupHelper::Action</name>
     <filename>structrobowflex_1_1movegroup_1_1MoveGroupHelper_1_1Action.html</filename>
+    <member kind="function">
+      <type>bool</type>
+      <name>fromYAMLFile</name>
+      <anchorfile>structrobowflex_1_1movegroup_1_1MoveGroupHelper_1_1Action.html</anchorfile>
+      <anchor>a2a35ff6d912acf00e56404ded224181d</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>toYAMLFile</name>
+      <anchorfile>structrobowflex_1_1movegroup_1_1MoveGroupHelper_1_1Action.html</anchorfile>
+      <anchor>a41585d8b8edc08261c1282a17d466877</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
+    </member>
     <member kind="variable">
       <type>std::string</type>
       <name>id</name>
@@ -4872,6 +4928,13 @@
     <class kind="class">robowflex::IO::HDF5File</class>
     <class kind="class">robowflex::IO::RVIZHelper</class>
     <member kind="function">
+      <type>bool</type>
+      <name>isNode</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>a23927fb72a17ab8ce0d0654d06b5532e</anchor>
+      <arglist>(const YAML::Node &amp;node)</arglist>
+    </member>
+    <member kind="function">
       <type>YAML::Node</type>
       <name>toNode</name>
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
@@ -4968,6 +5031,13 @@
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
       <anchor>ad82de1798068dd05831c5eb168fe285e</anchor>
       <arglist>(std::ofstream &amp;out, const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>const std::pair&lt; bool, std::vector&lt; std::string &gt; &gt;</type>
+      <name>listDirectory</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>a7bce336f927ad6de91f66790fdf9efab</anchor>
+      <arglist>(const std::string &amp;directory)</arglist>
     </member>
     <member kind="function">
       <type>const std::string</type>
@@ -5123,18 +5193,23 @@
     <filename>namespaceYAML.html</filename>
   </compound>
   <compound kind="page">
-    <name>robowflex_visualization</name>
+    <name>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_visualization_README</name>
     <title>Robowflex Visualization</title>
-    <filename>robowflex_visualization</filename>
+    <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_visualization_README</filename>
   </compound>
   <compound kind="page">
-    <name>scripts</name>
+    <name>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_design</name>
+    <title>Robowflex Design Notes</title>
+    <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_design</filename>
+  </compound>
+  <compound kind="page">
+    <name>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_scripts</name>
     <title>Scripts</title>
-    <filename>scripts</filename>
+    <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_scripts</filename>
   </compound>
   <compound kind="page">
     <name>index</name>
-    <title>robowflex 💪🤖</title>
+    <title>Robowflex</title>
     <filename>index</filename>
   </compound>
 </tagfile>

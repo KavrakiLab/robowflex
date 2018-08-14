@@ -6,8 +6,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Robowflex 💪🤖: robowflex::Scene Class Reference</title>
+<title>Robowflex: robowflex::Scene Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="navtree.css" rel="stylesheet" type="text/css"/>
@@ -36,7 +37,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Robowflex 💪🤖
+   <div id="projectname">Robowflex
    </div>
   </td>
  </tr>
@@ -182,8 +183,9 @@ Private Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wrapper class around the planning scene and collision geometry. </p>
+<p>The <a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> class is a wrapper around <em>MoveIt!</em>'s <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classplanning__scene_1_1PlanningScene.html">planning_scene::PlanningScene</a>, providing access to set and manipulate collision objects, attach and detach objects to the robot, and so on. There are also utilities to load and save planning scenes from <a class="el" href="namespaceYAML.html">YAML</a> files (<a class="el" href="classrobowflex_1_1Scene.html#a180d072af873ec9bfcafbca8fd9d1ad4" title="Serialize the current planning scene to a YAML file. ">toYAMLFile()</a> and <a class="el" href="classrobowflex_1_1Scene.html#a575b1a28985a1a90bd5b2588c2a8fe6a" title="Load a planning scene from a YAML file. ">fromYAMLFile()</a>). </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00038">38</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00042">42</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab17fdf219c3ee8f1d77541ee3b4115f0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab17fdf219c3ee8f1d77541ee3b4115f0">&#9670;&nbsp;</a></span>Scene() <span class="overload">[1/2]</span></h2>
@@ -617,6 +619,12 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Attempts to set the collision detector plugin used by the scene to <em>name</em>. In MoveIt by default, 'Hybrid' is the only plugin defined. However, you can define your own libraries that contain classes that extend the <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classcollision__detection_1_1CollisionPlugin.html">collision_detection::CollisionPlugin</a> class, and load them here as well. See <a href="http://moveit.ros.org/documentation/plugins/#collisionplugin">http://moveit.ros.org/documentation/plugins/#collisionplugin</a> for more details. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">detector_name</td><td>Name of the collision detection plugin. </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="section return"><dt>Returns</dt><dd>True if sucessful, false otherwise. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00176">176</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
@@ -760,7 +768,7 @@ Private Attributes</h2></td></tr>
 
 <p>Plugin loader that sets collision detectors for the scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00179">179</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00184">184</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -786,7 +794,7 @@ Private Attributes</h2></td></tr>
 
 <p>Underlying planning scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00180">180</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00185">185</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -801,7 +809,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1Scene.html">Scene</a></li>
-    <li class="footer">Generated on Fri Jul 27 2018 15:31:26 for Robowflex 💪🤖 by
+    <li class="footer">Generated on Tue Aug 14 2018 08:40:40 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>
