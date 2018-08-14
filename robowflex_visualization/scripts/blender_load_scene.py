@@ -110,8 +110,9 @@ def add_mesh(mesh):
             bpy.ops.object.delete()
             continue
 
-        if not i_obj.data.materials:
-            set_color(i_obj, mesh)
+        if "materials" in i_obj.data:
+            if not i_obj.data.materials:
+                set_color(i_obj, mesh)
 
         if 'dimensions' in mesh:
             i_obj.scale = mesh['dimensions']
