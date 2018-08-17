@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 '''Reads in a static file of transforms of different parts of the robot and makes a convex hull between
 each link in order to visually illustrate TrajOpt's collision checking process.
+Also useful to provide a neat motion blur to the robot over a short motion.
 
 '''
 import json
@@ -35,86 +36,56 @@ class RobotHulls(RobotFrames):
         '''
         for link in self.link_list:
             link_name = link['name']
-            # Mark all objects as imported
-            old = set([obj.name for obj in bpy.data.objects])
-
             if 'visual' not in link:
                 self.link_to_parts[link_name] = []
                 continue
 
-            imported_name_sets = []
-            for link_element in link['visual']['elements']:
-                blender_scene.add_shape(link_element)
-                new = set([obj.name for obj in bpy.data.objects])
-                imported_name_sets.append(new - old)
-                old = new
+            link_part_names = []
 
-            remaining = []
-            for names, elem in zip(imported_name_sets, link['visual']['elements']):
-                sublist = []
-                for name in names:
+            # URDFs can have multiple visual elements per link.
+            # Handles loading each element individually.
+            for link_element in link['visual']['elements']:
+                new = blender_scene.add_shape(link_element)
+                element_names = []
+                for i_obj in new:
                     bpy.ops.object.select_all(action = 'DESELECT')
 
-                    # For some dumb reason, loading robotiq's meshes loads in extra
-                    # cameras and lamps. Delete those.
-                    i_obj = bpy.data.objects[name]
-
-                    if 'Camera' in name or 'Lamp' in name:
-                        i_obj.select = True
-                        bpy.ops.object.delete()
-                        continue
-
-                    if 'origin' in elem:
-                        blender_utils.pose_add(i_obj, self.points[idx1]['point'][link_name], elem['origin'])
+                    # Set the first keyframe to be the initial location.
+                    if 'origin' in link_element:
+                        blender_utils.pose_add(i_obj, self.points[idx1]['point'][link_name], link_element['origin'])
                     else:
                         blender_utils.set_pose(i_obj, self.points[idx1]['point'][link_name])
+
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.name = link_name
-                    sublist.append(i_obj.name)
-                remaining.append(sublist)
+                    element_names.append(i_obj.name)
+                link_part_names.append(element_names)
 
-            # Do it again.
+            self.link_to_parts[link_name] = link_part_names
+
+            # Load the same link in a different configuration.
             old2 = set([obj.name for obj in bpy.data.objects])
 
-            if 'visual' not in link:
-                self.link_to_parts[link_name] = []
-                continue
-
-            imported_name_sets2 = []
             for link_element in link['visual']['elements']:
-                blender_scene.add_shape(link_element)
-                new2 = set([obj.name for obj in bpy.data.objects])
-                imported_name_sets2.append(new2 - old2)
-                old2 = new2
-
-            imported_names2 = new2 - old2
-
-            for names, elem in zip(imported_name_sets2, link['visual']['elements']):
-                sublist = []
-                for name in names:
+                new = blender_scene.add_shape(link_element)
+                element_names = []
+                for i_obj in new:
                     bpy.ops.object.select_all(action = 'DESELECT')
 
-                    # For some dumb reason, loading robotiq's meshes loads in extra
-                    # cameras and lamps. Delete those.
-                    i_obj = bpy.data.objects[name]
-
-                    if 'Camera' in name or 'Lamp' in name:
-                        i_obj.select = True
-                        bpy.ops.object.delete()
-                        continue
-
-                    if 'origin' in elem:
-                        blender_utils.pose_add(i_obj, self.points[idx2]['point'][link_name], elem['origin'])
+                    # Set the first keyframe to be the initial location.
+                    if 'origin' in link_element:
+                        blender_utils.pose_add(i_obj, self.points[idx2]['point'][link_name], link_element['origin'])
                     else:
                         blender_utils.set_pose(i_obj, self.points[idx2]['point'][link_name])
+
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.name = link_name
-                    sublist.append(i_obj.name)
-                remaining.append(sublist)
+                    element_names.append(i_obj.name)
+                link_part_names.append(element_names)
 
             # Join all of the objects for this link.
             bpy.ops.object.select_all(action = 'DESELECT')
-            for names in remaining:
+            for names in link_part_names:
                 for name in names:
                     i_obj = bpy.data.objects[name]
                     i_obj.select = True
@@ -130,7 +101,7 @@ class RobotHulls(RobotFrames):
             bpy.ops.mesh.convex_hull()
             bpy.ops.object.mode_set(mode = 'OBJECT')
 
-            self.link_to_parts[link_name] = remaining
+            self.link_to_parts[link_name] = link_part_names
 
 
 def convex_hull_robot(mesh_map_file, path_file, first_configuration=0, second_configuration=20):
