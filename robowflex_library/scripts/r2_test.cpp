@@ -8,6 +8,17 @@
 
 using namespace robowflex;
 
+int dumpTransform()
+{
+    auto r2 = std::make_shared<R2Robot>();
+    r2->initialize({});
+    r2->setStateFromYAMLFile("package://robowflex_library/yaml/r2_state.yml");
+    r2->dumpGeometry("r2.yml");
+    r2->dumpTransforms("r2_state.yml");
+
+    return 0;
+}
+
 int planFromFile()
 {
     // Create an R2 robot, initialize the `legsandtorso` kinematics solver.
@@ -115,9 +126,12 @@ int main(int argc, char **argv)
     // Startup ROS.
     ROS ros(argc, argv);
 
+    // Dump a state for animation.
+    dumpTransform();
+
     // Plan using configuration from files.
     planFromFile();
 
     // Plan by building a motion request.
-    planAndBuild();
+    // planAndBuild();
 }

@@ -58,6 +58,13 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool fromYAMLFile(moveit_msgs::MotionPlanRequest &msg, const std::string &file);
+
+        /** \brief Loads a robot state from a YAML file.
+         *  \param[out] msg Message to load into.
+         *  \param[in] file File to load.
+         *  \return True on success, false on failure.
+         */
+        bool fromYAMLFile(moveit_msgs::RobotState &msg, const std::string &file);
     }  // namespace IO
 }  // namespace robowflex
 

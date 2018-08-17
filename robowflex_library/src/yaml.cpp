@@ -1804,5 +1804,10 @@ namespace robowflex
         {
             return IO::YAMLFileToMessage(msg, file);
         }
+
+        bool fromYAMLFile(moveit_msgs::RobotState &msg, const std::string &file)
+        {
+            return IO::YAMLFileToMessage(msg, file);
+        }
     }  // namespace IO
 }  // namespace robowflex
