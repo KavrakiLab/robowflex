@@ -133,7 +133,7 @@ class RobotHulls(RobotFrames):
             self.link_to_parts[link_name] = remaining
 
 
-def convex_hull_robot(mesh_map_file, path_file):
+def convex_hull_robot(mesh_map_file, path_file, first_configuration=0, second_configuration=20):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender
     twice and make a convex hull between each of it's links.
 
@@ -145,4 +145,4 @@ def convex_hull_robot(mesh_map_file, path_file):
     link_map = utils.read_yaml_data(mesh_map_file)
 
     robot_frames = RobotHulls(points, link_map)
-    robot_frames.load_hulls(0, 20)
+    robot_frames.load_hulls(first_configuration, second_configuration)

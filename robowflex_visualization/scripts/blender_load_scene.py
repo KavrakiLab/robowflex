@@ -17,7 +17,6 @@ if not CURRENT_DIRECTORY in sys.path:
 import blender_utils
 import utils
 
-
 def set_color(obj, element):
     if 'color' in element:
         # TODO: figure out a better way to make new materials?
@@ -136,7 +135,7 @@ def add_collision_objects(collision_objects):
             poses = coll_obj['mesh_poses']
         for shape, pose in zip(shapes, poses):
             if not 'color' in shape:
-                shape['color'] = (0.0, 0.9, 0.2)
+                shape['color'] = (0.0, 0.9, 0.2) # MoveIt Green.
             obj = add_shape(shape)
             blender_utils.set_pose(obj, pose)
 
