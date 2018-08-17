@@ -4,6 +4,7 @@
 '''
 # pylint: disable=import-error
 import bpy
+import mathutils
 
 def apply_smooth():
     '''Applies the smooth shading to the selected object.
@@ -89,13 +90,13 @@ def pose_to_quat(pose):
     '''
     if 'x' in pose['orientation']:
         q = pose['orientation']
-        return [q['w'], q['x'], q['y'], q['z']]
+        return mathutils.Quaternion([q['w'], q['x'], q['y'], q['z']])
 
     if isinstance(pose['orientation'][0], str):
         # Means there's a NAN somewhere.
-        return (1.0, 0.0, 0.0, 0.0)
+        return mathutils.Quaternion((1.0, 0.0, 0.0, 0.0))
     else:
-        return pose['orientation'][3:] + pose['orientation'][:3]
+        return mathutils.Quaternion(pose['orientation'][3:] + pose['orientation'][:3])
 
 
 def pose_to_vec(pose):
@@ -103,37 +104,30 @@ def pose_to_vec(pose):
 
     '''
     if 'x' in pose['position']:
-        return [pose['position']['x'], pose['position']['y'], pose['position']['z']]
+        v = pose['position']
+        return mathutils.Vector([v['x'], v['y'], v['z']])
 
-    return pose['position']
-
-def quat_by_quat(q1, q2):
-    '''Multiply two quaternions. Remember, these are WXYZ.
-       Actually tested, should be right.
-    '''
-    return [
-        q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3], # w
-        q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2], # x
-        q1[0] * q2[2] + q1[2] * q2[0] + q1[3] * q2[1] - q1[1] * q2[3], # y
-        q1[0] * q2[3] + q1[3] * q2[0] + q1[1] * q2[2] - q1[2] * q2[1], # z
-    ]
+    return mathutils.Vector(pose['position'])
 
 def pose_add(obj, pose1, pose2):
     '''Adds the second pose after the first.
        For something like link origins, the joint pose should be passed first, then the link origin  
     '''
     
-    set_pose(obj, pose1)
+    # Get the objects for the pose vectors and quaternions.
+    p1_vec = pose_to_vec(pose1)
+    q1 = pose_to_quat(pose1)
+    p2_vec = pose_to_vec(pose2)
+    q2 = pose_to_quat(pose2)
 
     # Rotate pose2's vec by pose1's quaternion.
-    translation_quat = [0] + pose_to_vec(pose2)
-    q1 = pose_to_quat(pose1)
-    q1_cong = [q1[0], -q1[1], -q1[2], -q1[3]]
-    rotated_translation = quat_by_quat(quat_by_quat(q1, translation_quat), q1_cong)[1:]
-    obj.location = [a[0] + a[1] for a in zip(obj.location, rotated_translation)]
+    p2_vec.rotate(q1)
+    obj.location = p1_vec + p2_vec
 
     # Apply pose2's quaternion to the existing rotation.
-    obj.rotation_quaternion = quat_by_quat(obj.rotation_quaternion, pose_to_quat(pose2))
+    q2.rotate(q1)
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = q2
 
 
 def set_pose(obj, pose):
