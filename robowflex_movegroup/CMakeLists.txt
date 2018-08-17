@@ -41,6 +41,7 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSI
 target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
 
 add_script(tapedeck)
+add_script(mixtape)
 
 install_scripts()
 install_library()

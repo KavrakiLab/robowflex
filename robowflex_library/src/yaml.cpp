@@ -11,6 +11,8 @@
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
 
+using namespace robowflex;
+
 namespace
 {
     static const std::string boolToString(bool b)
@@ -203,36 +205,36 @@ namespace YAML
     {
         rhs = moveit_msgs::PlanningScene();
 
-        if (node["name"])
+        if (IO::isNode(node["name"]))
             rhs.name = node["name"].as<std::string>();
 
-        if (node["robot_state"])
+        if (IO::isNode(node["robot_state"]))
             rhs.robot_state = node["robot_state"].as<moveit_msgs::RobotState>();
 
-        if (node["robot_model_name"])
+        if (IO::isNode(node["robot_model_name"]))
             rhs.robot_model_name = node["robot_model_name"].as<std::string>();
 
-        if (node["fixed_frame_transforms"])
+        if (IO::isNode(node["fixed_frame_transforms"]))
             rhs.fixed_frame_transforms =
                 node["fixed_frame_transforms"].as<std::vector<geometry_msgs::TransformStamped>>();
 
-        if (node["allowed_collision_matrix"])
+        if (IO::isNode(node["allowed_collision_matrix"]))
             rhs.allowed_collision_matrix =
                 node["allowed_collision_matrix"].as<moveit_msgs::AllowedCollisionMatrix>();
 
-        if (node["link_padding"])
+        if (IO::isNode(node["link_padding"]))
             rhs.link_padding = node["link_padding"].as<std::vector<moveit_msgs::LinkPadding>>();
 
-        if (node["link_scale"])
+        if (IO::isNode(node["link_scale"]))
             rhs.link_scale = node["link_scale"].as<std::vector<moveit_msgs::LinkScale>>();
 
-        if (node["object_colors"])
+        if (IO::isNode(node["object_colors"]))
             rhs.object_colors = node["object_colors"].as<std::vector<moveit_msgs::ObjectColor>>();
 
-        if (node["world"])
+        if (IO::isNode(node["world"]))
             rhs.world = node["world"].as<moveit_msgs::PlanningSceneWorld>();
 
-        if (node["is_diff"])
+        if (IO::isNode(node["is_diff"]))
             rhs.is_diff = nodeToBool(node["is_diff"]);
 
         return true;
@@ -261,17 +263,17 @@ namespace YAML
     {
         rhs = moveit_msgs::RobotState();
 
-        if (node["joint_state"])
+        if (IO::isNode(node["joint_state"]))
             rhs.joint_state = node["joint_state"].as<sensor_msgs::JointState>();
 
-        if (node["multi_dof_joint_state"])
+        if (IO::isNode(node["multi_dof_joint_state"]))
             rhs.multi_dof_joint_state = node["multi_dof_joint_state"].as<sensor_msgs::MultiDOFJointState>();
 
-        if (node["attached_collision_objects"])
+        if (IO::isNode(node["attached_collision_objects"]))
             rhs.attached_collision_objects =
                 node["attached_collision_objects"].as<std::vector<moveit_msgs::AttachedCollisionObject>>();
 
-        if (node["is_diff"])
+        if (IO::isNode(node["is_diff"]))
             rhs.is_diff = nodeToBool(node["is_diff"]);
 
         return true;
@@ -294,15 +296,15 @@ namespace YAML
     {
         rhs = geometry_msgs::TransformStamped();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["child_frame_id"])
+        if (IO::isNode(node["child_frame_id"]))
             rhs.child_frame_id = node["child_frame_id"].as<std::string>();
 
-        if (node["transform"])
+        if (IO::isNode(node["transform"]))
             rhs.transform = node["transform"].as<geometry_msgs::Transform>();
 
         return true;
@@ -320,7 +322,7 @@ namespace YAML
             node["stamp"]["nsecs"] = rhs.stamp.nsec;
         }
 
-        if (rhs.frame_id != "world")
+        if (rhs.frame_id != "world" && rhs.frame_id != "/world")
             node["frame_id"] = rhs.frame_id;
 
         return node;
@@ -331,16 +333,24 @@ namespace YAML
         rhs = std_msgs::Header();
         rhs.frame_id = "world";
 
-        if (node["seq"])
+        if (IO::isNode(node["seq"]))
             rhs.seq = node["seq"].as<int>();
 
-        if (node["stamp"])
+        if (IO::isNode(node["stamp"]))
         {
-            rhs.stamp.sec = node["stamp"]["secs"].as<int>();
-            rhs.stamp.nsec = node["stamp"]["nsecs"].as<int>();
+            try
+            {
+                rhs.stamp.sec = node["stamp"]["sec"].as<int>();
+                rhs.stamp.nsec = node["stamp"]["nsec"].as<int>();
+            }
+            catch (YAML::InvalidNode &e)
+            {
+                rhs.stamp.sec = node["stamp"]["secs"].as<int>();
+                rhs.stamp.nsec = node["stamp"]["nsecs"].as<int>();
+            }
         }
 
-        if (node["frame_id"])
+        if (IO::isNode(node["frame_id"]))
             rhs.frame_id = node["frame_id"].as<std::string>();
 
         return true;
@@ -358,10 +368,10 @@ namespace YAML
     {
         rhs = geometry_msgs::Pose();
 
-        if (node["position"])
+        if (IO::isNode(node["position"]))
             rhs.position = node["position"].as<geometry_msgs::Point>();
 
-        if (node["orientation"])
+        if (IO::isNode(node["orientation"]))
             rhs.orientation = node["orientation"].as<geometry_msgs::Quaternion>();
 
         return true;
@@ -382,7 +392,7 @@ namespace YAML
     {
         rhs = geometry_msgs::PoseStamped();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
@@ -404,10 +414,10 @@ namespace YAML
     {
         rhs = geometry_msgs::Transform();
 
-        if (node["translation"])
+        if (IO::isNode(node["translation"]))
             rhs.translation = node["translation"].as<geometry_msgs::Vector3>();
 
-        if (node["rotation"])
+        if (IO::isNode(node["rotation"]))
             rhs.rotation = node["rotation"].as<geometry_msgs::Quaternion>();
 
         return true;
@@ -581,21 +591,21 @@ namespace YAML
     {
         rhs = sensor_msgs::JointState();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["name"])
+        if (IO::isNode(node["name"]))
             rhs.name = node["name"].as<std::vector<std::string>>();
 
-        if (node["position"])
+        if (IO::isNode(node["position"]))
             rhs.position = node["position"].as<std::vector<double>>();
 
-        if (node["velocity"])
+        if (IO::isNode(node["velocity"]))
             rhs.velocity = node["velocity"].as<std::vector<double>>();
 
-        if (node["effort"])
+        if (IO::isNode(node["effort"]))
             rhs.effort = node["effort"].as<std::vector<double>>();
 
         return true;
@@ -627,21 +637,21 @@ namespace YAML
     {
         rhs = sensor_msgs::MultiDOFJointState();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["joint_names"])
+        if (IO::isNode(node["joint_names"]))
             rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
 
-        if (node["transforms"])
+        if (IO::isNode(node["transforms"]))
             rhs.transforms = node["transforms"].as<std::vector<geometry_msgs::Transform>>();
 
-        if (node["twist"])
+        if (IO::isNode(node["twist"]))
             rhs.twist = node["twist"].as<std::vector<geometry_msgs::Twist>>();
 
-        if (node["wrench"])
+        if (IO::isNode(node["wrench"]))
             rhs.wrench = node["wrench"].as<std::vector<geometry_msgs::Wrench>>();
 
         return true;
@@ -669,19 +679,19 @@ namespace YAML
     {
         rhs = moveit_msgs::AttachedCollisionObject();
 
-        if (node["link_name"])
+        if (IO::isNode(node["link_name"]))
             rhs.link_name = node["link_name"].as<std::string>();
 
-        if (node["object"])
+        if (IO::isNode(node["object"]))
             rhs.object = node["object"].as<moveit_msgs::CollisionObject>();
 
-        if (node["touch_links"])
+        if (IO::isNode(node["touch_links"]))
             rhs.touch_links = node["touch_links"].as<std::vector<std::string>>();
 
-        if (node["detach_posture"])
+        if (IO::isNode(node["detach_posture"]))
             rhs.detach_posture = node["detach_posture"].as<trajectory_msgs::JointTrajectory>();
 
-        if (node["weight"])
+        if (IO::isNode(node["weight"]))
             rhs.weight = node["weight"].as<double>();
 
         return true;
@@ -705,15 +715,15 @@ namespace YAML
     {
         rhs = trajectory_msgs::JointTrajectory();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["joint_names"])
+        if (IO::isNode(node["joint_names"]))
             rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
 
-        if (node["points"])
+        if (IO::isNode(node["points"]))
             rhs.points = node["points"].as<std::vector<trajectory_msgs::JointTrajectoryPoint>>();
 
         return true;
@@ -756,19 +766,19 @@ namespace YAML
     bool convert<trajectory_msgs::JointTrajectoryPoint>::decode(const Node &node,
                                                                 trajectory_msgs::JointTrajectoryPoint &rhs)
     {
-        if (node["positions"])
+        if (IO::isNode(node["positions"]))
             rhs.positions = node["positions"].as<std::vector<double>>();
 
-        if (node["velocities"])
+        if (IO::isNode(node["velocities"]))
             rhs.velocities = node["velocities"].as<std::vector<double>>();
 
-        if (node["accelerations"])
+        if (IO::isNode(node["accelerations"]))
             rhs.accelerations = node["accelerations"].as<std::vector<double>>();
 
-        if (node["effort"])
+        if (IO::isNode(node["effort"]))
             rhs.effort = node["effort"].as<std::vector<double>>();
 
-        if (node["time_from_start"])
+        if (IO::isNode(node["time_from_start"]))
             rhs.time_from_start = node["time_from_start"].as<ros::Duration>();
 
         return true;
@@ -828,36 +838,36 @@ namespace YAML
     {
         rhs = moveit_msgs::CollisionObject();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["id"])
+        if (IO::isNode(node["id"]))
             rhs.id = node["id"].as<std::string>();
 
-        if (node["type"])
+        if (IO::isNode(node["type"]))
             rhs.type = node["type"].as<object_recognition_msgs::ObjectType>();
 
-        if (node["primitives"])
+        if (IO::isNode(node["primitives"]))
         {
             rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
             rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
         }
 
-        if (node["meshes"])
+        if (IO::isNode(node["meshes"]))
         {
             rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
             rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
         }
 
-        if (node["planes"])
+        if (IO::isNode(node["planes"]))
         {
             rhs.planes = node["planes"].as<std::vector<shape_msgs::Plane>>();
             rhs.plane_poses = node["plane_poses"].as<std::vector<geometry_msgs::Pose>>();
         }
 
-        if (node["operation"])
+        if (IO::isNode(node["operation"]))
             rhs.operation = nodeToCollisionObject(node["operation"]);
 
         return true;
@@ -876,10 +886,10 @@ namespace YAML
     {
         rhs = object_recognition_msgs::ObjectType();
 
-        if (node["key"])
+        if (IO::isNode(node["key"]))
             rhs.key = node["key"].as<std::string>();
 
-        if (node["db"])
+        if (IO::isNode(node["db"]))
             rhs.db = node["db"].as<std::string>();
 
         return true;
@@ -897,10 +907,10 @@ namespace YAML
     {
         rhs = moveit_msgs::LinkPadding();
 
-        if (node["link_name"])
+        if (IO::isNode(node["link_name"]))
             rhs.link_name = node["link_name"].as<std::string>();
 
-        if (node["padding"])
+        if (IO::isNode(node["padding"]))
             rhs.padding = node["padding"].as<double>();
 
         return true;
@@ -918,10 +928,10 @@ namespace YAML
     {
         rhs = moveit_msgs::LinkScale();
 
-        if (node["link_name"])
+        if (IO::isNode(node["link_name"]))
             rhs.link_name = node["link_name"].as<std::string>();
 
-        if (node["scale"])
+        if (IO::isNode(node["scale"]))
             rhs.scale = node["scale"].as<double>();
 
         return true;
@@ -939,10 +949,10 @@ namespace YAML
     {
         rhs = moveit_msgs::ObjectColor();
 
-        if (node["id"])
+        if (IO::isNode(node["id"]))
             rhs.id = node["id"].as<std::string>();
 
-        if (node["color"])
+        if (IO::isNode(node["color"]))
             rhs.color = node["color"].as<std_msgs::ColorRGBA>();
 
         return true;
@@ -1000,20 +1010,20 @@ namespace YAML
     {
         rhs = moveit_msgs::AllowedCollisionMatrix();
 
-        if (node["entry_names"])
+        if (IO::isNode(node["entry_names"]))
             rhs.entry_names = node["entry_names"].as<std::vector<std::string>>();
 
-        if (node["entry_values"])
+        if (IO::isNode(node["entry_values"]))
             rhs.entry_values = node["entry_values"].as<std::vector<moveit_msgs::AllowedCollisionEntry>>();
 
-        if (node["default_entry_names"])
+        if (IO::isNode(node["default_entry_names"]))
             rhs.default_entry_names = node["default_entry_names"].as<std::vector<std::string>>();
 
-        if (node["default_entry_values"])
+        if (IO::isNode(node["default_entry_values"]))
         {
             const auto &dev = node["default_entry_values"];
-            for (std::size_t i = 0; i < dev.size(); i++)
-                rhs.default_entry_values.push_back(nodeToBool(dev[i]));
+            for (const auto &b : dev)
+                rhs.default_entry_values.push_back(nodeToBool(b));
         }
 
         return true;
@@ -1036,8 +1046,8 @@ namespace YAML
     {
         rhs = moveit_msgs::AllowedCollisionEntry();
 
-        for (std::size_t i = 0; i < node.size(); i++)
-            rhs.enabled.push_back(nodeToBool(node[i]));
+        for (const auto &b : node)
+            rhs.enabled.push_back(nodeToBool(b));
 
         return true;
     }
@@ -1060,10 +1070,10 @@ namespace YAML
     {
         rhs = moveit_msgs::PlanningSceneWorld();
 
-        if (node["collision_objects"])
+        if (IO::isNode(node["collision_objects"]))
             rhs.collision_objects = node["collision_objects"].as<std::vector<moveit_msgs::CollisionObject>>();
 
-        if (node["octomap"])
+        if (IO::isNode(node["octomap"]))
             rhs.octomap = node["octomap"].as<octomap_msgs::OctomapWithPose>();
 
         return true;
@@ -1087,21 +1097,21 @@ namespace YAML
     {
         rhs = octomap_msgs::Octomap();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["binary"])
+        if (IO::isNode(node["binary"]))
             rhs.binary = nodeToBool(node["binary"]);
 
-        if (node["id"])
+        if (IO::isNode(node["id"]))
             rhs.id = node["id"].as<std::string>();
 
-        if (node["resolution"])
+        if (IO::isNode(node["resolution"]))
             rhs.resolution = node["resolution"].as<double>();
 
-        if (node["data"])
+        if (IO::isNode(node["data"]))
             rhs.data = node["data"].as<std::vector<int8_t>>();
 
         return true;
@@ -1123,15 +1133,15 @@ namespace YAML
     {
         rhs = octomap_msgs::OctomapWithPose();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
-        if (node["origin"])
+        if (IO::isNode(node["origin"]))
             rhs.origin = node["origin"].as<geometry_msgs::Pose>();
 
-        if (node["octomap"])
+        if (IO::isNode(node["octomap"]))
             rhs.octomap = node["octomap"].as<octomap_msgs::Octomap>();
 
         return true;
@@ -1175,10 +1185,10 @@ namespace YAML
     bool convert<shape_msgs::SolidPrimitive>::decode(const Node &node, shape_msgs::SolidPrimitive &rhs)
     {
         rhs = shape_msgs::SolidPrimitive();
-        if (node["type"])
+        if (IO::isNode(node["type"]))
             nodeToPrimitiveType(node["type"], rhs);
 
-        if (node["dimensions"])
+        if (IO::isNode(node["dimensions"]))
             rhs.dimensions = node["dimensions"].as<std::vector<double>>();
 
         return true;
@@ -1196,25 +1206,25 @@ namespace YAML
     bool convert<shape_msgs::Mesh>::decode(const Node &node, shape_msgs::Mesh &rhs)
     {
         rhs = shape_msgs::Mesh();
-        if (node["resource"])
+        if (IO::isNode(node["resource"]))
         {
             std::string resource = node["resource"].as<std::string>();
             Eigen::Vector3d dimensions{1, 1, 1};
 
-            if (node["dimensions"])
+            if (IO::isNode(node["dimensions"]))
             {
                 Eigen::Vector3d load(node["dimensions"].as<std::vector<double>>().data());
                 dimensions = load;
             }
 
-            robowflex::Geometry mesh(robowflex::Geometry::ShapeType::Type::MESH, dimensions, resource);
+            Geometry mesh(Geometry::ShapeType::Type::MESH, dimensions, resource);
             rhs = mesh.getMeshMsg();
         }
         else
         {
-            if (node["triangles"])
+            if (IO::isNode(node["triangles"]))
                 rhs.triangles = node["triangles"].as<std::vector<shape_msgs::MeshTriangle>>();
-            if (node["vertices"])
+            if (IO::isNode(node["vertices"]))
                 rhs.vertices = node["vertices"].as<std::vector<geometry_msgs::Point>>();
         }
         return true;
@@ -1274,7 +1284,7 @@ namespace YAML
     {
         rhs = moveit_msgs::WorkspaceParameters();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
@@ -1310,21 +1320,21 @@ namespace YAML
     {
         rhs = moveit_msgs::Constraints();
 
-        if (node["name"])
+        if (IO::isNode(node["name"]))
             rhs.name = node["name"].as<std::string>();
 
-        if (node["joint_constraints"])
+        if (IO::isNode(node["joint_constraints"]))
             rhs.joint_constraints = node["joint_constraints"].as<std::vector<moveit_msgs::JointConstraint>>();
 
-        if (node["position_constraints"])
+        if (IO::isNode(node["position_constraints"]))
             rhs.position_constraints =
                 node["position_constraints"].as<std::vector<moveit_msgs::PositionConstraint>>();
 
-        if (node["orientation_constraints"])
+        if (IO::isNode(node["orientation_constraints"]))
             rhs.orientation_constraints =
                 node["orientation_constraints"].as<std::vector<moveit_msgs::OrientationConstraint>>();
 
-        if (node["visibility_constraints"])
+        if (IO::isNode(node["visibility_constraints"]))
             rhs.visibility_constraints =
                 node["visibility_constraints"].as<std::vector<moveit_msgs::VisibilityConstraint>>();
 
@@ -1354,17 +1364,17 @@ namespace YAML
         rhs.joint_name = node["joint_name"].as<std::string>();
         rhs.position = node["position"].as<double>();
 
-        if (node["tolerance_above"])
+        if (IO::isNode(node["tolerance_above"]))
             rhs.tolerance_above = node["tolerance_above"].as<double>();
         else
             rhs.tolerance_above = std::numeric_limits<double>::epsilon();
 
-        if (node["tolerance_below"])
+        if (IO::isNode(node["tolerance_below"]))
             rhs.tolerance_below = node["tolerance_below"].as<double>();
         else
             rhs.tolerance_below = std::numeric_limits<double>::epsilon();
 
-        if (node["weight"])
+        if (IO::isNode(node["weight"]))
             rhs.weight = node["weight"].as<double>();
         else
             rhs.weight = 1;
@@ -1397,17 +1407,17 @@ namespace YAML
         rhs = moveit_msgs::PositionConstraint();
         rhs.weight = 1;
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
 
         rhs.link_name = node["link_name"].as<std::string>();
-        if (node["target_point_offset"])
+        if (IO::isNode(node["target_point_offset"]))
             rhs.target_point_offset = node["target_point_offset"].as<geometry_msgs::Vector3>();
 
         rhs.constraint_region = node["constraint_region"].as<moveit_msgs::BoundingVolume>();
-        if (node["weight"])
+        if (IO::isNode(node["weight"]))
             rhs.weight = node["weight"].as<double>();
         else
             rhs.weight = 1;
@@ -1438,7 +1448,7 @@ namespace YAML
     bool convert<moveit_msgs::OrientationConstraint>::decode(const Node &node,
                                                              moveit_msgs::OrientationConstraint &rhs)
     {
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
         else
             rhs.header = getDefaultHeader();
@@ -1450,7 +1460,7 @@ namespace YAML
         rhs.absolute_y_axis_tolerance = node["absolute_y_axis_tolerance"].as<double>();
         rhs.absolute_z_axis_tolerance = node["absolute_z_axis_tolerance"].as<double>();
 
-        if (node["weight"])
+        if (IO::isNode(node["weight"]))
             rhs.weight = node["weight"].as<double>();
         else
             rhs.weight = 1;
@@ -1512,13 +1522,13 @@ namespace YAML
     {
         rhs = moveit_msgs::BoundingVolume();
 
-        if (node["primitives"])
+        if (IO::isNode(node["primitives"]))
         {
             rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
             rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
         }
 
-        if (node["meshes"])
+        if (IO::isNode(node["meshes"]))
         {
             rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
             rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
@@ -1573,10 +1583,10 @@ namespace YAML
         if (rhs.allowed_planning_time != 0)
             node["allowed_planning_time"] = rhs.allowed_planning_time;
 
-        if (rhs.max_velocity_scaling_factor > 0)
+        if (rhs.max_velocity_scaling_factor < 1)
             node["max_velocity_scaling_factor"] = rhs.max_velocity_scaling_factor;
 
-        if (rhs.max_acceleration_scaling_factor > 0)
+        if (rhs.max_acceleration_scaling_factor < 1)
             node["max_acceleration_scaling_factor"] = rhs.max_acceleration_scaling_factor;
 
         return node;
@@ -1587,39 +1597,47 @@ namespace YAML
     {
         rhs = moveit_msgs::MotionPlanRequest();
 
-        if (node["workspace_parameters"])
+        if (IO::isNode(node["workspace_parameters"]))
             rhs.workspace_parameters = node["workspace_parameters"].as<moveit_msgs::WorkspaceParameters>();
 
-        if (node["start_state"])
+        if (IO::isNode(node["start_state"]))
             rhs.start_state = node["start_state"].as<moveit_msgs::RobotState>();
 
-        if (node["goal_constraints"])
+        if (IO::isNode(node["goal_constraints"]))
             rhs.goal_constraints = node["goal_constraints"].as<std::vector<moveit_msgs::Constraints>>();
 
-        if (node["path_constraints"])
+        if (IO::isNode(node["path_constraints"]))
             rhs.path_constraints = node["path_constraints"].as<moveit_msgs::Constraints>();
 
-        if (node["trajectory_constraints"])
+        if (IO::isNode(node["trajectory_constraints"]))
             rhs.trajectory_constraints =
                 node["trajectory_constraints"].as<moveit_msgs::TrajectoryConstraints>();
 
-        if (node["planner_id"])
+        if (IO::isNode(node["planner_id"]))
             rhs.planner_id = node["planner_id"].as<std::string>();
 
-        if (node["group_name"])
+        if (IO::isNode(node["group_name"]))
             rhs.group_name = node["group_name"].as<std::string>();
 
-        if (node["num_planning_attempts"])
+        if (IO::isNode(node["num_planning_attempts"]))
             rhs.num_planning_attempts = node["num_planning_attempts"].as<int>();
+        else
+            rhs.num_planning_attempts = 0;
 
-        if (node["allowed_planning_time"])
+        if (IO::isNode(node["allowed_planning_time"]))
             rhs.allowed_planning_time = node["allowed_planning_time"].as<double>();
+        else
+            rhs.allowed_planning_time = 0;
 
-        if (node["max_velocity_scaling_factor"])
+        if (IO::isNode(node["max_velocity_scaling_factor"]))
             rhs.max_velocity_scaling_factor = node["max_velocity_scaling_factor"].as<double>();
+        else
+            rhs.max_velocity_scaling_factor = 1;
 
-        if (node["max_acceleration_scaling_factor"])
+        if (IO::isNode(node["max_acceleration_scaling_factor"]))
             rhs.max_acceleration_scaling_factor = node["max_acceleration_scaling_factor"].as<double>();
+        else
+            rhs.max_acceleration_scaling_factor = 1;
 
         return true;
     }
@@ -1643,13 +1661,13 @@ namespace YAML
     {
         rhs = trajectory_msgs::MultiDOFJointTrajectory();
 
-        if (node["header"])
+        if (IO::isNode(node["header"]))
             rhs.header = node["header"].as<std_msgs::Header>();
 
-        if (node["joint_names"])
+        if (IO::isNode(node["joint_names"]))
             rhs.joint_names = node["joint_names"].as<std::vector<std::string>>();
 
-        if (node["points"])
+        if (IO::isNode(node["points"]))
             rhs.points = node["points"].as<std::vector<trajectory_msgs::MultiDOFJointTrajectoryPoint>>();
 
         return true;
@@ -1679,14 +1697,14 @@ namespace YAML
     {
         rhs = trajectory_msgs::MultiDOFJointTrajectoryPoint();
 
-        if (node["transforms"])
-            rhs.transforms = node.as<std::vector<geometry_msgs::Transform>>();
+        if (IO::isNode(node["transforms"]))
+            rhs.transforms = node["transforms"].as<std::vector<geometry_msgs::Transform>>();
 
-        if (node["velocities"])
-            rhs.velocities = node.as<std::vector<geometry_msgs::Twist>>();
+        if (IO::isNode(node["velocities"]))
+            rhs.velocities = node["velocities"].as<std::vector<geometry_msgs::Twist>>();
 
-        if (node["accelerations"])
-            rhs.accelerations = node.as<std::vector<geometry_msgs::Twist>>();
+        if (IO::isNode(node["accelerations"]))
+            rhs.accelerations = node["accelerations"].as<std::vector<geometry_msgs::Twist>>();
 
         rhs.time_from_start = node["time_from_start"].as<ros::Duration>();
         return true;
@@ -1709,10 +1727,10 @@ namespace YAML
     {
         rhs = moveit_msgs::RobotTrajectory();
 
-        if (node["joint_trajectory"])
+        if (IO::isNode(node["joint_trajectory"]))
             rhs.joint_trajectory = node["joint_trajectory"].as<trajectory_msgs::JointTrajectory>();
 
-        if (node["multi_dof_joint_trajectory"])
+        if (IO::isNode(node["multi_dof_joint_trajectory"]))
             rhs.multi_dof_joint_trajectory =
                 node["multi_dof_joint_trajectory"].as<trajectory_msgs::MultiDOFJointTrajectory>();
 
@@ -1724,6 +1742,31 @@ namespace robowflex
 {
     namespace IO
     {
+        bool isNode(const YAML::Node &node)
+        {
+            bool r = true;
+            try
+            {
+                r = !node.IsNull();
+                r = node;
+
+                if (r)
+                    try
+                    {
+                        r = node.as<std::string>() != "~";
+                    }
+                    catch (std::exception &e)
+                    {
+                    }
+            }
+            catch (YAML::InvalidNode &e)
+            {
+                return false;
+            }
+
+            return r;
+        }
+
         YAML::Node toNode(const geometry_msgs::Pose &msg)
         {
             YAML::Node node;
@@ -1758,6 +1801,11 @@ namespace robowflex
         }
 
         bool fromYAMLFile(moveit_msgs::MotionPlanRequest &msg, const std::string &file)
+        {
+            return IO::YAMLFileToMessage(msg, file);
+        }
+
+        bool fromYAMLFile(moveit_msgs::RobotState &msg, const std::string &file)
         {
             return IO::YAMLFileToMessage(msg, file);
         }

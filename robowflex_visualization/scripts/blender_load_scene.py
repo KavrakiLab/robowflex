@@ -90,6 +90,9 @@ def add_mesh(mesh):
     '''Loads and adds a mesh to the blender scene.
 
     '''
+
+    old = set([obj.name for obj in bpy.data.objects])
+
     mesh_file = utils.resolvePackage(mesh['resource'])
     if '.dae' in mesh_file.lower():
         bpy.ops.wm.collada_import(filepath = mesh_file)
@@ -99,17 +102,32 @@ def add_mesh(mesh):
         bpy.ops.import_mesh.ply(filepath = mesh_file)
     else:
         return None
-    obj = bpy.context.active_object
 
-    if not obj.data.materials:
-        set_color(obj, mesh)
+    new = set([obj.name for obj in bpy.data.objects])
+    imported_names = new - old
+    obj_list = []
 
-    if 'dimensions' in mesh:
-        obj.scale = mesh['dimensions']
-    else:
-        obj.scale = (1, 1, 1)
+    for name in imported_names:
+        bpy.ops.object.select_all(action = 'DESELECT')
+        i_obj = bpy.data.objects[name]
 
-    return obj
+        # For some dumb reason, loading robotiq's meshes loads in extra
+        # cameras and lamps. Delete those.
+        if 'Camera' in name or 'Lamp' in name:
+            i_obj.select = True
+            bpy.ops.object.delete()
+            continue
+
+        if "materials" in i_obj.data:
+            if not i_obj.data.materials:
+                set_color(i_obj, mesh)
+
+        if 'dimensions' in mesh:
+            i_obj.scale = mesh['dimensions']
+
+        obj_list.append(i_obj)
+
+    return obj_list
 
 
 def add_shape(shape):
@@ -119,7 +137,7 @@ def add_shape(shape):
     if 'resource' in shape:
         return add_mesh(shape)
     else:
-        return SHAPE_MAP[shape['type']](shape)
+        return [SHAPE_MAP[shape['type']](shape)]
 
 
 def add_collision_objects(collision_objects):
@@ -137,7 +155,8 @@ def add_collision_objects(collision_objects):
             if not 'color' in shape:
                 shape['color'] = (0.0, 0.9, 0.2) # MoveIt Green.
             obj = add_shape(shape)
-            blender_utils.set_pose(obj, pose)
+            for i_obj in obj:
+                blender_utils.set_pose(i_obj, pose)
 
 
 def add_planning_scene_world(world):

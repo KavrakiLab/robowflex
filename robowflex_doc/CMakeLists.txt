@@ -11,6 +11,22 @@ find_package(catkin REQUIRED)
 
 catkin_package()
 
+macro(add_doc project)
+  get_filename_component(ABS_FILENAME_SRC "../${project}/src"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  get_filename_component(ABS_FILENAME_INCLUDE "../${project}/include"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  get_filename_component(ABS_FILENAME_SCRIPTS "../${project}/scripts"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  get_filename_component(ABS_FILENAME_README "../${project}/README.md"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+  set(DOC_SOURCES "${DOC_SOURCES} ${ABS_FILENAME_SRC} ${ABS_FILENAME_INCLUDE} ${ABS_FILENAME_SCRIPTS} ${ABS_FILENAME_README}")
+endmacro(add_doc)
+
 add_doc(robowflex_library)
 add_doc(robowflex_movegroup)
 add_doc(robowflex_ompl)
@@ -23,10 +39,11 @@ if (DOXYGEN_FOUND)
 
   set(DOXYGEN_SOURCE_DIRS ${DOC_SOURCES})
 
-  get_filename_component(DOXYGEN_README "../README.md"
-    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-
   set(DOXYGEN_DOC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+
+  get_filename_component(DOXYGEN_README "./home.md"
+    REALPATH BASE_DIR "${DOXYGEN_DOC_DIR}/markdown/")
+
   set(DOXYGEN_TAG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/tag)
   set(DOXYGEN_HTML_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/html)
   set(DOXYGEN_CATKIN_DOC_DIR "${CATKIN_DEVEL_PREFIX}/share/${PROJECT_NAME}/doc")

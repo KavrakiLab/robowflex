@@ -1,0 +1,6 @@
+*.cpp  text diff=cpp
+*.h    text diff=cpp
+*.py   text diff=python
+*.css  text diff=css
+*.html text diff=html
+*      text=auto

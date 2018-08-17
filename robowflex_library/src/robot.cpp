@@ -146,7 +146,7 @@ void Robot::loadRobotModel(bool namespaced)
 {
     robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
                                                           "/" + ROBOT_DESCRIPTION);
-    options.load_kinematics_solvers_ = !namespaced;
+    options.load_kinematics_solvers_ = false;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
@@ -283,6 +283,14 @@ void Robot::setState(const moveit_msgs::RobotState &state)
     scratch_->update();
 }
 
+void Robot::setStateFromYAMLFile(const std::string &file)
+{
+    moveit_msgs::RobotState state;
+    IO::fromYAMLFile(state, file);
+
+    setState(state);
+}
+
 void Robot::setGroupState(const std::string &name, const std::vector<double> &positions)
 {
     scratch_->setJointGroupPositions(name, positions);
@@ -336,15 +344,6 @@ const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const st
     auto target_tf = scratch_->getGlobalLinkTransform(target);
 
     return base_tf.inverse() * target_tf;
-}
-
-bool Robot::inCollision(const SceneConstPtr &scene) const
-{
-    collision_detection::CollisionRequest request;
-    collision_detection::CollisionResult result;
-    scene->getSceneConst()->checkCollisionUnpadded(request, result, *scratch_);
-
-    return result.collision;
 }
 
 namespace
@@ -525,8 +524,16 @@ bool Robot::dumpGeometry(const std::string &filename) const
     return IO::YAMLToFile(link_geometry, filename);
 }
 
+bool Robot::dumpTransforms(const std::string &filename) const
+{
+    robot_trajectory::RobotTrajectory trajectory(model_, "");
+    trajectory.addSuffixWayPoint(scratch_, 0.0);
+
+    return dumpPathTransforms(trajectory, filename, 0., 0.);
+}
+
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
-                               double fps, double threshold)
+                               double fps, double threshold) const
 {
     YAML::Node node, values;
     const double rate = 1.0 / fps;
@@ -539,7 +546,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
 
     robot_state::RobotStatePtr previous, state(new robot_state::RobotState(model_));
 
-    for (double duration = 0.0, delay = 0.0; duration < total_duration; duration += rate, delay += rate)
+    for (double duration = 0.0, delay = 0.0; duration <= total_duration; duration += rate, delay += rate)
     {
         YAML::Node point;
 

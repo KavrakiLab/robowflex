@@ -34,40 +34,64 @@
 
 /* Author: Andrew Wells */
 
-#include <robowflex_library/robowflex.h>
-#include <vector>
+#ifndef NASA_FOOTSTEP_PLANNING_UTILS_GEOM_2D_H
+#define NASA_FOOTSTEP_PLANNING_UTILS_GEOM_2D_H
 
-#include "tmpack_interface.cpp"
+#include <math.h>
+#include <iostream>
 
-namespace robowflex
-{
-    // Things this should implement:
+namespace footstep_planning {
+class point_2D {
+ public:
+  double x, y;
 
-    // parse the PDDL file
-    // plan to solve the PDDL
-    // map operator to motion plan
-    // map operator to scene graph change
+  point_2D(double x, double y) {
+    this->x = x;
+    this->y = y;
+  }
 
-    // want to get feedback on how the motion planner did
+  friend std::ostream &operator<<(std::ostream &strm, const point_2D &p) {
+    return strm << "<" << p.x << ", " << p.y << ">";
+  }
 
-    class TMPackToy : public TMPackInterface
-    {
-        std::vector<std::vector<double>> getTaskPlan()
-        {
-            std::vector<std::vector<double>> my_plan;
-            std::vector<double> goal = {-0.39, -0.69, -2.12, 2.82, -0.39, 0};
-            my_plan.push_back(goal);
-            goal = {0.39, -0.69, -2.12, 2.82, -0.39, 0};
-            my_plan.push_back(goal);
-            return my_plan;
-        }
+  friend bool operator==(const point_2D &p1, const point_2D &p2) {
+    return p1.x == p2.x && p1.y == p2.y;
+  }
 
-    public:
-        TMPackToy(const Robot &robot, const std::string &group_name, OMPL::OMPLPipelinePlanner &planner,
-                  Scene &scene, MotionRequestBuilder &request, std::vector<double> &start)
-          : TMPackInterface(robot, group_name, planner, scene, request, start)
-        {
-        }
-    };
+  friend bool operator!=(const point_2D &p1, const point_2D &p2) {
+    return ~(p1 == p2);
+  }
+};
 
-}  // namespace robowflex
+class line_segment {
+ public:
+  double x1, y1, x2, y2;
+
+  line_segment(double x1, double y1, double x2, double y2) {
+    this->x1 = x1;
+    this->x2 = x2;
+    this->y1 = y1;
+    this->y2 = y2;
+  }
+};
+
+double dist(double x1, double y1, double x2, double y2) {
+  return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}
+
+double dist(point_2D p1, point_2D p2) {
+  return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+}
+
+// returns angle from -PI to PI
+double normalizeAngle(double angle) {
+  if (angle < -M_PI) {
+    while (angle < -M_PI) angle += 2 * M_PI;
+  } else if (angle > M_PI) {
+    while (angle > -M_PI) angle -= 2 * M_PI;
+  }
+  return angle;
+}
+
+}  // namespace footstep_planning
+#endif

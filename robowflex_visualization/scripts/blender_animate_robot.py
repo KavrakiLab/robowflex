@@ -80,19 +80,13 @@ class RobotFrames(object):
                 for name in names:
                     bpy.ops.object.select_all(action = 'DESELECT')
 
-                    # For some dumb reason, loading robotiq's meshes loads in extra
-                    # cameras and lamps. Delete those.
                     i_obj = bpy.data.objects[name]
-
-                    if 'Camera' in name or 'Lamp' in name:
-                        i_obj.select = True
-                        bpy.ops.object.delete()
-                        continue
 
                     if 'origin' in elem:
                         blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], elem['origin'])
                     else:
                         blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
+
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.name = link_name
                     sublist.append(i_obj.name)
@@ -106,7 +100,6 @@ class RobotFrames(object):
 
             blender_utils.apply_smooth()
             blender_utils.apply_edge_split()
-
 
     def animate(self, fps = 30):
         '''Adds key frames for each of the robot's links according to point data.
@@ -138,6 +131,7 @@ class RobotFrames(object):
         bpy.context.scene.render.fps = fps
         bpy.context.scene.frame_start = 0
         bpy.context.scene.frame_end = current_frame + self.frame_extra_count
+
 
 def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and

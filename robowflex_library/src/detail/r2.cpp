@@ -74,7 +74,7 @@ robot_trajectory::RobotTrajectoryPtr R2Robot::loadSMTData(const std::string &fil
     {
         auto tokenized = IO::tokenize(joint_name, "/");
         tokenized.insert(tokenized.begin(), "captain");
-        tokenized.push_back("APS1");
+        tokenized.emplace_back("APS1");
 
         auto data = file.getData(tokenized);
         if (data)

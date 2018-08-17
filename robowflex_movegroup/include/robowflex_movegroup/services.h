@@ -37,6 +37,18 @@ namespace robowflex
                 bool success;                             ///< Planning success.
                 double time;                              ///< Planning time.
                 moveit_msgs::RobotTrajectory trajectory;  ///< Planned trajectory on success.
+
+                /** \brief Load a recorded action from a YAML file.
+                 *  \param[in] file Filename to load from.
+                 *  \return True on success, false on failure.
+                 */
+                bool fromYAMLFile(const std::string &file);
+
+                /** \brief Save a recorded action to a YAML file.
+                 *  \param[in] file Filename to save as.
+                 *  \return True on success, false on failure.
+                 */
+                bool toYAMLFile(const std::string &file);
             };
 
             typedef std::function<void(Action &)> ResultCallback;

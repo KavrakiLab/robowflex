@@ -21,6 +21,7 @@ try:
 except ImportError:
     from yaml import Loader
 
+
 def resolvePackage(path):
     '''Resolves `package://` URLs to their canonical form. The path does not need to exist, but the package does. Can be
     used to write new files in packages. Returns "" on failure.
@@ -46,6 +47,9 @@ def resolvePackage(path):
             package_path1 = rospack.get_path(package_name)
         else:
             package_path1 = subprocess.check_output(["rospack", "find", package_name]).decode().strip()
+
+    elif '~' in path:
+        path = os.path.expanduser(path)
 
     new_path = os.path.realpath(package_path1 + path)
     return new_path

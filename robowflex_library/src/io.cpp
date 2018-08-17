@@ -55,6 +55,15 @@ namespace
         return out;
     }
 
+    boost::filesystem::path expandPath(const boost::filesystem::path &in)
+    {
+        boost::filesystem::path out = in;
+        out = expandHome(out);
+        out = expandSymlinks(out);
+
+        return boost::filesystem::absolute(out);
+    }
+
     // is lhs a prefix of rhs?
     bool isPrefix(const std::string &lhs, const std::string &rhs)
     {
@@ -67,13 +76,12 @@ namespace
         return std::equal(lhs.rbegin(), lhs.rbegin() + std::min(lhs.size(), rhs.size()), rhs.rbegin());
     }
 
-    bool isXacro(const std::string &path_string)
+    bool isExtension(const std::string &path_string, const std::string &extension)
     {
         boost::filesystem::path path(path_string);
-        const std::string extension = boost::filesystem::extension(path);
-        return isSuffix("xacro", extension);
+        const std::string last = boost::filesystem::extension(path);
+        return isSuffix(extension, last);
     }
-
 }  // namespace
 
 const std::string IO::resolvePackage(const std::string &path)
@@ -103,10 +111,7 @@ const std::string IO::resolvePackage(const std::string &path)
     else
         file = path;
 
-    file = expandHome(file);
-    file = expandSymlinks(file);
-
-    return boost::filesystem::absolute(file).string();
+    return expandPath(file).string();
 }
 
 const std::string IO::resolvePath(const std::string &path)
@@ -182,7 +187,7 @@ const std::string IO::loadXMLToString(const std::string &path)
     if (full_path.empty())
         return "";
 
-    if (isXacro(full_path))
+    if (isExtension(full_path, "xacro"))
         return loadXacroToString(full_path);
     else
         return loadFileToString(full_path);
@@ -193,6 +198,9 @@ const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
     YAML::Node file;
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
+        return std::make_pair(false, file);
+
+    if (!isExtension(full_path, "yml") && !isExtension(full_path, "yaml"))
         return std::make_pair(false, file);
 
     try
@@ -225,6 +233,7 @@ const std::string IO::Handler::generateUUID()
     boost::uuids::uuid u = gen();
 
     std::string s = boost::lexical_cast<std::string>(u);
+
     std::replace(s.begin(), s.end(), '-', '_');
 
     return s;
@@ -242,6 +251,25 @@ void IO::createFile(std::ofstream &out, const std::string &file)
         boost::filesystem::create_directories(parent);
 
     out.open(path.string(), std::ofstream::out | std::ofstream::trunc);
+}
+
+const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &directory)
+{
+    std::vector<std::string> contents;
+
+    const std::string full_path = resolvePath(directory);
+    if (full_path.empty())
+        return std::make_pair(false, contents);
+
+    boost::filesystem::path path(full_path);
+    if (!boost::filesystem::is_directory(path))
+        return std::make_pair(false, contents);
+
+    for (auto it = boost::filesystem::directory_iterator(path); it != boost::filesystem::directory_iterator();
+         ++it)
+        contents.emplace_back(expandPath(it->path()).string());
+
+    return std::make_pair(true, contents);
 }
 
 const std::string IO::getHostname()
