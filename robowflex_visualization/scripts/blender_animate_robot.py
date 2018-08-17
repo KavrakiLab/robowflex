@@ -60,39 +60,32 @@ class RobotFrames(object):
         '''
         for link in self.link_list:
             link_name = link['name']
-            # Mark all objects as imported
-            old = set([obj.name for obj in bpy.data.objects])
-
             if 'visual' not in link:
                 self.link_to_parts[link_name] = []
                 continue
 
-            imported_name_sets = []
-            for link_element in link['visual']['elements']:
-                blender_scene.add_shape(link_element)
-                new = set([obj.name for obj in bpy.data.objects])
-                imported_name_sets.append(new - old)
-                old = new
+            link_part_names = []
 
-            remaining = []
-            for names, elem in zip(imported_name_sets, link['visual']['elements']):
-                sublist = []
-                for name in names:
+            # URDFs can have multiple visual elements per link.
+            # Handles loading each element individually.
+            for link_element in link['visual']['elements']:
+                new = blender_scene.add_shape(link_element)
+                element_names = []
+                for i_obj in new:
                     bpy.ops.object.select_all(action = 'DESELECT')
 
-                    i_obj = bpy.data.objects[name]
-
-                    if 'origin' in elem:
-                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], elem['origin'])
+                    # Set the first keyframe to be the initial location.
+                    if 'origin' in link_element:
+                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link_element['origin'])
                     else:
                         blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
 
                     i_obj.keyframe_insert(data_path = "location", index = -1)
                     i_obj.name = link_name
-                    sublist.append(i_obj.name)
-                remaining.append(sublist)
+                    element_names.append(i_obj.name)
+                link_part_names.append(element_names)
 
-            self.link_to_parts[link_name] = remaining
+            self.link_to_parts[link_name] = link_part_names
 
         # Apply smooth shading and edge split to each object for aesthetics
         for obj in bpy.data.objects:
@@ -116,6 +109,8 @@ class RobotFrames(object):
         for point in self.points:
             bpy.context.scene.frame_set(current_frame)
             for link in self.link_list:
+                if 'visual' not in link:
+                    continue
                 link_name = link['name']
                 for names, elem in zip(self.link_to_parts[link_name], link['visual']['elements']):
                     for name in names:

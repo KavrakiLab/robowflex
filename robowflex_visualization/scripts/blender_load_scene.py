@@ -91,6 +91,7 @@ def add_mesh(mesh):
 
     '''
 
+    # Mark all existing objects as already imported
     old = set([obj.name for obj in bpy.data.objects])
 
     mesh_file = utils.resolvePackage(mesh['resource'])
@@ -103,6 +104,7 @@ def add_mesh(mesh):
     else:
         return None
 
+    # Compare all imported objects to what we saw before loading the mesh.
     new = set([obj.name for obj in bpy.data.objects])
     imported_names = new - old
     obj_list = []
