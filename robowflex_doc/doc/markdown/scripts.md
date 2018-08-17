@@ -29,6 +29,8 @@ Demonstration of motion planning using the Fetch along with its unique functions
 ### Robonaut 2 Tests
 - [r2_test.cpp](r2__test_8cpp_source.html)
 Demonstration of motion planning from a YAML file and using a robowflex::MotionRequestBuilder for Robonaut 2.
+Additionally, shows how to dump a single robot state to an animation file.
+By default the motion request builder example is commented out.
 
 - [r2_hdf5.cpp](r2__hdf5_8cpp_source.html)
 Using robowflex::R2Robot::loadSMTData to load experiment data for Robonaut 2.
