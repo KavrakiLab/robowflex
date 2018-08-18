@@ -130,7 +130,7 @@ namespace
 
 namespace YAML
 {
-#if ROBOWFLEX_AT_LEAST_LUNAR
+#if ROBOWFLEX_AT_LEAST_KINETIC
 #else
     // Copied from YAML_DEFINE_CONVERT_STREAMABLE
     Node convert<signed char>::encode(const signed char &rhs)

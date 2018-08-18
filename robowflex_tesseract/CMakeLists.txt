@@ -14,6 +14,7 @@ include(HelperFunctions)
 find_package(Boost REQUIRED)
 
 find_package(catkin QUIET COMPONENTS
+  ompl
   moveit_planners_ompl
   robowflex_library
   tesseract_planning
@@ -23,6 +24,7 @@ find_package(catkin QUIET COMPONENTS
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
+    ompl
     moveit_planners_ompl
     robowflex_library
     tesseract_planning

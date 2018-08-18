@@ -4,12 +4,15 @@
 '''
 # pylint: disable=import-error
 import bpy
+import mathutils
+
 
 def apply_smooth():
     '''Applies the smooth shading to the selected object.
 
     '''
     bpy.ops.object.shade_smooth()
+
 
 def apply_edge_split():
     '''Applies the edge split modifier to the selected object.
@@ -87,19 +90,48 @@ def pose_to_quat(pose):
     reorder them.
 
     '''
+    if 'x' in pose['orientation']:
+        q = pose['orientation']
+        return mathutils.Quaternion([q['w'], q['x'], q['y'], q['z']])
+
     if isinstance(pose['orientation'][0], str):
         # Means there's a NAN somewhere.
-        return (1.0, 0.0, 0.0, 0.0)
+        return mathutils.Quaternion((1.0, 0.0, 0.0, 0.0))
     else:
-        return pose['orientation'][3:] + pose['orientation'][:3]
+        return mathutils.Quaternion(pose['orientation'][3:] + pose['orientation'][:3])
 
 
 def pose_to_vec(pose):
     '''Takes a pose dict and extracts the position vector.
 
     '''
+    if 'x' in pose['position']:
+        v = pose['position']
+        return mathutils.Vector([v['x'], v['y'], v['z']])
 
-    return pose['position']
+    return mathutils.Vector(pose['position'])
+
+
+def pose_add(obj, pose1, pose2):
+    '''Adds the second pose after the first.
+       For something like link origins, the joint pose should be passed first, then the link origin
+
+    '''
+
+    # Get the objects for the pose vectors and quaternions.
+    p1_vec = pose_to_vec(pose1)
+    q1 = pose_to_quat(pose1)
+    p2_vec = pose_to_vec(pose2)
+    q2 = pose_to_quat(pose2)
+
+    # Rotate pose2's vec by pose1's quaternion.
+    p2_vec.rotate(q1)
+    obj.location = p1_vec + p2_vec
+
+    # Apply pose2's quaternion to the existing rotation.
+    q2.rotate(q1)
+    obj.rotation_mode = 'QUATERNION'
+    obj.rotation_quaternion = q2
 
 
 def set_pose(obj, pose):

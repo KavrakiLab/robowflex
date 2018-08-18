@@ -22,6 +22,7 @@ import blender_utils
 import blender_load_scene as blender_scene
 import blender_animate_robot as blender_robot
 import blender_render_scene as blender_render
+import blender_convex_hulls
 
 if __name__ == '__main__':
     imp.reload(utils)
@@ -29,6 +30,7 @@ if __name__ == '__main__':
     imp.reload(blender_utils)
     imp.reload(blender_robot)
     imp.reload(blender_render)
+    imp.reload(blender_convex_hulls)
 
     blender_robot.animate_robot(
         'package://robowflex_visualization/yaml/ur5.yml',    # Robot geometry

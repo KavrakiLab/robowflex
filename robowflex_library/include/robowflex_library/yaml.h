@@ -67,7 +67,7 @@
 /** \cond IGNORE */
 namespace YAML
 {
-#if ROBOWFLEX_AT_LEAST_LUNAR
+#if ROBOWFLEX_AT_LEAST_KINETIC
 #else
     template <>
     struct convert<signed char>

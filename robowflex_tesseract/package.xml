@@ -10,6 +10,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <depend>ompl</depend>
   <depend>robowflex_library</depend>
   <depend>moveit_planners_ompl</depend>
   <depend>tesseract_planning</depend>

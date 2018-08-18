@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-'''Reads in a static file of transforms of different parts of the ur5 robot and animates them in blender.
+'''Reads in a static file of transforms of different parts of the robot and animates them in blender.
 
 '''
-import json
 import sys
 import os
 import time
@@ -60,32 +59,32 @@ class RobotFrames(object):
         '''
         for link in self.link_list:
             link_name = link['name']
-            # Mark all objects as imported
-            old = set([obj.name for obj in bpy.data.objects])
-
             if 'visual' not in link:
                 self.link_to_parts[link_name] = []
                 continue
 
+            link_part_names = []
+
+            # URDFs can have multiple visual elements per link.
+            # Handles loading each element individually.
             for link_element in link['visual']['elements']:
-                blender_scene.add_shape(link_element)
+                new = blender_scene.add_shape(link_element)
+                element_names = []
+                for i_obj in new:
+                    bpy.ops.object.select_all(action = 'DESELECT')
 
-            new = set([obj.name for obj in bpy.data.objects])
-            imported_names = new - old
+                    # Set the first keyframe to be the initial location.
+                    if 'origin' in link_element:
+                        blender_utils.pose_add(i_obj, self.points[0]['point'][link_name], link_element['origin'])
+                    else:
+                        blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
 
-            remaining = []
-            for name in imported_names:
-                bpy.ops.object.select_all(action = 'DESELECT')
+                    i_obj.keyframe_insert(data_path = "location", index = -1)
+                    i_obj.name = link_name
+                    element_names.append(i_obj.name)
+                link_part_names.append(element_names)
 
-                i_obj = bpy.data.objects[name]
-
-                blender_utils.set_pose(i_obj, self.points[0]['point'][link_name])
-                i_obj.keyframe_insert(data_path = "location", index = -1)
-                i_obj.name = link_name
-
-                remaining.append(i_obj.name)
-
-            self.link_to_parts[link_name] = remaining
+            self.link_to_parts[link_name] = link_part_names
 
         # Apply smooth shading and edge split to each object for aesthetics
         for obj in bpy.data.objects:
@@ -101,19 +100,26 @@ class RobotFrames(object):
         # Sometimes, weird keyframes are being added way after finish. Delete those.
         for link in self.link_list:
             link_name = link['name']
-            for name in self.link_to_parts[link_name]:
-                i_obj = bpy.data.objects[name]
-                i_obj.animation_data_clear()
+            for names in self.link_to_parts[link_name]:
+                for name in names:
+                    i_obj = bpy.data.objects[name]
+                    i_obj.animation_data_clear()
         current_frame = self.start_frame
         for point in self.points:
             bpy.context.scene.frame_set(current_frame)
             for link in self.link_list:
+                if 'visual' not in link:
+                    continue
                 link_name = link['name']
-                for name in self.link_to_parts[link_name]:
-                    i_obj = bpy.data.objects[name]
-                    blender_utils.set_pose(i_obj, point['point'][link_name])
-                    i_obj.keyframe_insert(data_path = "location", index = -1)
-                    i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
+                for names, elem in zip(self.link_to_parts[link_name], link['visual']['elements']):
+                    for name in names:
+                        i_obj = bpy.data.objects[name]
+                        if 'origin' in elem:
+                            blender_utils.pose_add(i_obj, point['point'][link_name], elem['origin'])
+                        else:
+                            blender_utils.set_pose(i_obj, point['point'][link_name])
+                        i_obj.keyframe_insert(data_path = "location", index = -1)
+                        i_obj.keyframe_insert(data_path = "rotation_quaternion", index = -1)
             current_frame += fps * point['duration']
 
         bpy.context.scene.render.fps = fps
@@ -125,7 +131,7 @@ def animate_robot(mesh_map_file, path_file):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
     animate its path.
 
-    WARNING: well delete all existing objects in the scene.
+    WARNING: will delete all existing objects in the scene.
     '''
     blender_utils.delete_all()
 

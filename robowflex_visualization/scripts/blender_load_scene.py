@@ -75,7 +75,16 @@ def add_cone(cone):
     return obj
 
 
-SHAPE_MAP = {'box': add_box, 'sphere': add_sphere, 'cylinder': add_cylinder, 'cone': add_cone}
+SHAPE_MAP = {
+    'box'     : add_box,
+    1         : add_box,
+    'sphere'  : add_sphere,
+    2         : add_sphere,
+    'cylinder': add_cylinder,
+    3         : add_cylinder,
+    'cone'    : add_cone,
+    4         : add_cone
+} # yapf: disable
 
 
 def add_mesh(mesh):
@@ -83,6 +92,7 @@ def add_mesh(mesh):
 
     '''
 
+    # Mark all existing objects as already imported
     old = set([obj.name for obj in bpy.data.objects])
 
     mesh_file = utils.resolvePackage(mesh['resource'])
@@ -95,6 +105,7 @@ def add_mesh(mesh):
     else:
         return None
 
+    # Compare all imported objects to what we saw before loading the mesh.
     new = set([obj.name for obj in bpy.data.objects])
     imported_names = new - old
     obj_list = []
@@ -145,7 +156,7 @@ def add_collision_objects(collision_objects):
             poses = coll_obj['mesh_poses']
         for shape, pose in zip(shapes, poses):
             if not 'color' in shape:
-                shape['color'] = (0.0, 0.9, 0.2)    #GREEN
+                shape['color'] = (0.0, 0.9, 0.2)    # MoveIt Green.
             obj = add_shape(shape)
             for i_obj in obj:
                 blender_utils.set_pose(i_obj, pose)
