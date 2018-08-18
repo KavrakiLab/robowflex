@@ -432,11 +432,10 @@ namespace
                 }
 
                 const auto &pose = visual->origin;
-                // TODO Also check if rotation is not zero.
+
+                // TODO: Also check if rotation is not zero.
                 if (pose.position.x != 0 || pose.position.y != 0 || pose.position.z != 0)
-                {
                     addLinkOrigin(node, pose);
-                }
             }
         }
 

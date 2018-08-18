@@ -366,6 +366,7 @@ def set_light_settings(settings):
         if attr in settings:
             setattr(bpy.data.worlds['World'].light_settings, attr, settings[attr])
 
+
 def set_world_settings(settings):
     '''Settings for the world. See https://docs.blender.org/api/current/bpy.types.World.html for details.
     '''
@@ -379,12 +380,13 @@ def set_world_settings(settings):
         'use_sky_paper',
         'use_sky_real',
         'zenith_color'
-    ]
+    ] # yapf: disable
     if not bpy.data.worlds:
         bpy.ops.world.new()
     for attr in ALL_SETTINGS:
         if attr in settings:
             setattr(bpy.data.worlds['World'], attr, settings[attr])
+
 
 def add_blender_scene(scenefile):
     scene = utils.read_yaml_data(scenefile)

@@ -6,11 +6,13 @@
 import bpy
 import mathutils
 
+
 def apply_smooth():
     '''Applies the smooth shading to the selected object.
 
     '''
     bpy.ops.object.shade_smooth()
+
 
 def apply_edge_split():
     '''Applies the edge split modifier to the selected object.
@@ -109,11 +111,13 @@ def pose_to_vec(pose):
 
     return mathutils.Vector(pose['position'])
 
+
 def pose_add(obj, pose1, pose2):
     '''Adds the second pose after the first.
-       For something like link origins, the joint pose should be passed first, then the link origin  
+       For something like link origins, the joint pose should be passed first, then the link origin
+
     '''
-    
+
     # Get the objects for the pose vectors and quaternions.
     p1_vec = pose_to_vec(pose1)
     q1 = pose_to_quat(pose1)

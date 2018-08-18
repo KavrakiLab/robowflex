@@ -4,7 +4,6 @@ each link in order to visually illustrate TrajOpt's collision checking process.
 Also useful to provide a neat motion blur to the robot over a short motion.
 
 '''
-import json
 import sys
 import os
 import time
@@ -28,6 +27,7 @@ import blender_utils
 import utils
 import blender_load_scene as blender_scene
 from blender_animate_robot import RobotFrames
+
 
 class RobotHulls(RobotFrames):
     def load_hulls(self, idx1, idx2):
@@ -90,7 +90,7 @@ class RobotHulls(RobotFrames):
                     i_obj = bpy.data.objects[name]
                     i_obj.select = True
             bpy.ops.object.join()
-            last_name = name # the new object is last name
+            last_name = name    # the new object is last name
 
             # Make a convex hull out of all of the vertices
             bpy.ops.object.mode_set(mode = 'EDIT')
@@ -104,7 +104,7 @@ class RobotHulls(RobotFrames):
             self.link_to_parts[link_name] = link_part_names
 
 
-def convex_hull_robot(mesh_map_file, path_file, first_configuration=0, second_configuration=20):
+def convex_hull_robot(mesh_map_file, path_file, first_configuration = 0, second_configuration = 20):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender
     twice and make a convex hull between each of it's links.
 

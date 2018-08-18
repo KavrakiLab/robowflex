@@ -2,7 +2,6 @@
 '''Reads in a static file of transforms of different parts of the robot and animates them in blender.
 
 '''
-import json
 import sys
 import os
 import time
