@@ -4,6 +4,8 @@
 #include <memory>   // for std::shared_ptr
 #include <array>    // for std::array
 
+#include <boost/lexical_cast.hpp>
+
 #include <boost/filesystem.hpp>  // for filesystem paths
 
 #include <boost/uuid/uuid.hpp>             // for UUID generation
@@ -288,12 +290,21 @@ boost::posix_time::ptime IO::getDate()
     return boost::posix_time::microsec_clock::local_time();
 }
 
-std::vector<std::string> IO::tokenize(const std::string &s, const std::string &separators)
+template <typename T>
+std::vector<T> IO::tokenize(const std::string &s, const std::string &separators)
 {
     boost::char_separator<char> seps(separators.c_str());
     boost::tokenizer<boost::char_separator<char>> tokenizer(s, seps);
-    return std::vector<std::string>(tokenizer.begin(), tokenizer.end());
+
+    std::vector<T> values;
+    std::transform(tokenizer.begin(), tokenizer.end(), std::back_inserter(values),
+                   [](const std::string &s) { return boost::lexical_cast<T>(s); });
+
+    return std::vector<T>();
 }
+
+template std::vector<std::string> IO::tokenize(const std::string &, const std::string &);
+template std::vector<double> IO::tokenize(const std::string &, const std::string &);
 
 ///
 /// IO::Bag

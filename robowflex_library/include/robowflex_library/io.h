@@ -89,12 +89,14 @@ namespace robowflex
          */
         boost::posix_time::ptime getDate();
 
-        /** \brief Separates a \a string into tokens, based upon \a separators.
+        /** \brief Separates a \a string into casted tokens, based upon \a separators.
+         *  \tparam The type of element to cast strings into.
          *  \param[in] string String to tokenize.
          *  \param[in] separators Separators to split string on.
          *  \return The tokenized string.
          */
-        std::vector<std::string> tokenize(const std::string &string, const std::string &separators);
+        template <typename T>
+        std::vector<T> tokenize(const std::string &string, const std::string &separators = " ");
 
         /** \brief Write the contents of a YAML node out to a potentially new file.
          *  \param[in] node Node to write.

@@ -18,6 +18,7 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
+#include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/openrave.h>
@@ -27,26 +28,32 @@ using namespace robowflex::openrave;
 
 namespace
 {
-    struct LoadIntoMoveIt
+    struct SceneParsingContext
     {
         Eigen::Affine3d robot_offset;
         std::vector<moveit_msgs::CollisionObject> coll_objects;
         std::stack<std::string> directory_stack;
     };
 
-    std::vector<double> splitAndParse(const std::string &spacelist)
-    {
-        std::vector<double> values;
-        std::vector<std::string> strings = IO::tokenize(spacelist, " ");
-
-        std::transform(strings.begin(), strings.end(), std::back_inserter(values),
-                       [](const std::string &s) { return std::stod(s); });
-        return values;
-    }
-
-    double degreesToRadians(double v)
+    double toRadians(double v)
     {
         return v * boost::math::constants::pi<double>() / 180.;
+    }
+
+    template <typename T>
+    tinyxml2::XMLElement *getFirstChild(T *elem, const std::string &name = "")
+    {
+        tinyxml2::XMLHandle handle(elem);
+        tinyxml2::XMLElement *child;
+        if (name.empty())
+            child = handle.FirstChildElement().ToElement();
+        else
+            child = handle.FirstChildElement(name.c_str()).ToElement();
+
+        if (not child)
+            throw Exception(0, "Failed to get child.");
+
+        return child;
     }
 
     Eigen::Affine3d TFfromXML(tinyxml2::XMLElement *transElem, tinyxml2::XMLElement *rotationElem,
@@ -55,36 +62,35 @@ namespace
         Eigen::Affine3d tf = Eigen::Affine3d::Identity();
         if (transElem)
         {
-            std::vector<double> trans = splitAndParse(std::string(transElem->GetText()));
-            Eigen::Vector3d v(trans[0], trans[1], trans[2]);
-            tf.translation() = v;
+            auto trans = IO::tokenize<double>(std::string(transElem->GetText()));
+            tf.translation() = Eigen::Vector3d(trans[0], trans[1], trans[2]);
         }
 
         if (rotationElem)
         {
-            std::vector<double> rot = splitAndParse(std::string(rotationElem->GetText()));
+            auto rot = IO::tokenize<double>(std::string(rotationElem->GetText()));
 
             Eigen::Vector3d axis(rot[0], rot[1], rot[2]);
             axis.normalize();
-            Eigen::Matrix3d angle_axis_matrix =
-                Eigen::AngleAxisd(degreesToRadians(rot[3]), axis).toRotationMatrix();
 
-            tf.linear() = angle_axis_matrix;
+            tf.linear() = Eigen::AngleAxisd(toRadians(rot[3]), axis).toRotationMatrix();
         }
 
         if (quatElem)
         {
-            std::vector<double> quat = splitAndParse(std::string(quatElem->GetText()));
+            auto quat = IO::tokenize<double>(std::string(quatElem->GetText()));
+
             Eigen::Quaterniond q(quat[0], quat[1], quat[2], quat[3]);
             q.normalize();
+
             tf.linear() = q.toRotationMatrix();
         }
 
         return tf;
     }
 
-    bool parse_kinbody(LoadIntoMoveIt &load_struct, tinyxml2::XMLElement *elem, const Eigen::Affine3d& tf,
-                       moveit_msgs::PlanningScene &planning_scene)
+    bool parseKinbody(SceneParsingContext &load_struct, tinyxml2::XMLElement *elem, const Eigen::Affine3d &tf,
+                      moveit_msgs::PlanningScene &planning_scene)
     {
         if (not elem)
         {
@@ -92,9 +98,8 @@ namespace
             return false;
         }
 
-        tinyxml2::XMLHandle hElem(elem);
-        tinyxml2::XMLElement *transElem = hElem.FirstChildElement("Translation").ToElement();
-        tinyxml2::XMLElement *rotElem = hElem.FirstChildElement("Rotation").ToElement();
+        auto transElem = getFirstChild(elem, "Translation");
+        auto rotElem = getFirstChild(elem, "Rotation");
         Eigen::Affine3d this_tf = TFfromXML(transElem, rotElem, nullptr);
 
         const char *filename = elem->Attribute("file");
@@ -109,35 +114,28 @@ namespace
                 return false;
             }
 
-            tinyxml2::XMLHandle hDoc(&doc);
             load_struct.directory_stack.push(IO::resolveParent(fullPath));
-            return parse_kinbody(load_struct, hDoc.FirstChildElement("KinBody").ToElement(), tf * this_tf,
-                                 planning_scene);
+            return parseKinbody(load_struct, getFirstChild(&doc, "KinBody"), tf * this_tf, planning_scene);
         }
 
-        tinyxml2::XMLElement *bodyElem = hElem.FirstChildElement().ToElement();
+        tinyxml2::XMLElement *bodyElem = getFirstChild(elem);
         for (; bodyElem; bodyElem = bodyElem->NextSiblingElement())
         {
             if (std::string(bodyElem->Value()) == "Body")
             {
                 ROS_INFO("Pushing back collision object");
+
                 moveit_msgs::CollisionObject coll_obj;
                 coll_obj.id = bodyElem->Attribute("name");
                 coll_obj.header.frame_id = "world";
 
-                tinyxml2::XMLHandle hBody(bodyElem);
-                tinyxml2::XMLElement *geom = hBody.FirstChildElement("Geom").ToElement();
-                if (not geom)
-                {
-                    ROS_ERROR("Malformed File: No Geom attribute?");
-                    return false;
-                }
+                tinyxml2::XMLElement *geom = getFirstChild(bodyElem, "Geom");
 
-                tinyxml2::XMLHandle hGeom(geom);
                 // Set Offset
-                Eigen::Affine3d offset = this_tf * tf *
-                                         TFfromXML(hGeom.FirstChildElement("translation").ToElement(),
-                                                   nullptr, hGeom.FirstChildElement("quat").ToElement());
+                Eigen::Affine3d offset =
+                    this_tf * tf *
+                    TFfromXML(getFirstChild(geom, "translation"), nullptr, getFirstChild(geom, "quat"));
+
                 geometry_msgs::Pose pose_msg;
                 tf::poseEigenToMsg(offset, pose_msg);
 
@@ -157,20 +155,17 @@ namespace
                     // Set resource
                     Eigen::Vector3d dimensions{1, 1, 1};
 
-                    tinyxml2::XMLElement *data = hGeom.FirstChildElement("Data").ToElement();
+                    tinyxml2::XMLElement *data = getFirstChild(geom, "Data");
                     std::string resourcePath;
                     if (data)
-                    {
                         resourcePath = load_struct.directory_stack.top() + "/" + std::string(data->GetText());
-                    }
+
                     else
                     {
-                        tinyxml2::XMLElement *render = hGeom.FirstChildElement("Render").ToElement();
+                        tinyxml2::XMLElement *render = getFirstChild(geom, "Render");
                         if (render)
-                        {
                             resourcePath =
                                 load_struct.directory_stack.top() + "/" + std::string(data->GetText());
-                        }
                         else
                         {
                             ROS_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
@@ -188,13 +183,13 @@ namespace
                 if (geom_str == "box")
                 {
                     ROS_INFO("Setting box");
-                    tinyxml2::XMLElement *extents = hGeom.FirstChildElement("extents").ToElement();
+                    tinyxml2::XMLElement *extents = getFirstChild(geom, "extents");
                     if (not extents)
                     {
                         ROS_ERROR("Malformed File: No extents in a box geometry.");
                         return false;
                     }
-                    std::vector<double> extent_vec = splitAndParse(extents->GetText());
+                    auto extent_vec = IO::tokenize<double>(extents->GetText());
                     shapes::Shape *shape =
                         new shapes::Box(extent_vec[0] * 2.0, extent_vec[1] * 2.0, extent_vec[2] * 2.0);
                     shapes::ShapeMsg msg;
@@ -209,6 +204,7 @@ namespace
                 planning_scene.world.collision_objects.push_back(coll_obj);
             }
         }
+
         load_struct.directory_stack.pop();
         return true;
     }
@@ -217,7 +213,7 @@ namespace
 bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std::string &file,
                            const std::string &model_dir)
 {
-    LoadIntoMoveIt load_struct;
+    SceneParsingContext load_struct;
     load_struct.directory_stack.push(model_dir);
 
     // Hardcoded offset on WAM (see wam7.kinbody.xml)
@@ -233,49 +229,38 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
         return false;
     }
 
-    tinyxml2::XMLHandle hDoc(&doc);
-    tinyxml2::XMLElement *pElem;
-    tinyxml2::XMLHandle hRoot(nullptr);
+    auto env = getFirstChild(&doc, "Environment");
+    auto robot = getFirstChild(env, "Robot");
+    if (robot)
+        load_struct.robot_offset =
+            load_struct.robot_offset * TFfromXML(getFirstChild(robot, "Translation"),  //
+                                                 getFirstChild(robot, "RotationAxis"), nullptr);
 
-    pElem = hDoc.FirstChildElement("Environment").FirstChildElement("Robot").ToElement();
-    if (pElem)
-    {
-        // Keep track of where the robot is.
-        tinyxml2::XMLHandle hRobot(pElem);
-        tinyxml2::XMLElement *transElem = hRobot.FirstChildElement("Translation").ToElement();
-        tinyxml2::XMLElement *rotationElem = hRobot.FirstChildElement("RotationAxis").ToElement();
-        load_struct.robot_offset = load_struct.robot_offset * TFfromXML(transElem, rotationElem, nullptr);
-    }
-
-    pElem = hDoc.FirstChildElement("Environment").FirstChildElement().ToElement();
-    if (not pElem)
+    auto elem = getFirstChild(env);
+    if (not elem)
     {
         ROS_ERROR("There is no/an empty environment element in this openrave scene.");
         return false;
     }
 
-    for (; pElem; pElem = pElem->NextSiblingElement())
+    for (; elem; elem = elem->NextSiblingElement())
     {
-        const std::string pKey = std::string(pElem->Value());
+        const std::string pKey = std::string(elem->Value());
         if (pKey == "KinBody")
         {
-            if (!parse_kinbody(load_struct, pElem, load_struct.robot_offset.inverse(), planning_scene))
-            {
+            if (!parseKinbody(load_struct, elem, load_struct.robot_offset.inverse(), planning_scene))
                 return false;
-            }
         }
         else
-        {
             ROS_INFO("Ignoring elements of value %s", pKey.c_str());
-        }
     }
+
     auto rob_trans = load_struct.robot_offset.translation();
     ROS_INFO("At the end, we found a rob translation of (%f, %f, %f), and we found %zu objects", rob_trans[0],
              rob_trans[1], rob_trans[2], load_struct.coll_objects.size());
 
     if (not load_struct.coll_objects.empty())
-    {
         planning_scene.is_diff = true;
-    }
+
     return true;
 }
