@@ -5,6 +5,7 @@
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/openrave.h>
 
 #include <pluginlib/class_loader.h>
 #include <moveit/collision_detection/collision_plugin.h>
@@ -280,5 +281,18 @@ bool Scene::fromYAMLFile(const std::string &file)
     if (msg.allowed_collision_matrix.entry_names.empty())
         getACM() = acm;
 
+    return true;
+}
+
+bool Scene::fromOpenRAVEXMLFile(const std::string &file, std::string models_dir)
+{
+    if (models_dir.empty())
+        models_dir = IO::resolveParent(file);
+
+    moveit_msgs::PlanningScene msg;
+    if (!openrave::fromXMLFile(msg, file, models_dir))
+        return false;
+
+    scene_->usePlanningSceneMsg(msg);
     return true;
 }

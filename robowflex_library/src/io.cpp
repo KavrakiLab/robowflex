@@ -127,6 +127,12 @@ const std::string IO::resolvePath(const std::string &path)
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
 }
 
+const std::string IO::resolveParent(const std::string &path)
+{
+    boost::filesystem::path file = resolvePackage(path);
+    return file.parent_path().string();
+}
+
 const std::string IO::loadFileToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);

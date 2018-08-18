@@ -30,6 +30,12 @@ namespace robowflex
          */
         const std::string resolvePath(const std::string &path);
 
+        /** \brief Resolves `package://` URLs to get the directory this path is in.
+         *  \param[in] path Path to get the parent of.
+         *  \return The directory that this path is contained in, or "" on failure.
+         */
+        const std::string resolveParent(const std::string &path);
+
         /** \brief Loads an XML or .xacro file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist or .xacro is malformed).

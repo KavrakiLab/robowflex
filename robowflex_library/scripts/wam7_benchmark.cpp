@@ -25,6 +25,7 @@ int main(int argc, char **argv)
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(wam7);
+    scene->fromOpenRAVEXMLFile("package://optplanners_openrave/scripts/data/envs/wam7_realistic.env.xml");
 
     // Create the default OMPL planner, with the WAM7 planning configuration.
     auto planner = std::make_shared<OMPL::OMPLPipelinePlanner>(wam7);
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
     // Create a motion planning request with a joint position goal.
     MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, "arm"));
     request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    request->setGoalConfiguration({0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0});
+    request->setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
 
 
     // Setup a benchmarking request for the motion plan requests.
