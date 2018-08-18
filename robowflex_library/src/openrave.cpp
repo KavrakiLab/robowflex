@@ -18,7 +18,6 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
-#include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/openrave.h>
@@ -49,9 +48,6 @@ namespace
             child = handle.FirstChildElement().ToElement();
         else
             child = handle.FirstChildElement(name.c_str()).ToElement();
-
-        if (not child)
-            throw Exception(0, "Failed to get child.");
 
         return child;
     }
@@ -130,6 +126,11 @@ namespace
                 coll_obj.header.frame_id = "world";
 
                 tinyxml2::XMLElement *geom = getFirstChild(bodyElem, "Geom");
+                if (not geom)
+                {
+                    ROS_ERROR("Malformed File: No Geom attribute?");
+                    return false;
+                }
 
                 // Set Offset
                 Eigen::Affine3d offset =
@@ -183,15 +184,16 @@ namespace
                 if (geom_str == "box")
                 {
                     ROS_INFO("Setting box");
-                    tinyxml2::XMLElement *extents = getFirstChild(geom, "extents");
-                    if (not extents)
+                    tinyxml2::XMLElement *extents_elem = getFirstChild(geom, "extents_elem");
+                    if (not extents_elem)
                     {
-                        ROS_ERROR("Malformed File: No extents in a box geometry.");
+                        ROS_ERROR("Malformed File: No extents_elem in a box geometry.");
                         return false;
                     }
-                    auto extent_vec = IO::tokenize<double>(extents->GetText());
+
+                    auto extents = IO::tokenize<double>(extents_elem->GetText());
                     shapes::Shape *shape =
-                        new shapes::Box(extent_vec[0] * 2.0, extent_vec[1] * 2.0, extent_vec[2] * 2.0);
+                        new shapes::Box(extents[0] * 2.0, extents[1] * 2.0, extents[2] * 2.0);
                     shapes::ShapeMsg msg;
                     shapes::constructMsgFromShape(shape, msg);
                     coll_obj.primitives.push_back(boost::get<shape_msgs::SolidPrimitive>(msg));
