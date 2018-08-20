@@ -30,4 +30,4 @@ Task and motion planning using `robowflex` as the motion planning layer.
 
 ## robowflex_doc
 Documentation for all library and module components in robowflex (sans `tmpack`).
-Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.
+Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`. The online version exists [here](https://kavrakilab.github.io/robowflex/).
