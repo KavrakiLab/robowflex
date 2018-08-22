@@ -107,14 +107,17 @@ $(document).ready(function(){initNavTree('classrobowflex_1_1Robot.html','');});
 <div class="dynheader">
 Inheritance diagram for robowflex::Robot:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="classrobowflex_1_1Robot__inherit__graph.svg" width="655" height="112"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="classrobowflex_1_1Robot__inherit__graph.svg" width="655" height="112"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+</div>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a4b594d34ed151710ce19beba02ad143b"><td class="memItemLeft" align="right" valign="top">typedef <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/utility/functional/function.html">std::function</a>&lt; bool(YAML::Node &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a4b594d34ed151710ce19beba02ad143b">PostProcessYAMLFunction</a></td></tr>
+<tr class="memdesc:a4b594d34ed151710ce19beba02ad143b"><td class="mdescLeft">&#160;</td><td class="mdescRight">A function that runs after loading a <a class="el" href="namespaceYAML.html">YAML</a> file and can modify its contents. Returns true on success, false on failure.  <a href="#a4b594d34ed151710ce19beba02ad143b">More...</a><br /></td></tr>
 <tr class="separator:a4b594d34ed151710ce19beba02ad143b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9b7a293d3bec2f0ddc962461b561fae"><td class="memItemLeft" align="right" valign="top">typedef <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/utility/functional/function.html">std::function</a>&lt; bool(tinyxml2::XMLDocument &amp;)&gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#ad9b7a293d3bec2f0ddc962461b561fae">PostProcessXMLFunction</a></td></tr>
+<tr class="memdesc:ad9b7a293d3bec2f0ddc962461b561fae"><td class="mdescLeft">&#160;</td><td class="mdescRight">A function that runs after loading a XML file and can modify its contents. Returns true on success, false on failure.  <a href="#ad9b7a293d3bec2f0ddc962461b561fae">More...</a><br /></td></tr>
 <tr class="separator:ad9b7a293d3bec2f0ddc962461b561fae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -201,6 +204,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af11e3a72ba5eae5048b2bc93fbbff1cb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#af11e3a72ba5eae5048b2bc93fbbff1cb">setState</a> (const moveit_msgs::RobotState &amp;state)</td></tr>
 <tr class="memdesc:af11e3a72ba5eae5048b2bc93fbbff1cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the scratch state from a robot state message.  <a href="#af11e3a72ba5eae5048b2bc93fbbff1cb">More...</a><br /></td></tr>
 <tr class="separator:af11e3a72ba5eae5048b2bc93fbbff1cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af392b7dc965f5f11aa57d6c82d2ef7aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#af392b7dc965f5f11aa57d6c82d2ef7aa">setStateFromYAMLFile</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;file)</td></tr>
+<tr class="memdesc:af392b7dc965f5f11aa57d6c82d2ef7aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the scratch state from a robot state message saved to a <a class="el" href="namespaceYAML.html">YAML</a> file.  <a href="#af392b7dc965f5f11aa57d6c82d2ef7aa">More...</a><br /></td></tr>
+<tr class="separator:af392b7dc965f5f11aa57d6c82d2ef7aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a890a77440810c04f5ecd44511d713df1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a890a77440810c04f5ecd44511d713df1">setGroupState</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/vector.html">std::vector</a>&lt; double &gt; &amp;positions)</td></tr>
 <tr class="memdesc:a890a77440810c04f5ecd44511d713df1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the group of the scratch state to a vector of joint positions.  <a href="#a890a77440810c04f5ecd44511d713df1">More...</a><br /></td></tr>
 <tr class="separator:a890a77440810c04f5ecd44511d713df1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -219,16 +225,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a48c6a8846e571f2f191106b6578f181f"><td class="memItemLeft" align="right" valign="top">const Eigen::Affine3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a48c6a8846e571f2f191106b6578f181f">getRelativeLinkTF</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;target) const</td></tr>
 <tr class="memdesc:a48c6a8846e571f2f191106b6578f181f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current pose of a link <em>target</em> in the frame of <em>base</em>.  <a href="#a48c6a8846e571f2f191106b6578f181f">More...</a><br /></td></tr>
 <tr class="separator:a48c6a8846e571f2f191106b6578f181f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ec010b144418cdb8d60976a6915b9f2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a4ec010b144418cdb8d60976a6915b9f2">inCollision</a> (const <a class="el" href="classrobowflex_1_1SceneConstPtr.html">SceneConstPtr</a> &amp;scene) const</td></tr>
-<tr class="memdesc:a4ec010b144418cdb8d60976a6915b9f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the scratch state is in collision in <em>scene</em>.  <a href="#a4ec010b144418cdb8d60976a6915b9f2">More...</a><br /></td></tr>
-<tr class="separator:a4ec010b144418cdb8d60976a6915b9f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">IO</div></td></tr>
 <tr class="memitem:a04eb1e0b01ffe651204548001059c28a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a04eb1e0b01ffe651204548001059c28a">dumpGeometry</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;file) const</td></tr>
 <tr class="memdesc:a04eb1e0b01ffe651204548001059c28a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dumps the names of links and absolute paths to their visual mesh files to a <a class="el" href="namespaceYAML.html">YAML</a> file.  <a href="#a04eb1e0b01ffe651204548001059c28a">More...</a><br /></td></tr>
 <tr class="separator:a04eb1e0b01ffe651204548001059c28a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a221604ce88a58e3082f7e51a5cdc86bd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a221604ce88a58e3082f7e51a5cdc86bd">dumpPathTransforms</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classrobot__trajectory_1_1RobotTrajectory.html">robot_trajectory::RobotTrajectory</a> &amp;path, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;filename, double fps=30, double threshold=0.0)</td></tr>
-<tr class="memdesc:a221604ce88a58e3082f7e51a5cdc86bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dumps a the tranforms of all links of a robot through a robot trajectory to a file.  <a href="#a221604ce88a58e3082f7e51a5cdc86bd">More...</a><br /></td></tr>
-<tr class="separator:a221604ce88a58e3082f7e51a5cdc86bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4684f91b2c5c1fc84d65479e15a3f90b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#a4684f91b2c5c1fc84d65479e15a3f90b">dumpTransforms</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;filename) const</td></tr>
+<tr class="memdesc:a4684f91b2c5c1fc84d65479e15a3f90b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dumps the tranforms of all links of a robot at its current state to a file.  <a href="#a4684f91b2c5c1fc84d65479e15a3f90b">More...</a><br /></td></tr>
+<tr class="separator:a4684f91b2c5c1fc84d65479e15a3f90b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff1633c3e99adf3df2c7d94ceb166d22"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Robot.html#aff1633c3e99adf3df2c7d94ceb166d22">dumpPathTransforms</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classrobot__trajectory_1_1RobotTrajectory.html">robot_trajectory::RobotTrajectory</a> &amp;path, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;filename, double fps=30, double threshold=0.0) const</td></tr>
+<tr class="memdesc:aff1633c3e99adf3df2c7d94ceb166d22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dumps the tranforms of all links of a robot through a robot trajectory to a file.  <a href="#aff1633c3e99adf3df2c7d94ceb166d22">More...</a><br /></td></tr>
+<tr class="separator:aff1633c3e99adf3df2c7d94ceb166d22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -296,7 +302,7 @@ Protected Attributes</h2></td></tr>
 <p>By default, no IK kinematics plugins are loaded due to startup costs (particularly for R2). You must call <a class="el" href="classrobowflex_1_1Robot.html#a6d9e07b52b4f4bc9616fca43f09b0837" title="Loads the kinematics plugin for a joint group. No kinematics are loaded by default. ">loadKinematics()</a> with the desired planning groups (as defined by the SRDF) if you want IK.</p>
 <p>Additionally, post-processing function hooks are provided if modifications need to be done to any of the necessary files. This enables the addition of extra joints, semantic information, joint limit overloading, etc. as needed. See <a class="el" href="classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch (with robotiq gripper and load cell) ...">FetchRobot</a> for an example use of adding a new virtual joint to the SRDF. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00058">58</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00060">60</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="ad9b7a293d3bec2f0ddc962461b561fae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad9b7a293d3bec2f0ddc962461b561fae">&#9670;&nbsp;</a></span>PostProcessXMLFunction</h2>
@@ -310,7 +316,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00062">62</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p>A function that runs after loading a XML file and can modify its contents. Returns true on success, false on failure. </p>
+
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00071">71</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -326,7 +334,9 @@ Protected Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00061">61</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p>A function that runs after loading a <a class="el" href="namespaceYAML.html">YAML</a> file and can modify its contents. Returns true on success, false on failure. </p>
+
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00066">66</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -411,12 +421,12 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00462">462</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00476">476</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a221604ce88a58e3082f7e51a5cdc86bd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a221604ce88a58e3082f7e51a5cdc86bd">&#9670;&nbsp;</a></span>dumpPathTransforms()</h2>
+<a id="aff1633c3e99adf3df2c7d94ceb166d22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff1633c3e99adf3df2c7d94ceb166d22">&#9670;&nbsp;</a></span>dumpPathTransforms()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -448,12 +458,12 @@ Protected Attributes</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td>
+          <td></td><td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Dumps a the tranforms of all links of a robot through a robot trajectory to a file. </p>
+<p>Dumps the tranforms of all links of a robot through a robot trajectory to a file. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">path</td><td>Path to output. </td></tr>
@@ -465,7 +475,36 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00512">512</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00534">534</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a4684f91b2c5c1fc84d65479e15a3f90b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4684f91b2c5c1fc84d65479e15a3f90b">&#9670;&nbsp;</a></span>dumpTransforms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Robot::dumpTransforms </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dumps the tranforms of all links of a robot at its current state to a file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>Filename to output to. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00526">526</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -531,7 +570,7 @@ Protected Attributes</h2></td></tr>
 <p>Gets the names of joints of the robot. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of joint names. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00299">299</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00307">307</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -560,7 +599,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The transform of link <em>name</em>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00328">328</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00336">336</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -688,7 +727,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The transform of link <em>target</em> in the frame of <em>base</em>. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00333">333</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00341">341</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -776,7 +815,7 @@ Protected Attributes</h2></td></tr>
 <p>Gets the current joint positions of the scratch state. </p>
 <dl class="section return"><dt>Returns</dt><dd>A vector of joint positions. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00292">292</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00300">300</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -799,35 +838,6 @@ Protected Attributes</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>The URDF Model. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00231">231</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a4ec010b144418cdb8d60976a6915b9f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ec010b144418cdb8d60976a6915b9f2">&#9670;&nbsp;</a></span>inCollision()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Robot::inCollision </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classrobowflex_1_1SceneConstPtr.html">SceneConstPtr</a> &amp;&#160;</td>
-          <td class="paramname"><em>scene</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Checks if the scratch state is in collision in <em>scene</em>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">scene</td><td><a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> to check collision against. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>True if in collision, false otherwise. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00341">341</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -1263,7 +1273,7 @@ Protected Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00304">304</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00312">312</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -1302,7 +1312,7 @@ Protected Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00286">286</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00294">294</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
 
 </div>
 </div>
@@ -1513,6 +1523,34 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="af392b7dc965f5f11aa57d6c82d2ef7aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af392b7dc965f5f11aa57d6c82d2ef7aa">&#9670;&nbsp;</a></span>setStateFromYAMLFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Robot::setStateFromYAMLFile </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>file</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sets the scratch state from a robot state message saved to a <a class="el" href="namespaceYAML.html">YAML</a> file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">file</td><td>The <a class="el" href="namespaceYAML.html">YAML</a> file to load. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="robot_8cpp_source.html#l00286">286</a> of file <a class="el" href="robot_8cpp_source.html">robot.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a5ea995b274007a74b8f6181a87e2d5b5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5ea995b274007a74b8f6181a87e2d5b5">&#9670;&nbsp;</a></span>setURDFPostProcessFunction()</h2>
 
@@ -1564,7 +1602,7 @@ Protected Attributes</h2></td></tr>
 
 <p><a class="el" href="namespacerobowflex_1_1IO.html" title="File and ROS Input / Output operations. ">IO</a> handler (namespaced with <em>name_</em>) </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00321">321</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00335">335</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1590,7 +1628,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Kinematic solver allocator map. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00330">330</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00344">344</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1616,7 +1654,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Kinematic plugin loader. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00331">331</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00345">345</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1642,7 +1680,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Kinematics plugin <a class="el" href="namespaceYAML.html">YAML</a> post-processing function. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00326">326</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00340">340</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1668,7 +1706,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Limits <a class="el" href="namespaceYAML.html">YAML</a> post-processing function. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00325">325</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00339">339</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1694,7 +1732,7 @@ Protected Attributes</h2></td></tr>
 
 <p><a class="el" href="classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state. ">Robot</a> model loader. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00328">328</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00342">342</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1720,7 +1758,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Loaded robot model. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00329">329</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00343">343</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1746,7 +1784,7 @@ Protected Attributes</h2></td></tr>
 
 <p><a class="el" href="classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state. ">Robot</a> name. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00320">320</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00334">334</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1772,7 +1810,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Default robot description name. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00064">64</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00073">73</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1798,7 +1836,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Default robot kinematics description suffix. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00067">67</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00076">76</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1824,7 +1862,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Default robot planning description suffix. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00066">66</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00075">75</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1850,7 +1888,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Default robot semantic description suffix. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00065">65</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00074">74</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1876,7 +1914,7 @@ Protected Attributes</h2></td></tr>
 
 <p>Scratch robot state. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00333">333</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00347">347</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1902,7 +1940,7 @@ Protected Attributes</h2></td></tr>
 
 <p>SRDF post-processing function. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00324">324</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00338">338</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1928,7 +1966,7 @@ Protected Attributes</h2></td></tr>
 
 <p>URDF post-processing function. </p>
 
-<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00323">323</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="robot_8h_source.html#l00337">337</a> of file <a class="el" href="robot_8h_source.html">robot.h</a>.</p>
 
 </div>
 </div>
@@ -1943,7 +1981,7 @@ Protected Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1Robot.html">Robot</a></li>
-    <li class="footer">Generated on Tue Aug 14 2018 08:40:40 for Robowflex by
+    <li class="footer">Generated on Wed Aug 22 2018 10:03:27 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

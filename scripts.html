@@ -6,8 +6,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Robowflex 💪🤖: Scripts</title>
+<title>Robowflex: Scripts</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
 <link href="navtree.css" rel="stylesheet" type="text/css"/>
@@ -36,7 +37,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Robowflex 💪🤖
+   <div id="projectname">Robowflex
    </div>
   </td>
  </tr>
@@ -91,7 +92,7 @@ $(document).ready(function(){initNavTree('scripts.html','');});
 <div class="title">Scripts </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>A list of provided example scripts that demonstrate some of the functionality of robowflex.</p>
+<div class="textblock"><p>A list of provided example scripts that demonstrate some of the functionality of Robowflex.</p>
 <h2>robowflex_library</h2>
 <p>There are many example scripts of how to do motion planning, benchmarking, input / output, and others using the core library.</p>
 <h3>UR5 Tests</h3>
@@ -108,7 +109,7 @@ $(document).ready(function(){initNavTree('scripts.html','');});
 </ul>
 <h3>Robonaut 2 Tests</h3>
 <ul>
-<li><a href="r2__test_8cpp_source.html">r2_test.cpp</a> Demonstration of motion planning from a <a class="el" href="namespaceYAML.html">YAML</a> file and using a <a class="el" href="classrobowflex_1_1MotionRequestBuilder.html" title="A helper class to build motion planning requests for a robowflex::Planner. ">robowflex::MotionRequestBuilder</a> for Robonaut 2.</li>
+<li><a href="r2__test_8cpp_source.html">r2_test.cpp</a> Demonstration of motion planning from a <a class="el" href="namespaceYAML.html">YAML</a> file and using a <a class="el" href="classrobowflex_1_1MotionRequestBuilder.html" title="A helper class to build motion planning requests for a robowflex::Planner. ">robowflex::MotionRequestBuilder</a> for Robonaut 2. Additionally, shows how to dump a single robot state to an animation file. By default the motion request builder example is commented out.</li>
 <li><a href="r2__hdf5_8cpp_source.html">r2_hdf5.cpp</a> Using <a class="el" href="classrobowflex_1_1R2Robot.html#a9a83c7b1c959a990f02f7df513e5377d" title="Loads telemetry data from SMT from an HDF5 file into a robot trajectory. ">robowflex::R2Robot::loadSMTData</a> to load experiment data for Robonaut 2.</li>
 </ul>
 <h3>WAM7 Tests</h3>
@@ -131,7 +132,8 @@ $(document).ready(function(){initNavTree('scripts.html','');});
 </ul>
 <h2>robowflex_movegroup</h2>
 <ul>
-<li><a href="tapedeck_8cpp_source.html">tapedeck.cpp</a> A utility script that saves all motion plan requests that go to a <code>move_group</code> instance to <a class="el" href="namespaceYAML.html">YAML</a> files. Demonstrates the <a class="el" href="classrobowflex_1_1movegroup_1_1MoveGroupHelper.html" title="A helper class that allows for pulling and pushing of scenes, robots, and trajectories to move group...">robowflex::movegroup::MoveGroupHelper</a> class. </li>
+<li><a href="tapedeck_8cpp_source.html">tapedeck.cpp</a> A utility script that saves all motion plan requests that go to a <code>move_group</code> instance to <a class="el" href="namespaceYAML.html">YAML</a> files. Demonstrates the <a class="el" href="classrobowflex_1_1movegroup_1_1MoveGroupHelper.html" title="A helper class that allows for pulling and pushing of scenes, robots, and trajectories to move group...">robowflex::movegroup::MoveGroupHelper</a> class.</li>
+<li><a href="tapedeck_8cpp_source.html">mixtape.cpp</a> A utility script that reads motion plan requests from <code>tapedeck</code>. </li>
 </ul>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
@@ -139,7 +141,7 @@ $(document).ready(function(){initNavTree('scripts.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Fri Jul 27 2018 15:31:26 for Robowflex 💪🤖 by
+    <li class="footer">Generated on Wed Aug 22 2018 10:03:27 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

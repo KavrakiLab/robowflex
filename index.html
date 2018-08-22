@@ -93,15 +93,15 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><em class="fas fa-dumbbell fa-3x"></em>&#160;&#160;<em class="fas fa-robot fa-3x"></em>&#160;&#160;<em class="fas fa-dumbbell fa-3x"></em></p>
-<p>The Better Robot Benching Framework™ . An overview of what this project is can be found in the <a href="design.html">design description</a>.</p>
+<p>The Better Robot Benching Framework™ . An overview of what this project is can be found in the <a class="el" href="design.html">design description</a>. Examples of basic motion planning, benchmarking of planning requests, input/output, and more can be found in <a class="el" href="scripts.html">scripts</a>.</p>
 <h2>robowflex_library</h2>
-<p>A library that simplifies using <a href="https://github.com/ros-planning/moveit"><em>MoveIt!</em></a> in applications. Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in <a href="scripts.html">scripts</a>.</p>
+<p>A library that simplifies using <a href="https://github.com/ros-planning/moveit"><em>MoveIt!</em></a> in applications. This is the core library used by all other components in Robowflex. Take a look at the <a class="el" href="design.html">design description</a> for more information on the core library.</p>
 <h2>Optional Components</h2>
-<p>There are also a few optional modules that are compiled if the requisite libraries are available.</p>
+<p>There are also a few optional modules that are compiled if the requisite libraries are available. These will only compile if the necessary components are found.</p>
 <h3>robowflex_ompl</h3>
-<p>An optionally compiled library component that adds more direct access to <a href="http://ompl.kavrakilab.org/">OMPL</a> through a new <code><a class="el" href="classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm. ">robowflex::Planner</a></code>. Requires <a href="https://github.com/ros-planning/moveit/tree/kinetic-devel/moveit_planners/ompl"><code>moveit_planners_ompl</code></a>, from <a href="https://github.com/ros-planning/moveit"><em>MoveIt!</em></a>. Some basic examples of how to use the new planner are in <code>robowflex_ompl/scripts</code>.</p>
+<p>An optionally compiled library component that adds more direct access to <a href="http://ompl.kavrakilab.org/">OMPL</a> through a new <code><a class="el" href="classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm. ">robowflex::Planner</a></code>. Requires <a href="https://github.com/ros-planning/moveit/tree/kinetic-devel/moveit_planners/ompl"><code>moveit_planners_ompl</code></a>, from <a href="https://github.com/ros-planning/moveit"><em>MoveIt!</em></a>.</p>
 <h3>robowflex_tesseract</h3>
-<p>An optionally compiled library component that adds support for <a href="https://github.com/ros-industrial-consortium/tesseract">tesseract</a>-based planners. Currently, only <a href="http://ompl.kavrakilab.org/">OMPL</a>-based planning is available. Requires both <a href="https://github.com/ros-industrial-consortium/tesseract">tesseract</a> and <a href="https://github.com/ros-industrial-consortium/trajopt_ros">trajopt</a>. Some basic examples of how to use the new planner(s) are in <code>robowflex_tesseract/scripts</code>.</p>
+<p>An optionally compiled library component that adds support for <a href="https://github.com/ros-industrial-consortium/tesseract">tesseract</a>-based planners. Currently, only <a href="http://ompl.kavrakilab.org/">OMPL</a>-based planning is available. Requires both <a href="https://github.com/ros-industrial-consortium/tesseract">tesseract</a> and <a href="https://github.com/ros-industrial-consortium/trajopt_ros">trajopt</a>.</p>
 <h3>robowflex_movegroup</h3>
 <p>A library component with helper classes and functions to interact with a <code>move_group</code> process being used for motion planning. Scenes can be pushed and pulled and trajectories can be executed with this component through <code>move_group</code>.</p>
 <h2>Utilities</h2>
@@ -110,6 +110,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <p>Python scripts for visualizing robots and motion plans in <a href="https://www.blender.org/">Blender</a>. See <a href="robowflex_visualization.html">the readme</a> for more information on how to use.</p>
 <h3>robowflex_doc</h3>
 <p>Documentation for all library and module components in robowflex (sans <code>tmpack</code>). Documentation is automatically generated using <a href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a>, and is placed in <code>${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html</code>. The documentation can be read online at <a href="https://kavrakilab.github.io/robowflex/">GitHub pages</a>.</p>
+<p>To learn more about how to document code for Robowflex, take a look at <a class="el" href="doc.html">the documentation how-to</a>.</p>
 <h2>Applications</h2>
 <h3>tmpack</h3>
 <p>Task and motion planning using <code>robowflex</code> as the motion planning layer. </p>
@@ -119,7 +120,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Aug 14 2018 08:40:41 for Robowflex by
+    <li class="footer">Generated on Wed Aug 22 2018 10:03:28 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>
