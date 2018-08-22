@@ -2,6 +2,7 @@ var yaml_8cpp =
 [
     [ "fromYAMLFile", "yaml_8cpp.html#a50e952949006a40e6b7b5d589958e01d", null ],
     [ "fromYAMLFile", "yaml_8cpp.html#a0500ed90fd25e45a7a0476fee615bcc3", null ],
+    [ "fromYAMLFile", "yaml_8cpp.html#aaab20586b460694598632218742ee4b6", null ],
     [ "isNode", "yaml_8cpp.html#a23927fb72a17ab8ce0d0654d06b5532e", null ],
     [ "toNode", "yaml_8cpp.html#aed4974f62a649f4a6107ac3d6e919b33", null ],
     [ "toNode", "yaml_8cpp.html#a819245f223ff0eb589ad28aa153f2485", null ],

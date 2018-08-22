@@ -6,6 +6,7 @@ var dir_5bbb8dfc054287e3456441cef50c86bb =
     [ "builder.cpp", "builder_8cpp.html", null ],
     [ "geometry.cpp", "geometry_8cpp.html", null ],
     [ "io.cpp", "io_8cpp.html", null ],
+    [ "path.cpp", "path_8cpp.html", null ],
     [ "planning.cpp", "planning_8cpp.html", null ],
     [ "pool.cpp", "pool_8cpp.html", null ],
     [ "robot.cpp", "robot_8cpp.html", null ],

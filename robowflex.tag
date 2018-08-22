@@ -6,6 +6,11 @@
     <filename>design_8md</filename>
   </compound>
   <compound kind="file">
+    <name>documentation.md</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
+    <filename>documentation_8md</filename>
+  </compound>
+  <compound kind="file">
     <name>home.md</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
     <filename>home_8md</filename>
@@ -289,6 +294,13 @@
       <anchor>a0500ed90fd25e45a7a0476fee615bcc3</anchor>
       <arglist>(moveit_msgs::MotionPlanRequest &amp;msg, const std::string &amp;file)</arglist>
     </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>fromYAMLFile</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>aaab20586b460694598632218742ee4b6</anchor>
+      <arglist>(moveit_msgs::RobotState &amp;msg, const std::string &amp;file)</arglist>
+    </member>
   </compound>
   <compound kind="file">
     <name>yaml.h</name>
@@ -309,16 +321,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>ROBOWFLEX_AT_LEAST_LUNAR</name>
+      <name>ROBOWFLEX_AT_LEAST_KINETIC</name>
       <anchorfile>macros_8h.html</anchorfile>
-      <anchor>a68fdc5803aa8bfeb77b4a5df3173d5d3</anchor>
+      <anchor>aa6c58faad24f1328810b04d4e061c64d</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>ROBOWFLEX_AT_LEAST_KINETIC</name>
+      <name>ROBOWFLEX_AT_LEAST_LUNAR</name>
       <anchorfile>macros_8h.html</anchorfile>
-      <anchor>aa6c58faad24f1328810b04d4e061c64d</anchor>
+      <anchor>a68fdc5803aa8bfeb77b4a5df3173d5d3</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -383,6 +395,49 @@
       <anchorfile>macros_8h.html</anchorfile>
       <anchor>aaab1cfda5263c3e5180b2980ab3d406b</anchor>
       <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>path.h</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
+    <filename>path_8h</filename>
+    <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <namespace>robowflex</namespace>
+    <namespace>robowflex::path</namespace>
+    <member kind="typedef">
+      <type>std::function&lt; double(const robot_state::RobotState &amp;, const robot_state::RobotState &amp;)&gt;</type>
+      <name>PathMetric</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>ac9226e34071bd6f44ea998ce5782dc1a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>getLength</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>afebcd50fc9251222eb9aa59c8d1157b3</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>isCorrect</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a9e0b195e8844fa00133a127a472409e2</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::tuple&lt; double, double, double &gt;</type>
+      <name>getClearance</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>abdd48dd28a590b7964516a329a0381d2</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>getSmoothness</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>aa0bf498d8224551c7c1f238d77aeb8ec</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
     </member>
   </compound>
   <compound kind="file">
@@ -624,6 +679,13 @@
     <includes id="r2_8h" name="r2.h" local="no" imported="no">robowflex_library/detail/r2.h</includes>
     <member kind="function">
       <type>int</type>
+      <name>dumpTransform</name>
+      <anchorfile>r2__test_8cpp.html</anchorfile>
+      <anchor>a08e7f48b2094ab09e942edb5ae1b6461</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>planFromFile</name>
       <anchorfile>r2__test_8cpp.html</anchorfile>
       <anchor>a271ccdc2dd7b209d961901c3e532cb5a</anchor>
@@ -777,6 +839,7 @@
     <filename>benchmarking_8cpp</filename>
     <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
     <includes id="io_2yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/io/yaml.h</includes>
+    <includes id="path_8h" name="path.h" local="no" imported="no">robowflex_library/path.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
@@ -845,6 +908,13 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
+  </compound>
+  <compound kind="file">
+    <name>path.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/src/</path>
+    <filename>path_8cpp</filename>
+    <includes id="path_8h" name="path.h" local="no" imported="no">robowflex_library/path.h</includes>
+    <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
   </compound>
   <compound kind="file">
     <name>planning.cpp</name>
@@ -959,6 +1029,13 @@
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
       <anchor>a0500ed90fd25e45a7a0476fee615bcc3</anchor>
       <arglist>(moveit_msgs::MotionPlanRequest &amp;msg, const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>fromYAMLFile</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>aaab20586b460694598632218742ee4b6</anchor>
+      <arglist>(moveit_msgs::RobotState &amp;msg, const std::string &amp;file)</arglist>
     </member>
   </compound>
   <compound kind="file">
@@ -2836,15 +2913,15 @@
       <type>bool</type>
       <name>fromYAMLFile</name>
       <anchorfile>structrobowflex_1_1movegroup_1_1MoveGroupHelper_1_1Action.html</anchorfile>
-      <anchor>a2a35ff6d912acf00e56404ded224181d</anchor>
-      <arglist>(const std::string &amp;file)</arglist>
+      <anchor>a9cdfc304956f8609abeb2f7622c4464e</anchor>
+      <arglist>(const std::string &amp;filename)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>toYAMLFile</name>
       <anchorfile>structrobowflex_1_1movegroup_1_1MoveGroupHelper_1_1Action.html</anchorfile>
-      <anchor>a41585d8b8edc08261c1282a17d466877</anchor>
-      <arglist>(const std::string &amp;file)</arglist>
+      <anchor>a764505f3d3ffedefbfacd8144a2a27b1</anchor>
+      <arglist>(const std::string &amp;filename)</arglist>
     </member>
     <member kind="variable">
       <type>std::string</type>
@@ -3957,6 +4034,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>setStateFromYAMLFile</name>
+      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
+      <anchor>af392b7dc965f5f11aa57d6c82d2ef7aa</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>setGroupState</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
       <anchor>a890a77440810c04f5ecd44511d713df1</anchor>
@@ -3999,13 +4083,6 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>inCollision</name>
-      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a4ec010b144418cdb8d60976a6915b9f2</anchor>
-      <arglist>(const SceneConstPtr &amp;scene) const</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
       <name>dumpGeometry</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
       <anchor>a04eb1e0b01ffe651204548001059c28a</anchor>
@@ -4013,10 +4090,17 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>dumpTransforms</name>
+      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
+      <anchor>a4684f91b2c5c1fc84d65479e15a3f90b</anchor>
+      <arglist>(const std::string &amp;filename) const</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>dumpPathTransforms</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a221604ce88a58e3082f7e51a5cdc86bd</anchor>
-      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const std::string &amp;filename, double fps=30, double threshold=0.0)</arglist>
+      <anchor>aff1633c3e99adf3df2c7d94ceb166d22</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const std::string &amp;filename, double fps=30, double threshold=0.0) const</arglist>
     </member>
     <member kind="variable" static="yes">
       <type>static const std::string</type>
@@ -4307,6 +4391,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>setStateFromYAMLFile</name>
+      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
+      <anchor>af392b7dc965f5f11aa57d6c82d2ef7aa</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>setGroupState</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
       <anchor>a890a77440810c04f5ecd44511d713df1</anchor>
@@ -4349,13 +4440,6 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>inCollision</name>
-      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a4ec010b144418cdb8d60976a6915b9f2</anchor>
-      <arglist>(const SceneConstPtr &amp;scene) const</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
       <name>dumpGeometry</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
       <anchor>a04eb1e0b01ffe651204548001059c28a</anchor>
@@ -4363,10 +4447,17 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>dumpTransforms</name>
+      <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
+      <anchor>a4684f91b2c5c1fc84d65479e15a3f90b</anchor>
+      <arglist>(const std::string &amp;filename) const</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>dumpPathTransforms</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a221604ce88a58e3082f7e51a5cdc86bd</anchor>
-      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const std::string &amp;filename, double fps=30, double threshold=0.0)</arglist>
+      <anchor>aff1633c3e99adf3df2c7d94ceb166d22</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const std::string &amp;filename, double fps=30, double threshold=0.0) const</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4547,6 +4638,20 @@
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
+      <type>collision_detection::CollisionResult</type>
+      <name>checkCollision</name>
+      <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
+      <anchor>a25febbea1eaa32e90b3f7677e364b792</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state, const collision_detection::CollisionRequest &amp;request={}) const</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>distanceToCollision</name>
+      <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
+      <anchor>abee5aa74a59a988ce1cb2af29dd6b1b0</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state) const</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>toYAMLFile</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
@@ -4673,6 +4778,20 @@
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
+      <type>collision_detection::CollisionResult</type>
+      <name>checkCollision</name>
+      <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
+      <anchor>a25febbea1eaa32e90b3f7677e364b792</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state, const collision_detection::CollisionRequest &amp;request={}) const</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>distanceToCollision</name>
+      <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
+      <anchor>abee5aa74a59a988ce1cb2af29dd6b1b0</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state) const</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>toYAMLFile</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
@@ -4715,7 +4834,7 @@
       <type>pluginlib::ClassLoader&lt; collision_detection::CollisionPlugin &gt;</type>
       <name>PluginLoader</name>
       <anchorfile>classrobowflex_1_1Scene_1_1CollisionPluginLoader.html</anchorfile>
-      <anchor>a3221828521635118d90a91a8ea2e5a2a</anchor>
+      <anchor>a107d03d78faf8fb24227ce5348720921</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -4836,6 +4955,7 @@
     <namespace>robowflex::IO</namespace>
     <namespace>robowflex::movegroup</namespace>
     <namespace>robowflex::OMPL</namespace>
+    <namespace>robowflex::path</namespace>
     <namespace>robowflex::TF</namespace>
     <class kind="class">robowflex::Benchmarker</class>
     <class kind="class">robowflex::BenchmarkerConstPtr</class>
@@ -4977,6 +5097,13 @@
       <arglist>(moveit_msgs::MotionPlanRequest &amp;msg, const std::string &amp;file)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>fromYAMLFile</name>
+      <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
+      <anchor>aaab20586b460694598632218742ee4b6</anchor>
+      <arglist>(moveit_msgs::RobotState &amp;msg, const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
       <type>const std::string</type>
       <name>resolvePackage</name>
       <anchorfile>namespacerobowflex_1_1IO.html</anchorfile>
@@ -5115,6 +5242,45 @@
     </member>
   </compound>
   <compound kind="namespace">
+    <name>robowflex::path</name>
+    <filename>namespacerobowflex_1_1path.html</filename>
+    <member kind="typedef">
+      <type>std::function&lt; double(const robot_state::RobotState &amp;, const robot_state::RobotState &amp;)&gt;</type>
+      <name>PathMetric</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>ac9226e34071bd6f44ea998ce5782dc1a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>getLength</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>afebcd50fc9251222eb9aa59c8d1157b3</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>isCorrect</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a9e0b195e8844fa00133a127a472409e2</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::tuple&lt; double, double, double &gt;</type>
+      <name>getClearance</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>abdd48dd28a590b7964516a329a0381d2</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>getSmoothness</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>aa0bf498d8224551c7c1f238d77aeb8ec</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
+    </member>
+  </compound>
+  <compound kind="namespace">
     <name>robowflex::TF</name>
     <filename>namespacerobowflex_1_1TF.html</filename>
     <member kind="function">
@@ -5198,14 +5364,19 @@
     <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_visualization_README</filename>
   </compound>
   <compound kind="page">
-    <name>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_design</name>
+    <name>design</name>
     <title>Robowflex Design Notes</title>
-    <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_design</filename>
+    <filename>design</filename>
   </compound>
   <compound kind="page">
-    <name>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_scripts</name>
+    <name>doc</name>
+    <title>Robowflex Documentation (a How-To)</title>
+    <filename>doc</filename>
+  </compound>
+  <compound kind="page">
+    <name>scripts</name>
     <title>Scripts</title>
-    <filename>md__home_zak_ros_melodic_dev_src_robowflex_robowflex_doc_doc_markdown_scripts</filename>
+    <filename>scripts</filename>
   </compound>
   <compound kind="page">
     <name>index</name>

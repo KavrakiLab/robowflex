@@ -20,6 +20,7 @@ var dir_eabb6d3a3ead91bab014da569b061d56 =
     ] ],
     [ "io.h", "io_8h.html", "io_8h" ],
     [ "macros.h", "macros_8h.html", "macros_8h" ],
+    [ "path.h", "path_8h.html", "path_8h" ],
     [ "planning.h", "planning_8h.html", "planning_8h" ],
     [ "pool.h", "pool_8h.html", [
       [ "Pool", "classrobowflex_1_1Pool.html", "classrobowflex_1_1Pool" ],

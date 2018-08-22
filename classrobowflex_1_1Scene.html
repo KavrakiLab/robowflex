@@ -164,6 +164,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a597071696f8ae08885be81390738380c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a597071696f8ae08885be81390738380c">detachObject</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name)</td></tr>
 <tr class="memdesc:a597071696f8ae08885be81390738380c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detach an object <em>name</em> from the robot.  <a href="#a597071696f8ae08885be81390738380c">More...</a><br /></td></tr>
 <tr class="separator:a597071696f8ae08885be81390738380c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Checking Collisions</div></td></tr>
+<tr class="memitem:a25febbea1eaa32e90b3f7677e364b792"><td class="memItemLeft" align="right" valign="top"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structcollision__detection_1_1CollisionResult.html">collision_detection::CollisionResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a25febbea1eaa32e90b3f7677e364b792">checkCollision</a> (const robot_state::RobotStatePtr &amp;state, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structcollision__detection_1_1CollisionRequest.html">collision_detection::CollisionRequest</a> &amp;request={}) const</td></tr>
+<tr class="memdesc:a25febbea1eaa32e90b3f7677e364b792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if a robot state is in collision.  <a href="#a25febbea1eaa32e90b3f7677e364b792">More...</a><br /></td></tr>
+<tr class="separator:a25febbea1eaa32e90b3f7677e364b792"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abee5aa74a59a988ce1cb2af29dd6b1b0"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#abee5aa74a59a988ce1cb2af29dd6b1b0">distanceToCollision</a> (const robot_state::RobotStatePtr &amp;state) const</td></tr>
+<tr class="memdesc:abee5aa74a59a988ce1cb2af29dd6b1b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get distance to a collision for a robot state.  <a href="#abee5aa74a59a988ce1cb2af29dd6b1b0">More...</a><br /></td></tr>
+<tr class="separator:abee5aa74a59a988ce1cb2af29dd6b1b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">IO</div></td></tr>
 <tr class="memitem:a180d072af873ec9bfcafbca8fd9d1ad4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a180d072af873ec9bfcafbca8fd9d1ad4">toYAMLFile</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;file)</td></tr>
 <tr class="memdesc:a180d072af873ec9bfcafbca8fd9d1ad4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize the current planning scene to a <a class="el" href="namespaceYAML.html">YAML</a> file.  <a href="#a180d072af873ec9bfcafbca8fd9d1ad4">More...</a><br /></td></tr>
@@ -320,6 +327,46 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a25febbea1eaa32e90b3f7677e364b792"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25febbea1eaa32e90b3f7677e364b792">&#9670;&nbsp;</a></span>checkCollision()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structcollision__detection_1_1CollisionResult.html">collision_detection::CollisionResult</a> Scene::checkCollision </td>
+          <td>(</td>
+          <td class="paramtype">const robot_state::RobotStatePtr &amp;&#160;</td>
+          <td class="paramname"><em>state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structcollision__detection_1_1CollisionRequest.html">collision_detection::CollisionRequest</a> &amp;&#160;</td>
+          <td class="paramname"><em>request</em> = <code>{}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Check if a robot state is in collision. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>State to check for collision. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">request</td><td>Optional request parameters for collision checking. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The collision result. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00247">247</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a597071696f8ae08885be81390738380c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a597071696f8ae08885be81390738380c">&#9670;&nbsp;</a></span>detachObject()</h2>
 
@@ -349,6 +396,35 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="abee5aa74a59a988ce1cb2af29dd6b1b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abee5aa74a59a988ce1cb2af29dd6b1b0">&#9670;&nbsp;</a></span>distanceToCollision()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Scene::distanceToCollision </td>
+          <td>(</td>
+          <td class="paramtype">const robot_state::RobotStatePtr &amp;&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get distance to a collision for a robot state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>State to get distance to collision for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The distance of the state to collision. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00256">256</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a575b1a28985a1a90bd5b2588c2a8fe6a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a575b1a28985a1a90bd5b2588c2a8fe6a">&#9670;&nbsp;</a></span>fromYAMLFile()</h2>
 
@@ -374,7 +450,7 @@ Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00256">256</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00270">270</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
 
 </div>
 </div>
@@ -656,7 +732,7 @@ Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00247">247</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8cpp_source.html#l00261">261</a> of file <a class="el" href="scene_8cpp_source.html">scene.cpp</a>.</p>
 
 </div>
 </div>
@@ -768,7 +844,7 @@ Private Attributes</h2></td></tr>
 
 <p>Plugin loader that sets collision detectors for the scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00184">184</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00204">204</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -794,7 +870,7 @@ Private Attributes</h2></td></tr>
 
 <p>Underlying planning scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00185">185</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00205">205</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -809,7 +885,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1Scene.html">Scene</a></li>
-    <li class="footer">Generated on Tue Aug 14 2018 08:40:40 for Robowflex by
+    <li class="footer">Generated on Wed Aug 22 2018 10:03:27 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>
