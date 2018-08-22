@@ -1,4 +1,4 @@
-# Scripts
+# Scripts {#scripts}
 
 A list of provided example scripts that demonstrate some of the functionality of Robowflex.
 
