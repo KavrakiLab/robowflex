@@ -60,7 +60,14 @@ namespace robowflex
     class Robot
     {
     public:
+        /** \brief A function that runs after loading a YAML file and can modify its contents. Returns true on
+         * success, false on failure.
+         */
         typedef std::function<bool(YAML::Node &)> PostProcessYAMLFunction;
+
+        /** \brief A function that runs after loading a XML file and can modify its contents. Returns true on
+         * success, false on failure.
+         */
         typedef std::function<bool(tinyxml2::XMLDocument &)> PostProcessXMLFunction;
 
         static const std::string ROBOT_DESCRIPTION;  ///< Default robot description name.

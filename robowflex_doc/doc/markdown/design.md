@@ -1,4 +1,4 @@
-# Robowflex Design Notes
+# Robowflex Design Notes {#design}
 
 ## Introduction (What is Robowflex?)
 
