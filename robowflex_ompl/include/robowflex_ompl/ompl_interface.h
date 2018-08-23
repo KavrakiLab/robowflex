@@ -62,14 +62,14 @@ namespace robowflex
              *  \param[in] request The motion planning request to solve.
              *  \return The motion planning context used by the planner.
              */
-            ompl_interface::ModelBasedPlanningContextPtr
-            getPlanningContext(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
+            ompl_interface::ModelBasedPlanningContextPtr getPlanningContext(
+                const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
 
             const std::vector<std::string> getPlannerConfigs() const override;
 
         private:
-            ompl_interface::OMPLInterface interface_;  ///< Planning interface.
-            std::vector<std::string> configs_;         ///< Planning configurations.
+            std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
+            std::vector<std::string> configs_;                                   ///< Planning configurations.
         };
     }  // namespace OMPL
 }  // namespace robowflex
