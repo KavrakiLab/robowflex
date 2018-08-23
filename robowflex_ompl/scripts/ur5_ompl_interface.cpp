@@ -7,7 +7,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/detail/ur5.h>
 
-#include <robowflex_ompl/ompl.h>
+#include <robowflex_ompl/ompl_interface.h>
 
 using namespace robowflex;
 

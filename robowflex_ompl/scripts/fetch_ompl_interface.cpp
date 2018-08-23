@@ -6,6 +6,8 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/detail/fetch.h>
 
+#include <robowflex_ompl/ompl_interface.h>
+
 using namespace robowflex;
 
 static const std::string GROUP = "arm_with_torso";
@@ -19,15 +21,12 @@ int main(int argc, char **argv)
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
 
-    // Dump the geometry information for visualization.
-    fetch->dumpGeometry("fetch.yml");
-
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
 
     // Create the default planner for the Fetch.
-    auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-    planner->initialize();
+    auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
+    planner->initialize("package://fetch_moveit_config/config/ompl_planning.yaml");
 
     // Sets the Fetch's base pose.
     fetch->setBasePose(1, 1, 0.5);
@@ -49,9 +48,6 @@ int main(int argc, char **argv)
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
-
-    // Output transforms from path to a file for visualization.
-    fetch->dumpPathTransforms(*res.trajectory_, "fetch_path.yml");
 
     return 0;
 }
