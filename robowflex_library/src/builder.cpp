@@ -146,7 +146,12 @@ moveit_msgs::Constraints &MotionRequestBuilder::getPathConstraints()
     return request_.path_constraints;
 }
 
-const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() const
+planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
+{
+    return request_;
+}
+
+const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequestConst() const
 {
     return request_;
 }
@@ -159,20 +164,4 @@ bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
     return IO::fromYAMLFile(request_, file);
-}
-
-std::map<std::string, double>
-robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &response)
-{
-    moveit_msgs::MotionPlanResponse msg;
-    response.getMessage(msg);
-
-    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
-    const std::vector<std::string> &joint_names = msg.trajectory.joint_trajectory.joint_names;
-
-    std::map<std::string, double> map;
-    for (size_t i = 0; i < joint_names.size(); i++)
-        map.emplace(joint_names[i], joint_positions[i]);
-
-    return map;
 }

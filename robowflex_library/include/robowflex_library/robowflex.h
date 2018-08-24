@@ -21,6 +21,7 @@ namespace robowflex
 #include <robowflex_library/io/handler.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/io/plugin.h>
 
 #include <robowflex_library/pool.h>
 #include <robowflex_library/geometry.h>
@@ -29,5 +30,6 @@ namespace robowflex
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/benchmarking.h>
+#include <robowflex_library/path.h>
 
 #endif

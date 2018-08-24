@@ -289,7 +289,12 @@ namespace robowflex
         /** \brief Get a reference to the currently built motion planning request.
          *  \return The motion planning request.
          */
-        const planning_interface::MotionPlanRequest &getRequest() const;
+        planning_interface::MotionPlanRequest &getRequest();
+
+        /** \brief Get a const reference to the currently built motion planning request.
+         *  \return The motion planning request.
+         */
+        const planning_interface::MotionPlanRequest &getRequestConst() const;
 
         /** \brief Get a reference to the current path constraints on the motion planning request.
          *  \return The motion planning request.
@@ -329,13 +334,6 @@ namespace robowflex
 
         static const std::vector<std::string> DEFAULT_CONFIGS;  ///< Default planner configurations to use
     };
-
-    /** \brief Returns the joint positions from the last state in a planned trajectory in \a response.
-     *  \param[in] response The motion plan to extract the last state from.
-     *  \return A map of joint name to joint position of the last state in \a response.
-     */
-    std::map<std::string, double>
-    getFinalJointPositions(const planning_interface::MotionPlanResponse &response);
 
     /** \brief OMPL specific planners and features.
      */

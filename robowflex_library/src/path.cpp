@@ -2,6 +2,8 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include <moveit/trajectory_processing/iterative_time_parameterization.h>
+
 #include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 
@@ -112,4 +114,27 @@ double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &p
     }
 
     return smoothness;
+}
+
+std::map<std::string, double>
+robowflex::path::getFinalPositions(const robot_trajectory::RobotTrajectory &path)
+{
+    const auto &last = path.getLastWayPoint();
+
+    std::map<std::string, double> map;
+
+    const auto &names = last.getVariableNames();
+    const auto &values = last.getVariablePositions();
+
+    for (std::size_t i = 0; i < names.size(); ++i)
+        map.emplace(names[i], values[i]);
+
+    return map;
+}
+
+bool robowflex::path::computeTimeParameterization(robot_trajectory::RobotTrajectory &path,
+                                                  double max_velocity, double max_acceleration)
+{
+    trajectory_processing::IterativeParabolicTimeParameterization parameterizer_;
+    return parameterizer_.computeTimeStamps(path, max_velocity, max_acceleration);
 }
