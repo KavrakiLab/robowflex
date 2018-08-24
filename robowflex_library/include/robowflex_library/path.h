@@ -63,6 +63,16 @@ namespace robowflex
          */
         std::map<std::string, double> getFinalPositions(const robot_trajectory::RobotTrajectory &path);
 
+        /** \brief Computes the time parameterization of a path according to a desired max velocity or
+         * acceleration.
+         *  \param[in,out] path Geometric path to add time parameterization to.
+         *  \param[in] max_velocity Maximum path velocity.
+         *  \param[in] max_acceleration Maximum path acceleration.
+         *  \return True on success, false on failure.
+         */
+        bool computeTimeParameterization(robot_trajectory::RobotTrajectory &path, double max_velocity = 1.,
+                                         double max_acceleration = 1.);
+
     }  // namespace path
 };     // namespace robowflex
 
