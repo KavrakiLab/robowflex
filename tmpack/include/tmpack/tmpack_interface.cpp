@@ -142,7 +142,7 @@ namespace robowflex
                     {
                         responses.push_back(response);
                         std::map<std::string, double> named_joint_positions =
-                            getFinalJointPositions(response);
+                            path::getFinalPositions(*response.trajectory_);
                         robot->setState(named_joint_positions);
                         next_start_joint_positions = robot->getState();
                         break;

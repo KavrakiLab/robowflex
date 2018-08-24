@@ -56,6 +56,13 @@ namespace robowflex
          *  \return Smoothness of the path.
          */
         double getSmoothness(const robot_trajectory::RobotTrajectory &path, const PathMetric &metric = {});
+
+        /** \brief Returns the joint positions from the last state in a planned trajectory in \a response.
+         *  \param[in] path The trajectory to get the state from.
+         *  \return A map of joint name to joint position of the last state in \a response.
+         */
+        std::map<std::string, double> getFinalPositions(const robot_trajectory::RobotTrajectory &path);
+
     }  // namespace path
 };     // namespace robowflex
 

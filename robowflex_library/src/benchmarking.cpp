@@ -238,7 +238,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     // setup
     moveit_msgs::PlanningScene scene_msg;
-    const auto &request = results.builder->getRequest();
+    const auto &request = results.builder->getRequestConst();
 
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 

@@ -113,3 +113,19 @@ double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &p
 
     return smoothness;
 }
+
+std::map<std::string, double>
+robowflex::path::getFinalPositions(const robot_trajectory::RobotTrajectory &path)
+{
+    const auto &last = path.getLastWayPoint();
+
+    std::map<std::string, double> map;
+
+    const auto &names = last.getVariableNames();
+    const auto &values = last.getVariablePositions();
+
+    for (std::size_t i = 0; i < names.size(); ++i)
+        map.emplace(names[i], values[i]);
+
+    return map;
+}
