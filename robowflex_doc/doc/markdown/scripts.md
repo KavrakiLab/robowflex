@@ -46,6 +46,9 @@ Basic motion planning with the WAM7 arm.
 - [hdf5_io.cpp](hdf5__io_8cpp_source.html)
 Demonstrating robowflex::IO::HDF5File loading of files.
 
+- [plugin_io.cpp](plugin__io_8cpp_source.html)
+Demonstrating robowflex::IO::PluginManager loading a plugin.
+
 ## robowflex_ompl
 
 - [ur5_ompl_interface.cpp](ur5__ompl__interface_8cpp_source.html)
