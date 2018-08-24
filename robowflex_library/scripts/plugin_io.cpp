@@ -15,10 +15,10 @@ int main(int argc, char **argv)
         "moveit_core", "default_planner_request_adapters/AddTimeParameterization");
 
     auto plugin2 = IO::PluginManager::load<planning_request_adapter::PlanningRequestAdapter>(  //
-        "moveit_core", "default_planner_request_adapters/AddTimeParameterization");
+        "moveit_core", "default_planner_request_adapters/FixStartStateBounds");
 
-    auto plugin2 = IO::PluginManager::load<planning_request_adapter::PlanningRequestAdapter>(  //
-        "moveit_core", "default_planner_request_adapters/AddTimeParameterization");
+    auto plugin3 = IO::PluginManager::load<planning_request_adapter::PlanningRequestAdapter>(  //
+        "moveit_core", "default_planner_request_adapters/FixStartStateCollision");
 
     return 0;
 }
