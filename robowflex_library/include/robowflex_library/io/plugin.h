@@ -3,8 +3,13 @@
 #ifndef ROBOWFLEX_IO_PLUGIN_
 #define ROBOWFLEX_IO_PLUGIN_
 
+#include <mutex>
 #include <memory>
 #include <typeinfo>
+
+#include <ros/package.h>
+
+#include <boost/core/demangle.hpp>
 
 #include <pluginlib/class_loader.hpp>
 
@@ -17,6 +22,10 @@ namespace robowflex
         class PluginManager
         {
         public:
+            // non-copyable
+            PluginManager(PluginManager const &) = delete;
+            void operator=(PluginManager const &) = delete;
+
             /** \brief Get the singleton instance of PluginManager.
              *  \return The singleton PluginManager.
              */
@@ -26,21 +35,45 @@ namespace robowflex
                 return instance;
             }
 
-            // non-copyable
-            PluginManager(PluginManager const &) = delete;
-            void operator=(PluginManager const &) = delete;
-
-            /** \brief Load a plugin named \a plugin of type T.
+            /** \brief Load a plugin named \a plugin of type T using the singleton instance.
+             *  \param[in] package ROS package that exports plugin's base class \a T.
              *  \param[in] plugin Name of the plugin to load.
              *  \tparam T The type of the plugin to load.
              *  \return A shared pointer to the loaded plugin on success, nullptr on failure.
              */
             template <typename T>
-            std::shared_ptr<T> load(const std::string &plugin)
+            static std::shared_ptr<T> load(const std::string &package, const std::string &plugin)
             {
-                auto loader = getLoader<T>();
-                std::shared_ptr<T> loaded(loader->createUnmanagedInstance(plugin));
-                return loaded;
+                return getInstance().loadPlugin<T>(package, plugin);
+            }
+
+            /** \brief Load a plugin named \a plugin of type T.
+             *  \param[in] package ROS package that exports plugin's base class \a T.
+             *  \param[in] plugin Name of the plugin to load.
+             *  \tparam T The type of the plugin to load.
+             *  \return A shared pointer to the loaded plugin on success, nullptr on failure.
+             */
+            template <typename T>
+            std::shared_ptr<T> loadPlugin(const std::string &package, const std::string &plugin)
+            {
+                if (ros::package::getPath(package).empty())
+                {
+                    ROS_ERROR("Package `%s` does not exist.", package.c_str());
+                    return nullptr;
+                }
+
+                auto loader = getLoader<T>(package);
+
+                try
+                {
+                    std::shared_ptr<T> loaded(loader->createUnmanagedInstance(plugin));
+                    return loaded;
+                }
+                catch (pluginlib::LibraryLoadException &e)
+                {
+                    ROS_ERROR("Failed to library: %s", e.what());
+                    return nullptr;
+                }
             }
 
         private:
@@ -73,30 +106,39 @@ namespace robowflex
             /** \brief Gets the plugin loader for a plugin type \a T.
              *  Grabs the loader from cached loaders if available, otherwise creates the plugin loader and
              * caches it.
+             *  \param[in] package ROS package that exports class \a T.
              *  \tparam T The type of plugin loader to get.
              *  \return A plugin loader that loads plugins of type \a T.
              */
             template <typename T>
-            LoaderPtr<T> getLoader()
+            LoaderPtr<T> getLoader(const std::string &package)
             {
-                const std::string &type = typeid(T).name();  // Get name of type using typeinfo
+                std::unique_lock<std::mutex> lock(mutex_);
+
+                // Need to possibly demangle type name...
+                const std::string &type = boost::core::demangle(typeid(T).name());
+                auto key = std::make_pair(package, type);
 
                 LoaderPtr<T> loader;
 
-                auto cached = loaders_.find(type);
+                auto cached = loaders_.find(key);
                 if (cached != loaders_.end())
                     loader = std::dynamic_pointer_cast<Loader<T>>(cached->second);
                 else
                 {
-                    ROS_INFO("Creating Class Loader for type %s!", type.c_str());
-                    loader.reset(new pluginlib::ClassLoader<T>("robowflex_library", type));
-                    loaders_[type] = std::static_pointer_cast<BaseLoader>(loader);
+
+                    ROS_INFO("Creating Class Loader for type `%s` from package `%s`!",  //
+                             type.c_str(), package.c_str());
+
+                    loader.reset(new pluginlib::ClassLoader<T>(package, type));
+                    loaders_[key] = std::static_pointer_cast<BaseLoader>(loader);
                 }
 
                 return loader;
             }
 
-            std::map<std::string, BaseLoaderPtr> loaders_;  ///< Cached loaders
+            std::mutex mutex_;                                                      ///< Class loading mutex
+            std::map<std::pair<std::string, std::string>, BaseLoaderPtr> loaders_;  ///< Cached loaders
         };
     }  // namespace IO
 }  // namespace robowflex
