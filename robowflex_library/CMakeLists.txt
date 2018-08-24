@@ -104,10 +104,11 @@ add_script(ur5_pool)
 add_script(ur5_visualization)
 add_script(fetch_test)
 add_script(r2_test)
+add_script(r2_hdf5)
 add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(hdf5_io)
-add_script(r2_hdf5)
+add_script(plugin_io)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts
