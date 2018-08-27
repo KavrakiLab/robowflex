@@ -58,3 +58,8 @@ Now we are ready to display some stuff!
     This also visualizes (if available) orientation constraints as arrows.
     One larger arrow for the provided orientation, and 6 smaller arrows corresponding to the boundaries of the tolerances provided along each axis.
     The goal is also labeled by text according to the input name.
+    
+Note that all markers added through the `add*Marker()` functions will only be shown after `robowflex::IO::RVIZHelper::updateMarkers()` is called.
+This function also can be called in a loop to "modify" the markers if they are updating position.
+Markers removed with `robowflex::IO::RVIZHelper::removeMarker()` will only be removed from RViz after `updateMarkers()` is called again.
+You can have multiple markers under one name, however all markers under that name will be removed by a `removeMarker()` call.
