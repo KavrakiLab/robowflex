@@ -64,7 +64,11 @@ namespace robowflex
             /** \name Markers
              *  \{ */
 
-            /** DEPRECATED */
+            /** \brief Easily add a spherical marker (under the name "" - the empty string) to the scene.
+             *  \param[in] x The x coordinate of the sphere.
+             *  \param[in] y The y coordinate of the sphere.
+             *  \param[in] z The z coordinate of the sphere.
+             */
             void addMarker(float x, float y, float z);
 
             /** \brief Add a marker to the managed list of markers. Displayed after an updateMarkers() call.

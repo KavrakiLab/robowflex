@@ -263,6 +263,20 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
 
 void IO::RVIZHelper::addMarker(float x, float y, float z)
 {
+    visualization_msgs::Marker marker;
+    const std::string &base_frame = "map";
+
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose *= Eigen::Translation3d(x, y, z);
+
+    Eigen::Vector3d scale = {0.5, 0.5, 0.5};
+    auto color = getRandomColor();
+
+    fillMarker(marker, base_frame, pose, color, scale);
+
+    marker.type = visualization_msgs::Marker::SPHERE;
+
+    markers_.emplace("", marker);
 }
 
 void IO::RVIZHelper::removeScene()
