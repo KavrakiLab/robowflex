@@ -116,3 +116,9 @@ Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
 
     return orientation * sampled;
 }
+
+Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &axis,
+                                         double value)
+{
+    return Eigen::AngleAxisd(value, axis) * orientation;
+}

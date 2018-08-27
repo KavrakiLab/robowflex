@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(ur5);
 
-    ROS_INFO("Press enter to continue...");
+    ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Create an empty scene.
@@ -46,15 +46,15 @@ int main(int argc, char **argv)
 
     auto region = Geometry::makeSphere(0.1);
 
-    rviz.addGeometryMarker("goal", region, "/map", pose);
-    rviz.updateMarkers();
-
     request.setGoalRegion("ee_link", "world",      // links
                           pose, region,            // position
-                          orn, {0.01, 0.01, 0.01}  // orientation
+                          orn, {0.1, 0.1, 0.1}  // orientation
     );
 
-    ROS_INFO("Press enter to continue...");
+    rviz.addGoalMarker("goal", request);
+    rviz.updateMarkers();
+
+    ROS_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -65,11 +65,13 @@ int main(int argc, char **argv)
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
 
-    ROS_INFO("Press enter to continue...");
+    ROS_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
     rviz.removeMarker("goal");
     rviz.updateMarkers();
+
+    rviz.removeScene();
 
     ROS_INFO("Press enter to exit.");
     std::cin.get();

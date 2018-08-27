@@ -67,7 +67,8 @@ namespace robowflex
          *  \param[in] geometry Geometry to get bounding volume for.
          *  \return Bounding volume message for \a geometry at \a pose.
          */
-        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &pose, const GeometryConstPtr &geometry);
+        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &pose,
+                                                      const GeometryConstPtr &geometry);
 
         /** \brief Get a position constraint message.
          *  \param[in] ee_name The name of the end-effector link.
@@ -97,6 +98,14 @@ namespace robowflex
          */
         Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &tolerances);
+
+        /** \brief Offset an orientation by a rotation about an axis.
+         *  \param[in] orientation Orientation to offset.
+         *  \param[in] axis Axis to offset orientation about.
+         *  \param[in] value Value by which to offset.
+         */
+        Eigen::Quaterniond offsetOrientation(const Eigen::Quaterniond &orientation,
+                                             const Eigen::Vector3d &axis, double value);
     }  // namespace TF
 }  // namespace robowflex
 

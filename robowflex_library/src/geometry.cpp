@@ -60,6 +60,29 @@ GeometryPtr Geometry::makeCone(double radius, double length)
     return std::make_shared<Geometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
 }
 
+GeometryPtr Geometry::makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg)
+{
+    using sm = shape_msgs::SolidPrimitive;
+
+    switch (msg.type)
+    {
+        case sm::BOX:
+            return makeBox(msg.dimensions[sm::BOX_X],  //
+                           msg.dimensions[sm::BOX_Y],  //
+                           msg.dimensions[sm::BOX_Z]);
+        case sm::SPHERE:
+            return makeSphere(msg.dimensions[sm::SPHERE_RADIUS]);
+        case sm::CYLINDER:
+            return makeCylinder(msg.dimensions[sm::CYLINDER_RADIUS],  //
+                                msg.dimensions[sm::CYLINDER_HEIGHT]);
+        case sm::CONE:
+            return makeCone(msg.dimensions[sm::CONE_RADIUS],  //
+                            msg.dimensions[sm::CONE_HEIGHT]);
+        default:
+            return nullptr;
+    }
+}
+
 GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3d &scale)
 {
     return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);

@@ -81,6 +81,12 @@ namespace robowflex
          */
         static GeometryPtr makeCone(double radius, double length);
 
+        /** \brief Create a solid primitive.
+         *  \param[in] msg The solid primitive message to load.
+         *  \return The created shape.
+         */
+        static GeometryPtr makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg);
+
         /** \brief Create a mesh.
          *  \param[in] resource The resource to load for the mesh.
          *  \param[in] scale The scale of the mesh.

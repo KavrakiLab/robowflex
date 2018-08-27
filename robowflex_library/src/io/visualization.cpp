@@ -1,5 +1,9 @@
 /* Author: Zachary Kingston */
 
+#include <random>
+
+#include <boost/range/combine.hpp>
+
 #include <moveit_msgs/PlanningScene.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <visualization_msgs/Marker.h>
@@ -11,9 +15,22 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/io/visualization.h>
 
 using namespace robowflex;
+
+namespace
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+
+    Eigen::Vector4d getRandomColor()
+    {
+        std::uniform_real_distribution<> dis(0.2, 0.7);
+        return {dis(gen), dis(gen), dis(gen), 1.};
+    }
+};  // namespace
 
 IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
   : robot_(robot), nh_("/" + name)
@@ -80,19 +97,57 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     trajectory_pub_.publish(out);
 }
 
+void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
+                                const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                const Eigen::Vector3d &scale) const
+{
+    marker.header.frame_id = base_frame;
+    marker.frame_locked = true;
+
+    marker.header.stamp = ros::Time().now();
+    marker.ns = "/robowflex";
+    marker.id = markers_.size();
+
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose = TF::poseEigenToMsg(pose);
+    marker.scale = TF::vectorEigenToMsg(scale);
+
+    marker.color.r = color[0];
+    marker.color.g = color[1];
+    marker.color.b = color[2];
+    marker.color.a = color[3];
+}
+
+void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &base_frame,
+                                    const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                    const Eigen::Vector3d &scale)
+{
+    visualization_msgs::Marker marker;
+    fillMarker(marker, base_frame, pose, color, scale);
+
+    marker.type = visualization_msgs::Marker::ARROW;
+
+    markers_.emplace(name, marker);
+}
+
+void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &text,
+                                   const std::string &base_frame, const Eigen::Affine3d &pose, double height,
+                                   const Eigen::Vector4d &color)
+{
+    visualization_msgs::Marker marker;
+    fillMarker(marker, base_frame, pose, color, {0, 0, height});
+
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.text = text;
+
+    markers_.emplace(name, marker);
+}
+
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
                                        const std::string &base_frame, const Eigen::Affine3d &pose,
                                        const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
-
-    marker.header.frame_id = base_frame;
-    if (base_frame != "world")
-        marker.frame_locked = true;
-
-    marker.header.stamp = ros::Time().now();
-    marker.ns = "/robowflex";
-    marker.id = markers_.size();
 
     auto scale = geometry->getDimensions();
     switch (geometry->getType())
@@ -122,32 +177,97 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             return;
     };
 
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose = TF::poseEigenToMsg(pose);
-    marker.scale = TF::vectorEigenToMsg(scale);
-
-    marker.color.r = color[0];
-    marker.color.g = color[1];
-    marker.color.b = color[2];
-    marker.color.a = color[3];
+    fillMarker(marker, base_frame, pose, color, scale);
 
     markers_.emplace(name, marker);
 }
 
-// void IO::RVIZHelper::addGoalMarker(const MotionRequestBuilder &request)
-// {
+void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
+{
+    const auto &goals = request.getRequestConst().goal_constraints;
+    const auto &base_frame = "map";
 
-// }
+    for (const auto &goal : goals)
+    {
+        auto color = getRandomColor();
+        color[3] = 0.7;  // Make slightly transparent
+
+        for (const auto &pg : goal.position_constraints)
+        {
+            const auto &pname = pg.link_name;
+
+            Eigen::Affine3d pose = robot_->getLinkTF(pg.header.frame_id);
+            pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
+
+            for (const auto &primitive :
+                 boost::combine(pg.constraint_region.primitives, pg.constraint_region.primitive_poses))
+            {
+                shape_msgs::SolidPrimitive solid;
+                geometry_msgs::Pose solid_pose;
+                boost::tie(solid, solid_pose) = primitive;
+
+                auto frame = pose * TF::poseMsgToEigen(solid_pose);
+                addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
+                addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.1),
+                              0.05);
+
+                for (const auto &og : goal.orientation_constraints)
+                {
+                    const auto &oname = og.link_name;
+                    if (oname != pname)
+                        continue;
+
+                    auto q = TF::quaternionMsgToEigen(og.orientation);
+
+                    Eigen::Vector3d scale = {0.1, 0.008, 0.003};
+                    addArrowMarker(name, base_frame, frame * q, color, 1.5 * scale);
+
+                    const auto tolerances = {og.absolute_x_axis_tolerance,  //
+                                             og.absolute_y_axis_tolerance,  //
+                                             og.absolute_z_axis_tolerance};
+                    const auto axes = {Eigen::Vector3d::UnitX(),  //
+                                       Eigen::Vector3d::UnitY(),  //
+                                       Eigen::Vector3d::UnitZ()};
+
+                    for (const auto &angles : boost::combine(tolerances, axes))
+                    {
+                        double value;
+                        Eigen::Vector3d axis;
+                        boost::tie(value, axis) = angles;
+
+                        auto q1 = TF::offsetOrientation(q, axis, value);
+                        addArrowMarker(name, base_frame, frame * q1, color, scale);
+
+                        auto q2 = TF::offsetOrientation(q, axis, -value);
+                        addArrowMarker(name, base_frame, frame * q2, color, scale);
+                    }
+                }
+            }
+
+            // TODO: Implement
+            // for (const auto &mesh :
+            //      boost::combine(pg.constraint_region.meshes, pg.constraint_region.mesh_poses))
+            // {
+            // }
+        }
+    }
+}
 
 void IO::RVIZHelper::removeMarker(const std::string &name)
 {
-    auto marker = markers_.find(name);
-    if (marker != markers_.end())
-        marker->second.action = visualization_msgs::Marker::DELETE;
+    auto markers = markers_.equal_range(name);
+
+    for (auto it = markers.first; it != markers.second; ++it)
+        it->second.action = visualization_msgs::Marker::DELETE;
 }
 
 void IO::RVIZHelper::addMarker(float x, float y, float z)
 {
+}
+
+void IO::RVIZHelper::removeScene()
+{
+    updateScene(nullptr);
 }
 
 void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
@@ -161,8 +281,13 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
             pause.sleep();
     }
 
-    moveit_msgs::PlanningScene toPub = scene->getMessage();
-    toPub.is_diff = true;
+    moveit_msgs::PlanningScene toPub;
+    if (scene != nullptr)
+    {
+        toPub = scene->getMessage();
+        toPub.is_diff = true;
+    }
+
     scene_pub_.publish(toPub);
 }
 
