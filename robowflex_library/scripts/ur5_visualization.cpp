@@ -22,8 +22,15 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(ur5);
 
+    ROS_INFO("Press enter to continue...");
+    std::cin.get();
+
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(ur5);
+    scene->fromYAMLFile("package://robowflex_library/yaml/test.yml");
+
+    // Visualize the scene.
+    rviz.updateScene(scene);
 
     // Create the default planner for the UR5.
     auto planner = std::make_shared<OMPL::UR5OMPLPipelinePlanner>(ur5);
@@ -37,10 +44,18 @@ int main(int argc, char **argv)
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
     Eigen::Quaterniond orn{0, 0, 1, 0};
 
-    request.setGoalRegion("ee_link", "world",               // links
-                          pose, Geometry::makeSphere(0.1),  // position
-                          orn, {0.01, 0.01, 0.01}           // orientation
-                          );
+    auto region = Geometry::makeSphere(0.1);
+
+    rviz.addGeometryMarker("goal", region, "/map", pose);
+    rviz.updateMarkers();
+
+    request.setGoalRegion("ee_link", "world",      // links
+                          pose, region,            // position
+                          orn, {0.01, 0.01, 0.01}  // orientation
+    );
+
+    ROS_INFO("Press enter to continue...");
+    std::cin.get();
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
@@ -50,9 +65,8 @@ int main(int argc, char **argv)
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
 
-    // Spin to let the message escape.
-    while (ros::ok())
-        ros::spinOnce();
+    ROS_INFO("Press enter to exit.");
+    std::cin.get();
 
     return 0;
 }

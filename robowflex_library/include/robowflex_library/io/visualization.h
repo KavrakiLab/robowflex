@@ -12,6 +12,7 @@ namespace robowflex
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
     ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Geometry);
     /** \endcond */
 
     namespace IO
@@ -50,6 +51,22 @@ namespace robowflex
             void updateMarkers();
 
             void addMarker(float x, float y, float z);
+
+            /** \brief Add a marker to the managed list of markers. Displayed after an updateMarkers() call.
+             *  \param[in] name Name of the marker.
+             *  \param[in] geometry Geometry of the marker to create.
+             *  \param[in] base_frame Base frame of the pose of the marker.
+             *  \param[in] pose Pose of the marker.
+             *  \param[in] color Color of the marker.
+             */
+            void addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
+                                   const std::string &base_frame, const Eigen::Affine3d &pose,
+                                   const Eigen::Vector4d &color = {0.2, 0.3, 0.7, 1.0});
+
+            /** \brief Removes a marker that was added through addMarker().
+             *  \param[in] name The name of the marker to remove.
+             */
+            void removeMarker(const std::string &name);
 
         private:
             RobotConstPtr robot_;            ///< Robot being visualized.
