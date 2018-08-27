@@ -65,11 +65,14 @@ int main(int argc, char **argv)
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
 
-    ROS_INFO("Press enter to exit.");
+    ROS_INFO("Press enter to continue...");
     std::cin.get();
 
     rviz.removeMarker("goal");
     rviz.updateMarkers();
+
+    ROS_INFO("Press enter to exit.");
+    std::cin.get();
 
     return 0;
 }

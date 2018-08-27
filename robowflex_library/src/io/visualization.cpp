@@ -143,7 +143,7 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
 {
     auto marker = markers_.find(name);
     if (marker != markers_.end())
-        markers_.erase(marker);
+        marker->second.action = visualization_msgs::Marker::DELETE;
 }
 
 void IO::RVIZHelper::addMarker(float x, float y, float z)
