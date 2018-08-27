@@ -131,18 +131,28 @@ namespace robowflex
         /** \brief Gets the underlying shape.
          *  \return The shape.
          */
-        const shapes::ShapePtr &getShape() const
-        {
-            return shape_;
-        }
+        const shapes::ShapePtr &getShape() const;
 
         /** \brief Gets the underlying body.
          *  \return The body.
          */
-        const bodies::BodyPtr &getBody() const
-        {
-            return body_;
-        }
+        const bodies::BodyPtr &getBody() const;
+
+        /** \brief Gets the type of the geometry.
+         *  \return The type of geometry.
+         */
+        ShapeType::Type getType() const;
+
+        /** \brief Gets the mesh resource of the geometry.
+         *  \return The mesh resource of geometry.
+         */
+        const std::string &getResource() const;
+
+
+        /** \brief Gets the dimensions of the geometry.
+         *  \return The dimensions of geometry.
+         */
+        const Eigen::Vector3d &getDimensions() const;
 
     private:
         /** \brief Loads a shape from the set \a type_ and \a dimensions_, and \a resource_ if a mesh.

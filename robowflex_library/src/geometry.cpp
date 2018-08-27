@@ -172,3 +172,28 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
 
     return boost::get<shape_msgs::Mesh>(msg);
 }
+
+const shapes::ShapePtr &Geometry::getShape() const
+{
+    return shape_;
+}
+
+const bodies::BodyPtr &Geometry::getBody() const
+{
+    return body_;
+}
+
+Geometry::ShapeType::Type Geometry::getType() const
+{
+    return type_;
+}
+
+const std::string &Geometry::getResource() const
+{
+    return resource_;
+}
+
+const Eigen::Vector3d &Geometry::getDimensions() const
+{
+    return dimensions_;
+}
