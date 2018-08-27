@@ -80,9 +80,9 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     trajectory_pub_.publish(out);
 }
 
-void IO::RVIZHelper::addGeometyMarker(const std::string &name, const GeometryConstPtr &geometry,
-                                      const std::string &base_frame, const Eigen::Affine3d &pose,
-                                      const Eigen::Vector4d &color)
+void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
+                                       const std::string &base_frame, const Eigen::Affine3d &pose,
+                                       const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
 

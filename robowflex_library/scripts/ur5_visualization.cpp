@@ -68,5 +68,8 @@ int main(int argc, char **argv)
     ROS_INFO("Press enter to exit.");
     std::cin.get();
 
+    rviz.removeMarker("goal");
+    rviz.updateMarkers();
+
     return 0;
 }
