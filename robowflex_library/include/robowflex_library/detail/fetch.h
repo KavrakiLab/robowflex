@@ -3,8 +3,8 @@
 #ifndef ROBOWFLEX_FETCH_
 #define ROBOWFLEX_FETCH_
 
-#include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/robot.h>
 
 namespace robowflex
 {
@@ -18,8 +18,7 @@ namespace robowflex
     /** \class robowflex::FetchRobotConstPtr
         \brief A const shared pointer wrapper for robowflex::FetchRobot. */
 
-    /** \brief Convenience class that describes the default setup for Fetch (with robotiq gripper and load
-     * cell)
+    /** \brief Convenience class that describes the default setup for Fetch
      */
     class FetchRobot : public Robot
     {
@@ -36,7 +35,7 @@ namespace robowflex
         /** \brief Inserts a virtual joint "base_joint" into the Fetch's SRDF.
          *  \return True on success.
          */
-        bool addVirtualJointSRDF(tinyxml2::XMLDocument &doc);
+        bool addVirtualJointSRDF(tinyxml2::XMLDocument& doc);
 
         /** \brief Sets the base pose of the Fetch robot (a virtual planar joint)
          *  \param[in] x The x position.
@@ -48,7 +47,15 @@ namespace robowflex
         /** \brief Points the Fetch's head to a point in the world frame.
          *  \param[in] point The point to look at.
          */
-        void pointHead(const Eigen::Vector3d &point);
+        void pointHead(const Eigen::Vector3d& point);
+
+        /** \brief Opens the Fetch's gripper.
+        */
+        void openGripper();
+
+        /** \brief Closes the Fetch's gripper.
+        */
+        void closeGripper();
 
     private:
         static const std::string URDF;        ///< Default URDF
@@ -78,7 +85,7 @@ namespace robowflex
              *  \param[in] robot Robot to create planner for.
              *  \param[in] name Namespace of this planner.
              */
-            FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name = "");
+            FetchOMPLPipelinePlanner(const RobotPtr& robot, const std::string& name = "");
 
             /** \brief Initialize the planning context. All parameter provided are defaults.
              *  \param[in] config_file A YAML file containing OMPL planner configurations.
@@ -87,9 +94,10 @@ namespace robowflex
              *  \param[in] adapters Planning adapters to load.
              *  \return True on success, false on failure.
              */
-            bool initialize(const Settings &settings = Settings(), const std::string &config_file = CONFIG,
-                            const std::string &plugin = DEFAULT_PLUGIN,
-                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+            bool initialize(const Settings& settings = Settings(),
+                            const std::string& config_file = CONFIG,
+                            const std::string& plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string>& adapters = DEFAULT_ADAPTERS);
 
         private:
             static const std::string CONFIG;  ///< Default planning configuration.
