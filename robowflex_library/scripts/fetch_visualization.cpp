@@ -1,4 +1,5 @@
 /* Author: Zachary Kingston */
+/* Modified by: Juan D. Hernandez */
 
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/geometry.h>
@@ -23,6 +24,12 @@ int main(int argc, char** argv)
 
     // Sets the Fetch's base pose.
     // fetch->setBasePose(1.5, 0.0, 0.0);
+
+    // Sets the Fetch's head pose to look at a point.
+    // fetch->pointHead({2, 1, 1.5});
+
+    // Opens the Fetch's gripper.
+    fetch->openGripper();
 
     // Dump the geometry information for visualization.
     fetch->dumpGeometry("fetch.yml");
@@ -50,23 +57,36 @@ int main(int argc, char** argv)
     fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
     request->setStartConfiguration(fetch->getScratchState());
 
+    // Cube1
     //    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    //    pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
-    //    Eigen::Quaterniond orn{0, 0, 1, 0};
-    //
-    //    auto region = Geometry::makeSphere(0.1);
-    //
-    //    request.setGoalRegion("ee_link", "world",   // links
-    //                          pose, region,         // position
-    //                          orn, {0.1, 0.1, 0.1}  // orientation
-    //                          );
-    //
-    //    rviz.addGoalMarker("goal", request);
-    //    rviz.updateMarkers();
+    //    pose.translate(Eigen::Vector3d{0.0, 0.6, 0.92});
+    //    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+    //    auto region = Geometry::makeSphere(0.05);
+    //    request->setGoalRegion("wrist_roll_link", "world",  // links
+    //                           pose, region,                // position
+    //                           orn, {0.1, 0.1, 0.1}         // orientation
+    //                           );
 
-    fetch->setGroupState(GROUP,
-                         {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    request->setGoalConfiguration(fetch->getScratchState());
+    // Cube2
+    //    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    //    pose.translate(Eigen::Vector3d{0.2, 0.6, 0.92});
+    //    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+    //    auto region = Geometry::makeSphere(0.05);
+    //    request->setGoalRegion("wrist_roll_link", "world",  // links
+    //                           pose, region,                // position
+    //                           orn, {0.1, 0.1, 0.1}         // orientation
+    //                           );
+
+    // Create a motion planning request with a pose goal. Cube3
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
+    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+    // Eigen::Quaterniond orn{0.0, 0.707106781, 0.0, -0.707106781};
+    auto region = Geometry::makeSphere(0.01);
+    request->setGoalRegion("wrist_roll_link", "world",  // links
+                           pose, region,                // position
+                           orn, {0.1, 0.1, 0.1}         // orientation
+                           );
 
     ROS_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
