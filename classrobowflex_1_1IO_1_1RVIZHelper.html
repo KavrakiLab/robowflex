@@ -90,6 +90,7 @@ $(document).ready(function(){initNavTree('classrobowflex_1_1IO_1_1RVIZHelper.htm
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pri-methods">Private Member Functions</a> &#124;
 <a href="#pri-attribs">Private Attributes</a> &#124;
 <a href="classrobowflex_1_1IO_1_1RVIZHelper-members.html">List of all members</a>  </div>
   <div class="headertitle">
@@ -97,7 +98,7 @@ $(document).ready(function(){initNavTree('classrobowflex_1_1IO_1_1RVIZHelper.htm
 </div><!--header-->
 <div class="contents">
 
-<p>RVIZ visualization helper.  
+<p>RVIZ visualization helper. See <a class="el" href="rviz.html">Live Visualization with RViz</a> for more information.  
  <a href="classrobowflex_1_1IO_1_1RVIZHelper.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="visualization_8h_source.html">visualization.h</a>&gt;</code></p>
@@ -107,20 +108,48 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa38ab1ceea8b4a281399fd21362ae42b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#aa38ab1ceea8b4a281399fd21362ae42b">RVIZHelper</a> (const <a class="el" href="classrobowflex_1_1RobotConstPtr.html">RobotConstPtr</a> &amp;robot, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name=&quot;robowflex&quot;)</td></tr>
 <tr class="memdesc:aa38ab1ceea8b4a281399fd21362ae42b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. All parameters are placed under <em>/name</em>. This helper puts trajectories under /name/trajectory, scenes under /name/scene, and other markers under /name/markers. The robot description is placed under /name/robot_description.  <a href="#aa38ab1ceea8b4a281399fd21362ae42b">More...</a><br /></td></tr>
 <tr class="separator:aa38ab1ceea8b4a281399fd21362ae42b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Trajectories</div></td></tr>
 <tr class="memitem:af15ed6584a83c9abbdaee0a37e13e448"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#af15ed6584a83c9abbdaee0a37e13e448">updateTrajectory</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structplanning__interface_1_1MotionPlanResponse.html">planning_interface::MotionPlanResponse</a> &amp;response)</td></tr>
 <tr class="memdesc:af15ed6584a83c9abbdaee0a37e13e448"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the trajectory being visualized.  <a href="#af15ed6584a83c9abbdaee0a37e13e448">More...</a><br /></td></tr>
 <tr class="separator:af15ed6584a83c9abbdaee0a37e13e448"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1769a8fed2faf24be83dc9ca2e85577"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#aa1769a8fed2faf24be83dc9ca2e85577">updateTrajectories</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/vector.html">std::vector</a>&lt; <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/structplanning__interface_1_1MotionPlanResponse.html">planning_interface::MotionPlanResponse</a> &gt; &amp;responses)</td></tr>
 <tr class="memdesc:aa1769a8fed2faf24be83dc9ca2e85577"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the trajectory being visualized to a list of trajectories.  <a href="#aa1769a8fed2faf24be83dc9ca2e85577">More...</a><br /></td></tr>
 <tr class="separator:aa1769a8fed2faf24be83dc9ca2e85577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Scenes</div></td></tr>
+<tr class="memitem:a9ecd904c496ce66c8a8616f95b842074"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a9ecd904c496ce66c8a8616f95b842074">removeScene</a> ()</td></tr>
+<tr class="memdesc:a9ecd904c496ce66c8a8616f95b842074"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the scene being visualized.  <a href="#a9ecd904c496ce66c8a8616f95b842074">More...</a><br /></td></tr>
+<tr class="separator:a9ecd904c496ce66c8a8616f95b842074"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7c28b2d8923603632231b7fee37e4b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#ac7c28b2d8923603632231b7fee37e4b9">updateScene</a> (const <a class="el" href="classrobowflex_1_1SceneConstPtr.html">SceneConstPtr</a> &amp;scene)</td></tr>
 <tr class="memdesc:ac7c28b2d8923603632231b7fee37e4b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the scene being visualized.  <a href="#ac7c28b2d8923603632231b7fee37e4b9">More...</a><br /></td></tr>
 <tr class="separator:ac7c28b2d8923603632231b7fee37e4b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2">updateMarkers</a> ()</td></tr>
-<tr class="memdesc:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">TODO.  <a href="#a947e2ed5b8132f76bb3fd875f7d978b2">More...</a><br /></td></tr>
-<tr class="separator:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Markers</div></td></tr>
 <tr class="memitem:ac17baa538e19ad09c7eb7effa4eba1f4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#ac17baa538e19ad09c7eb7effa4eba1f4">addMarker</a> (float x, float y, float z)</td></tr>
+<tr class="memdesc:ac17baa538e19ad09c7eb7effa4eba1f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Easily add a spherical marker (under the name "" - the empty string) to the scene.  <a href="#ac17baa538e19ad09c7eb7effa4eba1f4">More...</a><br /></td></tr>
 <tr class="separator:ac17baa538e19ad09c7eb7effa4eba1f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0268a09df738639424cc5a804fd5347c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a0268a09df738639424cc5a804fd5347c">addGeometryMarker</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</td></tr>
+<tr class="memdesc:a0268a09df738639424cc5a804fd5347c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a marker to the managed list of markers. Displayed after an <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a> call.  <a href="#a0268a09df738639424cc5a804fd5347c">More...</a><br /></td></tr>
+<tr class="separator:a0268a09df738639424cc5a804fd5347c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b441a171b9e27c393136d86b8334df0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a1b441a171b9e27c393136d86b8334df0">addArrowMarker</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</td></tr>
+<tr class="memdesc:a1b441a171b9e27c393136d86b8334df0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an arrow marker to the managed list of markers. Displayed after an <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a> call.  <a href="#a1b441a171b9e27c393136d86b8334df0">More...</a><br /></td></tr>
+<tr class="separator:a1b441a171b9e27c393136d86b8334df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ff9639010262d0d1b5f8f7acab4db55"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a2ff9639010262d0d1b5f8f7acab4db55">addTextMarker</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;text, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_frame, const Eigen::Affine3d &amp;pose, double <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/test__distance__field_8cpp.html#ad6ea311eb95430b441c339493b6d5592">height</a>, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</td></tr>
+<tr class="memdesc:a2ff9639010262d0d1b5f8f7acab4db55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a text marker to the managed list of markers. Displayed after <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a>.  <a href="#a2ff9639010262d0d1b5f8f7acab4db55">More...</a><br /></td></tr>
+<tr class="separator:a2ff9639010262d0d1b5f8f7acab4db55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5f38039a544f4da7280f9cac531dc24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#ae5f38039a544f4da7280f9cac531dc24">addGoalMarker</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="el" href="classrobowflex_1_1MotionRequestBuilder.html">MotionRequestBuilder</a> &amp;request)</td></tr>
+<tr class="memdesc:ae5f38039a544f4da7280f9cac531dc24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds the current goal of the motion request builder as a marker in the marker array.  <a href="#ae5f38039a544f4da7280f9cac531dc24">More...</a><br /></td></tr>
+<tr class="separator:ae5f38039a544f4da7280f9cac531dc24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a158c86f3d75a9b45ff10bcddf7d81835"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a158c86f3d75a9b45ff10bcddf7d81835">removeMarker</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name)</td></tr>
+<tr class="memdesc:a158c86f3d75a9b45ff10bcddf7d81835"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a marker that was added through <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#ac17baa538e19ad09c7eb7effa4eba1f4" title="Easily add a spherical marker (under the name &quot;&quot; - the empty string) to the scene. ">addMarker()</a>.  <a href="#a158c86f3d75a9b45ff10bcddf7d81835">More...</a><br /></td></tr>
+<tr class="separator:a158c86f3d75a9b45ff10bcddf7d81835"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2">updateMarkers</a> ()</td></tr>
+<tr class="memdesc:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the managed list of markers. Keeps track of whether markers have already been displayed and simply need an update, and removes markers removed by <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a158c86f3d75a9b45ff10bcddf7d81835" title="Removes a marker that was added through addMarker(). ">removeMarker()</a>.  <a href="#a947e2ed5b8132f76bb3fd875f7d978b2">More...</a><br /></td></tr>
+<tr class="separator:a947e2ed5b8132f76bb3fd875f7d978b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a51782a29f3015ce81c0930f5d9c0e083"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a51782a29f3015ce81c0930f5d9c0e083">fillMarker</a> (visualization_msgs::Marker &amp;marker, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale) const</td></tr>
+<tr class="memdesc:a51782a29f3015ce81c0930f5d9c0e083"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills a marker in with some common default information.  <a href="#a51782a29f3015ce81c0930f5d9c0e083">More...</a><br /></td></tr>
+<tr class="separator:a51782a29f3015ce81c0930f5d9c0e083"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -139,14 +168,14 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a6714790347a2f536752a5fa2fe1e239a"><td class="memItemLeft" align="right" valign="top">ros::Publisher&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a6714790347a2f536752a5fa2fe1e239a">scene_pub_</a></td></tr>
 <tr class="memdesc:a6714790347a2f536752a5fa2fe1e239a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> publisher.  <a href="#a6714790347a2f536752a5fa2fe1e239a">More...</a><br /></td></tr>
 <tr class="separator:a6714790347a2f536752a5fa2fe1e239a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d8ac999887d3a2c9c5131b79e1b69ab"><td class="memItemLeft" align="right" valign="top"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/map.html">std::map</a>&lt; <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a>, visualization_msgs::Marker &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a7d8ac999887d3a2c9c5131b79e1b69ab">markers_</a></td></tr>
-<tr class="memdesc:a7d8ac999887d3a2c9c5131b79e1b69ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Markers to publish.  <a href="#a7d8ac999887d3a2c9c5131b79e1b69ab">More...</a><br /></td></tr>
-<tr class="separator:a7d8ac999887d3a2c9c5131b79e1b69ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f34ec6c15e8212eaf02335744d6e0d1"><td class="memItemLeft" align="right" valign="top"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/multimap.html">std::multimap</a>&lt; <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a>, visualization_msgs::Marker &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a2f34ec6c15e8212eaf02335744d6e0d1">markers_</a></td></tr>
+<tr class="memdesc:a2f34ec6c15e8212eaf02335744d6e0d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Markers to publish.  <a href="#a2f34ec6c15e8212eaf02335744d6e0d1">More...</a><br /></td></tr>
+<tr class="separator:a2f34ec6c15e8212eaf02335744d6e0d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>RVIZ visualization helper. </p>
+<div class="textblock"><p>RVIZ visualization helper. See <a class="el" href="rviz.html">Live Visualization with RViz</a> for more information. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00021">21</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00023">23</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aa38ab1ceea8b4a281399fd21362ae42b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa38ab1ceea8b4a281399fd21362ae42b">&#9670;&nbsp;</a></span>RVIZHelper()</h2>
@@ -183,11 +212,170 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00014">14</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00035">35</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1b441a171b9e27c393136d86b8334df0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b441a171b9e27c393136d86b8334df0">&#9670;&nbsp;</a></span>addArrowMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::addArrowMarker </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4d &amp;&#160;</td>
+          <td class="paramname"><em>color</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3d &amp;&#160;</td>
+          <td class="paramname"><em>scale</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds an arrow marker to the managed list of markers. Displayed after an <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a> call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_frame</td><td>Base frame of the pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>Pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color</td><td>Color of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">scale</td><td>The scale of the marker. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00121">121</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a0268a09df738639424cc5a804fd5347c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0268a09df738639424cc5a804fd5347c">&#9670;&nbsp;</a></span>addGeometryMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::addGeometryMarker </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;&#160;</td>
+          <td class="paramname"><em>geometry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4d &amp;&#160;</td>
+          <td class="paramname"><em>color</em> = <code>{0.2,&#160;0.3,&#160;0.7,&#160;1.0}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a marker to the managed list of markers. Displayed after an <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a> call. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">geometry</td><td><a class="el" href="classrobowflex_1_1Geometry.html" title="A class that manages both solid and mesh geometry for various parts of the motion planning system...">Geometry</a> of the marker to create. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_frame</td><td>Base frame of the pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>Pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color</td><td>Color of the marker. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00146">146</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ae5f38039a544f4da7280f9cac531dc24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5f38039a544f4da7280f9cac531dc24">&#9670;&nbsp;</a></span>addGoalMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::addGoalMarker </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrobowflex_1_1MotionRequestBuilder.html">MotionRequestBuilder</a> &amp;&#160;</td>
+          <td class="paramname"><em>request</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds the current goal of the motion request builder as a marker in the marker array. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of the marker(s). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">request</td><td>Request to add goal of as a marker. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00185">185</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
 <a id="ac17baa538e19ad09c7eb7effa4eba1f4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac17baa538e19ad09c7eb7effa4eba1f4">&#9670;&nbsp;</a></span>addMarker()</h2>
 
@@ -220,7 +408,201 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00077">77</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p>Easily add a spherical marker (under the name "" - the empty string) to the scene. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>The x coordinate of the sphere. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">y</td><td>The y coordinate of the sphere. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">z</td><td>The z coordinate of the sphere. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00264">264</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a2ff9639010262d0d1b5f8f7acab4db55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ff9639010262d0d1b5f8f7acab4db55">&#9670;&nbsp;</a></span>addTextMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::addTextMarker </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>text</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4d &amp;&#160;</td>
+          <td class="paramname"><em>color</em> = <code>{1,&#160;1,&#160;1,&#160;1}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a text marker to the managed list of markers. Displayed after <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a947e2ed5b8132f76bb3fd875f7d978b2" title="Displays the managed list of markers. Keeps track of whether markers have already been displayed and ...">updateMarkers()</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>Name of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">text</td><td>The text to display. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_frame</td><td>Base frame of the pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>Pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">height</td><td>The height of the text. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color</td><td>Color of the marker. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00133">133</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a51782a29f3015ce81c0930f5d9c0e083"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51782a29f3015ce81c0930f5d9c0e083">&#9670;&nbsp;</a></span>fillMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::fillMarker </td>
+          <td>(</td>
+          <td class="paramtype">visualization_msgs::Marker &amp;&#160;</td>
+          <td class="paramname"><em>marker</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_frame</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector4d &amp;&#160;</td>
+          <td class="paramname"><em>color</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3d &amp;&#160;</td>
+          <td class="paramname"><em>scale</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fills a marker in with some common default information. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">marker</td><td>Marker to fill. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_frame</td><td>Base frame of the pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>Pose of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">color</td><td>Color of the marker. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">scale</td><td>The scale of the marker. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00100">100</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a158c86f3d75a9b45ff10bcddf7d81835"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a158c86f3d75a9b45ff10bcddf7d81835">&#9670;&nbsp;</a></span>removeMarker()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::removeMarker </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes a marker that was added through <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#ac17baa538e19ad09c7eb7effa4eba1f4" title="Easily add a spherical marker (under the name &quot;&quot; - the empty string) to the scene. ">addMarker()</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the marker to remove. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00256">256</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a9ecd904c496ce66c8a8616f95b842074"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ecd904c496ce66c8a8616f95b842074">&#9670;&nbsp;</a></span>removeScene()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void IO::RVIZHelper::removeScene </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes the scene being visualized. </p>
+
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00282">282</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
@@ -239,9 +621,9 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>TODO. </p>
+<p>Displays the managed list of markers. Keeps track of whether markers have already been displayed and simply need an update, and removes markers removed by <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html#a158c86f3d75a9b45ff10bcddf7d81835" title="Removes a marker that was added through addMarker(). ">removeMarker()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00109">109</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00308">308</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
@@ -264,12 +646,12 @@ Private Attributes</h2></td></tr>
 <p>Updates the scene being visualized. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">scene</td><td><a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> to visualize. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">scene</td><td><a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> to visualize. If null, removes scene by publishing empty message. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00104">104</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00287">287</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
@@ -297,7 +679,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00044">44</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00065">65</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
@@ -325,7 +707,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00030">30</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8cpp_source.html#l00051">51</a> of file <a class="el" href="visualization_8cpp_source.html">visualization.cpp</a>.</p>
 
 </div>
 </div>
@@ -352,12 +734,12 @@ Private Attributes</h2></td></tr>
 
 <p>Marker publisher. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00057">57</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00142">142</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
-<a id="a7d8ac999887d3a2c9c5131b79e1b69ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d8ac999887d3a2c9c5131b79e1b69ab">&#9670;&nbsp;</a></span>markers_</h2>
+<a id="a2f34ec6c15e8212eaf02335744d6e0d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f34ec6c15e8212eaf02335744d6e0d1">&#9670;&nbsp;</a></span>markers_</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -366,7 +748,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/map.html">std::map</a>&lt;<a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a>, visualization_msgs::Marker&gt; robowflex::IO::RVIZHelper::markers_</td>
+          <td class="memname"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/multimap.html">std::multimap</a>&lt;<a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a>, visualization_msgs::Marker&gt; robowflex::IO::RVIZHelper::markers_</td>
         </tr>
       </table>
   </td>
@@ -378,7 +760,7 @@ Private Attributes</h2></td></tr>
 
 <p>Markers to publish. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00061">61</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00146">146</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
@@ -404,7 +786,7 @@ Private Attributes</h2></td></tr>
 
 <p>Handle for publishing. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00056">56</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00141">141</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
@@ -430,7 +812,7 @@ Private Attributes</h2></td></tr>
 
 <p><a class="el" href="classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state. ">Robot</a> being visualized. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00055">55</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00140">140</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
@@ -456,7 +838,7 @@ Private Attributes</h2></td></tr>
 
 <p><a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> publisher. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00059">59</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00144">144</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
@@ -482,7 +864,7 @@ Private Attributes</h2></td></tr>
 
 <p>Trajectory publisher. </p>
 
-<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00058">58</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="visualization_8h_source.html#l00143">143</a> of file <a class="el" href="visualization_8h_source.html">visualization.h</a>.</p>
 
 </div>
 </div>
@@ -497,7 +879,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="namespacerobowflex_1_1IO.html">IO</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html">RVIZHelper</a></li>
-    <li class="footer">Generated on Wed Aug 22 2018 10:03:27 for Robowflex by
+    <li class="footer">Generated on Tue Aug 28 2018 09:29:18 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

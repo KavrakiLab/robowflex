@@ -50,6 +50,7 @@ var searchData=
   ['unique_5fptr',['unique_ptr',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std::unique_ptr'],['http://en.cppreference.com/w/cpp/memory/unique_ptr/unique_ptr.html',0,'std::unique_ptr::unique_ptr()']]],
   ['unique_5fptr_3c_20boost_3a_3athread_20_3e',['unique_ptr&lt; boost::thread &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unique_5fptr_3c_20fcl_3a_3abroadphasecollisionmanager_20_3e',['unique_ptr&lt; fcl::BroadPhaseCollisionManager &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
+  ['unique_5fptr_3c_20ompl_5finterface_3a_3aomplinterface_20_3e',['unique_ptr&lt; ompl_interface::OMPLInterface &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unique_5fptr_3c_20std_3a_3amap_20_3e',['unique_ptr&lt; std::map &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unitbuf',['unitbuf',['http://en.cppreference.com/w/cpp/io/manip/unitbuf.html',0,'std']]],
   ['unknown',['UNKNOWN',['http://docs.ros.org/melodic/api/moveit_core/html/structmoveit__controller__manager_1_1ExecutionStatus.html#a09075c47bbda14f1df49a0a0f27188fda6959210f72a44f38a5f704901ee8ff1b',0,'moveit_controller_manager::ExecutionStatus::UNKNOWN()'],['http://docs.ros.org/melodic/api/moveit_core/html/classmoveit_1_1core_1_1JointModel.html#a6c1c75a4d125fd607f48bff4ca019b2caa253217ef470e1bda8720760952ccc44',0,'moveit::core::JointModel::UNKNOWN()']]],

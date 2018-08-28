@@ -31,6 +31,7 @@ var hierarchy =
     [ "robowflex::IO::Handler", "classrobowflex_1_1IO_1_1Handler.html", null ],
     [ "robowflex::IO::HDF5Data", "classrobowflex_1_1IO_1_1HDF5Data.html", null ],
     [ "robowflex::IO::HDF5File", "classrobowflex_1_1IO_1_1HDF5File.html", null ],
+    [ "robowflex::IO::PluginManager", "classrobowflex_1_1IO_1_1PluginManager.html", null ],
     [ "robowflex::IO::RVIZHelper", "classrobowflex_1_1IO_1_1RVIZHelper.html", null ],
     [ "robowflex::MotionRequestBuilder", "classrobowflex_1_1MotionRequestBuilder.html", null ],
     [ "robowflex::MotionRequestBuilderConstPtr", "classrobowflex_1_1MotionRequestBuilderConstPtr.html", null ],

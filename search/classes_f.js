@@ -29,6 +29,7 @@ var searchData=
   ['planningrequestadapter',['PlanningRequestAdapter',['http://docs.ros.org/melodic/api/moveit_core/html/classplanning__request__adapter_1_1PlanningRequestAdapter.html',0,'planning_request_adapter']]],
   ['planningrequestadapterchain',['PlanningRequestAdapterChain',['http://docs.ros.org/melodic/api/moveit_core/html/classplanning__request__adapter_1_1PlanningRequestAdapterChain.html',0,'planning_request_adapter']]],
   ['planningscene',['PlanningScene',['http://docs.ros.org/melodic/api/moveit_core/html/classplanning__scene_1_1PlanningScene.html',0,'planning_scene']]],
+  ['pluginmanager',['PluginManager',['../classrobowflex_1_1IO_1_1PluginManager.html',1,'robowflex::IO']]],
   ['plus',['plus',['http://en.cppreference.com/w/cpp/utility/functional/plus.html',0,'std']]],
   ['pointer_5fsafety',['pointer_safety',['http://en.cppreference.com/w/cpp/memory/gc/pointer_safety.html',0,'std']]],
   ['pointer_5ftraits',['pointer_traits',['http://en.cppreference.com/w/cpp/memory/pointer_traits.html',0,'std']]],

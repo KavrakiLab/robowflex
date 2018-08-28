@@ -30,6 +30,7 @@ var searchData=
   ['unique_5fptr',['unique_ptr',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unique_5fptr_3c_20boost_3a_3athread_20_3e',['unique_ptr&lt; boost::thread &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unique_5fptr_3c_20fcl_3a_3abroadphasecollisionmanager_20_3e',['unique_ptr&lt; fcl::BroadPhaseCollisionManager &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
+  ['unique_5fptr_3c_20ompl_5finterface_3a_3aomplinterface_20_3e',['unique_ptr&lt; ompl_interface::OMPLInterface &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unique_5fptr_3c_20std_3a_3amap_20_3e',['unique_ptr&lt; std::map &gt;',['http://en.cppreference.com/w/cpp/memory/unique_ptr.html',0,'std']]],
   ['unordered_5fmap',['unordered_map',['http://en.cppreference.com/w/cpp/container/unordered_map.html',0,'std']]],
   ['unordered_5fmultimap',['unordered_multimap',['http://en.cppreference.com/w/cpp/container/unordered_multimap.html',0,'std']]],
