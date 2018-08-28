@@ -130,6 +130,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a6e8c3dcd0a542c8923fe4eea954d6948"><td class="memItemLeft" align="right" valign="top">Eigen::Quaterniond&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerobowflex_1_1TF.html#a6e8c3dcd0a542c8923fe4eea954d6948">sampleOrientation</a> (const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
 <tr class="memdesc:a6e8c3dcd0a542c8923fe4eea954d6948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sample an orientation from a given <em>orientation</em> with XYZ Euler angle <em>tolerances</em>.  <a href="#a6e8c3dcd0a542c8923fe4eea954d6948">More...</a><br /></td></tr>
 <tr class="separator:a6e8c3dcd0a542c8923fe4eea954d6948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf266eedc3516efb48d44d8e85e51480"><td class="memItemLeft" align="right" valign="top">Eigen::Quaterniond&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacerobowflex_1_1TF.html#aaf266eedc3516efb48d44d8e85e51480">offsetOrientation</a> (const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;axis, double value)</td></tr>
+<tr class="memdesc:aaf266eedc3516efb48d44d8e85e51480"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset an orientation by a rotation about an axis.  <a href="#aaf266eedc3516efb48d44d8e85e51480">More...</a><br /></td></tr>
+<tr class="separator:aaf266eedc3516efb48d44d8e85e51480"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Collection of methods relating to transforms and transform math. </p>
@@ -277,6 +280,52 @@ Functions</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="tf_8cpp_source.html#l00072">72</a> of file <a class="el" href="tf_8cpp_source.html">tf.cpp</a>.</p>
+
+</div>
+</div>
+<a id="aaf266eedc3516efb48d44d8e85e51480"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf266eedc3516efb48d44d8e85e51480">&#9670;&nbsp;</a></span>offsetOrientation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Eigen::Quaterniond robowflex::TF::offsetOrientation </td>
+          <td>(</td>
+          <td class="paramtype">const Eigen::Quaterniond &amp;&#160;</td>
+          <td class="paramname"><em>orientation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3d &amp;&#160;</td>
+          <td class="paramname"><em>axis</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset an orientation by a rotation about an axis. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">orientation</td><td>Orientation to offset. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">axis</td><td>Axis to offset orientation about. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Value by which to offset. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="tf_8cpp_source.html#l00120">120</a> of file <a class="el" href="tf_8cpp_source.html">tf.cpp</a>.</p>
 
 </div>
 </div>
@@ -500,7 +549,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="namespacerobowflex_1_1TF.html">TF</a></li>
-    <li class="footer">Generated on Wed Aug 22 2018 10:03:28 for Robowflex by
+    <li class="footer">Generated on Tue Aug 28 2018 09:29:18 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

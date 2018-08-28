@@ -1,3 +1,11 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classrobowflex_1_1PlannerConstPtr.html" title="A const shared pointer wrapper for robowflex::Planner. " alt="" coords="5,5,180,32"/>
+<area shape="rect" id="node1" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm. " alt="" coords="5,107,132,134"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1hypercube_1_1OMPLChainPlanner.html" title="A light wrapper over tesseract&#39;s ChainOMPLPlanner. " alt="" coords="214,5,357,47"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1OMPL_1_1OMPLInterfacePlanner.html" title="A planner that directly uses MoveIt!&#39;s OMPL planning interface. " alt="" coords="180,71,391,112"/>
+<area shape="rect" id="node4" href="$classrobowflex_1_1PipelinePlanner.html" title="A motion planner that uses the MoveIt! planning pipeline to load a planner plugin. " alt="" coords="200,137,371,163"/>
+<area shape="rect" id="node9" href="$classrobowflex_1_1PoolPlanner.html" title="A thread pool of planners P to service requests in a multi&#45;threaded environment simultaneously. " alt="" coords="210,187,361,214"/>
+<area shape="rect" id="node5" href="$classrobowflex_1_1OMPL_1_1OMPLPipelinePlanner.html" title="A robowflex::PipelinePlanner that uses the MoveIt! default OMPL planning pipeline. " alt="" coords="439,129,643,171"/>
+<area shape="rect" id="node6" href="$classrobowflex_1_1OMPL_1_1FetchOMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for Fetch. " alt="" coords="691,64,927,105"/>
+<area shape="rect" id="node7" href="$classrobowflex_1_1OMPL_1_1R2OMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for R2 (R2C6 full). " alt="" coords="699,129,918,171"/>
+<area shape="rect" id="node8" href="$classrobowflex_1_1OMPL_1_1UR5OMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for UR5. " alt="" coords="695,195,922,236"/>
 </map>

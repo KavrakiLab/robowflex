@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="node1" class="node">
 <title>Node0</title>
-<g id="a_node1"><a xlink:href="classrobowflex_1_1OMPL_1_1UR5OMPLPipelinePlannerPtr.html" target="_top" xlink:title="A shared pointer wrapper for robowflex::OMPL::UR5OMPLPipelinePlanner. ">
+<g id="a_node1"><a xlink:href="classrobowflex_1_1OMPL_1_1UR5OMPLPipelinePlannerConstPtr.html" target="_top" xlink:title="A const shared pointer wrapper for robowflex::OMPL::UR5OMPLPipelinePlanner. ">
 <polygon fill="none" stroke="#000000" points="0,-.5 0,-30.5 170,-30.5 170,-.5 0,-.5"/>
 <text text-anchor="start" x="8" y="-18.5" font-family="Roboto" font-size="10.00" fill="#000000">robowflex::OMPL::UR5OMPLPipeline</text>
-<text text-anchor="middle" x="85" y="-7.5" font-family="Roboto" font-size="10.00" fill="#000000">PlannerPtr</text>
+<text text-anchor="middle" x="85" y="-7.5" font-family="Roboto" font-size="10.00" fill="#000000">PlannerConstPtr</text>
 </a>
 </g>
 </g>

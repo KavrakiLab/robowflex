@@ -7,6 +7,7 @@ var searchData=
   ['map_3c_20const_20linkmodel_20_2a_2c_20eigen_3a_3aaffine3d_2c_20std_3a_3aless_3c_20const_20linkmodel_20_2a_3e_2c_20eigen_3a_3aaligned_5fallocator_3c_20std_3a_3apair_3c_20const_20linkmodel_20_2aconst_2c_20eigen_3a_3aaffine3d_20_3e_20_3e_20_3e',['map&lt; const LinkModel *, Eigen::Affine3d, std::less&lt; const LinkModel *&gt;, Eigen::aligned_allocator&lt; std::pair&lt; const LinkModel *const, Eigen::Affine3d &gt; &gt; &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20const_20std_3a_3apair_3c_20std_3a_3astring_2c_20std_3a_3astring_20_3e_2c_20std_3a_3avector_3c_20distanceresultsdata_20_3e_20_3e',['map&lt; const std::pair&lt; std::string, std::string &gt;, std::vector&lt; DistanceResultsData &gt; &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20int_2c_20double_20_3e',['map&lt; int, double &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
+  ['map_3c_20std_3a_3apair_3c_20std_3a_3astring_2c_20std_3a_3astring_20_3e_2c_20std_3a_3ashared_5fptr_20_3e',['map&lt; std::pair&lt; std::string, std::string &gt;, std::shared_ptr &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3apair_3c_20std_3a_3astring_2c_20std_3a_3astring_20_3e_2c_20std_3a_3avector_3c_20contact_20_3e_20_3e',['map&lt; std::pair&lt; std::string, std::string &gt;, std::vector&lt; Contact &gt; &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3astring_2c_20allowedcollision_3a_3atype_20_3e',['map&lt; std::string, AllowedCollision::Type &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3astring_2c_20collision_5fdetection_3a_3acollisionpluginptr_20_3e',['map&lt; std::string, collision_detection::CollisionPluginPtr &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
@@ -36,7 +37,6 @@ var searchData=
   ['map_3c_20std_3a_3astring_2c_20std_3a_3atuple_20_3e',['map&lt; std::string, std::tuple &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3astring_2c_20timeinfo_20_3e',['map&lt; std::string, TimeInfo &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3astring_2c_20unsigned_20long_20int_20_3e',['map&lt; std::string, unsigned long int &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
-  ['map_3c_20std_3a_3astring_2c_20visualization_5fmsgs_3a_3amarker_20_3e',['map&lt; std::string, visualization_msgs::Marker &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['map_3c_20std_3a_3astring_2c_20world_3a_3aaction_20_3e',['map&lt; std::string, World::Action &gt;',['http://en.cppreference.com/w/cpp/container/map.html',0,'std']]],
   ['mask',['mask',['http://en.cppreference.com/w/cpp/locale/ctype_base.html',0,'std::ctype::mask'],['http://en.cppreference.com/w/cpp/locale/ctype_base.html',0,'std::ctype_base::mask'],['http://en.cppreference.com/w/cpp/locale/ctype_base.html',0,'std::ctype_byname::mask']]],
   ['match_5fresults',['match_results',['http://en.cppreference.com/w/cpp/regex/match_results.html',0,'std']]],
@@ -75,6 +75,7 @@ var searchData=
   ['mt19937',['mt19937',['http://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine.html',0,'std']]],
   ['mt19937_5f64',['mt19937_64',['http://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine.html',0,'std']]],
   ['multimap',['multimap',['http://en.cppreference.com/w/cpp/container/multimap.html',0,'std']]],
+  ['multimap_3c_20std_3a_3astring_2c_20visualization_5fmsgs_3a_3amarker_20_3e',['multimap&lt; std::string, visualization_msgs::Marker &gt;',['http://en.cppreference.com/w/cpp/container/multimap.html',0,'std']]],
   ['multiplies',['multiplies',['http://en.cppreference.com/w/cpp/utility/functional/multiplies.html',0,'std']]],
   ['multiset',['multiset',['http://en.cppreference.com/w/cpp/container/multiset.html',0,'std']]],
   ['mutex',['mutex',['http://en.cppreference.com/w/cpp/thread/mutex.html',0,'std']]]

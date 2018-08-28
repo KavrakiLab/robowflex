@@ -16,6 +16,8 @@ var searchData=
   ['planning_5fscene_2ecpp',['planning_scene.cpp',['http://docs.ros.org/melodic/api/moveit_core/html/planning__scene_8cpp.html',0,'']]],
   ['planning_5fscene_2edox',['planning_scene.dox',['http://docs.ros.org/melodic/api/moveit_core/html/planning__scene_8dox.html',0,'']]],
   ['planning_5fscene_2eh',['planning_scene.h',['http://docs.ros.org/melodic/api/moveit_core/html/planning__scene_8h.html',0,'']]],
+  ['plugin_2eh',['plugin.h',['../plugin_8h.html',1,'']]],
+  ['plugin_5fio_2ecpp',['plugin_io.cpp',['../plugin__io_8cpp.html',1,'']]],
   ['pool_2ecpp',['pool.cpp',['../pool_8cpp.html',1,'']]],
   ['pool_2eh',['pool.h',['../pool_8h.html',1,'']]],
   ['pr2_5farm_5fik_2ecpp',['pr2_arm_ik.cpp',['http://docs.ros.org/melodic/api/moveit_core/html/pr2__arm__ik_8cpp.html',0,'']]],

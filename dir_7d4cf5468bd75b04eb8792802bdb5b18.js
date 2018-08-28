@@ -10,6 +10,9 @@ var dir_7d4cf5468bd75b04eb8792802bdb5b18 =
       [ "HDF5Data", "classrobowflex_1_1IO_1_1HDF5Data.html", "classrobowflex_1_1IO_1_1HDF5Data" ],
       [ "HDF5File", "classrobowflex_1_1IO_1_1HDF5File.html", "classrobowflex_1_1IO_1_1HDF5File" ]
     ] ],
+    [ "plugin.h", "plugin_8h.html", [
+      [ "PluginManager", "classrobowflex_1_1IO_1_1PluginManager.html", "classrobowflex_1_1IO_1_1PluginManager" ]
+    ] ],
     [ "visualization.h", "visualization_8h.html", [
       [ "RVIZHelper", "classrobowflex_1_1IO_1_1RVIZHelper.html", "classrobowflex_1_1IO_1_1RVIZHelper" ]
     ] ],

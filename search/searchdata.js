@@ -11,7 +11,7 @@ var indexSectionsWithContent =
   8: "bclmprsw",
   9: "cw",
   10: "ir",
-  11: "prs"
+  11: "lprs"
 };
 
 var indexSectionNames =

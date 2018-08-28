@@ -4,6 +4,7 @@ var NAVTREE =
     [ "Robowflex Visualization", "md__home_zak_ros_melodic_dev_src_robowflex_robowflex_visualization_README.html", null ],
     [ "Robowflex Design Notes", "design.html", null ],
     [ "Robowflex Documentation (a How-To)", "doc.html", null ],
+    [ "Live Visualization with RViz", "rviz.html", null ],
     [ "Scripts", "scripts.html", null ],
     [ "Namespaces", null, [
       [ "Namespace List", "namespaces.html", "namespaces" ],
@@ -41,9 +42,9 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"classrobowflex_1_1OMPL_1_1R2OMPLPipelinePlanner.html",
-"classrobowflex_1_1movegroup_1_1MoveGroupHelper.html#ae086348eb164103f1e08f51bf18b67c3",
-"tesseract__planners_8h.html#a7790860877268b79fd620562a9e3f6ba"
+"classrobowflex_1_1OMPL_1_1FetchOMPLPipelinePlanner.html#ae1cf6fd4c1252bfd48aca0b7e98ffd15",
+"classrobowflex_1_1hypercube_1_1OMPLChainPlannerPtr.html",
+"r2__test_8cpp.html#ad74d62e8da0040b4dede1ddd2bcb6e33"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

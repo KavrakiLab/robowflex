@@ -45,11 +45,14 @@ var searchData=
   ['llabs',['llabs',['http://en.cppreference.com/w/cpp/numeric/math/abs.html',0,'std']]],
   ['llrint',['llrint',['http://en.cppreference.com/w/cpp/numeric/math/rint.html',0,'std']]],
   ['llround',['llround',['http://en.cppreference.com/w/cpp/numeric/math/round.html',0,'std']]],
-  ['load',['load',['http://en.cppreference.com/w/cpp/atomic/atomic/load.html',0,'std::atomic::load()'],['../classrobowflex_1_1Scene_1_1CollisionPluginLoader.html#a5d547ed0c8656390a74438d7ba1508a6',1,'robowflex::Scene::CollisionPluginLoader::load()']]],
+  ['load',['load',['http://en.cppreference.com/w/cpp/atomic/atomic/load.html',0,'std::atomic::load()'],['../classrobowflex_1_1Scene_1_1CollisionPluginLoader.html#a5d547ed0c8656390a74438d7ba1508a6',1,'robowflex::Scene::CollisionPluginLoader::load()'],['../classrobowflex_1_1IO_1_1PluginManager.html#a25d8e1c44a7e325d812de6a237f27a3c',1,'robowflex::IO::PluginManager::load()']]],
   ['load_5ffactor',['load_factor',['http://en.cppreference.com/w/cpp/container/unordered_map/load_factor.html',0,'std::unordered_map::load_factor()'],['http://en.cppreference.com/w/cpp/container/unordered_multimap/load_factor.html',0,'std::unordered_multimap::load_factor()'],['http://en.cppreference.com/w/cpp/container/unordered_multiset/load_factor.html',0,'std::unordered_multiset::load_factor()'],['http://en.cppreference.com/w/cpp/container/unordered_set/load_factor.html',0,'std::unordered_set::load_factor()']]],
   ['loadbody',['loadBody',['../classrobowflex_1_1Geometry.html#acadeec2a7cd0f8b7ac6ac309937d390a',1,'robowflex::Geometry']]],
   ['loaddata',['loadData',['../classrobowflex_1_1IO_1_1HDF5File.html#a4c430e8b3ad652179dbbdfbf7861a2a1',1,'robowflex::IO::HDF5File']]],
+  ['loader',['Loader',['../classrobowflex_1_1IO_1_1PluginManager.html#a28c8f73f718d36826fed45cabca1314c',1,'robowflex::IO::PluginManager']]],
   ['loader_5f',['loader_',['../classrobowflex_1_1Scene_1_1CollisionPluginLoader.html#aca5722fa74fb631420c18b0900a50bec',1,'robowflex::Scene::CollisionPluginLoader::loader_()'],['../classrobowflex_1_1Robot.html#ace593f019215c2eb4db1369db4e69153',1,'robowflex::Robot::loader_()'],['../classrobowflex_1_1Scene.html#a4155bec4e60824349316776c81120f4a',1,'robowflex::Scene::loader_()']]],
+  ['loaderptr',['LoaderPtr',['../classrobowflex_1_1IO_1_1PluginManager.html#a243127b734cbac138d70391525a17a88',1,'robowflex::IO::PluginManager']]],
+  ['loaders_5f',['loaders_',['../classrobowflex_1_1IO_1_1PluginManager.html#a25ede8ca4dbadb6f316a3259ead5dd2e',1,'robowflex::IO::PluginManager']]],
   ['loadfiletostring',['loadFileToString',['../namespacerobowflex_1_1IO.html#a88a45ee4c89766f0c209b379b1beb82a',1,'robowflex::IO']]],
   ['loadfiletoyaml',['loadFileToYAML',['../namespacerobowflex_1_1IO.html#a5dc8b1061b726b65ba86762af283f776',1,'robowflex::IO']]],
   ['loadgeometryfromstream',['loadGeometryFromStream',['http://docs.ros.org/melodic/api/moveit_core/html/classplanning__scene_1_1PlanningScene.html#a82035a2556f936a857cf108add4a8e2d',0,'planning_scene::PlanningScene::loadGeometryFromStream(std::istream &amp;in)'],['http://docs.ros.org/melodic/api/moveit_core/html/classplanning__scene_1_1PlanningScene.html#aa0310b2032f5ad24d658c5ff9653163a',0,'planning_scene::PlanningScene::loadGeometryFromStream(std::istream &amp;in, const Eigen::Affine3d &amp;offset)']]],
@@ -58,6 +61,7 @@ var searchData=
   ['loadmodel',['loadModel',['http://docs.ros.org/melodic/api/moveit_core/html/classTestAABB.html#a3a20cfd8b44c93d3ade6e0f8755e03f6',0,'TestAABB']]],
   ['loadomplconfig',['loadOMPLConfig',['../namespacerobowflex_1_1OMPL.html#a31492e70aba96a5bf04e48eb9840f6be',1,'robowflex::OMPL']]],
   ['loadplanningmodelspr2',['LoadPlanningModelsPr2',['http://docs.ros.org/melodic/api/moveit_core/html/classLoadPlanningModelsPr2.html',0,'']]],
+  ['loadplugin',['loadPlugin',['../classrobowflex_1_1IO_1_1PluginManager.html#a3195d2257d0c29d11e0078f912d55185',1,'robowflex::IO::PluginManager']]],
   ['loadrobotdescription',['loadRobotDescription',['../classrobowflex_1_1Robot.html#aed214621a0f7da30df77b84003fcdfb4',1,'robowflex::Robot']]],
   ['loadrobotmodel',['loadRobotModel',['../classrobowflex_1_1Robot.html#ab6591172d7a47d0c5560f0808275edd7',1,'robowflex::Robot']]],
   ['loadshape',['loadShape',['../classrobowflex_1_1Geometry.html#ac84f99fddb1e1f5eabac2d3663a489ea',1,'robowflex::Geometry']]],
@@ -96,5 +100,6 @@ var searchData=
   ['lowest',['lowest',['http://en.cppreference.com/w/cpp/types/numeric_limits/lowest.html',0,'std::numeric_limits']]],
   ['lrint',['lrint',['http://en.cppreference.com/w/cpp/numeric/math/rint.html',0,'std']]],
   ['lround',['lround',['http://en.cppreference.com/w/cpp/numeric/math/round.html',0,'std']]],
-  ['lt',['lt',['http://en.cppreference.com/w/cpp/string/char_traits/cmp.html',0,'std::char_traits']]]
+  ['lt',['lt',['http://en.cppreference.com/w/cpp/string/char_traits/cmp.html',0,'std::char_traits']]],
+  ['live_20visualization_20with_20rviz',['Live Visualization with RViz',['../rviz.html',1,'']]]
 ];

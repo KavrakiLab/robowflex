@@ -16,6 +16,11 @@
     <filename>home_8md</filename>
   </compound>
   <compound kind="file">
+    <name>rviz.md</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
+    <filename>rviz_8md</filename>
+  </compound>
+  <compound kind="file">
     <name>scripts.md</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/markdown/</path>
     <filename>scripts_8md</filename>
@@ -231,6 +236,14 @@
     <namespace>robowflex::IO</namespace>
   </compound>
   <compound kind="file">
+    <name>plugin.h</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/io/</path>
+    <filename>plugin_8h</filename>
+    <class kind="class">robowflex::IO::PluginManager</class>
+    <namespace>robowflex</namespace>
+    <namespace>robowflex::IO</namespace>
+  </compound>
+  <compound kind="file">
     <name>visualization.h</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/io/</path>
     <filename>visualization_8h</filename>
@@ -439,6 +452,20 @@
       <anchor>aa0bf498d8224551c7c1f238d77aeb8ec</anchor>
       <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
     </member>
+    <member kind="function">
+      <type>std::map&lt; std::string, double &gt;</type>
+      <name>getFinalPositions</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a2c5f2241a85688015b83c82942601251</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>computeTimeParameterization</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a6df33ade43a25633860b2c4ac12f36d8</anchor>
+      <arglist>(robot_trajectory::RobotTrajectory &amp;path, double max_velocity=1., double max_acceleration=1.)</arglist>
+    </member>
   </compound>
   <compound kind="file">
     <name>planning.h</name>
@@ -455,13 +482,6 @@
     <class kind="class">robowflex::OMPL::OMPLPipelinePlanner</class>
     <namespace>robowflex</namespace>
     <namespace>robowflex::OMPL</namespace>
-    <member kind="function">
-      <type>std::map&lt; std::string, double &gt;</type>
-      <name>getFinalJointPositions</name>
-      <anchorfile>namespacerobowflex.html</anchorfile>
-      <anchor>acf413cf9ebc78076a09d96a90fade076</anchor>
-      <arglist>(const planning_interface::MotionPlanResponse &amp;response)</arglist>
-    </member>
     <member kind="function">
       <type>bool</type>
       <name>loadOMPLConfig</name>
@@ -502,6 +522,7 @@
     <includes id="handler_8h" name="handler.h" local="no" imported="no">robowflex_library/io/handler.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
     <includes id="io_2yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/io/yaml.h</includes>
+    <includes id="plugin_8h" name="plugin.h" local="no" imported="no">robowflex_library/io/plugin.h</includes>
     <includes id="pool_8h" name="pool.h" local="no" imported="no">robowflex_library/pool.h</includes>
     <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
     <includes id="tf_8h" name="tf.h" local="no" imported="no">robowflex_library/tf.h</includes>
@@ -509,6 +530,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
+    <includes id="path_8h" name="path.h" local="no" imported="no">robowflex_library/path.h</includes>
     <namespace>robowflex</namespace>
   </compound>
   <compound kind="file">
@@ -596,6 +618,13 @@
       <anchor>a6e8c3dcd0a542c8923fe4eea954d6948</anchor>
       <arglist>(const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
+    <member kind="function">
+      <type>Eigen::Quaterniond</type>
+      <name>offsetOrientation</name>
+      <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
+      <anchor>aaf266eedc3516efb48d44d8e85e51480</anchor>
+      <arglist>(const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;axis, double value)</arglist>
+    </member>
   </compound>
   <compound kind="file">
     <name>util.h</name>
@@ -645,6 +674,20 @@
       <type>int</type>
       <name>main</name>
       <anchorfile>hdf5__io_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>plugin_io.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/scripts/</path>
+    <filename>plugin__io_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="plugin_8h" name="plugin.h" local="no" imported="no">robowflex_library/io/plugin.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>plugin__io_8cpp.html</anchorfile>
       <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
       <arglist>(int argc, char **argv)</arglist>
     </member>
@@ -907,6 +950,9 @@
     <filename>visualization_8cpp</filename>
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="tf_8h" name="tf.h" local="no" imported="no">robowflex_library/tf.h</includes>
+    <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
+    <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
   </compound>
   <compound kind="file">
@@ -1095,13 +1141,38 @@
     <includes id="services_8h" name="services.h" local="no" imported="no">robowflex_movegroup/services.h</includes>
   </compound>
   <compound kind="file">
-    <name>ompl.h</name>
+    <name>ompl_interface.h</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_ompl/include/robowflex_ompl/</path>
-    <filename>ompl_8h</filename>
+    <filename>ompl__interface_8h</filename>
     <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
     <class kind="class">robowflex::OMPL::OMPLInterfacePlanner</class>
     <namespace>robowflex</namespace>
     <namespace>robowflex::OMPL</namespace>
+  </compound>
+  <compound kind="file">
+    <name>fetch_ompl_interface.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_ompl/scripts/</path>
+    <filename>fetch__ompl__interface_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
+    <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
+    <includes id="ompl__interface_8h" name="ompl_interface.h" local="no" imported="no">robowflex_ompl/ompl_interface.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>fetch__ompl__interface_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const std::string</type>
+      <name>GROUP</name>
+      <anchorfile>fetch__ompl__interface_8cpp.html</anchorfile>
+      <anchor>a892b6dd5a49224f3e7646b914c4462fb</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="file">
     <name>ur5_ompl_interface.cpp</name>
@@ -1113,7 +1184,7 @@
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
-    <includes id="ompl_8h" name="ompl.h" local="no" imported="no">robowflex_ompl/ompl.h</includes>
+    <includes id="ompl__interface_8h" name="ompl_interface.h" local="no" imported="no">robowflex_ompl/ompl_interface.h</includes>
     <member kind="function">
       <type>int</type>
       <name>main</name>
@@ -1130,7 +1201,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
-    <includes id="ompl_8h" name="ompl.h" local="no" imported="no">robowflex_ompl/ompl.h</includes>
+    <includes id="ompl__interface_8h" name="ompl_interface.h" local="no" imported="no">robowflex_ompl/ompl_interface.h</includes>
   </compound>
   <compound kind="file">
     <name>conversions.h</name>
@@ -1745,14 +1816,35 @@
       <type>const shapes::ShapePtr &amp;</type>
       <name>getShape</name>
       <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
-      <anchor>a1267d2f3c3226c04ada7936e8286b04a</anchor>
+      <anchor>aa9d7ded50c02279c5287a74297470958</anchor>
       <arglist>() const</arglist>
     </member>
     <member kind="function">
       <type>const bodies::BodyPtr &amp;</type>
       <name>getBody</name>
       <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
-      <anchor>a0e8c7c3c948151dbf4f1aeee805561ae</anchor>
+      <anchor>ae869d1977dc684258a619bef2869568c</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>ShapeType::Type</type>
+      <name>getType</name>
+      <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
+      <anchor>aba715d31bfc37f781fb53d48146c35fb</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>const std::string &amp;</type>
+      <name>getResource</name>
+      <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
+      <anchor>a000625d72ff932d5b2421f81739d27a2</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>const Eigen::Vector3d &amp;</type>
+      <name>getDimensions</name>
+      <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
+      <anchor>a88a22b97a61eadb0114d27a04def1688</anchor>
       <arglist>() const</arglist>
     </member>
     <member kind="function" static="yes">
@@ -1782,6 +1874,13 @@
       <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
       <anchor>a7aee3a61fc6ade3599cc82a4a449718b</anchor>
       <arglist>(double radius, double length)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static GeometryPtr</type>
+      <name>makeSolidPrimitive</name>
+      <anchorfile>classrobowflex_1_1Geometry.html</anchorfile>
+      <anchor>aeda017855d539199fb505030cd16ad3b</anchor>
+      <arglist>(const shape_msgs::SolidPrimitive &amp;msg)</arglist>
     </member>
     <member kind="function" static="yes">
       <type>static GeometryPtr</type>
@@ -2440,6 +2539,101 @@
     </member>
   </compound>
   <compound kind="class">
+    <name>robowflex::IO::PluginManager</name>
+    <filename>classrobowflex_1_1IO_1_1PluginManager.html</filename>
+    <member kind="function">
+      <type></type>
+      <name>PluginManager</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a05e91d0c45b8ec3200d26442f5fa4916</anchor>
+      <arglist>(PluginManager const &amp;)=delete</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>operator=</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>ac9fdd6cc75d714b0c2f7126c7545797a</anchor>
+      <arglist>(PluginManager const &amp;)=delete</arglist>
+    </member>
+    <member kind="function">
+      <type>std::shared_ptr&lt; T &gt;</type>
+      <name>loadPlugin</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a3195d2257d0c29d11e0078f912d55185</anchor>
+      <arglist>(const std::string &amp;package, const std::string &amp;plugin)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static PluginManager &amp;</type>
+      <name>getInstance</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>ab139cc22f989cc09d53bbbc84c9c4059</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::shared_ptr&lt; T &gt;</type>
+      <name>load</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a25d8e1c44a7e325d812de6a237f27a3c</anchor>
+      <arglist>(const std::string &amp;package, const std::string &amp;plugin)</arglist>
+    </member>
+    <member kind="typedef" protection="private">
+      <type>pluginlib::ClassLoader&lt; T &gt;</type>
+      <name>Loader</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a28c8f73f718d36826fed45cabca1314c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef" protection="private">
+      <type>std::shared_ptr&lt; Loader&lt; T &gt; &gt;</type>
+      <name>LoaderPtr</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a243127b734cbac138d70391525a17a88</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef" protection="private">
+      <type>pluginlib::ClassLoaderBase</type>
+      <name>BaseLoader</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>af9ede2e4fed2cf6ccb72f2fad73409b5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef" protection="private">
+      <type>std::shared_ptr&lt; BaseLoader &gt;</type>
+      <name>BaseLoaderPtr</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a8f00b2823e59cfc23ffbb0d73725fed8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type></type>
+      <name>PluginManager</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a27baf8e4e44ab624bdb8e67d14f242b0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function" protection="private">
+      <type>LoaderPtr&lt; T &gt;</type>
+      <name>getLoader</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a940ce54e3decee64df97951fc6059df7</anchor>
+      <arglist>(const std::string &amp;package)</arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::mutex</type>
+      <name>mutex_</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a56325b19f33776aacc6e1370c097e184</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" protection="private">
+      <type>std::map&lt; std::pair&lt; std::string, std::string &gt;, BaseLoaderPtr &gt;</type>
+      <name>loaders_</name>
+      <anchorfile>classrobowflex_1_1IO_1_1PluginManager.html</anchorfile>
+      <anchor>a25ede8ca4dbadb6f316a3259ead5dd2e</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="class">
     <name>robowflex::IO::RVIZHelper</name>
     <filename>classrobowflex_1_1IO_1_1RVIZHelper.html</filename>
     <member kind="function">
@@ -2465,10 +2659,59 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>removeScene</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a9ecd904c496ce66c8a8616f95b842074</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>updateScene</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
       <anchor>ac7c28b2d8923603632231b7fee37e4b9</anchor>
       <arglist>(const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>ac17baa538e19ad09c7eb7effa4eba1f4</anchor>
+      <arglist>(float x, float y, float z)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGeometryMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a0268a09df738639424cc5a804fd5347c</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addArrowMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a1b441a171b9e27c393136d86b8334df0</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addTextMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a2ff9639010262d0d1b5f8f7acab4db55</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGoalMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>ae5f38039a544f4da7280f9cac531dc24</anchor>
+      <arglist>(const std::string &amp;name, const MotionRequestBuilder &amp;request)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>removeMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a158c86f3d75a9b45ff10bcddf7d81835</anchor>
+      <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2477,12 +2720,12 @@
       <anchor>a947e2ed5b8132f76bb3fd875f7d978b2</anchor>
       <arglist>()</arglist>
     </member>
-    <member kind="function">
+    <member kind="function" protection="private">
       <type>void</type>
-      <name>addMarker</name>
+      <name>fillMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>ac17baa538e19ad09c7eb7effa4eba1f4</anchor>
-      <arglist>(float x, float y, float z)</arglist>
+      <anchor>a51782a29f3015ce81c0930f5d9c0e083</anchor>
+      <arglist>(visualization_msgs::Marker &amp;marker, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale) const</arglist>
     </member>
     <member kind="variable" protection="private">
       <type>RobotConstPtr</type>
@@ -2520,11 +2763,88 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>std::map&lt; std::string, visualization_msgs::Marker &gt;</type>
+      <type>std::multimap&lt; std::string, visualization_msgs::Marker &gt;</type>
       <name>markers_</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a7d8ac999887d3a2c9c5131b79e1b69ab</anchor>
+      <anchor>a2f34ec6c15e8212eaf02335744d6e0d1</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>updateTrajectory</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>af15ed6584a83c9abbdaee0a37e13e448</anchor>
+      <arglist>(const planning_interface::MotionPlanResponse &amp;response)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>updateTrajectories</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>aa1769a8fed2faf24be83dc9ca2e85577</anchor>
+      <arglist>(const std::vector&lt; planning_interface::MotionPlanResponse &gt; &amp;responses)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>removeScene</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a9ecd904c496ce66c8a8616f95b842074</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>updateScene</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>ac7c28b2d8923603632231b7fee37e4b9</anchor>
+      <arglist>(const SceneConstPtr &amp;scene)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>ac17baa538e19ad09c7eb7effa4eba1f4</anchor>
+      <arglist>(float x, float y, float z)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGeometryMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a0268a09df738639424cc5a804fd5347c</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addArrowMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a1b441a171b9e27c393136d86b8334df0</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addTextMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a2ff9639010262d0d1b5f8f7acab4db55</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGoalMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>ae5f38039a544f4da7280f9cac531dc24</anchor>
+      <arglist>(const std::string &amp;name, const MotionRequestBuilder &amp;request)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>removeMarker</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a158c86f3d75a9b45ff10bcddf7d81835</anchor>
+      <arglist>(const std::string &amp;name)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>updateMarkers</name>
+      <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
+      <anchor>a947e2ed5b8132f76bb3fd875f7d978b2</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -2655,10 +2975,17 @@
       <arglist>(double allowed_planning_time)</arglist>
     </member>
     <member kind="function">
-      <type>const planning_interface::MotionPlanRequest &amp;</type>
+      <type>planning_interface::MotionPlanRequest &amp;</type>
       <name>getRequest</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>a716058f146f91d6039ef08bff8d97027</anchor>
+      <anchor>ad189a2de452be4c113a35d67a21e9875</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>const planning_interface::MotionPlanRequest &amp;</type>
+      <name>getRequestConst</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>af2049a8b3da4b46935a61bc5220e008d</anchor>
       <arglist>() const</arglist>
     </member>
     <member kind="function">
@@ -3054,10 +3381,10 @@
       <arglist>() const override</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>ompl_interface::OMPLInterface</type>
+      <type>std::unique_ptr&lt; ompl_interface::OMPLInterface &gt;</type>
       <name>interface_</name>
       <anchorfile>classrobowflex_1_1OMPL_1_1OMPLInterfacePlanner.html</anchorfile>
-      <anchor>a537c4cc9a4f2fd61b6b8e716e7f169c6</anchor>
+      <anchor>aae016baa519b4f1426862d64079f9296</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
@@ -5003,13 +5330,6 @@
     <class kind="class">robowflex::UR5RobotConstPtr</class>
     <class kind="class">robowflex::UR5RobotPtr</class>
     <member kind="function">
-      <type>std::map&lt; std::string, double &gt;</type>
-      <name>getFinalJointPositions</name>
-      <anchorfile>namespacerobowflex.html</anchorfile>
-      <anchor>acf413cf9ebc78076a09d96a90fade076</anchor>
-      <arglist>(const planning_interface::MotionPlanResponse &amp;response)</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>explode</name>
       <anchorfile>namespacerobowflex.html</anchorfile>
@@ -5046,6 +5366,7 @@
     <class kind="class">robowflex::IO::Handler</class>
     <class kind="class">robowflex::IO::HDF5Data</class>
     <class kind="class">robowflex::IO::HDF5File</class>
+    <class kind="class">robowflex::IO::PluginManager</class>
     <class kind="class">robowflex::IO::RVIZHelper</class>
     <member kind="function">
       <type>bool</type>
@@ -5279,6 +5600,20 @@
       <anchor>aa0bf498d8224551c7c1f238d77aeb8ec</anchor>
       <arglist>(const robot_trajectory::RobotTrajectory &amp;path, const PathMetric &amp;metric={})</arglist>
     </member>
+    <member kind="function">
+      <type>std::map&lt; std::string, double &gt;</type>
+      <name>getFinalPositions</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a2c5f2241a85688015b83c82942601251</anchor>
+      <arglist>(const robot_trajectory::RobotTrajectory &amp;path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>computeTimeParameterization</name>
+      <anchorfile>namespacerobowflex_1_1path.html</anchorfile>
+      <anchor>a6df33ade43a25633860b2c4ac12f36d8</anchor>
+      <arglist>(robot_trajectory::RobotTrajectory &amp;path, double max_velocity=1., double max_acceleration=1.)</arglist>
+    </member>
   </compound>
   <compound kind="namespace">
     <name>robowflex::TF</name>
@@ -5353,6 +5688,13 @@
       <anchor>a6e8c3dcd0a542c8923fe4eea954d6948</anchor>
       <arglist>(const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
+    <member kind="function">
+      <type>Eigen::Quaterniond</type>
+      <name>offsetOrientation</name>
+      <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
+      <anchor>aaf266eedc3516efb48d44d8e85e51480</anchor>
+      <arglist>(const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;axis, double value)</arglist>
+    </member>
   </compound>
   <compound kind="namespace">
     <name>YAML</name>
@@ -5372,6 +5714,11 @@
     <name>doc</name>
     <title>Robowflex Documentation (a How-To)</title>
     <filename>doc</filename>
+  </compound>
+  <compound kind="page">
+    <name>rviz</name>
+    <title>Live Visualization with RViz</title>
+    <filename>rviz</filename>
   </compound>
   <compound kind="page">
     <name>scripts</name>
