@@ -16,6 +16,7 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/io/visualization.h>
 
 using namespace robowflex;

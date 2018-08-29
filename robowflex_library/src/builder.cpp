@@ -10,6 +10,7 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 
 using namespace robowflex;
 
@@ -107,6 +108,12 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 
     request_.goal_constraints.clear();
     request_.goal_constraints.push_back(constraints);
+}
+
+void MotionRequestBuilder::addGoalCylindricalTile(const std::string &ee_name, const std::string &base_name,
+                                                  const Eigen::Affine3d &pose, const GeometryConstPtr &region,
+                                                  double distance, unsigned int n)
+{
 }
 
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)

@@ -4,6 +4,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
