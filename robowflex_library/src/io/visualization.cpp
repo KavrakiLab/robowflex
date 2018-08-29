@@ -209,7 +209,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
                 auto frame = pose * TF::poseMsgToEigen(solid_pose);
                 addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
-                addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.1),
+                addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.2),
                               0.05);
 
                 for (const auto &og : goal.orientation_constraints)

@@ -79,10 +79,40 @@ namespace robowflex
                            const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
                            const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
-        /***/
-        void addGoalCylindricalTile(const std::string &ee_name, const std::string &base_name,
-                                    const Eigen::Affine3d &pose, const GeometryConstPtr &region,
-                                    double distance, unsigned int n);
+        /** \brief Tiles a \a region around a \a pose in \a base_name for the end-effector \a ee_name. The \a
+         * region is placed at \a offset from \a pose, and \a n copies are placed evenly rotated about \a
+         * axis.
+         *  \param[in] ee_name The name of the end-effector link.
+         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] pose The pose of the frame to be rotated about.
+         *  \param[in] geometry The geometry describing the position constraint.
+         *  \param[in] orientation The desired orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         *  \param[in] offset Offset of the goal region from \a pose.
+         *  \param[in] axis Axis to rotation the goal region about in \a pose.
+         *  \param[in] n Number of rotations (evenly divided around the circle).
+         */
+        void addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
+                               const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
+                               const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                               const Eigen::Affine3d &offset, const Eigen::Vector3d &axis, unsigned int n);
+
+        /** \brief Adds a set of regions to grasp a cylinder from the side.
+         *  \param[in] ee_name The name of the end-effector link.
+         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] pose The pose of the frame to be rotated about.
+         *  \param[in] cylinder The cylinder to grasp.
+         *  \param[in] distance The distance from the cylinder to place the regions.
+         *  \param[in] depth The depth of boxes to create.
+         *  \param[in] n The number of regions to create.
+         */
+        void addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
+                                  const Eigen::Affine3d &pose, const GeometryConstPtr &cylinder,
+                                  double distance, double depth, unsigned int n);
+
+        /** \brief Clears all goals.
+         */
+        void clearGoals();
 
         /** \} */
 

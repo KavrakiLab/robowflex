@@ -98,6 +98,7 @@ target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 ##
 
 add_script(ur5_test)
+add_script(ur5_cylinder)
 add_script(ur5_benchmark)
 add_script(ur5_io)
 add_script(ur5_pool)
