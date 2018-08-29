@@ -26,6 +26,12 @@ Basic IO testing using the UR5. Shows robowflex::IO::Bag and other IO functions.
 - [fetch_test.cpp](fetch__test_8cpp_source.html)
 Demonstration of motion planning using the Fetch along with its unique functions.
 
+- [fetch_benchmark.cpp](fetch__benchmark_8cpp_source.html)
+Default benchmarking with the Fetch.
+
+- [fetch_visualization.cpp](fetch__visualization_8cpp_source.html)
+Demonstration of robowflex::IO::RVIZHelper to display planning in RViz with robowflex.
+
 ### Robonaut 2 Tests
 - [r2_test.cpp](r2__test_8cpp_source.html)
 Demonstration of motion planning from a YAML file and using a robowflex::MotionRequestBuilder for Robonaut 2.

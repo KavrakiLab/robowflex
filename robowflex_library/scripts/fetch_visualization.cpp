@@ -13,7 +13,7 @@ using namespace robowflex;
 
 static const std::string GROUP = "arm_with_torso";
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // Startup ROS
     ROS ros(argc, argv);
@@ -21,15 +21,6 @@ int main(int argc, char** argv)
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
-
-    // Sets the Fetch's base pose.
-    // fetch->setBasePose(1.5, 0.0, 0.0);
-
-    // Sets the Fetch's head pose to look at a point.
-    // fetch->pointHead({2, 1, 1.5});
-
-    // Opens the Fetch's gripper.
-    fetch->openGripper();
 
     // Dump the geometry information for visualization.
     fetch->dumpGeometry("fetch.yml");
@@ -57,31 +48,10 @@ int main(int argc, char** argv)
     fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
     request->setStartConfiguration(fetch->getScratchState());
 
-    // Cube1
-    //    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    //    pose.translate(Eigen::Vector3d{0.0, 0.6, 0.92});
-    //    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    //    auto region = Geometry::makeSphere(0.05);
-    //    request->setGoalRegion("wrist_roll_link", "world",  // links
-    //                           pose, region,                // position
-    //                           orn, {0.1, 0.1, 0.1}         // orientation
-    //                           );
-
-    // Cube2
-    //    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    //    pose.translate(Eigen::Vector3d{0.2, 0.6, 0.92});
-    //    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    //    auto region = Geometry::makeSphere(0.05);
-    //    request->setGoalRegion("wrist_roll_link", "world",  // links
-    //                           pose, region,                // position
-    //                           orn, {0.1, 0.1, 0.1}         // orientation
-    //                           );
-
     // Create a motion planning request with a pose goal. Cube3
     Eigen::Affine3d pose = Eigen::Affine3d::Identity();
     pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
     Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    // Eigen::Quaterniond orn{0.0, 0.707106781, 0.0, -0.707106781};
     auto region = Geometry::makeSphere(0.01);
     request->setGoalRegion("wrist_roll_link", "world",  // links
                            pose, region,                // position

@@ -13,8 +13,7 @@ const std::string FetchRobot::LIMITS{"package://fetch_moveit_config/config/joint
 const std::string FetchRobot::KINEMATICS{"package://fetch_moveit_config/config/kinematics.yaml"};
 
 const std::string  //
-    OMPL::FetchOMPLPipelinePlanner::CONFIG{"package://fetch_moveit_config/config/"
-                                           "ompl_planning.yaml"};
+    OMPL::FetchOMPLPipelinePlanner::CONFIG{"package://fetch_moveit_config/config/ompl_planning.yaml"};
 
 FetchRobot::FetchRobot() : Robot("fetch")
 {
@@ -22,18 +21,19 @@ FetchRobot::FetchRobot() : Robot("fetch")
 
 bool FetchRobot::initialize()
 {
-    setSRDFPostProcessFunction(
-        std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
+    setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
 
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
                    loadKinematics("arm") && loadKinematics("arm_with_torso");
 
+    FetchRobot::openGripper();
+
     return success;
 }
 
-bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument& doc)
+bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 {
-    tinyxml2::XMLElement* virtual_joint = doc.NewElement("virtual_joint");
+    tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
     virtual_joint->SetAttribute("name", "base_joint");
     virtual_joint->SetAttribute("type", "planar");
     virtual_joint->SetAttribute("parent_frame", "world");
@@ -44,7 +44,7 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument& doc)
     return true;
 }
 
-void FetchRobot::pointHead(const Eigen::Vector3d& point)
+void FetchRobot::pointHead(const Eigen::Vector3d &point)
 {
     const Eigen::Affine3d point_pose = Eigen::Affine3d(Eigen::Translation3d(point));
     const Eigen::Affine3d point_pan = getLinkTF("head_pan_link").inverse() * point_pose;
@@ -54,11 +54,9 @@ void FetchRobot::pointHead(const Eigen::Vector3d& point)
     const double tilt = -atan2(point_tilt.translation().z(),
                                hypot(point_tilt.translation().x(), point_tilt.translation().y()));
 
-    const std::map<std::string, double> angles = {{"head_pan_joint", pan},
-                                                  {"head_tilt_joint", tilt}};
+    const std::map<std::string, double> angles = {{"head_pan_joint", pan}, {"head_tilt_joint", tilt}};
 
-    scratch_->setVariablePositions(angles);
-    scratch_->update();
+    Robot::setState(angles);
 }
 
 void FetchRobot::openGripper()
@@ -66,8 +64,7 @@ void FetchRobot::openGripper()
     const std::map<std::string, double> angles = {{"l_gripper_finger_joint", 0.04},
                                                   {"r_gripper_finger_joint", 0.04}};
 
-    scratch_->setVariablePositions(angles);
-    scratch_->update();
+    Robot::setState(angles);
 }
 
 void FetchRobot::closeGripper()
@@ -75,8 +72,7 @@ void FetchRobot::closeGripper()
     const std::map<std::string, double> angles = {{"l_gripper_finger_joint", 0.0},
                                                   {"r_gripper_finger_joint", 0.0}};
 
-    scratch_->setVariablePositions(angles);
-    scratch_->update();
+    Robot::setState(angles);
 }
 
 void FetchRobot::setBasePose(double x, double y, double theta)
@@ -88,16 +84,14 @@ void FetchRobot::setBasePose(double x, double y, double theta)
     scratch_->update();
 }
 
-OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr& robot,
-                                                         const std::string& name)
+OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : OMPLPipelinePlanner(robot, name)
 {
 }
 
-bool OMPL::FetchOMPLPipelinePlanner::initialize(const Settings& settings,
-                                                const std::string& config_file,
-                                                const std::string& plugin,
-                                                const std::vector<std::string>& adapters)
+bool OMPL::FetchOMPLPipelinePlanner::initialize(const Settings &settings, const std::string &config_file,
+                                                const std::string &plugin,
+                                                const std::vector<std::string> &adapters)
 {
     return OMPLPipelinePlanner::initialize(config_file, settings, plugin, adapters);
 }
