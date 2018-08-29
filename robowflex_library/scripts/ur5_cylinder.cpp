@@ -26,9 +26,14 @@ int main(int argc, char **argv)
     ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
+    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
+
+    auto cylinder = Geometry::makeCylinder(0.05, 0.1);
+
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(ur5);
-    scene->fromYAMLFile("package://robowflex_library/yaml/test.yml");
+    scene->updateCollisionObject("cylinder", cylinder, pose);
 
     // Visualize the scene.
     rviz.updateScene(scene);
@@ -41,16 +46,10 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
 
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
-    pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
-
-    auto cylinder = Geometry::makeCylinder(0.05, 0.1);
-
     request.addCylinderSideGrasp("ee_link", "world",  //
                                  pose, cylinder,      //
-                                 0.05, 0.02, 8);      //
+                                 0.1, 0.04, 16);      //
 
-    rviz.addGeometryMarker("cylinder", cylinder, "map", pose);
     rviz.addGoalMarker("goal", request);
     rviz.updateMarkers();
 
