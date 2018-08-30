@@ -69,7 +69,6 @@ int main(int argc, char **argv)
     std::cin.get();
 
     rviz.removeMarker("goal");
-    rviz.removeMarker("cylinder");
     rviz.updateMarkers();
 
     rviz.removeScene();
