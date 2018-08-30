@@ -19,6 +19,9 @@ Using robowflex::PoolPlanner for asynchronous motion planning.
 - [ur5_visualization.cpp](ur5__visualization_8cpp_source.html)
 Demonstration of robowflex::IO::RVIZHelper to display planning in RViz with robowflex.
 
+- [ur5_cylinder.cpp](ur5__cylinder_8cpp_source.html)
+A demonstration of robowflex::MotionRequestBuilder::addCylinderSideGrasp(), also visualized with robowflex::IO::RVIZHelper.
+
 - [ur5_io.cpp](ur5__io_8cpp_source.html)
 Basic IO testing using the UR5. Shows robowflex::IO::Bag and other IO functions.
 

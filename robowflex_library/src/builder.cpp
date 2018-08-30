@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <boost/math/constants/constants.hpp>
+
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
@@ -10,6 +12,8 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/builder.h>
 
 using namespace robowflex;
 
@@ -90,7 +94,6 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 
 void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
 {
-    request_.goal_constraints.clear();
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
@@ -105,8 +108,48 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
     constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 
-    request_.goal_constraints.clear();
     request_.goal_constraints.push_back(constraints);
+}
+
+void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
+                                             const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
+                                             const Eigen::Quaterniond &orientation,
+                                             const Eigen::Vector3d &tolerances, const Eigen::Affine3d &offset,
+                                             const Eigen::Vector3d &axis, unsigned int n)
+{
+    double pi2 = 2 * boost::math::constants::pi<double>();
+
+    for (double angle = 0; angle < pi2; angle += pi2 / n)
+    {
+        Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
+        Eigen::Affine3d newPose = pose * rotation * offset;
+        Eigen::Quaterniond newOrientation(rotation * orientation);
+
+        setGoalRegion(ee_name, base_name, newPose, geometry, newOrientation, tolerances);
+    }
+}
+
+void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
+                                                const Eigen::Affine3d &pose, const GeometryConstPtr &cylinder,
+                                                double distance, double depth, unsigned int n)
+{
+    // Grasping region to tile
+    auto box = Geometry::makeBox(depth, depth, cylinder->getDimensions()[1]);
+    Eigen::Affine3d offset(Eigen::Translation3d(cylinder->getDimensions()[0] + distance, 0, 0));
+
+    Eigen::Quaterniond orientation =
+        Eigen::AngleAxisd(-boost::math::constants::pi<double>(), Eigen::Vector3d::UnitX())  //
+        * Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY())                                    //
+        * Eigen::AngleAxisd(boost::math::constants::pi<double>(), Eigen::Vector3d::UnitZ());
+
+    addGoalRotaryTile(ee_name, base_name,                          //
+                      pose, box, orientation, {0.01, 0.01, 0.01},  //
+                      offset, Eigen::Vector3d::UnitZ(), n);
+}
+
+void MotionRequestBuilder::clearGoals()
+{
+    request_.goal_constraints.clear();
 }
 
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
