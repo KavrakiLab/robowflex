@@ -186,20 +186,23 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
 {
     const auto &goals = request.getRequestConst().goal_constraints;
-    const auto &base_frame = "map";
+    const auto &base_frame = "map";  // Markers must be placed in "map" (default RViz frame)
 
+    // Iterate over each goal (an "or"-ing together of different constraints)
     for (const auto &goal : goals)
     {
-        auto color = getRandomColor();
-        color[3] = 0.7;  // Make slightly transparent
+        auto color = getRandomColor();  // Use the same color for all elements of this goal
+        color[3] = 0.7;                 // Make slightly transparent
 
         for (const auto &pg : goal.position_constraints)
         {
             const auto &pname = pg.link_name;
 
+            // Get global transform of position constraint
             Eigen::Affine3d pose = robot_->getLinkTF(pg.header.frame_id);
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
 
+            // Iterate over all position primitives and their poses
             for (const auto &primitive :
                  boost::combine(pg.constraint_region.primitives, pg.constraint_region.primitive_poses))
             {
@@ -207,11 +210,13 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                 geometry_msgs::Pose solid_pose;
                 boost::tie(solid, solid_pose) = primitive;
 
+                // Compute transform of bounding volume
                 auto frame = pose * TF::poseMsgToEigen(solid_pose);
-                addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
-                // addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.2),
-                //               0.05);
 
+                // Add geometry marker associated with this solid primitive
+                addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
+
+                // Iterate over all orientation constraints for the same link as the position constraint
                 for (const auto &og : goal.orientation_constraints)
                 {
                     const auto &oname = og.link_name;
@@ -219,24 +224,30 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                         continue;
 
                     auto q = TF::quaternionMsgToEigen(og.orientation);
-                    Eigen::Affine3d qframe(Eigen::Translation3d(frame.translation()));
 
-                    Eigen::Vector3d scale = {0.1, 0.008, 0.003};
+                    // Arrow display frame.
+                    Eigen::Affine3d qframe = Eigen::Affine3d::Identity();
+                    qframe.translate(frame.translation()); // Place arrows at the origin of the position volume
+
+                    Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
+
+                    // Display primary orientation slightly larger
                     addArrowMarker(name, base_frame, qframe * q, color, 1.5 * scale);
 
+                    // Zip together tolerances and axes, and iterate over them to display orientation bounds
                     const auto tolerances = {og.absolute_x_axis_tolerance,  //
                                              og.absolute_y_axis_tolerance,  //
                                              og.absolute_z_axis_tolerance};
                     const auto axes = {Eigen::Vector3d::UnitX(),  //
                                        Eigen::Vector3d::UnitY(),  //
                                        Eigen::Vector3d::UnitZ()};
-
                     for (const auto &angles : boost::combine(tolerances, axes))
                     {
                         double value;
                         Eigen::Vector3d axis;
                         boost::tie(value, axis) = angles;
 
+                        // Show boundaries of tolerances as smaller arrows.
                         auto q1 = TF::offsetOrientation(q, axis, value);
                         addArrowMarker(name, base_frame, qframe * q1, color, scale);
 

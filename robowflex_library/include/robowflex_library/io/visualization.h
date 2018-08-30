@@ -106,7 +106,8 @@ namespace robowflex
                                const std::string &base_frame, const Eigen::Affine3d &pose, double height,
                                const Eigen::Vector4d &color = {1, 1, 1, 1});
 
-            /** \brief Adds the current goal of the motion request builder as a marker in the marker array
+            /** \brief Adds the current goal of the motion request builder as a
+             * set of markers in the marker array.
              *  \param[in] name Name of the marker(s).
              *  \param[in] request Request to add goal of as a marker.
              */

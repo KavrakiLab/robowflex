@@ -69,7 +69,7 @@ namespace robowflex
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
          *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
          *  \param[in] orientation The desired orientation.
@@ -79,17 +79,17 @@ namespace robowflex
                            const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
                            const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
 
-        /** \brief Tiles a \a region around a \a pose in \a base_name for the end-effector \a ee_name. The \a
-         * region is placed at \a offset from \a pose, and \a n copies are placed evenly rotated about \a
-         * axis.
+        /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a ee_name.
+         * The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly rotated about
+         * \a axis. The desired \a orientation is also rotated about the axis and set for each copy.
          *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of the frame to be rotated about.
          *  \param[in] geometry The geometry describing the position constraint.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
-         *  \param[in] offset Offset of the goal region from \a pose.
-         *  \param[in] axis Axis to rotation the goal region about in \a pose.
+         *  \param[in] offset Offset of the goal \a geometry from \a pose.
+         *  \param[in] axis Axis to rotation the goal \a geometry and \a orientation about in \a pose.
          *  \param[in] n Number of rotations (evenly divided around the circle).
          */
         void addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
@@ -97,9 +97,10 @@ namespace robowflex
                                const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
                                const Eigen::Affine3d &offset, const Eigen::Vector3d &axis, unsigned int n);
 
-        /** \brief Adds a set of regions to grasp a cylinder from the side.
+        /** \brief Adds a set of regions to grasp a cylinder from the side. This function assumes the X-axis
+         * of the end-effector frame \a ee_name points "forward" for grasping.
          *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a pose.
          *  \param[in] pose The pose of the frame to be rotated about.
          *  \param[in] cylinder The cylinder to grasp.
          *  \param[in] distance The distance from the cylinder to place the regions.
@@ -123,7 +124,7 @@ namespace robowflex
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
          * \param[in] ee_name The name of the end-effector link.
-         * \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
          *  \param[in] orientation The desired orientation.
@@ -136,7 +137,7 @@ namespace robowflex
         /** \brief Set a position constraint on the path.
          *  Sets the position constraint from \a geometry at a pose \a pose.
          *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a pose.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
          */
@@ -146,7 +147,7 @@ namespace robowflex
         /** \brief Set an orientation constraint on the path.
          *  Sets the orientation constraint from \a orientation and XYZ Euler angle tolerances \a tolerances.
          *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The frame of pose and orientation.
+         *  \param[in] base_name The name of the frame of reference of \a orientation.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          */
