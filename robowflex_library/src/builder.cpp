@@ -123,7 +123,7 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
     {
         Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
         Eigen::Affine3d newPose = pose * rotation * offset;
-        Eigen::Quaterniond newOrientation = orientation;
+        Eigen::Quaterniond newOrientation(rotation * orientation);
 
         setGoalRegion(ee_name, base_name, newPose, geometry, newOrientation, tolerances);
     }

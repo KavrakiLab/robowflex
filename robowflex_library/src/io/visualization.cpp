@@ -158,13 +158,13 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             break;
         case Geometry::ShapeType::SPHERE:
             marker.type = visualization_msgs::Marker::SPHERE;
-            scale[1] = scale[2] = scale[0];  // Copy radius to other dimensions
+            scale[1] = scale[2] = 2 * scale[0];  // Copy radius to other dimensions
             break;
         case Geometry::ShapeType::CYLINDER:
             marker.type = visualization_msgs::Marker::CYLINDER;
             {
                 auto scale2 = scale;
-                scale[0] = scale[1] = scale2[0];  // Copy radius to first two (x & y)
+                scale[0] = scale[1] = 2 * scale2[0];  // Copy radius to first two (x & y)
                 scale[2] = scale2[1];
             }
             break;
@@ -209,8 +209,8 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
                 auto frame = pose * TF::poseMsgToEigen(solid_pose);
                 addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
-                addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.2),
-                              0.05);
+                // addTextMarker(name, name + " " + pname, base_frame, frame * Eigen::Translation3d(0, 0, 0.2),
+                //               0.05);
 
                 for (const auto &og : goal.orientation_constraints)
                 {
@@ -219,9 +219,10 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                         continue;
 
                     auto q = TF::quaternionMsgToEigen(og.orientation);
+                    Eigen::Affine3d qframe(Eigen::Translation3d(frame.translation()));
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};
-                    addArrowMarker(name, base_frame, frame * q, color, 1.5 * scale);
+                    addArrowMarker(name, base_frame, qframe * q, color, 1.5 * scale);
 
                     const auto tolerances = {og.absolute_x_axis_tolerance,  //
                                              og.absolute_y_axis_tolerance,  //
@@ -237,10 +238,10 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                         boost::tie(value, axis) = angles;
 
                         auto q1 = TF::offsetOrientation(q, axis, value);
-                        addArrowMarker(name, base_frame, frame * q1, color, scale);
+                        addArrowMarker(name, base_frame, qframe * q1, color, scale);
 
                         auto q2 = TF::offsetOrientation(q, axis, -value);
-                        addArrowMarker(name, base_frame, frame * q2, color, scale);
+                        addArrowMarker(name, base_frame, qframe * q2, color, scale);
                     }
                 }
             }
