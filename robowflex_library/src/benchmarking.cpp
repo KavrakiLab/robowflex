@@ -237,22 +237,22 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "Running on " << IO::getHostname() << std::endl;    // hostname
     out << "Starting at " << IO::getDate() << std::endl;       // date
 
-    // setup
-    moveit_msgs::PlanningScene scene_msg;
+    // // setup
+    // moveit_msgs::PlanningScene scene_msg;
     const auto &request = results.builder->getRequestConst();
 
-    results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
+    // results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
-    YAML::Node yaml;
-    yaml["scene"] = IO::toNode(scene_msg);
-    yaml["request"] = IO::toNode(request);
+    // YAML::Node yaml;
+    // yaml["scene"] = IO::toNode(scene_msg);
+    // yaml["request"] = IO::toNode(request);
 
-    YAML::Emitter yaml_out;
-    yaml_out << yaml;
+    // YAML::Emitter yaml_out;
+    // yaml_out << yaml;
 
-    out << "<<<|" << std::endl;
-    out << yaml_out.c_str() << std::endl;
-    out << "|>>>" << std::endl;
+    // out << "<<<|" << std::endl;
+    // out << yaml_out.c_str() << std::endl;
+    // out << "|>>>" << std::endl;
 
     // random seed (fake)
     out << "0 is the random seed" << std::endl;

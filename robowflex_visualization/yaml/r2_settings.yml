@@ -1,0 +1,11 @@
+camera:
+  pose:
+    position: [2.62, -21.68, 2.17]
+    orientation: [0.672, 0.0, 0.0, 0.741]
+  lens: 78.26
+light_settings:
+  use_environment_light: True
+  environment_energy: 1.5
+  use_ambient_occlusion: True
+  ao_factor: 1 
+  samples: 15
