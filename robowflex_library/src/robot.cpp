@@ -425,6 +425,15 @@ const RobotPose Robot::getRelativeLinkTF(const std::string &base, const std::str
     return base_tf.inverse() * target_tf;
 }
 
+bool Robot::toYAMLFile(const std::string &file) const
+{
+    moveit_msgs::RobotState msg;
+    moveit::core::robotStateToRobotStateMsg(*scratch_, msg);
+
+    const auto &yaml = IO::toNode(msg);
+    return IO::YAMLToFile(yaml, file);
+}
+
 namespace
 {
     YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry)
@@ -513,8 +522,13 @@ namespace
 
                 const auto &pose = visual->origin;
 
+                Eigen::Vector3d position(pose.position.x, pose.position.y, pose.position.z);
+                Eigen::Quaterniond rotation(pose.rotation.w,  //
+                                            pose.rotation.x, pose.rotation.y, pose.rotation.z);
+                Eigen::Quaterniond identity = Eigen::Quaterniond::Identity();
+
                 // TODO: Also check if rotation is not zero.
-                if (pose.position.x != 0 || pose.position.y != 0 || pose.position.z != 0)
+                if (position.norm() > 0 || rotation.angularDistance(identity) > 0)
                     addLinkOrigin(node, pose);
             }
         }
@@ -649,7 +663,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             {
                 const auto &link = model_->getLinkModel(link_name);
                 RobotPose tf =
-                    state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
+                    state->getGlobalLinkTransform(link);  // * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }
         }
