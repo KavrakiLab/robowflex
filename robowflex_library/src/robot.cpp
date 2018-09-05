@@ -576,7 +576,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             {
                 const auto &link = model_->getLinkModel(link_name);
                 Eigen::Affine3d tf =
-                    state->getGlobalLinkTransform(link);// * urdfPoseToEigen(urdf_link->visual->origin);
+                    state->getGlobalLinkTransform(link);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }
         }
