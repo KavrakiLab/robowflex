@@ -1,8 +1,8 @@
 camera:
   pose:
-    position: [2.62, -21.68, 2.17]
-    orientation: [0.672, 0.0, 0.0, 0.741]
-  lens: 78.26
+    position: [8.59542, -6.71317, 5.36197]
+    orientation: [0.462, 0.191, 0.331, 0.800]
+  lens: 9.2
 light_settings:
   use_environment_light: True
   environment_energy: 1.5

@@ -250,9 +250,9 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     // YAML::Emitter yaml_out;
     // yaml_out << yaml;
 
-    // out << "<<<|" << std::endl;
+    out << "<<<|" << std::endl;
     // out << yaml_out.c_str() << std::endl;
-    // out << "|>>>" << std::endl;
+    out << "|>>>" << std::endl;
 
     // random seed (fake)
     out << "0 is the random seed" << std::endl;

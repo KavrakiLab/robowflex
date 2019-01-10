@@ -40,6 +40,9 @@ int plan()
 
     for (unsigned int i = 1; i <= 6; ++i)
     {
+        // unsigned int j = i;
+        // i = 1;
+
         // Load a motion planning request (a step with a torso constraint).
         auto request = std::make_shared<MotionRequestBuilder>(planner, "legsandtorso");
         request->fromYAMLFile(
@@ -49,10 +52,9 @@ int plan()
         if (i > 1)
             request->setStartConfiguration(r2->getScratchState());
 
-
         // Set some parameters
-        // request->setConfig("RRTConnect_Constrained");
-        request->setConfig("CBiRRT2");
+        request->setConfig("RRTConnect_Constrained");
+        // request->setConfig("CBiRRT2");
         request->setAllowedPlanningTime(60);
         request->getRequest().num_planning_attempts = 1;
 
@@ -80,6 +82,8 @@ int plan()
 
         // Dump the path to file
         r2->dumpPathTransforms(*res.trajectory_, boost::str(boost::format{"r2_path_%1%.yml"} % i), 60, 0.5);
+
+        // i = j;
     }
 
     // Update the displayed state in the scene

@@ -30,15 +30,15 @@ int planFromFile()
     for (unsigned int i = 1; i <= 6; ++i)
     {
         // Load a motion planning request (a step with a torso constraint).
-        auto request1 = std::make_shared<MotionRequestBuilder>(planner, "legsandtorso");
-        request1->fromYAMLFile(
-            boost::str(boost::format{"package://robowflex_library/yaml/bench/r2_%1%.yml"} % i));
-        request1->setConfig("RRTConnect_Constrained");
-        request1->setAllowedPlanningTime(60);
-        request1->getRequest().num_planning_attempts = 1;
+        // auto request1 = std::make_shared<MotionRequestBuilder>(planner, "legsandtorso");
+        // request1->fromYAMLFile(
+        //     boost::str(boost::format{"package://robowflex_library/yaml/bench/r2_%1%.yml"} % i));
+        // request1->setConfig("RRTConnect_Constrained");
+        // request1->setAllowedPlanningTime(60);
+        // request1->getRequest().num_planning_attempts = 1;
 
-        benchmark.addBenchmarkingRequest(boost::str(boost::format{"RRTConnect Step %1%"} % i), iss_scene,
-                                         planner, request1);
+        // benchmark.addBenchmarkingRequest(boost::str(boost::format{"RRTConnect Step %1%"} % i), iss_scene,
+        //                                  planner, request1);
 
         auto request2 = std::make_shared<MotionRequestBuilder>(planner, "legsandtorso");
         request2->fromYAMLFile(

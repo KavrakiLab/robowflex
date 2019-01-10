@@ -40,9 +40,9 @@ if __name__ == '__main__':
     blender_scene.add_planning_scene('package://robowflex_library/yaml/bench/world.yml')
     blender_render.add_blender_scene('package://robowflex_visualization/yaml/r2_settings.yml')
 
-    box = blender_scene.add_box({'dimensions' : [12, 4, 4]})
+    box = blender_scene.add_box({'dimensions' : [8, 4, 4]})
     box.draw_type = 'WIRE'
-    box.location = (2.5, 0.97, 0.9)
+    box.location = (1.76, 0.97, -0.83)
     box.hide_render = True
 
     mesh = bpy.data.objects["Mesh"]
