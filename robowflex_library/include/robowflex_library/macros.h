@@ -40,9 +40,13 @@
 
 ///
 /// MoveIt Version Checking
+///
 
-/** \brief Tests if this MoveIt version is Melodic or higher */
-#define ROBOWFLEX_MOVEIT_MELODIC MOVEIT_MINOR_VERSION >= 10
+/** \brief Phrase MoveIt version as integer. */
+#define ROBOWFLEX_MOVEIT_VERSION ((MOVEIT_VERSION_MAJOR * 100000u) + (MOVEIT_VERSION_MINOR * 1000u) + (MOVEIT_VERSION_PATCH * 1u))
+
+/** \brief Tests if this MoveIt version is Melodic or higher. */
+#define ROBOWFLEX_MOVEIT_ISOMETRY (ROBOWFLEX_MOVEIT_VERSION >= 0010006)
 
 ///
 /// Compiler Warning Helpers
