@@ -44,9 +44,9 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 
 void FetchRobot::pointHead(const Eigen::Vector3d &point)
 {
-    const Eigen::Isometry3d point_pose = Eigen::Isometry3d(Eigen::Translation3d(point));
-    const Eigen::Isometry3d point_pan = getLinkTF("head_pan_link").inverse() * point_pose;
-    const Eigen::Isometry3d point_tilt = getLinkTF("head_tilt_link").inverse() * point_pose;
+    const RobotPose point_pose = RobotPose(Eigen::Translation3d(point));
+    const RobotPose point_pan = getLinkTF("head_pan_link").inverse() * point_pose;
+    const RobotPose point_tilt = getLinkTF("head_tilt_link").inverse() * point_pose;
 
     const double pan = atan2(point_pan.translation().y(), point_pan.translation().x());
     const double tilt = -atan2(point_tilt.translation().z(),

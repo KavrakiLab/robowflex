@@ -15,6 +15,7 @@
 #include <moveit/robot_state/robot_state.h>               // for robot_state::RobotState
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 
 namespace robowflex
 {
@@ -104,7 +105,7 @@ namespace robowflex
          *  \param[in] pose Pose of object.
          */
         void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                   const Eigen::Isometry3d &pose);
+                                   const RobotPose &pose);
 
         /** \brief Removes an object from the planning scene.
          *  \param[in] name Name of object to remove.
@@ -115,14 +116,14 @@ namespace robowflex
          *  \param[in] name Name of object to get pose for.
          *  \return Pose of the object.
          */
-        Eigen::Isometry3d getObjectPose(const std::string &name);
+        RobotPose getObjectPose(const std::string &name);
 
         /** \brief Get the pose of a particular frame in the scene.
          *  Example, use this to get the pose from /world to /base_link.
          *  \param[in] id The ID of the frame to look for.
          *  \return Pose of the object, Identity if frame is not present.
          */
-        Eigen::Isometry3d getFramePose(const std::string &id) const;
+        RobotPose getFramePose(const std::string &id) const;
 
         /** \brief Attempts to set the collision detector plugin used by the scene to \a name.
          *  In MoveIt by default, 'Hybrid' is the only plugin defined.

@@ -310,10 +310,10 @@ std::vector<std::string> Robot::getJointNames() const
 }
 
 bool Robot::setFromIK(const std::string &group,                                       //
-                      const GeometryConstPtr &region, const Eigen::Isometry3d &pose,  //
+                      const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    Eigen::Isometry3d sampled_pose = pose;
+    RobotPose sampled_pose = pose;
     auto sample = region->sample();
     if (!sample.first)
         return false;
@@ -333,12 +333,12 @@ bool Robot::setFromIK(const std::string &group,                                 
     return false;
 }
 
-const Eigen::Isometry3d &Robot::getLinkTF(const std::string &name) const
+const RobotPose &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);
 }
 
-const Eigen::Isometry3d Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
+const RobotPose Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
 {
     auto base_tf = scratch_->getGlobalLinkTransform(base);
     auto target_tf = scratch_->getGlobalLinkTransform(target);
@@ -457,7 +457,7 @@ namespace
         return node;
     }
 
-    Eigen::Isometry3d urdfPoseToEigen(const urdf::Pose &pose)
+    RobotPose urdfPoseToEigen(const urdf::Pose &pose)
     {
         geometry_msgs::Pose msg;
         msg.position.x = pose.position.x;
@@ -560,7 +560,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             if (urdf_link->visual)
             {
                 const auto &link = model_->getLinkModel(link_name);
-                Eigen::Isometry3d tf =
+                RobotPose tf =
                     state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }

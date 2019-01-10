@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
 
-    Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
+    RobotPose pose = RobotPose::Identity();
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
     Eigen::Quaterniond orn{0, 0, 1, 0};
 
