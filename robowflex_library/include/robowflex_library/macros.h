@@ -5,6 +5,8 @@
 
 #include <boost/version.hpp>  // for boost version macros
 
+#include <moveit/version.h>  // for MoveIt version macros
+
 #include <ros/common.h>  // for ROS version macros
 
 /** \file */
@@ -34,6 +36,13 @@
 #else
 #define ROBOWFLEX_YAML_FLOW(n)
 #endif
+
+
+///
+/// MoveIt Version Checking
+
+/** \brief Tests if this MoveIt version is Melodic or higher */
+#define ROBOWFLEX_MOVEIT_MELODIC MOVEIT_MINOR_VERSION >= 10
 
 ///
 /// Compiler Warning Helpers
