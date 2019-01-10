@@ -309,11 +309,11 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-bool Robot::setFromIK(const std::string &group,                                     //
-                      const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
+bool Robot::setFromIK(const std::string &group,                                       //
+                      const GeometryConstPtr &region, const Eigen::Isometry3d &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    Eigen::Affine3d sampled_pose = pose;
+    Eigen::Isometry3d sampled_pose = pose;
     auto sample = region->sample();
     if (!sample.first)
         return false;
@@ -333,12 +333,12 @@ bool Robot::setFromIK(const std::string &group,                                 
     return false;
 }
 
-const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
+const Eigen::Isometry3d &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);
 }
 
-const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
+const Eigen::Isometry3d Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
 {
     auto base_tf = scratch_->getGlobalLinkTransform(base);
     auto target_tf = scratch_->getGlobalLinkTransform(target);
@@ -457,7 +457,7 @@ namespace
         return node;
     }
 
-    Eigen::Affine3d urdfPoseToEigen(const urdf::Pose &pose)
+    Eigen::Isometry3d urdfPoseToEigen(const urdf::Pose &pose)
     {
         geometry_msgs::Pose msg;
         msg.position.x = pose.position.x;
@@ -560,7 +560,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             if (urdf_link->visual)
             {
                 const auto &link = model_->getLinkModel(link_name);
-                Eigen::Affine3d tf =
+                Eigen::Isometry3d tf =
                     state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }

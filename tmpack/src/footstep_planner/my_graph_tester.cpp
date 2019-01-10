@@ -111,7 +111,7 @@ namespace robowflex
 
                 // Find the location of the stationary tip in the workspace
                 // robot.setState(joint_positions);
-                Eigen::Affine3d tip_tf = robot->getLinkTF(stationary_tip_name);
+                Eigen::Isometry3d tip_tf = robot->getLinkTF(stationary_tip_name);
                 std::cout << "left: " << robot->getLinkTF("r2/left_leg/gripper/tip").translation()
                           << std::endl;
                 std::cout << "right: " << robot->getLinkTF("r2/right_leg/gripper/tip").translation()
@@ -139,7 +139,7 @@ namespace robowflex
 
                 request->setGoalRegion(
                     moving_tip_name, "world",
-                    Eigen::Affine3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
+                    Eigen::Isometry3d(Eigen::Translation3d(x, y, z) * Eigen::Quaterniond::Identity()),
                     Geometry::makeSphere(0.01), Eigen::Quaterniond(0, 0, 1, 0), feet_tolerance);
 
                 last_foot_left = !last_foot_left;

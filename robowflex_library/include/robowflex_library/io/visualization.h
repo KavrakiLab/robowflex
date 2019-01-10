@@ -79,7 +79,7 @@ namespace robowflex
              *  \param[in] color Color of the marker.
              */
             void addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
-                                   const std::string &base_frame, const Eigen::Affine3d &pose,
+                                   const std::string &base_frame, const Eigen::Isometry3d &pose,
                                    const Eigen::Vector4d &color = {0.2, 0.3, 0.7, 1.0});
 
             /** \brief Adds an arrow marker to the managed list of markers. Displayed after an updateMarkers()
@@ -91,7 +91,7 @@ namespace robowflex
              *  \param[in] scale The scale of the marker.
              */
             void addArrowMarker(const std::string &name, const std::string &base_frame,
-                                const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                const Eigen::Isometry3d &pose, const Eigen::Vector4d &color,
                                 const Eigen::Vector3d &scale);
 
             /** \brief Adds a text marker to the managed list of markers. Displayed after updateMarkers().
@@ -103,7 +103,7 @@ namespace robowflex
              *  \param[in] color Color of the marker.
              */
             void addTextMarker(const std::string &name, const std::string &text,
-                               const std::string &base_frame, const Eigen::Affine3d &pose, double height,
+                               const std::string &base_frame, const Eigen::Isometry3d &pose, double height,
                                const Eigen::Vector4d &color = {1, 1, 1, 1});
 
             /** \brief Adds the current goal of the motion request builder as a
@@ -135,7 +135,7 @@ namespace robowflex
              *  \param[in] scale The scale of the marker.
              */
             void fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
-                            const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                            const Eigen::Isometry3d &pose, const Eigen::Vector4d &color,
                             const Eigen::Vector3d &scale) const;
 
             RobotConstPtr robot_;            ///< Robot being visualized.

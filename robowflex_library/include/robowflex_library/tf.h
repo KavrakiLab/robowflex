@@ -38,17 +38,17 @@ namespace robowflex
          */
         geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
 
-        /** \brief Converts a pose message to Eigen::Affine3d.
+        /** \brief Converts a pose message to Eigen::Isometry3d.
          *  \param[in] msg Message to convert.
-         *  \return \a msg an Eigen::Affine3d.
+         *  \return \a msg an Eigen::Isometry3d.
          */
-        Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
+        Eigen::Isometry3d poseMsgToEigen(const geometry_msgs::Pose &msg);
 
-        /** \brief Converts an Eigen::Affine3d to a pose message.
+        /** \brief Converts an Eigen::Isometry3d to a pose message.
          *  \param[in] pose Pose to convert.
          *  \return \a pose as a pose message.
          */
-        geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
+        geometry_msgs::Pose poseEigenToMsg(const Eigen::Isometry3d &pose);
 
         /** \brief Converts a quaternion message to Eigen::Quaterniond.
          *  \param[in] msg Message to convert.
@@ -67,7 +67,7 @@ namespace robowflex
          *  \param[in] geometry Geometry to get bounding volume for.
          *  \return Bounding volume message for \a geometry at \a pose.
          */
-        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &pose,
+        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Isometry3d &pose,
                                                       const GeometryConstPtr &geometry);
 
         /** \brief Get a position constraint message.
@@ -78,7 +78,7 @@ namespace robowflex
          */
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
-                                                              const Eigen::Affine3d &pose,
+                                                              const Eigen::Isometry3d &pose,
                                                               const GeometryConstPtr &geometry);
 
         /** \brief Get an orientation constraint message.

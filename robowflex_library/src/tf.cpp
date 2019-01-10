@@ -22,14 +22,14 @@ geometry_msgs::Vector3 TF::vectorEigenToMsg(const Eigen::Vector3d &vector)
     return msg;
 }
 
-Eigen::Affine3d TF::poseMsgToEigen(const geometry_msgs::Pose &msg)
+Eigen::Isometry3d TF::poseMsgToEigen(const geometry_msgs::Pose &msg)
 {
-    Eigen::Affine3d pose;
+    Eigen::Isometry3d pose;
     tf::poseMsgToEigen(msg, pose);
     return pose;
 }
 
-geometry_msgs::Pose TF::poseEigenToMsg(const Eigen::Affine3d &pose)
+geometry_msgs::Pose TF::poseEigenToMsg(const Eigen::Isometry3d &pose)
 {
     geometry_msgs::Pose msg;
     tf::poseEigenToMsg(pose, msg);
@@ -50,7 +50,7 @@ geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond &qua
     return msg;
 }
 
-moveit_msgs::BoundingVolume TF::getBoundingVolume(const Eigen::Affine3d &pose,
+moveit_msgs::BoundingVolume TF::getBoundingVolume(const Eigen::Isometry3d &pose,
                                                   const GeometryConstPtr &geometry)
 {
     moveit_msgs::BoundingVolume bv;
@@ -71,7 +71,7 @@ moveit_msgs::BoundingVolume TF::getBoundingVolume(const Eigen::Affine3d &pose,
 
 moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_name,
                                                           const std::string &base_name,
-                                                          const Eigen::Affine3d &pose,
+                                                          const Eigen::Isometry3d &pose,
                                                           const GeometryConstPtr &geometry)
 {
     moveit_msgs::PositionConstraint constraint;

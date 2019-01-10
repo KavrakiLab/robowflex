@@ -135,7 +135,7 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 }
 
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                  const Eigen::Affine3d &pose)
+                                  const Eigen::Isometry3d &pose)
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -154,17 +154,17 @@ void Scene::removeCollisionObject(const std::string &name)
     scene_->getWorldNonConst()->removeObject(name);
 }
 
-Eigen::Affine3d Scene::getObjectPose(const std::string &name)
+Eigen::Isometry3d Scene::getObjectPose(const std::string &name)
 {
     auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
         return obj->shape_poses_[0];
 
-    return Eigen::Affine3d::Identity();
+    return Eigen::Isometry3d::Identity();
 }
 
-Eigen::Affine3d Scene::getFramePose(const std::string &id) const
+Eigen::Isometry3d Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
     {

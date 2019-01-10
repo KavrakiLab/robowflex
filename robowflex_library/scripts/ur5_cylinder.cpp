@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     std::cin.get();
 
     // Create the cylinder we want to grasp
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
 
     auto cylinder = Geometry::makeCylinder(0.025, 0.1);
