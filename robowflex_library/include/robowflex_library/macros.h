@@ -37,16 +37,18 @@
 #define ROBOWFLEX_YAML_FLOW(n)
 #endif
 
-
 ///
 /// MoveIt Version Checking
 ///
 
 /** \brief Phrase MoveIt version as integer. */
-#define ROBOWFLEX_MOVEIT_VERSION ((MOVEIT_VERSION_MAJOR * 100000u) + (MOVEIT_VERSION_MINOR * 1000u) + (MOVEIT_VERSION_PATCH * 1u))
+#define ROBOWFLEX_MOVEIT_VERSION_COMPUTE(major, minor, patch)                                                \
+    ((major * 100000u) + (minor * 1000u) + (patch * 1u))
+#define ROBOWFLEX_MOVEIT_VERSION                                                                             \
+    ROBOWFLEX_MOVEIT_VERSION_COMPUTE(MOVEIT_VERSION_MAJOR, MOVEIT_VERSION_MINOR, MOVEIT_VERSION_PATCH)
 
 /** \brief Tests if this MoveIt version is Melodic or higher. */
-#define ROBOWFLEX_MOVEIT_ISOMETRY (ROBOWFLEX_MOVEIT_VERSION >= 10006u)
+#define ROBOWFLEX_MOVEIT_ISOMETRY (ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(0, 10, 6))
 
 ///
 /// Compiler Warning Helpers

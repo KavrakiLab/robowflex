@@ -3,18 +3,19 @@
 #ifndef ROBOWFLEX_ADAPTER_
 #define ROBOWFLEX_ADAPTER_
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <type_traits>
 
-#include <robowflex_library/macros.h>
+#include <moveit/transforms/transforms.h>
 
 namespace robowflex
 {
-#if ROBOWFLEX_MOVEIT_ISOMETRY
-    using RobotPose = Eigen::Isometry3d;
-#else
-    using RobotPose = Eigen::Affine3d;
-#endif
+    using RobotPose = std::remove_cv<                                      //
+        std::remove_reference<                                             //
+            decltype(                                                      //
+                std::declval<moveit::core::Transforms>().getTransform("")  //
+                )                                                          //
+            >::type                                                        //
+        >::type;
 }  // namespace robowflex
 
 #endif
