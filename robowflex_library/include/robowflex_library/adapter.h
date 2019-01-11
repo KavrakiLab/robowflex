@@ -3,18 +3,18 @@
 #ifndef ROBOWFLEX_ADAPTER_
 #define ROBOWFLEX_ADAPTER_
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <type_traits>
 
-#include <robowflex_library/macros.h>
+#include <moveit/transforms/transforms.h>
 
 namespace robowflex
 {
-#if ROBOWFLEX_MOVEIT_ISOMETRY
-    using RobotPose = Eigen::Isometry3d;
-#else
-    using RobotPose = Eigen::Affine3d;
-#endif
+    /** \brief A pose (point in SE(3)) used in various functions. Defined from what \e MoveIt! uses. */
+    using RobotPose = std::decay<                                      //
+        decltype(                                                      //
+            std::declval<moveit::core::Transforms>().getTransform("")  //
+            )                                                          //
+        >::type;
 }  // namespace robowflex
 
 #endif
