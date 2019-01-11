@@ -9,12 +9,11 @@
 
 namespace robowflex
 {
-    using RobotPose = std::remove_cv<                                      //
-        std::remove_reference<                                             //
-            decltype(                                                      //
-                std::declval<moveit::core::Transforms>().getTransform("")  //
-                )                                                          //
-            >::type                                                        //
+    /** \brief A pose (point in SE(3)) used in various functions. Defined from what \e MoveIt! uses. */
+    using RobotPose = std::decay<                                      //
+        decltype(                                                      //
+            std::declval<moveit::core::Transforms>().getTransform("")  //
+            )                                                          //
         >::type;
 }  // namespace robowflex
 
