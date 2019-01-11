@@ -1,12 +1,14 @@
 /* Author: Zachary Kingston */
+/* Modified by: Juan D. Hernandez */
 
-#include <robowflex_library/benchmarking.h>
-#include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/util.h>
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
+#include <robowflex_library/benchmarking.h>
+#include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
 
@@ -20,9 +22,6 @@ int main(int argc, char **argv)
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
-
-    // Dump the geometry information for visualization.
-    fetch->dumpGeometry("fetch.yml");
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);

@@ -1,13 +1,14 @@
 /* Author: Zachary Kingston */
 /* Modified by: Juan D. Hernandez */
 
-#include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/util.h>
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/io/visualization.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/planning.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/builder.h>
+#include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
 
@@ -41,18 +42,18 @@ int main(int argc, char **argv)
     planner->initialize();
 
     // Create a motion planning request with a pose goal.
-    MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, GROUP));
+    MotionRequestBuilder request(planner, GROUP);
     fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    request->setStartConfiguration(fetch->getScratchState());
+    request.setStartConfiguration(fetch->getScratchState());
 
     // Create a motion planning request with a pose goal. Cube3
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    RobotPose pose = RobotPose::Identity();
     pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
     Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
 
     auto region = Geometry::makeSphere(0.01);
 
-    request->setGoalRegion("wrist_roll_link", "world",  // links
+    request.setGoalRegion("wrist_roll_link", "world",  // links
                            pose, region,                // position
                            orn, {0.1, 0.1, 0.1}         // orientation
     );
@@ -64,7 +65,7 @@ int main(int argc, char **argv)
     std::cin.get();
 
     // Do motion planning!
-    planning_interface::MotionPlanResponse res = planner->plan(scene, request->getRequest());
+    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
