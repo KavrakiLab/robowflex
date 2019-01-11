@@ -20,6 +20,7 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/io/handler.h>
 
 namespace robowflex
@@ -260,8 +261,9 @@ namespace robowflex
          *  \param[in] tolerances Tolerance about \a orientation.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
-                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region,
+                       const RobotPose &pose, const Eigen::Quaterniond &orientation,
+                       const Eigen::Vector3d &tolerances);
 
         /** \brief Gets the current joint positions of the scratch state.
          *  \return A vector of joint positions.
@@ -277,14 +279,14 @@ namespace robowflex
          *  \param[in] name The name of the link to find the transform of.
          *  \return The transform of link \a name.
          */
-        const Eigen::Affine3d &getLinkTF(const std::string &name) const;
+        const RobotPose &getLinkTF(const std::string &name) const;
 
         /** \brief Get the current pose of a link \a target in the frame of \a base.
          *  \param[in] base The link to use as the base frame.
          *  \param[in] target The link to find the transform of.
          *  \return The transform of link \a target in the frame of \a base.
          */
-        const Eigen::Affine3d getRelativeLinkTF(const std::string &base, const std::string &target) const;
+        const RobotPose getRelativeLinkTF(const std::string &base, const std::string &target) const;
 
         /** \} */
 

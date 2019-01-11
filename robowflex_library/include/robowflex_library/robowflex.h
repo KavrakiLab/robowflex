@@ -12,6 +12,7 @@ namespace robowflex
 }
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/yaml.h>

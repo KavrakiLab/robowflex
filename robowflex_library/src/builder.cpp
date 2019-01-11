@@ -98,7 +98,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
+                                         const RobotPose &pose, const GeometryConstPtr &geometry,
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
@@ -112,9 +112,9 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 }
 
 void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
-                                             const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
+                                             const RobotPose &pose, const GeometryConstPtr &geometry,
                                              const Eigen::Quaterniond &orientation,
-                                             const Eigen::Vector3d &tolerances, const Eigen::Affine3d &offset,
+                                             const Eigen::Vector3d &tolerances, const RobotPose &offset,
                                              const Eigen::Vector3d &axis, unsigned int n)
 {
     double pi2 = 2 * boost::math::constants::pi<double>();
@@ -122,7 +122,7 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
     for (double angle = 0; angle < pi2; angle += pi2 / n)
     {
         Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
-        Eigen::Affine3d newPose = pose * rotation * offset;
+        RobotPose newPose = pose * rotation * offset;
         Eigen::Quaterniond newOrientation(rotation * orientation);
 
         setGoalRegion(ee_name, base_name, newPose, geometry, newOrientation, tolerances);
@@ -130,12 +130,12 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
 }
 
 void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
-                                                const Eigen::Affine3d &pose, const GeometryConstPtr &cylinder,
+                                                const RobotPose &pose, const GeometryConstPtr &cylinder,
                                                 double distance, double depth, unsigned int n)
 {
     // Grasping region to tile
     auto box = Geometry::makeBox(depth, depth, cylinder->getDimensions()[1]);
-    Eigen::Affine3d offset(Eigen::Translation3d(cylinder->getDimensions()[0] + distance, 0, 0));
+    RobotPose offset(Eigen::Translation3d(cylinder->getDimensions()[0] + distance, 0, 0));
 
     Eigen::Quaterniond orientation =
         Eigen::AngleAxisd(-boost::math::constants::pi<double>(), Eigen::Vector3d::UnitX())  //
@@ -158,7 +158,7 @@ void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
 }
 
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                                 const Eigen::Affine3d &pose,
+                                                 const RobotPose &pose,
                                                  const GeometryConstPtr &geometry,
                                                  const Eigen::Quaterniond &orientation,
                                                  const Eigen::Vector3d &tolerances)
@@ -168,7 +168,7 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                     const Eigen::Affine3d &pose,
+                                                     const RobotPose &pose,
                                                      const GeometryConstPtr &geometry)
 {
     request_.path_constraints.position_constraints.push_back(

@@ -99,7 +99,7 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
 }
 
 void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
-                                const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                const RobotPose &pose, const Eigen::Vector4d &color,
                                 const Eigen::Vector3d &scale) const
 {
     marker.header.frame_id = base_frame;
@@ -120,7 +120,7 @@ void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::s
 }
 
 void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &base_frame,
-                                    const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                    const RobotPose &pose, const Eigen::Vector4d &color,
                                     const Eigen::Vector3d &scale)
 {
     visualization_msgs::Marker marker;
@@ -132,7 +132,7 @@ void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &
 }
 
 void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &text,
-                                   const std::string &base_frame, const Eigen::Affine3d &pose, double height,
+                                   const std::string &base_frame, const RobotPose &pose, double height,
                                    const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
@@ -145,7 +145,7 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
 }
 
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
-                                       const std::string &base_frame, const Eigen::Affine3d &pose,
+                                       const std::string &base_frame, const RobotPose &pose,
                                        const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
@@ -199,7 +199,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
             const auto &pname = pg.link_name;
 
             // Get global transform of position constraint
-            Eigen::Affine3d pose = robot_->getLinkTF(pg.header.frame_id);
+            RobotPose pose = robot_->getLinkTF(pg.header.frame_id);
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
 
             // Iterate over all position primitives and their poses
@@ -226,7 +226,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                     auto q = TF::quaternionMsgToEigen(og.orientation);
 
                     // Arrow display frame.
-                    Eigen::Affine3d qframe = Eigen::Affine3d::Identity();
+                    RobotPose qframe = RobotPose::Identity();
                     qframe.translate(frame.translation()); // Place arrows at the origin of the position volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
@@ -279,7 +279,7 @@ void IO::RVIZHelper::addMarker(float x, float y, float z)
     visualization_msgs::Marker marker;
     const std::string &base_frame = "map";
 
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    RobotPose pose = RobotPose::Identity();
     pose *= Eigen::Translation3d(x, y, z);
 
     Eigen::Vector3d scale = {0.5, 0.5, 0.5};
