@@ -28,7 +28,7 @@
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
 /** \brief Tests if boost is at least version 1.64 */
-#define IS_BOOST_164 BOOST_VERSION >= 106400
+#define IS_BOOST_164 (BOOST_VERSION >= 106400u)
 
 #if ROBOWFLEX_AT_LEAST_KINETIC
 /** \brief Sets flow style for YAML nodes. */
@@ -46,7 +46,7 @@
 #define ROBOWFLEX_MOVEIT_VERSION ((MOVEIT_VERSION_MAJOR * 100000u) + (MOVEIT_VERSION_MINOR * 1000u) + (MOVEIT_VERSION_PATCH * 1u))
 
 /** \brief Tests if this MoveIt version is Melodic or higher. */
-#define ROBOWFLEX_MOVEIT_ISOMETRY ROBOWFLEX_MOVEIT_VERSION >= 10006u
+#define ROBOWFLEX_MOVEIT_ISOMETRY (ROBOWFLEX_MOVEIT_VERSION >= 10006u)
 
 ///
 /// Compiler Warning Helpers
