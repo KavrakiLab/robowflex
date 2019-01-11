@@ -22,9 +22,6 @@ int main(int argc, char **argv)
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
 
-    // Dump the geometry information for visualization.
-    fetch->dumpGeometry("fetch.yml");
-
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by
     // default.
     IO::RVIZHelper rviz(fetch);
@@ -52,11 +49,16 @@ int main(int argc, char **argv)
     Eigen::Affine3d pose = Eigen::Affine3d::Identity();
     pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
     Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+
     auto region = Geometry::makeSphere(0.01);
+
     request->setGoalRegion("wrist_roll_link", "world",  // links
                            pose, region,                // position
                            orn, {0.1, 0.1, 0.1}         // orientation
-                           );
+    );
+
+    rviz.addGoalMarker("goal", request);
+    rviz.updateMarkers();
 
     ROS_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
