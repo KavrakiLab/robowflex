@@ -2,8 +2,8 @@
 
 #include <cmath>
 
-#include <robowflex_library/io.h>
 #include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/io.h>
 
 using namespace robowflex;
 
@@ -25,6 +25,8 @@ bool FetchRobot::initialize()
 
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
                    loadKinematics("arm") && loadKinematics("arm_with_torso");
+
+    FetchRobot::openGripper();
 
     return success;
 }
@@ -54,8 +56,23 @@ void FetchRobot::pointHead(const Eigen::Vector3d &point)
 
     const std::map<std::string, double> angles = {{"head_pan_joint", pan}, {"head_tilt_joint", tilt}};
 
-    scratch_->setVariablePositions(angles);
-    scratch_->update();
+    Robot::setState(angles);
+}
+
+void FetchRobot::openGripper()
+{
+    const std::map<std::string, double> angles = {{"l_gripper_finger_joint", 0.04},
+                                                  {"r_gripper_finger_joint", 0.04}};
+
+    Robot::setState(angles);
+}
+
+void FetchRobot::closeGripper()
+{
+    const std::map<std::string, double> angles = {{"l_gripper_finger_joint", 0.0},
+                                                  {"r_gripper_finger_joint", 0.0}};
+
+    Robot::setState(angles);
 }
 
 void FetchRobot::setBasePose(double x, double y, double theta)
