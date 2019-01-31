@@ -121,7 +121,14 @@ $(document).ready(function(){initNavTree('design.html','');});
 <li>HDF5 file reading (see <a class="el" href="classrobowflex_1_1IO_1_1HDF5File.html" title="An HDF5 File loaded into memory. ">robowflex::IO::HDF5File</a>).</li>
 <li>Helpful live visualization in RViz through <a class="el" href="classrobowflex_1_1IO_1_1RVIZHelper.html" title="RVIZ visualization helper. See Live Visualization with RViz for more information. ...">robowflex::IO::RVIZHelper</a>. Offline visualization can be done with Blender through <code>robowflex_visualization</code>. See the <a href="robowflex_visualization/README.html">readme</a> for more details.</li>
 </ul>
-<p>Additionally, there are a few implementations of <a class="el" href="classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state. ">robowflex::Robot</a> for some commonly used robots, such as <a class="el" href="classrobowflex_1_1UR5Robot.html" title="Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell) ...">robowflex::UR5Robot</a>, <a class="el" href="classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch (with robotiq gripper and load cell) ...">robowflex::FetchRobot</a>, and <a class="el" href="classrobowflex_1_1R2Robot.html" title="Convenience class that describes the default setup for R2 (R2C6 full). ">robowflex::R2Robot</a>.</p>
+<p>Additionally, there are a few implementations of <a class="el" href="classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state. ">robowflex::Robot</a> for some commonly used robots, such as <a class="el" href="classrobowflex_1_1UR5Robot.html" title="Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell) ...">robowflex::UR5Robot</a>, <a class="el" href="classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch. ">robowflex::FetchRobot</a>, and <a class="el" href="classrobowflex_1_1R2Robot.html" title="Convenience class that describes the default setup for R2 (R2C6 full). ">robowflex::R2Robot</a>.</p>
+<h2>Compatibility</h2>
+<p>Robowflex strives to maintain compatibility with all commonly used ROS distributions, from Indigo to Melodic. To this end, there are many adapters and internal constructs so that users can run Robowflex in any of these environments without modification. However, there are some things to note about how various internal APIs have changed and how this affects behavior:</p><ul>
+<li><a class="el" href="classrobowflex_1_1ROS.html" title="RAII-pattern for starting up ROS. ">robowflex::ROS</a> will attempt to spin up an instance of <code>rosmaster</code> if one is not already running only on Melodic onward, due to a dependency of how this is implemented on Boost 1.64.</li>
+<li><em>MoveIt!</em> changed from using <code>Eigen::Affine3d</code> as the representation of transformation matrices to <code>Eigen::Isometry3d</code> in Melodic in version 0.10.6. To account for this, we provide <code><a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925" title="A pose (point in SE(3)) used in various functions. Defined from what MoveIt! uses. ">robowflex::RobotPose</a></code> which is a type alias for the correct matrix representation.</li>
+<li><a class="el" href="namespaceYAML.html">YAML</a> output does not "flow" output on Indigo for more concise files.</li>
+</ul>
+<p>Note that there are other internal functions that account for API differences between ROS versions, but they are not relevant to user code. There are macros in <a href="macros_8h_source.html"><code>macros.h</code></a> that allow for conditional compilation on versions.</p>
 <h2>Documentation</h2>
 <p>All documentation (through <a href="http://www.stack.nl/~dimitri/doxygen/">Doxygen</a>) is done in the <code>robowflex_doc</code> package. This documents all code in the other Robowflex projects, as well as their <code><a class="el" href="README_8md.html">README.md</a></code> files if they exist (see the <code>add_doc</code> macro in <code>robowflex_doc/CMakeLists.txt</code>). Additional written documentation is in the <code>doc/markdown</code> folder in the <code>robowflex_doc</code> package. </p>
 </div></div><!-- contents -->
@@ -130,7 +137,7 @@ $(document).ready(function(){initNavTree('design.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Aug 28 2018 09:29:17 for Robowflex by
+    <li class="footer">Generated on Thu Jan 31 2019 11:27:21 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

@@ -26,6 +26,19 @@
     <filename>scripts_8md</filename>
   </compound>
   <compound kind="file">
+    <name>adapter.h</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
+    <filename>adapter_8h</filename>
+    <namespace>robowflex</namespace>
+    <member kind="typedef">
+      <type>std::decay&lt; decltype(std::declval&lt; moveit::core::Transforms &gt;().getTransform(&quot;&quot;)) &gt;::type</type>
+      <name>RobotPose</name>
+      <anchorfile>namespacerobowflex.html</anchorfile>
+      <anchor>a59139b755558b8adf4a4c78871e68925</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
     <name>benchmarking.h</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
     <filename>benchmarking_8h</filename>
@@ -40,6 +53,15 @@
     <class kind="class">robowflex::JSONBenchmarkOutputter</class>
     <class kind="class">robowflex::TrajectoryBenchmarkOutputter</class>
     <class kind="class">robowflex::OMPLBenchmarkOutputter</class>
+    <namespace>robowflex</namespace>
+  </compound>
+  <compound kind="file">
+    <name>builder.h</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
+    <filename>builder_8h</filename>
+    <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <includes id="adapter_8h" name="adapter.h" local="no" imported="no">robowflex_library/adapter.h</includes>
+    <class kind="class">robowflex::MotionRequestBuilder</class>
     <namespace>robowflex</namespace>
   </compound>
   <compound kind="file">
@@ -58,8 +80,8 @@
     <name>fetch.h</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/detail/</path>
     <filename>fetch_8h</filename>
-    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <class kind="class">robowflex::FetchRobot</class>
     <class kind="class">robowflex::OMPL::FetchOMPLPipelinePlanner</class>
     <namespace>robowflex</namespace>
@@ -369,6 +391,27 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>ROBOWFLEX_MOVEIT_VERSION_COMPUTE</name>
+      <anchorfile>macros_8h.html</anchorfile>
+      <anchor>a4c0b25203282f5baedd204cf8e5cc835</anchor>
+      <arglist>(major, minor, patch)</arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>ROBOWFLEX_MOVEIT_VERSION</name>
+      <anchorfile>macros_8h.html</anchorfile>
+      <anchor>ae32d653aedc37a67658fa575f2a6ade8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>ROBOWFLEX_MOVEIT_ISOMETRY</name>
+      <anchorfile>macros_8h.html</anchorfile>
+      <anchor>a820c3ee3ede7719f24581af35c1a92f7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>ROBOWFLEX_PRAGMA_HELPER0</name>
       <anchorfile>macros_8h.html</anchorfile>
       <anchor>a55c06931fdef32dd79bdc8f933e21f25</anchor>
@@ -477,7 +520,6 @@
     <class kind="class">robowflex::Planner</class>
     <class kind="class">robowflex::PoolPlanner</class>
     <class kind="class">robowflex::PipelinePlanner</class>
-    <class kind="class">robowflex::MotionRequestBuilder</class>
     <class kind="class">robowflex::OMPL::Settings</class>
     <class kind="class">robowflex::OMPL::OMPLPipelinePlanner</class>
     <namespace>robowflex</namespace>
@@ -504,6 +546,7 @@
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
     <filename>robot_8h</filename>
     <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <includes id="adapter_8h" name="adapter.h" local="no" imported="no">robowflex_library/adapter.h</includes>
     <includes id="handler_8h" name="handler.h" local="no" imported="no">robowflex_library/io/handler.h</includes>
     <class kind="class">robowflex::Robot</class>
     <class kind="class">robowflex::ParamRobot</class>
@@ -514,6 +557,7 @@
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
     <filename>robowflex_8h</filename>
     <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <includes id="adapter_8h" name="adapter.h" local="no" imported="no">robowflex_library/adapter.h</includes>
     <includes id="macros_8h" name="macros.h" local="no" imported="no">robowflex_library/macros.h</includes>
     <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
     <includes id="yaml_8h" name="yaml.h" local="no" imported="no">robowflex_library/yaml.h</includes>
@@ -529,6 +573,7 @@
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
     <includes id="path_8h" name="path.h" local="no" imported="no">robowflex_library/path.h</includes>
     <namespace>robowflex</namespace>
@@ -538,6 +583,7 @@
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
     <filename>scene_8h</filename>
     <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <includes id="adapter_8h" name="adapter.h" local="no" imported="no">robowflex_library/adapter.h</includes>
     <class kind="class">robowflex::Scene</class>
     <namespace>robowflex</namespace>
   </compound>
@@ -546,6 +592,7 @@
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/</path>
     <filename>tf_8h</filename>
     <includes id="class__forward_8h" name="class_forward.h" local="no" imported="no">robowflex_library/class_forward.h</includes>
+    <includes id="adapter_8h" name="adapter.h" local="no" imported="no">robowflex_library/adapter.h</includes>
     <namespace>robowflex</namespace>
     <namespace>robowflex::TF</namespace>
     <member kind="function">
@@ -563,18 +610,18 @@
       <arglist>(const Eigen::Vector3d &amp;vector)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>poseMsgToEigen</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>af53d77db21f3736f386c805cbbdd37ba</anchor>
+      <anchor>a4bae1252b665b01a76b783986a365251</anchor>
       <arglist>(const geometry_msgs::Pose &amp;msg)</arglist>
     </member>
     <member kind="function">
       <type>geometry_msgs::Pose</type>
       <name>poseEigenToMsg</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a306bde67c676d1879f5579c96f4f0a24</anchor>
-      <arglist>(const Eigen::Affine3d &amp;pose)</arglist>
+      <anchor>a7065853322259e60f3b2ce12f2ded0b0</anchor>
+      <arglist>(const RobotPose &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>Eigen::Quaterniond</type>
@@ -594,15 +641,15 @@
       <type>moveit_msgs::BoundingVolume</type>
       <name>getBoundingVolume</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a69a9ae40884d2c53e418bd56b80bfd1a</anchor>
-      <arglist>(const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+      <anchor>ab2aee755c034bcbf58ac1660dbf33c6c</anchor>
+      <arglist>(const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
     </member>
     <member kind="function">
       <type>moveit_msgs::PositionConstraint</type>
       <name>getPositionConstraint</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a3fb881f1dd59704d6f6237825161774f</anchor>
-      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+      <anchor>adf0cce7ea1ccd1e413f859d0ed4fe0e1</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
     </member>
     <member kind="function">
       <type>moveit_msgs::OrientationConstraint</type>
@@ -642,6 +689,33 @@
     </member>
   </compound>
   <compound kind="file">
+    <name>fetch_benchmark.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/scripts/</path>
+    <filename>fetch__benchmark_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
+    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
+    <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
+    <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
+    <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>fetch__benchmark_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const std::string</type>
+      <name>GROUP</name>
+      <anchorfile>fetch__benchmark_8cpp.html</anchorfile>
+      <anchor>a892b6dd5a49224f3e7646b914c4462fb</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
     <name>fetch_test.cpp</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/scripts/</path>
     <filename>fetch__test_8cpp</filename>
@@ -649,6 +723,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
     <member kind="function">
       <type>int</type>
@@ -661,6 +736,33 @@
       <type>static const std::string</type>
       <name>GROUP</name>
       <anchorfile>fetch__test_8cpp.html</anchorfile>
+      <anchor>a892b6dd5a49224f3e7646b914c4462fb</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>fetch_visualization.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/scripts/</path>
+    <filename>fetch__visualization_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
+    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
+    <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
+    <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>fetch__visualization_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const std::string</type>
+      <name>GROUP</name>
+      <anchorfile>fetch__visualization_8cpp.html</anchorfile>
       <anchor>a892b6dd5a49224f3e7646b914c4462fb</anchor>
       <arglist></arglist>
     </member>
@@ -718,6 +820,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
     <includes id="r2_8h" name="r2.h" local="no" imported="no">robowflex_library/detail/r2.h</includes>
     <member kind="function">
@@ -758,12 +861,33 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
     <member kind="function">
       <type>int</type>
       <name>main</name>
       <anchorfile>ur5__benchmark_8cpp.html</anchorfile>
+      <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
+      <arglist>(int argc, char **argv)</arglist>
+    </member>
+  </compound>
+  <compound kind="file">
+    <name>ur5_cylinder.cpp</name>
+    <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/scripts/</path>
+    <filename>ur5__cylinder_8cpp</filename>
+    <includes id="util_8h" name="util.h" local="no" imported="no">robowflex_library/util.h</includes>
+    <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
+    <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
+    <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
+    <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
+    <member kind="function">
+      <type>int</type>
+      <name>main</name>
+      <anchorfile>ur5__cylinder_8cpp.html</anchorfile>
       <anchor>a3c04138a5bfe5d72780bb7e82a18e627</anchor>
       <arglist>(int argc, char **argv)</arglist>
     </member>
@@ -795,6 +919,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
     <member kind="function">
       <type>int</type>
@@ -813,6 +938,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
     <member kind="function">
       <type>int</type>
@@ -832,6 +958,7 @@
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
     <member kind="function">
       <type>int</type>
@@ -850,6 +977,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
     <member kind="function">
       <type>int</type>
@@ -867,6 +995,7 @@
     <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
     <member kind="function">
       <type>int</type>
@@ -885,6 +1014,7 @@
     <includes id="path_8h" name="path.h" local="no" imported="no">robowflex_library/path.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="benchmarking_8h" name="benchmarking.h" local="no" imported="no">robowflex_library/benchmarking.h</includes>
   </compound>
   <compound kind="file">
@@ -896,13 +1026,15 @@
     <includes id="tf_8h" name="tf.h" local="no" imported="no">robowflex_library/tf.h</includes>
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
   </compound>
   <compound kind="file">
     <name>fetch.cpp</name>
     <path>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/src/detail/</path>
     <filename>fetch_8cpp</filename>
-    <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
     <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
+    <includes id="io_8h" name="io.h" local="no" imported="no">robowflex_library/io.h</includes>
   </compound>
   <compound kind="file">
     <name>r2.cpp</name>
@@ -953,6 +1085,7 @@
     <includes id="tf_8h" name="tf.h" local="no" imported="no">robowflex_library/tf.h</includes>
     <includes id="geometry_8h" name="geometry.h" local="no" imported="no">robowflex_library/geometry.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="visualization_8h" name="visualization.h" local="no" imported="no">robowflex_library/io/visualization.h</includes>
   </compound>
   <compound kind="file">
@@ -1157,6 +1290,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="fetch_8h" name="fetch.h" local="no" imported="no">robowflex_library/detail/fetch.h</includes>
     <includes id="ompl__interface_8h" name="ompl_interface.h" local="no" imported="no">robowflex_ompl/ompl_interface.h</includes>
     <member kind="function">
@@ -1183,6 +1317,7 @@
     <includes id="robot_8h" name="robot.h" local="no" imported="no">robowflex_library/robot.h</includes>
     <includes id="scene_8h" name="scene.h" local="no" imported="no">robowflex_library/scene.h</includes>
     <includes id="planning_8h" name="planning.h" local="no" imported="no">robowflex_library/planning.h</includes>
+    <includes id="builder_8h" name="builder.h" local="no" imported="no">robowflex_library/builder.h</includes>
     <includes id="ur5_8h" name="ur5.h" local="no" imported="no">robowflex_library/detail/ur5.h</includes>
     <includes id="ompl__interface_8h" name="ompl_interface.h" local="no" imported="no">robowflex_ompl/ompl_interface.h</includes>
     <member kind="function">
@@ -1714,6 +1849,20 @@
       <anchorfile>classrobowflex_1_1FetchRobot.html</anchorfile>
       <anchor>ae815a3ed21e4c535f93e2c76c9135f24</anchor>
       <arglist>(const Eigen::Vector3d &amp;point)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>openGripper</name>
+      <anchorfile>classrobowflex_1_1FetchRobot.html</anchorfile>
+      <anchor>a31a47cb880cb00ed2a8cbbc273da1255</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>closeGripper</name>
+      <anchorfile>classrobowflex_1_1FetchRobot.html</anchorfile>
+      <anchor>a89f1122d1c5e5e4063f8064532badeff</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private" static="yes">
       <type>static const std::string</type>
@@ -2682,22 +2831,22 @@
       <type>void</type>
       <name>addGeometryMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a0268a09df738639424cc5a804fd5347c</anchor>
-      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
+      <anchor>adb1683c4b216bf3c52e397ee47888a11</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const RobotPose &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addArrowMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a1b441a171b9e27c393136d86b8334df0</anchor>
-      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
+      <anchor>aac4c659a2e91687d77147ff5b5e447ef</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const RobotPose &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addTextMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a2ff9639010262d0d1b5f8f7acab4db55</anchor>
-      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
+      <anchor>aa71cc61e060bbcc287e167c76be493b5</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const RobotPose &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2724,8 +2873,8 @@
       <type>void</type>
       <name>fillMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a51782a29f3015ce81c0930f5d9c0e083</anchor>
-      <arglist>(visualization_msgs::Marker &amp;marker, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale) const</arglist>
+      <anchor>ab371a63b03592dfef2594873f59824c6</anchor>
+      <arglist>(visualization_msgs::Marker &amp;marker, const std::string &amp;base_frame, const RobotPose &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale) const</arglist>
     </member>
     <member kind="variable" protection="private">
       <type>RobotConstPtr</type>
@@ -2808,22 +2957,22 @@
       <type>void</type>
       <name>addGeometryMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a0268a09df738639424cc5a804fd5347c</anchor>
-      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
+      <anchor>adb1683c4b216bf3c52e397ee47888a11</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const std::string &amp;base_frame, const RobotPose &amp;pose, const Eigen::Vector4d &amp;color={0.2, 0.3, 0.7, 1.0})</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addArrowMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a1b441a171b9e27c393136d86b8334df0</anchor>
-      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
+      <anchor>aac4c659a2e91687d77147ff5b5e447ef</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;base_frame, const RobotPose &amp;pose, const Eigen::Vector4d &amp;color, const Eigen::Vector3d &amp;scale)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addTextMarker</name>
       <anchorfile>classrobowflex_1_1IO_1_1RVIZHelper.html</anchorfile>
-      <anchor>a2ff9639010262d0d1b5f8f7acab4db55</anchor>
-      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const Eigen::Affine3d &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
+      <anchor>aa71cc61e060bbcc287e167c76be493b5</anchor>
+      <arglist>(const std::string &amp;name, const std::string &amp;text, const std::string &amp;base_frame, const RobotPose &amp;pose, double height, const Eigen::Vector4d &amp;color={1, 1, 1, 1})</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2906,13 +3055,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>setWorkspaceBounds</name>
-      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>ab3668987415bf45930a2438ae3935c4b</anchor>
-      <arglist>(const moveit_msgs::WorkspaceParameters &amp;wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>setStartConfiguration</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
       <anchor>a85ba3502e0ccadad2226415c84153d3e</anchor>
@@ -2941,24 +3083,52 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>setGoalPose</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a86d65ad791b62f2cd756e8088d0a56ea</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, double tolerance=0.001)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>setGoalRegion</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>a465c8c99f090dcb934b8764a10cfa393</anchor>
-      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+      <anchor>ae049895d0563dbb858c46f63e030f99e</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGoalRotaryTile</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ad5bb2d24e80feab8058c8f87215e0422</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances, const RobotPose &amp;offset, const Eigen::Vector3d &amp;axis, unsigned int n)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addCylinderSideGrasp</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a32701105e7b006f5d129c2b6ea7b5a9a</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;cylinder, double distance, double depth, unsigned int n)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>clearGoals</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a2b2aaf7ff2bc3d5eddd16ad0632e0459</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addPathPoseConstraint</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>ab23251a765c8ec2e20d8a3f7a208de2f</anchor>
-      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+      <anchor>a61721e490554f85360b0a500aabee670</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addPathPositionConstraint</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>a1452324b16693c58069fca06c094cd29</anchor>
-      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+      <anchor>af9dfb6da75f457d4a6f791adf32d8f13</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2968,11 +3138,25 @@
       <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>setConfig</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a786e67b08f9873bab228de0fe759816b</anchor>
+      <arglist>(const std::string &amp;requested_config)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>setAllowedPlanningTime</name>
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
       <anchor>a2124a6c488484ef2ec0097e06e56e6ad</anchor>
       <arglist>(double allowed_planning_time)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setWorkspaceBounds</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ab3668987415bf45930a2438ae3935c4b</anchor>
+      <arglist>(const moveit_msgs::WorkspaceParameters &amp;wp)</arglist>
     </member>
     <member kind="function">
       <type>planning_interface::MotionPlanRequest &amp;</type>
@@ -3008,13 +3192,6 @@
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
       <anchor>a8a7016a3777f7843da0738157a17a362</anchor>
       <arglist>(const std::string &amp;file)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>setConfig</name>
-      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
-      <anchor>a786e67b08f9873bab228de0fe759816b</anchor>
-      <arglist>(const std::string &amp;requested_config)</arglist>
     </member>
     <member kind="variable" protection="private">
       <type>const PlannerConstPtr</type>
@@ -3057,6 +3234,146 @@
       <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
       <anchor>a51a7c337cdacc40e4c4a722648f2d31f</anchor>
       <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setStartConfiguration</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a85ba3502e0ccadad2226415c84153d3e</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;joints)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setStartConfiguration</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a74bd83627cc405702c14f890884475f5</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setGoalConfiguration</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ae3ff76382121eb61c41931a6bfa17cef</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;joints)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setGoalConfiguration</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a4da8877fbbfc74bba310760e93c13412</anchor>
+      <arglist>(const robot_state::RobotStatePtr &amp;state)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setGoalPose</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a86d65ad791b62f2cd756e8088d0a56ea</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, double tolerance=0.001)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setGoalRegion</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ae049895d0563dbb858c46f63e030f99e</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addGoalRotaryTile</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ad5bb2d24e80feab8058c8f87215e0422</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances, const RobotPose &amp;offset, const Eigen::Vector3d &amp;axis, unsigned int n)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addCylinderSideGrasp</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a32701105e7b006f5d129c2b6ea7b5a9a</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;cylinder, double distance, double depth, unsigned int n)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>clearGoals</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a2b2aaf7ff2bc3d5eddd16ad0632e0459</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addPathPoseConstraint</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a61721e490554f85360b0a500aabee670</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addPathPositionConstraint</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>af9dfb6da75f457d4a6f791adf32d8f13</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>addPathOrientationConstraint</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a528a97f8c4b17b92803ccd4fe39d52e6</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>setConfig</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a786e67b08f9873bab228de0fe759816b</anchor>
+      <arglist>(const std::string &amp;requested_config)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setAllowedPlanningTime</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a2124a6c488484ef2ec0097e06e56e6ad</anchor>
+      <arglist>(double allowed_planning_time)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>setWorkspaceBounds</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ab3668987415bf45930a2438ae3935c4b</anchor>
+      <arglist>(const moveit_msgs::WorkspaceParameters &amp;wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>planning_interface::MotionPlanRequest &amp;</type>
+      <name>getRequest</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>ad189a2de452be4c113a35d67a21e9875</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>const planning_interface::MotionPlanRequest &amp;</type>
+      <name>getRequestConst</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>af2049a8b3da4b46935a61bc5220e008d</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>moveit_msgs::Constraints &amp;</type>
+      <name>getPathConstraints</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a3c0124b3c45dc3087508a83fff616182</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>toYAMLFile</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a4b56c303fe7a31df60f9ea36d1ba19f8</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>fromYAMLFile</name>
+      <anchorfile>classrobowflex_1_1MotionRequestBuilder.html</anchorfile>
+      <anchor>a8a7016a3777f7843da0738157a17a362</anchor>
+      <arglist>(const std::string &amp;file)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -3931,8 +4248,22 @@
       <type>void</type>
       <name>wait</name>
       <anchorfile>classrobowflex_1_1Pool_1_1Job.html</anchorfile>
-      <anchor>a9fb274d5f66026562c90a0b85315466f</anchor>
-      <arglist>()</arglist>
+      <anchor>a8eaa0e384f73e8ae6d9d6aef4cb9846b</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>isDone</name>
+      <anchorfile>classrobowflex_1_1Pool_1_1Job.html</anchorfile>
+      <anchor>a5c2e56fb90f52aa72a4df647dff804d3</anchor>
+      <arglist>() const</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>waitFor</name>
+      <anchorfile>classrobowflex_1_1Pool_1_1Job.html</anchorfile>
+      <anchor>ad89aeb0894f7d6ffb42f6237795e4a81</anchor>
+      <arglist>(double time) const</arglist>
     </member>
     <member kind="variable" protection="private">
       <type>std::function&lt; RT()&gt;</type>
@@ -4377,8 +4708,8 @@
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a349bbb89bb456954688f3a4db9156190</anchor>
-      <arglist>(const std::string &amp;group, const GeometryConstPtr &amp;region, const Eigen::Affine3d &amp;pose, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+      <anchor>ae62d0bb7dc59935bf8a5858ea28929d8</anchor>
+      <arglist>(const std::string &amp;group, const GeometryConstPtr &amp;region, const RobotPose &amp;pose, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
     <member kind="function">
       <type>std::vector&lt; double &gt;</type>
@@ -4395,17 +4726,17 @@
       <arglist>() const</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const RobotPose &amp;</type>
       <name>getLinkTF</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a64c361a1ce3b9273f7fa4af109203913</anchor>
+      <anchor>a0a00c4b4d751d0e60ec154a21a156860</anchor>
       <arglist>(const std::string &amp;name) const</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d</type>
+      <type>const RobotPose</type>
       <name>getRelativeLinkTF</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a48c6a8846e571f2f191106b6578f181f</anchor>
+      <anchor>a3a7f93082af7d89d38f6cbeb9c0df918</anchor>
       <arglist>(const std::string &amp;base, const std::string &amp;target) const</arglist>
     </member>
     <member kind="function">
@@ -4734,8 +5065,8 @@
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a349bbb89bb456954688f3a4db9156190</anchor>
-      <arglist>(const std::string &amp;group, const GeometryConstPtr &amp;region, const Eigen::Affine3d &amp;pose, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
+      <anchor>ae62d0bb7dc59935bf8a5858ea28929d8</anchor>
+      <arglist>(const std::string &amp;group, const GeometryConstPtr &amp;region, const RobotPose &amp;pose, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</arglist>
     </member>
     <member kind="function">
       <type>std::vector&lt; double &gt;</type>
@@ -4752,17 +5083,17 @@
       <arglist>() const</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const RobotPose &amp;</type>
       <name>getLinkTF</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a64c361a1ce3b9273f7fa4af109203913</anchor>
+      <anchor>a0a00c4b4d751d0e60ec154a21a156860</anchor>
       <arglist>(const std::string &amp;name) const</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d</type>
+      <type>const RobotPose</type>
       <name>getRelativeLinkTF</name>
       <anchorfile>classrobowflex_1_1Robot.html</anchorfile>
-      <anchor>a48c6a8846e571f2f191106b6578f181f</anchor>
+      <anchor>a3a7f93082af7d89d38f6cbeb9c0df918</anchor>
       <arglist>(const std::string &amp;base, const std::string &amp;target) const</arglist>
     </member>
     <member kind="function">
@@ -4912,8 +5243,8 @@
       <type>void</type>
       <name>updateCollisionObject</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>ac3e73f9467511359255edaa473e03936</anchor>
-      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const Eigen::Affine3d &amp;pose)</arglist>
+      <anchor>af282bbc4b34bc01259b53416f548d942</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const RobotPose &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4923,17 +5254,17 @@
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>getObjectPose</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>a324e933beb17041a118af94628e44f32</anchor>
+      <anchor>a1f4a8a4ed8c57952c7a7791afcfb017d</anchor>
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>getFramePose</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>a43d730ceb1b2c8a2a8441b6e02205f98</anchor>
+      <anchor>a8587f3a88500f34cc44a6b15cd814b11</anchor>
       <arglist>(const std::string &amp;id) const</arglist>
     </member>
     <member kind="function">
@@ -5052,8 +5383,8 @@
       <type>void</type>
       <name>updateCollisionObject</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>ac3e73f9467511359255edaa473e03936</anchor>
-      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const Eigen::Affine3d &amp;pose)</arglist>
+      <anchor>af282bbc4b34bc01259b53416f548d942</anchor>
+      <arglist>(const std::string &amp;name, const GeometryConstPtr &amp;geometry, const RobotPose &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5063,17 +5394,17 @@
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>getObjectPose</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>a324e933beb17041a118af94628e44f32</anchor>
+      <anchor>a1f4a8a4ed8c57952c7a7791afcfb017d</anchor>
       <arglist>(const std::string &amp;name)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>getFramePose</name>
       <anchorfile>classrobowflex_1_1Scene.html</anchorfile>
-      <anchor>a43d730ceb1b2c8a2a8441b6e02205f98</anchor>
+      <anchor>a8587f3a88500f34cc44a6b15cd814b11</anchor>
       <arglist>(const std::string &amp;id) const</arglist>
     </member>
     <member kind="function">
@@ -5329,6 +5660,13 @@
     <class kind="class">robowflex::UR5Robot</class>
     <class kind="class">robowflex::UR5RobotConstPtr</class>
     <class kind="class">robowflex::UR5RobotPtr</class>
+    <member kind="typedef">
+      <type>std::decay&lt; decltype(std::declval&lt; moveit::core::Transforms &gt;().getTransform(&quot;&quot;)) &gt;::type</type>
+      <name>RobotPose</name>
+      <anchorfile>namespacerobowflex.html</anchorfile>
+      <anchor>a59139b755558b8adf4a4c78871e68925</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function">
       <type>void</type>
       <name>explode</name>
@@ -5633,18 +5971,18 @@
       <arglist>(const Eigen::Vector3d &amp;vector)</arglist>
     </member>
     <member kind="function">
-      <type>Eigen::Affine3d</type>
+      <type>RobotPose</type>
       <name>poseMsgToEigen</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>af53d77db21f3736f386c805cbbdd37ba</anchor>
+      <anchor>a4bae1252b665b01a76b783986a365251</anchor>
       <arglist>(const geometry_msgs::Pose &amp;msg)</arglist>
     </member>
     <member kind="function">
       <type>geometry_msgs::Pose</type>
       <name>poseEigenToMsg</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a306bde67c676d1879f5579c96f4f0a24</anchor>
-      <arglist>(const Eigen::Affine3d &amp;pose)</arglist>
+      <anchor>a7065853322259e60f3b2ce12f2ded0b0</anchor>
+      <arglist>(const RobotPose &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>Eigen::Quaterniond</type>
@@ -5664,15 +6002,15 @@
       <type>moveit_msgs::BoundingVolume</type>
       <name>getBoundingVolume</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a69a9ae40884d2c53e418bd56b80bfd1a</anchor>
-      <arglist>(const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+      <anchor>ab2aee755c034bcbf58ac1660dbf33c6c</anchor>
+      <arglist>(const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
     </member>
     <member kind="function">
       <type>moveit_msgs::PositionConstraint</type>
       <name>getPositionConstraint</name>
       <anchorfile>namespacerobowflex_1_1TF.html</anchorfile>
-      <anchor>a3fb881f1dd59704d6f6237825161774f</anchor>
-      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const Eigen::Affine3d &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
+      <anchor>adf0cce7ea1ccd1e413f859d0ed4fe0e1</anchor>
+      <arglist>(const std::string &amp;ee_name, const std::string &amp;base_name, const RobotPose &amp;pose, const GeometryConstPtr &amp;geometry)</arglist>
     </member>
     <member kind="function">
       <type>moveit_msgs::OrientationConstraint</type>

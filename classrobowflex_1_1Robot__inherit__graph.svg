@@ -17,7 +17,7 @@
 <!-- Node1 -->
 <g id="node2" class="node">
 <title>Node1</title>
-<g id="a_node2"><a xlink:href="classrobowflex_1_1FetchRobot.html" target="_top" xlink:title="Convenience class that describes the default setup for Fetch (with robotiq gripper and load cell) ...">
+<g id="a_node2"><a xlink:href="classrobowflex_1_1FetchRobot.html" target="_top" xlink:title="Convenience class that describes the default setup for Fetch. ">
 <polygon fill="none" stroke="#000000" points="0,-.5 0,-19.5 111,-19.5 111,-.5 0,-.5"/>
 <text text-anchor="middle" x="55.5" y="-7.5" font-family="Roboto" font-size="10.00" fill="#000000">robowflex::FetchRobot</text>
 </a>

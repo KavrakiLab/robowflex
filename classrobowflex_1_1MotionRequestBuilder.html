@@ -101,43 +101,63 @@ $(document).ready(function(){initNavTree('classrobowflex_1_1MotionRequestBuilder
 <p>A helper class to build motion planning requests for a <a class="el" href="classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm. ">robowflex::Planner</a>.  
  <a href="classrobowflex_1_1MotionRequestBuilder.html#details">More...</a></p>
 
-<p><code>#include &lt;<a class="el" href="planning_8h_source.html">planning.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="builder_8h_source.html">builder.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ac53028afafd5ede152427e00b51ad8e0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ac53028afafd5ede152427e00b51ad8e0">MotionRequestBuilder</a> (const <a class="el" href="classrobowflex_1_1PlannerConstPtr.html">PlannerConstPtr</a> &amp;planner, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;group_name)</td></tr>
 <tr class="memdesc:ac53028afafd5ede152427e00b51ad8e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#ac53028afafd5ede152427e00b51ad8e0">More...</a><br /></td></tr>
 <tr class="separator:ac53028afafd5ede152427e00b51ad8e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3668987415bf45930a2438ae3935c4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ab3668987415bf45930a2438ae3935c4b">setWorkspaceBounds</a> (const moveit_msgs::WorkspaceParameters &amp;wp)</td></tr>
-<tr class="memdesc:ab3668987415bf45930a2438ae3935c4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets workspace bounds of the planning request.  <a href="#ab3668987415bf45930a2438ae3935c4b">More...</a><br /></td></tr>
-<tr class="separator:ab3668987415bf45930a2438ae3935c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Starting Configurations</div></td></tr>
 <tr class="memitem:a85ba3502e0ccadad2226415c84153d3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a85ba3502e0ccadad2226415c84153d3e">setStartConfiguration</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/vector.html">std::vector</a>&lt; double &gt; &amp;joints)</td></tr>
 <tr class="memdesc:a85ba3502e0ccadad2226415c84153d3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the start configuration from a vector <em>joints</em>. All joints are assumed to be specified and in the default order.  <a href="#a85ba3502e0ccadad2226415c84153d3e">More...</a><br /></td></tr>
 <tr class="separator:a85ba3502e0ccadad2226415c84153d3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74bd83627cc405702c14f890884475f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a74bd83627cc405702c14f890884475f5">setStartConfiguration</a> (const robot_state::RobotStatePtr &amp;state)</td></tr>
 <tr class="memdesc:a74bd83627cc405702c14f890884475f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the start configuration from a robot state.  <a href="#a74bd83627cc405702c14f890884475f5">More...</a><br /></td></tr>
 <tr class="separator:a74bd83627cc405702c14f890884475f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Goals</div></td></tr>
 <tr class="memitem:ae3ff76382121eb61c41931a6bfa17cef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ae3ff76382121eb61c41931a6bfa17cef">setGoalConfiguration</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/container/vector.html">std::vector</a>&lt; double &gt; &amp;joints)</td></tr>
 <tr class="memdesc:ae3ff76382121eb61c41931a6bfa17cef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the goal configuration from a vector <em>joints</em>. All joints are assumed to be specified and in the default order.  <a href="#ae3ff76382121eb61c41931a6bfa17cef">More...</a><br /></td></tr>
 <tr class="separator:ae3ff76382121eb61c41931a6bfa17cef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4da8877fbbfc74bba310760e93c13412"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a4da8877fbbfc74bba310760e93c13412">setGoalConfiguration</a> (const robot_state::RobotStatePtr &amp;state)</td></tr>
 <tr class="memdesc:a4da8877fbbfc74bba310760e93c13412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the goal configuration from a robot state.  <a href="#a4da8877fbbfc74bba310760e93c13412">More...</a><br /></td></tr>
 <tr class="separator:a4da8877fbbfc74bba310760e93c13412"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a465c8c99f090dcb934b8764a10cfa393"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a465c8c99f090dcb934b8764a10cfa393">setGoalRegion</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const Eigen::Affine3d &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
-<tr class="memdesc:a465c8c99f090dcb934b8764a10cfa393"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a goal region for an end-effector <em>ee_name</em>. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>, and the orientation constraint from <em>orientation</em> and XYZ Euler angle tolerances <em>tolerances</em>.  <a href="#a465c8c99f090dcb934b8764a10cfa393">More...</a><br /></td></tr>
-<tr class="separator:a465c8c99f090dcb934b8764a10cfa393"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab23251a765c8ec2e20d8a3f7a208de2f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ab23251a765c8ec2e20d8a3f7a208de2f">addPathPoseConstraint</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const Eigen::Affine3d &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
-<tr class="memdesc:ab23251a765c8ec2e20d8a3f7a208de2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a pose constraint on the path. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>, and the orientation constraint from <em>orientation</em> and XYZ Euler angle tolerances <em>tolerances</em>.  <a href="#ab23251a765c8ec2e20d8a3f7a208de2f">More...</a><br /></td></tr>
-<tr class="separator:ab23251a765c8ec2e20d8a3f7a208de2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1452324b16693c58069fca06c094cd29"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a1452324b16693c58069fca06c094cd29">addPathPositionConstraint</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const Eigen::Affine3d &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry)</td></tr>
-<tr class="memdesc:a1452324b16693c58069fca06c094cd29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a position constraint on the path. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>.  <a href="#a1452324b16693c58069fca06c094cd29">More...</a><br /></td></tr>
-<tr class="separator:a1452324b16693c58069fca06c094cd29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86d65ad791b62f2cd756e8088d0a56ea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a86d65ad791b62f2cd756e8088d0a56ea">setGoalPose</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, double tolerance=0.001)</td></tr>
+<tr class="memdesc:a86d65ad791b62f2cd756e8088d0a56ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a goal pose for the end-effector <em>ee_name</em>. Generates a sphere with radius <em>tolerance</em> as well as orientation tolerances of <em>tolerance</em> from <em>pose</em>.  <a href="#a86d65ad791b62f2cd756e8088d0a56ea">More...</a><br /></td></tr>
+<tr class="separator:a86d65ad791b62f2cd756e8088d0a56ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae049895d0563dbb858c46f63e030f99e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ae049895d0563dbb858c46f63e030f99e">setGoalRegion</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
+<tr class="memdesc:ae049895d0563dbb858c46f63e030f99e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a goal region for an end-effector <em>ee_name</em>. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>, and the orientation constraint from <em>orientation</em> and XYZ Euler angle tolerances <em>tolerances</em>.  <a href="#ae049895d0563dbb858c46f63e030f99e">More...</a><br /></td></tr>
+<tr class="separator:ae049895d0563dbb858c46f63e030f99e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5bb2d24e80feab8058c8f87215e0422"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ad5bb2d24e80feab8058c8f87215e0422">addGoalRotaryTile</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;offset, const Eigen::Vector3d &amp;axis, unsigned int n)</td></tr>
+<tr class="memdesc:ad5bb2d24e80feab8058c8f87215e0422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tiles some <em>geometry</em> around a <em>pose</em> in <em>base_name</em> for the end-effector <em>ee_name</em>. The <em>geometry</em> is placed at <em>offset</em> from <em>pose</em>, and <em>n</em> copies are placed evenly rotated about <em>axis</em>. The desired <em>orientation</em> is also rotated about the axis and set for each copy.  <a href="#ad5bb2d24e80feab8058c8f87215e0422">More...</a><br /></td></tr>
+<tr class="separator:ad5bb2d24e80feab8058c8f87215e0422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32701105e7b006f5d129c2b6ea7b5a9a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a32701105e7b006f5d129c2b6ea7b5a9a">addCylinderSideGrasp</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;cylinder, double <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/namespacepr2__arm__kinematics.html#a24f684af4bcce4a6d0c945aa27d04550">distance</a>, double <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/test__distance__field_8cpp.html#a0d634b5c5f908185480d8bb0bcd17fb9">depth</a>, unsigned int n)</td></tr>
+<tr class="memdesc:a32701105e7b006f5d129c2b6ea7b5a9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a set of regions to grasp a cylinder from the side. This function assumes the X-axis of the end-effector frame <em>ee_name</em> points "forward" for grasping.  <a href="#a32701105e7b006f5d129c2b6ea7b5a9a">More...</a><br /></td></tr>
+<tr class="separator:a32701105e7b006f5d129c2b6ea7b5a9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b2aaf7ff2bc3d5eddd16ad0632e0459"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a2b2aaf7ff2bc3d5eddd16ad0632e0459">clearGoals</a> ()</td></tr>
+<tr class="memdesc:a2b2aaf7ff2bc3d5eddd16ad0632e0459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all goals.  <a href="#a2b2aaf7ff2bc3d5eddd16ad0632e0459">More...</a><br /></td></tr>
+<tr class="separator:a2b2aaf7ff2bc3d5eddd16ad0632e0459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Path Constraints</div></td></tr>
+<tr class="memitem:a61721e490554f85360b0a500aabee670"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a61721e490554f85360b0a500aabee670">addPathPoseConstraint</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
+<tr class="memdesc:a61721e490554f85360b0a500aabee670"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a pose constraint on the path. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>, and the orientation constraint from <em>orientation</em> and XYZ Euler angle tolerances <em>tolerances</em>.  <a href="#a61721e490554f85360b0a500aabee670">More...</a><br /></td></tr>
+<tr class="separator:a61721e490554f85360b0a500aabee670"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9dfb6da75f457d4a6f791adf32d8f13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#af9dfb6da75f457d4a6f791adf32d8f13">addPathPositionConstraint</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry)</td></tr>
+<tr class="memdesc:af9dfb6da75f457d4a6f791adf32d8f13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set a position constraint on the path. Sets the position constraint from <em>geometry</em> at a pose <em>pose</em>.  <a href="#af9dfb6da75f457d4a6f791adf32d8f13">More...</a><br /></td></tr>
+<tr class="separator:af9dfb6da75f457d4a6f791adf32d8f13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a528a97f8c4b17b92803ccd4fe39d52e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a528a97f8c4b17b92803ccd4fe39d52e6">addPathOrientationConstraint</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;ee_name, const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;base_name, const Eigen::Quaterniond &amp;orientation, const Eigen::Vector3d &amp;tolerances)</td></tr>
 <tr class="memdesc:a528a97f8c4b17b92803ccd4fe39d52e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set an orientation constraint on the path. Sets the orientation constraint from <em>orientation</em> and XYZ Euler angle tolerances <em>tolerances</em>.  <a href="#a528a97f8c4b17b92803ccd4fe39d52e6">More...</a><br /></td></tr>
 <tr class="separator:a528a97f8c4b17b92803ccd4fe39d52e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Miscellaneous Settings</div></td></tr>
+<tr class="memitem:a786e67b08f9873bab228de0fe759816b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a786e67b08f9873bab228de0fe759816b">setConfig</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;requested_config)</td></tr>
+<tr class="memdesc:a786e67b08f9873bab228de0fe759816b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the planning configuration to use for the motion planning request. Attempts to match <em>requested_config</em> with the planner configuration offered by <em>planner_</em> that is the shortest configuration that contains <em>requested_config</em> as a substring. For example, specifying <code>RRTConnect</code> will match <code>RRTConnectkConfigDefault</code>, and specifying <code>RRT</code> will match <code>RRTkConfigDefault</code> and not <code>RRTConnectkConfigDefault</code>.  <a href="#a786e67b08f9873bab228de0fe759816b">More...</a><br /></td></tr>
+<tr class="separator:a786e67b08f9873bab228de0fe759816b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2124a6c488484ef2ec0097e06e56e6ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a2124a6c488484ef2ec0097e06e56e6ad">setAllowedPlanningTime</a> (double allowed_planning_time)</td></tr>
 <tr class="memdesc:a2124a6c488484ef2ec0097e06e56e6ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the allowed planning time in the request.  <a href="#a2124a6c488484ef2ec0097e06e56e6ad">More...</a><br /></td></tr>
 <tr class="separator:a2124a6c488484ef2ec0097e06e56e6ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3668987415bf45930a2438ae3935c4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ab3668987415bf45930a2438ae3935c4b">setWorkspaceBounds</a> (const moveit_msgs::WorkspaceParameters &amp;wp)</td></tr>
+<tr class="memdesc:ab3668987415bf45930a2438ae3935c4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets workspace bounds of the planning request.  <a href="#ab3668987415bf45930a2438ae3935c4b">More...</a><br /></td></tr>
+<tr class="separator:ab3668987415bf45930a2438ae3935c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Getters</div></td></tr>
 <tr class="memitem:ad189a2de452be4c113a35d67a21e9875"><td class="memItemLeft" align="right" valign="top"><a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/namespaceplanning__interface.html#a66b7da9ae05ece3dbde7605d89208ae8">planning_interface::MotionPlanRequest</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#ad189a2de452be4c113a35d67a21e9875">getRequest</a> ()</td></tr>
 <tr class="memdesc:ad189a2de452be4c113a35d67a21e9875"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a reference to the currently built motion planning request.  <a href="#ad189a2de452be4c113a35d67a21e9875">More...</a><br /></td></tr>
 <tr class="separator:ad189a2de452be4c113a35d67a21e9875"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,15 +167,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3c0124b3c45dc3087508a83fff616182"><td class="memItemLeft" align="right" valign="top">moveit_msgs::Constraints &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a3c0124b3c45dc3087508a83fff616182">getPathConstraints</a> ()</td></tr>
 <tr class="memdesc:a3c0124b3c45dc3087508a83fff616182"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a reference to the current path constraints on the motion planning request.  <a href="#a3c0124b3c45dc3087508a83fff616182">More...</a><br /></td></tr>
 <tr class="separator:a3c0124b3c45dc3087508a83fff616182"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">IO</div></td></tr>
 <tr class="memitem:a4b56c303fe7a31df60f9ea36d1ba19f8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a4b56c303fe7a31df60f9ea36d1ba19f8">toYAMLFile</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;file)</td></tr>
 <tr class="memdesc:a4b56c303fe7a31df60f9ea36d1ba19f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Serialize the motion planning request to a <a class="el" href="namespaceYAML.html">YAML</a> file <em>file</em>.  <a href="#a4b56c303fe7a31df60f9ea36d1ba19f8">More...</a><br /></td></tr>
 <tr class="separator:a4b56c303fe7a31df60f9ea36d1ba19f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a7016a3777f7843da0738157a17a362"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a8a7016a3777f7843da0738157a17a362">fromYAMLFile</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;file)</td></tr>
 <tr class="memdesc:a8a7016a3777f7843da0738157a17a362"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load a planning request from a <a class="el" href="namespaceYAML.html">YAML</a> file <em>file</em>.  <a href="#a8a7016a3777f7843da0738157a17a362">More...</a><br /></td></tr>
 <tr class="separator:a8a7016a3777f7843da0738157a17a362"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a786e67b08f9873bab228de0fe759816b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html#a786e67b08f9873bab228de0fe759816b">setConfig</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;requested_config)</td></tr>
-<tr class="memdesc:a786e67b08f9873bab228de0fe759816b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the planning configuration to use for the motion planning request. Attempts to match <em>requested_config</em> with the planner configuration offered by <em>planner_</em> that is the shortest configuration that contains <em>requested_config</em> as a substring. For example, specifying <code>RRTConnect</code> will match <code>RRTConnectkConfigDefault</code>, and specifying <code>RRT</code> will match <code>RRTkConfigDefault</code> and not <code>RRTConnectkConfigDefault</code>.  <a href="#a786e67b08f9873bab228de0fe759816b">More...</a><br /></td></tr>
-<tr class="separator:a786e67b08f9873bab228de0fe759816b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
@@ -183,7 +201,7 @@ Static Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A helper class to build motion planning requests for a <a class="el" href="classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm. ">robowflex::Planner</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00199">199</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00030">30</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac53028afafd5ede152427e00b51ad8e0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac53028afafd5ede152427e00b51ad8e0">&#9670;&nbsp;</a></span>MotionRequestBuilder()</h2>
@@ -220,11 +238,173 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00018">18</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00022">22</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a32701105e7b006f5d129c2b6ea7b5a9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32701105e7b006f5d129c2b6ea7b5a9a">&#9670;&nbsp;</a></span>addCylinderSideGrasp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MotionRequestBuilder::addCylinderSideGrasp </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>ee_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;&#160;</td>
+          <td class="paramname"><em>cylinder</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>distance</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>depth</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a set of regions to grasp a cylinder from the side. This function assumes the X-axis of the end-effector frame <em>ee_name</em> points "forward" for grasping. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of the frame to be rotated about. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">cylinder</td><td>The cylinder to grasp. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">distance</td><td>The distance from the cylinder to place the regions. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">depth</td><td>The depth of boxes to create. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">n</td><td>The number of regions to create. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00140">140</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ad5bb2d24e80feab8058c8f87215e0422"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5bb2d24e80feab8058c8f87215e0422">&#9670;&nbsp;</a></span>addGoalRotaryTile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MotionRequestBuilder::addGoalRotaryTile </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>ee_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;&#160;</td>
+          <td class="paramname"><em>geometry</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Quaterniond &amp;&#160;</td>
+          <td class="paramname"><em>orientation</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3d &amp;&#160;</td>
+          <td class="paramname"><em>tolerances</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
+          <td class="paramname"><em>offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Eigen::Vector3d &amp;&#160;</td>
+          <td class="paramname"><em>axis</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tiles some <em>geometry</em> around a <em>pose</em> in <em>base_name</em> for the end-effector <em>ee_name</em>. The <em>geometry</em> is placed at <em>offset</em> from <em>pose</em>, and <em>n</em> copies are placed evenly rotated about <em>axis</em>. The desired <em>orientation</em> is also rotated about the axis and set for each copy. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em> and <em>orientation</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of the frame to be rotated about. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">geometry</td><td>The geometry describing the position constraint. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">orientation</td><td>The desired orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tolerances</td><td>XYZ Euler angle tolerances about orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">offset</td><td>Offset of the goal <em>geometry</em> from <em>pose</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">axis</td><td>Axis to rotation the goal <em>geometry</em> and <em>orientation</em> about in <em>pose</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">n</td><td>Number of rotations (evenly divided around the circle). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00122">122</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+
+</div>
+</div>
 <a id="a528a97f8c4b17b92803ccd4fe39d52e6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a528a97f8c4b17b92803ccd4fe39d52e6">&#9670;&nbsp;</a></span>addPathOrientationConstraint()</h2>
 
@@ -267,19 +447,19 @@ Static Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The frame of pose and orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>orientation</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">orientation</td><td>The desired orientation. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">tolerances</td><td>XYZ Euler angle tolerances about orientation. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00135">135</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00186">186</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
-<a id="ab23251a765c8ec2e20d8a3f7a208de2f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab23251a765c8ec2e20d8a3f7a208de2f">&#9670;&nbsp;</a></span>addPathPoseConstraint()</h2>
+<a id="a61721e490554f85360b0a500aabee670"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61721e490554f85360b0a500aabee670">&#9670;&nbsp;</a></span>addPathPoseConstraint()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -299,7 +479,7 @@ Static Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
           <td class="paramname"><em>pose</em>, </td>
         </tr>
         <tr>
@@ -332,7 +512,7 @@ Static Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The frame of pose and orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em> and <em>orientation</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of <em>geometry</em> in <em>base_frame</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">geometry</td><td>The geometry describing the position constraint. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">orientation</td><td>The desired orientation. </td></tr>
@@ -341,12 +521,12 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00117">117</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00168">168</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a1452324b16693c58069fca06c094cd29"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1452324b16693c58069fca06c094cd29">&#9670;&nbsp;</a></span>addPathPositionConstraint()</h2>
+<a id="af9dfb6da75f457d4a6f791adf32d8f13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9dfb6da75f457d4a6f791adf32d8f13">&#9670;&nbsp;</a></span>addPathPositionConstraint()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -366,7 +546,7 @@ Static Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
           <td class="paramname"><em>pose</em>, </td>
         </tr>
         <tr>
@@ -387,14 +567,35 @@ Static Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The frame of pose and orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of <em>geometry</em> in <em>base_frame</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">geometry</td><td>The geometry describing the position constraint. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00127">127</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00178">178</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a2b2aaf7ff2bc3d5eddd16ad0632e0459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b2aaf7ff2bc3d5eddd16ad0632e0459">&#9670;&nbsp;</a></span>clearGoals()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MotionRequestBuilder::clearGoals </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears all goals. </p>
+
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00158">158</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -423,7 +624,7 @@ Static Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00164">164</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00215">215</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -445,7 +646,7 @@ Static Private Attributes</h2></td></tr>
 <p>Get a reference to the current path constraints on the motion planning request. </p>
 <dl class="section return"><dt>Returns</dt><dd>The motion planning request. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00144">144</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00195">195</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -467,7 +668,7 @@ Static Private Attributes</h2></td></tr>
 <p>Get a reference to the currently built motion planning request. </p>
 <dl class="section return"><dt>Returns</dt><dd>The motion planning request. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00149">149</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00200">200</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -489,7 +690,7 @@ Static Private Attributes</h2></td></tr>
 <p>Get a const reference to the currently built motion planning request. </p>
 <dl class="section return"><dt>Returns</dt><dd>The motion planning request. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00154">154</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00205">205</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -517,7 +718,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00112">112</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00163">163</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -546,7 +747,7 @@ Static Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if the <em>requested_config</em> is found, false otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00040">40</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00044">44</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -574,7 +775,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00082">82</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00086">86</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -602,12 +803,65 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00091">91</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00095">95</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
-<a id="a465c8c99f090dcb934b8764a10cfa393"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a465c8c99f090dcb934b8764a10cfa393">&#9670;&nbsp;</a></span>setGoalRegion()</h2>
+<a id="a86d65ad791b62f2cd756e8088d0a56ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86d65ad791b62f2cd756e8088d0a56ea">&#9670;&nbsp;</a></span>setGoalPose()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MotionRequestBuilder::setGoalPose </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>ee_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
+          <td class="paramname"><em>base_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
+          <td class="paramname"><em>pose</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>tolerance</em> = <code>0.001</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set a goal pose for the end-effector <em>ee_name</em>. Generates a sphere with radius <em>tolerance</em> as well as orientation tolerances of <em>tolerance</em> from <em>pose</em>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of the end-effector in <em>base_frame</em>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tolerance</td><td>The tolerance to put on the pose. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00100">100</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ae049895d0563dbb858c46f63e030f99e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae049895d0563dbb858c46f63e030f99e">&#9670;&nbsp;</a></span>setGoalRegion()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -627,7 +881,7 @@ Static Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
           <td class="paramname"><em>pose</em>, </td>
         </tr>
         <tr>
@@ -660,7 +914,7 @@ Static Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">ee_name</td><td>The name of the end-effector link. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The frame of pose and orientation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">base_name</td><td>The name of the frame of reference of <em>pose</em> and <em>orientation</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pose</td><td>The pose of <em>geometry</em> in <em>base_frame</em>. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">geometry</td><td>The geometry describing the position constraint. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">orientation</td><td>The desired orientation. </td></tr>
@@ -669,7 +923,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00097">97</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00108">108</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -697,7 +951,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00068">68</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00072">72</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -725,7 +979,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00077">77</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00081">81</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -753,7 +1007,7 @@ Static Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00063">63</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00067">67</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -782,7 +1036,7 @@ Static Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True on success, false on failure. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00159">159</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8cpp_source.html#l00210">210</a> of file <a class="el" href="builder_8cpp_source.html">builder.cpp</a>.</p>
 
 </div>
 </div>
@@ -809,7 +1063,7 @@ Static Private Attributes</h2></td></tr>
 
 <p>Default planner configurations to use. </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00335">335</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00241">241</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
@@ -835,7 +1089,7 @@ Static Private Attributes</h2></td></tr>
 
 <p>The group to plan for. </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00329">329</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00235">235</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
@@ -860,7 +1114,7 @@ Static Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>The joint model group of the robot (from <em>group_name_</em>) </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00330">330</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00236">236</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
@@ -886,7 +1140,7 @@ Static Private Attributes</h2></td></tr>
 
 <p>The planner to build the request for. </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00327">327</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00233">233</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
@@ -912,7 +1166,7 @@ Static Private Attributes</h2></td></tr>
 
 <p>The build request. </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00333">333</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00239">239</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
@@ -938,12 +1192,12 @@ Static Private Attributes</h2></td></tr>
 
 <p>The robot to build the request for (from <em>planner_</em>) </p>
 
-<p class="definition">Definition at line <a class="el" href="planning_8h_source.html#l00328">328</a> of file <a class="el" href="planning_8h_source.html">planning.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="builder_8h_source.html#l00234">234</a> of file <a class="el" href="builder_8h_source.html">builder.h</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/<a class="el" href="planning_8h_source.html">planning.h</a></li>
+<li>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/include/robowflex_library/<a class="el" href="builder_8h_source.html">builder.h</a></li>
 <li>/home/zak/ros/melodic/dev/src/robowflex/robowflex_library/src/<a class="el" href="builder_8cpp_source.html">builder.cpp</a></li>
 </ul>
 </div><!-- contents -->
@@ -953,7 +1207,7 @@ Static Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1MotionRequestBuilder.html">MotionRequestBuilder</a></li>
-    <li class="footer">Generated on Tue Aug 28 2018 09:29:17 for Robowflex by
+    <li class="footer">Generated on Thu Jan 31 2019 11:27:21 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

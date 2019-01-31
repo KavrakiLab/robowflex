@@ -140,18 +140,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a46e691ddb85f60a851cf1a5d079e5f75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the planning scene to be the same as a message.  <a href="#a46e691ddb85f60a851cf1a5d079e5f75">More...</a><br /></td></tr>
 <tr class="separator:a46e691ddb85f60a851cf1a5d079e5f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Collision Object Management</div></td></tr>
-<tr class="memitem:ac3e73f9467511359255edaa473e03936"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#ac3e73f9467511359255edaa473e03936">updateCollisionObject</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const Eigen::Affine3d &amp;pose)</td></tr>
-<tr class="memdesc:ac3e73f9467511359255edaa473e03936"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds or updates collision object in the planning scene. If the geometry reference is the same, the collision object is updated. Otherwise, the old object named <em>name</em> is deleted and a new one is created.  <a href="#ac3e73f9467511359255edaa473e03936">More...</a><br /></td></tr>
-<tr class="separator:ac3e73f9467511359255edaa473e03936"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af282bbc4b34bc01259b53416f548d942"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#af282bbc4b34bc01259b53416f548d942">updateCollisionObject</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name, const <a class="el" href="classrobowflex_1_1GeometryConstPtr.html">GeometryConstPtr</a> &amp;geometry, const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;pose)</td></tr>
+<tr class="memdesc:af282bbc4b34bc01259b53416f548d942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds or updates collision object in the planning scene. If the geometry reference is the same, the collision object is updated. Otherwise, the old object named <em>name</em> is deleted and a new one is created.  <a href="#af282bbc4b34bc01259b53416f548d942">More...</a><br /></td></tr>
+<tr class="separator:af282bbc4b34bc01259b53416f548d942"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66550f4e75ccb87860fc2b3ff43e73d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a66550f4e75ccb87860fc2b3ff43e73d3">removeCollisionObject</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name)</td></tr>
 <tr class="memdesc:a66550f4e75ccb87860fc2b3ff43e73d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes an object from the planning scene.  <a href="#a66550f4e75ccb87860fc2b3ff43e73d3">More...</a><br /></td></tr>
 <tr class="separator:a66550f4e75ccb87860fc2b3ff43e73d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a324e933beb17041a118af94628e44f32"><td class="memItemLeft" align="right" valign="top">Eigen::Affine3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a324e933beb17041a118af94628e44f32">getObjectPose</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name)</td></tr>
-<tr class="memdesc:a324e933beb17041a118af94628e44f32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current pose of a collision object.  <a href="#a324e933beb17041a118af94628e44f32">More...</a><br /></td></tr>
-<tr class="separator:a324e933beb17041a118af94628e44f32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43d730ceb1b2c8a2a8441b6e02205f98"><td class="memItemLeft" align="right" valign="top">Eigen::Affine3d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a43d730ceb1b2c8a2a8441b6e02205f98">getFramePose</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;id) const</td></tr>
-<tr class="memdesc:a43d730ceb1b2c8a2a8441b6e02205f98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the pose of a particular frame in the scene. Example, use this to get the pose from /world to /base_link.  <a href="#a43d730ceb1b2c8a2a8441b6e02205f98">More...</a><br /></td></tr>
-<tr class="separator:a43d730ceb1b2c8a2a8441b6e02205f98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f4a8a4ed8c57952c7a7791afcfb017d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a1f4a8a4ed8c57952c7a7791afcfb017d">getObjectPose</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;name)</td></tr>
+<tr class="memdesc:a1f4a8a4ed8c57952c7a7791afcfb017d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current pose of a collision object.  <a href="#a1f4a8a4ed8c57952c7a7791afcfb017d">More...</a><br /></td></tr>
+<tr class="separator:a1f4a8a4ed8c57952c7a7791afcfb017d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8587f3a88500f34cc44a6b15cd814b11"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#a8587f3a88500f34cc44a6b15cd814b11">getFramePose</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;id) const</td></tr>
+<tr class="memdesc:a8587f3a88500f34cc44a6b15cd814b11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the pose of a particular frame in the scene. Example, use this to get the pose from /world to /base_link.  <a href="#a8587f3a88500f34cc44a6b15cd814b11">More...</a><br /></td></tr>
+<tr class="separator:a8587f3a88500f34cc44a6b15cd814b11"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1b2ce6565ce7288b73d69e9ce1f3a3e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrobowflex_1_1Scene.html#ae1b2ce6565ce7288b73d69e9ce1f3a3e">setCollisionDetector</a> (const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;detector_name) const</td></tr>
 <tr class="memdesc:ae1b2ce6565ce7288b73d69e9ce1f3a3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to set the collision detector plugin used by the scene to <em>name</em>. In MoveIt by default, 'Hybrid' is the only plugin defined. However, you can define your own libraries that contain classes that extend the <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classcollision__detection_1_1CollisionPlugin.html">collision_detection::CollisionPlugin</a> class, and load them here as well. See <a href="http://moveit.ros.org/documentation/plugins/#collisionplugin">http://moveit.ros.org/documentation/plugins/#collisionplugin</a> for more details.  <a href="#ae1b2ce6565ce7288b73d69e9ce1f3a3e">More...</a><br /></td></tr>
 <tr class="separator:ae1b2ce6565ce7288b73d69e9ce1f3a3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,7 +192,7 @@ Private Attributes</h2></td></tr>
 <div class="textblock"><p>Wrapper class around the planning scene and collision geometry. </p>
 <p>The <a class="el" href="classrobowflex_1_1Scene.html" title="Wrapper class around the planning scene and collision geometry. ">Scene</a> class is a wrapper around <em>MoveIt!</em>'s <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/moveit_core.tag:http://docs.ros.org/melodic/api/moveit_core/html/" href="http://docs.ros.org/melodic/api/moveit_core/html/classplanning__scene_1_1PlanningScene.html">planning_scene::PlanningScene</a>, providing access to set and manipulate collision objects, attach and detach objects to the robot, and so on. There are also utilities to load and save planning scenes from <a class="el" href="namespaceYAML.html">YAML</a> files (<a class="el" href="classrobowflex_1_1Scene.html#a180d072af873ec9bfcafbca8fd9d1ad4" title="Serialize the current planning scene to a YAML file. ">toYAMLFile()</a> and <a class="el" href="classrobowflex_1_1Scene.html#a575b1a28985a1a90bd5b2588c2a8fe6a" title="Load a planning scene from a YAML file. ">fromYAMLFile()</a>). </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00042">42</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00043">43</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab17fdf219c3ee8f1d77541ee3b4115f0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab17fdf219c3ee8f1d77541ee3b4115f0">&#9670;&nbsp;</a></span>Scene() <span class="overload">[1/2]</span></h2>
@@ -498,14 +498,14 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a43d730ceb1b2c8a2a8441b6e02205f98"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43d730ceb1b2c8a2a8441b6e02205f98">&#9670;&nbsp;</a></span>getFramePose()</h2>
+<a id="a8587f3a88500f34cc44a6b15cd814b11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8587f3a88500f34cc44a6b15cd814b11">&#9670;&nbsp;</a></span>getFramePose()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Affine3d Scene::getFramePose </td>
+          <td class="memname"><a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> Scene::getFramePose </td>
           <td>(</td>
           <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
           <td class="paramname"><em>id</em></td><td>)</td>
@@ -549,14 +549,14 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a324e933beb17041a118af94628e44f32"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a324e933beb17041a118af94628e44f32">&#9670;&nbsp;</a></span>getObjectPose()</h2>
+<a id="a1f4a8a4ed8c57952c7a7791afcfb017d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f4a8a4ed8c57952c7a7791afcfb017d">&#9670;&nbsp;</a></span>getObjectPose()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Eigen::Affine3d Scene::getObjectPose </td>
+          <td class="memname"><a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> Scene::getObjectPose </td>
           <td>(</td>
           <td class="paramtype">const <a class="elRef" target="_blank" doxygen="/home/zak/ros/melodic/dev/src/robowflex/robowflex_doc/doc/tag/cppreference.tag:http://en.cppreference.com/w/" href="http://en.cppreference.com/w/cpp/string/basic_string.html">std::string</a> &amp;&#160;</td>
           <td class="paramname"><em>name</em></td><td>)</td>
@@ -736,8 +736,8 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ac3e73f9467511359255edaa473e03936"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac3e73f9467511359255edaa473e03936">&#9670;&nbsp;</a></span>updateCollisionObject()</h2>
+<a id="af282bbc4b34bc01259b53416f548d942"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af282bbc4b34bc01259b53416f548d942">&#9670;&nbsp;</a></span>updateCollisionObject()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -757,7 +757,7 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const Eigen::Affine3d &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespacerobowflex.html#a59139b755558b8adf4a4c78871e68925">RobotPose</a> &amp;&#160;</td>
           <td class="paramname"><em>pose</em>&#160;</td>
         </tr>
         <tr>
@@ -844,7 +844,7 @@ Private Attributes</h2></td></tr>
 
 <p>Plugin loader that sets collision detectors for the scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00204">204</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00205">205</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -870,7 +870,7 @@ Private Attributes</h2></td></tr>
 
 <p>Underlying planning scene. </p>
 
-<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00205">205</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="scene_8h_source.html#l00206">206</a> of file <a class="el" href="scene_8h_source.html">scene.h</a>.</p>
 
 </div>
 </div>
@@ -885,7 +885,7 @@ Private Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacerobowflex.html">robowflex</a></li><li class="navelem"><a class="el" href="classrobowflex_1_1Scene.html">Scene</a></li>
-    <li class="footer">Generated on Tue Aug 28 2018 09:29:17 for Robowflex by
+    <li class="footer">Generated on Thu Jan 31 2019 11:27:21 for Robowflex by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.13 </li>
   </ul>

@@ -1,5 +1,5 @@
 <map id="robowflex::Robot" name="robowflex::Robot">
-<area shape="rect" id="node2" href="$classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch (with robotiq gripper and load cell) ..." alt="" coords="5,80,153,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch. " alt="" coords="5,80,153,107"/>
 <area shape="rect" id="node3" href="$classrobowflex_1_1ParamRobot.html" title="Loads information about a robot from the parameter server. " alt="" coords="177,80,331,107"/>
 <area shape="rect" id="node4" href="$classrobowflex_1_1R2Robot.html" title="Convenience class that describes the default setup for R2 (R2C6 full). " alt="" coords="355,80,486,107"/>
 <area shape="rect" id="node5" href="$classrobowflex_1_1UR5Robot.html" title="Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell) ..." alt="" coords="510,80,649,107"/>

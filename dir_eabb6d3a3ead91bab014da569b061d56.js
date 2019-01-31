@@ -2,6 +2,7 @@ var dir_eabb6d3a3ead91bab014da569b061d56 =
 [
     [ "detail", "dir_1465439fd9df93c7e81af3e507bdfe60.html", "dir_1465439fd9df93c7e81af3e507bdfe60" ],
     [ "io", "dir_7d4cf5468bd75b04eb8792802bdb5b18.html", "dir_7d4cf5468bd75b04eb8792802bdb5b18" ],
+    [ "adapter.h", "adapter_8h.html", "adapter_8h" ],
     [ "benchmarking.h", "benchmarking_8h.html", [
       [ "Benchmarker", "classrobowflex_1_1Benchmarker.html", "classrobowflex_1_1Benchmarker" ],
       [ "Options", "classrobowflex_1_1Benchmarker_1_1Options.html", "classrobowflex_1_1Benchmarker_1_1Options" ],
@@ -12,6 +13,9 @@ var dir_eabb6d3a3ead91bab014da569b061d56 =
       [ "JSONBenchmarkOutputter", "classrobowflex_1_1JSONBenchmarkOutputter.html", "classrobowflex_1_1JSONBenchmarkOutputter" ],
       [ "TrajectoryBenchmarkOutputter", "classrobowflex_1_1TrajectoryBenchmarkOutputter.html", "classrobowflex_1_1TrajectoryBenchmarkOutputter" ],
       [ "OMPLBenchmarkOutputter", "classrobowflex_1_1OMPLBenchmarkOutputter.html", "classrobowflex_1_1OMPLBenchmarkOutputter" ]
+    ] ],
+    [ "builder.h", "builder_8h.html", [
+      [ "MotionRequestBuilder", "classrobowflex_1_1MotionRequestBuilder.html", "classrobowflex_1_1MotionRequestBuilder" ]
     ] ],
     [ "class_forward.h", "class__forward_8h.html", "class__forward_8h" ],
     [ "geometry.h", "geometry_8h.html", [
