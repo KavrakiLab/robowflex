@@ -169,7 +169,7 @@ namespace robowflex
             /** \brief Waits for a number of seconds to see if the task completes.
              *  \return True if task is complete, false otherwise.
              */
-            bool waitFor(double time)
+            bool waitFor(double time) const
             {
                 return future_.wait_for(std::chrono::seconds(time)) == std::future_status::ready;
             }
