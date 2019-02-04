@@ -66,6 +66,15 @@ namespace robowflex
          */
         void setGoalConfiguration(const robot_state::RobotStatePtr &state);
 
+        /** \brief Set a goal pose for the end-effector \a ee_name.
+         *  Generates a sphere with radius \a tolerance as well as orientation tolerances of \a tolerance from \a pose.
+         *  \param[in] ee_name The name of the end-effector link.
+         *  \param[in] base_name The name of the frame of reference of \a pose.
+         *  \param[in] pose The pose of the end-effector in \a base_frame.
+         *  \param[in] tolerance The tolerance to put on the pose.
+         */
+        void setGoalPose(const std::string &ee_name, const std::string &base_name, const RobotPose &pose, double tolerance = 0.001);
+
         /** \brief Set a goal region for an end-effector \a ee_name.
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
@@ -76,13 +85,13 @@ namespace robowflex
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          */
-        void setGoalRegion(const std::string &ee_name, const std::string &base_name,
-                           const RobotPose &pose, const GeometryConstPtr &geometry,
-                           const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+        void setGoalRegion(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
+                           const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
+                           const Eigen::Vector3d &tolerances);
 
         /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a ee_name.
-         * The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly rotated about
-         * \a axis. The desired \a orientation is also rotated about the axis and set for each copy.
+         * The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly rotated
+         * about \a axis. The desired \a orientation is also rotated about the axis and set for each copy.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of the frame to be rotated about.
@@ -109,8 +118,8 @@ namespace robowflex
          *  \param[in] n The number of regions to create.
          */
         void addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
-                                  const RobotPose &pose, const GeometryConstPtr &cylinder,
-                                  double distance, double depth, unsigned int n);
+                                  const RobotPose &pose, const GeometryConstPtr &cylinder, double distance,
+                                  double depth, unsigned int n);
 
         /** \brief Clears all goals.
          */

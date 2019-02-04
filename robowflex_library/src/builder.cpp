@@ -97,6 +97,14 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
+void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
+                                       const RobotPose &pose, double tolerance)
+{
+    setGoalRegion(ee_name, base_name,                     //
+                  pose, Geometry::makeSphere(tolerance),  //
+                  Eigen::Quaterniond(pose.rotation()), {tolerance, tolerance, tolerance});
+}
+
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
                                          const RobotPose &pose, const GeometryConstPtr &geometry,
                                          const Eigen::Quaterniond &orientation,
