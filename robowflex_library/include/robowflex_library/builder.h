@@ -130,6 +130,10 @@ namespace robowflex
         /** \name Path Constraints
             \{ */
 
+        void setPoseRegionTargets(const std::vector<geometry_msgs::PoseStamped> &pose_targets,
+                                  const std::vector<moveit_msgs::GoalRegion> &pose_region_targets,
+                                  const std::string &end_effector_link = "");
+
         /** \brief Set a pose constraint on the path.
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.

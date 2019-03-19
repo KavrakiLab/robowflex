@@ -153,7 +153,7 @@ void OMPL::Settings::setParam(IO::Handler &handler) const
 /// OMPL::PipelinePlanner
 ///
 
-const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN("ompl_interface/OMPLPlanner");
+const std::string OMPL::OMPLPipelinePlanner::DEFAULT_PLUGIN("ompl_interface/OMPLPlanningContextManager");
 const std::vector<std::string>                                        //
     OMPL::OMPLPipelinePlanner::DEFAULT_ADAPTERS(                      //
         {"default_planner_request_adapters/AddTimeParameterization",  //

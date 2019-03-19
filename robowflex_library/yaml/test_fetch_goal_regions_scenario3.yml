@@ -1,0 +1,216 @@
+name: (noname)
+robot_model_name: fetch
+robot_state:
+  joint_state: 
+    position: [0, 0, 0.05, 0, 0, 0, 1.32, 1.4, -0.2, 1.72, 0.0, 1.66, 0.0, 0.04, 0.04]    
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+fixed_frame_transforms:
+  - child_frame_id: world
+    transform:
+      translation: [0, 0, 0]
+      rotation: [0, 0, 0, 1]
+world:
+  collision_objects:
+   - id: Cube1
+     primitives:
+       - type: box
+         dimensions: [0.07, 0.07, 0.15]
+     primitive_poses:
+       - position: [0.7, 0.3, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Cube2
+     primitives:
+       - type: box
+         dimensions: [0.07, 0.07, 0.15]
+     primitive_poses:
+       - position: [0.5, -0.55, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Cube3
+     primitives:
+       - type: box
+         dimensions: [0.07, 0.07, 0.15]
+     primitive_poses:
+       - position: [0.55, -0.72, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Cube4
+     primitives:
+       - type: box
+         dimensions: [0.07, 0.07, 0.15]
+     primitive_poses:
+       - position: [0.4, 0.6, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Cube5
+     primitives:
+       - type: box
+         dimensions: [0.07, 0.07, 0.15]
+     primitive_poses:
+       - position: [0.45, 0.77, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Can1
+     primitives:
+       - type: cylinder
+         dimensions: [0.155, 0.035]
+     primitive_poses:
+       - position: [0.58, 0.36, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Bar1
+     primitives:
+       - type: cylinder
+         dimensions: [1.0, 0.015]
+     primitive_poses:
+       - position: [0.2, -0.55, 0.95]
+         orientation: [0, 0.515248069431, 0, 0.857001663554]
+   - id: Bar2
+     primitives:
+       - type: cylinder
+         dimensions: [1.0, 0.015]
+     primitive_poses:
+       - position: [0.2, 0.55, 0.95]
+         orientation: [0, 0.515248069431, 0, 0.857001663554]          
+   - id: Can2
+     primitives:
+       - type: cylinder
+         dimensions: [0.155, 0.035]
+     primitive_poses:
+       - position: [0.33, 0.5, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Cylinder1
+     primitives:
+       - type: cylinder
+         dimensions: [0.3, 0.1]
+     primitive_poses:
+       - position: [0.58, -0.36, 0.83]
+         orientation: [0, 0, 0, 1]
+   - id: Can3
+     primitives:
+       - type: cylinder
+         dimensions: [0.155, 0.035]
+     primitive_poses:
+       - position: [0.58, 0.05, 0.75]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_1
+     primitives:
+       - type: box
+         dimensions: [0.5, 1.01, 0.05]
+     primitive_poses:
+       - position: [0.8, 0.0, 1.20]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_2
+     primitives:
+       - type: box
+         dimensions: [0.5, 1.01, 0.05]
+     primitive_poses:
+       - position: [0.8, 0.0, 0.65]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_3
+     primitives:
+       - type: box
+         dimensions: [0.5, 1.01, 0.05]
+     primitive_poses:
+       - position: [0.8, 0.0, 0.05]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_4
+     primitives:
+       - type: box
+         dimensions: [0.5, 0.05, 1.2]
+     primitive_poses:
+       - position: [0.8, -0.48, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_5
+     primitives:
+       - type: box
+         dimensions: [0.5, 0.05, 1.2]
+     primitive_poses:
+       - position: [0.8, 0.48, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf1_6
+     primitives:
+       - type: box
+         dimensions: [0.05, 1.01, 1.2]
+     primitive_poses:
+       - position: [1.04, 0.0, 0.625]
+         orientation: [0, 0, 0, 1]          
+   - id: Shelf2_1
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, -0.75, 1.20]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf2_2
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, -0.75, 0.65]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf2_3
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, -0.75, 0.05]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf2_4
+     primitives:
+       - type: box
+         dimensions: [0.05, 0.5, 1.2]
+     primitive_poses:
+       - position: [0.68, -0.75, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf2_5
+     primitives:
+       - type: box
+         dimensions: [0.05, 0.5, 1.2]
+     primitive_poses:
+       - position: [-0.28, -0.75, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf2_6
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.05, 1.2]
+     primitive_poses:
+       - position: [0.2, -1.02, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_1
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, 0.75, 1.20]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_2
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, 0.75, 0.65]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_3
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.5, 0.05]
+     primitive_poses:
+       - position: [0.2, 0.75, 0.05]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_4
+     primitives:
+       - type: box
+         dimensions: [0.05, 0.5, 1.2]
+     primitive_poses:
+       - position: [0.68, 0.75, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_5
+     primitives:
+       - type: box
+         dimensions: [0.05, 0.5, 1.2]
+     primitive_poses:
+       - position: [-0.28, 0.75, 0.625]
+         orientation: [0, 0, 0, 1]
+   - id: Shelf3_6
+     primitives:
+       - type: box
+         dimensions: [1.01, 0.05, 1.2]
+     primitive_poses:
+       - position: [0.2, 1.02, 0.625]
+         orientation: [0, 0, 0, 1]

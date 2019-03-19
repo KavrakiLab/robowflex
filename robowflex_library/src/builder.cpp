@@ -160,6 +160,27 @@ void MotionRequestBuilder::clearGoals()
     request_.goal_constraints.clear();
 }
 
+void MotionRequestBuilder::setPoseRegionTargets(
+    const std::vector<geometry_msgs::PoseStamped> &pose_targets,
+    const std::vector<moveit_msgs::GoalRegion> &pose_region_targets, const std::string &end_effector_link)
+{
+    request_.goal_constraints.clear();
+    request_.goal_regions.clear();
+    request_.goal_constraints.resize(pose_targets.size());
+    request_.goal_regions.resize(pose_region_targets.size());
+
+    for (unsigned int i = 0; i < pose_targets.size(); i++)
+    {
+        moveit_msgs::Constraints c =
+            kinematic_constraints::constructGoalConstraints(end_effector_link, pose_targets[i]);
+        request_.goal_constraints[i] =
+            kinematic_constraints::mergeConstraints(request_.goal_constraints[i], c);
+    }
+
+    for (unsigned int i = 0; i < pose_region_targets.size(); i++)
+        request_.goal_regions[i] = moveit_msgs::GoalRegion(pose_region_targets[i]);
+}
+
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
 {
     request_.allowed_planning_time = allowed_planning_time;
