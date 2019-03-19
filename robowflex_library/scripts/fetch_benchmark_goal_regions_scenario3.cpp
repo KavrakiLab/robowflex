@@ -35,8 +35,9 @@ int main(int argc, char **argv)
 
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-    planner->initialize(OMPL::Settings(), "/home/juandhv/ros/melodic/system/src/multimodal_common_bringup/"
-                                          "parameters/moveit/ompl_planning.yaml");
+    std::string package_path = ros::package::getPath("multimodal_common_bringup");
+    package_path = package_path + std::string("/parameters/moveit/ompl_planning.yaml");
+    planner->initialize(OMPL::Settings(), package_path);
 
     // Create a motion planning request with a pose goal.
     MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, GROUP));
