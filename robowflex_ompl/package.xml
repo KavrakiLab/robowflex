@@ -12,4 +12,5 @@
 
   <depend>robowflex_library</depend>
   <depend>moveit_planners_ompl</depend>
+  <depend>moveit_ompl_planning_interface</depend>
 </package>
