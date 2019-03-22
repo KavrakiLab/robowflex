@@ -198,10 +198,10 @@ bool Robot::loadKinematics(const std::string &name)
     }
 
     auto timeout = kinematics_->getIKTimeout();
-    auto attempts = kinematics_->getIKAttempts();
+    // auto attempts = kinematics_->getIKAttempts();
 
     jmg->setDefaultIKTimeout(timeout[name]);
-    jmg->setDefaultIKAttempts(attempts[name]);
+    // jmg->setDefaultIKAttempts(attempts[name]);
 
     model_->setKinematicsAllocators(imap_);
 
