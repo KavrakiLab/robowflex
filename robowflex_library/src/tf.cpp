@@ -8,6 +8,41 @@
 
 using namespace robowflex;
 
+RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
+{
+    return createPoseQ(Eigen::Vector3d{x, y, z},  //
+                       Eigen::Vector3d{X, Y, Z});
+}
+
+RobotPose TF::createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                            const Eigen::Ref<const Eigen::Vector3d> &rotation)
+{
+    RobotPose pose = RobotPose::Identity();
+    pose.translation() = translation;
+
+    pose.linear() = Eigen::AngleAxisd(rotation[0], Eigen::Vector3d::UnitX()) *
+                    Eigen::AngleAxisd(rotation[1], Eigen::Vector3d::UnitY()) *
+                    Eigen::AngleAxisd(rotation[2], Eigen::Vector3d::UnitZ()).toRotationMatrix();
+
+    return pose;
+}
+
+RobotPose TF::createPoseQ(double x, double y, double z, double W, double X, double Y, double Z)
+{
+    return createPoseQ(Eigen::Vector3d{x, y, z},  //
+                       Eigen::Vector4d{W, X, Y, Z});
+}
+
+RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                          const Eigen::Ref<const Eigen::Vector4d> &rotation)
+{
+    RobotPose pose = RobotPose::Identity();
+    pose.translation() = translation;
+    pose.linear() = Eigen::Quaterniond(rotation).toRotationMatrix();
+
+    return pose;
+}
+
 Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3 &msg)
 {
     Eigen::Vector3d vector;
@@ -50,8 +85,7 @@ geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond &qua
     return msg;
 }
 
-moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose,
-                                                  const GeometryConstPtr &geometry)
+moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const GeometryConstPtr &geometry)
 {
     moveit_msgs::BoundingVolume bv;
 
@@ -70,8 +104,7 @@ moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose,
 }
 
 moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_name,
-                                                          const std::string &base_name,
-                                                          const RobotPose &pose,
+                                                          const std::string &base_name, const RobotPose &pose,
                                                           const GeometryConstPtr &geometry)
 {
     moveit_msgs::PositionConstraint constraint;
