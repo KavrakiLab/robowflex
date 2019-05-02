@@ -3,6 +3,8 @@
 #ifndef ROBOWFLEX_IO_PLUGIN_
 #define ROBOWFLEX_IO_PLUGIN_
 
+#if ROBOWFLEX_AT_LEAST_MELODIC
+
 #include <mutex>
 #include <memory>
 #include <typeinfo>
@@ -143,4 +145,5 @@ namespace robowflex
     }  // namespace IO
 }  // namespace robowflex
 
+#endif
 #endif
