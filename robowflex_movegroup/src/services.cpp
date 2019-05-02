@@ -65,10 +65,10 @@ bool MoveGroupHelper::Action::toYAMLFile(const std::string &filename)
 const std::string MoveGroupHelper::MOVE_GROUP{"/move_group"};
 const std::string MoveGroupHelper::GET_SCENE{"get_planning_scene"};
 const std::string MoveGroupHelper::APPLY_SCENE{"apply_planning_scene"};
-const std::string MoveGroupHelper::EXECUTE{"execute_trajectory"};
+const std::string MoveGroupHelper::EXECUTE{"/execute_trajectory"};
 
 MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
-  : nh_("~")
+  : nh_("/")
   , goal_sub_(nh_.subscribe(move_group + "/goal", 10, &MoveGroupHelper::moveGroupGoalCallback, this))
   , result_sub_(nh_.subscribe(move_group + "/result", 10, &MoveGroupHelper::moveGroupResultCallback, this))
   , gpsc_(nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true))
@@ -76,6 +76,12 @@ MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
   , eac_(nh_, EXECUTE, false)
   , robot_(std::make_shared<ParamRobot>())
 {
+	ROS_INFO("Waiting for %s to connect...", EXECUTE.c_str());
+	eac_.waitForServer();
+	ROS_INFO("%s connected!", EXECUTE.c_str());
+	ROS_INFO("Waiting for %s to connect...", GET_SCENE.c_str());
+	gpsc_.waitForExistence();
+	ROS_INFO("%s connected!", GET_SCENE.c_str());
 }
 
 MoveGroupHelper::~MoveGroupHelper()
