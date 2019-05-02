@@ -3,15 +3,17 @@
 #ifndef ROBOWFLEX_IO_PLUGIN_
 #define ROBOWFLEX_IO_PLUGIN_
 
-#if ROBOWFLEX_AT_LEAST_MELODIC
-
 #include <mutex>
 #include <memory>
 #include <typeinfo>
 
 #include <ros/package.h>
 
+#if IS_BOOST_158
 #include <boost/core/demangle.hpp>
+#else
+#include <boost/exception/detail/type_info.hpp>
+#endif
 
 #include <pluginlib/class_loader.hpp>
 
@@ -145,5 +147,4 @@ namespace robowflex
     }  // namespace IO
 }  // namespace robowflex
 
-#endif
 #endif
