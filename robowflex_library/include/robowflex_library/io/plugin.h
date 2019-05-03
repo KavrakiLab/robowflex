@@ -9,6 +9,8 @@
 
 #include <ros/package.h>
 
+#include <robowflex_library/macros.h>
+
 #if IS_BOOST_158
 #include <boost/core/demangle.hpp>
 #define ROBOWFLEX_DEMANGLE(x) boost::core::demangle(x)
