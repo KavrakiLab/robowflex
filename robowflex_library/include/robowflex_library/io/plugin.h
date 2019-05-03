@@ -9,7 +9,13 @@
 
 #include <ros/package.h>
 
+#if IS_BOOST_158
 #include <boost/core/demangle.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::core::demangle(x)
+#else
+#include <boost/exception/detail/type_info.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::units::detail::demangle(x)
+#endif
 
 #include <pluginlib/class_loader.hpp>
 
@@ -116,7 +122,7 @@ namespace robowflex
                 std::unique_lock<std::mutex> lock(mutex_);
 
                 // Need to possibly demangle type name...
-                const std::string &type = boost::core::demangle(typeid(T).name());
+                const std::string &type = ROBOWFLEX_DEMANGLE(typeid(T).name());
                 auto key = std::make_pair(package, type);
 
                 LoaderPtr<T> loader;
