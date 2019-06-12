@@ -33,12 +33,23 @@ Documentation for all library and module components in robowflex (sans `tmpack`)
 Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`. The online version exists [here](https://kavrakilab.github.io/robowflex/).
 
 
-#Installation instructions
+# Installation Instructions
 
 For a new installation on an Ubuntu 18.04 machine without ROS already installed.
 
-First, install ROS following the directions here:
+First, install ROS following the directions here (example copied below):
 http://wiki.ros.org/melodic/Installation/Ubuntu
+
+```
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+sudo apt update
+sudo apt install ros-melodic-desktop-full
+sudo rosdep init
+rosdep update
+source /opt/ros/melodic/setup.bash
+sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
+```
 
 Then install OMPL from source or binary.
 
