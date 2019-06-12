@@ -31,3 +31,33 @@ Task and motion planning using `robowflex` as the motion planning layer.
 ## robowflex_doc
 Documentation for all library and module components in robowflex (sans `tmpack`).
 Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`. The online version exists [here](https://kavrakilab.github.io/robowflex/).
+
+
+#Installation instructions
+
+For a new installation on an Ubuntu 18.04 machine without ROS already installed.
+
+First, install ROS following the directions here:
+http://wiki.ros.org/melodic/Installation/Ubuntu
+
+Then install OMPL from source or binary.
+
+```
+sudo apt install libompl-dev
+```
+
+Then:
+```
+sudo apt install python-catkin-tools
+sudo apt install ros-melodic-moveit-ros-planning
+cd ~
+mkdir -p catkin_ws/src
+cd catkin_ws
+source /opt/ros/melodic/setup.bash (if you haven't already)
+catkin config --init
+cd src
+git clone http://wiki.ros.org/melodic/Installation/Ubuntu
+catkin build
+```
+
+
