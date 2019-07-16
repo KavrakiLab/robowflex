@@ -27,6 +27,43 @@ namespace robowflex
      */
     namespace TF
     {
+        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+         *  \param[in] x X-axis translation
+         *  \param[in] y Y-ayis translation
+         *  \param[in] z Z-azis translation
+         *  \param[in] X Rotation about X
+         *  \param[in] Y Rotation about Y
+         *  \param[in] Z Rotation about Z
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(double x, double y, double z, double X, double Y, double Z);
+
+        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component (X, Y, Z angles)
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation, const Eigen::Ref<const Eigen::Vector3d> &rotation);
+
+        /** \brief Creates a robot pose from a linear component and a Quaternion
+         *  \param[in] x X-axis translation
+         *  \param[in] y Y-axis translation
+         *  \param[in] z Z-axis translation
+         *  \param[in] W Real quaternion component.
+         *  \param[in] X i quaternion component.
+         *  \param[in] Y j quaternion component.
+         *  \param[in] Z k quaternion component.
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(double x, double y, double z, double W, double X, double Y, double Z);
+
+        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component (W, X, Y, Z quaternion values)
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation, const Eigen::Ref<const Eigen::Vector4d> &rotation);
+
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.
          *  \return \a msg as an Eigen::Vector3d.
