@@ -50,12 +50,14 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
-    response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
 
     auto context = getPlanningContext(scene, request);
 
     if (!context)
+    {
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
         return response;
+    }
 
     context->solve(response);
     return response;
