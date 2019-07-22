@@ -49,10 +49,10 @@ int main(int argc, char **argv)
     request2->setStartConfiguration(fetch->getScratchState());
 
     //
-    moveit_msgs::GoalRegion goal_region;
+    moveit_msgs::WorkspaceGoalRegion goal_region;
     geometry_msgs::PoseStamped target_pose_grasp;
     std::vector<geometry_msgs::PoseStamped> goal_poses;
-    std::vector<moveit_msgs::GoalRegion> goal_regions;
+    std::vector<moveit_msgs::WorkspaceGoalRegion> goal_regions;
 
     // Cube1
     Eigen::Affine3d pose = Eigen::Affine3d::Identity();

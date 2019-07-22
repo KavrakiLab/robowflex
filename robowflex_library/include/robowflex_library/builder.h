@@ -131,7 +131,7 @@ namespace robowflex
             \{ */
 
         void setPoseRegionTargets(const std::vector<geometry_msgs::PoseStamped> &pose_targets,
-                                  const std::vector<moveit_msgs::GoalRegion> &pose_region_targets,
+                                  const std::vector<moveit_msgs::WorkspaceGoalRegion> &pose_region_targets,
                                   const std::string &end_effector_link = "");
 
         /** \brief Set a pose constraint on the path.
