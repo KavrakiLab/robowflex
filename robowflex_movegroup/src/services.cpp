@@ -98,20 +98,24 @@ void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
     callback_ = callback;
 }
 
-bool MoveGroupHelper::executeTrajectory(robot_trajectory::RobotTrajectory &path)
+bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory &path)
 {
     if (!eac_.isServerConnected())
         return false;
 
-    // Check if a Trajectory is time parametirized
-    if (path.getWayPointDurationFromStart(path.getWayPointCount()) < 1e-3)
+    moveit_msgs::ExecuteTrajectoryGoal goal;
+
+    // Check if a Trajectory is time parameterized
+    if (path.getWayPointDurationFromStart(path.getWayPointCount()) == 0)
     {
         ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
-        robowflex::path::computeTimeParameterization(path);
+        // remove constness
+        auto tpath = path;
+        robowflex::path::computeTimeParameterization(tpath);
+        tpath.getRobotTrajectoryMsg(goal.trajectory);
     }
-
-    moveit_msgs::ExecuteTrajectoryGoal goal;
-    path.getRobotTrajectoryMsg(goal.trajectory);
+    else
+        path.getRobotTrajectoryMsg(goal.trajectory);
 
     eac_.sendGoal(goal);
     if (!eac_.waitForResult())

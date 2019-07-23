@@ -67,8 +67,8 @@ namespace robowflex
         void setGoalConfiguration(const robot_state::RobotStatePtr &state);
 
         /** \brief Set a goal pose for the end-effector \a ee_name.
-         *  Generates a sphere with radius \a tolerance as well as
-         *  orientation tolerances of \a tolerance from \a pose.
+         *  Generates a sphere with radius \a tolerance as well as  orientation tolerances of \a tolerance
+         *  from \a pose.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The name of the frame of reference of \a pose.
          *  \param[in] pose The pose of the end-effector in \a base_frame.
@@ -186,6 +186,7 @@ namespace robowflex
          *  \param[in] allowed_planning_time The allowed planning time.
          */
         void setAllowedPlanningTime(double allowed_planning_time);
+
         /** \brief Set the number of planning attemps in the request.
          *  \param[in] num_planning_attemps The required time for planning attemps.
          */
