@@ -5,6 +5,7 @@
 #include <moveit_msgs/GetPlanningScene.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
 
+#include <robowflex_library/path.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
@@ -76,12 +77,12 @@ MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
   , eac_(nh_, EXECUTE, false)
   , robot_(std::make_shared<ParamRobot>())
 {
-	ROS_INFO("Waiting for %s to connect...", EXECUTE.c_str());
-	eac_.waitForServer();
-	ROS_INFO("%s connected!", EXECUTE.c_str());
-	ROS_INFO("Waiting for %s to connect...", GET_SCENE.c_str());
-	gpsc_.waitForExistence();
-	ROS_INFO("%s connected!", GET_SCENE.c_str());
+    ROS_INFO("Waiting for %s to connect...", EXECUTE.c_str());
+    eac_.waitForServer();
+    ROS_INFO("%s connected!", EXECUTE.c_str());
+    ROS_INFO("Waiting for %s to connect...", GET_SCENE.c_str());
+    gpsc_.waitForExistence();
+    ROS_INFO("%s connected!", GET_SCENE.c_str());
 }
 
 MoveGroupHelper::~MoveGroupHelper()
@@ -97,10 +98,17 @@ void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
     callback_ = callback;
 }
 
-bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory &path)
+bool MoveGroupHelper::executeTrajectory(robot_trajectory::RobotTrajectory &path)
 {
     if (!eac_.isServerConnected())
         return false;
+
+    // Check if a Trajectory is time parametirized
+    if (path.getWayPointDurationFromStart(path.getWayPointCount()) < 1e-3)
+    {
+        ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
+        robowflex::path::computeTimeParameterization(path);
+    }
 
     moveit_msgs::ExecuteTrajectoryGoal goal;
     path.getRobotTrajectoryMsg(goal.trajectory);

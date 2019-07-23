@@ -72,7 +72,7 @@ namespace robowflex
              *  \param[in] path Path to execute.
              *  \return True on success, false on failure.
              */
-            bool executeTrajectory(const robot_trajectory::RobotTrajectory &path);
+            bool executeTrajectory(robot_trajectory::RobotTrajectory &path);
 
             /** \brief Pulls the current robot state from move group.
              *  \param[out] robot Robot whose state to set.
