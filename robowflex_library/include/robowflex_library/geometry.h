@@ -103,6 +103,24 @@ namespace robowflex
          */
         Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "");
 
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape.
+         *  \param[in] shape Shape to construct geometry from.
+         */
+        Geometry(const shapes::Shape &shape);
+
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape message.
+         *  \param[in] msg Shape message to construct geometry from.
+         */
+        Geometry(const shape_msgs::SolidPrimitive &msg);
+
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape message.
+         *  \param[in] msg Shape message to construct mesh geometry from.
+         */
+        Geometry(const shape_msgs::Mesh &msg);
+
         // non-copyable
         Geometry(const Geometry &) = delete;
         Geometry &operator=(const Geometry &) = delete;
@@ -154,7 +172,6 @@ namespace robowflex
          */
         const std::string &getResource() const;
 
-
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
          */
@@ -171,11 +188,11 @@ namespace robowflex
          */
         bodies::Body *loadBody() const;
 
-        ShapeType::Type type_{ShapeType::Type::BOX};                 ///< Geometry Type.
-        const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
-        std::string resource_{""};                                   ///< Resource locator for MESH types.
-        const shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
-        const bodies::BodyPtr body_{nullptr};                        ///< Body operation.
+        ShapeType::Type type_{ShapeType::Type::BOX};           ///< Geometry Type.
+        Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
+        std::string resource_{""};                             ///< Resource locator for MESH types.
+        shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
+        bodies::BodyPtr body_{nullptr};                        ///< Body operation.
     };
 }  // namespace robowflex
 

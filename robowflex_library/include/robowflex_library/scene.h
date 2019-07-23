@@ -107,12 +107,25 @@ namespace robowflex
         void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                    const RobotPose &pose);
 
+        /** \brief Returns a list of all the names of collision objects in the scene.
+         *  \return A list of all the collision objects in the scene.
+         */
+        std::vector<std::string> getCollisionObjects() const;
+
+        /** \brief Returns a representation of a collision object in the scene as a Geometry.
+         *  If the object has multiple geometries, returns the first.
+         *  \param[in] name Name of the object to extract.
+         *  \return A representation of the collision object as a Geometry.
+         */
+        GeometryPtr getObjectGeometry(const std::string &name) const;
+
         /** \brief Removes an object from the planning scene.
          *  \param[in] name Name of object to remove.
          */
         void removeCollisionObject(const std::string &name);
 
         /** \brief Get the current pose of a collision object.
+         *  If the object has multiple geometries, returns the pose of the first.
          *  \param[in] name Name of object to get pose for.
          *  \return Pose of the object.
          */

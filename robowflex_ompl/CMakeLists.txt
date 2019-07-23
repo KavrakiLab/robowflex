@@ -28,7 +28,7 @@ catkin_package(
   )
 
 if (moveit_planners_ompl_DIR)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
   link_directories(${catkin_LIBRARY_DIRS})
 
   add_library(${LIBRARY_NAME}

@@ -97,6 +97,64 @@ Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, cons
 {
 }
 
+Geometry::Geometry(const shapes::Shape &shape)
+{
+    switch (shape.type)
+    {
+        case shapes::ShapeType::BOX:
+        {
+            type_ = ShapeType::BOX;
+            const auto &box = static_cast<const shapes::Box &>(shape);
+            dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::SPHERE:
+        {
+            type_ = ShapeType::SPHERE;
+            const auto &sphere = static_cast<const shapes::Sphere &>(shape);
+            dimensions_ = Eigen::Vector3d{sphere.radius, 0, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::CYLINDER:
+        {
+            type_ = ShapeType::CYLINDER;
+            const auto &cylinder = static_cast<const shapes::Cylinder &>(shape);
+            dimensions_ = Eigen::Vector3d{cylinder.radius, cylinder.length, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::CONE:
+        {
+            type_ = ShapeType::CONE;
+            const auto &cone = static_cast<const shapes::Cone &>(shape);
+            dimensions_ = Eigen::Vector3d{cone.radius, cone.length, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::MESH:
+        {
+            type_ = ShapeType::MESH;
+            const auto &mesh = static_cast<const shapes::Mesh &>(shape);
+            shape_.reset(mesh.clone());
+            break;
+        }
+        default:
+            throw Exception(1, "Invalid type for geometry.");
+    }
+
+    body_.reset(loadBody());
+}
+
+Geometry::Geometry(const shape_msgs::SolidPrimitive &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
+{
+}
+
+Geometry::Geometry(const shape_msgs::Mesh &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
+{
+}
+
 shapes::Shape *Geometry::loadShape() const
 {
     switch (type_)

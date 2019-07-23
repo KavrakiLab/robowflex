@@ -43,7 +43,7 @@ catkin_package(
   )
 
 if (tesseract_planning_DIR)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OMPL_INCLUDE_DIRS})
+  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OMPL_INCLUDE_DIRS})
   link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
 
   add_library(${LIBRARY_NAME}
