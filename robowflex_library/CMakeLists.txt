@@ -87,7 +87,7 @@ list(APPEND LIBRARIES
   yaml-cpp
   )
 
-include_directories(${INCLUDES})
+include_directories(SYSTEM ${INCLUDES})
 link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
