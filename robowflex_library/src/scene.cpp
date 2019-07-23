@@ -163,6 +163,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     if (obj)
         return std::make_shared<Geometry>(*obj->shapes_[0]);
 
+    ROS_WARN("Object %1% does not exist in scene!", name.c_str());
     return nullptr;
 }
 

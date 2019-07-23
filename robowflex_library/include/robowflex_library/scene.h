@@ -113,7 +113,7 @@ namespace robowflex
         std::vector<std::string> getCollisionObjects() const;
 
         /** \brief Returns a representation of a collision object in the scene as a Geometry.
-         *  If object has multiple geometries, returns the first.
+         *  If the object has multiple geometries, returns the first.
          *  \param[in] name Name of the object to extract.
          *  \return A representation of the collision object as a Geometry.
          */
@@ -125,6 +125,7 @@ namespace robowflex
         void removeCollisionObject(const std::string &name);
 
         /** \brief Get the current pose of a collision object.
+         *  If the object has multiple geometries, returns the pose of the first.
          *  \param[in] name Name of object to get pose for.
          *  \return Pose of the object.
          */
