@@ -149,6 +149,23 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
     world->addToObject(name, geometry->getShape(), pose);
 }
 
+std::vector<std::string> Scene::getCollisionObjects() const
+{
+    auto &world = scene_->getWorld();
+    return world->getObjectIds();
+}
+
+GeometryPtr Scene::getObjectGeometry(const std::string &name) const
+{
+    auto &world = scene_->getWorld();
+
+    const auto &obj = world->getObject(name);
+    if (obj)
+        return std::make_shared<Geometry>(*obj->shapes_[0]);
+
+    return nullptr;
+}
+
 void Scene::removeCollisionObject(const std::string &name)
 {
     scene_->getWorldNonConst()->removeObject(name);
