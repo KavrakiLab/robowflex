@@ -165,9 +165,13 @@ void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
     request_.allowed_planning_time = allowed_planning_time;
 }
 
+void MotionRequestBuilder::setNumPlanningAttempts(unsigned int num_planning_attempts)
+{
+    request_.num_planning_attempts = num_planning_attempts;
+}
+
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                                 const RobotPose &pose,
-                                                 const GeometryConstPtr &geometry,
+                                                 const RobotPose &pose, const GeometryConstPtr &geometry,
                                                  const Eigen::Quaterniond &orientation,
                                                  const Eigen::Vector3d &tolerances)
 {
@@ -176,8 +180,7 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                     const RobotPose &pose,
-                                                     const GeometryConstPtr &geometry)
+                                                     const RobotPose &pose, const GeometryConstPtr &geometry)
 {
     request_.path_constraints.position_constraints.push_back(
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
