@@ -107,6 +107,12 @@ namespace robowflex
         void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                    const RobotPose &pose);
 
+        /** \brief Returns true if the object \e name is in the scene.
+         *  \param[in] name Name of the object to look for.
+         *  \return True if object is in scene, false otherwise.
+         */
+        bool hasObject(const std::string &name) const;
+
         /** \brief Returns a list of all the names of collision objects in the scene.
          *  \return A list of all the collision objects in the scene.
          */
@@ -191,6 +197,18 @@ namespace robowflex
          */
         double distanceToCollision(const robot_state::RobotStatePtr &state) const;
 
+        /** \brief Get the distance to collision to a specific object.
+         *  \param[in] state State of the robot.
+         *  \param[in] object Object to check against.
+         *  \return The distance to collision to the object. On error, returns NaN.
+         */
+        double distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const;
+
+        /** \brief Get the distance to collision between two collision objects in the scene.
+         *  \param[in] one One of the objects to check.
+         *  \param[in] two The other object to check.
+         *  \return The distance between the objects. On error, returns NaN.
+         */
         double distanceBetweenObjects(const std::string &one, const std::string &two) const;
 
         /** \} */
