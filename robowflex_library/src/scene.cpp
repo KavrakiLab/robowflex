@@ -163,7 +163,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     if (obj)
         return std::make_shared<Geometry>(*obj->shapes_[0]);
 
-    ROS_WARN("Object %1% does not exist in scene!", name.c_str());
+    ROS_WARN("Object %s does not exist in scene!", name.c_str());
     return nullptr;
 }
 
@@ -274,6 +274,25 @@ collision_detection::CollisionResult Scene::checkCollision(
 double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 {
     return scene_->distanceToCollision(*state);
+}
+
+double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
+{
+    const auto &cw = scene_->getCollisionWorld();
+
+    collision_detection::DistanceRequest req;
+    collision_detection::DistanceResult res;
+
+    const auto &objs = getCollisionObjects();
+    collision_detection::AllowedCollisionMatrix acm(objs, false);
+    req.acm = &acm;
+
+    for (const auto &obj : objs)
+        acm.setEntry(obj, obj, true);
+
+    cw->distanceWorld(req, res, *cw);
+
+    return res.minimum_distance.distance;
 }
 
 bool Scene::toYAMLFile(const std::string &file)

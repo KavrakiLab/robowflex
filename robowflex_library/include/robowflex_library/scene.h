@@ -185,11 +185,13 @@ namespace robowflex
         checkCollision(const robot_state::RobotStatePtr &state,
                        const collision_detection::CollisionRequest &request = {}) const;
 
-        /** \brief Get distance to a collision for a robot state.
+        /** \brief Get the distance to collision for a robot state.
          *  \param[in] state State to get distance to collision for.
          *  \return The distance of the state to collision.
          */
         double distanceToCollision(const robot_state::RobotStatePtr &state) const;
+
+        double distanceBetweenObjects(const std::string &one, const std::string &two) const;
 
         /** \} */
 
