@@ -135,7 +135,7 @@ namespace robowflex
          *  \param[in] name Name of object to get pose for.
          *  \return Pose of the object.
          */
-        RobotPose getObjectPose(const std::string &name);
+        RobotPose getObjectPose(const std::string &name) const;
 
         /** \brief Get the pose of a particular frame in the scene.
          *  Example, use this to get the pose from /world to /base_link.

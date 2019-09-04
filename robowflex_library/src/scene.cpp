@@ -172,7 +172,7 @@ void Scene::removeCollisionObject(const std::string &name)
     scene_->getWorldNonConst()->removeObject(name);
 }
 
-RobotPose Scene::getObjectPose(const std::string &name)
+RobotPose Scene::getObjectPose(const std::string &name) const
 {
     auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
