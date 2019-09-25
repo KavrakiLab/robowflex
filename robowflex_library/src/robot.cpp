@@ -153,6 +153,7 @@ void Robot::loadRobotModel(bool namespaced)
 
     model_ = loader_->getModel();
     scratch_.reset(new robot_state::RobotState(model_));
+    scratch_->setToDefaultValues();
 }
 
 bool Robot::loadKinematics(const std::string &name)

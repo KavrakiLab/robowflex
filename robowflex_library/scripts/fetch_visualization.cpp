@@ -49,11 +49,12 @@ int main(int argc, char **argv)
     // Create a motion planning request with a pose goal. Cube3
     RobotPose pose = RobotPose::Identity();
     pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
+
     Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
 
     auto region = Geometry::makeSphere(0.01);
 
-    request.setGoalRegion("wrist_roll_link", "world",  // links
+    request.setGoalRegion("wrist_roll_link", "base_link",  // links
                            pose, region,                // position
                            orn, {0.1, 0.1, 0.1}         // orientation
     );
