@@ -227,7 +227,8 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
                     // Arrow display frame.
                     RobotPose qframe = RobotPose::Identity();
-                    qframe.translate(frame.translation()); // Place arrows at the origin of the position volume
+                    qframe.translate(frame.translation());  // Place arrows at the origin of the position
+                                                            // volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
 

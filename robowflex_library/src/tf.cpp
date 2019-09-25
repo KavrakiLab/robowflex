@@ -112,6 +112,11 @@ moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_
     constraint.header.frame_id = base_name;
     constraint.link_name = ee_name;
 
+    // TODO: Expose as a parameter
+    constraint.target_point_offset.x = 0;
+    constraint.target_point_offset.y = 0;
+    constraint.target_point_offset.z = 0;
+
     constraint.constraint_region = getBoundingVolume(pose, geometry);
     constraint.weight = 1;
 
