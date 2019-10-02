@@ -7,6 +7,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/geometry.h>
 
 namespace robowflex
 {
