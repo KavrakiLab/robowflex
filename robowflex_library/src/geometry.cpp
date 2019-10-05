@@ -88,9 +88,16 @@ GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3
     return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
+GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
+{
+    return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
+}
+
+Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
+                   const EigenSTL::vector_Vector3d vertices)
   : type_(type)
   , dimensions_(dimensions)
+  , vertices_(vertices)
   , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -176,7 +183,12 @@ shapes::Shape *Geometry::loadShape() const
             break;
 
         case ShapeType::MESH:
-            return shapes::createMeshFromResource(resource_, dimensions_);
+            if (!resource_.empty())
+                return shapes::createMeshFromResource(resource_, dimensions_);
+            else if (!vertices_.empty())
+                return shapes::createMeshFromVertices(vertices_);
+            else
+                throw Exception(1, "No vertices our resource specified to Load the mesh");
             break;
 
         default:
