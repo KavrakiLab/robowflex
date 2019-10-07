@@ -6,6 +6,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <visualization_msgs/Marker.h>
+
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/bodies.h>
 
@@ -158,6 +160,11 @@ namespace robowflex
          *  \return The message.
          */
         const shape_msgs::Mesh getMeshMsg() const;
+        /** \brief Construct a marker from the
+         *  \return The message.
+         */
+
+        void makeMarker(visualization_msgs::Marker &marker) const;
 
         /** \brief Gets the underlying shape.
          *  \return The shape.
@@ -179,6 +186,11 @@ namespace robowflex
          */
         const std::string &getResource() const;
 
+        /** \brief Gets the Vertices of the primitive.
+         *  \return The mesh resource of geometry.
+         */
+        const EigenSTL::vector_Vector3d &getVertices() const;
+
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
          */
@@ -195,12 +207,12 @@ namespace robowflex
          */
         bodies::Body *loadBody() const;
 
-        ShapeType::Type type_{ShapeType::Type::BOX};                   ///< Geometry Type.
-        Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};          ///< Dimensions to scale geometry.
-        EigenSTL::vector_Vector3d vertices_{Eigen::Vector3d::Ones()};  ///< Vertices of the primitive
-        std::string resource_{""};                                     ///< Resource locator for MESH types.
-        shapes::ShapePtr shape_{nullptr};                              ///< Loaded shape.
-        bodies::BodyPtr body_{nullptr};                                ///< Body operation.
+        ShapeType::Type type_{ShapeType::Type::BOX};           ///< Geometry Type.
+        Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
+        EigenSTL::vector_Vector3d vertices_{{}};               ///< Vertices of the primitive
+        std::string resource_{""};                             ///< Resource locator for MESH types.
+        shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
+        bodies::BodyPtr body_{nullptr};                        ///< Body operation.
     };
 }  // namespace robowflex
 

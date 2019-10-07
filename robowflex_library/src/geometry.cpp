@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <geometric_shapes/shape_operations.h>
+#include <geometric_shapes/shape_to_marker.h>
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
@@ -114,6 +115,24 @@ Geometry::Geometry(const shapes::Shape &shape)
             const auto &box = static_cast<const shapes::Box &>(shape);
             dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
             shape_.reset(loadShape());
+            vertices_.clear();
+            vertices_.emplace_back(
+                Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
+            // vertices_.emplace_back(
+            //    Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
+
             break;
         }
         case shapes::ShapeType::SPHERE:
@@ -122,6 +141,16 @@ Geometry::Geometry(const shapes::Shape &shape)
             const auto &sphere = static_cast<const shapes::Sphere &>(shape);
             dimensions_ = Eigen::Vector3d{sphere.radius, 0, 0};
             shape_.reset(loadShape());
+            vertices_.clear();
+            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], dimensions_[0], dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], dimensions_[0], -dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], -dimensions_[0], dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], -dimensions_[0], -dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], dimensions_[0], dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], dimensions_[0], -dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], -dimensions_[0], dimensions_[0]));
+            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], -dimensions_[0], -dimensions_[0]));
+
             break;
         }
         case shapes::ShapeType::CYLINDER:
@@ -266,6 +295,11 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
     return boost::get<shape_msgs::Mesh>(msg);
 }
 
+void Geometry::makeMarker(visualization_msgs::Marker &marker) const
+{
+    geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+}
+
 const shapes::ShapePtr &Geometry::getShape() const
 {
     return shape_;
@@ -284,6 +318,11 @@ Geometry::ShapeType::Type Geometry::getType() const
 const std::string &Geometry::getResource() const
 {
     return resource_;
+}
+
+const EigenSTL::vector_Vector3d &Geometry::getVertices() const
+{
+    return vertices_;
 }
 
 const Eigen::Vector3d &Geometry::getDimensions() const
