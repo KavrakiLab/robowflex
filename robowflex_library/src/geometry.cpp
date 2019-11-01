@@ -117,21 +117,21 @@ Geometry::Geometry(const shapes::Shape &shape)
             shape_.reset(loadShape());
             vertices_.clear();
             vertices_.emplace_back(
+                Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
+            vertices_.emplace_back(
+                Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
+            vertices_.emplace_back(
                 Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
-            // vertices_.emplace_back(
-            //    Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
 
             break;
         }
