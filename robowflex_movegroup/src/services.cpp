@@ -192,6 +192,7 @@ bool MoveGroupHelper::clearOctomap()
 {
     std_srvs::EmptyRequest request;
     std_srvs::EmptyResponse response;
+
     if (co_.call(request, response))
         return true;
     return false;

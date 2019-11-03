@@ -127,7 +127,7 @@ namespace robowflex
             static const std::string MOVE_GROUP;     ///< Name of move_group namespace.
             static const std::string GET_SCENE;      ///< Name of get scene service.
             static const std::string APPLY_SCENE;    ///< Name of apply scene service.
-            static const std::string CLEAR_OCTOMAP;  ///< Name of apply scene service.
+            static const std::string CLEAR_OCTOMAP;  ///< Name of clear octomap service.
             static const std::string EXECUTE;        ///< Name of execute trajectory service.
         };
     }  // namespace movegroup
