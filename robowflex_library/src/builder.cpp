@@ -102,7 +102,7 @@ void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::st
 {
     setGoalRegion(ee_name, base_name,                     //
                   pose, Geometry::makeSphere(tolerance),  //
-                  Eigen::Quaterniond(pose.rotation()), {tolerance, tolerance, tolerance});
+                  Eigen::Quaterniond::Identity(), {tolerance, tolerance, tolerance});
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
