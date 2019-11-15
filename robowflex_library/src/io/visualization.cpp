@@ -270,6 +270,12 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
     }
 }
 
+void IO::RVIZHelper::removeAllMarkers()
+{
+    for (auto &marker : markers_)
+        marker.second.action = visualization_msgs::Marker::DELETE;
+}
+
 void IO::RVIZHelper::removeMarker(const std::string &name)
 {
     auto markers = markers_.equal_range(name);
