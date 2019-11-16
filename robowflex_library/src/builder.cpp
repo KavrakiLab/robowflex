@@ -100,9 +100,12 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
 void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
                                        const RobotPose &pose, double tolerance)
 {
+    auto copy = pose;
+    Eigen::Quaterniond orientation(pose.rotation());
+    copy.linear() = Eigen::Matrix3d::Identity();
     setGoalRegion(ee_name, base_name,                     //
-                  pose, Geometry::makeSphere(tolerance),  //
-                  Eigen::Quaterniond::Identity(), {tolerance, tolerance, tolerance});
+                  copy, Geometry::makeSphere(tolerance),  //
+                  orientation, {tolerance, tolerance, tolerance});
 }
 
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
