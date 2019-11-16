@@ -265,6 +265,12 @@ bool Scene::detachObject(const std::string &name)
     }
 
     world->addToObject(name, body->getShapes(), body->getFixedTransforms());
+
+    if (!robot.clearAttachedBody(name))
+    {
+        ROS_ERROR("Could not detach object `%s`", name.c_str());
+        return false;
+    }
     return true;
 }
 
