@@ -9,8 +9,9 @@
 
 using namespace robowflex;
 
-const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::MESH + 1;
-const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh"});
+const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::OCTOBOX + 1;
+const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh",
+                                                             "octobox"});
 
 Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
 {
@@ -94,11 +95,18 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
     return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
 }
 
+GeometryPtr Geometry::makeOctoBox(bool ***grid, double gridsize, double cellsize)
+{
+    return std::make_shared<Geometry>(ShapeType::OCTOBOX, Eigen::Vector3d(gridsize, cellsize, 0), "",
+                                      EigenSTL::vector_Vector3d(), grid);
+}
+
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const EigenSTL::vector_Vector3d vertices)
+                   const EigenSTL::vector_Vector3d vertices, bool ***grid)
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)
+  , grid_(grid)
   , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -141,16 +149,6 @@ Geometry::Geometry(const shapes::Shape &shape)
             const auto &sphere = static_cast<const shapes::Sphere &>(shape);
             dimensions_ = Eigen::Vector3d{sphere.radius, 0, 0};
             shape_.reset(loadShape());
-            vertices_.clear();
-            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], dimensions_[0], dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], dimensions_[0], -dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], -dimensions_[0], dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(dimensions_[0], -dimensions_[0], -dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], dimensions_[0], dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], dimensions_[0], -dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], -dimensions_[0], dimensions_[0]));
-            vertices_.emplace_back(Eigen::Vector3d(-dimensions_[0], -dimensions_[0], -dimensions_[0]));
-
             break;
         }
         case shapes::ShapeType::CYLINDER:
@@ -217,7 +215,11 @@ shapes::Shape *Geometry::loadShape() const
             else if (!vertices_.empty())
                 return shapes::createMeshFromVertices(vertices_);
             else
-                throw Exception(1, "No vertices our resource specified to Load the mesh");
+                throw Exception(1, "No vertices or resource specified to Load the mesh");
+            break;
+
+        case ShapeType::OCTOBOX:
+            return new shapes::Box(dimensions_[0], dimensions_[0], dimensions_[0]);
             break;
 
         default:
@@ -232,6 +234,7 @@ bodies::Body *Geometry::loadBody() const
     switch (type_)
     {
         case ShapeType::BOX:
+        case ShapeType::OCTOBOX:
             return new bodies::Box(shape_.get());
             break;
 
@@ -297,7 +300,22 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
 
 void Geometry::makeMarker(visualization_msgs::Marker &marker) const
 {
-    geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+    switch (type_)
+    {
+        case ShapeType::BOX:
+        case ShapeType::OCTOBOX:  // TODO:visualize the individual gridcells for correctness.
+        case ShapeType::SPHERE:
+        case ShapeType::CYLINDER:
+        case ShapeType::CONE:
+            geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
+            break;
+        case ShapeType::MESH:
+            geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+            break;
+
+        default:
+            break;
+    }
 }
 
 const shapes::ShapePtr &Geometry::getShape() const

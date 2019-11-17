@@ -150,7 +150,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 {
     visualization_msgs::Marker marker;
 
-    // TODO ALL should change to makeMarker
+    // TODO should all change to makeMarker?
     auto scale = geometry->getDimensions();
     switch (geometry->getType())
     {
@@ -170,12 +170,14 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             }
             break;
         case Geometry::ShapeType::MESH:
-            // TODO: If this becomes standar everything should change
             geometry->makeMarker(marker);
-            // marker.type = visualization_msgs::Marker::MESH_RESOURCE;
-            // marker.mesh_resource = geometry->getResource();
-            // marker.mesh_use_embedded_materials = true;
             break;
+
+        case Geometry::ShapeType::OCTOBOX:
+            geometry->makeMarker(marker);
+            scale[1] = scale[2] = scale[0];  // Copy size to other dimensions
+            break;
+
         default:
             ROS_ERROR("Unsupported geometry for marker.");
             return;

@@ -45,7 +45,8 @@ namespace robowflex
                 SPHERE = 1,    ///< Solid primitive sphere. Uses one dimension (radius).
                 CYLINDER = 2,  ///< Solid primitive cylinder. Uses two dimensions (height, radius).
                 CONE = 3,      ///< Solid primitive cone. Uses two dimensions (height, radius).
-                MESH = 4       ///< Mesh. Dimensions scale along x, y, z.
+                MESH = 4,      ///< Mesh. Dimensions scale along x, y, z.
+                OCTOBOX = 5    ///< 3D occupancy box. It is a box but with equal distances for the box.
             };
 
             static const unsigned int MAX;                  ///< Maximum value of ShapeType.
@@ -102,15 +103,23 @@ namespace robowflex
          */
         static GeometryPtr makeMesh(const EigenSTL::vector_Vector3d &vertices);
 
+        /** \brief Create an octobox from a 3D bool grid.
+         *  \param[in] grid The 3D volumetric grid.
+         *  \param[in] cellsize The size of each cell of the grid.
+         *  \param[in] gridsize The size of the whole grid.
+         *  \return The created octoBox.
+         */
+        static GeometryPtr makeOctoBox(bool ***grid, double gridsize, double cellsize);
+
         /** \brief Constructor.
          *  Builds and loads the specified geometry.
          *  \param[in] type Type of the geometry to create.
          *  \param[in] dimensions Dimensions of the geometry to load.
-         *  \param[in] resource If \a type is ShapeType::MESH, then resource or vertices must be specified as
-         * the mesh file to load.
+         *  \param[in] resource If \a type is ShapeType::MESH, then resource or vertices must be specified
+         * as the mesh file to load.
          */
         Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
-                 const EigenSTL::vector_Vector3d vertices = {});
+                 const EigenSTL::vector_Vector3d vertices = {}, bool ***grid = nullptr);
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry from a MoveIt shape.
@@ -210,6 +219,7 @@ namespace robowflex
         ShapeType::Type type_{ShapeType::Type::BOX};           ///< Geometry Type.
         Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
         EigenSTL::vector_Vector3d vertices_{{}};               ///< Vertices of the primitive
+        bool ***grid_{nullptr};                                ///< Data grid to represent octocubes.
         std::string resource_{""};                             ///< Resource locator for MESH types.
         shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
         bodies::BodyPtr body_{nullptr};                        ///< Body operation.
