@@ -280,6 +280,11 @@ bool Geometry::isMesh() const
     return type_ == ShapeType::MESH;
 }
 
+bool Geometry::isOctoBox() const
+{
+    return type_ == ShapeType::OCTOBOX;
+}
+
 const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
 {
     shapes::ShapeMsg msg;
@@ -341,6 +346,11 @@ const std::string &Geometry::getResource() const
 const EigenSTL::vector_Vector3d &Geometry::getVertices() const
 {
     return vertices_;
+}
+
+bool ***Geometry::getGrid() const
+{
+    return grid_;
 }
 
 const Eigen::Vector3d &Geometry::getDimensions() const

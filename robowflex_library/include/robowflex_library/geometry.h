@@ -160,6 +160,11 @@ namespace robowflex
          */
         bool isMesh() const;
 
+        /** \brief Checks if the geometry is an octobox geometry.
+         *  \return True if the \a type_ is an octobox (ShapeType::OctoBox).
+         */
+        bool isOctoBox() const;
+
         /** \brief Gets the message form of solid primitive geometry (all but ShapeType::MESH).
          *  \return The message.
          */
@@ -199,6 +204,11 @@ namespace robowflex
          *  \return The mesh resource of geometry.
          */
         const EigenSTL::vector_Vector3d &getVertices() const;
+
+        /** \brief Gets the grid of the primitive
+         *  \return The datagrid of the geometry.
+         */
+        bool ***getGrid() const;
 
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
