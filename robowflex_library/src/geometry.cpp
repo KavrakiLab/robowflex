@@ -95,9 +95,16 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
     return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
 }
 
-GeometryPtr Geometry::makeOctoBox(bool ***grid, double gridsize, double cellsize)
+GeometryPtr Geometry::makeOctoBox(bool ***grid, double gridSize, double cellSize)
 {
-    return std::make_shared<Geometry>(ShapeType::OCTOBOX, Eigen::Vector3d(gridsize, cellsize, 0), "",
+    int sideLength = gridSize / cellSize;
+    int lastVal = grid[sideLength - 1][sideLength - 1][sideLength - 1];
+    if (lastVal != 1 and lastVal != 0)
+        throw Exception(1, "OctoBox grid is not initialized correctly");
+
+    return std::make_shared<Geometry>(ShapeType::OCTOBOX,                               //
+                                      Eigen::Vector3d(gridSize, cellSize, sideLength),  //
+                                      "",                                               //
                                       EigenSTL::vector_Vector3d(), grid);
 }
 
@@ -111,6 +118,10 @@ Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, cons
   , shape_(loadShape())
   , body_(loadBody())
 {
+    int sideLength = dimensions[2];
+    int lastVal = grid_[sideLength - 1][sideLength - 1][sideLength - 1];
+    if (lastVal != 1 and lastVal != 0)
+        throw Exception(1, "OctoBox grid is not initialized correctly");
 }
 
 Geometry::Geometry(const shapes::Shape &shape)
@@ -274,7 +285,6 @@ std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) c
 
     return std::make_pair(success, point);
 }
-
 bool Geometry::isMesh() const
 {
     return type_ == ShapeType::MESH;
@@ -348,8 +358,17 @@ const EigenSTL::vector_Vector3d &Geometry::getVertices() const
     return vertices_;
 }
 
-bool ***Geometry::getGrid() const
+bool ***Geometry::getGrid()
 {
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            for (int k = 0; k < 4; k++)
+            {
+                std::cout << "HIIII" << std::endl;
+                bool val = grid_[i][j][k];
+            }
+
+    std::cout << grid_;
     return grid_;
 }
 
