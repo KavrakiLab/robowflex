@@ -1,4 +1,4 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <geometric_shapes/shape_operations.h>
 #include <geometric_shapes/shape_to_marker.h>
@@ -98,10 +98,6 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
 GeometryPtr Geometry::makeOctoBox(bool ***grid, double gridSize, double cellSize)
 {
     int sideLength = gridSize / cellSize;
-    int lastVal = grid[sideLength - 1][sideLength - 1][sideLength - 1];
-    if (lastVal != 1 and lastVal != 0)
-        throw Exception(1, "OctoBox grid is not initialized correctly");
-
     return std::make_shared<Geometry>(ShapeType::OCTOBOX,                               //
                                       Eigen::Vector3d(gridSize, cellSize, sideLength),  //
                                       "",                                               //
@@ -118,10 +114,6 @@ Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, cons
   , shape_(loadShape())
   , body_(loadBody())
 {
-    int sideLength = dimensions[2];
-    int lastVal = grid_[sideLength - 1][sideLength - 1][sideLength - 1];
-    if (lastVal != 1 and lastVal != 0)
-        throw Exception(1, "OctoBox grid is not initialized correctly");
 }
 
 Geometry::Geometry(const shapes::Shape &shape)
@@ -317,15 +309,36 @@ void Geometry::makeMarker(visualization_msgs::Marker &marker) const
 {
     switch (type_)
     {
+        case ShapeType::OCTOBOX:
+        {
+            marker.type = visualization_msgs::Marker::CUBE_LIST;
+            double res = dimensions_[1];
+            double size = dimensions_[2];
+
+            for (size_t i = 0; i < size; ++i)
+                for (size_t j = 0; j < size; ++j)
+                    for (size_t k = 0; k < size; ++k)
+                        if (this->grid_[i][j][k])
+                        {
+                            geometry_msgs::Point p;
+                            // The rviz cubes have the center at top left corner, while the
+                            // the octomap cells have it in the center.That's why we have res/2.
+                            p.x = (i - size / 2.) * res + res / 2;
+                            p.y = (j - size / 2.) * res + res / 2;
+                            p.z = (k - size / 2.) * res + res / 2;
+                            marker.points.push_back(p);
+                        }
+            break;
+        }
+        case ShapeType::MESH:
+            geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+            break;
         case ShapeType::BOX:
-        case ShapeType::OCTOBOX:  // TODO:visualize the individual gridcells for correctness.
         case ShapeType::SPHERE:
         case ShapeType::CYLINDER:
         case ShapeType::CONE:
-            geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
-            break;
-        case ShapeType::MESH:
-            geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+            throw Exception(1, "Not implemented... ");
+            // geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
             break;
 
         default:
@@ -358,17 +371,8 @@ const EigenSTL::vector_Vector3d &Geometry::getVertices() const
     return vertices_;
 }
 
-bool ***Geometry::getGrid()
+bool ***Geometry::getGrid() const
 {
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            for (int k = 0; k < 4; k++)
-            {
-                std::cout << "HIIII" << std::endl;
-                bool val = grid_[i][j][k];
-            }
-
-    std::cout << grid_;
     return grid_;
 }
 

@@ -208,7 +208,7 @@ namespace robowflex
         /** \brief Gets the grid of the primitive
          *  \return The datagrid of the geometry.
          */
-        bool ***getGrid();
+        bool ***getGrid() const;
 
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
