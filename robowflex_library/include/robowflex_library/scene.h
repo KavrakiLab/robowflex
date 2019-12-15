@@ -105,7 +105,7 @@ namespace robowflex
          *  \param[in] pose Pose of object.
          */
         void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                   const RobotPose &pose);
+                                   const RobotPose &pose) const;
 
         /** \brief Returns true if the object \e name is in the scene.
          *  \param[in] name Name of the object to look for.
@@ -128,7 +128,7 @@ namespace robowflex
         /** \brief Removes an object from the planning scene.
          *  \param[in] name Name of object to remove.
          */
-        void removeCollisionObject(const std::string &name);
+        void removeCollisionObject(const std::string &name) const;
 
         /** \brief Get the current pose of a collision object.
          *  If the object has multiple geometries, returns the pose of the first.

@@ -135,7 +135,7 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 }
 
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                  const RobotPose &pose)
+                                  const RobotPose &pose) const
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -167,7 +167,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     return nullptr;
 }
 
-void Scene::removeCollisionObject(const std::string &name)
+void Scene::removeCollisionObject(const std::string &name) const
 {
     scene_->getWorldNonConst()->removeObject(name);
 }

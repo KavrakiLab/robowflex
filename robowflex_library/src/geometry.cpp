@@ -109,7 +109,7 @@ Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, cons
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)
-  , grid_(grid)
+  , grid_(grid)  // TODO I should convert this to a 3D eigen Matrix;
   , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -328,6 +328,7 @@ void Geometry::makeMarker(visualization_msgs::Marker &marker) const
                             p.z = (k - size / 2.) * res + res / 2;
                             marker.points.push_back(p);
                         }
+            std::cout << "Marker Points Size:" << marker.points.size() << std::endl;
             break;
         }
         case ShapeType::MESH:
