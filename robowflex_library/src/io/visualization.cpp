@@ -48,7 +48,7 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
     trajectory_pub_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("trajectory", 1);
     state_pub_ = nh_.advertise<moveit_msgs::DisplayRobotState>("state",1);
     scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("scene", 1);
-    marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 100);\
+    marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 100);
 }
 
 void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanResponse &response)
@@ -118,15 +118,6 @@ void IO::RVIZHelper::visualizeState(const std::vector<double> &state)
 
 void IO::RVIZHelper::visualizeCurrentState()
 {
-    moveit_msgs::DisplayRobotState out;
-    if (state_pub_.getNumSubscribers() < 1)
-    {
-        ROS_INFO("Waiting for State subscribers...");
-
-        ros::WallDuration pause(0.1);
-        while (trajectory_pub_.getNumSubscribers() < 1)
-            pause.sleep();
-    }
     visualizeState(robot_->getState());
 }
 
