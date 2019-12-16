@@ -116,6 +116,20 @@ void IO::RVIZHelper::visualizeState(const std::vector<double> &state)
     state_pub_.publish(out);
 }
 
+void IO::RVIZHelper::visualizeCurrentState()
+{
+    moveit_msgs::DisplayRobotState out;
+    if (state_pub_.getNumSubscribers() < 1)
+    {
+        ROS_INFO("Waiting for State subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (trajectory_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
+    visualizeState(robot_->getState());
+}
+
 void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
                                 const RobotPose &pose, const Eigen::Vector4d &color,
                                 const Eigen::Vector3d &scale) const
