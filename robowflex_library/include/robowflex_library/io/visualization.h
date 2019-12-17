@@ -47,6 +47,21 @@ namespace robowflex
 
             /** \} */
 
+            /** \name States
+             *  \{ */
+
+            /** \brief Visualizes a robot state.
+             *  \param[in] state The state of the robot to be visualized.
+             */
+            void visualizeState(const std::vector<double> &state);
+
+            /** \brief Visualize the current state of the robot.
+             */
+            void visualizeCurrentState();
+
+            /** \} */
+
+
             /** \name Scenes
              *  \{ */
 
@@ -143,6 +158,7 @@ namespace robowflex
             ros::Publisher marker_pub_;      ///< Marker publisher.
             ros::Publisher trajectory_pub_;  ///< Trajectory publisher.
             ros::Publisher scene_pub_;       ///< Scene publisher.
+            ros::Publisher state_pub_;       ///< State publisher.
 
             std::multimap<std::string, visualization_msgs::Marker> markers_;  ///< Markers to publish.
         };
