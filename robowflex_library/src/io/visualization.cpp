@@ -46,7 +46,7 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
     nh_.setParam(Robot::ROBOT_DESCRIPTION + Robot::ROBOT_SEMANTIC, semantic);
 
     trajectory_pub_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("trajectory", 1);
-    state_pub_ = nh_.advertise<moveit_msgs::DisplayRobotState>("state",1);
+    state_pub_ = nh_.advertise<moveit_msgs::DisplayRobotState>("state", 1);
     scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("scene", 1);
     marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 100);
 }
