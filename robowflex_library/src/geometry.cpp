@@ -328,7 +328,6 @@ void Geometry::makeMarker(visualization_msgs::Marker &marker) const
                             p.z = (k - size / 2.) * res + res / 2;
                             marker.points.push_back(p);
                         }
-            std::cout << "Marker Points Size:" << marker.points.size() << std::endl;
             break;
         }
         case ShapeType::MESH:
