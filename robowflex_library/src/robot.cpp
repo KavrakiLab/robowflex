@@ -337,15 +337,19 @@ bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-    if (!sampled.first)
-        return false;
-
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-    if (scratch_->setFromIK(jmg, sampled.second))
+
+    for (unsigned int i = 0; i < ik_attempts_; ++i)
     {
-        scratch_->update();
-        return true;
+        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
+        if (!sampled.first)
+            continue;
+
+        if (scratch_->setFromIK(jmg, sampled.second, 1, 0.))
+        {
+            scratch_->update();
+            return true;
+        }
     }
 
     return false;
