@@ -188,6 +188,16 @@ namespace robowflex
          *  \return The collision result.
          */
         collision_detection::CollisionResult
+        checkCollision(const robot_state::RobotState &state,
+                       const collision_detection::CollisionRequest &request = {}) const;
+
+
+        /** \brief Check if a robot state is in collision.
+         *  \param[in] state State to check for collision.
+         *  \param[in] request Optional request parameters for collision checking.
+         *  \return The collision result.
+         */
+        collision_detection::CollisionResult
         checkCollision(const robot_state::RobotStatePtr &state,
                        const collision_detection::CollisionRequest &request = {}) const;
 

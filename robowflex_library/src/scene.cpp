@@ -275,12 +275,18 @@ bool Scene::detachObject(const std::string &name)
 }
 
 collision_detection::CollisionResult Scene::checkCollision(
-    const robot_state::RobotStatePtr &state, const collision_detection::CollisionRequest &request) const
+    const robot_state::RobotState &state, const collision_detection::CollisionRequest &request) const
 {
     collision_detection::CollisionResult result;
-    scene_->checkCollision(request, result, *state);
+    scene_->checkCollision(request, result, state);
 
     return result;
+}
+
+collision_detection::CollisionResult Scene::checkCollision(
+    const robot_state::RobotStatePtr &state, const collision_detection::CollisionRequest &request) const
+{
+    return checkCollision(*state, request);
 }
 
 double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
