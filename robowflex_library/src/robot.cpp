@@ -24,6 +24,29 @@ const std::string Robot::ROBOT_SEMANTIC = "_semantic";
 const std::string Robot::ROBOT_PLANNING = "_planning";
 const std::string Robot::ROBOT_KINEMATICS = "_kinematics";
 
+namespace
+{
+    std::pair<bool, geometry_msgs::Pose> sampleInVolume(const GeometryConstPtr &geometry,
+                                                        const RobotPose &pose,
+                                                        const Eigen::Quaterniond &orientation,
+                                                        const Eigen::Vector3d &tolerances)
+    {
+        geometry_msgs::Pose msg;
+
+        auto point = geometry->sample();
+        if (point.first)
+        {
+            RobotPose sampled_pose = pose;
+            sampled_pose.translate(point.second);
+            sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
+
+            msg = TF::poseEigenToMsg(sampled_pose);
+        }
+
+        return std::make_pair(point.first, msg);
+    }
+}  // namespace
+
 Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
@@ -310,22 +333,44 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-bool Robot::setFromIK(const std::string &group,                                       //
+bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    RobotPose sampled_pose = pose;
-    auto sample = region->sample();
-    if (!sample.first)
+    auto sampled = sampleInVolume(region, pose, orientation, tolerances);
+    if (!sampled.first)
         return false;
 
-    sampled_pose.translate(sample.second);
-    sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+    if (scratch_->setFromIK(jmg, sampled.second))
+    {
+        scratch_->update();
+        return true;
+    }
 
-    geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
+    return false;
+}
+
+bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                    const GeometryConstPtr &region, const RobotPose &pose,
+                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+{
+    auto sampled = sampleInVolume(region, pose, orientation, tolerances);
+    if (!sampled.first)
+        return false;
+
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
 
-    if (scratch_->setFromIK(jmg, msg))
+    const auto &gsvcf = [&scene](robot_state::RobotState *state, const moveit::core::JointModelGroup *jmg,
+                            const double *values) -> bool {
+        state->setJointGroupPositions(jmg, values);
+        state->updateCollisionBodyTransforms();
+        auto result = scene->checkCollision(*state);
+        return !result.collision;
+
+    };
+
+    if (scratch_->setFromIK(jmg, sampled.second, 0., gsvcf))
     {
         scratch_->update();
         return true;
@@ -411,7 +456,8 @@ namespace
     {
         YAML::Node origin;
         origin["position"] = std::vector<double>({pose.position.x, pose.position.y, pose.position.z});
-        origin["orientation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        origin["orientation"] =
+            std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
         node["origin"] = origin;
         ROBOWFLEX_YAML_FLOW(node["origin"]);
     }

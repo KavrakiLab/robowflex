@@ -12,6 +12,7 @@
 #include <shape_msgs/SolidPrimitive.h>
 #include <shape_msgs/Mesh.h>
 
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/class_forward.h>
 
 namespace robowflex
