@@ -283,12 +283,6 @@ collision_detection::CollisionResult Scene::checkCollision(
     return result;
 }
 
-collision_detection::CollisionResult Scene::checkCollision(
-    const robot_state::RobotStatePtr &state, const collision_detection::CollisionRequest &request) const
-{
-    return checkCollision(*state, request);
-}
-
 double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 {
     return scene_->distanceToCollision(*state);

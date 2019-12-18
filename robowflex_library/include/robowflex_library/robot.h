@@ -370,6 +370,8 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+
+        unsigned int ik_attempts_{50};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */
