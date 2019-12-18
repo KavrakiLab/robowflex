@@ -239,7 +239,7 @@ srdf::ModelConstSharedPtr Robot::getSRDF() const
     return model_->getSRDF();
 }
 
-const robot_model::RobotStatePtr &Robot::getScratchState() const
+const robot_model::RobotStatePtr &Robot::getScratchStateConst() const
 {
     return scratch_;
 }
