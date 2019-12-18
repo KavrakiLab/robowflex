@@ -310,9 +310,10 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-bool Robot::setFromIK(const std::string &group,                                       //
+bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
-                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                      ScenePtr scene)
 {
     RobotPose sampled_pose = pose;
     auto sample = region->sample();
@@ -325,10 +326,30 @@ bool Robot::setFromIK(const std::string &group,                                 
     geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
 
-    if (scratch_->setFromIK(jmg, msg))
+    if (scene)
     {
-        scratch_->update();
-        return true;
+        auto collFn = [&](moveit::core::RobotState *a1, const moveit::core::JointModelGroup *a2,
+                          const double *a3) {
+            collision_detection::CollisionRequest request;
+            request.group_name = "arm_with_torso";
+            collision_detection::CollisionResult result;
+            scene->getScene()->checkCollision(request, result, *a1);
+            return !result.collision;
+        };
+
+        if (scratch_->setFromIK(jmg, msg, 0, 0, collFn))
+        {
+            scratch_->update();
+            return true;
+        }
+    }
+    else
+    {
+        if (scratch_->setFromIK(jmg, msg))
+        {
+            scratch_->update();
+            return true;
+        }
     }
 
     return false;
@@ -411,7 +432,8 @@ namespace
     {
         YAML::Node origin;
         origin["position"] = std::vector<double>({pose.position.x, pose.position.y, pose.position.z});
-        origin["orientation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        origin["orientation"] =
+            std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
         node["origin"] = origin;
         ROBOWFLEX_YAML_FLOW(node["origin"]);
     }

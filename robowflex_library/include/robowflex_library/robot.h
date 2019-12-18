@@ -252,7 +252,7 @@ namespace robowflex
         void setGroupState(const std::string &name, const std::vector<double> &positions);
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
-         *  retains its initial value. 
+         *  retains its initial value.
          *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
          *  orientation with XYZ Euler angle tolerances from \a tolerances.
          *  \param[in] group Group to set.
@@ -262,9 +262,9 @@ namespace robowflex
          *  \param[in] tolerances Tolerance about \a orientation.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region,
-                       const RobotPose &pose, const Eigen::Quaterniond &orientation,
-                       const Eigen::Vector3d &tolerances);
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                       ScenePtr = nullptr);
 
         /** \brief Gets the current joint positions of the scratch state.
          *  \return A vector of joint positions.
