@@ -357,18 +357,23 @@ bool Robot::setFromIK(const std::string &group,                               //
 
 bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
                                     const GeometryConstPtr &region, const RobotPose &pose,
-                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                    bool verbose)
 {
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
 
-    const auto &gsvcf =                                     //
-        [&scene](robot_state::RobotState *state,            //
-                 const moveit::core::JointModelGroup *jmg,  //
-                 const double *values)                      //
+    const auto &gsvcf =                                               //
+        [&scene, &verbose](robot_state::RobotState *state,            //
+                           const moveit::core::JointModelGroup *jmg,  //
+                           const double *values)                      //
     {
         state->setJointGroupPositions(jmg, values);
         state->updateCollisionBodyTransforms();
-        auto result = scene->checkCollision(*state);
+
+        collision_detection::CollisionRequest request;
+        request.verbose = verbose;
+
+        auto result = scene->checkCollision(*state, request);
         return !result.collision;
     };
 
