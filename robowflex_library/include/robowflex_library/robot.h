@@ -304,12 +304,13 @@ namespace robowflex
          *  \param[in] pose Pose of the \a region.
          *  \param[in] orientation Mean orientation
          *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
          *  \return True on success, false on failure.
          */
         bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
                                      const GeometryConstPtr &region, const RobotPose &pose,
-                                     const Eigen::Quaterniond &orientation,
-                                     const Eigen::Vector3d &tolerances);
+                                     const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                     bool verbose = false);
 
         /** \} */
 
