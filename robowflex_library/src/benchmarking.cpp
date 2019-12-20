@@ -136,7 +136,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         results.finish = IO::getDate();
 
-        for (const BenchmarkOutputterPtr& output : outputs)
+        for (const BenchmarkOutputterPtr &output : outputs)
             output->dumpResult(results);
     }
 }
@@ -279,7 +279,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "1 planners" << std::endl;
 
     // planners_data -> planner_data
-    out << request.planner_id << std::endl;  // planner_name
+    out << results.planner->getName() << std::endl;  // planner_name
     out << "0 common properties" << std::endl;
 
     out << (results.runs[0].metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
