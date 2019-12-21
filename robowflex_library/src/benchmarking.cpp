@@ -224,13 +224,13 @@ OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix) : pref
 
 OMPLBenchmarkOutputter::~OMPLBenchmarkOutputter()
 {
-    IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
+    // IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
 }
 
 void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     std::ofstream out;
-    IO::createFile(out, prefix_ + results.name + ".log");
+    IO::createFile(out, prefix_ + results.name + "_" + results.planner->getName() + ".log");
 
     out << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
     out << "Experiment " << results.name << std::endl;         // experiment
@@ -243,15 +243,15 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
-    YAML::Node yaml;
-    yaml["scene"] = IO::toNode(scene_msg);
-    yaml["request"] = IO::toNode(request);
+    //  YAML::Node yaml;
+    //  yaml["scene"] = IO::toNode(scene_msg);
+    //  yaml["request"] = IO::toNode(request);
 
-    YAML::Emitter yaml_out;
-    yaml_out << yaml;
+    //  YAML::Emitter yaml_out;
+    //  yaml_out << yaml;
 
     out << "<<<|" << std::endl;
-    out << yaml_out.c_str() << std::endl;
+    // out << yaml_out.c_str() << std::endl;
     out << "|>>>" << std::endl;
 
     // random seed (fake)
