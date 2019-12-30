@@ -76,10 +76,10 @@ void IO::RobotBroadcaster::update()
         tf2br_.sendTransform(msg);
     }
 
-    // Static transfrom from map to base
-    std::string source = "map";
-    std::string target = "base_link";
-    RobotPose tf;
+    // Static transfrom from map to base needed by Rviz
+    std::string target = "map";
+    std::string source = "base_link";
+    auto tf = Eigen::Isometry3d::Identity();
     auto static_msg = TF::transformEigenToMsg(source, target, tf);
 
     tf2br_.sendTransform(static_msg);
