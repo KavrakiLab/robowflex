@@ -80,9 +80,9 @@ void IO::RobotBroadcaster::update()
     std::string source = "map";
     std::string target = "base_link";
     RobotPose tf;
-    auto msg = TF::transformEigenToMsg(source, target, tf);
+    auto static_msg = TF::transformEigenToMsg(source, target, tf);
 
-    tf2br_.sendTransform(msg);
+    tf2br_.sendTransform(static_msg);
 
     unsigned int n = state->getVariableCount();
 
