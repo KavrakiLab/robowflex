@@ -76,6 +76,14 @@ void IO::RobotBroadcaster::update()
         tf2br_.sendTransform(msg);
     }
 
+    // Static transfrom from map to base
+    std::string source = "map";
+    std::string target = "base_link";
+    RobotPose tf;
+    auto msg = TF::transformEigenToMsg(source, target, tf);
+
+    tf2br_.sendTransform(msg);
+
     unsigned int n = state->getVariableCount();
 
     sensor_msgs::JointState msg;
