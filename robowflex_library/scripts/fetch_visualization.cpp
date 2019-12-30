@@ -7,6 +7,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/io/visualization.h>
+#include <robowflex_library/io/broadcaster.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 
@@ -26,6 +27,8 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by
     // default.
     IO::RVIZHelper rviz(fetch);
+    IO::RobotBroadcaster bc(fetch);
+    bc.start();
 
     ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();

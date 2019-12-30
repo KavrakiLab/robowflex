@@ -59,6 +59,7 @@ list(APPEND SOURCES
   src/util.cpp
   src/io.cpp
   src/io/visualization.cpp
+  src/io/broadcaster.cpp
   src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp

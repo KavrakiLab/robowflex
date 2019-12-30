@@ -160,3 +160,17 @@ Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, 
 {
     return Eigen::AngleAxisd(value, axis) * orientation;
 }
+
+geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &source, const std::string &target,
+                                                        const RobotPose &tf)
+{
+    geometry_msgs::TransformStamped msg;
+
+    msg.header.stamp = ros::Time::now();
+    msg.header.frame_id = source;
+    msg.child_frame_id = target;
+
+    tf::transformEigenToMsg(tf, msg.transform);
+
+    return msg;
+}
