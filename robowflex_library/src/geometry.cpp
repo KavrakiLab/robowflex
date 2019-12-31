@@ -110,7 +110,7 @@ Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, cons
   , dimensions_(dimensions)
   , vertices_(vertices)
   , grid_(grid)  // TODO I should convert this to a 3D eigen Matrix;
-  , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
+  , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
 {
@@ -214,7 +214,7 @@ shapes::Shape *Geometry::loadShape() const
 
         case ShapeType::MESH:
             if (!resource_.empty())
-                return shapes::createMeshFromResource(resource_, dimensions_);
+                return shapes::createMeshFromResource("file://" + resource_, dimensions_);
             else if (!vertices_.empty())
                 return shapes::createMeshFromVertices(vertices_);
             else
