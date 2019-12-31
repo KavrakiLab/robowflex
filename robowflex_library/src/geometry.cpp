@@ -91,7 +91,7 @@ GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
   : type_(type)
   , dimensions_(dimensions)
-  , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
+  , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
 {
@@ -176,7 +176,7 @@ shapes::Shape *Geometry::loadShape() const
             break;
 
         case ShapeType::MESH:
-            return shapes::createMeshFromResource(resource_, dimensions_);
+            return shapes::createMeshFromResource("file://" + resource_, dimensions_);
             break;
 
         default:
