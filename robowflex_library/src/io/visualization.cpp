@@ -179,7 +179,6 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
     {
         case Geometry::ShapeType::BOX:
             marker.type = visualization_msgs::Marker::CUBE;
-            scale[1] = scale[2] = scale[0];  // Copy size to other dimensions
             break;
         case Geometry::ShapeType::SPHERE:
             marker.type = visualization_msgs::Marker::SPHERE;
