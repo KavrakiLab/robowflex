@@ -136,7 +136,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         results.finish = IO::getDate();
 
-        for (const BenchmarkOutputterPtr &output : outputs)
+        for (const BenchmarkOutputterPtr& output : outputs)
             output->dumpResult(results);
     }
 }
@@ -224,13 +224,13 @@ OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix) : pref
 
 OMPLBenchmarkOutputter::~OMPLBenchmarkOutputter()
 {
-    // IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
+    IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
 }
 
 void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 {
     std::ofstream out;
-    IO::createFile(out, prefix_ + results.name + "_" + results.planner->getName() + ".log");
+    IO::createFile(out, prefix_ + results.name + ".log");
 
     out << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
     out << "Experiment " << results.name << std::endl;         // experiment
@@ -243,15 +243,15 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
-    //  YAML::Node yaml;
-    //  yaml["scene"] = IO::toNode(scene_msg);
-    //  yaml["request"] = IO::toNode(request);
+    YAML::Node yaml;
+    yaml["scene"] = IO::toNode(scene_msg);
+    yaml["request"] = IO::toNode(request);
 
-    //  YAML::Emitter yaml_out;
-    //  yaml_out << yaml;
+    YAML::Emitter yaml_out;
+    yaml_out << yaml;
 
     out << "<<<|" << std::endl;
-    // out << yaml_out.c_str() << std::endl;
+    out << yaml_out.c_str() << std::endl;
     out << "|>>>" << std::endl;
 
     // random seed (fake)
@@ -279,7 +279,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "1 planners" << std::endl;
 
     // planners_data -> planner_data
-    out << results.planner->getName() << std::endl;  // planner_name
+    out << request.planner_id << std::endl;  // planner_name
     out << "0 common properties" << std::endl;
 
     out << (results.runs[0].metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
