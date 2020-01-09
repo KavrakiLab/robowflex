@@ -227,6 +227,17 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool fromYAMLFile(const std::string &file);
+        // TODO:REMOVE
+        void setOctoOffset(const Eigen::Vector3d &vec, const double theta)
+        {
+            octo_offset.translation().x() = +vec[0] * std::cos(theta) - vec[1] * std::sin(theta);
+            octo_offset.translation().y() = -vec[0] * std::sin(theta) + vec[1] * std::cos(theta);
+            if (vec[2] != 0)
+            {
+                std::cout << "The rotation must be 0!" << std::endl;
+                exit(-1);
+            }
+        }
 
         /** \} */
 
@@ -237,6 +248,8 @@ namespace robowflex
 
         CollisionPluginLoaderPtr loader_;  ///< Plugin loader that sets collision detectors for the scene.
         planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
+
+        RobotPose octo_offset{RobotPose::Identity()};  // TODO:Do differently
     };
 }  // namespace robowflex
 

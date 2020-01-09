@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
@@ -367,6 +368,11 @@ bool Scene::toYAMLFile(const std::string &file)
 {
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
+    if (!msg.world.octomap.octomap.data.empty())
+    {
+        std::cout << "This is an abomination someone fix it plz!" << std::endl;
+        msg.world.octomap.origin = TF::poseEigenToMsg(octo_offset);
+    }
 
     YAML::Node node = IO::toNode(msg);
     return IO::YAMLToFile(node, file);
