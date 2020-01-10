@@ -251,21 +251,6 @@ namespace robowflex
          */
         void setGroupState(const std::string &name, const std::vector<double> &positions);
 
-        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
-         *  retains its initial value. 
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
-         */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region,
-                       const RobotPose &pose, const Eigen::Quaterniond &orientation,
-                       const Eigen::Vector3d &tolerances);
-
         /** \brief Gets the current joint positions of the scratch state.
          *  \return A vector of joint positions.
          */
@@ -288,6 +273,49 @@ namespace robowflex
          *  \return The transform of link \a target in the frame of \a base.
          */
         const RobotPose getRelativeLinkTF(const std::string &base, const std::string &target) const;
+
+        /** \} */
+
+        /** \name Inverse Kinematics
+            \{ */
+
+        /** \brief Set the number of attempts for IK.
+         *  \param[in] attempts Number of attempts.
+         */
+        void setIKAttempts(unsigned int attempts);
+
+        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
+         *  retains its initial value.
+         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
+         *  orientation with XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] group Group to set.
+         *  \param[in] region Region of points for position.
+         *  \param[in] pose Pose of the \a region.
+         *  \param[in] orientation Mean orientation
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+
+        /** \brief Sets a group of the scratch state from an IK query. Attempts to find a configuration that
+         * is collision-free with the scene and the robot itself. If the IK query fails the scratch state
+         *  retains its initial value.
+         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
+         *  orientation with XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] scene Scene to do collision checking with.
+         *  \param[in] group Group to set.
+         *  \param[in] region Region of points for position.
+         *  \param[in] pose Pose of the \a region.
+         *  \param[in] orientation Mean orientation
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                     const GeometryConstPtr &region, const RobotPose &pose,
+                                     const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                     bool verbose = false);
 
         /** \} */
 
@@ -348,6 +376,8 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+
+        unsigned int ik_attempts_{50};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */
