@@ -333,6 +333,11 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
+void Robot::setIKAttempts(unsigned int attempts)
+{
+    ik_attempts_ = attempts;
+}
+
 bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)

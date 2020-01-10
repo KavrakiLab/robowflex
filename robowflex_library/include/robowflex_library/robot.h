@@ -279,6 +279,11 @@ namespace robowflex
         /** \name Inverse Kinematics
             \{ */
 
+        /** \brief Set the number of attempts for IK.
+         *  \param[in] attempts Number of attempts.
+         */
+        void setIKAttempts(unsigned int attempts);
+
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
          *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
