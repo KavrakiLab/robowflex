@@ -9,6 +9,7 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <moveit_msgs/BoundingVolume.h>
 #include <moveit_msgs/PositionConstraint.h>
@@ -43,7 +44,8 @@ namespace robowflex
          *  \param[in] rotation rotational component (X, Y, Z angles)
          *  \return A new robot pose from components.
          */
-        RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation, const Eigen::Ref<const Eigen::Vector3d> &rotation);
+        RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                                const Eigen::Ref<const Eigen::Vector3d> &rotation);
 
         /** \brief Creates a robot pose from a linear component and a Quaternion
          *  \param[in] x X-axis translation
@@ -62,7 +64,8 @@ namespace robowflex
          *  \param[in] rotation rotational component (W, X, Y, Z quaternion values)
          *  \return A new robot pose from components.
          */
-        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation, const Eigen::Ref<const Eigen::Vector4d> &rotation);
+        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                              const Eigen::Ref<const Eigen::Vector4d> &rotation);
 
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.
@@ -144,6 +147,15 @@ namespace robowflex
          */
         Eigen::Quaterniond offsetOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &axis, double value);
+
+        /** \brief Encode a transform as a message.
+         *  \param[in] source Source frame.
+         *  \param[in] target Target frame.
+         *  \param[in] tf Transform between frames.
+         *  \return Transform message.
+         */
+        geometry_msgs::TransformStamped transformEigenToMsg(const std::string &source,
+                                                            const std::string &target, const RobotPose &tf);
     }  // namespace TF
 }  // namespace robowflex
 

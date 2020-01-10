@@ -209,7 +209,6 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
 {
     const auto &goals = request.getRequestConst().goal_constraints;
-    const auto &base_frame = "map";  // Markers must be placed in "map" (default RViz frame)
 
     // Iterate over each goal (an "or"-ing together of different constraints)
     for (const auto &goal : goals)
@@ -220,6 +219,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
         for (const auto &pg : goal.position_constraints)
         {
             const auto &pname = pg.link_name;
+            const auto &base_frame = pg.header.frame_id;
 
             // Get global transform of position constraint
             RobotPose pose = robot_->getLinkTF(pg.header.frame_id);

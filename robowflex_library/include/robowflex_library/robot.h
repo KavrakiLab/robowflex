@@ -196,7 +196,7 @@ namespace robowflex
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
          */
-        const robot_model::RobotStatePtr &getScratchState() const;
+        const robot_model::RobotStatePtr &getScratchStateConst() const;
 
         /** \brief Get a reference to the scratch robot state.
          *  \return The scratch robot state.
