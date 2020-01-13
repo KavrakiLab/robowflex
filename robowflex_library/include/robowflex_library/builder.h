@@ -189,7 +189,7 @@ namespace robowflex
         void setAllowedPlanningTime(double allowed_planning_time);
 
         /** \brief Set the number of planning attemps in the request.
-         *  \param[in] num_planning_attemps The required time for planning attemps.
+         *  \param[in] num_planning_attempts The required time for planning attempts.
          */
         void setNumPlanningAttempts(unsigned int num_planning_attempts);
 
