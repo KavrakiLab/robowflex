@@ -161,6 +161,15 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool attachObject(const std::string &name);
+        
+        /** \brief Attach the named collision object \a name to the default end-effector of the given robot \a state
+         *  Only works if there is one end-effector in the system. Uses all end-effector links as allowed
+         *  touch links.
+         *  \param[in] name Name of collision to attach.
+         *  \param[in] state State of robot the object will be attached to
+         *  \return True on success, false on failure.
+         */
+        bool attachObject(robot_state::RobotState &state, const std::string &name);
 
         /** \brief Attach the named collision object \a name to the link \a ee_link.
          *  \param[in] name Name of object to attach.
@@ -170,6 +179,15 @@ namespace robowflex
          */
         bool attachObject(const std::string &name, const std::string &ee_link,
                           const std::vector<std::string> &touch_links);
+
+        /** \brief Attach the named collision object \a name to the link \a ee_link of the given robot \a state
+         *  \param[in] name Name of object to attach.
+         *  \param[in] ee_link Link to attach object to.
+         *  \param[in] touch_links Links the object is allowed to touch.
+         *  \return True on success, false on failure.
+         */
+        bool attachObject(robot_state::RobotState &state, const std::string &name,
+                          const std::string &ee_link, const std::vector<std::string> &touch_links);
 
         /** \brief Detach an object \a name from the robot.
          *  \param[in] name Name of collision to detach.
