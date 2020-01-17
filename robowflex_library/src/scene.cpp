@@ -282,6 +282,8 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
     
+    auto &robot = scene_->getCurrentStateNonConst();
+    scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
     
     EigenSTL::vector_Isometry3d poses;
@@ -291,7 +293,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         poses.push_back(relative);
     }
     
-    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 
