@@ -69,6 +69,10 @@ namespace robowflex
          *  \return The planner's name.
          */
         const std::string &getName() const;
+        virtual void preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+        {
+            ROS_INFO("Nothing to do, Overrrided if you want to use");
+        }
 
     protected:
         RobotPtr robot_;          ///< The robot to plan for.
