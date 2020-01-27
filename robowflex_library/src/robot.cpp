@@ -592,6 +592,14 @@ bool Robot::dumpTransforms(const std::string &filename) const
     return dumpPathTransforms(trajectory, filename, 0., 0.);
 }
 
+bool Robot::dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const
+{
+    moveit_msgs::RobotTrajectory traj;
+    YAML::Node node;
+    path.getRobotTrajectoryMsg(traj);
+    node["trajectory"] = IO::toNode(traj);
+    return IO::YAMLToFile(node, filename);
+}
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                double fps, double threshold) const
 {

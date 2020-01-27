@@ -336,6 +336,8 @@ namespace robowflex
          *  \param[in] threshold The minimum distance between states before transforms are output.
          *  \return True on success, false on failure.
          */
+
+        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
         bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                 double fps = 30, double threshold = 0.0) const;
 
