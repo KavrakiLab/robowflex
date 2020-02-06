@@ -180,6 +180,22 @@ namespace robowflex
         planning_interface::MotionPlanResponse
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
+        /** \brief Retrieve planning context and dynamically cast to desired type from planning pipeline.
+         *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+         *  \param[in] request The motion planning request to solve.
+         *  \tparam T Type of underlying planning context.
+         *  \return The casted context for the motion planning request. On failure, nullptr.
+         */
+        template <typename T>
+        std::shared_ptr<T> extractPlanningContext(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &req) const
+        {
+            if (not pipeline_)
+                return nullptr;
+
+            auto pc = pipeline_->getPlannerManager()->getPlanningContext(scene->getSceneConst(), req);
+            return std::dynamic_pointer_cast<T>(pc);
+        }
+
     protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;  ///< Loaded planning pipeline plugin.
     };
