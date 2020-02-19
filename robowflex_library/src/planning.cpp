@@ -199,10 +199,10 @@ const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() co
 }
 
 ///
-/// TrajOpt
+/// Opt
 ///
 
-bool TrajOpt::loadTrajOptConfig(IO::Handler &handler, const std::string &config_file)
+bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 {
     if (config_file.empty())
         return false;
@@ -219,30 +219,71 @@ bool TrajOpt::loadTrajOptConfig(IO::Handler &handler, const std::string &config_
     return true;
 }
 
+///
+/// Opt::CHOMPPipelinePlanner
+///
+
+const std::string Opt::CHOMPPipelinePlanner::DEFAULT_PLUGIN("chomp_interface/CHOMPPlanner");
+const std::vector<std::string>                                             //
+    Opt::CHOMPPipelinePlanner::DEFAULT_ADAPTERS(                           //
+        {"default_planner_request_adapters/FixWorkspaceBounds",            //
+         "default_planner_request_adapters/FixStartStateBounds",           //
+         "default_planner_request_adapters/FixStartStateCollision",        //
+         "default_planner_request_adapters/FixStartStatePathConstraints",  //
+         "default_planner_request_adapters/ResolveConstraintFrames",       //
+         "default_planner_request_adapters/AddTimeParameterization"});
+
+Opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
+  : PipelinePlanner(robot, name)
+{
+}
+
+bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+                                           const std::vector<std::string> &adapters)
+{
+    if (!loadConfig(handler_, config_file))
+        return false;
+
+    handler_.setParam("planning_plugin", plugin);
+
+    std::stringstream ss;
+    for (std::size_t i = 0; i < adapters.size(); ++i)
+    {
+        ss << adapters[i];
+        if (i < adapters.size() - 1)
+            ss << " ";
+    }
+
+    handler_.setParam("request_adapters", ss.str());
+
+    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
+                                                            "planning_plugin", "request_adapters"));
+
+    return true;
+}
 
 ///
-/// TrajOpt::PipelinePlanner
+/// Opt::TrajOptPipelinePlanner
 ///
 
-const std::string TrajOpt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
+const std::string Opt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
 const std::vector<std::string>                                        //
-    TrajOpt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                      //
+    Opt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                    //
         {"default_planner_request_adapters/AddTimeParameterization",  //
          "default_planner_request_adapters/FixWorkspaceBounds",       //
          "default_planner_request_adapters/FixStartStateBounds",      //
          "default_planner_request_adapters/FixStartStateCollision",   //
          "default_planner_request_adapters/FixStartStatePathConstraints"});
 
-TrajOpt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
+Opt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
 }
 
-bool TrajOpt::TrajOptPipelinePlanner::initialize(const std::string &config_file,
-                                           const std::string &plugin,
-                                           const std::vector<std::string> &adapters)
+bool Opt::TrajOptPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+                                             const std::vector<std::string> &adapters)
 {
-    if (!loadTrajOptConfig(handler_, config_file))
+    if (!loadConfig(handler_, config_file))
         return false;
 
     handler_.setParam("planning_plugin", plugin);
