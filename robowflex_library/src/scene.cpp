@@ -290,77 +290,80 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-    if (not hasObject(object))
-    {
-        ROS_ERROR("World does not have object `%s`", object.c_str());
-        return std::numeric_limits<double>::quiet_NaN();
-    }
+    throw std::runtime_error("Not Implemented");
+    // if (not hasObject(object))
+    // {
+    //     ROS_ERROR("World does not have object `%s`", object.c_str());
+    //     return std::numeric_limits<double>::quiet_NaN();
+    // }
 
-    const auto &cw = scene_->getCollisionWorld();
-    const auto &cr = *scene_->getCollisionRobot();
+    // const auto &cw = scene_->getCollisionWorld();
+    // const auto &cr = *scene_->getCollisionRobot();
 
-    collision_detection::DistanceRequest req;
-    collision_detection::DistanceResult res;
+    // collision_detection::DistanceRequest req;
+    // collision_detection::DistanceResult res;
 
-    const auto &links = state->getRobotModel()->getLinkModelNames();
-    const auto &objs = getCollisionObjects();
+    // const auto &links = state->getRobotModel()->getLinkModelNames();
+    // const auto &objs = getCollisionObjects();
 
-    collision_detection::AllowedCollisionMatrix acm;
+    // collision_detection::AllowedCollisionMatrix acm;
 
-    // No self-collision distances
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = i + 1; j < links.size(); ++j)
-            acm.setEntry(links[i], links[j], true);
+    // // No self-collision distances
+    // for (unsigned int i = 0; i < links.size(); ++i)
+    //     for (unsigned int j = i + 1; j < links.size(); ++j)
+    //         acm.setEntry(links[i], links[j], true);
 
-    // Ignore all other objects
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = 0; j < objs.size(); ++j)
-            acm.setEntry(links[i], objs[j], true);
+    // // Ignore all other objects
+    // for (unsigned int i = 0; i < links.size(); ++i)
+    //     for (unsigned int j = 0; j < objs.size(); ++j)
+    //         acm.setEntry(links[i], objs[j], true);
 
-    // Enable collision to the object of interest
-    for (unsigned int i = 0; i < links.size(); ++i)
-        acm.setEntry(links[i], object, false);
+    // // Enable collision to the object of interest
+    // for (unsigned int i = 0; i < links.size(); ++i)
+    //     acm.setEntry(links[i], object, false);
 
-    req.acm = &acm;
+    // req.acm = &acm;
 
-    cw->distanceRobot(req, res, cr, *state);
-    return res.minimum_distance.distance;
+    // cw->distanceRobot(req, res, cr, *state);
+    // return res.minimum_distance.distance;
 }
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-    // Early terminate if they are the same
-    if (one == two)
-        return 0.;
+    throw std::runtime_error("Not Implemented");
 
-    if (not hasObject(one))
-    {
-        ROS_ERROR("World does not have object `%s`", one.c_str());
-        return std::numeric_limits<double>::quiet_NaN();
-    }
+    // // Early terminate if they are the same
+    // if (one == two)
+    //     return 0.;
 
-    if (not hasObject(two))
-    {
-        ROS_ERROR("World does not have object `%s`", two.c_str());
-        return std::numeric_limits<double>::quiet_NaN();
-    }
+    // if (not hasObject(one))
+    // {
+    //     ROS_ERROR("World does not have object `%s`", one.c_str());
+    //     return std::numeric_limits<double>::quiet_NaN();
+    // }
 
-    const auto &cw = scene_->getCollisionWorld();
+    // if (not hasObject(two))
+    // {
+    //     ROS_ERROR("World does not have object `%s`", two.c_str());
+    //     return std::numeric_limits<double>::quiet_NaN();
+    // }
 
-    collision_detection::DistanceRequest req;
-    collision_detection::DistanceResult res;
+    // const auto &cw = scene_->getCollisionWorld();
 
-    const auto &objs = getCollisionObjects();
+    // collision_detection::DistanceRequest req;
+    // collision_detection::DistanceResult res;
 
-    // Allow collisions between all other objects
-    collision_detection::AllowedCollisionMatrix acm(objs, true);
-    req.acm = &acm;
+    // const auto &objs = getCollisionObjects();
 
-    // But disable them for the two we care about
-    acm.setEntry(one, two, false);
+    // // Allow collisions between all other objects
+    // collision_detection::AllowedCollisionMatrix acm(objs, true);
+    // req.acm = &acm;
 
-    cw->distanceWorld(req, res, *cw);
-    return res.minimum_distance.distance;
+    // // But disable them for the two we care about
+    // acm.setEntry(one, two, false);
+
+    // cw->distanceWorld(req, res, *cw);
+    // return res.minimum_distance.distance;
 }
 
 bool Scene::toYAMLFile(const std::string &file)
