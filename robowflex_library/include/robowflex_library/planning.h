@@ -187,7 +187,8 @@ namespace robowflex
          *  \return The casted context for the motion planning request. On failure, nullptr.
          */
         template <typename T>
-        std::shared_ptr<T> extractPlanningContext(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &req) const
+        std::shared_ptr<T> extractPlanningContext(const SceneConstPtr &scene,
+                                                  const planning_interface::MotionPlanRequest &req) const
         {
             if (not pipeline_)
                 return nullptr;
@@ -282,6 +283,51 @@ namespace robowflex
                                                 ///< initialize()
         };
     }  // namespace OMPL
+
+    namespace TrajOpt
+    {
+        /** \brief Loads TrajOpt configuration YAML file onto the parameter server.
+         */
+        bool loadTrajOptConfig(IO::Handler &handler, const std::string &config_file);
+
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(TrajOptPipelinePlanner);
+        /** \endcond */
+
+        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+
+        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+
+        /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! TrajOpt planning pipeline.
+         */
+        class TrajOptPipelinePlanner : public PipelinePlanner
+        {
+        public:
+            TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name = "");
+
+            // non-copyable
+            TrajOptPipelinePlanner(TrajOptPipelinePlanner const &) = delete;
+            void operator=(TrajOptPipelinePlanner const &) = delete;
+
+            /** \brief Initialize planning pipeline.
+             *  Loads TrajOpt planning plugin \a plugin with the planning adapters \a adapters. Parameters are
+             *  set on the parameter server from \a settings and planning configurations are loaded from the
+             *  YAML file \a config_file.
+             *  \param[in] config_file A YAML file containing TrajOpt configuration.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool initialize(const std::string &config_file = "", const std::string &plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+        protected:
+            static const std::string DEFAULT_PLUGIN;                 ///< The default TrajOpt plugin.
+            static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
+        };
+    }  // namespace TrajOpt
 }  // namespace robowflex
 
 #endif

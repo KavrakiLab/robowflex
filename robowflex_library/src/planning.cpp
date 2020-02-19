@@ -197,3 +197,68 @@ const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() co
 {
     return configs_;
 }
+
+///
+/// TrajOpt
+///
+
+bool TrajOpt::loadTrajOptConfig(IO::Handler &handler, const std::string &config_file)
+{
+    if (config_file.empty())
+        return false;
+
+    auto &config = IO::loadFileToYAML(config_file);
+    if (!config.first)
+    {
+        ROS_ERROR("Failed to load planner configs.");
+        return false;
+    }
+
+    handler.loadYAMLtoROS(config.second);
+
+    return true;
+}
+
+
+///
+/// TrajOpt::PipelinePlanner
+///
+
+const std::string TrajOpt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
+const std::vector<std::string>                                        //
+    TrajOpt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                      //
+        {"default_planner_request_adapters/AddTimeParameterization",  //
+         "default_planner_request_adapters/FixWorkspaceBounds",       //
+         "default_planner_request_adapters/FixStartStateBounds",      //
+         "default_planner_request_adapters/FixStartStateCollision",   //
+         "default_planner_request_adapters/FixStartStatePathConstraints"});
+
+TrajOpt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
+  : PipelinePlanner(robot, name)
+{
+}
+
+bool TrajOpt::TrajOptPipelinePlanner::initialize(const std::string &config_file,
+                                           const std::string &plugin,
+                                           const std::vector<std::string> &adapters)
+{
+    if (!loadTrajOptConfig(handler_, config_file))
+        return false;
+
+    handler_.setParam("planning_plugin", plugin);
+
+    std::stringstream ss;
+    for (std::size_t i = 0; i < adapters.size(); ++i)
+    {
+        ss << adapters[i];
+        if (i < adapters.size() - 1)
+            ss << " ";
+    }
+
+    handler_.setParam("request_adapters", ss.str());
+
+    pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
+                                                            "planning_plugin", "request_adapters"));
+
+    return true;
+}
