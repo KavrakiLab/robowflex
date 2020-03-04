@@ -56,6 +56,31 @@ void IO::RobotBroadcaster::stop()
     active_ = false;
 }
 
+void IO::RobotBroadcaster::addStaticTransform(const std::string &name, const std::string &base,
+                                              const std::string &target, const RobotPose &tf)
+{
+    if (static_.find(name) == static_.end())
+    {
+        StaticTransform stf;
+        stf.base = base;
+        stf.target = target;
+        stf.tf = tf;
+
+        static_.emplace(name, stf);
+    }
+    else
+        ROS_ERROR("Static transform %s already in map!", name.c_str());
+}
+
+void IO::RobotBroadcaster::removeStaticTransform(const std::string &name)
+{
+    auto it = static_.find(name);
+    if (it != static_.end())
+        static_.erase(it);
+    else
+        ROS_ERROR("Static transform %s does not exist in map!", name.c_str());
+}
+
 void IO::RobotBroadcaster::update()
 {
     const auto &state = robot_->getScratchStateConst();
@@ -76,13 +101,12 @@ void IO::RobotBroadcaster::update()
         tf2br_.sendTransform(msg);
     }
 
-    // Static transfrom from map to base needed by Rviz
-    std::string target = "map";
-    std::string source = "base_link";
-    auto tf = Eigen::Isometry3d::Identity();
-    auto static_msg = TF::transformEigenToMsg(source, target, tf);
-
-    tf2br_.sendTransform(static_msg);
+    for (const auto &pair : static_)
+    {
+        const auto &stf = pair.second;
+        auto static_msg = TF::transformEigenToMsg(stf.base, stf.target, stf.tf);
+        tf2br_.sendTransform(static_msg);
+    }
 
     unsigned int n = state->getVariableCount();
 

@@ -9,9 +9,8 @@
 
 using namespace robowflex;
 
-const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::OCTOBOX + 1;
-const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh",
-                                                             "octobox"});
+const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::MESH + 1;
+const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh"});
 
 Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
 {
@@ -95,21 +94,11 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
     return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
 }
 
-GeometryPtr Geometry::makeOctoBox(bool ***grid, double gridSize, double cellSize)
-{
-    int sideLength = gridSize / cellSize;
-    return std::make_shared<Geometry>(ShapeType::OCTOBOX,                               //
-                                      Eigen::Vector3d(gridSize, cellSize, sideLength),  //
-                                      "",                                               //
-                                      EigenSTL::vector_Vector3d(), grid);
-}
-
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
                    const EigenSTL::vector_Vector3d vertices, bool ***grid)
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)
-  , grid_(grid)  // TODO I should convert this to a 3D eigen Matrix;
   , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -127,23 +116,6 @@ Geometry::Geometry(const shapes::Shape &shape)
             dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
             shape_.reset(loadShape());
             vertices_.clear();
-            vertices_.emplace_back(
-                Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(-dimensions_[0] / 2, -dimensions_[1] / 2, -dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(dimensions_[0] / 2, -dimensions_[1] / 2, dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(-dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, -dimensions_[2] / 2));
-            vertices_.emplace_back(
-                Eigen::Vector3d(dimensions_[0] / 2, dimensions_[1] / 2, dimensions_[2] / 2));
-
             break;
         }
         case shapes::ShapeType::SPHERE:
@@ -221,10 +193,6 @@ shapes::Shape *Geometry::loadShape() const
                 throw Exception(1, "No vertices or resource specified to Load the mesh");
             break;
 
-        case ShapeType::OCTOBOX:
-            return new shapes::Box(dimensions_[0], dimensions_[0], dimensions_[0]);
-            break;
-
         default:
             break;
     }
@@ -237,7 +205,6 @@ bodies::Body *Geometry::loadBody() const
     switch (type_)
     {
         case ShapeType::BOX:
-        case ShapeType::OCTOBOX:
             return new bodies::Box(shape_.get());
             break;
 
@@ -282,11 +249,6 @@ bool Geometry::isMesh() const
     return type_ == ShapeType::MESH;
 }
 
-bool Geometry::isOctoBox() const
-{
-    return type_ == ShapeType::OCTOBOX;
-}
-
 const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
 {
     shapes::ShapeMsg msg;
@@ -309,27 +271,6 @@ void Geometry::makeMarker(visualization_msgs::Marker &marker) const
 {
     switch (type_)
     {
-        case ShapeType::OCTOBOX:
-        {
-            marker.type = visualization_msgs::Marker::CUBE_LIST;
-            double res = dimensions_[1];
-            double size = dimensions_[2];
-
-            for (size_t i = 0; i < size; ++i)
-                for (size_t j = 0; j < size; ++j)
-                    for (size_t k = 0; k < size; ++k)
-                        if (this->grid_[i][j][k])
-                        {
-                            geometry_msgs::Point p;
-                            // The rviz cubes have the center at top left corner, while the
-                            // the octomap cells have it in the center.That's why we have res/2.
-                            p.x = (i - size / 2.) * res + res / 2;
-                            p.y = (j - size / 2.) * res + res / 2;
-                            p.z = (k - size / 2.) * res + res / 2;
-                            marker.points.push_back(p);
-                        }
-            break;
-        }
         case ShapeType::MESH:
             geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
             break;
@@ -369,11 +310,6 @@ const std::string &Geometry::getResource() const
 const EigenSTL::vector_Vector3d &Geometry::getVertices() const
 {
     return vertices_;
-}
-
-bool ***Geometry::getGrid() const
-{
-    return grid_;
 }
 
 const Eigen::Vector3d &Geometry::getDimensions() const

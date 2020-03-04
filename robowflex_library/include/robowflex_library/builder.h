@@ -189,7 +189,7 @@ namespace robowflex
         void setAllowedPlanningTime(double allowed_planning_time);
 
         /** \brief Set the number of planning attemps in the request.
-         *  \param[in] num_planning_attemps The required time for planning attemps.
+         *  \param[in] num_planning_attempts The required time for planning attempts.
          */
         void setNumPlanningAttempts(unsigned int num_planning_attempts);
 
@@ -213,7 +213,7 @@ namespace robowflex
          */
         const planning_interface::MotionPlanRequest &getRequestConst() const;
 
-        /** \brief Get a the start state as a robot state.
+        /** \brief Get the start state of the request as a robot state.
          *  \return The start state.
          */
         robot_state::RobotState getStartConfiguration() const;

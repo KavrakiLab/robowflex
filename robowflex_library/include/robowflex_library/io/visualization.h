@@ -42,7 +42,7 @@ namespace robowflex
 
             /** \brief Updates the trajectory being visualized.
              *  \param[in] traj RobotTrajectory to visualize.
-             *  \param[in] start RobotTrajectory to visualize.
+             *  \param[in] start base_state to copy values for other joints.
              */
             void updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
                                   const moveit::core::RobotState &start);

@@ -136,7 +136,7 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 }
 
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                  const RobotPose &pose) const
+                                  const RobotPose &pose)
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -168,7 +168,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     return nullptr;
 }
 
-void Scene::removeCollisionObject(const std::string &name) const
+void Scene::removeCollisionObject(const std::string &name)
 {
     scene_->getWorldNonConst()->removeObject(name);
 }
@@ -281,18 +281,18 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         ROS_ERROR("Could not remove object `%s`", name.c_str());
         return false;
     }
-    
+
     auto &robot = scene_->getCurrentStateNonConst();
     scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
-    
+
     EigenSTL::vector_Isometry3d poses;
     for (const auto &pose : obj->shape_poses_)
     {
         const Eigen::Isometry3d relative = pose.inverse() * tf;
         poses.push_back(relative);
     }
-    
+
     robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
@@ -417,11 +417,6 @@ bool Scene::toYAMLFile(const std::string &file)
 {
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
-    if (!msg.world.octomap.octomap.data.empty())
-    {
-        std::cout << "This is an abomination someone fix it plz!" << std::endl;
-        msg.world.octomap.origin = TF::poseEigenToMsg(octo_offset);
-    }
 
     YAML::Node node = IO::toNode(msg);
     return IO::YAMLToFile(node, file);

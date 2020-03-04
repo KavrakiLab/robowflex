@@ -105,7 +105,7 @@ namespace robowflex
          *  \param[in] pose Pose of object.
          */
         void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                   const RobotPose &pose) const;
+                                   const RobotPose &pose);
 
         /** \brief Returns true if the object \e name is in the scene.
          *  \param[in] name Name of the object to look for.
@@ -128,7 +128,7 @@ namespace robowflex
         /** \brief Removes an object from the planning scene.
          *  \param[in] name Name of object to remove.
          */
-        void removeCollisionObject(const std::string &name) const;
+        void removeCollisionObject(const std::string &name);
 
         /** \brief Get the current pose of a collision object.
          *  If the object has multiple geometries, returns the pose of the first.
@@ -161,9 +161,9 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool attachObject(const std::string &name);
-        
-        /** \brief Attach the named collision object \a name to the default end-effector of the given robot \a state
-         *  Only works if there is one end-effector in the system. Uses all end-effector links as allowed
+
+        /** \brief Attach the named collision object \a name to the default end-effector of the given robot \a
+         * state Only works if there is one end-effector in the system. Uses all end-effector links as allowed
          *  touch links.
          *  \param[in] name Name of collision to attach.
          *  \param[in] state State of robot the object will be attached to
@@ -180,14 +180,13 @@ namespace robowflex
         bool attachObject(const std::string &name, const std::string &ee_link,
                           const std::vector<std::string> &touch_links);
 
-        /** \brief Attach the named collision object \a name to the link \a ee_link of the given robot \a state
-         *  \param[in] name Name of object to attach.
-         *  \param[in] ee_link Link to attach object to.
+        /** \brief Attach the named collision object \a name to the link \a ee_link of the given robot \a
+         * state \param[in] name Name of object to attach. \param[in] ee_link Link to attach object to.
          *  \param[in] touch_links Links the object is allowed to touch.
          *  \return True on success, false on failure.
          */
-        bool attachObject(robot_state::RobotState &state, const std::string &name,
-                          const std::string &ee_link, const std::vector<std::string> &touch_links);
+        bool attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                          const std::vector<std::string> &touch_links);
 
         /** \brief Detach an object \a name from the robot.
          *  \param[in] name Name of collision to detach.
@@ -245,17 +244,6 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool fromYAMLFile(const std::string &file);
-        // TODO:REMOVE
-        void setOctoOffset(const Eigen::Vector3d &vec, const double theta)
-        {
-            octo_offset.translation().x() = +vec[0] * std::cos(theta) - vec[1] * std::sin(theta);
-            octo_offset.translation().y() = -vec[0] * std::sin(theta) + vec[1] * std::cos(theta);
-            if (vec[2] != 0)
-            {
-                std::cout << "The rotation must be 0!" << std::endl;
-                exit(-1);
-            }
-        }
 
         /** \} */
 
@@ -266,8 +254,6 @@ namespace robowflex
 
         CollisionPluginLoaderPtr loader_;  ///< Plugin loader that sets collision detectors for the scene.
         planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
-
-        RobotPose octo_offset{RobotPose::Identity()};  // TODO:Do differently
     };
 }  // namespace robowflex
 

@@ -279,6 +279,11 @@ namespace robowflex
         /** \name Inverse Kinematics
             \{ */
 
+        /** \brief Set the number of attempts for IK.
+         *  \param[in] attempts Number of attempts.
+         */
+        void setIKAttempts(unsigned int attempts);
+
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
          *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
@@ -336,10 +341,15 @@ namespace robowflex
          *  \param[in] threshold The minimum distance between states before transforms are output.
          *  \return True on success, false on failure.
          */
-
-        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
         bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                 double fps = 30, double threshold = 0.0) const;
+
+        /** \brief Dumps the configurations of the path in a file.
+         *  \param[in] path Path to output.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
 
         /** \} */
 

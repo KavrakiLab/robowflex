@@ -208,12 +208,6 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             geometry->makeMarker(marker);
             break;
 
-        case Geometry::ShapeType::OCTOBOX:
-            geometry->makeMarker(marker);
-            scale[0] = scale[2] = scale[1];  // The second dim holds the size of the cube
-                                             // (octomap resolution)
-            break;
-
         default:
             ROS_ERROR("Unsupported geometry for marker.");
             return;
