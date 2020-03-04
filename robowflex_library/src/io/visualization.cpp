@@ -65,6 +65,18 @@ void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanRespon
     trajectory_pub_.publish(out);
 }
 
+void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
+                                      const moveit::core::RobotState &start)
+{
+    moveit_msgs::DisplayTrajectory out;
+
+    out.model_id = robot_->getModelName();
+    out.trajectory.push_back(traj);
+    moveit::core::robotStateToRobotStateMsg(start, out.trajectory_start);
+
+    trajectory_pub_.publish(out);
+}
+
 void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses)
 {
     moveit_msgs::DisplayTrajectory out;

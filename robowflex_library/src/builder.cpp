@@ -208,6 +208,14 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
     return request_;
 }
 
+robot_state::RobotState MotionRequestBuilder::getStartConfiguration() const
+{
+    robot_state::RobotState start_state(robot_->getModelConst());
+
+    moveit::core::robotStateMsgToRobotState(request_.start_state, start_state);
+    return start_state;
+}
+
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequestConst() const
 {
     return request_;

@@ -40,6 +40,13 @@ namespace robowflex
              */
             void updateTrajectory(const planning_interface::MotionPlanResponse &response);
 
+            /** \brief Updates the trajectory being visualized.
+             *  \param[in] traj RobotTrajectory to visualize.
+             *  \param[in] start RobotTrajectory to visualize.
+             */
+            void updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
+                                  const moveit::core::RobotState &start);
+
             /** \brief Updates the trajectory being visualized to a list of trajectories.
              *  \param[in] responses Planning responses to visualize.
              */
@@ -60,7 +67,6 @@ namespace robowflex
             void visualizeCurrentState();
 
             /** \} */
-
 
             /** \name Scenes
              *  \{ */
