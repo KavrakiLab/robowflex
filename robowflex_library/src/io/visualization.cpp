@@ -53,16 +53,15 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
 
 void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanResponse &response)
 {
-    moveit_msgs::DisplayTrajectory out;
+    updateTrajectory(response.trajectory_);
+}
 
+void IO::RVIZHelper::updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory)
+{
     moveit_msgs::RobotTrajectory msg;
-    response.trajectory_->getRobotTrajectoryMsg(msg);
+    trajectory->getRobotTrajectoryMsg(msg);
 
-    out.model_id = robot_->getModelName();
-    out.trajectory.push_back(msg);
-    moveit::core::robotStateToRobotStateMsg(response.trajectory_->getFirstWayPoint(), out.trajectory_start);
-
-    trajectory_pub_.publish(out);
+    updateTrajectory(msg, trajectory->getFirstWayPoint());
 }
 
 void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
@@ -73,6 +72,15 @@ void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
     out.model_id = robot_->getModelName();
     out.trajectory.push_back(traj);
     moveit::core::robotStateToRobotStateMsg(start, out.trajectory_start);
+
+    if (trajectory_pub_.getNumSubscribers() < 1)
+    {
+        ROS_INFO("Waiting for Trajectory subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (trajectory_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
 
     trajectory_pub_.publish(out);
 }

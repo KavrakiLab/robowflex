@@ -41,6 +41,11 @@ namespace robowflex
             void updateTrajectory(const planning_interface::MotionPlanResponse &response);
 
             /** \brief Updates the trajectory being visualized.
+             *  \param[in] trajectory Trajectory to visualize.
+             */
+            void updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory);
+
+            /** \brief Updates the trajectory being visualized.
              *  \param[in] traj RobotTrajectory to visualize.
              *  \param[in] start base_state to copy values for other joints.
              */
