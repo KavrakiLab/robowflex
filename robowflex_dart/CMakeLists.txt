@@ -11,7 +11,6 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-
 find_package(DART 6.6.2 #REQUIRED
   COMPONENTS optimizer-nlopt utils gui-osg
   OPTIONAL_COMPONENTS utils-urdf # for 'perception' target
@@ -41,7 +40,7 @@ if (DART_LIBRARIES)
   include_directories(SYSTEM ${DART_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${DART_LIBRARIES})
 
-  find_package(catkin QUIET COMPONENTS
+  find_package(catkin REQUIRED COMPONENTS
     robowflex_library
     )
 

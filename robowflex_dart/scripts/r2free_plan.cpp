@@ -3,28 +3,30 @@
 #include <thread>
 #include <chrono>
 
-#include <se3ez/io.h>
-#include <se3ez/robot.h>
-#include <se3ez/space.h>
+#include <robowflex_dart/io.h>
+#include <robowflex_dart/robot.h>
+#include <robowflex_dart/space.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
+using namespace robowflex;
+
 int main(int argc, char **argv)
 {
-    se3ez::io::addPackage("r2_description",  //
+    darts::IO::addPackage("r2_description",  //
                           "/home/zak/old_ros/melodic/r2/src/r2_description/");
-    se3ez::io::addPackage("r2_moveit_config",  //
+    darts::IO::addPackage("r2_moveit_config",  //
                           "/home/zak/old_ros/melodic/r2/src/r2_moveit_config/");
 
-    auto world = std::make_shared<se3ez::World>();
+    auto world = std::make_shared<darts::World>();
 
-    auto r21 = se3ez::loadMoveItRobot("r2_1",                                     //
+    auto r21 = darts::loadMoveItRobot("r2_1",                                     //
                                       "package://r2_description/urdf/r2c6.urdf",  //
                                       "package://r2_moveit_config/config/r2.srdf");
 
     world->addRobot(r21);
-    auto space = std::make_shared<se3ez::StateSpace>(world);
+    auto space = std::make_shared<darts::StateSpace>(world);
     space->addGroup("r2_1", "body");
 
     // auto r22 = r21->clone("r2_2");

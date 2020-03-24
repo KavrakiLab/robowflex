@@ -3,23 +3,25 @@
 #include <thread>
 #include <chrono>
 
-#include <se3ez/io.h>
-#include <se3ez/robot.h>
-#include <se3ez/space.h>
+#include <robowflex_dart/io.h>
+#include <robowflex_dart/robot.h>
+#include <robowflex_dart/space.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
+using namespace robowflex;
+
 int main(int argc, char **argv)
 {
-    se3ez::io::addPackage("fetch_description",  //
+    darts::IO::addPackage("fetch_description",  //
                           "/home/zak/ros/melodic/system/src/fetch_description/");
-    se3ez::io::addPackage("fetch_moveit_config",  //
+    darts::IO::addPackage("fetch_moveit_config",  //
                           "/home/zak/ros/melodic/system/src/fetch_moveit_config/");
 
-    auto world = std::make_shared<se3ez::World>();
+    auto world = std::make_shared<darts::World>();
 
-    auto fetch1 = se3ez::loadMoveItRobot("fetch1",                                         //
+    auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
                                          "package://fetch_description/robots/fetch.urdf",  //
                                          "package://fetch_moveit_config/config/fetch.srdf");
     world->addRobot(fetch1);
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
         world->addRobot(fetch4);
     }
 
-    auto space = std::make_shared<se3ez::StateSpace>(world);
+    auto space = std::make_shared<darts::StateSpace>(world);
     space->addGroup("fetch1", "arm_with_torso");
     if (nfetch > 1)
         space->addGroup("fetch2", "arm_with_torso");

@@ -12,10 +12,10 @@
 
 #include <dart/gui/osg/osg.hpp>
 
-#include <se3ez/io.h>
-#include <se3ez/robot.h>
+#include <robowflex_dart/io.h>
+#include <robowflex_dart/robot.h>
 
-using namespace se3ez;
+using namespace robowflex::darts;
 
 ///
 /// ACM
@@ -148,12 +148,12 @@ RobotPtr Robot::clone(const std::string &newName) const
 
 void Robot::loadURDF(const std::string &urdf)
 {
-    io::loadURDF(*this, urdf);
+    IO::loadURDF(*this, urdf);
 }
 
 void Robot::loadSRDF(const std::string &srdf)
 {
-    const auto &file = io::getPackageFile(srdf);
+    const auto &file = IO::getPackageFile(srdf);
 
     tinyxml2::XMLDocument doc;
     doc.LoadFile(file.c_str());
@@ -309,7 +309,8 @@ void Robot::setDof(unsigned int index, double value)
     skeleton_->getDof(index)->setPosition(value);
 }
 
-RobotPtr se3ez::loadMoveItRobot(const std::string &name, const std::string &urdf, const std::string &srdf)
+RobotPtr robowflex::darts::loadMoveItRobot(const std::string &name, const std::string &urdf,
+                                           const std::string &srdf)
 {
     auto robot = std::make_shared<Robot>(name);
     robot->loadURDF(urdf);
