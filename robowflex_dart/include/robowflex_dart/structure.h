@@ -14,6 +14,7 @@
 namespace robowflex
 {
     ROBOWFLEX_CLASS_FORWARD(Scene)
+    ROBOWFLEX_CLASS_FORWARD(Geometry)
 
     namespace darts
     {
@@ -75,10 +76,18 @@ namespace robowflex
             const std::string name_{"robot"};
             dart::dynamics::SkeletonPtr skeleton_{nullptr};
             ACMPtr acm_;
+
         };
+
+        dart::dynamics::ShapePtr makeGeometry(const GeometryPtr &geometry);
 
         dart::dynamics::ShapePtr makeBox(const Eigen::Ref<const Eigen::Vector3d> &v);
         dart::dynamics::ShapePtr makeBox(double x, double y, double z);
+
+        dart::dynamics::ShapePtr makeCylinder(double radius, double height);
+        dart::dynamics::ShapePtr makeSphere(double radius);
+
+        dart::dynamics::ShapePtr makeMesh(const GeometryPtr &geometry);
 
         void setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color);
     }  // namespace darts

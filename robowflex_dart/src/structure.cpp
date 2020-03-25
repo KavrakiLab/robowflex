@@ -1,9 +1,19 @@
 /* Author: Zachary Kingston */
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+
+#include <geometric_shapes/shape_operations.h>
+
 #include <dart/dynamics/BoxShape.hpp>
+#include <dart/dynamics/CylinderShape.hpp>
+#include <dart/dynamics/SphereShape.hpp>
+#include <dart/dynamics/MeshShape.hpp>
+
 #include <dart/dynamics/WeldJoint.hpp>
 #include <dart/dynamics/BodyNode.hpp>
 
+#include <robowflex_library/geometry.h>
 #include <robowflex_library/scene.h>
 
 #include <robowflex_dart/acm.h>
@@ -23,6 +33,22 @@ Structure::Structure(const std::string &name)
 
 Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure(name)
 {
+    const auto objects = scene->getCollisionObjects();
+
+    for (const auto &object : objects)
+    {
+        const auto &geometry = scene->getObjectGeometry(object);
+        const auto &pose = scene->getObjectPose(object);
+
+        dart::dynamics::FreeJoint::Properties joint;
+        joint.mName = object;
+        joint.mT_ParentBodyToJoint = pose;
+
+        auto shape = makeGeometry(geometry);
+
+        auto pair = addFreeFrame(joint, shape);
+        setColor(pair.second, dart::Color::Blue(0.2));
+    }
 }
 
 const std::string &Structure::getName() const
@@ -150,6 +176,27 @@ void Structure::addGround(double z)
     setColor(pair.second, dart::Color::Blue(0.2));
 }
 
+dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
+{
+    const auto &dimensions = geometry->getDimensions();
+
+    switch (geometry->getType())
+    {
+        case Geometry::ShapeType::BOX:
+            return makeBox(dimensions);
+        case Geometry::ShapeType::SPHERE:
+            return makeSphere(dimensions[0]);
+        case Geometry::ShapeType::CYLINDER:
+            return makeCylinder(dimensions[0], dimensions[1]);
+        case Geometry::ShapeType::MESH:
+            return makeMesh(geometry);
+        default:
+            break;
+    }
+
+    return nullptr;
+}
+
 dart::dynamics::ShapePtr robowflex::darts::makeBox(const Eigen::Ref<const Eigen::Vector3d> &v)
 {
     return std::make_shared<dart::dynamics::BoxShape>(v);
@@ -158,6 +205,28 @@ dart::dynamics::ShapePtr robowflex::darts::makeBox(const Eigen::Ref<const Eigen:
 dart::dynamics::ShapePtr robowflex::darts::makeBox(double x, double y, double z)
 {
     return makeBox(Eigen::Vector3d{x, y, z});
+}
+
+dart::dynamics::ShapePtr robowflex::darts::makeCylinder(double radius, double height)
+{
+    return std::make_shared<dart::dynamics::CylinderShape>(radius, height);
+}
+
+dart::dynamics::ShapePtr robowflex::darts::makeSphere(double radius)
+{
+    return std::make_shared<dart::dynamics::SphereShape>(radius);
+}
+
+dart::dynamics::ShapePtr robowflex::darts::makeMesh(const GeometryPtr &geometry)
+{
+    static Assimp::Importer importer_;
+
+    auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
+    std::vector<char> buffer;
+    shapes::writeSTLBinary(shape.get(), buffer);
+
+    auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(), 0, "stl");
+    return std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
 }
 
 void robowflex::darts::setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color)

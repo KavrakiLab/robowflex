@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     fetch->initialize();
 
     auto scene = std::make_shared<Scene>(fetch);
+    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
 
     // Convert to Dart
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
