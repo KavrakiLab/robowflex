@@ -58,6 +58,14 @@ if (DART_LIBRARIES)
   add_library(${LIBRARY_NAME}
     src/robot.cpp
     src/io.cpp
+    src/space.cpp
+    src/world.cpp
+    src/acm.cpp
+    src/structure.cpp
+    src/joints/joint.cpp
+    src/joints/rnjoint.cpp
+    src/joints/so2joint.cpp
+    src/joints/so3joint.cpp
     )
 
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
@@ -67,6 +75,7 @@ if (DART_LIBRARIES)
   add_script(r2free_plan)
   add_script(r2_plan)
   add_script(world_test)
+  add_script(fetch_robowflex_plan)
 
   install_scripts()
   install_library()

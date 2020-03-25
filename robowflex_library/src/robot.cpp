@@ -167,8 +167,9 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file,
 
 void Robot::loadRobotModel(bool namespaced)
 {
-    robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
-                                                          "/" + ROBOT_DESCRIPTION);
+    std::string description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
+
+    robot_model_loader::RobotModelLoader::Options options(description);
     options.load_kinematics_solvers_ = false;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
@@ -177,6 +178,9 @@ void Robot::loadRobotModel(bool namespaced)
     model_ = loader_->getModel();
     scratch_.reset(new robot_state::RobotState(model_));
     scratch_->setToDefaultValues();
+
+    handler_.getParam("/" + description, urdf_);
+    handler_.getParam("/" + description + ROBOT_SEMANTIC, srdf_);
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -257,9 +261,19 @@ urdf::ModelInterfaceConstSharedPtr Robot::getURDF() const
     return model_->getURDF();
 }
 
+const std::string &Robot::getURDFString() const
+{
+    return urdf_;
+}
+
 srdf::ModelConstSharedPtr Robot::getSRDF() const
 {
     return model_->getSRDF();
+}
+
+const std::string &Robot::getSRDFString() const
+{
+    return srdf_;
 }
 
 const robot_model::RobotStatePtr &Robot::getScratchStateConst() const

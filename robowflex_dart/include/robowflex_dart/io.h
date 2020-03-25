@@ -14,7 +14,7 @@ namespace robowflex
         namespace IO
         {
             void addPackage(const std::string &package, const std::string &location);
-            void loadURDF(Robot &robot, const std::string &urdf);
+            bool loadURDF(Robot &robot, const std::string &urdf);
             std::string getPackageFile(const std::string &uri);
         }  // namespace IO
     }      // namespace dart

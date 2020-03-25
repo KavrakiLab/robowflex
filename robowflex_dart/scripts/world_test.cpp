@@ -2,6 +2,7 @@
 
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
+#include <robowflex_dart/world.h>
 
 using namespace robowflex;
 
@@ -34,13 +35,13 @@ int main()
 
     darts::World world;
 
-    auto environment = std::make_shared<darts::Environment>("ground");
+    auto environment = std::make_shared<darts::Structure>("ground");
     environment->addGround();
 
     world.addRobot(fetch);
     world.addRobot(fetch2);
     world.addRobot(r2);
-    world.addEnvironment(environment);
+    world.addStructure(environment);
 
     world.openOSGViewer();
     return 0;

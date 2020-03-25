@@ -2,6 +2,8 @@
 
 #include <dart/utils/urdf/urdf.hpp>
 
+#include <robowflex_library/io.h>
+
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
 
@@ -16,18 +18,38 @@ void IO::addPackage(const std::string &package, const std::string &location)
     package_.addPackageDirectory(package, location);
 }
 
-void IO::loadURDF(Robot &robot, const std::string &urdf)
+bool IO::loadURDF(Robot &robot, const std::string &urdf)
 {
+    // Pre-load URDF and extract all relevant ROS packages
+    const auto &file = IO::getPackageFile(urdf);
+    const auto &text = robowflex::IO::loadXMLToString(file);
+
+    const auto packages = robowflex::IO::findPackageURIs(text);
+    for (const auto &package : packages)
+    {
+        const auto path = robowflex::IO::resolvePackage("package://" + package);
+        if (not path.empty())
+            IO::addPackage(package, path);
+    }
+
     auto skeleton = urdf_.parseSkeleton(urdf);
+    if (not skeleton)
+        return false;
+
     skeleton->setSelfCollisionCheck(true);
 
     for (auto joint : skeleton->getJoints())
         joint->setPositionLimitEnforced(true);
 
     robot.setSkeleton(skeleton);
+    return true;
 }
 
 std::string IO::getPackageFile(const std::string &uri)
 {
-    return package_.getFilePath(uri);
+    std::string file = robowflex::IO::resolvePackage(uri);
+    if (file.empty())
+        file = package_.getFilePath(uri);
+
+    return file;
 }

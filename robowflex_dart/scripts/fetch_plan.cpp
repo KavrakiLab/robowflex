@@ -5,6 +5,7 @@
 
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
+#include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 
 #include <ompl/geometric/SimpleSetup.h>
@@ -14,11 +15,6 @@ using namespace robowflex;
 
 int main(int argc, char **argv)
 {
-    darts::IO::addPackage("fetch_description",  //
-                          "/home/zak/ros/melodic/system/src/fetch_description/");
-    darts::IO::addPackage("fetch_moveit_config",  //
-                          "/home/zak/ros/melodic/system/src/fetch_moveit_config/");
-
     auto world = std::make_shared<darts::World>();
 
     auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
@@ -67,7 +63,7 @@ int main(int argc, char **argv)
 
     ompl::geometric::SimpleSetup ss(space);
     ss.setStateValidityChecker([&](const ompl::base::State *state) {
-        space->setWorldState(state);
+        space->setWorldState(world, state);
         return not world->inCollision();
     });
 
@@ -124,11 +120,11 @@ int main(int argc, char **argv)
 
             while (true)
             {
-                space->setWorldState(path.getStates()[0]);
+                space->setWorldState(world, path.getStates()[0]);
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                 for (const auto &state : path.getStates())
                 {
-                    space->setWorldState(state);
+                    space->setWorldState(world, state);
                     std::this_thread::sleep_for(std::chrono::milliseconds(50));
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000));
