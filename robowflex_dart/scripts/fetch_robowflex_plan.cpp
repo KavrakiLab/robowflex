@@ -1,3 +1,6 @@
+#include <thread>
+#include <chrono>
+
 #include <robowflex_library/util.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -28,15 +31,26 @@ int main(int argc, char **argv)
     // Convert to Dart
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
     auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
+    auto ground = std::make_shared<darts::Structure>("ground");
+    ground->addGround(-0.2);
 
     // // Setup world
     auto world = std::make_shared<darts::World>();
     world->addRobot(fetch_dart);
     world->addStructure(scene_dart);
+    world->addStructure(ground);
 
     // // Do a little plan, make a little love, get down tonight
     // auto space = std::make_shared<darts::StateSpace>(world);
     // space->addGroup(fetch_dart->getName(), "arm_with_torso");
+
+    std::thread t([&] {
+        while (true)
+        {
+            std::cout << world->inCollision() << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    });
 
     world->openOSGViewer();
     return 0;

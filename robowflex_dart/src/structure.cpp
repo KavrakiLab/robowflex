@@ -2,6 +2,7 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <geometric_shapes/shape_operations.h>
 
@@ -49,6 +50,21 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
         auto pair = addFreeFrame(joint, shape);
         setColor(pair.second, dart::Color::Blue(0.2));
     }
+
+    auto acm = scene->getACM();
+    std::vector<std::string> names;
+    acm.getAllEntryNames(names);
+
+    collision_detection::AllowedCollision::Type type;
+    for (const auto &name1 : names)
+        for (const auto &name2 : names)
+            if (acm.getEntry(name1, name2, type))
+            {
+                if (type == collision_detection::AllowedCollision::NEVER)
+                    acm_->enableCollision(name1, name2);
+                else if (type == collision_detection::AllowedCollision::ALWAYS)
+                    acm_->disableCollision(name1, name2);
+            }
 }
 
 const std::string &Structure::getName() const
@@ -93,6 +109,7 @@ void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dyna
     inertia.setMass(mass);
     inertia.setMoment(shape->computeInertia(mass));
     body->setInertia(inertia);
+    body->setRestitutionCoeff(magic::DEFAULT_RESTITUTION);
 
     auto joint = body->getParentJoint();
     if (joint)
@@ -225,7 +242,9 @@ dart::dynamics::ShapePtr robowflex::darts::makeMesh(const GeometryPtr &geometry)
     std::vector<char> buffer;
     shapes::writeSTLBinary(shape.get(), buffer);
 
-    auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(), 0, "stl");
+    auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(),
+                                                aiProcessPreset_TargetRealtime_MaxQuality, "stl");
+
     return std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
 }
 

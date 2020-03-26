@@ -25,6 +25,7 @@ namespace robowflex
         {
             static const double DEFAULT_DENSITY = 1000.;
             static const double DEFAULT_DAMPING = 0.001;
+            static const double DEFAULT_RESTITUTION = 1;
         };  // namespace magic
 
         class Structure

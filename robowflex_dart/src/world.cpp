@@ -48,6 +48,7 @@ World::World()
     world_->setGravity(Eigen::Vector3d(0, 0, -9.81));
 
     auto solver = world_->getConstraintSolver();
+
     auto &opt = solver->getCollisionOption();
     opt.collisionFilter = filter_;
 
@@ -133,6 +134,7 @@ void World::addStructure(StructurePtr structure)
         world_->addSkeleton(structure->getSkeleton());
 
         filter_->addCollisionFilter(structure->getACM()->getFilter().get());
+        addSkeletonCollider(structure->getName(), structure->getSkeletonConst());
     }
 }
 
@@ -143,7 +145,10 @@ void World::removeStructure(const std::string &name)
     {
         auto structure = it->second;
         world_->removeSkeleton(structure->getSkeleton());
+
         filter_->removeCollisionFilter(structure->getACM()->getFilter().get());
+        removeSkeletonCollider(structure->getName(), structure->getSkeletonConst());
+
         structures_.erase(it);
     }
 }
@@ -222,7 +227,7 @@ double World::distanceToCollision() const
     const auto &bodyNode1 = shapeNode1->getBodyNodePtr();
     const auto &bodyNode2 = shapeNode2->getBodyNodePtr();
 
-    std::cout << d                                                                            //
+    std::cout << d                                                              //
               << ", " << shapeNode1->getName() << ", " << bodyNode1->getName()  //
               << ", " << shapeNode2->getName() << ", " << bodyNode2->getName() << std::endl;
 
