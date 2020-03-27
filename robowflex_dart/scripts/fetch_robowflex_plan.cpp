@@ -32,17 +32,6 @@ int main(int argc, char **argv)
 
     // Convert to Dart
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
-
-    RobotPose pose = RobotPose::Identity();
-    pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
-    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    pose.rotate(orn);
-
-    darts::TSR tsr("wrist_roll_link", "base_link", pose);
-    tsr.solve(fetch_dart);
-
-    std::cin.ignore();
-
     auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
     auto ground = std::make_shared<darts::Structure>("ground");
     ground->addGround(-0.2);
@@ -58,10 +47,21 @@ int main(int argc, char **argv)
     space->addGroup(fetch_dart->getName(), GROUP);
 
     std::thread t([&] {
+        double x = -0.2;
         while (true)
         {
+            RobotPose pose = RobotPose::Identity();
+            pose.translate(Eigen::Vector3d{x, 0.6, 0.92});
+            Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+            pose.rotate(orn);
+
+            darts::TSR tsr("wrist_roll_link", "base_link", pose);
+            tsr.solve(fetch_dart);
+
             std::cout << world->inCollision() << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            x += 0.001;
         }
     });
 

@@ -74,15 +74,12 @@ bool TSR::setIKTarget(StructurePtr structure)
     tsr.setLinearBounds(plower_, pupper_);
     tsr.setAngularBounds(olower_, oupper_);
 
-    ik->solveAndApply();
-
     return true;
 }
 
 bool TSR::solve(StructurePtr structure)
 {
     setIKTarget(structure);
-    return true;
 
     auto skeleton = structure->getSkeleton();
     auto tnode = skeleton->getBodyNode(target_);
@@ -95,10 +92,5 @@ bool TSR::solve(StructurePtr structure)
 
     auto ik = tnode->getIK();
 
-    Eigen::VectorXd solution(skeleton->getNumDofs());
-    bool r = ik->findSolution(solution);
-
-    std::cout << solution << std::endl;
-
-    return r;
+    return ik->solveAndApply();
 }
