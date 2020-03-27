@@ -37,8 +37,14 @@ namespace robowflex
             TSR(const std::string &target, const std::string &base, const RobotPose &pose);
             TSR(const std::string &target, const RobotPose &pose);
 
-            bool setIKTarget(StructurePtr structure);
+            //
+            TSR(const std::string &target, const std::string &base = magic::ROOT_FRAME);
 
+            void setPose(const RobotPose &pose);
+            void setPosition(const Eigen::Ref<const Eigen::Vector3d> &position);
+            void setRotation(const Eigen::Quaterniond &orientation);
+
+            bool setIKTarget(StructurePtr structure);
             bool solve(StructurePtr structure);
 
         private:

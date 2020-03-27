@@ -48,6 +48,8 @@ int main(int argc, char **argv)
 
     std::thread t([&] {
         double x = -0.2;
+
+        darts::TSR tsr("wrist_roll_link", "base_link");
         while (true)
         {
             RobotPose pose = RobotPose::Identity();
@@ -55,12 +57,12 @@ int main(int argc, char **argv)
             Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
             pose.rotate(orn);
 
-            darts::TSR tsr("wrist_roll_link", "base_link", pose);
-            tsr.solve(fetch_dart);
+            tsr.setPose(pose);
+            tsr.setIKTarget(fetch_dart);
 
-            std::cout << world->inCollision() << std::endl;
+            fetch_dart->solveIK();
+
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
             x += 0.001;
         }
     });

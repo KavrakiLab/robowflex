@@ -193,6 +193,12 @@ void Structure::addGround(double z)
     setColor(pair.second, dart::Color::Blue(0.2));
 }
 
+bool Structure::solveIK()
+{
+    auto ik = skeleton_->getIK(true);
+    return ik->solve();
+}
+
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
 {
     const auto &dimensions = geometry->getDimensions();

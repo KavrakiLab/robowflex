@@ -71,6 +71,8 @@ namespace robowflex
 
             void addGround(double z = 0.);
 
+            bool solveIK();
+
         protected:
             void createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape);
 

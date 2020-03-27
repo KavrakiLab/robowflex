@@ -40,6 +40,25 @@ TSR::TSR(const std::string &target, const RobotPose &pose) : TSR(target, magic::
 {
 }
 
+TSR::TSR(const std::string &target, const std::string &base) : TSR(target, base, RobotPose::Identity())
+{
+}
+
+void TSR::setPose(const RobotPose &pose)
+{
+    pose_ = pose;
+}
+
+void TSR::setPosition(const Eigen::Ref<const Eigen::Vector3d> &position)
+{
+    pose_.translation() = position;
+}
+
+void TSR::setRotation(const Eigen::Quaterniond &orientation)
+{
+    pose_.linear() = orientation.toRotationMatrix();
+}
+
 bool TSR::setIKTarget(StructurePtr structure)
 {
     auto skeleton = structure->getSkeleton();
@@ -51,7 +70,7 @@ bool TSR::setIKTarget(StructurePtr structure)
         return false;
     }
 
-    auto ik = tnode->createIK();
+    auto ik = tnode->getIK(true);
     dart::dynamics::SimpleFramePtr frame = ik->getTarget();
 
     if (base_ != magic::ROOT_FRAME)
