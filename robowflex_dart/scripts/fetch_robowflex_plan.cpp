@@ -63,13 +63,13 @@ int main(int argc, char **argv)
 
             lock->lock();
             tsr.setIKTarget(fetch_dart);
-            tsr.solve(fetch_dart);
+            // tsr.solve(fetch_dart);
+            std::cout << fetch_dart->solveIK() << std::endl;
             lock->unlock();
 
-            // std::cout << fetch_dart->solveIK() << std::endl;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            x += 0.001;
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+            x += 0.005;
         }
     });
 
