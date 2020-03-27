@@ -47,6 +47,8 @@ int main(int argc, char **argv)
     space->addGroup(fetch_dart->getName(), GROUP);
 
     std::thread t([&] {
+        auto lock = fetch_dart->getSkeleton()->getLockableReference();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         double x = -0.2;
 
         darts::TSR tsr("wrist_roll_link", "base_link");
@@ -58,11 +60,15 @@ int main(int argc, char **argv)
             pose.rotate(orn);
 
             tsr.setPose(pose);
+
+            lock->lock();
             tsr.setIKTarget(fetch_dart);
+            tsr.solve(fetch_dart);
+            lock->unlock();
 
-            fetch_dart->solveIK();
+            // std::cout << fetch_dart->solveIK() << std::endl;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             x += 0.001;
         }
     });
