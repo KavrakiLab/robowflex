@@ -62,6 +62,7 @@ if (DART_LIBRARIES)
     src/world.cpp
     src/acm.cpp
     src/structure.cpp
+    src/tsr.cpp
     src/joints/joint.cpp
     src/joints/rnjoint.cpp
     src/joints/so2joint.cpp

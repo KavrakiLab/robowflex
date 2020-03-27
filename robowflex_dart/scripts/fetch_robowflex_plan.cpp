@@ -10,6 +10,8 @@
 
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
+#include <robowflex_dart/space.h>
+#include <robowflex_dart/tsr.h>
 
 using namespace robowflex;
 
@@ -30,6 +32,17 @@ int main(int argc, char **argv)
 
     // Convert to Dart
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
+
+    RobotPose pose = RobotPose::Identity();
+    pose.translate(Eigen::Vector3d{0.4, 0.6, 0.92});
+    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
+    pose.rotate(orn);
+
+    darts::TSR tsr("wrist_roll_link", "base_link", pose);
+    tsr.solve(fetch_dart);
+
+    std::cin.ignore();
+
     auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
     auto ground = std::make_shared<darts::Structure>("ground");
     ground->addGround(-0.2);
@@ -41,8 +54,8 @@ int main(int argc, char **argv)
     world->addStructure(ground);
 
     // // Do a little plan, make a little love, get down tonight
-    // auto space = std::make_shared<darts::StateSpace>(world);
-    // space->addGroup(fetch_dart->getName(), "arm_with_torso");
+    auto space = std::make_shared<darts::StateSpace>(world);
+    space->addGroup(fetch_dart->getName(), GROUP);
 
     std::thread t([&] {
         while (true)
