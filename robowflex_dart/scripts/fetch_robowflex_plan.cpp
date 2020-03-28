@@ -51,7 +51,7 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         double x = -0.2;
 
-        darts::TSR tsr("wrist_roll_link", "base_link");
+        darts::TSR tsr(fetch_dart, "wrist_roll_link", "base_link");
         while (true)
         {
             RobotPose pose = RobotPose::Identity();
@@ -62,14 +62,15 @@ int main(int argc, char **argv)
             tsr.setPose(pose);
 
             lock->lock();
-            tsr.setIKTarget(fetch_dart);
-            // tsr.solve(fetch_dart);
             std::cout << fetch_dart->solveIK() << std::endl;
             lock->unlock();
 
 
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
-            x += 0.005;
+            if (x < 0.45)
+                x += 0.005;
+            else
+                x = -0.2;
         }
     });
 

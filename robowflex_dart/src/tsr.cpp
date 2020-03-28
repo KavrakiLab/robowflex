@@ -8,9 +8,10 @@
 
 using namespace robowflex::darts;
 
-TSR::TSR(const std::string &target, const std::string &base, const RobotPose &pose,  //
-         const Bounds &position, const Bounds &orientation)
-  : target_(target)
+TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
+         const RobotPose &pose, const Bounds &position, const Bounds &orientation)
+  : structure_(structure)
+  , target_(target)
   , base_(base)
   , pose_(pose)
   , plower_(position.first)
@@ -18,17 +19,19 @@ TSR::TSR(const std::string &target, const std::string &base, const RobotPose &po
   , olower_(orientation.first)
   , oupper_(orientation.second)
 {
+    initialize();
 }
 
-TSR::TSR(const std::string &target, const RobotPose &pose,  //
+TSR::TSR(const StructurePtr &structure, const std::string &target, const RobotPose &pose,  //
          const Bounds &position, const Bounds &orientation)
-  : TSR(target, magic::ROOT_FRAME, pose, position, orientation)
+  : TSR(structure, target, magic::ROOT_FRAME, pose, position, orientation)
 {
 }
 
 // tight bounds
-TSR::TSR(const std::string &target, const std::string &base, const RobotPose &pose)
-  : TSR(target, base, pose,
+TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
+         const RobotPose &pose)
+  : TSR(structure, target, base, pose,
         {Eigen::Vector3d::Constant(-magic::DEFAULT_IK_TOLERANCE),
          Eigen::Vector3d::Constant(magic::DEFAULT_IK_TOLERANCE)},
         {Eigen::Vector3d::Constant(-magic::DEFAULT_IK_TOLERANCE),
@@ -36,32 +39,42 @@ TSR::TSR(const std::string &target, const std::string &base, const RobotPose &po
 {
 }
 
-TSR::TSR(const std::string &target, const RobotPose &pose) : TSR(target, magic::ROOT_FRAME, pose)
+TSR::TSR(const StructurePtr &structure, const std::string &target, const RobotPose &pose)
+  : TSR(structure, target, magic::ROOT_FRAME, pose)
 {
 }
 
-TSR::TSR(const std::string &target, const std::string &base) : TSR(target, base, RobotPose::Identity())
+TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base)
+  : TSR(structure, target, base, RobotPose::Identity())
 {
 }
 
 void TSR::setPose(const RobotPose &pose)
 {
     pose_ = pose;
+    updateTarget();
 }
 
 void TSR::setPosition(const Eigen::Ref<const Eigen::Vector3d> &position)
 {
     pose_.translation() = position;
+    updateTarget();
 }
 
 void TSR::setRotation(const Eigen::Quaterniond &orientation)
 {
     pose_.linear() = orientation.toRotationMatrix();
+    updateTarget();
 }
 
-bool TSR::setIKTarget(StructurePtr structure)
+void TSR::updateTarget()
 {
-    auto skeleton = structure->getSkeleton();
+    frame_->setTransform(pose_);
+}
+
+bool TSR::initialize()
+{
+    auto skeleton = structure_->getSkeleton();
     auto tnode = skeleton->getBodyNode(target_);
 
     if (not tnode)
@@ -70,8 +83,8 @@ bool TSR::setIKTarget(StructurePtr structure)
         return false;
     }
 
-    auto ik = tnode->getIK(true);
-    dart::dynamics::SimpleFramePtr frame = ik->getTarget();
+    ik_ = tnode->getIK(true);
+    frame_ = ik_->getTarget();
 
     if (base_ != magic::ROOT_FRAME)
     {
@@ -82,34 +95,22 @@ bool TSR::setIKTarget(StructurePtr structure)
             return false;
         }
 
-        frame = frame->clone(bnode);
+        frame_ = frame_->clone(bnode);
     }
 
-    frame->setTransform(pose_);
-    ik->setTarget(frame);
+    ik_->setTarget(frame_);
 
-    auto tsr = ik->setErrorMethod<dart::dynamics::InverseKinematics::TaskSpaceRegion>();
+    updateTarget();
 
-    tsr.setLinearBounds(plower_, pupper_);
-    tsr.setAngularBounds(olower_, oupper_);
+    tsr_ = &ik_->setErrorMethod<dart::dynamics::InverseKinematics::TaskSpaceRegion>();
+
+    tsr_->setLinearBounds(plower_, pupper_);
+    tsr_->setAngularBounds(olower_, oupper_);
 
     return true;
 }
 
-bool TSR::solve(StructurePtr structure)
+bool TSR::solve()
 {
-    setIKTarget(structure);
-
-    auto skeleton = structure->getSkeleton();
-    auto tnode = skeleton->getBodyNode(target_);
-
-    if (not tnode)
-    {
-        std::cout << target_ << " does not exist" << std::endl;
-        return false;
-    }
-
-    auto ik = tnode->getIK();
-
-    return ik->solveAndApply();
+    return ik_->solveAndApply();
 }
