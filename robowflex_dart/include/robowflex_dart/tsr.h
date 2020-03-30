@@ -48,15 +48,22 @@ namespace robowflex
             void setPosition(const Eigen::Ref<const Eigen::Vector3d> &position);
             void setRotation(const Eigen::Quaterniond &orientation);
 
-            // void setPositionBounds(Bounds)
+            std::size_t getDimension() const;
+            std::size_t getNumDofs() const;
+            void getError(Eigen::Ref<Eigen::VectorXd> vector) const;
+            void getGradient(Eigen::VectorXd &q) const;
+            void getJacobian(Eigen::Ref<Eigen::MatrixXd> jac) const;
 
             bool solve();
+
+            void useGroup(const std::string &name);
 
         private:
             bool initialize();
             void updateTarget();
+            void computeDimension();
 
-            const StructurePtr structure_;
+            StructurePtr structure_;
             const std::string target_;
             const std::string base_{magic::ROOT_FRAME};
 
@@ -71,6 +78,11 @@ namespace robowflex
             std::shared_ptr<dart::dynamics::SimpleFrame> frame_;
             std::shared_ptr<dart::dynamics::InverseKinematics> ik_;
             dart::dynamics::InverseKinematics::TaskSpaceRegion *tsr_;
+            dart::dynamics::InverseKinematics::GradientMethod *grad_;
+
+            std::size_t dimension_;
+            std::size_t dofs_;
+            std::vector<bool> indices_;
         };
     }  // namespace darts
 }  // namespace robowflex

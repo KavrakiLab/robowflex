@@ -37,6 +37,7 @@ namespace robowflex
             std::vector<std::string> &getGroupJointNames(const std::string &name);
             const std::vector<std::string> &getGroupJointNamesConst(const std::string &name) const;
             std::vector<dart::dynamics::Joint *> getGroupJoints(const std::string &name) const;
+            const std::vector<std::size_t> &getGroupIndices(const std::string &name) const;
 
             bool addJointToGroup(const std::string &group, const std::string &joint_name);
             bool addLinkToGroup(const std::string &group, const std::string &link_name);
@@ -45,11 +46,17 @@ namespace robowflex
 
             void setDof(unsigned int index, double value);
 
+            std::size_t getNumDofsGroup(const std::string &name) const;
+            void getGroupState(const std::string &name, Eigen::Ref<Eigen::VectorXd> q) const;
+            void setGroupState(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &q);
+
         protected:
             bool addNameToGroup(const std::string &group, const std::string &name);
+            void processGroup(const std::string &name);
 
         private:
             std::map<std::string, std::vector<std::string>> groups_;
+            std::map<std::string, std::vector<std::size_t>> group_indices_;
         };
 
         RobotPtr loadMoveItRobot(const std::string &name, const std::string &urdf, const std::string &srdf);

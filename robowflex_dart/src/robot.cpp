@@ -233,6 +233,8 @@ bool Robot::loadSRDF(const std::string &srdf)
             groups = groups->NextSiblingElement("group");
         }
 
+        processGroup(group_name);
+
         group = group->NextSiblingElement("group");
     }
 
@@ -285,9 +287,43 @@ std::vector<dart::dynamics::Joint *> Robot::getGroupJoints(const std::string &na
     return joints;
 }
 
+const std::vector<std::size_t> &Robot::getGroupIndices(const std::string &name) const
+{
+    return group_indices_.find(name)->second;
+}
+
 void Robot::setDof(unsigned int index, double value)
 {
     skeleton_->getDof(index)->setPosition(value);
+}
+
+std::size_t Robot::getNumDofsGroup(const std::string &name) const
+{
+    return getGroupIndices(name).size();
+}
+
+void Robot::getGroupState(const std::string &name, Eigen::Ref<Eigen::VectorXd> q) const
+{
+    q = skeleton_->getPositions(getGroupIndices(name));
+}
+
+void Robot::setGroupState(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &q)
+{
+    skeleton_->setPositions(getGroupIndices(name), q);
+}
+
+void Robot::processGroup(const std::string &name)
+{
+    std::vector<std::size_t> indices;
+
+    auto joints = getGroupJoints(name);
+    for (const auto &joint : joints)
+    {
+        for (std::size_t i = 0; i < joint->getNumDofs(); ++i)
+            indices.emplace_back(joint->getDof(i)->getIndexInSkeleton());
+    }
+
+    group_indices_.emplace(name, indices);
 }
 
 RobotPtr robowflex::darts::loadMoveItRobot(const std::string &name, const std::string &urdf,

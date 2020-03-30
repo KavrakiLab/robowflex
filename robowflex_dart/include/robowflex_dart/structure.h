@@ -39,6 +39,7 @@ namespace robowflex
 
             Structure(const std::string &name);
             Structure(const std::string &name, const ScenePtr &scene);
+            virtual ~Structure() = default;
 
             const std::string &getName() const;
 
