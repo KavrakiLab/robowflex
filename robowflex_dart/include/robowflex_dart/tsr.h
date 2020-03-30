@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#include <ompl/base/Constraint.h>
+
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
 
@@ -13,6 +15,7 @@ namespace robowflex
     namespace darts
     {
         ROBOWFLEX_CLASS_FORWARD(Structure)
+        ROBOWFLEX_CLASS_FORWARD(StateSpace)
 
         namespace magic
         {
@@ -57,6 +60,7 @@ namespace robowflex
             bool solve();
 
             void useGroup(const std::string &name);
+            void useIndices(const std::vector<std::size_t> &indices);
 
         private:
             bool initialize();
@@ -83,6 +87,24 @@ namespace robowflex
             std::size_t dimension_;
             std::size_t dofs_;
             std::vector<bool> indices_;
+        };
+
+        class TSRConstraint : public ompl::base::Constraint
+        {
+        public:
+            TSRConstraint(const StateSpacePtr &space, const TSRPtr &tsr);
+
+            void function(const Eigen::Ref<const Eigen::VectorXd> &x,
+                          Eigen::Ref<Eigen::VectorXd> out) const override;
+
+            void jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
+                          Eigen::Ref<Eigen::MatrixXd> out) const override;
+
+            bool project(Eigen::Ref<Eigen::VectorXd> x) const override;
+
+        protected:
+            StateSpacePtr space_;
+            TSRPtr tsr_;
         };
     }  // namespace darts
 }  // namespace robowflex

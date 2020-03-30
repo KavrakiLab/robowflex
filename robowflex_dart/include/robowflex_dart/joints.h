@@ -37,6 +37,7 @@ namespace robowflex
             dart::dynamics::Joint *getJoint(WorldPtr world) const;
             Eigen::Ref<Eigen::VectorXd> getSpaceVars(Eigen::Ref<Eigen::VectorXd> a);
             Eigen::Ref<const Eigen::VectorXd> getSpaceVarsConst(const Eigen::Ref<const Eigen::VectorXd> &a);
+            const std::vector<std::size_t> &getIndices() const;
 
             virtual double distance(const Eigen::Ref<const Eigen::VectorXd> &a,
                                     const Eigen::Ref<const Eigen::VectorXd> &b) const = 0;
@@ -55,7 +56,8 @@ namespace robowflex
                                     const Eigen::Ref<const Eigen::VectorXd> &near,  //
                                     double r) const = 0;
 
-            virtual void setJoint(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const;
+            virtual void setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const;
+            virtual void getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const;
 
         protected:
             StateSpace *space_;
@@ -166,7 +168,8 @@ namespace robowflex
                             const Eigen::Ref<const Eigen::VectorXd> &near,  //
                             double r) const override;
 
-            void setJoint(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const override;
+            void setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const override;
+            void getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const override;
 
         private:
             Eigen::Vector3d low_;

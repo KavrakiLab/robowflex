@@ -76,7 +76,6 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
             jointset_.emplace(joint);
 
         const auto &type = joint->getType();
-        JointPtr add = nullptr;
         if (type == "RevoluteJoint")
         {
             auto revolute = static_cast<dart::dynamics::RevoluteJoint *>(joint);
@@ -155,11 +154,24 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
 void StateSpace::setWorldState(WorldPtr world, const ompl::base::State *state)
 {
     const auto &as = state->as<StateType>();
+    setWorldState(world, as->data);
+}
 
+void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x)
+{
     for (const auto &joint : joints_)
     {
-        const auto &v = joint->getSpaceVarsConst(as->data);
-        joint->setJoint(world, v);
+        const auto &v = joint->getSpaceVarsConst(x);
+        joint->setJointState(world, v);
+    }
+}
+
+void StateSpace::getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const
+{
+    for (const auto &joint : joints_)
+    {
+        const auto &v = joint->getSpaceVars(x);
+        joint->getJointState(world, v);
     }
 }
 
@@ -258,4 +270,16 @@ WorldPtr StateSpace::getWorld()
 const WorldPtr &StateSpace::getWorldConst() const
 {
     return world_;
+}
+
+std::vector<std::size_t> StateSpace::getIndices() const
+{
+    std::vector<std::size_t> indices;
+    for (const auto &joint : joints_)
+    {
+        auto add = joint->getIndices();
+        indices.insert(indices.end(), add.begin(), add.end());
+    }
+
+    return indices;
 }

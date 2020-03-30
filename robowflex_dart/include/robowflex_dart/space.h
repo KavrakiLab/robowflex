@@ -49,6 +49,8 @@ namespace robowflex
             void addGroup(const std::string &name, const std::string &group, unsigned int cyclic = 0);
 
             void setWorldState(WorldPtr world, const ompl::base::State *state);
+            void setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x);
+            void getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const;
 
             void enforceBounds(ompl::base::State *state) const override;
 
@@ -72,16 +74,18 @@ namespace robowflex
             WorldPtr getWorld();
             const WorldPtr &getWorldConst() const;
 
+            std::vector<std::size_t> getIndices() const;
+
         protected:
             WorldPtr world_;
 
             std::set<dart::dynamics::Joint *> jointset_;
+            std::vector<std::size_t> indices_;
 
             std::vector<JointPtr> joints_;
 
             unsigned int numRobots_{0};
             std::vector<RobotPtr> robots_;
-            std::vector<std::vector<std::size_t>> indices_;
 
             ompl::RNG rng_;
         };

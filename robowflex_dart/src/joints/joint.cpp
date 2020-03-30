@@ -69,8 +69,19 @@ Eigen::Ref<const Eigen::VectorXd> Joint::getSpaceVarsConst(const Eigen::Ref<cons
     return a.segment(startInSpace_, sizeInSpace_);
 }
 
-void Joint::setJoint(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
+const std::vector<std::size_t> &Joint::getIndices() const
+{
+    return indices_;
+}
+
+void Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
     auto joint = getJoint(world);
     joint->getSkeleton()->setPositions(indices_, a);
+}
+
+void Joint::getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const
+{
+    auto joint = getJoint(world);
+    a = joint->getSkeleton()->getPositions(indices_);
 }
