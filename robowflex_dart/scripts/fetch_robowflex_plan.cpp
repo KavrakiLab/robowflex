@@ -106,6 +106,7 @@ int main(int argc, char **argv)
             ompl::base::Cost(std::numeric_limits<double>::infinity()));
 
     std::thread t([&] {
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
             if (solved)
             {
                 std::cout << "Found solution!" << std::endl;
-                builder.animateSolutionInWorld(2);
+                builder.animateSolutionInWorld(1);
             }
             else
                 std::cout << "No solution found" << std::endl;

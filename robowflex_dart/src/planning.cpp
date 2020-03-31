@@ -3,6 +3,7 @@
 #include <thread>
 #include <chrono>
 
+#include <ompl/base/ConstrainedSpaceInformation.h>
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
 #include <robowflex_dart/tsr.h>
@@ -98,13 +99,11 @@ void PlanBuilder::initializeConstrained()
 
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint_);
     space = pss;
+    info = std::make_shared<ompl::base::ConstrainedSpaceInformation>(pss);
 
-    ss = std::make_shared<ompl::geometric::SimpleSetup>(space);
+    ss = std::make_shared<ompl::geometric::SimpleSetup>(info);
     setStateValidityChecker();
 
-    info = ss->getSpaceInformation();
-
-    pss->setSpaceInformation(info.get());
     pss->setDelta(0.05);
     pss->setLambda(2);
 }
