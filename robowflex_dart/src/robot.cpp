@@ -113,6 +113,9 @@ bool Robot::addLinkToGroup(const std::string &group, const std::string &link_nam
         return false;
     }
 
+    if (joint->getName() == "rootJoint")
+        return false;
+
     // Only include mobile joints
     if (joint->getNumDofs() > 0)
         addNameToGroup(group, joint->getName());
@@ -190,6 +193,39 @@ bool Robot::loadSRDF(const std::string &srdf)
         return false;
     }
 
+    // parse virtual joints
+    tinyxml2::XMLElement *vj = root->FirstChildElement("virtual_joint");
+    while (vj != nullptr)
+    {
+        std::string name = vj->Attribute("name");
+        std::string type = vj->Attribute("type");
+        std::string parent = vj->Attribute("parent_frame");
+        std::string child = vj->Attribute("child_link");
+
+        dart::dynamics::BodyNode *pnode = nullptr;
+        if (parent != "world")
+        {
+            pnode = skeleton_->getBodyNode(parent);
+            if (not pnode)
+                std::cerr << "Couldn't find " << parent << " for virtual joint!" << std::endl;
+        }
+
+        auto cnode = skeleton_->getBodyNode(child);
+        if (cnode)
+        {
+            if (type == "floating")
+            {
+                dart::dynamics::FreeJoint::Properties joint;
+                joint.mName = name;
+
+                cnode->moveTo<dart::dynamics::FreeJoint>(pnode, joint);
+                // std::cout << cnode->getName() << " " << cnode->getParentJoint()->getName() << std::endl;
+            }
+        }
+
+        vj = vj->NextSiblingElement("virtual_joint");
+    }
+
     // Parse groups
     tinyxml2::XMLElement *group = root->FirstChildElement("group");
     while (group != nullptr)
@@ -250,6 +286,36 @@ bool Robot::loadSRDF(const std::string &srdf)
         dc = dc->NextSiblingElement("disable_collisions");
     }
 
+    // Parse named group states
+    tinyxml2::XMLElement *gs = root->FirstChildElement("group_state");
+    while (gs != nullptr)
+    {
+        const auto &group = gs->Attribute("group");
+        const auto &name = gs->Attribute("name");
+
+        Eigen::VectorXd state = Eigen::VectorXd::Zero(getNumDofsGroup(group));
+
+        tinyxml2::XMLElement *js = gs->FirstChildElement("joint");
+        while (js != nullptr)
+        {
+            const auto &value = js->Attribute("value");
+            const auto &jname = js->Attribute("name");
+
+            auto values = robowflex::IO::tokenize(value, " ");
+            auto joint = getGroupJoint(group, jname);
+            if (joint.second != nullptr)
+            {
+                for (std::size_t i = 0; i < values.size(); ++i)
+                    state[joint.first + i] = std::stod(values[i]);
+            }
+
+            js = js->NextSiblingElement("joint");
+        }
+
+        setNamedGroupState(group, name, state);
+        gs = gs->NextSiblingElement("group_state");
+    }
+
     return true;
 }
 
@@ -268,28 +334,43 @@ const std::map<std::string, std::vector<std::string>> &Robot::getGroupsConst()
     return groups_;
 }
 
-std::vector<std::string> &Robot::getGroupJointNames(const std::string &name)
+std::vector<std::string> &Robot::getGroupJointNames(const std::string &group)
 {
-    return groups_.find(name)->second;
+    return groups_.find(group)->second;
 }
 
-const std::vector<std::string> &Robot::getGroupJointNamesConst(const std::string &name) const
+const std::vector<std::string> &Robot::getGroupJointNamesConst(const std::string &group) const
 {
-    return groups_.find(name)->second;
+    return groups_.find(group)->second;
 }
 
-std::vector<dart::dynamics::Joint *> Robot::getGroupJoints(const std::string &name) const
+std::vector<dart::dynamics::Joint *> Robot::getGroupJoints(const std::string &group) const
 {
     std::vector<dart::dynamics::Joint *> joints;
-    for (const auto &dof : groups_.find(name)->second)
+    for (const auto &dof : groups_.find(group)->second)
         joints.emplace_back(skeleton_->getJoint(dof));
 
     return joints;
 }
 
-const std::vector<std::size_t> &Robot::getGroupIndices(const std::string &name) const
+std::pair<std::size_t, dart::dynamics::Joint *> Robot::getGroupJoint(const std::string &group,
+                                                                     const std::string &joint) const
 {
-    return group_indices_.find(name)->second;
+    std::size_t i = 0;
+    for (const auto &dof : getGroupJoints(group))
+    {
+        if (dof->getName() == joint)
+            return {i, dof};
+
+        i += dof->getNumDofs();
+    }
+
+    return {0, nullptr};
+}
+
+const std::vector<std::size_t> &Robot::getGroupIndices(const std::string &group) const
+{
+    return group_indices_.find(group)->second;
 }
 
 void Robot::setDof(unsigned int index, double value)
@@ -297,33 +378,86 @@ void Robot::setDof(unsigned int index, double value)
     skeleton_->getDof(index)->setPosition(value);
 }
 
-std::size_t Robot::getNumDofsGroup(const std::string &name) const
+std::size_t Robot::getNumDofsGroup(const std::string &group) const
 {
-    return getGroupIndices(name).size();
+    return getGroupIndices(group).size();
 }
 
-void Robot::getGroupState(const std::string &name, Eigen::Ref<Eigen::VectorXd> q) const
+void Robot::getGroupState(const std::string &group, Eigen::Ref<Eigen::VectorXd> q) const
 {
-    q = skeleton_->getPositions(getGroupIndices(name));
+    q = skeleton_->getPositions(getGroupIndices(group));
 }
 
-void Robot::setGroupState(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &q)
+void Robot::setGroupState(const std::string &group, const Eigen::Ref<const Eigen::VectorXd> &q)
 {
-    skeleton_->setPositions(getGroupIndices(name), q);
+    skeleton_->setPositions(getGroupIndices(group), q);
 }
 
-void Robot::processGroup(const std::string &name)
+std::vector<std::string> Robot::getNamedGroupStates(const std::string &group) const
+{
+    std::vector<std::string> names;
+    for (const auto &group : group_states_)
+    {
+        for (const auto &state : group.second)
+            names.emplace_back(state.first);
+    }
+
+    return names;
+}
+
+bool Robot::getNamedGroupState(const std::string &group, const std::string &name,
+                               Eigen::Ref<Eigen::VectorXd> q) const
+{
+    auto gsit = group_states_.find(group);
+    if (gsit != group_states_.end())
+    {
+        auto it = gsit->second.find(name);
+        if (it != gsit->second.end())
+        {
+            q = it->second;
+            return true;
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+void Robot::setNamedGroupState(const std::string &group, const std::string &name,
+                               const Eigen::Ref<const Eigen::VectorXd> &q)
+{
+    auto gsit = group_states_.find(group);
+    if (gsit == group_states_.end())
+    {
+        bool r;
+        std::tie(gsit, r) = group_states_.emplace(group, std::map<std::string, Eigen::VectorXd>{});
+    }
+
+    auto &names = gsit->second;
+
+    auto it = names.find(name);
+    if (it == names.end())
+    {
+        bool r;
+        std::tie(it, r) = names.emplace(name, q);
+    }
+    else
+        it->second = q;
+}
+
+void Robot::processGroup(const std::string &group)
 {
     std::vector<std::size_t> indices;
 
-    auto joints = getGroupJoints(name);
+    auto joints = getGroupJoints(group);
     for (const auto &joint : joints)
     {
         for (std::size_t i = 0; i < joint->getNumDofs(); ++i)
             indices.emplace_back(joint->getDof(i)->getIndexInSkeleton());
     }
 
-    group_indices_.emplace(name, indices);
+    group_indices_.emplace(group, indices);
 }
 
 RobotPtr robowflex::darts::loadMoveItRobot(const std::string &name, const std::string &urdf,

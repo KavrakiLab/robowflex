@@ -100,6 +100,9 @@ const dart::dynamics::SkeletonPtr &Structure::getSkeletonConst() const
 
 void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape)
 {
+    if (not shape)
+        return;
+
     body->createShapeNodeWith<dart::dynamics::VisualAspect,     //
                               dart::dynamics::CollisionAspect,  //
                               dart::dynamics::DynamicsAspect>(shape);
