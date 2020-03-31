@@ -38,6 +38,8 @@ namespace robowflex
         public:
             World();
 
+            WorldPtr clone() const;
+
             void addRobot(RobotPtr robot);
             void removeRobot(const std::string &name);
             void removeRobot(RobotPtr robot);

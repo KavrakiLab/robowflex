@@ -59,13 +59,21 @@ namespace robowflex
          */
         RobotPose createPoseQ(double x, double y, double z, double W, double X, double Y, double Z);
 
-        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+        /** \brief Creates a robot pose from a linear component and a quaternion.
          *  \param[in] translation translation component
          *  \param[in] rotation rotational component (W, X, Y, Z quaternion values)
          *  \return A new robot pose from components.
          */
         RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
                               const Eigen::Ref<const Eigen::Vector4d> &rotation);
+
+        /** \brief Creates a robot pose from a linear component and a quaternion.
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                              const Eigen::Quaterniond &rotation);
 
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.

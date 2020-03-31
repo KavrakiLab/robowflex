@@ -7,6 +7,7 @@
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
+#include <robowflex_dart/planning.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -31,67 +32,29 @@ int main(int argc, char **argv)
 
     world->addRobot(r2);
 
-    auto space = std::make_shared<darts::StateSpace>(world);
-    space->addGroup("r2", "left_arm_waist");
-    space->addGroup("r2", "right_arm");
+    darts::PlanBuilder builder(world);
+    builder.addGroup("r2", "left_arm_waist");
+    builder.addGroup("r2", "right_arm");
 
-    auto sampler = space->allocStateSampler();
+    builder.initialize();
 
-    ompl::geometric::SimpleSetup ss(space);
-    ss.setStateValidityChecker([&](const ompl::base::State *state) {
-        space->setWorldState(world, state);
-        return not world->inCollision();
-    });
+    builder.sampleStartConfiguration();
+    builder.sampleGoalConfiguration();
 
-    ompl::base::ScopedState<> start(space);
-    do
-    {
-        sampler->sampleUniform(start.get());
-        space->enforceBounds(start.get());
-        space->printState(start.get(), std::cout);
-    } while (not ss.getSpaceInformation()->isValid(start.get()));
-    // // start = {};
-
-    ompl::base::ScopedState<> goal(space);
-    do
-    {
-        sampler->sampleUniform(goal.get());
-    } while (not ss.getSpaceInformation()->isValid(goal.get()));
-
-    ss.setStartAndGoalStates(start, goal);
-    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(ss.getSpaceInformation(), true);
+    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(1.);
-    ss.setPlanner(rrt);
+    builder.ss->setPlanner(rrt);
 
-    ss.setup();
-    ss.print();
+    builder.setup();
+    builder.ss->print();
 
-    ompl::base::PlannerStatus solved = ss.solve(10.0);
+    ompl::base::PlannerStatus solved = builder.ss->solve(10.0);
 
     std::thread t([&]() {
-        // attempt to solve the problem within one second of planning time
         if (solved)
         {
             std::cout << "Found solution:" << std::endl;
-            // print the path to screen
-            for (unsigned int i = 0; i < 10; ++i)
-                ss.simplifySolution();
-
-            auto path = ss.getSolutionPath();
-            path.interpolate();
-            path.print(std::cout);
-
-            while (true)
-            {
-                space->setWorldState(world, path.getStates()[0]);
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                for (const auto &state : path.getStates())
-                {
-                    space->setWorldState(world, state);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            }
+            builder.animateSolutionInWorld();
         }
         else
             std::cout << "No solution found" << std::endl;

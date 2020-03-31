@@ -56,6 +56,26 @@ World::World()
     all_ = collider_->createCollisionGroupAsSharedPtr();
 }
 
+WorldPtr World::clone() const
+{
+    auto world = std::make_shared<World>();
+
+    for (const auto &robot : robots_)
+        world->addRobot(robot.second);
+
+    for (const auto &structure : structures_)
+        world->addStructure(structure.second);
+
+    for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
+    {
+        auto skel = world_->getSkeleton(i);
+        auto state = skel->getState();
+        world->getSim()->getSkeleton(skel->getName())->setState(state);
+    }
+
+    return world;
+}
+
 void World::addSkeletonCollider(const std::string &name, const dart::dynamics::SkeletonPtr &skeleton)
 {
     // Collect collision groups

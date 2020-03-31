@@ -5,9 +5,12 @@
 #include <ompl/base/spaces/constraint/AtlasStateSpace.h>
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
+#include <ompl/geometric/planners/bitstar/BITstar.h>
 #include <ompl/geometric/planners/prm/PRM.h>
 
 #include <robowflex_library/util.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
@@ -18,38 +21,11 @@
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
+#include <robowflex_dart/planning.h>
 
 using namespace robowflex;
 
 static const std::string GROUP = "arm_with_torso";
-
-void getInitialConfiguration(darts::RobotPtr fetch_dart)
-{
-    RobotPose pose = RobotPose::Identity();
-    pose.translate(Eigen::Vector3d{-0.15, 0.6, 0.92});
-    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    pose.rotate(orn);
-
-    darts::TSR tsr(fetch_dart, "wrist_roll_link", "base_link");
-    tsr.setPose(pose);
-    tsr.useGroup(GROUP);
-
-    tsr.solve();
-}
-
-void getFinalConfiguration(darts::RobotPtr fetch_dart)
-{
-    RobotPose pose = RobotPose::Identity();
-    pose.translate(Eigen::Vector3d{0.48, 0.6, 0.92});
-    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    pose.rotate(orn);
-
-    darts::TSR tsr(fetch_dart, "wrist_roll_link", "base_link");
-    tsr.setPose(pose);
-    tsr.useGroup(GROUP);
-
-    tsr.solve();
-}
 
 int main(int argc, char **argv)
 {
@@ -76,139 +52,73 @@ int main(int argc, char **argv)
     world->addStructure(scene_dart);
     world->addStructure(ground);
 
-    // Do a little plan, make a little love, get down tonight
-    auto space = std::make_shared<darts::StateSpace>(world);
-    space->addGroup(fetch_dart->getName(), GROUP);
+    darts::PlanBuilder builder(world);
+    builder.addGroup(fetch_dart->getName(), GROUP);
 
-    getInitialConfiguration(fetch_dart);
-    Eigen::VectorXd start(space->getDimension());
-    fetch_dart->getGroupState(GROUP, start);
+    // get start/ goal
+    darts::TSR start_tsr(                            //
+        fetch_dart, "wrist_roll_link", "base_link",  //
+        Eigen::Vector3d{-0.1, 0.6, 0.92},            //
+        Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5});
+    start_tsr.useGroup(GROUP);
+    start_tsr.solve();
+    builder.setStartConfigurationFromWorld();
 
-    getFinalConfiguration(fetch_dart);
-    Eigen::VectorXd goal(space->getDimension());
-    fetch_dart->getGroupState(GROUP, goal);
+    darts::TSR goal_tsr(                             //
+        fetch_dart, "wrist_roll_link", "base_link",  //
+        Eigen::Vector3d{0.5, 0.6, 0.92},             //
+        Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5});
+    goal_tsr.useGroup(GROUP);
+    goal_tsr.solve();
+    builder.setGoalConfigurationFromWorld();
 
     // Create constraint
-    RobotPose pose = RobotPose::Identity();
-    pose.translate(Eigen::Vector3d{0.3, 0.8, 0.92});
-    Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-    pose.rotate(orn);
+    double table = 0.4;
+    double pi = dart::math::constants<double>::pi();
+    double alpha = 1e-4;                               // pi / 16.;
+    double beta = 1e-4;                                // pi;
+    auto tsr = std::make_shared<darts::TSR>(           //
+        fetch_dart, "wrist_roll_link", "base_link",    //
+        TF::createPoseQ(                               //
+            Eigen::Vector3d{0.3, 0.8, 0.92},           //
+            Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5}),  //
+        Eigen::Vector3d{table, table, 1e-4},           //
+        Eigen::Vector3d{alpha, alpha, beta});
+    builder.addConstraint(tsr);
 
-    double inf = std::numeric_limits<double>::infinity();
-    auto tsr = std::make_shared<darts::TSR>(                                                    //
-        fetch_dart, "wrist_roll_link", "base_link",                                             //
-        pose,                                                                                   //
-        darts::TSR::Bounds{-Eigen::Vector3d{0.5, 0.5, 1e-4}, Eigen::Vector3d{0.5, 0.5, 1e-4}},  //
-        darts::TSR::Bounds{-Eigen::Vector3d{1e-4, 1e-4, 1e-4}, Eigen::Vector3d{1e-4, 1e-4, 1e-4}});
+    // initialize and setup
+    builder.initialize();
 
-    auto tsrc = std::make_shared<darts::TSRConstraint>(space, tsr);
-    auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(space, tsrc);
-    // auto pss = std::make_shared<ompl::base::AtlasStateSpace>(space, tsrc);
+    // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
+    // builder.ss->setPlanner(prm);
 
-    ompl::geometric::SimpleSetup ss(pss);
-    ss.setStateValidityChecker([&](const ompl::base::State *state) {
-        auto as = state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState();
-        space->setWorldState(world, as);
-        return not world->inCollision() and tsrc->isSatisfied(state);
-    });
+    // auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info);
+    // rrt->setRange(2);
+    // builder.ss->setPlanner(rrt);
 
-    pss->setSpaceInformation(ss.getSpaceInformation().get());
-    pss->setDelta(0.05);
-    pss->setLambda(2);
+    auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
+    builder.ss->setPlanner(bit);
 
-    ompl::base::ScopedState<> start_state(pss);
-    start_state.get()
-        ->as<ompl::base::ConstrainedStateSpace::StateType>()
-        ->getState()
-        ->as<darts::StateSpace::StateType>()
-        ->data = start;
+    builder.setup();
 
-
-    ompl::base::ScopedState<> goal_state(pss);
-    goal_state.get()
-        ->as<ompl::base::ConstrainedStateSpace::StateType>()
-        ->getState()
-        ->as<darts::StateSpace::StateType>()
-        ->data = goal;
-
-    // pss->anchorChart(start_state.get());
-    // pss->anchorChart(goal_state.get());
-
-    ss.setStartAndGoalStates(start_state, goal_state);
-    auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
-    ss.setPlanner(prm);
-    // auto rrt = std::make_shared<ompl::geometric::RRTConnect>(ss.getSpaceInformation(), true);
-    // rrt->setRange(1.);
-    // ss.setPlanner(rrt);
+    if (builder.ss->getOptimizationObjective())
+        builder.ss->getOptimizationObjective()->setCostThreshold(
+            ompl::base::Cost(std::numeric_limits<double>::infinity()));
 
     std::thread t([&] {
-        ompl::base::PlannerStatus solved = ss.solve(10.0);
-        auto lock = fetch_dart->getSkeleton()->getLockableReference();
-
-        // Eigen::VectorXd q(fetch_dart->getNumDofsGroup(GROUP));
-        // Eigen::VectorXd f(tsr.getDimension());
-        // Eigen::MatrixXd j(tsr.getDimension(), fetch_dart->getNumDofsGroup(GROUP));
-
-        // for (unsigned int i = 0; i < 20; ++i)
-        // {
-        //     fetch_dart->getGroupState(GROUP, q);
-
-        //     tsr.getError(f);
-        //     tsr.getJacobian(j);
-        //     q -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
-
-        //     fetch_dart->setGroupState(GROUP, q);
-        //     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        // }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        // while (true)
-        // {
-        // RobotPose pose = RobotPose::Identity();
-        // pose.translate(Eigen::Vector3d{x, 0.6, 0.92});
-        // Eigen::Quaterniond orn{0.5, -0.5, 0.5, 0.5};
-        // pose.rotate(orn);
-
-        // tsr.setPose(pose);
-
-        // lock->lock();
-        // std::cout << fetch_dart->solveIK() << std::endl;
-        // lock->unlock();
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        // if (x < 0.45)
-        //     x += 0.005;
-        // else
-        //     x = -0.2;
-        // }
-
-        if (solved)
+        while (true)
         {
-            std::cout << "Found solution:" << std::endl;
-            // print the path to screen
-            ss.simplifySolution();
-
-            auto path = ss.getSolutionPath();
-            path.interpolate(100);
-            path.print(std::cout);
-
-            while (true)
+            ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            if (solved)
             {
-                space->setWorldState(
-                    world,
-                    path.getStates()[0]->as<ompl::base::ConstrainedStateSpace::StateType>()->getState());
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                for (const auto &state : path.getStates())
-                {
-                    space->setWorldState(
-                        world, state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState());
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::cout << "Found solution!" << std::endl;
+                builder.animateSolutionInWorld(2);
             }
+            else
+                std::cout << "No solution found" << std::endl;
+            builder.ss->clear();
         }
-        else
-            std::cout << "No solution found" << std::endl;
     });
 
     world->openOSGViewer();

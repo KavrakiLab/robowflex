@@ -7,6 +7,7 @@
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
+#include <robowflex_dart/planning.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -52,83 +53,45 @@ int main(int argc, char **argv)
         world->addRobot(fetch4);
     }
 
-    auto space = std::make_shared<darts::StateSpace>(world);
-    space->addGroup("fetch1", "arm_with_torso");
+    darts::PlanBuilder builder(world);
+    builder.addGroup("fetch1", "arm_with_torso");
     if (nfetch > 1)
-        space->addGroup("fetch2", "arm_with_torso");
+        builder.addGroup("fetch2", "arm_with_torso");
     if (nfetch > 2)
-        space->addGroup("fetch3", "arm_with_torso");
+        builder.addGroup("fetch3", "arm_with_torso");
     if (nfetch > 3)
-        space->addGroup("fetch4", "arm_with_torso");
+        builder.addGroup("fetch4", "arm_with_torso");
 
-    ompl::geometric::SimpleSetup ss(space);
-    ss.setStateValidityChecker([&](const ompl::base::State *state) {
-        space->setWorldState(world, state);
-        return not world->inCollision();
-    });
-
-    ompl::base::ScopedState<> start(space);
-    // start = {
-    //     0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-    // };
-
-    start = {
+    builder.setStartConfiguration({
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
-    };
-    std::cout << ss.getSpaceInformation()->isValid(start.get()) << std::endl;
+    });
 
-    // create a random goal state
-    ompl::base::ScopedState<> goal(space);
-    // goal = {
-    //     0.300, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-    // };
-    goal = {
+    builder.setGoalConfiguration({
         0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
         0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
         0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
         0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-    };
+    });
 
-    ss.setStartAndGoalStates(start, goal);
-    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(ss.getSpaceInformation(), true);
+    builder.initialize();
+
+    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(1.);
-    ss.setPlanner(rrt);
-    // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
-    // ss.setPlanner(prm);
+    builder.ss->setPlanner(rrt);
 
-    // this call is optional, but we put it in to get more output information
-    ss.setup();
-    ss.print();
+    builder.setup();
+    builder.ss->print();
 
-    ompl::base::PlannerStatus solved = ss.solve(10.0);
+    ompl::base::PlannerStatus solved = builder.ss->solve(10.0);
 
     std::thread t([&]() {
-        // attempt to solve the problem within one second of planning time
         if (solved)
         {
             std::cout << "Found solution:" << std::endl;
-            // print the path to screen
-            for (unsigned int i = 0; i < 10; ++i)
-                ss.simplifySolution();
-
-            auto path = ss.getSolutionPath();
-            path.interpolate();
-            path.print(std::cout);
-
-            while (true)
-            {
-                space->setWorldState(world, path.getStates()[0]);
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                for (const auto &state : path.getStates())
-                {
-                    space->setWorldState(world, state);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            }
+            builder.animateSolutionInWorld();
         }
         else
             std::cout << "No solution found" << std::endl;

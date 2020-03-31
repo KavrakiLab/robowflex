@@ -3,9 +3,13 @@
 #ifndef ROBOWFLEX_DART_TSR_
 #define ROBOWFLEX_DART_TSR_
 
+#include <set>
 #include <functional>
 
 #include <ompl/base/Constraint.h>
+
+#include <dart/dynamics/SimpleFrame.hpp>
+#include <dart/dynamics/InverseKinematics.hpp>
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
@@ -38,10 +42,22 @@ namespace robowflex
             TSR(const StructurePtr &structure, const std::string &target, const RobotPose &pose,
                 const Bounds &position, const Bounds &orientation);
 
+            // mirrored bounds
+            TSR(const StructurePtr &structure, const std::string &target, const std::string &base, //
+                const RobotPose &pose, const Eigen::Vector3d &position, const Eigen::Vector3d &orientation);
+
+            TSR(const StructurePtr &structure, const std::string &target,  //
+                const RobotPose &pose, const Eigen::Vector3d &position, const Eigen::Vector3d &orientation);
+
             // tight bounds
             TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
                 const RobotPose &pose);
             TSR(const StructurePtr &structure, const std::string &target, const RobotPose &pose);
+
+            TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
+                const Eigen::Vector3d &position, const Eigen::Quaterniond &rotation);
+            TSR(const StructurePtr &structure, const std::string &target, const Eigen::Vector3d &position,
+                const Eigen::Quaterniond &rotation);
 
             //
             TSR(const StructurePtr &structure, const std::string &target,
@@ -61,6 +77,8 @@ namespace robowflex
 
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
+
+            StructurePtr getStructure();
 
         private:
             bool initialize();
@@ -105,6 +123,25 @@ namespace robowflex
         protected:
             StateSpacePtr space_;
             TSRPtr tsr_;
+        };
+
+        class TSRCompositeConstraint : public ompl::base::Constraint
+        {
+        public:
+            TSRCompositeConstraint(const StateSpacePtr &space, const std::vector<TSRPtr> &tsrs);
+
+            void function(const Eigen::Ref<const Eigen::VectorXd> &x,
+                          Eigen::Ref<Eigen::VectorXd> out) const override;
+
+            void jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
+                          Eigen::Ref<Eigen::MatrixXd> out) const override;
+
+            bool project(Eigen::Ref<Eigen::VectorXd> x) const override;
+
+        protected:
+            StateSpacePtr space_;
+            std::vector<TSRPtr> tsrs_;
+            std::set<StructurePtr> structures_;
         };
     }  // namespace darts
 }  // namespace robowflex

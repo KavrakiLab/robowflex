@@ -3,6 +3,8 @@
 #include <dart/dynamics/SimpleFrame.hpp>
 #include <dart/dynamics/InverseKinematics.hpp>
 
+#include <robowflex_library/tf.h>
+
 #include <robowflex_dart/structure.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/space.h>
@@ -34,19 +36,42 @@ TSR::TSR(const StructurePtr &structure, const std::string &target, const RobotPo
 {
 }
 
+// mirrored bounds
+
+TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base,  //
+         const RobotPose &pose, const Eigen::Vector3d &position, const Eigen::Vector3d &orientation)
+  : TSR(structure, target, base, pose, Bounds{-position, position}, Bounds{-orientation, orientation})
+{
+}
+
+TSR::TSR(const StructurePtr &structure, const std::string &target,  //
+         const RobotPose &pose, const Eigen::Vector3d &position, const Eigen::Vector3d &orientation)
+  : TSR(structure, target, magic::ROOT_FRAME, pose, position, orientation)
+{
+}
+
 // tight bounds
 TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
          const RobotPose &pose)
-  : TSR(structure, target, base, pose,
-        {Eigen::Vector3d::Constant(-magic::DEFAULT_IK_TOLERANCE),
-         Eigen::Vector3d::Constant(magic::DEFAULT_IK_TOLERANCE)},
-        {Eigen::Vector3d::Constant(-magic::DEFAULT_IK_TOLERANCE),
-         Eigen::Vector3d::Constant(magic::DEFAULT_IK_TOLERANCE)})
+  : TSR(structure, target, base, pose, Eigen::Vector3d::Constant(magic::DEFAULT_IK_TOLERANCE),
+        Eigen::Vector3d::Constant(magic::DEFAULT_IK_TOLERANCE))
 {
 }
 
 TSR::TSR(const StructurePtr &structure, const std::string &target, const RobotPose &pose)
   : TSR(structure, target, magic::ROOT_FRAME, pose)
+{
+}
+
+TSR::TSR(const StructurePtr &structure, const std::string &target, const std::string &base,
+         const Eigen::Vector3d &position, const Eigen::Quaterniond &rotation)
+  : TSR(structure, target, base, robowflex::TF::createPoseQ(position, rotation))
+{
+}
+
+TSR::TSR(const StructurePtr &structure, const std::string &target, const Eigen::Vector3d &position,
+         const Eigen::Quaterniond &rotation)
+  : TSR(structure, target, magic::ROOT_FRAME, position, rotation)
 {
 }
 
@@ -204,6 +229,11 @@ std::size_t TSR::getNumDofs() const
     return ik_->getPositions().size();
 }
 
+StructurePtr TSR::getStructure()
+{
+    return structure_;
+}
+
 ///
 /// TSRConstraint
 ///
@@ -234,6 +264,62 @@ bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
     // return ompl::base::Constraint::project(x);
     space_->setWorldState(space_->getWorld(), x);
     bool r = tsr_->solve();
+    space_->getWorldState(space_->getWorld(), x);
+    return r;
+}
+
+///
+/// TSRCompositeConstraint
+///
+
+TSRCompositeConstraint::TSRCompositeConstraint(const StateSpacePtr &space, const std::vector<TSRPtr> &tsrs)
+  : ompl::base::Constraint(space->getDimension(),
+                           [&tsrs] {
+                               std::size_t k = 0;
+                               for (const auto &tsr : tsrs)
+                                   k += tsr->getDimension();
+                               return k;
+                           }(),
+                           1e-8)
+  , space_(space)
+  , tsrs_(tsrs)
+{
+    for (const auto &tsr : tsrs_)
+        structures_.emplace(tsr->getStructure());
+}
+
+void TSRCompositeConstraint::function(const Eigen::Ref<const Eigen::VectorXd> &x,
+                                      Eigen::Ref<Eigen::VectorXd> out) const
+{
+    space_->setWorldState(space_->getWorld(), x);
+    unsigned int i = 0;
+    for (auto tsr : tsrs_)
+    {
+        tsr->getError(out.segment(i, tsr->getDimension()));
+        i += tsr->getDimension();
+    }
+}
+
+void TSRCompositeConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
+                                      Eigen::Ref<Eigen::MatrixXd> out) const
+{
+    space_->setWorldState(space_->getWorld(), x);
+    unsigned int i = 0;
+    for (auto tsr : tsrs_)
+    {
+        tsr->getJacobian(out.block(i, 0, tsr->getDimension(), n_));
+        i += tsr->getDimension();
+    }
+}
+
+bool TSRCompositeConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
+{
+    space_->setWorldState(space_->getWorld(), x);
+
+    bool r = true;
+    for (auto &structure : structures_)
+        r &= structure->solveIK();
+
     space_->getWorldState(space_->getWorld(), x);
     return r;
 }
