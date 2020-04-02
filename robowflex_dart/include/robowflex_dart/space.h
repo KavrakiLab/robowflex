@@ -50,6 +50,7 @@ namespace robowflex
 
             void setWorldState(WorldPtr world, const ompl::base::State *state);
             void setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x);
+            void getWorldState(WorldPtr world, ompl::base::State *state) const;
             void getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const;
 
             void enforceBounds(ompl::base::State *state) const override;
@@ -75,6 +76,8 @@ namespace robowflex
             const WorldPtr &getWorldConst() const;
 
             std::vector<std::size_t> getIndices() const;
+
+            const std::vector<JointPtr> &getJoints() const;
 
         protected:
             WorldPtr world_;

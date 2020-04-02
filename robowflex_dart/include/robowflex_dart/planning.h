@@ -3,8 +3,11 @@
 #ifndef ROBOWFLEX_DART_PLANNING_
 #define ROBOWFLEX_DART_PLANNING_
 
+#include <set>
+
 #include <Eigen/Dense>
 
+#include <ompl/base/goals/GoalLazySamples.h>
 #include <ompl/base/Constraint.h>
 #include <ompl/geometric/SimpleSetup.h>
 
@@ -18,7 +21,26 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(TSR)
         ROBOWFLEX_CLASS_FORWARD(World)
 
+        ROBOWFLEX_CLASS_FORWARD(TSRGoal)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
+
+        class TSRGoal : public ompl::base::GoalLazySamples
+        {
+        public:
+            TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
+                    const std::vector<TSRPtr> &tsrs, bool constrained = false);
+            TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs);
+            TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr);
+
+            bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+
+        private:
+            WorldPtr world_;
+            StateSpacePtr space_;
+            std::vector<TSRPtr> tsrs_;
+            std::set<StructurePtr> structures_;
+            bool constrained_;
+        };
 
         class PlanBuilder
         {
@@ -53,6 +75,12 @@ namespace robowflex
             ompl::base::StateSpacePtr space{nullptr};
             ompl::base::SpaceInformationPtr info{nullptr};
             ompl::geometric::SimpleSetupPtr ss{nullptr};
+            WorldPtr world;
+            std::vector<TSRPtr> constraints;
+            ompl::base::ConstraintPtr constraint;
+
+            Eigen::VectorXd start;
+            Eigen::VectorXd goal;
 
         protected:
             void initializeConstrained();
@@ -60,14 +88,6 @@ namespace robowflex
 
             void setStateValidityChecker();
 
-            WorldPtr world_;
-
-            std::vector<TSRPtr> constraints_;
-
-            Eigen::VectorXd start_;
-            Eigen::VectorXd goal_;
-
-            ompl::base::ConstraintPtr constraint_{nullptr};
         };
     }  // namespace darts
 }  // namespace robowflex

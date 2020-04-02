@@ -41,6 +41,8 @@ namespace robowflex
             Structure(const std::string &name, const ScenePtr &scene);
             virtual ~Structure() = default;
 
+            StructurePtr cloneStructure(const std::string &newName) const;
+
             const std::string &getName() const;
 
             ACMPtr getACM();
@@ -71,6 +73,9 @@ namespace robowflex
                            dart::dynamics::BodyNode *parent = nullptr);
 
             void addGround(double z = 0.);
+
+            void setJoint(const std::string &name, double value);
+            void setJoint(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &value);
 
             bool solveIK();
 

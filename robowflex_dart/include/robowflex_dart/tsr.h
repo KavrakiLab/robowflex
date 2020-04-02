@@ -23,7 +23,8 @@ namespace robowflex
 
         namespace magic
         {
-            static const double DEFAULT_IK_TOLERANCE = 1e-4;
+            // static const double DEFAULT_IK_TOLERANCE = 1e-8;
+            static const double DEFAULT_IK_TOLERANCE = 1e-3;
             static const std::string ROOT_FRAME = "";
         }  // namespace magic
 
@@ -63,6 +64,8 @@ namespace robowflex
             TSR(const StructurePtr &structure, const std::string &target,
                 const std::string &base = magic::ROOT_FRAME);
 
+            ~TSR();
+
             void setPose(const RobotPose &pose);
             void setPosition(const Eigen::Ref<const Eigen::Vector3d> &position);
             void setRotation(const Eigen::Quaterniond &orientation);
@@ -72,13 +75,15 @@ namespace robowflex
             void getError(Eigen::Ref<Eigen::VectorXd> vector) const;
             void getGradient(Eigen::VectorXd &q) const;
             void getJacobian(Eigen::Ref<Eigen::MatrixXd> jac) const;
+            double distance() const;
 
             bool solve();
 
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
 
-            StructurePtr getStructure();
+            const StructurePtr &getStructure() const;
+            void setStructure(const StructurePtr &structure);
 
         private:
             bool initialize();
@@ -99,6 +104,7 @@ namespace robowflex
 
             std::shared_ptr<dart::dynamics::SimpleFrame> frame_;
             std::shared_ptr<dart::dynamics::InverseKinematics> ik_;
+            dart::dynamics::BodyNode *node_{nullptr};
             dart::dynamics::InverseKinematics::TaskSpaceRegion *tsr_;
             dart::dynamics::InverseKinematics::GradientMethod *grad_;
 

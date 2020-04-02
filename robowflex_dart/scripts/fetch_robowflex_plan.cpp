@@ -63,6 +63,7 @@ int main(int argc, char **argv)
     start_tsr.useGroup(GROUP);
     start_tsr.solve();
     builder.setStartConfigurationFromWorld();
+    std::cout << start_tsr.distance() << std::endl;
 
     darts::TSR goal_tsr(                             //
         fetch_dart, "wrist_roll_link", "base_link",  //
@@ -71,20 +72,22 @@ int main(int argc, char **argv)
     goal_tsr.useGroup(GROUP);
     goal_tsr.solve();
     builder.setGoalConfigurationFromWorld();
+    std::cout << goal_tsr.distance() << std::endl;
 
     // Create constraint
     double table = 0.4;
     double pi = dart::math::constants<double>::pi();
-    double alpha = 1e-4;                               // pi / 16.;
-    double beta = 1e-4;                                // pi;
+    double alpha = 1e-3;                               // pi / 16.;
+    double beta = 1e-3;                                // pi;
     auto tsr = std::make_shared<darts::TSR>(           //
         fetch_dart, "wrist_roll_link", "base_link",    //
         TF::createPoseQ(                               //
             Eigen::Vector3d{0.3, 0.8, 0.92},           //
             Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5}),  //
-        Eigen::Vector3d{table, table, 1e-4},           //
+        Eigen::Vector3d{table, table, 1e-3},           //
         Eigen::Vector3d{alpha, alpha, beta});
     builder.addConstraint(tsr);
+    std::cout << tsr->distance() << std::endl;
 
     // initialize and setup
     builder.initialize();
@@ -92,12 +95,12 @@ int main(int argc, char **argv)
     // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
     // builder.ss->setPlanner(prm);
 
-    // auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info);
-    // rrt->setRange(2);
-    // builder.ss->setPlanner(rrt);
+    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    rrt->setRange(2);
+    builder.ss->setPlanner(rrt);
 
-    auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
-    builder.ss->setPlanner(bit);
+    // auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
+    // builder.ss->setPlanner(bit);
 
     builder.setup();
 
@@ -118,6 +121,7 @@ int main(int argc, char **argv)
             }
             else
                 std::cout << "No solution found" << std::endl;
+
             builder.ss->clear();
         }
     });

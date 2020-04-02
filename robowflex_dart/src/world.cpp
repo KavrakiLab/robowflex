@@ -61,10 +61,10 @@ WorldPtr World::clone() const
     auto world = std::make_shared<World>();
 
     for (const auto &robot : robots_)
-        world->addRobot(robot.second);
+        world->addRobot(robot.second->cloneRobot(robot.first));
 
     for (const auto &structure : structures_)
-        world->addStructure(structure.second);
+        world->addStructure(structure.second->cloneStructure(structure.first));
 
     for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
     {
@@ -142,7 +142,11 @@ void World::removeRobot(RobotPtr robot)
 
 RobotPtr World::getRobot(const std::string &name)
 {
-    return robots_.find(name)->second;
+    auto it = robots_.find(name);
+    if (it != robots_.end())
+        return it->second;
+    else
+        return nullptr;
 }
 
 void World::addStructure(StructurePtr structure)
@@ -176,6 +180,15 @@ void World::removeStructure(const std::string &name)
 void World::removeStructure(StructurePtr structure)
 {
     removeStructure(structure->getName());
+}
+
+StructurePtr World::getStructure(const std::string &name)
+{
+    auto it = structures_.find(name);
+    if (it != structures_.end())
+        return it->second;
+    else
+        return nullptr;
 }
 
 std::pair<Eigen::Vector3d, Eigen::Vector3d> World::getWorkspaceBounds() const

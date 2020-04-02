@@ -43,8 +43,8 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
                       const Eigen::Quaterniond &rotation)
 {
     RobotPose pose = RobotPose::Identity();
-    pose.translation() = translation;
-    pose.linear() = rotation.toRotationMatrix();
+    pose.translate(translation);
+    pose.rotate(rotation);
 
     return pose;
 }

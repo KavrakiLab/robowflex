@@ -12,29 +12,101 @@
 
 using namespace robowflex::darts;
 
-PlanBuilder::PlanBuilder(WorldPtr world) : rspace(std::make_shared<StateSpace>(world)), world_(world)
+///
+/// TSRGoal
+///
+
+TSRGoal::TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
+                 const std::vector<TSRPtr> &tsrs, bool constrained)
+  : ompl::base::GoalLazySamples(
+        si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false)
+  , world_(world->clone())
+  , space_(space)
+  , tsrs_(tsrs)
+  , constrained_(constrained)
+{
+    // remap tsr structures - TODO copy tsrs
+    for (auto &tsr : tsrs_)
+    {
+        auto name = tsr->getStructure()->getName();
+        StructurePtr structure = world_->getRobot(name);
+        if (not structure)
+            structure = world_->getStructure(name);
+
+        if (structure)
+        {
+            tsr->setStructure(structure);
+            structures_.emplace(structure);
+        }
+        else
+            throw std::runtime_error("Hey!");
+    }
+}
+
+TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs)
+  : TSRGoal(builder.world, builder.rspace, builder.info,
+            [&] {
+                std::vector<TSRPtr> tsrs = builder.constraints;
+                tsrs.insert(tsrs.end(), goal_tsrs.begin(), goal_tsrs.end());
+                return tsrs;
+            }(),
+            not builder.constraints.empty())
+{
+}
+
+TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr)
+  : TSRGoal(builder, std::vector<TSRPtr>{goal_tsr})
+{
+}
+
+bool TSRGoal::sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state)
+{
+    StateSpace::StateType *as;
+    if (constrained_)
+        as = state->as<ompl::base::ConstrainedStateSpace::StateType>()
+                 ->getState()
+                 ->as<darts::StateSpace::StateType>();
+    else
+        as = state->as<darts::StateSpace::StateType>();
+
+    space_->setWorldState(world_, as);
+
+    bool r = true;
+    for (auto &structure : structures_)
+        r &= structure->solveIK();
+
+    space_->getWorldState(world_, as);
+    return r;
+}
+
+///
+/// PlanBuilder
+///
+
+PlanBuilder::PlanBuilder(WorldPtr world) : rspace(std::make_shared<StateSpace>(world)), world(world)
 {
 }
 
 void PlanBuilder::addGroup(const std::string &skeleton, const std::string &name)
 {
-    rspace->addGroup(skeleton, name);
+    rspace->addGroup(skeleton, name, 2);
+    // rspace->addGroup(skeleton, name);
 }
 
 void PlanBuilder::addConstraint(const TSRPtr &tsr)
 {
-    constraints_.emplace_back(tsr);
+    constraints.emplace_back(tsr);
 }
 
 void PlanBuilder::setStartConfigurationFromWorld()
 {
-    start_ = Eigen::VectorXd::Zero(rspace->getDimension());
-    rspace->getWorldState(world_, start_);
+    start = Eigen::VectorXd::Zero(rspace->getDimension());
+    rspace->getWorldState(world, start);
 }
 
 void PlanBuilder::setStartConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
 {
-    start_ = q;
+    start = q;
 }
 
 void PlanBuilder::setStartConfiguration(const std::vector<double> &q)
@@ -50,13 +122,13 @@ void PlanBuilder::sampleStartConfiguration()
 
 void PlanBuilder::setGoalConfigurationFromWorld()
 {
-    goal_ = Eigen::VectorXd::Zero(rspace->getDimension());
-    rspace->getWorldState(world_, goal_);
+    goal = Eigen::VectorXd::Zero(rspace->getDimension());
+    rspace->getWorldState(world, goal);
 }
 
 void PlanBuilder::setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
 {
-    goal_ = q;
+    goal = q;
 }
 
 void PlanBuilder::setGoalConfiguration(const std::vector<double> &q)
@@ -72,7 +144,7 @@ void PlanBuilder::sampleGoalConfiguration()
 
 void PlanBuilder::initialize()
 {
-    if (constraints_.empty())
+    if (constraints.empty())
         initializeUnconstrained();
     else
         initializeConstrained();
@@ -81,10 +153,10 @@ void PlanBuilder::initialize()
 void PlanBuilder::setup()
 {
     ompl::base::ScopedState<> start_state(space);
-    getState(start_state.get())->data = start_;
+    getState(start_state.get())->data = start;
 
     ompl::base::ScopedState<> goal_state(space);
-    getState(goal_state.get())->data = goal_;
+    getState(goal_state.get())->data = goal;
 
     ss->setStartAndGoalStates(start_state, goal_state);
     ss->setup();
@@ -92,12 +164,12 @@ void PlanBuilder::setup()
 
 void PlanBuilder::initializeConstrained()
 {
-    if (constraints_.size() == 1)
-        constraint_ = std::make_shared<darts::TSRConstraint>(rspace, constraints_[0]);
+    if (constraints.size() == 1)
+        constraint = std::make_shared<darts::TSRConstraint>(rspace, constraints[0]);
     else
-        constraint_ = std::make_shared<darts::TSRCompositeConstraint>(rspace, constraints_);
+        constraint = std::make_shared<darts::TSRCompositeConstraint>(rspace, constraints);
 
-    auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint_);
+    auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
     space = pss;
     info = std::make_shared<ompl::base::ConstrainedSpaceInformation>(pss);
 
@@ -119,7 +191,7 @@ void PlanBuilder::initializeUnconstrained()
 
 StateSpace::StateType *PlanBuilder::getState(ompl::base::State *state) const
 {
-    if (constraint_)
+    if (constraint)
         return state->as<ompl::base::ConstrainedStateSpace::StateType>()
             ->getState()
             ->as<darts::StateSpace::StateType>();
@@ -157,10 +229,11 @@ void PlanBuilder::setStateValidityChecker()
     {
         ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
             auto as = getStateConst(state);
-            rspace->setWorldState(world_, as);
+            rspace->setWorldState(world, as);
 
-            return not world_->inCollision() and  //
-                   ((constraint_) ? constraint_->isSatisfied(state) : true);
+            return not world->inCollision() and  //
+                   ((constraint) ? constraint->isSatisfied(state) : true);
+            // return not world->inCollision();
         });
     }
 }
@@ -176,11 +249,11 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times) const
     std::size_t i = times;
     while ((times == 0) ? true : i--)
     {
-        rspace->setWorldState(world_, getState(path.getStates()[0]));
+        rspace->setWorldState(world, getState(path.getStates()[0]));
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         for (const auto &state : path.getStates())
         {
-            rspace->setWorldState(world_, getState(state));
+            rspace->setWorldState(world, getState(state));
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));

@@ -26,7 +26,7 @@ namespace robowflex
             Robot(const std::string &name);
             Robot(robowflex::RobotPtr robot);
 
-            RobotPtr clone(const std::string &newName) const;
+            RobotPtr cloneRobot(const std::string &newName) const;
 
             bool loadURDF(const std::string &urdf);
             bool loadSRDF(const std::string &srdf);
@@ -52,13 +52,13 @@ namespace robowflex
             void getGroupState(const std::string &group, Eigen::Ref<Eigen::VectorXd> q) const;
             void setGroupState(const std::string &group, const Eigen::Ref<const Eigen::VectorXd> &q);
 
+            std::map<std::string, std::map<std::string, Eigen::VectorXd>> &getGroupStates();
             std::vector<std::string> getNamedGroupStates(const std::string &group) const;
             bool getNamedGroupState(const std::string &group, const std::string &name,
                                     Eigen::Ref<Eigen::VectorXd> q) const;
             void setNamedGroupState(const std::string &group, const std::string &name,
                                     const Eigen::Ref<const Eigen::VectorXd> &q);
 
-        protected:
             bool addNameToGroup(const std::string &group, const std::string &name);
             void processGroup(const std::string &group);
 

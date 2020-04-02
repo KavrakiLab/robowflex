@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
     if (nr2 > 1)
     {
-        auto r22 = r21->clone("r2_2");
+        auto r22 = r21->cloneRobot("r2_2");
         world->addRobot(r22);
     }
 

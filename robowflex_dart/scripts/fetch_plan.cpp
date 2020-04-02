@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     if (nfetch > 1)
     {
-        auto fetch2 = fetch1->clone("fetch2");
+        auto fetch2 = fetch1->cloneRobot("fetch2");
         fetch2->setDof(2, -1.57);
         fetch2->setDof(3, 0.525);
         fetch2->setDof(4, 0.525);
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
     if (nfetch > 2)
     {
-        auto fetch3 = fetch1->clone("fetch3");
+        auto fetch3 = fetch1->cloneRobot("fetch3");
         fetch3->setDof(2, 1.57);
         fetch3->setDof(3, 0.525);
         fetch3->setDof(4, -0.525);
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
     if (nfetch > 3)
     {
-        auto fetch4 = fetch1->clone("fetch4");
+        auto fetch4 = fetch1->cloneRobot("fetch4");
         fetch4->setDof(2, 3.14);
         fetch4->setDof(3, 1.05);
         world->addRobot(fetch4);

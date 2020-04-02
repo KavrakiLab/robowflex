@@ -78,6 +78,7 @@ if (DART_LIBRARIES)
   add_script(r2_plan)
   add_script(world_test)
   add_script(fetch_robowflex_plan)
+  add_script(r2con_plan)
 
   install_scripts()
   install_library()

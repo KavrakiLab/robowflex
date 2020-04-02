@@ -166,6 +166,12 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
     }
 }
 
+void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
+{
+    auto as = state->as<StateType>();
+    getWorldState(world, as->data);
+}
+
 void StateSpace::getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const
 {
     for (const auto &joint : joints_)
@@ -282,4 +288,9 @@ std::vector<std::size_t> StateSpace::getIndices() const
     }
 
     return indices;
+}
+
+const std::vector<JointPtr> &StateSpace::getJoints() const
+{
+    return joints_;
 }

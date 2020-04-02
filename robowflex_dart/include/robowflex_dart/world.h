@@ -48,6 +48,7 @@ namespace robowflex
             void addStructure(StructurePtr structure);
             void removeStructure(const std::string &name);
             void removeStructure(StructurePtr structure);
+            StructurePtr getStructure(const std::string &name);
 
             std::pair<Eigen::Vector3d, Eigen::Vector3d> getWorkspaceBounds() const;
             Eigen::Vector3d &getWorkspaceLow();

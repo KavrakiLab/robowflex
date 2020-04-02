@@ -67,6 +67,17 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
             }
 }
 
+StructurePtr Structure::cloneStructure(const std::string &newName) const
+{
+    auto structure = std::make_shared<Structure>(newName);
+    structure->setSkeleton(skeleton_->cloneSkeleton());
+
+    for (const auto &pair : acm_->getDisabledPairsConst())
+        structure->getACM()->disableCollision(pair.first, pair.second);
+
+    return structure;
+}
+
 const std::string &Structure::getName() const
 {
     return name_;
@@ -196,10 +207,23 @@ void Structure::addGround(double z)
     setColor(pair.second, dart::Color::Blue(0.2));
 }
 
+void Structure::setJoint(const std::string &name, double value)
+{
+    setJoint(name, Eigen::VectorXd::Constant(1, value));
+}
+
+void Structure::setJoint(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &value)
+{
+    auto joint = skeleton_->getJoint(name);
+    joint->setPositions(value);
+}
+
 bool Structure::solveIK()
 {
     auto ik = skeleton_->getIK(true);
-    return ik->solve();
+    ik->getSolver()->setTolerance(1e-9);
+    ik->getSolver()->setNumMaxIterations(100);
+    return ik->solveAndApply(true);
 }
 
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)

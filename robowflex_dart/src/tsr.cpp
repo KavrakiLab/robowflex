@@ -80,6 +80,12 @@ TSR::TSR(const StructurePtr &structure, const std::string &target, const std::st
 {
 }
 
+TSR::~TSR()
+{
+    if (node_)
+        node_->clearIK();
+}
+
 void TSR::setPose(const RobotPose &pose)
 {
     pose_ = pose;
@@ -100,23 +106,24 @@ void TSR::setRotation(const Eigen::Quaterniond &orientation)
 
 void TSR::updateTarget()
 {
-    frame_->setTransform(pose_);
+    frame_->setRelativeTransform(pose_);
 }
 
 bool TSR::initialize()
 {
     auto skeleton = structure_->getSkeleton();
-    auto tnode = skeleton->getBodyNode(target_);
+    node_ = skeleton->getBodyNode(target_);
 
-    if (not tnode)
+    if (not node_)
     {
         std::cout << target_ << " does not exist" << std::endl;
         return false;
     }
 
-    ik_ = tnode->getIK(true);
+    ik_ = node_->getIK(true);
     frame_ = ik_->getTarget();
 
+    bool heir = false;
     if (base_ != magic::ROOT_FRAME)
     {
         auto bnode = skeleton->getBodyNode(base_);
@@ -126,6 +133,7 @@ bool TSR::initialize()
             return false;
         }
 
+        heir = true;
         frame_ = frame_->clone(bnode);
     }
 
@@ -143,6 +151,12 @@ bool TSR::initialize()
     grad_ = &ik_->getGradientMethod();
 
     computeDimension();
+
+    if (heir)
+        ik_->setHierarchyLevel(1);
+
+    ik_->getSolver()->setTolerance(1e-9);
+    ik_->getSolver()->setNumMaxIterations(500);
 
     return true;
 }
@@ -182,6 +196,13 @@ void TSR::getError(Eigen::Ref<Eigen::VectorXd> vector) const
         if (indices_[i])
             vector[j++] = error[i];
     }
+}
+
+double TSR::distance() const
+{
+    Eigen::VectorXd f(dimension_);
+    getError(f);
+    return f.norm();
 }
 
 void TSR::getGradient(Eigen::VectorXd &q) const
@@ -229,9 +250,15 @@ std::size_t TSR::getNumDofs() const
     return ik_->getPositions().size();
 }
 
-StructurePtr TSR::getStructure()
+const StructurePtr &TSR::getStructure() const
 {
     return structure_;
+}
+
+void TSR::setStructure(const StructurePtr &structure)
+{
+    structure_ = structure;
+    initialize();
 }
 
 ///
@@ -239,9 +266,8 @@ StructurePtr TSR::getStructure()
 ///
 
 TSRConstraint::TSRConstraint(const StateSpacePtr &space, const TSRPtr &tsr)
-  : ompl::base::Constraint(space->getDimension(), tsr->getDimension(), 1e-8), space_(space), tsr_(tsr)
+  : ompl::base::Constraint(space->getDimension(), tsr->getDimension(), 1e-4), space_(space), tsr_(tsr)
 {
-    setMaxIterations(30);
     tsr_->useIndices(space_->getIndices());
 }
 
@@ -280,10 +306,12 @@ TSRCompositeConstraint::TSRCompositeConstraint(const StateSpacePtr &space, const
                                    k += tsr->getDimension();
                                return k;
                            }(),
-                           1e-8)
+                           0.05)
   , space_(space)
   , tsrs_(tsrs)
 {
+    setMaxIterations(1000);
+
     for (const auto &tsr : tsrs_)
         structures_.emplace(tsr->getStructure());
 }
@@ -314,12 +342,32 @@ void TSRCompositeConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x
 
 bool TSRCompositeConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
-    space_->setWorldState(space_->getWorld(), x);
+    // Newton's method
+    unsigned int iter = 0;
+    double norm = 0;
+    Eigen::VectorXd f(getCoDimension());
+    Eigen::MatrixXd j(getCoDimension(), n_);
 
-    bool r = true;
-    for (auto &structure : structures_)
-        r &= structure->solveIK();
+    const double squaredTolerance = tolerance_ * tolerance_;
 
-    space_->getWorldState(space_->getWorld(), x);
-    return r;
+    function(x, f);
+    while ((norm = f.squaredNorm()) > squaredTolerance && iter++ < maxIterations_)
+    {
+        jacobian(x, j);
+        x -= 0.5 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        function(x, f);
+    }
+
+    return norm < squaredTolerance;
+
+    // return ompl::base::Constraint::project(x);
+
+    // space_->setWorldState(space_->getWorld(), x);
+
+    // bool r = true;
+    // for (auto &structure : structures_)
+    //     r &= structure->solveIK();
+
+    // space_->getWorldState(space_->getWorld(), x);
+    // return r;
 }

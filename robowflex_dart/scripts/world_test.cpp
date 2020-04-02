@@ -23,7 +23,7 @@ int main()
                                         "package://fetch_moveit_config/config/fetch.srdf");
     fetch->setDof(4, 0.3);
 
-    auto fetch2 = fetch->clone("fetch2");
+    auto fetch2 = fetch->cloneRobot("fetch2");
     fetch2->setDof(4, 1.0);
 
     auto r2 = darts::loadMoveItRobot("r2",                                       //

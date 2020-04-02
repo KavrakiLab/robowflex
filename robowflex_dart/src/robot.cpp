@@ -44,7 +44,7 @@ Robot::Robot(robowflex::RobotPtr robot) : Structure(robot->getName())
     robowflex::IO::deleteFile(srdf_filename);
 }
 
-RobotPtr Robot::clone(const std::string &newName) const
+RobotPtr Robot::cloneRobot(const std::string &newName) const
 {
     auto robot = std::make_shared<Robot>(newName);
     robot->setSkeleton(skeleton_->cloneSkeleton());
@@ -53,6 +53,10 @@ RobotPtr Robot::clone(const std::string &newName) const
         robot->getACM()->disableCollision(pair.first, pair.second);
 
     robot->getGroups() = groups_;
+    for (const auto &group : groups_)
+        robot->processGroup(group.first);
+
+    robot->getGroupStates() = group_states_;
 
     return robot;
 }
@@ -391,6 +395,11 @@ void Robot::getGroupState(const std::string &group, Eigen::Ref<Eigen::VectorXd> 
 void Robot::setGroupState(const std::string &group, const Eigen::Ref<const Eigen::VectorXd> &q)
 {
     skeleton_->setPositions(getGroupIndices(group), q);
+}
+
+std::map<std::string, std::map<std::string, Eigen::VectorXd>> &Robot::getGroupStates()
+{
+    return group_states_;
 }
 
 std::vector<std::string> Robot::getNamedGroupStates(const std::string &group) const
