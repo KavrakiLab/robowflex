@@ -211,6 +211,7 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 robot_state::RobotState MotionRequestBuilder::getStartConfiguration() const
 {
     robot_state::RobotState start_state(robot_->getModelConst());
+    start_state.setToDefaultValues();
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, start_state);
     return start_state;
