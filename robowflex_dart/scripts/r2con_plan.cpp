@@ -17,6 +17,9 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 #include <ompl/geometric/planners/prm/PRM.h>
+#include <ompl/geometric/planners/bitstar/BITstar.h>
+#include <ompl/geometric/planners/kpiece/KPIECE1.h>
+#include <ompl/geometric/planners/kpiece/LBKPIECE1.h>
 
 using namespace robowflex;
 
@@ -84,8 +87,8 @@ int main(int argc, char **argv)
         Eigen::Quaterniond(2.523198695e-06, -0.999999999982, 1.98040305765e-06, 5.16339177538e-06));
     lleg_tsr->useGroup(GROUP);
 
-    auto start_tsr = std::make_shared<darts::TSR>(                        //
-        r2, "r2/right_leg/gripper/tip",                                   //
+    auto start_tsr = std::make_shared<darts::TSR>(              //
+        r2, "r2/right_leg/gripper/tip",                         //
         Eigen::Vector3d{1.2, -0.248108850885, -1.10411526908},  //
         // Eigen::Vector3d{0.80676028419, -0.248108850885, -1.10411526908},  //
         Eigen::Quaterniond{4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06});
@@ -101,12 +104,15 @@ int main(int argc, char **argv)
     // std::cout << q1.x() << " " << q1.y() << " " << q1.z() << " " << q1.w() << std::endl;
     // std::cout << std::endl;
 
+    double d = 0;
     do
     {
         Eigen::VectorXd v(builder.rspace->getDimension());
         for (const auto &joint : builder.rspace->getJoints())
             joint->sample(joint->getSpaceVars(v));
-    } while (not r2->solveIK() and world->inCollision());
+
+        d = waist_tsr->distance() + start_tsr->distance() + lleg_tsr->distance();
+    } while (not r2->solveIK() and world->inCollision() and d < 1e-8);
 
     builder.setGoalConfigurationFromWorld();
     start_tsr.reset();
@@ -119,11 +125,17 @@ int main(int argc, char **argv)
     // builder.sampleGoalConfiguration();
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    rrt->setRange(2.);
     builder.ss->setPlanner(rrt);
 
     // auto prm = std::make_shared<ompl::geometric::PRM>(builder.info);
     // builder.ss->setPlanner(prm);
+
+    // auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
+    // builder.ss->setPlanner(bit);
+
+    // auto kpc = std::make_shared<ompl::geometric::LBKPIECE1>(builder.info);
+    // kpc->setRange(0.5);
+    // builder.ss->setPlanner(kpc);
 
     builder.setup();
 
@@ -134,11 +146,10 @@ int main(int argc, char **argv)
     std::cout << f.transpose() << std::endl;
     std::cout << f.norm() << std::endl;
 
-    ompl::base::PlannerStatus solved = builder.ss->solve(10.0);
-
     std::thread t([&]() {
         // builder.ss->print();
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
         // std::cout << r2->solveIK() << std::endl;
 
         // Eigen::VectorXd we(waist_tsr->getDimension());

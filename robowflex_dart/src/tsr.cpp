@@ -306,11 +306,11 @@ TSRCompositeConstraint::TSRCompositeConstraint(const StateSpacePtr &space, const
                                    k += tsr->getDimension();
                                return k;
                            }(),
-                           0.05)
+                           1e-4)
   , space_(space)
   , tsrs_(tsrs)
 {
-    setMaxIterations(1000);
+    setMaxIterations(50);
 
     for (const auto &tsr : tsrs_)
         structures_.emplace(tsr->getStructure());
@@ -351,14 +351,17 @@ bool TSRCompositeConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
     const double squaredTolerance = tolerance_ * tolerance_;
 
     function(x, f);
-    while ((norm = f.squaredNorm()) > squaredTolerance && iter++ < maxIterations_)
+    // while ((norm = f.lpNorm<1>()) > tolerance_ && iter++ < maxIterations_)
+    while ((norm = f.norm()) > squaredTolerance && iter++ < maxIterations_)
     {
         jacobian(x, j);
-        x -= 0.5 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        // x -= 0.5 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        x -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
         function(x, f);
     }
 
     return norm < squaredTolerance;
+    // return norm < tolerance_;
 
     // return ompl::base::Constraint::project(x);
 

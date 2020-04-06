@@ -77,7 +77,7 @@ namespace robowflex
             ompl::geometric::SimpleSetupPtr ss{nullptr};
             WorldPtr world;
             std::vector<TSRPtr> constraints;
-            ompl::base::ConstraintPtr constraint;
+            ompl::base::ConstraintPtr constraint{nullptr};
 
             Eigen::VectorXd start;
             Eigen::VectorXd goal;

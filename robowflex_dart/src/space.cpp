@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <ompl/base/spaces/RealVectorStateProjections.h>
+
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/world.h>
 
@@ -149,6 +151,9 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
         // else
         //     SE3EZ_WARN("Unknown joint type %1%, skipping.", type);
     }
+
+    registerDefaultProjection(
+        std::make_shared<ompl::base::RealVectorRandomLinearProjectionEvaluator>(this, 3));
 }
 
 void StateSpace::setWorldState(WorldPtr world, const ompl::base::State *state)
@@ -164,6 +169,9 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
         const auto &v = joint->getSpaceVarsConst(x);
         joint->setJointState(world, v);
     }
+
+    for (std::size_t i = 0; i < world_->getSim()->getNumSkeletons(); ++i)
+        world_->getSim()->getSkeleton(i)->computeForwardKinematics();
 }
 
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const

@@ -176,8 +176,9 @@ void PlanBuilder::initializeConstrained()
     ss = std::make_shared<ompl::geometric::SimpleSetup>(info);
     setStateValidityChecker();
 
-    pss->setDelta(0.05);
-    pss->setLambda(2);
+    // pss->setDelta(0.05);
+    pss->setDelta(0.1);
+    pss->setLambda(1.5);
 }
 
 void PlanBuilder::initializeUnconstrained()
@@ -211,11 +212,19 @@ StateSpace::StateType *PlanBuilder::sampleState() const
         auto sampler = space->allocStateSampler();
         auto state = space->allocState();
 
+        bool valid = false;
+        bool constrained = false;
         do
         {
             sampler->sampleUniform(state);
             space->enforceBounds(state);
-        } while (not info->isValid(state));
+
+            valid = info->isValid(state);
+            if (constraint)
+                constrained = constraint->isSatisfied(state);
+            else
+                constrained = true;
+        } while (not valid or not constrained);
 
         return getState(state);
     }
@@ -231,9 +240,9 @@ void PlanBuilder::setStateValidityChecker()
             auto as = getStateConst(state);
             rspace->setWorldState(world, as);
 
-            return not world->inCollision() and  //
-                   ((constraint) ? constraint->isSatisfied(state) : true);
-            // return not world->inCollision();
+            // return not world->inCollision() and  //
+            //        ((constraint) ? constraint->isSatisfied(state) : true);
+            return not world->inCollision();
         });
     }
 }
@@ -251,10 +260,13 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times) const
     {
         rspace->setWorldState(world, getState(path.getStates()[0]));
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        for (const auto &state : path.getStates())
+        const auto &states = path.getStates();
+        for (std::size_t j = 0; j < states.size(); ++j)
         {
-            rspace->setWorldState(world, getState(state));
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            if (not info->isValid(states[j]))
+                std::cout << "State " << j << " is invalid!" << std::endl;
+            rspace->setWorldState(world, getState(states[j]));
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

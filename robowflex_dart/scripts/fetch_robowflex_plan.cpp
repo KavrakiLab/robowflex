@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     // get start/ goal
     darts::TSR start_tsr(                            //
         fetch_dart, "wrist_roll_link", "base_link",  //
-        Eigen::Vector3d{-0.1, 0.6, 0.92},            //
+        Eigen::Vector3d{-0.2, 0.6, 0.92},            //
         Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5});
     start_tsr.useGroup(GROUP);
     start_tsr.solve();
@@ -75,10 +75,11 @@ int main(int argc, char **argv)
     std::cout << goal_tsr.distance() << std::endl;
 
     // Create constraint
-    double table = 0.4;
+    double table = 0.5;
     double pi = dart::math::constants<double>::pi();
     double alpha = 1e-3;                               // pi / 16.;
     double beta = 1e-3;                                // pi;
+    // double beta = pi;                                // pi;
     auto tsr = std::make_shared<darts::TSR>(           //
         fetch_dart, "wrist_roll_link", "base_link",    //
         TF::createPoseQ(                               //
@@ -98,6 +99,10 @@ int main(int argc, char **argv)
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(2);
     builder.ss->setPlanner(rrt);
+
+    // auto rrt = std::make_shared<ompl::geometric::RRTstar>(builder.info);
+    // rrt->setRange(2);
+    // builder.ss->setPlanner(rrt);
 
     // auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
     // builder.ss->setPlanner(bit);
