@@ -38,7 +38,7 @@ namespace robowflex
             class StateType : public ompl::base::RealVectorStateSpace::StateType
             {
             public:
-                StateType(unsigned int n);
+                StateType(std::size_t n);
 
                 Eigen::VectorXd data;
             };
@@ -46,7 +46,7 @@ namespace robowflex
             StateSpace(WorldPtr world);
             bool isMetricSpace() const override;
 
-            void addGroup(const std::string &name, const std::string &group, unsigned int cyclic = 0);
+            void addGroup(const std::string &name, const std::string &group, std::size_t cyclic = 0);
 
             void setWorldState(WorldPtr world, const ompl::base::State *state);
             void setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x);
@@ -75,19 +75,20 @@ namespace robowflex
             WorldPtr getWorld();
             const WorldPtr &getWorldConst() const;
 
-            std::vector<std::size_t> getIndices() const;
+            std::vector<std::pair<std::size_t, std::size_t>> getIndices() const;
 
             const std::vector<JointPtr> &getJoints() const;
 
         protected:
             WorldPtr world_;
 
+            std::vector<std::tuple<std::string, std::string, std::size_t>> groups_;
             std::set<dart::dynamics::Joint *> jointset_;
             std::vector<std::size_t> indices_;
 
             std::vector<JointPtr> joints_;
 
-            unsigned int numRobots_{0};
+            std::size_t numRobots_{0};
             std::vector<RobotPtr> robots_;
 
             ompl::RNG rng_;

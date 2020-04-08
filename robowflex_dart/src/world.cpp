@@ -280,3 +280,9 @@ void World::openOSGViewer()
     viewer.setCameraManipulator(viewer.getCameraManipulator());
     viewer.run();
 }
+
+void World::forceUpdate()
+{
+    for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
+        world_->getSkeleton(i)->computeForwardKinematics();
+}

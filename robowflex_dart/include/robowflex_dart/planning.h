@@ -19,28 +19,29 @@ namespace robowflex
     namespace darts
     {
         ROBOWFLEX_CLASS_FORWARD(TSR)
+        ROBOWFLEX_CLASS_FORWARD(TSRConstraint)
         ROBOWFLEX_CLASS_FORWARD(World)
 
-        ROBOWFLEX_CLASS_FORWARD(TSRGoal)
+        // ROBOWFLEX_CLASS_FORWARD(TSRGoal)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
 
-        class TSRGoal : public ompl::base::GoalLazySamples
-        {
-        public:
-            TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
-                    const std::vector<TSRPtr> &tsrs, bool constrained = false);
-            TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs);
-            TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr);
+        // class TSRGoal : public ompl::base::GoalLazySamples
+        // {
+        // public:
+        //     TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
+        //             const std::vector<TSRPtr> &tsrs, bool constrained = false);
+        //     TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs);
+        //     TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr);
 
-            bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+        //     bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
 
-        private:
-            WorldPtr world_;
-            StateSpacePtr space_;
-            std::vector<TSRPtr> tsrs_;
-            std::set<StructurePtr> structures_;
-            bool constrained_;
-        };
+        // private:
+        //     WorldPtr world_;
+        //     StateSpacePtr space_;
+        //     std::vector<TSRPtr> tsrs_;
+        //     std::set<StructurePtr> structures_;
+        //     bool constrained_;
+        // };
 
         class PlanBuilder
         {
@@ -77,7 +78,7 @@ namespace robowflex
             ompl::geometric::SimpleSetupPtr ss{nullptr};
             WorldPtr world;
             std::vector<TSRPtr> constraints;
-            ompl::base::ConstraintPtr constraint{nullptr};
+            TSRConstraintPtr constraint{nullptr};
 
             Eigen::VectorXd start;
             Eigen::VectorXd goal;

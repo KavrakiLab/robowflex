@@ -42,6 +42,7 @@ int main(int argc, char **argv)
 
     // Convert to Dart
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
+    auto fetch_name = fetch_dart->getName();
     auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
     auto ground = std::make_shared<darts::Structure>("ground");
     ground->addGround(-0.2);
@@ -53,42 +54,50 @@ int main(int argc, char **argv)
     world->addStructure(ground);
 
     darts::PlanBuilder builder(world);
-    builder.addGroup(fetch_dart->getName(), GROUP);
+    builder.addGroup(fetch_name, GROUP);
 
-    // get start/ goal
-    darts::TSR start_tsr(                            //
-        fetch_dart, "wrist_roll_link", "base_link",  //
-        Eigen::Vector3d{-0.2, 0.6, 0.92},            //
-        Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5});
+    //
+    // Sample Start from TSR
+    //
+    darts::TSR::Specification start_spec;
+    start_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
+    start_spec.setPose(-0.2, 0.6, 0.92,  //
+                       0.5, -0.5, 0.5, 0.5);
+
+    darts::TSR start_tsr(world, start_spec);
     start_tsr.useGroup(GROUP);
-    start_tsr.solve();
+    start_tsr.solveWorld();
     builder.setStartConfigurationFromWorld();
-    std::cout << start_tsr.distance() << std::endl;
 
-    darts::TSR goal_tsr(                             //
-        fetch_dart, "wrist_roll_link", "base_link",  //
-        Eigen::Vector3d{0.5, 0.6, 0.92},             //
-        Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5});
+    //
+    // Sample Goal from TSR
+    //
+    darts::TSR::Specification goal_spec;
+    goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
+    goal_spec.setPose(0.5, 0.6, 0.92,  //
+                      0.5, -0.5, 0.5, 0.5);
+
+    darts::TSR goal_tsr(world, goal_spec);
     goal_tsr.useGroup(GROUP);
-    goal_tsr.solve();
+    goal_tsr.solveWorld();
     builder.setGoalConfigurationFromWorld();
-    std::cout << goal_tsr.distance() << std::endl;
 
+    //
     // Create constraint
+    //
+    darts::TSR::Specification constraint_spec;
+    constraint_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
+    constraint_spec.setPose(0.3, 0.8, 0.92,  //
+                            0.5, -0.5, 0.5, 0.5);
+
     double table = 0.5;
-    double pi = dart::math::constants<double>::pi();
-    double alpha = 1e-3;                               // pi / 16.;
-    double beta = 1e-3;                                // pi;
-    // double beta = pi;                                // pi;
-    auto tsr = std::make_shared<darts::TSR>(           //
-        fetch_dart, "wrist_roll_link", "base_link",    //
-        TF::createPoseQ(                               //
-            Eigen::Vector3d{0.3, 0.8, 0.92},           //
-            Eigen::Quaterniond{0.5, -0.5, 0.5, 0.5}),  //
-        Eigen::Vector3d{table, table, 1e-3},           //
-        Eigen::Vector3d{alpha, alpha, beta});
-    builder.addConstraint(tsr);
-    std::cout << tsr->distance() << std::endl;
+    constraint_spec.setXPosTolerance(-table, table);
+    constraint_spec.setYPosTolerance(-table, table);
+
+    auto constraint_tsr = std::make_shared<darts::TSR>(world, constraint_spec);
+    constraint_tsr->useGroup(GROUP);
+
+    builder.addConstraint(constraint_tsr);
 
     // initialize and setup
     builder.initialize();

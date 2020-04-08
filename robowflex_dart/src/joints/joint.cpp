@@ -74,6 +74,11 @@ const std::vector<std::size_t> &Joint::getIndices() const
     return indices_;
 }
 
+std::size_t Joint::getSkeletonIndex() const
+{
+    return skelIndex_;
+}
+
 void Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
     auto joint = getJoint(world);

@@ -62,6 +62,13 @@ int main(int argc, char **argv)
     if (nfetch > 3)
         builder.addGroup("fetch4", "arm_with_torso");
 
+    for (const auto &index : builder.rspace->getIndices())
+        std::cout << index.first << "." << index.second << " ";
+    std::cout << std::endl;
+
+    for (std::size_t i = 0; i < world->getSim()->getNumSimpleFrames(); ++i)
+        std::cout << world->getSim()->getSimpleFrame(i)->getName() << std::endl;
+
     builder.setStartConfiguration({
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
@@ -85,7 +92,7 @@ int main(int argc, char **argv)
     builder.setup();
     builder.ss->print();
 
-    ompl::base::PlannerStatus solved = builder.ss->solve(10.0);
+    ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
 
     std::thread t([&]() {
         if (solved)

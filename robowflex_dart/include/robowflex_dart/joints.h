@@ -35,9 +35,11 @@ namespace robowflex
                   unsigned int startIndex = 0, unsigned int numDof = 0);
 
             dart::dynamics::Joint *getJoint(WorldPtr world) const;
+
             Eigen::Ref<Eigen::VectorXd> getSpaceVars(Eigen::Ref<Eigen::VectorXd> a);
             Eigen::Ref<const Eigen::VectorXd> getSpaceVarsConst(const Eigen::Ref<const Eigen::VectorXd> &a);
             const std::vector<std::size_t> &getIndices() const;
+            std::size_t getSkeletonIndex() const;
 
             virtual double distance(const Eigen::Ref<const Eigen::VectorXd> &a,
                                     const Eigen::Ref<const Eigen::VectorXd> &b) const = 0;

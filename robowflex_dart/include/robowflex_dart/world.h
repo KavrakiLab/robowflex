@@ -64,6 +64,8 @@ namespace robowflex
             bool inCollision() const;
             double distanceToCollision() const;
 
+            void forceUpdate();
+
             void openOSGViewer();
 
         private:

@@ -69,41 +69,40 @@ int main(int argc, char **argv)
     double pi = dart::math::constants<double>::pi();
     double inf = std::numeric_limits<double>::infinity();
 
-    /// Waist TSR
-    auto waist_pose = TF::createPoseQ(  //
-        Eigen::Vector3d(0, 0, 0),       //
-        Eigen::Quaterniond(0.999999999989, -2.52319271143e-06, 3.8366002265e-06, -6.53604813238e-07));
-    auto waist_tsr = std::make_shared<darts::TSR>(         //
-        r2, "r2/waist_center", "r2/left_leg/gripper/tip",  //
-        waist_pose,                                        //
-        Eigen::Vector3d(inf, inf, inf),                    //
-        Eigen::Vector3d(1e-8, 1e-8, 1e-8));
+    //
+    // Waist TSR
+    //
+    darts::TSR::Specification waist_spec;
+    waist_spec.setFrame("r2", "r2/waist_center", "r2/left_leg/gripper/tip");
+    waist_spec.setRotation(0.999999999989, -2.52319271143e-06, 3.8366002265e-06, -6.53604813238e-07);
+    waist_spec.setNoPosTolerance();
+
+    auto waist_tsr = std::make_shared<darts::TSR>(world, waist_spec);
     waist_tsr->useGroup(GROUP);
 
-    /// Left Leg TSR
-    auto lleg_tsr = std::make_shared<darts::TSR>(                         //
-        r2, "r2/left_leg/gripper/tip",                                    //
-        Eigen::Vector3d(0.451508662827, 0.246606909363, -1.10409735323),  //
-        Eigen::Quaterniond(2.523198695e-06, -0.999999999982, 1.98040305765e-06, 5.16339177538e-06));
+    //
+    // Left Leg TSR
+    //
+    darts::TSR::Specification lleg_spec;
+    lleg_spec.setTarget("r2", "r2/left_leg/gripper/tip");
+    lleg_spec.setPose(0.451508662827, 0.246606909363, -1.10409735323,  //
+                      2.523198695e-06, -0.999999999982, 1.98040305765e-06, 5.16339177538e-06);
+    auto lleg_tsr = std::make_shared<darts::TSR>(world, lleg_spec);
     lleg_tsr->useGroup(GROUP);
 
-    auto start_tsr = std::make_shared<darts::TSR>(              //
-        r2, "r2/right_leg/gripper/tip",                         //
-        Eigen::Vector3d{1.2, -0.248108850885, -1.10411526908},  //
-        // Eigen::Vector3d{0.80676028419, -0.248108850885, -1.10411526908},  //
-        Eigen::Quaterniond{4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06});
+    //
+    // Starting Right Leg TSR
+    //
+    darts::TSR::Specification start_spec;
+    start_spec.setTarget("r2", "r2/right_leg/gripper/tip");
+    start_spec.setPose(1.2, -0.248108850885, -1.10411526908,  //
+                       4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06);
+    auto start_tsr = std::make_shared<darts::TSR>(world, start_spec);
     start_tsr->useGroup(GROUP);
 
-    // // auto node = r2->getSkeleton()->getBodyNode("r2/left_leg/gripper/tip");
-    // auto node = r2->getSkeleton()->getBodyNode("r2/waist_center");
-    // // auto tf = node->getWorldTransform();
-    // auto tf = node->getTransform(r2->getSkeleton()->getBodyNode("r2/left_leg/gripper/tip"));
-
-    // std::cout << tf.translation().transpose() << std::endl;
-    // Eigen::Quaterniond q1(tf.linear());
-    // std::cout << q1.x() << " " << q1.y() << " " << q1.z() << " " << q1.w() << std::endl;
-    // std::cout << std::endl;
-
+    //
+    // Randomly sample goal
+    //
     double d = 0;
     do
     {
@@ -111,10 +110,12 @@ int main(int argc, char **argv)
         for (const auto &joint : builder.rspace->getJoints())
             joint->sample(joint->getSpaceVars(v));
 
-        d = waist_tsr->distance() + start_tsr->distance() + lleg_tsr->distance();
+        d = waist_tsr->distanceWorld() + start_tsr->distanceWorld() + lleg_tsr->distanceWorld();
     } while (not r2->solveIK() and world->inCollision() and d < 1e-8);
 
     builder.setGoalConfigurationFromWorld();
+
+    // Delete starting TSR
     start_tsr.reset();
 
     builder.addConstraint(lleg_tsr);
@@ -139,33 +140,9 @@ int main(int argc, char **argv)
 
     builder.setup();
 
-    Eigen::VectorXd f(builder.constraint->getCoDimension());
-    builder.constraint->function(builder.start, f);
-    std::cout << f.transpose() << std::endl;
-    builder.constraint->function(builder.goal, f);
-    std::cout << f.transpose() << std::endl;
-    std::cout << f.norm() << std::endl;
-
     std::thread t([&]() {
-        // builder.ss->print();
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
-        // std::cout << r2->solveIK() << std::endl;
-
-        // Eigen::VectorXd we(waist_tsr->getDimension());
-        // waist_tsr->getError(we);
-        // std::cout << we.transpose() << std::endl;
-
-        // Eigen::VectorXd le(lleg_tsr->getDimension());
-        // lleg_tsr->getError(le);
-        // std::cout << le.transpose() << std::endl;
-        // std::cout << std::endl;
-
-        // auto tf = node->getTransform(r2->getSkeleton()->getBodyNode("r2/left_leg/gripper/tip"));
-        // std::cout << tf.translation().transpose() << std::endl;
-        // Eigen::Quaterniond q2(tf.linear());
-        // std::cout << q2.x() << " " << q2.y() << " " << q2.z() << " " << q2.w() << std::endl;
-        // std::cout << std::endl;
 
         if (solved)
         {

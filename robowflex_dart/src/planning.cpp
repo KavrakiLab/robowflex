@@ -16,68 +16,69 @@ using namespace robowflex::darts;
 /// TSRGoal
 ///
 
-TSRGoal::TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
-                 const std::vector<TSRPtr> &tsrs, bool constrained)
-  : ompl::base::GoalLazySamples(
-        si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false)
-  , world_(world->clone())
-  , space_(space)
-  , tsrs_(tsrs)
-  , constrained_(constrained)
-{
-    // remap tsr structures - TODO copy tsrs
-    for (auto &tsr : tsrs_)
-    {
-        auto name = tsr->getStructure()->getName();
-        StructurePtr structure = world_->getRobot(name);
-        if (not structure)
-            structure = world_->getStructure(name);
+// TSRGoal::TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr
+// &si,
+//                  const std::vector<TSRPtr> &tsrs, bool constrained)
+//   : ompl::base::GoalLazySamples(
+//         si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false)
+//   , world_(world->clone())
+//   , space_(space)
+//   , tsrs_(tsrs)
+//   , constrained_(constrained)
+// {
+//     // remap tsr structures - TODO copy tsrs
+//     for (auto &tsr : tsrs_)
+//     {
+//         auto name = tsr->getStructure()->getName();
+//         StructurePtr structure = world_->getRobot(name);
+//         if (not structure)
+//             structure = world_->getStructure(name);
 
-        if (structure)
-        {
-            tsr->setStructure(structure);
-            structures_.emplace(structure);
-        }
-        else
-            throw std::runtime_error("Hey!");
-    }
-}
+//         if (structure)
+//         {
+//             tsr->setStructure(structure);
+//             structures_.emplace(structure);
+//         }
+//         else
+//             throw std::runtime_error("Hey!");
+//     }
+// }
 
-TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs)
-  : TSRGoal(builder.world, builder.rspace, builder.info,
-            [&] {
-                std::vector<TSRPtr> tsrs = builder.constraints;
-                tsrs.insert(tsrs.end(), goal_tsrs.begin(), goal_tsrs.end());
-                return tsrs;
-            }(),
-            not builder.constraints.empty())
-{
-}
+// TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs)
+//   : TSRGoal(builder.world, builder.rspace, builder.info,
+//             [&] {
+//                 std::vector<TSRPtr> tsrs = builder.constraints;
+//                 tsrs.insert(tsrs.end(), goal_tsrs.begin(), goal_tsrs.end());
+//                 return tsrs;
+//             }(),
+//             not builder.constraints.empty())
+// {
+// }
 
-TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr)
-  : TSRGoal(builder, std::vector<TSRPtr>{goal_tsr})
-{
-}
+// TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr)
+//   : TSRGoal(builder, std::vector<TSRPtr>{goal_tsr})
+// {
+// }
 
-bool TSRGoal::sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state)
-{
-    StateSpace::StateType *as;
-    if (constrained_)
-        as = state->as<ompl::base::ConstrainedStateSpace::StateType>()
-                 ->getState()
-                 ->as<darts::StateSpace::StateType>();
-    else
-        as = state->as<darts::StateSpace::StateType>();
+// bool TSRGoal::sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state)
+// {
+//     StateSpace::StateType *as;
+//     if (constrained_)
+//         as = state->as<ompl::base::ConstrainedStateSpace::StateType>()
+//                  ->getState()
+//                  ->as<darts::StateSpace::StateType>();
+//     else
+//         as = state->as<darts::StateSpace::StateType>();
 
-    space_->setWorldState(world_, as);
+//     space_->setWorldState(world_, as);
 
-    bool r = true;
-    for (auto &structure : structures_)
-        r &= structure->solveIK();
+//     bool r = true;
+//     for (auto &structure : structures_)
+//         r &= structure->solveIK();
 
-    space_->getWorldState(world_, as);
-    return r;
-}
+//     space_->getWorldState(world_, as);
+//     return r;
+// }
 
 ///
 /// PlanBuilder
@@ -164,10 +165,8 @@ void PlanBuilder::setup()
 
 void PlanBuilder::initializeConstrained()
 {
-    if (constraints.size() == 1)
-        constraint = std::make_shared<darts::TSRConstraint>(rspace, constraints[0]);
-    else
-        constraint = std::make_shared<darts::TSRCompositeConstraint>(rspace, constraints);
+    constraint = std::make_shared<darts::TSRConstraint>(rspace, constraints);
+    constraint->getSet()->setWorldIndices(rspace->getIndices());
 
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
     space = pss;

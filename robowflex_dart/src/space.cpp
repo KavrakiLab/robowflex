@@ -38,7 +38,7 @@ void StateSpace::StateSampler::sampleUniformNear(ompl::base::State *state, const
 /// StateSpace::StateType
 ///
 
-StateSpace::StateType::StateType(unsigned int n) : data(n)
+StateSpace::StateType::StateType(std::size_t n) : data(n)
 {
     values = data.data();
 }
@@ -56,7 +56,7 @@ bool StateSpace::isMetricSpace() const
     return false;
 }
 
-void StateSpace::addGroup(const std::string &name, const std::string &group, unsigned int cyclic)
+void StateSpace::addGroup(const std::string &name, const std::string &group, std::size_t cyclic)
 {
     auto robot = world_->getRobot(name);
     if (not robot)
@@ -67,6 +67,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
 
     auto joints = robot->getGroupJoints(group);
 
+    groups_.emplace_back(name, group, cyclic);
     for (auto joint : joints)
     {
         if (jointset_.find(joint) != jointset_.end())
@@ -119,7 +120,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
                 Eigen::Vector6d low;
                 Eigen::Vector6d high;
 
-                for (unsigned int i = 0; i < 3; ++i)
+                for (std::size_t i = 0; i < 3; ++i)
                 {
                     low[i] = alow;
                     high[i] = ahigh;
@@ -136,7 +137,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, uns
                 Eigen::Vector3d low;
                 Eigen::Vector3d high;
 
-                for (unsigned int i = 0; i < 3; ++i)
+                for (std::size_t i = 0; i < 3; ++i)
                 {
                     low[i] =
                         std::max({free->getPositionLowerLimit(3 + i), world_->getWorkspaceLowConst()[i]});
@@ -169,9 +170,6 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
         const auto &v = joint->getSpaceVarsConst(x);
         joint->setJointState(world, v);
     }
-
-    for (std::size_t i = 0; i < world_->getSim()->getNumSkeletons(); ++i)
-        world_->getSim()->getSkeleton(i)->computeForwardKinematics();
 }
 
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
@@ -286,13 +284,15 @@ const WorldPtr &StateSpace::getWorldConst() const
     return world_;
 }
 
-std::vector<std::size_t> StateSpace::getIndices() const
+std::vector<std::pair<std::size_t, std::size_t>> StateSpace::getIndices() const
 {
-    std::vector<std::size_t> indices;
+    std::vector<std::pair<std::size_t, std::size_t>> indices;
     for (const auto &joint : joints_)
     {
+        auto skelx = joint->getSkeletonIndex();
         auto add = joint->getIndices();
-        indices.insert(indices.end(), add.begin(), add.end());
+        for (const auto &index : add)
+            indices.emplace_back(skelx, index);
     }
 
     return indices;
