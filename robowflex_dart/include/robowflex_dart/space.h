@@ -39,7 +39,6 @@ namespace robowflex
             {
             public:
                 StateType(std::size_t n);
-
                 Eigen::VectorXd data;
             };
 

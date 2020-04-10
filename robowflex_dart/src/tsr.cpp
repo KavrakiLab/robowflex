@@ -914,7 +914,7 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
         // std::cout << f.transpose() << " | " << norm << std::endl;
         getJacobianWorldState(world, j);
         // std::cout << j << std::endl << std::endl;
-        world -= 0.5 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        world -= 0.9 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
 
         getErrorWorldState(world, f);
     }

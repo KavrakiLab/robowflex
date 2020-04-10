@@ -100,10 +100,6 @@ int main(int argc, char **argv)
     auto start_tsr = std::make_shared<darts::TSR>(world, start_spec);
     start_tsr->useGroup(GROUP);
 
-    //
-    // Randomly sample goal
-    //
-
     builder.addConstraint(lleg_tsr);
     builder.addConstraint(waist_tsr);
 
@@ -112,6 +108,7 @@ int main(int argc, char **argv)
     auto goal = builder.setGoalTSR(start_tsr);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    rrt->setRange(100);
     builder.ss->setPlanner(rrt);
 
     builder.setup();
@@ -120,7 +117,7 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         goal->startSampling();
-        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+        ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
         goal->stopSampling();
 
         if (solved)

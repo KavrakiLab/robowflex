@@ -25,7 +25,7 @@ namespace robowflex
         namespace magic
         {
             // static const double DEFAULT_IK_TOLERANCE = 1e-8;
-            static const double DEFAULT_IK_TOLERANCE = 1e-4;
+            static const double DEFAULT_IK_TOLERANCE = 1e-3;
             static const std::string ROOT_FRAME = "";
             static const Eigen::Vector3d DEFAULT_IK_TOLERANCES =
                 Eigen::Vector3d::Constant(DEFAULT_IK_TOLERANCE);

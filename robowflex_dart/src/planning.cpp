@@ -19,7 +19,7 @@ using namespace robowflex::darts;
 TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
                  const std::vector<TSRPtr> &tsrs)
   : ompl::base::GoalLazySamples(
-        si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false)
+        si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false, 1e-3)
   , world_(world->clone("_TSRGoal"))
   , tsr_(std::make_shared<TSRSet>(world_, tsrs))
   , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
@@ -31,7 +31,7 @@ TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &worl
                            si_->getStateSpace())
             .get()))
 {
-    tsr_->setMaxIterations(1000);
+    // tsr_->setMaxIterations(1000);
     tsr_->addSuffix("_TSRGoal");
     tsr_->initialize();
 }
@@ -75,12 +75,11 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         else
             success = tsr_->solveGradientWorldState(x);
 
-        world_->forceUpdate();
         success &= si_->satisfiesBounds(state);
     }
 
-    return getStateCount() < maxStateCount_;
-    // return true;
+    // return getStateCount() < maxStateCount_;
+    return true;
 }
 
 StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
@@ -208,8 +207,8 @@ void PlanBuilder::initializeConstrained()
     setStateValidityChecker();
 
     // pss->setDelta(0.05);
-    pss->setDelta(0.1);
-    pss->setLambda(1.5);
+    pss->setDelta(0.2);
+    pss->setLambda(2);
 }
 
 void PlanBuilder::initializeUnconstrained()
