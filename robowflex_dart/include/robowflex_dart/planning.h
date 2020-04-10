@@ -19,29 +19,37 @@ namespace robowflex
     namespace darts
     {
         ROBOWFLEX_CLASS_FORWARD(TSR)
+        ROBOWFLEX_CLASS_FORWARD(TSRSet)
         ROBOWFLEX_CLASS_FORWARD(TSRConstraint)
         ROBOWFLEX_CLASS_FORWARD(World)
 
-        // ROBOWFLEX_CLASS_FORWARD(TSRGoal)
+        ROBOWFLEX_CLASS_FORWARD(TSRGoal)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
 
-        // class TSRGoal : public ompl::base::GoalLazySamples
-        // {
-        // public:
-        //     TSRGoal(const WorldPtr &world, const StateSpacePtr &space, const ompl::base::SpaceInformationPtr &si,
-        //             const std::vector<TSRPtr> &tsrs, bool constrained = false);
-        //     TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &goal_tsrs);
-        //     TSRGoal(const PlanBuilder &builder, TSRPtr goal_tsr);
+        class TSRGoal : public ompl::base::GoalLazySamples
+        {
+        public:
+            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
+                    const std::vector<TSRPtr> &tsrs);
+            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr);
 
-        //     bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+            TSRGoal(const PlanBuilder &builder, TSRPtr tsr);
+            TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs);
 
-        // private:
-        //     WorldPtr world_;
-        //     StateSpacePtr space_;
-        //     std::vector<TSRPtr> tsrs_;
-        //     std::set<StructurePtr> structures_;
-        //     bool constrained_;
-        // };
+            ~TSRGoal();
+
+            bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+
+        private:
+            StateSpace::StateType *getState(ompl::base::State *state) const;
+
+            WorldPtr world_;
+            TSRSetPtr tsr_;
+            bool constrained_;
+            ompl::base::StateSamplerPtr sampler_;
+            std::size_t attempts_{100};
+            std::size_t maxStateCount_{100};
+        };
 
         class PlanBuilder
         {
@@ -60,6 +68,7 @@ namespace robowflex
             void setGoalConfigurationFromWorld();
             void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
             void setGoalConfiguration(const std::vector<double> &q);
+            void setGoalTSR(const TSRPtr &tsr);
             void sampleGoalConfiguration();
 
             StateSpace::StateType *sampleState() const;
@@ -88,7 +97,6 @@ namespace robowflex
             void initializeUnconstrained();
 
             void setStateValidityChecker();
-
         };
     }  // namespace darts
 }  // namespace robowflex

@@ -66,6 +66,7 @@ int main(int argc, char **argv)
 
     darts::TSR start_tsr(world, start_spec);
     start_tsr.useGroup(GROUP);
+    start_tsr.initialize();
     start_tsr.solveWorld();
     builder.setStartConfigurationFromWorld();
 
@@ -77,10 +78,8 @@ int main(int argc, char **argv)
     goal_spec.setPose(0.5, 0.6, 0.92,  //
                       0.5, -0.5, 0.5, 0.5);
 
-    darts::TSR goal_tsr(world, goal_spec);
-    goal_tsr.useGroup(GROUP);
-    goal_tsr.solveWorld();
-    builder.setGoalConfigurationFromWorld();
+    auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
+    goal_tsr->useGroup(GROUP);
 
     //
     // Create constraint
@@ -101,6 +100,8 @@ int main(int argc, char **argv)
 
     // initialize and setup
     builder.initialize();
+
+    builder.setGoalTSR(goal_tsr);
 
     // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
     // builder.ss->setPlanner(prm);

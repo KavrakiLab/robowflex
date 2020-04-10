@@ -3,6 +3,8 @@
 #ifndef ROBOWFLEX_DART_WORLD_
 #define ROBOWFLEX_DART_WORLD_
 
+#include <mutex>
+
 #include <dart/dynamics/Skeleton.hpp>
 #include <dart/collision/CollisionFilter.hpp>
 #include <dart/collision/DistanceFilter.hpp>
@@ -36,9 +38,11 @@ namespace robowflex
             ROBOWFLEX_EIGEN
 
         public:
-            World();
+            World(const std::string &name = "world");
 
-            WorldPtr clone() const;
+            WorldPtr clone(const std::string &suffix = "_clone") const;
+
+            const std::string &getName() const;
 
             void addRobot(RobotPtr robot);
             void removeRobot(const std::string &name);
@@ -65,8 +69,12 @@ namespace robowflex
             double distanceToCollision() const;
 
             void forceUpdate();
+            void clearIKModules();
 
             void openOSGViewer();
+
+            void lock();
+            void unlock();
 
         private:
             void addSkeletonCollider(const std::string &name, const dart::dynamics::SkeletonPtr &skeleton);
@@ -91,6 +99,9 @@ namespace robowflex
 
             std::shared_ptr<dart::collision::CompositeCollisionFilter> filter_;
             dart::collision::CollisionDetectorPtr collider_;
+            const std::string name_;
+
+            std::recursive_mutex mutex_;
         };
     }  // namespace darts
 }  // namespace robowflex

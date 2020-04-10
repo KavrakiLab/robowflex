@@ -50,6 +50,12 @@ void TSR::Specification::setFrame(const std::string &structure, const std::strin
     base.frame = base_frame;
 }
 
+void TSR::Specification::addSuffix(const std::string &suffix)
+{
+    target.structure = target.structure + suffix;
+    base.structure = base.structure + suffix;
+}
+
 void TSR::Specification::setPosition(const Eigen::Ref<const Eigen::Vector3d> &position)
 {
     pose.translation() = position;
@@ -316,7 +322,6 @@ bool TSR::Specification::intersect(const Specification &other)
 
 TSR::TSR(const WorldPtr &world, const Specification &spec) : world_(world), spec_(spec)
 {
-    initialize();
 }
 
 TSR::~TSR()
@@ -339,6 +344,7 @@ void TSR::setWorld(const WorldPtr &world)
 {
     clear();
     world_ = world;
+    std::cout << "Using world " << world_->getName() << std::endl;
     initialize();
 }
 
@@ -398,6 +404,8 @@ std::size_t TSR::getNumWorldDofs() const
 
 void TSR::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
 {
+    world_->lock();
+
     auto tsrError = tsr_->computeError();
 
     std::size_t j = 0;
@@ -406,6 +414,8 @@ void TSR::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
         if (spec_.indices[i])
             error[j++] = tsrError[i];
     }
+
+    world_->unlock();
 }
 
 void TSR::getErrorWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
@@ -429,6 +439,8 @@ void TSR::getError(const Eigen::Ref<const Eigen::VectorXd> &state, Eigen::Ref<Ei
 
 void TSR::getJacobianWorld(Eigen::Ref<Eigen::MatrixXd> jacobian) const
 {
+    world_->lock();
+
     auto tjac = ik_->computeJacobian();
 
     std::size_t j = 0;
@@ -437,6 +449,8 @@ void TSR::getJacobianWorld(Eigen::Ref<Eigen::MatrixXd> jacobian) const
         if (spec_.indices[i])
             jacobian.row(j++) = tjac.row(i);
     }
+
+    world_->unlock();
 }
 
 void TSR::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
@@ -461,8 +475,10 @@ void TSR::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
 void TSR::getJacobian(const Eigen::Ref<const Eigen::VectorXd> &state,
                       Eigen::Ref<Eigen::MatrixXd> jacobian) const
 {
+    world_->lock();
     setPositions(state);
     getJacobianWorld(jacobian);
+    world_->unlock();
 }
 
 double TSR::distanceWorld() const
@@ -488,7 +504,10 @@ double TSR::distance(const Eigen::Ref<const Eigen::VectorXd> &state) const
 
 bool TSR::solveWorld()
 {
-    return ik_->solveAndApply();
+    world_->lock();
+    bool r = ik_->solveAndApply();
+    world_->unlock();
+    return r;
 }
 
 bool TSR::solveWorldState(Eigen::Ref<Eigen::VectorXd> world)
@@ -507,17 +526,25 @@ bool TSR::solveWorldState(Eigen::Ref<Eigen::VectorXd> world)
 
 bool TSR::solve(Eigen::Ref<Eigen::VectorXd> state)
 {
+    world_->lock();
+
     setPositions(state);
     bool r = solveWorld();
     getPositions(state);
+
+    world_->unlock();
     return r;
 }
 
 bool TSR::solveGradientWorld()
 {
+    world_->lock();
+
     Eigen::VectorXd state = ik_->getPositions();
     bool r = solveGradient(state);
     setPositions(state);
+
+    world_->unlock();
     return r;
 }
 
@@ -537,6 +564,8 @@ bool TSR::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
 
 bool TSR::solveGradient(Eigen::Ref<Eigen::VectorXd> state)
 {
+    world_->lock();
+
     unsigned int iter = 0;
     double norm = 0;
     Eigen::VectorXd f(getDimension());
@@ -556,6 +585,8 @@ bool TSR::solveGradient(Eigen::Ref<Eigen::VectorXd> state)
         getErrorWorld(f);
     }
 
+    world_->unlock();
+
     return norm < squaredTolerance;
 }
 
@@ -568,7 +599,9 @@ void TSR::setPositionsWorldState(const Eigen::Ref<const Eigen::VectorXd> &world)
 
 void TSR::setPositions(const Eigen::Ref<const Eigen::VectorXd> &state) const
 {
+    world_->lock();
     ik_->setPositions(state);
+    world_->unlock();
 }
 
 void TSR::getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const
@@ -580,7 +613,9 @@ void TSR::getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const
 
 void TSR::getPositions(Eigen::Ref<Eigen::VectorXd> state) const
 {
+    world_->lock();
     state = ik_->getPositions();
+    world_->unlock();
 }
 
 TSR::Specification &TSR::getSpecification()
@@ -608,12 +643,12 @@ void TSR::initialize()
     const auto &sim = world_->getSim();
     const auto &tskl = sim->getSkeleton(spec_.target.structure);
     if (not tskl)
-        throw std::runtime_error("Target skeleton in TSR does not exist!");
+        throw std::runtime_error("Target skeleton " + spec_.target.structure + " in TSR does not exist!");
     skel_index_ = world_->getSkeletonIndex(tskl);
 
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
     if (not bskl)
-        throw std::runtime_error("Base skeleton in TSR does not exist!");
+        throw std::runtime_error("Base skeleton " + spec_.base.structure + " in TSR does not exist!");
 
     tnd_ = tskl->getBodyNode(spec_.target.frame);
     ik_ = tnd_->getIK(true);
@@ -635,6 +670,8 @@ void TSR::initialize()
 
     if (indices_.empty())
         indices_ = ik_->getDofs();
+    else
+        ik_->setDofs(indices_);
 }
 
 void TSR::toBijection(Eigen::Ref<Eigen::VectorXd> world, const Eigen::Ref<const Eigen::VectorXd> &state) const
@@ -734,6 +771,12 @@ void TSRSet::setWorld(const WorldPtr &world)
     world_ = world;
 }
 
+void TSRSet::addSuffix(const std::string &suffix)
+{
+    for (auto &tsr : tsrs_)
+        tsr->getSpecification().addSuffix(suffix);
+}
+
 void TSRSet::useGroup(const std::string &name)
 {
     for (auto &tsr : tsrs_)
@@ -759,28 +802,38 @@ std::size_t TSRSet::getDimension() const
 
 void TSRSet::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
 {
+    world_->lock();
+
     std::size_t i = 0;
     for (const auto &tsr : tsrs_)
     {
         tsr->getErrorWorld(error.segment(i, tsr->getDimension()));
         i += tsr->getDimension();
     }
+
+    world_->unlock();
 }
 
 void TSRSet::getErrorWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
                                 Eigen::Ref<Eigen::VectorXd> error) const
 {
+    world_->lock();
+
     std::size_t i = 0;
     for (const auto &tsr : tsrs_)
     {
         tsr->getErrorWorldState(world, error.segment(i, tsr->getDimension()));
         i += tsr->getDimension();
     }
+
+    world_->unlock();
 }
 
 void TSRSet::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
                                    Eigen::Ref<Eigen::MatrixXd> jacobian) const
 {
+    world_->lock();
+
     unsigned int i = 0;
     std::size_t n = world.size();
     for (const auto &tsr : tsrs_)
@@ -788,6 +841,8 @@ void TSRSet::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &worl
         tsr->getJacobianWorldState(world, jacobian.block(i, 0, tsr->getDimension(), n));
         i += tsr->getDimension();
     }
+
+    world_->unlock();
 }
 
 double TSRSet::distanceWorld() const
@@ -806,8 +861,14 @@ double TSRSet::distanceWorldState(const Eigen::Ref<const Eigen::VectorXd> &world
 
 bool TSRSet::solveWorld()
 {
+    world_->lock();
+
     if (tsrs_.size() == 1)
-        return tsrs_[0]->solveWorld();
+    {
+        bool r = tsrs_[0]->solveWorld();
+        world_->unlock();
+        return r;
+    }
 
     auto &&sim = world_->getSim();
 
@@ -819,11 +880,13 @@ bool TSRSet::solveWorld()
         r &= ik->solveAndApply(true);
     }
 
+    world_->unlock();
     return r;
 }
 
 bool TSRSet::solveWorldState(Eigen::Ref<Eigen::VectorXd> world)
 {
+    world_->lock();
     for (auto &tsr : tsrs_)
         tsr->setPositionsWorldState(world);
 
@@ -832,6 +895,7 @@ bool TSRSet::solveWorldState(Eigen::Ref<Eigen::VectorXd> world)
     for (auto &tsr : tsrs_)
         tsr->getPositionsWorldState(world);
 
+    world_->unlock();
     return r;
 }
 
@@ -866,6 +930,12 @@ double TSRSet::getTolerance() const
     return tolerance_;
 }
 
+void TSRSet::initialize()
+{
+    for (auto &tsr : tsrs_)
+        tsr->initialize();
+}
+
 ///
 /// TSRConstraint
 ///
@@ -885,6 +955,7 @@ TSRConstraint::TSRConstraint(const StateSpacePtr &space, const TSRSetPtr &tsr)
   , space_(space)
   , tsr_(tsr)
 {
+    tsr_->initialize();
 }
 
 void TSRConstraint::function(const Eigen::Ref<const Eigen::VectorXd> &x,

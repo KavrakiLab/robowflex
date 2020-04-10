@@ -70,7 +70,7 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
 StructurePtr Structure::cloneStructure(const std::string &newName) const
 {
     auto structure = std::make_shared<Structure>(newName);
-    structure->setSkeleton(skeleton_->cloneSkeleton());
+    structure->setSkeleton(skeleton_->cloneSkeleton(newName));
 
     for (const auto &pair : acm_->getDisabledPairsConst())
         structure->getACM()->disableCollision(pair.first, pair.second);

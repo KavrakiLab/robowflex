@@ -85,7 +85,6 @@ namespace robowflex
             const std::string name_{"robot"};
             dart::dynamics::SkeletonPtr skeleton_{nullptr};
             ACMPtr acm_;
-
         };
 
         dart::dynamics::ShapePtr makeGeometry(const GeometryPtr &geometry);

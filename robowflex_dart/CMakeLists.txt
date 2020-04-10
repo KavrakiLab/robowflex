@@ -11,9 +11,9 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(DART 6.6.2 #REQUIRED
-  COMPONENTS optimizer-nlopt utils gui-osg
-  OPTIONAL_COMPONENTS utils-urdf # for 'perception' target
+find_package(DART #REQUIRED
+  COMPONENTS utils utils-urdf gui-osg optimizer-nlopt optimizer-ipopt collision-bullet collision-ode
+  OPTIONAL_COMPONENTS
   CONFIG
   )
 
@@ -48,6 +48,7 @@ if (DART_LIBRARIES)
     LIBRARIES ${LIBRARY_NAME}
     CATKIN_DEPENDS
     robowflex_library
+    dartsim
     DEPENDS
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )

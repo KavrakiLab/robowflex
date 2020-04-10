@@ -47,7 +47,7 @@ Robot::Robot(robowflex::RobotPtr robot) : Structure(robot->getName())
 RobotPtr Robot::cloneRobot(const std::string &newName) const
 {
     auto robot = std::make_shared<Robot>(newName);
-    robot->setSkeleton(skeleton_->cloneSkeleton());
+    robot->setSkeleton(skeleton_->cloneSkeleton(newName));
 
     for (const auto &pair : acm_->getDisabledPairsConst())
         robot->getACM()->disableCollision(pair.first, pair.second);

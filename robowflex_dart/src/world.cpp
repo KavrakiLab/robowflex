@@ -41,9 +41,10 @@ bool DistanceCollisionWrapper::needDistance(const dart::collision::CollisionObje
 /// World
 ///
 
-World::World()
-  : world_(dart::simulation::World::create())
+World::World(const std::string &name)
+  : world_(dart::simulation::World::create(name))
   , filter_(std::make_shared<dart::collision::CompositeCollisionFilter>())
+  , name_(name)
 {
     world_->setGravity(Eigen::Vector3d(0, 0, -9.81));
 
@@ -53,27 +54,36 @@ World::World()
     opt.collisionFilter = filter_;
 
     collider_ = solver->getCollisionDetector();
+
+    // world_->getConstraintSolver()->setCollisionDetector(collider_->cloneWithoutCollisionObjects());
+
     all_ = collider_->createCollisionGroupAsSharedPtr();
 }
 
-WorldPtr World::clone() const
+WorldPtr World::clone(const std::string &suffix) const
 {
-    auto world = std::make_shared<World>();
+    auto world = std::make_shared<World>(name_ + suffix);
 
     for (const auto &robot : robots_)
-        world->addRobot(robot.second->cloneRobot(robot.first));
+        world->addRobot(robot.second->cloneRobot(robot.first + suffix));
 
     for (const auto &structure : structures_)
-        world->addStructure(structure.second->cloneStructure(structure.first));
+        world->addStructure(structure.second->cloneStructure(structure.first + suffix));
 
-    for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
-    {
-        auto skel = world_->getSkeleton(i);
-        auto state = skel->getState();
-        world->getSim()->getSkeleton(skel->getName())->setState(state);
-    }
+    // for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
+    // {
+    //     auto skel = world_->getSkeleton(i);
+    //     auto state = skel->getState();
+    //     auto other_skel = world->getSim()->getSkeleton(skel->getName() + suffix);
+    //     other_skel->setState(state);
+    // }
 
     return world;
+}
+
+const std::string &World::getName() const
+{
+    return name_;
 }
 
 void World::addSkeletonCollider(const std::string &name, const dart::dynamics::SkeletonPtr &skeleton)
@@ -285,4 +295,26 @@ void World::forceUpdate()
 {
     for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
         world_->getSkeleton(i)->computeForwardKinematics();
+}
+
+void World::clearIKModules()
+{
+    for (std::size_t i = 0; i < world_->getNumSkeletons(); ++i)
+    {
+        auto skel = world_->getSkeleton(i);
+        skel->clearIK();
+
+        for (auto bn : skel->getBodyNodes())
+            bn->clearIK();
+    }
+}
+
+void World::lock()
+{
+    mutex_.lock();
+}
+
+void World::unlock()
+{
+    mutex_.unlock();
 }

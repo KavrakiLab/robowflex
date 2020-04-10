@@ -87,6 +87,8 @@ namespace robowflex
                 void setFrame(const std::string &structure, const std::string &target,
                               const std::string &base = magic::ROOT_FRAME);
 
+                void addSuffix(const std::string &suffix);
+
                 void setPosition(const Eigen::Ref<const Eigen::Vector3d> &position);
                 void setPosition(double x, double y, double z);
                 void setRotation(const Eigen::Quaterniond &orientation);
@@ -186,8 +188,9 @@ namespace robowflex
             void fromBijection(Eigen::Ref<Eigen::VectorXd> state,
                                const Eigen::Ref<const Eigen::VectorXd> &world) const;
 
-        private:
             void initialize();
+
+        private:
             void computeBijection();
 
             WorldPtr world_;
@@ -215,6 +218,7 @@ namespace robowflex
             std::size_t numTSRs() const;
 
             void setWorld(const WorldPtr &world);
+            void addSuffix(const std::string &suffix);
 
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
@@ -238,6 +242,8 @@ namespace robowflex
             bool solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world);
 
             double getTolerance() const;
+
+            void initialize();
 
         private:
             WorldPtr world_;
