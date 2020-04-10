@@ -245,12 +245,14 @@ namespace robowflex
 
             void initialize();
 
+            void setMaxIterations(std::size_t iterations);
+
         private:
             WorldPtr world_;
             std::set<std::size_t> skel_indices_;
 
             double tolerance_{magic::DEFAULT_IK_TOLERANCE};
-            std::size_t maxIter_{50};
+            std::size_t maxIter_{100};
 
             std::vector<TSRPtr> tsrs_;
             std::size_t dimension_{0};

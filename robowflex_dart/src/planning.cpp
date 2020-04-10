@@ -31,6 +31,7 @@ TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &worl
                            si_->getStateSpace())
             .get()))
 {
+    tsr_->setMaxIterations(1000);
     tsr_->addSuffix("_TSRGoal");
     tsr_->initialize();
 }
@@ -78,8 +79,8 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         success &= si_->satisfiesBounds(state);
     }
 
-    // return getStateCount() < maxStateCount_;
-    return true;
+    return getStateCount() < maxStateCount_;
+    // return true;
 }
 
 StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
@@ -149,10 +150,12 @@ void PlanBuilder::setGoalConfiguration(const std::vector<double> &q)
     setGoalConfiguration(Eigen::Map<const Eigen::VectorXd>(q.data(), rspace->getDimension()));
 }
 
-void PlanBuilder::setGoalTSR(const TSRPtr &tsr)
+TSRGoalPtr PlanBuilder::setGoalTSR(const TSRPtr &tsr)
 {
     auto goal = std::make_shared<TSRGoal>(*this, tsr);
     ss->setGoal(goal);
+
+    return goal;
 }
 
 void PlanBuilder::sampleGoalConfiguration()
@@ -182,8 +185,8 @@ void PlanBuilder::setup()
         getState(goal_state.get())->data = goal;
         ss->setGoalState(goal_state);
     }
-    else
-        tg->startSampling();
+    // else
+    // tg->startSampling();
 
     ss->setup();
 }

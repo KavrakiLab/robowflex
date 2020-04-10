@@ -221,8 +221,8 @@ void Structure::setJoint(const std::string &name, const Eigen::Ref<const Eigen::
 bool Structure::solveIK()
 {
     auto ik = skeleton_->getIK(true);
-    ik->getSolver()->setTolerance(1e-9);
-    ik->getSolver()->setNumMaxIterations(100);
+    // ik->getSolver()->setTolerance(1e-9);
+    // ik->getSolver()->setNumMaxIterations(100);
     return ik->solveAndApply(true);
 }
 

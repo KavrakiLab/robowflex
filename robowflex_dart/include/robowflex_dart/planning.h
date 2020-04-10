@@ -68,7 +68,7 @@ namespace robowflex
             void setGoalConfigurationFromWorld();
             void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
             void setGoalConfiguration(const std::vector<double> &q);
-            void setGoalTSR(const TSRPtr &tsr);
+            TSRGoalPtr setGoalTSR(const TSRPtr &tsr);
             void sampleGoalConfiguration();
 
             StateSpace::StateType *sampleState() const;

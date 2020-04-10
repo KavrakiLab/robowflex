@@ -103,46 +103,25 @@ int main(int argc, char **argv)
     //
     // Randomly sample goal
     //
-    double d = 0;
-    do
-    {
-        Eigen::VectorXd v(builder.rspace->getDimension());
-        for (const auto &joint : builder.rspace->getJoints())
-            joint->sample(joint->getSpaceVars(v));
-
-        d = waist_tsr->distanceWorld() + start_tsr->distanceWorld() + lleg_tsr->distanceWorld();
-    } while (not r2->solveIK() and world->inCollision() and d < 1e-8);
-
-    builder.setGoalConfigurationFromWorld();
-
-    // Delete starting TSR
-    start_tsr.reset();
 
     builder.addConstraint(lleg_tsr);
     builder.addConstraint(waist_tsr);
 
     builder.initialize();
 
-    // builder.sampleGoalConfiguration();
+    auto goal = builder.setGoalTSR(start_tsr);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     builder.ss->setPlanner(rrt);
-
-    // auto prm = std::make_shared<ompl::geometric::PRM>(builder.info);
-    // builder.ss->setPlanner(prm);
-
-    // auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
-    // builder.ss->setPlanner(bit);
-
-    // auto kpc = std::make_shared<ompl::geometric::LBKPIECE1>(builder.info);
-    // kpc->setRange(0.5);
-    // builder.ss->setPlanner(kpc);
 
     builder.setup();
 
     std::thread t([&]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+        goal->stopSampling();
 
         if (solved)
         {

@@ -753,7 +753,6 @@ void TSRSet::addTSR(const TSRPtr &tsr)
     tsrs_.emplace_back(ntsr);
 
     dimension_ += ntsr->getDimension();
-    skel_indices_.emplace(ntsr->getSkeletonIndex());
 
     tolerance_ = std::min(tolerance_, spec.tolerance);
 }
@@ -769,6 +768,7 @@ void TSRSet::setWorld(const WorldPtr &world)
         tsr->setWorld(world);
 
     world_ = world;
+    initialize();
 }
 
 void TSRSet::addSuffix(const std::string &suffix)
@@ -870,12 +870,12 @@ bool TSRSet::solveWorld()
         return r;
     }
 
-    auto &&sim = world_->getSim();
+    auto sim = world_->getSim();
 
     bool r = true;
     for (const auto &skidx : skel_indices_)
     {
-        auto &&skel = sim->getSkeleton(skidx);
+        auto skel = sim->getSkeleton(skidx);
         auto ik = skel->getIK(true);
         r &= ik->solveAndApply(true);
     }
@@ -914,7 +914,7 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
         // std::cout << f.transpose() << " | " << norm << std::endl;
         getJacobianWorldState(world, j);
         // std::cout << j << std::endl << std::endl;
-        world -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        world -= 0.5 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
 
         getErrorWorldState(world, f);
     }
@@ -932,8 +932,19 @@ double TSRSet::getTolerance() const
 
 void TSRSet::initialize()
 {
+    skel_indices_.clear();
     for (auto &tsr : tsrs_)
+    {
         tsr->initialize();
+        skel_indices_.emplace(tsr->getSkeletonIndex());
+    }
+
+    std::cout << "TSRSet: Initialized " << tsrs_.size() << " TSRs!" << std::endl;
+}
+
+void TSRSet::setMaxIterations(std::size_t iterations)
+{
+    maxIter_ = iterations;
 }
 
 ///

@@ -101,7 +101,7 @@ int main(int argc, char **argv)
     // initialize and setup
     builder.initialize();
 
-    builder.setGoalTSR(goal_tsr);
+    auto goal = builder.setGoalTSR(goal_tsr);
 
     // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
     // builder.ss->setPlanner(prm);
@@ -127,7 +127,9 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
+            goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
+            goal->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
