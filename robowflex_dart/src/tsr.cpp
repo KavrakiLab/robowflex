@@ -76,6 +76,11 @@ void TSR::Specification::setRotation(double w, double x, double y, double z)
     setRotation(Eigen::Quaterniond(w, x, y, z));
 }
 
+void TSR::Specification::setPose(const RobotPose &other)
+{
+    pose = pose;
+}
+
 void TSR::Specification::setPose(const Eigen::Ref<const Eigen::Vector3d> &position,
                                  const Eigen::Quaterniond &rotation)
 {
@@ -106,6 +111,21 @@ void TSR::Specification::setPoseFromWorld(const WorldPtr &world)
         pose = tbn->getTransform();
 }
 
+void TSR::Specification::setXPosTolerance(double bound)
+{
+    setXPosTolerance(-bound, bound);
+}
+
+void TSR::Specification::setYPosTolerance(double bound)
+{
+    setYPosTolerance(-bound, bound);
+}
+
+void TSR::Specification::setZPosTolerance(double bound)
+{
+    setZPosTolerance(-bound, bound);
+}
+
 void TSR::Specification::setXPosTolerance(double lower, double upper)
 {
     position.lower[0] = lower;
@@ -131,6 +151,21 @@ void TSR::Specification::setZPosTolerance(double lower, double upper)
 
     indices[5] = isPosConstrained(lower, upper);
     dimension = getDimension();
+}
+
+void TSR::Specification::setXRotTolerance(double bound)
+{
+    setXRotTolerance(-bound, bound);
+}
+
+void TSR::Specification::setYRotTolerance(double bound)
+{
+    setYRotTolerance(-bound, bound);
+}
+
+void TSR::Specification::setZRotTolerance(double bound)
+{
+    setZRotTolerance(-bound, bound);
 }
 
 void TSR::Specification::setXRotTolerance(double lower, double upper)
@@ -162,20 +197,17 @@ void TSR::Specification::setZRotTolerance(double lower, double upper)
 
 void TSR::Specification::setNoXPosTolerance()
 {
-    const double infinity = std::numeric_limits<double>::infinity();
-    setXPosTolerance(-infinity, infinity);
+    setXPosTolerance(std::numeric_limits<double>::infinity());
 }
 
 void TSR::Specification::setNoYPosTolerance()
 {
-    const double infinity = std::numeric_limits<double>::infinity();
-    setYPosTolerance(-infinity, infinity);
+    setYPosTolerance(std::numeric_limits<double>::infinity());
 }
 
 void TSR::Specification::setNoZPosTolerance()
 {
-    const double infinity = std::numeric_limits<double>::infinity();
-    setZPosTolerance(-infinity, infinity);
+    setZPosTolerance(std::numeric_limits<double>::infinity());
 }
 
 void TSR::Specification::setNoPosTolerance()
@@ -187,20 +219,17 @@ void TSR::Specification::setNoPosTolerance()
 
 void TSR::Specification::setNoXRotTolerance()
 {
-    const double pi = dart::math::constants<double>::pi();
-    setXRotTolerance(-pi, pi);
+    setXRotTolerance(dart::math::constants<double>::pi());
 }
 
 void TSR::Specification::setNoYRotTolerance()
 {
-    const double pi = dart::math::constants<double>::pi();
-    setYRotTolerance(-pi, pi);
+    setYRotTolerance(dart::math::constants<double>::pi());
 }
 
 void TSR::Specification::setNoZRotTolerance()
 {
-    const double pi = dart::math::constants<double>::pi();
-    setZRotTolerance(-pi, pi);
+    setZRotTolerance(dart::math::constants<double>::pi());
 }
 
 void TSR::Specification::setNoRotTolerance()
@@ -336,7 +365,7 @@ TSR::~TSR()
 
 void TSR::clear()
 {
-    if (tnd_)
+    if (tnd_ and ik_)
         tnd_->clearIK();
 
     frame_ = nullptr;
@@ -349,7 +378,6 @@ void TSR::setWorld(const WorldPtr &world)
 {
     clear();
     world_ = world;
-    std::cout << "Using world " << world_->getName() << std::endl;
     initialize();
 }
 
@@ -371,14 +399,29 @@ void TSR::useIndices(const std::vector<std::size_t> &indices)
     computeBijection();
 }
 
+void TSR::useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices)
+{
+    std::vector<std::size_t> use;
+    for (std::size_t i = 0; i < indices.size(); ++i)
+    {
+        if (indices[i].first == getSkeletonIndex())
+            use.emplace_back(indices[i].second);
+    }
+
+    useIndices(use);
+}
+
 void TSR::setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices)
 {
     world_indices_ = indices;
     computeBijection();
 }
 
-std::size_t TSR::getSkeletonIndex() const
+std::size_t TSR::getSkeletonIndex()
 {
+    if (not tnd_)
+        initialize();
+
     return skel_index_;
 }
 
@@ -714,7 +757,7 @@ void TSR::computeBijection()
         for (std::size_t j = 0; j < world_indices_.size(); ++j)
         {
             auto entry = world_indices_[j];
-            if (entry.first == skel_index_ and entry.second == indices_[i])
+            if (entry.first == getSkeletonIndex() and entry.second == indices_[i])
             {
                 bijection_[i] = j;
                 same &= i == j;
@@ -798,6 +841,12 @@ void TSRSet::useIndices(const std::vector<std::size_t> &indices)
 {
     for (auto &tsr : tsrs_)
         tsr->useIndices(indices);
+}
+
+void TSRSet::useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices)
+{
+    for (auto &tsr : tsrs_)
+        tsr->useWorldIndices(indices);
 }
 
 void TSRSet::setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices)
@@ -969,7 +1018,6 @@ void TSRSet::setMaxIterations(std::size_t iterations)
     maxIter_ = iterations;
 }
 
-
 void TSRSet::setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper)
 {
     upper_ = upper;
@@ -986,7 +1034,6 @@ void TSRSet::enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const
         world = world.cwiseMin(upper_);
     if (lower_.size())
         world = world.cwiseMax(lower_);
-
 }
 
 ///
@@ -1008,6 +1055,12 @@ TSRConstraint::TSRConstraint(const StateSpacePtr &space, const TSRSetPtr &tsr)
   , space_(space)
   , tsr_(tsr)
 {
+    tsr_->useWorldIndices(space->getIndices());
+    tsr_->setWorldIndices(space->getIndices());
+    tsr_->setWorld(space->getWorld());
+
+    tsr_->setWorldLowerLimits(space->getLowerBound());
+    tsr_->setWorldUpperLimits(space->getUpperBound());
     tsr_->initialize();
 }
 

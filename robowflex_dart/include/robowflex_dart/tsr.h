@@ -93,16 +93,23 @@ namespace robowflex
                 void setPosition(double x, double y, double z);
                 void setRotation(const Eigen::Quaterniond &orientation);
                 void setRotation(double w, double x, double y, double z);
+                void setPose(const RobotPose &other);
                 void setPose(const Eigen::Ref<const Eigen::Vector3d> &position,
                              const Eigen::Quaterniond &rotation);
                 void setPose(double xp, double yp, double zp, double wr, double xr, double yr, double zr);
 
                 void setPoseFromWorld(const WorldPtr &world);
 
+                void setXPosTolerance(double bound);
+                void setYPosTolerance(double bound);
+                void setZPosTolerance(double bound);
                 void setXPosTolerance(double lower, double upper);
                 void setYPosTolerance(double lower, double upper);
                 void setZPosTolerance(double lower, double upper);
 
+                void setXRotTolerance(double bound);
+                void setYRotTolerance(double bound);
+                void setZRotTolerance(double bound);
                 void setXRotTolerance(double lower, double upper);
                 void setYRotTolerance(double lower, double upper);
                 void setZRotTolerance(double lower, double upper);
@@ -141,9 +148,10 @@ namespace robowflex
 
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
+            void useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
 
-            std::size_t getSkeletonIndex() const;
+            std::size_t getSkeletonIndex();
             const std::vector<std::size_t> &getIndices() const;
             const std::vector<std::pair<std::size_t, std::size_t>> &getWorldIndices() const;
 
@@ -203,10 +211,10 @@ namespace robowflex
             std::vector<std::pair<std::size_t, std::size_t>> world_indices_;
             std::vector<std::size_t> bijection_;
 
-            std::shared_ptr<dart::dynamics::SimpleFrame> frame_;
-            dart::dynamics::BodyNode *tnd_;
-            std::shared_ptr<dart::dynamics::InverseKinematics> ik_;
-            dart::dynamics::InverseKinematics::TaskSpaceRegion *tsr_;
+            std::shared_ptr<dart::dynamics::SimpleFrame> frame_{nullptr};
+            dart::dynamics::BodyNode *tnd_{nullptr};
+            std::shared_ptr<dart::dynamics::InverseKinematics> ik_{nullptr};
+            dart::dynamics::InverseKinematics::TaskSpaceRegion *tsr_{nullptr};
         };
 
         ROBOWFLEX_CLASS_FORWARD(TSRSet)
@@ -224,6 +232,7 @@ namespace robowflex
 
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
+            void useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
             void setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper);
             void setWorldLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &lower);

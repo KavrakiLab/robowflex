@@ -6,6 +6,9 @@
 #include <ompl/base/ConstrainedSpaceInformation.h>
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
+#include <robowflex_library/tf.h>
+#include <moveit_msgs/MotionPlanRequest.h>
+
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/planning.h>
@@ -28,10 +31,10 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
   , sampler_(std::make_shared<StateSpace::StateSampler>(getSpace()))
   , pdef_(pdef)
 {
+    tsr_->useWorldIndices(getSpace()->getIndices());
+    tsr_->setWorldIndices(getSpace()->getIndices());
     tsr_->setWorldLowerLimits(getSpace()->getLowerBound());
     tsr_->setWorldUpperLimits(getSpace()->getUpperBound());
-    // tsr_->setMaxIterations(1000);
-    // tsr_->addSuffix("_TSRGoal");
     tsr_->initialize();
 }
 
@@ -47,7 +50,7 @@ TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr) : TSRGoal(builder, std:
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
   : TSRGoal(builder.ss->getProblemDefinition(), builder.info, builder.world, [&] {
-      std::vector<TSRPtr> temp = builder.constraints;
+      std::vector<TSRPtr> temp = builder.path_constraints;
       temp.insert(temp.end(), tsrs.begin(), tsrs.end());
       return temp;
   }())
@@ -89,6 +92,23 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
     return true;
 }
 
+double TSRGoal::distanceGoal(const ompl::base::State *state) const
+{
+    auto &&as = getStateConst(state);
+    auto &&x = Eigen::Map<const Eigen::VectorXd>(as->values, si_->getStateDimension());
+    return tsr_->distanceWorldState(x);
+}
+
+const StateSpace::StateType *TSRGoal::getStateConst(const ompl::base::State *state) const
+{
+    if (constrained_)
+        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
+            ->getState()
+            ->as<StateSpace::StateType>();
+    else
+        return state->as<StateSpace::StateType>();
+}
+
 StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
 {
     if (constrained_)
@@ -114,15 +134,145 @@ PlanBuilder::PlanBuilder(WorldPtr world) : rspace(std::make_shared<StateSpace>(w
 {
 }
 
-void PlanBuilder::addGroup(const std::string &skeleton, const std::string &name)
+void PlanBuilder::getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg)
 {
-    rspace->addGroup(skeleton, name, 2);
-    // rspace->addGroup(skeleton, name);
+    // copy workspace parameters
+    const auto &mic = msg.workspace_parameters.min_corner;
+    const auto &mac = msg.workspace_parameters.max_corner;
+    world->getWorkspaceLow()[0] = mic.x;
+    world->getWorkspaceLow()[1] = mic.y;
+    world->getWorkspaceLow()[2] = mic.z;
+    world->getWorkspaceHigh()[0] = mac.x;
+    world->getWorkspaceHigh()[1] = mac.y;
+    world->getWorkspaceHigh()[2] = mac.z;
+}
+
+void PlanBuilder::getGroupFromMessage(const std::string &robot_name,
+                                      const moveit_msgs::MotionPlanRequest &msg)
+{
+    bool cyclic = false;
+    if (not msg.path_constraints.position_constraints.empty() or
+        not msg.path_constraints.orientation_constraints.empty())
+        cyclic = true;
+
+    addGroup(robot_name, msg.group_name, cyclic ? 2 : 0);
+}
+
+void PlanBuilder::getStartFromMessage(const std::string &robot_name,
+                                      const moveit_msgs::MotionPlanRequest &msg)
+{
+    auto robot = world->getRobot(robot_name);
+    for (std::size_t i = 0; i < msg.start_state.joint_state.name.size(); ++i)
+    {
+        std::string name = msg.start_state.joint_state.name[i];
+        double value = msg.start_state.joint_state.position[i];
+
+        robot->setJoint(name, value);
+    }
+
+    setStartConfigurationFromWorld();
+}
+
+TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
+                                              const moveit_msgs::PositionConstraint &msg) const
+{
+    TSR::Specification spec;
+    spec.setFrame(robot_name, msg.link_name);
+    if (not msg.header.frame_id.empty())
+        spec.setBase(robot_name, msg.header.frame_id);
+
+    if (not msg.constraint_region.meshes.empty())
+    {
+        // TODO error, can't do this
+        std::cerr << "Invalid Position Constraint" << std::endl;
+        return nullptr;
+    }
+
+    if (msg.constraint_region.primitives.size() != 1)
+    {
+        // TODO error, can't do this
+        std::cerr << "Invalid Position Constraint" << std::endl;
+        return nullptr;
+    }
+
+    spec.setNoRotTolerance();
+
+    // get pose
+    spec.setPose(TF::poseMsgToEigen(msg.constraint_region.primitive_poses[0]));
+    spec.setPosition(spec.getPosition() + TF::vectorMsgToEigen(msg.target_point_offset));
+
+    auto &&primitive = msg.constraint_region.primitives[0];
+    if (primitive.type == shape_msgs::SolidPrimitive::BOX)
+    {
+        spec.setXPosTolerance(primitive.dimensions[0]);
+        spec.setYPosTolerance(primitive.dimensions[1]);
+        spec.setZPosTolerance(primitive.dimensions[2]);
+    }
+    else if (primitive.type == shape_msgs::SolidPrimitive::SPHERE)
+    {
+        spec.setXPosTolerance(primitive.dimensions[0]);
+        spec.setYPosTolerance(primitive.dimensions[0]);
+        spec.setZPosTolerance(primitive.dimensions[0]);
+    }
+
+    return std::make_shared<TSR>(world, spec);
+}
+
+TSRPtr PlanBuilder::TSRfromOrientationConstraint(const std::string &robot_name,
+                                                 const moveit_msgs::OrientationConstraint &msg) const
+{
+    TSR::Specification spec;
+    spec.setFrame(robot_name, msg.link_name);
+    if (not msg.header.frame_id.empty())
+        spec.setBase(robot_name, msg.header.frame_id);
+
+    spec.setRotation(TF::quaternionMsgToEigen(msg.orientation));
+    spec.setNoPosTolerance();
+    spec.setXRotTolerance(msg.absolute_x_axis_tolerance);
+    spec.setYRotTolerance(msg.absolute_y_axis_tolerance);
+    spec.setZRotTolerance(msg.absolute_z_axis_tolerance);
+
+    return std::make_shared<TSR>(world, spec);
+}
+
+void PlanBuilder::getPathConstraintsFromMessage(const std::string &robot_name,
+                                                const moveit_msgs::MotionPlanRequest &msg)
+{
+    for (const auto &constraint : msg.path_constraints.position_constraints)
+        addConstraint(TSRfromPositionConstraint(robot_name, constraint));
+    for (const auto &constraint : msg.path_constraints.orientation_constraints)
+        addConstraint(TSRfromOrientationConstraint(robot_name, constraint));
+}
+
+void PlanBuilder::getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg)
+{
+    // TODO get other goals as well
+    std::vector<TSRPtr> tsrs;
+    for (const auto &constraint : msg.goal_constraints[0].position_constraints)
+        tsrs.emplace_back(TSRfromPositionConstraint(robot_name, constraint));
+    for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
+        tsrs.emplace_back(TSRfromOrientationConstraint(robot_name, constraint));
+
+    setGoalTSR(tsrs);
+}
+
+void PlanBuilder::fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg)
+{
+    getGroupFromMessage(robot_name, msg);
+    getWorkspaceBoundsFromMessage(msg);
+    getStartFromMessage(robot_name, msg);
+    getPathConstraintsFromMessage(robot_name, msg);
+    getGoalFromMessage(robot_name, msg);
+}
+
+void PlanBuilder::addGroup(const std::string &skeleton, const std::string &name, std::size_t cyclic)
+{
+    rspace->addGroup(skeleton, name, cyclic);
 }
 
 void PlanBuilder::addConstraint(const TSRPtr &tsr)
 {
-    constraints.emplace_back(tsr);
+    path_constraints.emplace_back(tsr);
 }
 
 void PlanBuilder::setStartConfigurationFromWorld()
@@ -163,12 +313,14 @@ void PlanBuilder::setGoalConfiguration(const std::vector<double> &q)
     setGoalConfiguration(Eigen::Map<const Eigen::VectorXd>(q.data(), rspace->getDimension()));
 }
 
-TSRGoalPtr PlanBuilder::setGoalTSR(const TSRPtr &tsr)
+void PlanBuilder::setGoalTSR(const TSRPtr &tsr)
 {
-    auto goal = std::make_shared<TSRGoal>(*this, tsr);
-    ss->setGoal(goal);
+    setGoalTSR(std::vector<TSRPtr>{tsr});
+}
 
-    return goal;
+void PlanBuilder::setGoalTSR(const std::vector<TSRPtr> &tsrs)
+{
+    goal_constraints = tsrs;
 }
 
 void PlanBuilder::sampleGoalConfiguration()
@@ -179,7 +331,7 @@ void PlanBuilder::sampleGoalConfiguration()
 
 void PlanBuilder::initialize()
 {
-    if (constraints.empty())
+    if (path_constraints.empty())
         initializeUnconstrained();
     else
         initializeConstrained();
@@ -191,15 +343,17 @@ void PlanBuilder::setup()
     getState(start_state.get())->data = start;
     ss->setStartState(start_state);
 
-    auto tg = std::dynamic_pointer_cast<TSRGoal>(ss->getGoal());
-    if (not tg)
+    if (goal_constraints.empty())
     {
         ompl::base::ScopedState<> goal_state(space);
         getState(goal_state.get())->data = goal;
         ss->setGoalState(goal_state);
     }
-    // else
-    // tg->startSampling();
+    else
+    {
+        goal_tsr = std::make_shared<TSRGoal>(*this, goal_constraints);
+        ss->setGoal(goal_tsr);
+    }
 
     ss->setup();
 }
@@ -208,12 +362,7 @@ void PlanBuilder::initializeConstrained()
 {
     world->clearIKModules();
 
-    constraint = std::make_shared<TSRConstraint>(rspace, constraints);
-    constraint->getSet()->setWorldIndices(rspace->getIndices());
-    constraint->getSet()->setWorld(world);
-    constraint->getSet()->setWorldLowerLimits(rspace->getLowerBound());
-    constraint->getSet()->setWorldUpperLimits(rspace->getUpperBound());
-    constraint->getSet()->initialize();
+    constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
 
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
     space = pss;
@@ -223,10 +372,11 @@ void PlanBuilder::initializeConstrained()
     setStateValidityChecker();
 
     // pss->setDelta(0.05);
-    // pss->setDelta(0.2);
-    pss->setDelta(0.5);
-    pss->setLambda(2);
-    // pss->setLambda(3);
+    pss->setDelta(0.2);
+    // pss->setDelta(0.1);
+    // pss->setDelta(0.5);
+    // pss->setLambda(2);
+    pss->setLambda(5);
 }
 
 void PlanBuilder::initializeUnconstrained()
@@ -289,9 +439,9 @@ void PlanBuilder::setStateValidityChecker()
 
             world->lock();
             rspace->setWorldState(world, as);
-
-            // return not world->inCollision() and  //
-            //        ((constraint) ? constraint->isSatisfied(state) : true);
+            // world->forceUpdate();
+            // bool r = not world->inCollision() and  //
+            //          ((constraint) ? constraint->isSatisfied(state) : true);
             bool r = not world->inCollision();
             world->unlock();
             return r;

@@ -11,6 +11,8 @@
 #include <ompl/base/Constraint.h>
 #include <ompl/geometric/SimpleSetup.h>
 
+#include <moveit_msgs/MotionPlanRequest.h>
+
 #include <robowflex_library/class_forward.h>
 #include <robowflex_dart/space.h>
 
@@ -31,7 +33,8 @@ namespace robowflex
         public:
             TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
                     const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
-            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr);
+            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
+                    const WorldPtr &world, const TSRPtr tsr);
 
             TSRGoal(const PlanBuilder &builder, TSRPtr tsr);
             TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs);
@@ -40,8 +43,11 @@ namespace robowflex
 
             bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
 
+            double distanceGoal(const ompl::base::State *state) const override;
+
         private:
             StateSpace::StateType *getState(ompl::base::State *state) const;
+            const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
             const StateSpace *getSpace() const;
 
             WorldPtr world_;
@@ -58,7 +64,22 @@ namespace robowflex
         public:
             PlanBuilder(WorldPtr world);
 
-            void addGroup(const std::string &skeleton, const std::string &name);
+            void getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg);
+            void getGroupFromMessage(const std::string &robot_name,
+                                     const moveit_msgs::MotionPlanRequest &msg);
+            void getStartFromMessage(const std::string &robot_name,
+                                     const moveit_msgs::MotionPlanRequest &msg);
+            void getPathConstraintsFromMessage(const std::string &robot_name,
+                                               const moveit_msgs::MotionPlanRequest &msg);
+            void getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+
+            TSRPtr TSRfromPositionConstraint(const std::string &robot_name,
+                                             const moveit_msgs::PositionConstraint &msg) const;
+            TSRPtr TSRfromOrientationConstraint(const std::string &robot_name,
+                                                const moveit_msgs::OrientationConstraint &msg) const;
+            void fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+
+            void addGroup(const std::string &skeleton, const std::string &name, std::size_t cyclic = 0);
 
             void addConstraint(const TSRPtr &tsr);
 
@@ -70,7 +91,8 @@ namespace robowflex
             void setGoalConfigurationFromWorld();
             void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
             void setGoalConfiguration(const std::vector<double> &q);
-            TSRGoalPtr setGoalTSR(const TSRPtr &tsr);
+            void setGoalTSR(const TSRPtr &tsr);
+            void setGoalTSR(const std::vector<TSRPtr> &tsr);
             void sampleGoalConfiguration();
 
             StateSpace::StateType *sampleState() const;
@@ -88,11 +110,14 @@ namespace robowflex
             ompl::base::SpaceInformationPtr info{nullptr};
             ompl::geometric::SimpleSetupPtr ss{nullptr};
             WorldPtr world;
-            std::vector<TSRPtr> constraints;
+            std::vector<TSRPtr> path_constraints;
+
             TSRConstraintPtr constraint{nullptr};
 
             Eigen::VectorXd start;
             Eigen::VectorXd goal;
+            std::vector<TSRPtr> goal_constraints;
+            TSRGoalPtr goal_tsr{nullptr};
 
         protected:
             void initializeConstrained();

@@ -159,7 +159,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
     }
 
     registerDefaultProjection(
-        std::make_shared<ompl::base::RealVectorRandomLinearProjectionEvaluator>(this, 3));
+        std::make_shared<ompl::base::RealVectorRandomLinearProjectionEvaluator>(this, 2));
 }
 
 void StateSpace::setWorldState(WorldPtr world, const ompl::base::State *state)

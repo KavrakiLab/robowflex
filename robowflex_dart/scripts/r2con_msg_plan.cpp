@@ -46,55 +46,9 @@ int main(int argc, char **argv)
     IO::fromYAMLFile(message, "package://robowflex_library/yaml/r2_plan_waist.yml");
 
     darts::PlanBuilder builder(world);
-    builder.addGroup("r2", GROUP, 2);
-
-    builder.getWorkspaceBoundsFromMessage(message);
-    builder.getStartFromMessage("r2", message);
-
-
-    //
-    // Waist TSR
-    //
-    darts::TSR::Specification waist_spec;
-    waist_spec.setFrame("r2", "r2/waist_center", "r2/left_leg/gripper/tip");
-    waist_spec.setRotation(0.999999999989, -2.52319271143e-06, 3.8366002265e-06, -6.53604813238e-07);
-    waist_spec.setNoPosTolerance();
-    // waist_spec.setNoZRotTolerance();
-
-    auto waist_tsr = std::make_shared<darts::TSR>(world, waist_spec);
-    waist_tsr->useGroup(GROUP);
-    builder.addConstraint(waist_tsr);
-
-    //
-    // Left Leg TSR
-    //
-    darts::TSR::Specification lleg_spec;
-    lleg_spec.setTarget("r2", "r2/left_leg/gripper/tip");
-    lleg_spec.setPose(0.451508662827, 0.246606909363, -1.10409735323,  //
-                      2.523198695e-06, -0.999999999982, 1.98040305765e-06, 5.16339177538e-06);
-    auto lleg_tsr = std::make_shared<darts::TSR>(world, lleg_spec);
-    lleg_tsr->useGroup(GROUP);
-    builder.addConstraint(lleg_tsr);
-
-    //
-    // Starting Right Leg TSR
-    //
-    darts::TSR::Specification start_spec;
-    start_spec.setTarget("r2", "r2/right_leg/gripper/tip");
-    start_spec.setPose(1.2, -0.248108850885, -1.10411526908,  //
-                       4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06);
-    auto start_tsr = std::make_shared<darts::TSR>(world, start_spec);
-    start_tsr->useGroup(GROUP);
-    builder.setGoalTSR(start_tsr);
-
-    //
-    // Initialize
-    //
+    builder.fromMessage("r2", message);
     builder.initialize();
 
-    //
-    // Setup planner
-    //
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(100);
     builder.ss->setPlanner(rrt);
@@ -107,9 +61,10 @@ int main(int argc, char **argv)
         while (true)
         {
             builder.goal_tsr->startSampling();
+            builder.initialize();
+
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
             builder.goal_tsr->stopSampling();
-
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {

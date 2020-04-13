@@ -32,15 +32,19 @@ int main(int argc, char **argv)
     // Startup ROS
     ROS ros(argc, argv);
 
+    //
     // Standard Robowflex setup
     // Create the default Fetch robot and scene.
+    //
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
 
     auto scene = std::make_shared<Scene>(fetch);
     scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
 
+    //
     // Convert to Dart
+    //
     auto fetch_dart = std::make_shared<darts::Robot>(fetch);
     auto fetch_name = fetch_dart->getName();
     auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
@@ -53,6 +57,9 @@ int main(int argc, char **argv)
     world->addStructure(scene_dart);
     world->addStructure(ground);
 
+    //
+    // Setup Planning
+    //
     darts::PlanBuilder builder(world);
     builder.addGroup(fetch_name, GROUP);
 
@@ -71,17 +78,6 @@ int main(int argc, char **argv)
     builder.setStartConfigurationFromWorld();
 
     //
-    // Sample Goal from TSR
-    //
-    darts::TSR::Specification goal_spec;
-    goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
-    goal_spec.setPose(0.5, 0.6, 0.92,  //
-                      0.5, -0.5, 0.5, 0.5);
-
-    auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-    goal_tsr->useGroup(GROUP);
-
-    //
     // Create constraint
     //
     darts::TSR::Specification constraint_spec;
@@ -94,14 +90,27 @@ int main(int argc, char **argv)
     constraint_spec.setYPosTolerance(-table, table);
 
     auto constraint_tsr = std::make_shared<darts::TSR>(world, constraint_spec);
-    constraint_tsr->useGroup(GROUP);
-
     builder.addConstraint(constraint_tsr);
 
-    // initialize and setup
+    //
+    // Setup Goal
+    //
+    darts::TSR::Specification goal_spec;
+    goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
+    goal_spec.setPose(0.5, 0.6, 0.92,  //
+                      0.5, -0.5, 0.5, 0.5);
+
+    auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
+    builder.setGoalTSR(goal_tsr);
+
+    //
+    // Initialize and setup
+    //
     builder.initialize();
 
-    auto goal = builder.setGoalTSR(goal_tsr);
+    //
+    // Setup Planner
+    //
 
     // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
     // builder.ss->setPlanner(prm);
@@ -127,9 +136,9 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
-            goal->startSampling();
+            builder.goal_tsr->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-            goal->stopSampling();
+            builder.goal_tsr->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
