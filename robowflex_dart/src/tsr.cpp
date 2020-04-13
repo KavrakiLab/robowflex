@@ -975,12 +975,12 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     Eigen::VectorXd f(getDimension());
     Eigen::MatrixXd j(getDimension(), world.size());
 
-    // const double squaredTolerance = tolerance_ * tolerance_;
+    const double squaredTolerance = tolerance_ * tolerance_;
 
     world_->lock();
     getErrorWorldState(world, f);
-    // while ((norm = f.norm()) > squaredTolerance && iter++ < maxIter_)
-    while ((norm = f.lpNorm<1>()) > tolerance_ && iter++ < maxIter_)
+    while ((norm = f.norm()) > squaredTolerance && iter++ < maxIter_)
+    // while ((norm = f.lpNorm<1>()) > tolerance_ && iter++ < maxIter_)
     {
         getJacobianWorldState(world, j);
         // world -= 0.75 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
@@ -993,7 +993,8 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     world_->forceUpdate();
     world_->unlock();
 
-    return norm < tolerance_;
+    // return norm < tolerance_;
+    return norm < squaredTolerance;
 }
 
 double TSRSet::getTolerance() const
