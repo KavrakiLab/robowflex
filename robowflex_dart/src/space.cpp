@@ -53,7 +53,7 @@ StateSpace::StateSpace(WorldPtr world) : ompl::base::RealVectorStateSpace(), wor
 
 bool StateSpace::isMetricSpace() const
 {
-    return false;
+    return metric_;
 }
 
 void StateSpace::addGroup(const std::string &name, const std::string &group, std::size_t cyclic)
@@ -92,7 +92,10 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
                     joints_.emplace_back(std::make_shared<RnJoint>(this, revolute, low, high));
                 }
                 else
+                {
                     joints_.emplace_back(std::make_shared<SO2Joint>(this, revolute));
+                    metric_ = false;
+                }
             }
             else
             {
@@ -147,6 +150,8 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
 
                 joints_.emplace_back(std::make_shared<RnJoint>(this, free, 3, 3, low, high));
                 joints_.emplace_back(std::make_shared<SO3Joint>(this, free));
+
+                metric_ = false;
             }
         }
         // else
@@ -301,4 +306,16 @@ std::vector<std::pair<std::size_t, std::size_t>> StateSpace::getIndices() const
 const std::vector<JointPtr> &StateSpace::getJoints() const
 {
     return joints_;
+}
+
+Eigen::VectorXd StateSpace::getLowerBound() const
+{
+    const auto &bounds = getBounds();
+    return Eigen::Map<const Eigen::VectorXd>(bounds.low.data(), bounds.low.size());
+}
+
+Eigen::VectorXd StateSpace::getUpperBound() const
+{
+    const auto &bounds = getBounds();
+    return Eigen::Map<const Eigen::VectorXd>(bounds.high.data(), bounds.high.size());
 }

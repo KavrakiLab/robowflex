@@ -29,9 +29,9 @@ namespace robowflex
         class TSRGoal : public ompl::base::GoalLazySamples
         {
         public:
-            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
-                    const std::vector<TSRPtr> &tsrs);
-            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr);
+            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
+                    const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
+            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr);
 
             TSRGoal(const PlanBuilder &builder, TSRPtr tsr);
             TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs);
@@ -42,11 +42,13 @@ namespace robowflex
 
         private:
             StateSpace::StateType *getState(ompl::base::State *state) const;
+            const StateSpace *getSpace() const;
 
             WorldPtr world_;
             TSRSetPtr tsr_;
             bool constrained_;
             ompl::base::StateSamplerPtr sampler_;
+            ompl::base::ProblemDefinitionPtr pdef_;
             std::size_t attempts_{100};
             std::size_t maxStateCount_{100};
         };

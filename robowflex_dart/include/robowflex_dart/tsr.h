@@ -25,7 +25,7 @@ namespace robowflex
         namespace magic
         {
             // static const double DEFAULT_IK_TOLERANCE = 1e-8;
-            static const double DEFAULT_IK_TOLERANCE = 1e-3;
+            static const double DEFAULT_IK_TOLERANCE = 1e-4;
             static const std::string ROOT_FRAME = "";
             static const Eigen::Vector3d DEFAULT_IK_TOLERANCES =
                 Eigen::Vector3d::Constant(DEFAULT_IK_TOLERANCE);
@@ -124,6 +124,8 @@ namespace robowflex
 
                 bool intersect(const Specification &other);
 
+                bool isRelative() const;
+
             private:
                 std::size_t getDimension();
                 bool isPosConstrained(double lower, double upper);
@@ -214,7 +216,7 @@ namespace robowflex
             TSRSet(const WorldPtr &world, const TSRPtr &tsr);
             TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
 
-            void addTSR(const TSRPtr &tsr);
+            void addTSR(const TSRPtr &tsr, double weight = 1.0);
             std::size_t numTSRs() const;
 
             void setWorld(const WorldPtr &world);
@@ -223,6 +225,8 @@ namespace robowflex
             void useGroup(const std::string &name);
             void useIndices(const std::vector<std::size_t> &indices);
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
+            void setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper);
+            void setWorldLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &lower);
 
             std::size_t getDimension() const;
 
@@ -247,15 +251,21 @@ namespace robowflex
 
             void setMaxIterations(std::size_t iterations);
 
+            void enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const;
+
         private:
             WorldPtr world_;
             std::set<std::size_t> skel_indices_;
 
             double tolerance_{magic::DEFAULT_IK_TOLERANCE};
-            std::size_t maxIter_{100};
+            std::size_t maxIter_{200};
 
             std::vector<TSRPtr> tsrs_;
+            std::vector<double> weights_;
             std::size_t dimension_{0};
+
+            Eigen::VectorXd upper_;
+            Eigen::VectorXd lower_;
         };
 
         ROBOWFLEX_CLASS_FORWARD(TSRConstraint)

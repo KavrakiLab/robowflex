@@ -16,28 +16,28 @@ using namespace robowflex::darts;
 /// TSRGoal
 ///
 
-TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
-                 const std::vector<TSRPtr> &tsrs)
+TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
+                 const WorldPtr &world, const std::vector<TSRPtr> &tsrs)
   : ompl::base::GoalLazySamples(
         si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false, 1e-3)
-  , world_(world->clone("_TSRGoal"))
+  , world_(world->clone())
   , tsr_(std::make_shared<TSRSet>(world_, tsrs))
   , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
   // Have to allocate our own sampler from scratch since the constrained sampler might use the underlying
   // world used by the planner (e.g., in project)
-  , sampler_(std::make_shared<StateSpace::StateSampler>(
-        std::dynamic_pointer_cast<StateSpace>(
-            constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
-                           si_->getStateSpace())
-            .get()))
+  , sampler_(std::make_shared<StateSpace::StateSampler>(getSpace()))
+  , pdef_(pdef)
 {
+    tsr_->setWorldLowerLimits(getSpace()->getLowerBound());
+    tsr_->setWorldUpperLimits(getSpace()->getUpperBound());
     // tsr_->setMaxIterations(1000);
-    tsr_->addSuffix("_TSRGoal");
+    // tsr_->addSuffix("_TSRGoal");
     tsr_->initialize();
 }
 
-TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr)
-  : TSRGoal(si, world, std::vector<TSRPtr>{tsr})
+TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
+                 const WorldPtr &world, const TSRPtr tsr)
+  : TSRGoal(pdef, si, world, std::vector<TSRPtr>{tsr})
 {
 }
 
@@ -46,7 +46,7 @@ TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr) : TSRGoal(builder, std:
 }
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
-  : TSRGoal(builder.info, builder.world, [&] {
+  : TSRGoal(builder.ss->getProblemDefinition(), builder.info, builder.world, [&] {
       std::vector<TSRPtr> temp = builder.constraints;
       temp.insert(temp.end(), tsrs.begin(), tsrs.end());
       return temp;
@@ -63,7 +63,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
 {
     bool success = false;
     // std::size_t tries = attempts_;
-    while (not success)
+    while (not success and not pdef_->hasSolution())
     {
         auto &&as = getState(state);
         sampler_->sampleUniform(as);
@@ -73,9 +73,16 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         if (tsr_->numTSRs() == 1)
             success = tsr_->solveWorldState(x);
         else
+        {
+            // tsr_->solveWorldState(x);
             success = tsr_->solveGradientWorldState(x);
+        }
+
+        // bool success2 = success;
 
         success &= si_->satisfiesBounds(state);
+        // std::cout << "Sampled a goal with " << tsr_->distanceWorldState(x) << " to go! " << success2 << " "
+        //           << success << std::endl;
     }
 
     // return getStateCount() < maxStateCount_;
@@ -90,6 +97,13 @@ StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
             ->as<StateSpace::StateType>();
     else
         return state->as<StateSpace::StateType>();
+}
+
+const StateSpace *TSRGoal::getSpace() const
+{
+    return (constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
+                           si_->getStateSpace())
+        ->as<StateSpace>();
 }
 
 ///
@@ -197,6 +211,8 @@ void PlanBuilder::initializeConstrained()
     constraint = std::make_shared<TSRConstraint>(rspace, constraints);
     constraint->getSet()->setWorldIndices(rspace->getIndices());
     constraint->getSet()->setWorld(world);
+    constraint->getSet()->setWorldLowerLimits(rspace->getLowerBound());
+    constraint->getSet()->setWorldUpperLimits(rspace->getUpperBound());
     constraint->getSet()->initialize();
 
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
@@ -207,8 +223,10 @@ void PlanBuilder::initializeConstrained()
     setStateValidityChecker();
 
     // pss->setDelta(0.05);
-    pss->setDelta(0.2);
+    // pss->setDelta(0.2);
+    pss->setDelta(0.5);
     pss->setLambda(2);
+    // pss->setLambda(3);
 }
 
 void PlanBuilder::initializeUnconstrained()

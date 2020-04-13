@@ -40,7 +40,7 @@ namespace robowflex
         public:
             World(const std::string &name = "world");
 
-            WorldPtr clone(const std::string &suffix = "_clone") const;
+            WorldPtr clone(const std::string &suffix = "") const;
 
             const std::string &getName() const;
 

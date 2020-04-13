@@ -23,6 +23,7 @@
 
 using namespace robowflex;
 
+// static const std::string GROUP = "body";
 static const std::string GROUP = "legsandtorso";
 // static const std::string GROUP = "legs_no_world";
 
@@ -76,6 +77,7 @@ int main(int argc, char **argv)
     waist_spec.setFrame("r2", "r2/waist_center", "r2/left_leg/gripper/tip");
     waist_spec.setRotation(0.999999999989, -2.52319271143e-06, 3.8366002265e-06, -6.53604813238e-07);
     waist_spec.setNoPosTolerance();
+    // waist_spec.setNoZRotTolerance();
 
     auto waist_tsr = std::make_shared<darts::TSR>(world, waist_spec);
     waist_tsr->useGroup(GROUP);
@@ -116,17 +118,22 @@ int main(int argc, char **argv)
     std::thread t([&]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-        goal->startSampling();
-        ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-        goal->stopSampling();
-
-        if (solved)
+        while (true)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld();
+            goal->startSampling();
+            ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
+            goal->stopSampling();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            if (solved)
+            {
+                std::cout << "Found solution!" << std::endl;
+                builder.animateSolutionInWorld(1);
+            }
+            else
+                std::cout << "No solution found" << std::endl;
+
+            builder.ss->clear();
         }
-        else
-            std::cout << "No solution found" << std::endl;
     });
 
     world->openOSGViewer();

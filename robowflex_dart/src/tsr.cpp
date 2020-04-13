@@ -316,6 +316,11 @@ bool TSR::Specification::intersect(const Specification &other)
     return true;
 }
 
+bool TSR::Specification::isRelative() const
+{
+    return base.frame != magic::ROOT_FRAME;
+}
+
 ///
 /// TSR
 ///
@@ -737,7 +742,7 @@ TSRSet::TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs) : world_(
         addTSR(tsr);
 }
 
-void TSRSet::addTSR(const TSRPtr &tsr)
+void TSRSet::addTSR(const TSRPtr &tsr, double weight)
 {
     TSR::Specification spec = tsr->getSpecification();
     for (auto &etsr : tsrs_)
@@ -750,7 +755,13 @@ void TSRSet::addTSR(const TSRPtr &tsr)
     ntsr->useIndices(tsr->getIndices());
     ntsr->setWorldIndices(tsr->getWorldIndices());
 
+    // weight relative frames less
+    if (weight - 1. < 1e-4)
+        if (spec.isRelative())
+            weight = 0.5;
+
     tsrs_.emplace_back(ntsr);
+    weights_.emplace_back(weight);
 
     dimension_ += ntsr->getDimension();
 
@@ -805,9 +816,12 @@ void TSRSet::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
     world_->lock();
 
     std::size_t i = 0;
-    for (const auto &tsr : tsrs_)
+    for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
+        auto &tsr = tsrs_[j];
         tsr->getErrorWorld(error.segment(i, tsr->getDimension()));
+        error.segment(i, tsr->getDimension()) *= weights_[j];
+
         i += tsr->getDimension();
     }
 
@@ -820,9 +834,12 @@ void TSRSet::getErrorWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
     world_->lock();
 
     std::size_t i = 0;
-    for (const auto &tsr : tsrs_)
+    for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
+        auto &tsr = tsrs_[j];
         tsr->getErrorWorldState(world, error.segment(i, tsr->getDimension()));
+        error.segment(i, tsr->getDimension()) *= weights_[j];
+
         i += tsr->getDimension();
     }
 
@@ -836,9 +853,12 @@ void TSRSet::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &worl
 
     unsigned int i = 0;
     std::size_t n = world.size();
-    for (const auto &tsr : tsrs_)
+    for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
+        auto &tsr = tsrs_[j];
         tsr->getJacobianWorldState(world, jacobian.block(i, 0, tsr->getDimension(), n));
+        jacobian.block(i, 0, tsr->getDimension(), n) *= weights_[j];
+
         i += tsr->getDimension();
     }
 
@@ -906,23 +926,25 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     Eigen::VectorXd f(getDimension());
     Eigen::MatrixXd j(getDimension(), world.size());
 
-    const double squaredTolerance = tolerance_ * tolerance_;
+    // const double squaredTolerance = tolerance_ * tolerance_;
 
+    world_->lock();
     getErrorWorldState(world, f);
-    while ((norm = f.norm()) > squaredTolerance && iter++ < maxIter_)
+    // while ((norm = f.norm()) > squaredTolerance && iter++ < maxIter_)
+    while ((norm = f.lpNorm<1>()) > tolerance_ && iter++ < maxIter_)
     {
-        // std::cout << f.transpose() << " | " << norm << std::endl;
         getJacobianWorldState(world, j);
-        // std::cout << j << std::endl << std::endl;
-        world -= 0.9 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        // world -= 0.75 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        world -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        enforceBoundsWorld(world);
 
         getErrorWorldState(world, f);
     }
 
     world_->forceUpdate();
+    world_->unlock();
 
-    // std::cout << std::endl << std::endl;
-    return norm < squaredTolerance;
+    return norm < tolerance_;
 }
 
 double TSRSet::getTolerance() const
@@ -945,6 +967,26 @@ void TSRSet::initialize()
 void TSRSet::setMaxIterations(std::size_t iterations)
 {
     maxIter_ = iterations;
+}
+
+
+void TSRSet::setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper)
+{
+    upper_ = upper;
+}
+
+void TSRSet::setWorldLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &lower)
+{
+    lower_ = lower;
+}
+
+void TSRSet::enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const
+{
+    if (upper_.size())
+        world = world.cwiseMin(upper_);
+    if (lower_.size())
+        world = world.cwiseMax(lower_);
+
 }
 
 ///

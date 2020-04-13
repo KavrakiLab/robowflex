@@ -75,6 +75,8 @@ namespace robowflex
             const WorldPtr &getWorldConst() const;
 
             std::vector<std::pair<std::size_t, std::size_t>> getIndices() const;
+            Eigen::VectorXd getLowerBound() const;
+            Eigen::VectorXd getUpperBound() const;
 
             const std::vector<JointPtr> &getJoints() const;
 
@@ -84,6 +86,8 @@ namespace robowflex
             std::vector<std::tuple<std::string, std::string, std::size_t>> groups_;
             std::set<dart::dynamics::Joint *> jointset_;
             std::vector<std::size_t> indices_;
+
+            bool metric_{true};
 
             std::vector<JointPtr> joints_;
 
