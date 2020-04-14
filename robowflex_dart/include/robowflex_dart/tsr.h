@@ -5,6 +5,7 @@
 
 #include <set>
 #include <functional>
+#include <iostream>
 
 #include <ompl/base/Constraint.h>
 
@@ -25,7 +26,8 @@ namespace robowflex
         namespace magic
         {
             // static const double DEFAULT_IK_TOLERANCE = 1e-8;
-            static const double DEFAULT_IK_TOLERANCE = 1e-4;
+            // static const double DEFAULT_IK_TOLERANCE = 1e-4;
+            static const double DEFAULT_IK_TOLERANCE = 1e-3;
             static const std::string ROOT_FRAME = "";
             static const Eigen::Vector3d DEFAULT_IK_TOLERANCES =
                 Eigen::Vector3d::Constant(DEFAULT_IK_TOLERANCE);
@@ -128,15 +130,18 @@ namespace robowflex
 
                 Eigen::Vector3d getPosition() const;
                 Eigen::Quaterniond getRotation() const;
+                bool isPositionConstrained() const;
+                bool isRotationConstrained() const;
 
                 bool intersect(const Specification &other);
-
                 bool isRelative() const;
 
+                void print(std::ostream &out) const;
+
             private:
-                std::size_t getDimension();
-                bool isPosConstrained(double lower, double upper);
-                bool isRotConstrained(double lower, double upper);
+                std::size_t getDimension() const;
+                bool isPosConstrained(double lower, double upper) const;
+                bool isRotConstrained(double lower, double upper) const;
             };
 
             TSR(const WorldPtr &world, const Specification &spec);
@@ -259,8 +264,9 @@ namespace robowflex
             void initialize();
 
             void setMaxIterations(std::size_t iterations);
-
             void enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const;
+
+            void print(std::ostream &out) const;
 
         private:
             WorldPtr world_;

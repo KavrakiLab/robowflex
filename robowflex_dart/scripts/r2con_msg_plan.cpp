@@ -61,8 +61,6 @@ int main(int argc, char **argv)
         while (true)
         {
             builder.goal_tsr->startSampling();
-            builder.initialize();
-
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
             builder.goal_tsr->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));

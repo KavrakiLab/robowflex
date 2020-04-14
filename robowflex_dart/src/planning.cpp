@@ -16,6 +16,66 @@
 using namespace robowflex::darts;
 
 ///
+/// WorldValidityChecker
+///
+
+WorldValidityChecker::WorldValidityChecker(const ompl::base::SpaceInformationPtr &si, std::size_t n)
+  : ompl::base::StateValidityChecker(si)
+  , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
+  , space_((constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
+                           si_->getStateSpace())
+               ->as<StateSpace>())
+  , world_(space_->getWorld())
+{
+    for (std::size_t i = 0; i < n; ++i)
+        worlds_.emplace(world_->clone(std::to_string(i)));
+}
+
+bool WorldValidityChecker::isValid(const ompl::base::State *state) const
+{
+    auto world = getWorld();
+
+    auto as = getStateConst(state);
+
+    world->lock();
+    space_->setWorldState(world, as);
+    bool r = not world->inCollision();
+    world->unlock();
+
+    addWorld(world);
+
+    return r;
+}
+
+const StateSpace::StateType *WorldValidityChecker::getStateConst(const ompl::base::State *state) const
+{
+    if (constrained_)
+        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
+            ->getState()
+            ->as<StateSpace::StateType>();
+    else
+        return state->as<StateSpace::StateType>();
+}
+
+WorldPtr WorldValidityChecker::getWorld() const
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    cv_.wait(lock, [&] { return not worlds_.empty(); });
+
+    WorldPtr world = worlds_.front();
+    worlds_.pop();
+
+    return world;
+}
+
+void WorldValidityChecker::addWorld(const WorldPtr &world) const
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    worlds_.emplace(world);
+    cv_.notify_one();
+}
+
+///
 /// TSRGoal
 ///
 
@@ -33,9 +93,14 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
 {
     tsr_->useWorldIndices(getSpace()->getIndices());
     tsr_->setWorldIndices(getSpace()->getIndices());
+
     tsr_->setWorldLowerLimits(getSpace()->getLowerBound());
     tsr_->setWorldUpperLimits(getSpace()->getUpperBound());
+
     tsr_->initialize();
+
+    std::cout << "TSRGoal" << std::endl;
+    tsr_->print(std::cout);
 }
 
 TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
@@ -136,12 +201,12 @@ PlanBuilder::PlanBuilder(WorldPtr world) : rspace(std::make_shared<StateSpace>(w
 
 void PlanBuilder::getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg)
 {
-    // copy workspace parameters
     const auto &mic = msg.workspace_parameters.min_corner;
-    const auto &mac = msg.workspace_parameters.max_corner;
     world->getWorkspaceLow()[0] = mic.x;
     world->getWorkspaceLow()[1] = mic.y;
     world->getWorkspaceLow()[2] = mic.z;
+
+    const auto &mac = msg.workspace_parameters.max_corner;
     world->getWorkspaceHigh()[0] = mac.x;
     world->getWorkspaceHigh()[1] = mac.y;
     world->getWorkspaceHigh()[2] = mac.z;
@@ -178,7 +243,7 @@ TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
-    if (not msg.header.frame_id.empty())
+    if (not msg.header.frame_id.empty() and msg.header.frame_id != "world")
         spec.setBase(robot_name, msg.header.frame_id);
 
     if (not msg.constraint_region.meshes.empty())
@@ -215,6 +280,7 @@ TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
         spec.setZPosTolerance(primitive.dimensions[0]);
     }
 
+    // spec.print(std::cout);
     return std::make_shared<TSR>(world, spec);
 }
 
@@ -223,7 +289,7 @@ TSRPtr PlanBuilder::TSRfromOrientationConstraint(const std::string &robot_name,
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
-    if (not msg.header.frame_id.empty())
+    if (not msg.header.frame_id.empty() and msg.header.frame_id != "world")
         spec.setBase(robot_name, msg.header.frame_id);
 
     spec.setRotation(TF::quaternionMsgToEigen(msg.orientation));
@@ -232,6 +298,7 @@ TSRPtr PlanBuilder::TSRfromOrientationConstraint(const std::string &robot_name,
     spec.setYRotTolerance(msg.absolute_y_axis_tolerance);
     spec.setZRotTolerance(msg.absolute_z_axis_tolerance);
 
+    // spec.print(std::cout);
     return std::make_shared<TSR>(world, spec);
 }
 
@@ -258,8 +325,8 @@ void PlanBuilder::getGoalFromMessage(const std::string &robot_name, const moveit
 
 void PlanBuilder::fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg)
 {
-    getGroupFromMessage(robot_name, msg);
     getWorkspaceBoundsFromMessage(msg);
+    getGroupFromMessage(robot_name, msg);
     getStartFromMessage(robot_name, msg);
     getPathConstraintsFromMessage(robot_name, msg);
     getGoalFromMessage(robot_name, msg);
@@ -364,6 +431,9 @@ void PlanBuilder::initializeConstrained()
 
     constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
 
+    std::cout << "Path Constraint" << std::endl;
+    constraint->getSet()->print(std::cout);
+
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
     space = pss;
     info = std::make_shared<ompl::base::ConstrainedSpaceInformation>(pss);
@@ -376,6 +446,7 @@ void PlanBuilder::initializeConstrained()
     // pss->setDelta(0.1);
     // pss->setDelta(0.5);
     // pss->setLambda(2);
+    // pss->setLambda(3);
     pss->setLambda(5);
 }
 
@@ -434,18 +505,16 @@ void PlanBuilder::setStateValidityChecker()
 {
     if (ss)
     {
-        ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-            auto as = getStateConst(state);
+        ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
+        // ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
+        //     auto as = getStateConst(state);
 
-            world->lock();
-            rspace->setWorldState(world, as);
-            // world->forceUpdate();
-            // bool r = not world->inCollision() and  //
-            //          ((constraint) ? constraint->isSatisfied(state) : true);
-            bool r = not world->inCollision();
-            world->unlock();
-            return r;
-        });
+        //     world->lock();
+        //     rspace->setWorldState(world, as);
+        //     bool r = not world->inCollision();
+        //     world->unlock();
+        //     return r;
+        // });
     }
 }
 

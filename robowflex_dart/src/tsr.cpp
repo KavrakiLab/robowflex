@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <boost/format.hpp>
+
 #include <dart/dynamics/SimpleFrame.hpp>
 #include <dart/dynamics/InverseKinematics.hpp>
 
@@ -78,7 +80,7 @@ void TSR::Specification::setRotation(double w, double x, double y, double z)
 
 void TSR::Specification::setPose(const RobotPose &other)
 {
-    pose = pose;
+    pose = other;
 }
 
 void TSR::Specification::setPose(const Eigen::Ref<const Eigen::Vector3d> &position,
@@ -239,7 +241,7 @@ void TSR::Specification::setNoRotTolerance()
     setNoZRotTolerance();
 }
 
-std::size_t TSR::Specification::getDimension()
+std::size_t TSR::Specification::getDimension() const
 {
     std::size_t k = 0;
     for (const auto &idx : indices)
@@ -251,12 +253,12 @@ std::size_t TSR::Specification::getDimension()
     return k;
 }
 
-bool TSR::Specification::isPosConstrained(double lower, double upper)
+bool TSR::Specification::isPosConstrained(double lower, double upper) const
 {
     return std::isfinite(lower) or std::isfinite(upper);
 }
 
-bool TSR::Specification::isRotConstrained(double lower, double upper)
+bool TSR::Specification::isRotConstrained(double lower, double upper) const
 {
     const double tpi = dart::math::constants<double>::two_pi();
     return std::abs(upper - lower) < tpi;
@@ -281,9 +283,9 @@ bool TSR::Specification::intersect(const Specification &other)
     if (base.structure != other.base.structure or base.frame != other.base.frame)
         return false;
 
-    // only check same rotations right now
-    if (getRotation().angularDistance(other.getRotation()) > magic::DEFAULT_IK_TOLERANCE)
-        return false;
+    // TODO: Check if rotations overlap
+    // if (getRotation().angularDistance(other.getRotation()) > magic::DEFAULT_IK_TOLERANCE)
+    //     return false;
 
     Eigen::Vector3d p = getPosition();
     Eigen::Vector3d op = other.getPosition();
@@ -314,6 +316,9 @@ bool TSR::Specification::intersect(const Specification &other)
     }
 
     Eigen::Vector3d np;
+
+    if (not isRotationConstrained())
+        setRotation(other.getRotation());
 
     // enforce new bounds
     for (std::size_t i = 0; i < 3; ++i)
@@ -348,6 +353,60 @@ bool TSR::Specification::intersect(const Specification &other)
 bool TSR::Specification::isRelative() const
 {
     return base.frame != magic::ROOT_FRAME;
+}
+
+bool TSR::Specification::isPositionConstrained() const
+{
+    bool value = false;
+    for (std::size_t i = 0; i < 3; ++i)
+        value |= isPosConstrained(position.lower[i], position.upper[i]);
+
+    return value;
+}
+
+bool TSR::Specification::isRotationConstrained() const
+{
+    bool value = false;
+    for (std::size_t i = 0; i < 3; ++i)
+        value |= isRotConstrained(orientation.lower[i], orientation.upper[i]);
+
+    return value;
+}
+
+void TSR::Specification::print(std::ostream &out) const
+{
+    if (isRelative())
+        out << boost::format("B:%1%:%2% => T:%3%:%4%")  //
+                   % base.frame % base.structure % target.frame % target.structure;
+    else
+        out << boost::format("T:%1%:%2%")  //
+                   % target.frame % target.structure;
+
+    out << std::endl;
+    out << "Position                          Orientation" << std::endl;
+
+    auto p = getPosition();
+    auto o = getRotation();
+    out << boost::format(                                                                              //
+               " x:%1$+07.4f (%2$+07.4f, %3$+07.4f) [%7%]  x:%4$+07.4f (%5$+07.4f, %6$+07.4f) [%8%]")  //
+               % p[0] % position.lower[0] % position.upper[0]                                          //
+               % o.x() % orientation.lower[0] % orientation.upper[0]                                   //
+               % indices[3] % indices[0];
+    out << std::endl;
+    out << boost::format(                                                                              //
+               " y:%1$+07.4f (%2$+07.4f, %3$+07.4f) [%7%]  y:%4$+07.4f (%5$+07.4f, %6$+07.4f) [%8%]")  //
+               % p[1] % position.lower[1] % position.upper[1]                                          //
+               % o.y() % orientation.lower[1] % orientation.upper[1]                                   //
+               % indices[4] % indices[1];
+    out << std::endl;
+    out << boost::format(                                                                              //
+               " z:%1$+07.4f (%2$+07.4f, %3$+07.4f) [%7%]  z:%4$+07.4f (%5$+07.4f, %6$+07.4f) [%8%]")  //
+               % p[2] % position.lower[2] % position.upper[2]                                          //
+               % o.z() % orientation.lower[2] % orientation.upper[2]                                   //
+               % indices[5] % indices[2];
+    out << std::endl;
+    out << boost::format("                                   w:%1$+07.4f") % o.w();
+    out << std::endl;
 }
 
 ///
@@ -791,7 +850,12 @@ void TSRSet::addTSR(const TSRPtr &tsr, double weight)
     for (auto &etsr : tsrs_)
         // Don't need this entire TSR if we can intersect
         if (etsr->getSpecification().intersect(spec))
+        {
+            dimension_ = 0;
+            for (auto &tsr : tsrs_)
+                dimension_ += tsr->getDimension();
             return;
+        }
 
     // copy for intersections later
     auto ntsr = std::make_shared<TSR>(world_, spec);
@@ -801,13 +865,12 @@ void TSRSet::addTSR(const TSRPtr &tsr, double weight)
     // weight relative frames less
     if (weight - 1. < 1e-4)
         if (spec.isRelative())
-            weight = 0.5;
+            weight = 0.1;
 
     tsrs_.emplace_back(ntsr);
     weights_.emplace_back(weight);
 
     dimension_ += ntsr->getDimension();
-
     tolerance_ = std::min(tolerance_, spec.tolerance);
 }
 
@@ -1035,6 +1098,14 @@ void TSRSet::enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const
         world = world.cwiseMin(upper_);
     if (lower_.size())
         world = world.cwiseMax(lower_);
+}
+
+void TSRSet::print(std::ostream &out) const
+{
+    out << "TSRSet --------------------" << std::endl;
+    for (const auto &tsr : tsrs_)
+        tsr->getSpecification().print(out);
+    out << "---------------------------" << std::endl;
 }
 
 ///

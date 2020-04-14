@@ -4,6 +4,10 @@
 #define ROBOWFLEX_DART_PLANNING_
 
 #include <set>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
 
 #include <Eigen/Dense>
 
@@ -26,7 +30,28 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(World)
 
         ROBOWFLEX_CLASS_FORWARD(TSRGoal)
+        ROBOWFLEX_CLASS_FORWARD(WorldValidityChecker)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
+
+        class WorldValidityChecker : public ompl::base::StateValidityChecker
+        {
+        public:
+            WorldValidityChecker(const ompl::base::SpaceInformationPtr &si, std::size_t n = 1);
+            bool isValid(const ompl::base::State *state) const override;
+
+        private:
+            const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
+            WorldPtr getWorld() const;
+            void addWorld(const WorldPtr &world) const;
+
+            bool constrained_;
+            StateSpace *space_;
+            WorldPtr world_;
+
+            mutable std::queue<WorldPtr> worlds_;
+            mutable std::mutex mutex_;
+            mutable std::condition_variable cv_;
+        };
 
         class TSRGoal : public ompl::base::GoalLazySamples
         {

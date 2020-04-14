@@ -20,12 +20,11 @@
 #include <ompl/geometric/planners/bitstar/BITstar.h>
 #include <ompl/geometric/planners/kpiece/KPIECE1.h>
 #include <ompl/geometric/planners/kpiece/BKPIECE1.h>
+#include <ompl/tools/multiplan/ParallelPlan.h>
 
 using namespace robowflex;
 
-// static const std::string GROUP = "body";
 static const std::string GROUP = "legsandtorso";
-// static const std::string GROUP = "legs_no_world";
 
 int main(int argc, char **argv)
 {
@@ -51,7 +50,6 @@ int main(int argc, char **argv)
     builder.getWorkspaceBoundsFromMessage(message);
     builder.getStartFromMessage("r2", message);
 
-
     //
     // Waist TSR
     //
@@ -62,7 +60,6 @@ int main(int argc, char **argv)
     // waist_spec.setNoZRotTolerance();
 
     auto waist_tsr = std::make_shared<darts::TSR>(world, waist_spec);
-    waist_tsr->useGroup(GROUP);
     builder.addConstraint(waist_tsr);
 
     //
@@ -73,7 +70,6 @@ int main(int argc, char **argv)
     lleg_spec.setPose(0.451508662827, 0.246606909363, -1.10409735323,  //
                       2.523198695e-06, -0.999999999982, 1.98040305765e-06, 5.16339177538e-06);
     auto lleg_tsr = std::make_shared<darts::TSR>(world, lleg_spec);
-    lleg_tsr->useGroup(GROUP);
     builder.addConstraint(lleg_tsr);
 
     //
@@ -81,10 +77,9 @@ int main(int argc, char **argv)
     //
     darts::TSR::Specification start_spec;
     start_spec.setTarget("r2", "r2/right_leg/gripper/tip");
-    start_spec.setPose(1.2, -0.248108850885, -1.10411526908,  //
+    start_spec.setPose(1.5, -0.248108850885, -1.10411526908,  //
                        4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06);
     auto start_tsr = std::make_shared<darts::TSR>(world, start_spec);
-    start_tsr->useGroup(GROUP);
     builder.setGoalTSR(start_tsr);
 
     //
@@ -95,6 +90,22 @@ int main(int argc, char **argv)
     //
     // Setup planner
     //
+
+    // ompl::tools::ParallelPlan pp(builder.ss->getProblemDefinition());
+    // auto rrt1 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    // rrt1->setRange(100);
+    // auto rrt2 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    // rrt2->setRange(100);
+    // auto rrt3 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    // rrt3->setRange(100);
+    // auto rrt4 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+    // rrt4->setRange(100);
+
+    // pp.addPlanner(rrt1);
+    // pp.addPlanner(rrt2);
+    // pp.addPlanner(rrt3);
+    // pp.addPlanner(rrt4);
+
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(100);
     builder.ss->setPlanner(rrt);
@@ -108,6 +119,7 @@ int main(int argc, char **argv)
         {
             builder.goal_tsr->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
+            // ompl::base::PlannerStatus solved = pp.solve(60.0, 1, 1, true);
             builder.goal_tsr->stopSampling();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
