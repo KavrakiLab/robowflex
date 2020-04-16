@@ -44,6 +44,10 @@ Robot::Robot(robowflex::RobotPtr robot) : Structure(robot->getName())
     robowflex::IO::deleteFile(srdf_filename);
 }
 
+Robot::Robot(const std::string &name, const ScenePtr &scene) : Structure(name, scene)
+{
+}
+
 RobotPtr Robot::cloneRobot(const std::string &newName) const
 {
     auto robot = std::make_shared<Robot>(newName);
@@ -52,11 +56,8 @@ RobotPtr Robot::cloneRobot(const std::string &newName) const
     for (const auto &pair : acm_->getDisabledPairsConst())
         robot->getACM()->disableCollision(pair.first, pair.second);
 
-    robot->getGroups() = groups_;
-    for (const auto &group : groups_)
-        robot->processGroup(group.first);
-
-    robot->getGroupStates() = group_states_;
+    robot->setGroups(groups_);
+    robot->setNamedGroupStates(group_states_);
 
     return robot;
 }
@@ -98,6 +99,7 @@ bool Robot::addJointToGroup(const std::string &group, const std::string &joint_n
     if (joint->getNumDofs() > 0)
         addNameToGroup(group, joint_name);
 
+    processGroup(group);
     return true;
 }
 
@@ -124,6 +126,7 @@ bool Robot::addLinkToGroup(const std::string &group, const std::string &link_nam
     if (joint->getNumDofs() > 0)
         addNameToGroup(group, joint->getName());
 
+    processGroup(group);
     return true;
 }
 
@@ -161,6 +164,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
     for (const auto &name : names)
         addNameToGroup(group, name);
 
+    processGroup(group);
     return true;
 }
 
@@ -175,6 +179,7 @@ bool Robot::addGroupToGroup(const std::string &group, const std::string &other)
     for (const auto &name : getGroupJointNamesConst(other))
         addNameToGroup(group, name);
 
+    processGroup(group);
     return true;
 }
 
@@ -273,8 +278,6 @@ bool Robot::loadSRDF(const std::string &srdf)
             groups = groups->NextSiblingElement("group");
         }
 
-        processGroup(group_name);
-
         group = group->NextSiblingElement("group");
     }
 
@@ -328,12 +331,14 @@ bool Robot::isGroup(const std::string &name) const
     return groups_.find(name) != groups_.end();
 }
 
-std::map<std::string, std::vector<std::string>> &Robot::getGroups()
+void Robot::setGroups(const GroupsMap &newGroups)
 {
-    return groups_;
+    groups_ = newGroups;
+    for (const auto &pair : groups_)
+        processGroup(pair.first);
 }
 
-const std::map<std::string, std::vector<std::string>> &Robot::getGroupsConst()
+const Robot::GroupsMap &Robot::getGroups() const
 {
     return groups_;
 }
@@ -377,11 +382,6 @@ const std::vector<std::size_t> &Robot::getGroupIndices(const std::string &group)
     return group_indices_.find(group)->second;
 }
 
-void Robot::setDof(unsigned int index, double value)
-{
-    skeleton_->getDof(index)->setPosition(value);
-}
-
 std::size_t Robot::getNumDofsGroup(const std::string &group) const
 {
     return getGroupIndices(group).size();
@@ -397,7 +397,12 @@ void Robot::setGroupState(const std::string &group, const Eigen::Ref<const Eigen
     skeleton_->setPositions(getGroupIndices(group), q);
 }
 
-std::map<std::string, std::map<std::string, Eigen::VectorXd>> &Robot::getGroupStates()
+void Robot::setNamedGroupStates(const NamedStatesMap &states)
+{
+    group_states_ = states;
+}
+
+const Robot::NamedStatesMap &Robot::getNamedGroupStates() const
 {
     return group_states_;
 }
@@ -466,7 +471,11 @@ void Robot::processGroup(const std::string &group)
             indices.emplace_back(joint->getDof(i)->getIndexInSkeleton());
     }
 
-    group_indices_.emplace(group, indices);
+    auto it = group_indices_.find(group);
+    if (it == group_indices_.end())
+        group_indices_.emplace(group, indices);
+    else
+        it->second = indices;
 }
 
 RobotPtr robowflex::darts::loadMoveItRobot(const std::string &name, const std::string &urdf,

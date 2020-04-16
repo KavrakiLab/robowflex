@@ -79,6 +79,10 @@ namespace robowflex
 
             bool solveIK();
 
+            /** \brief Set an individual DoF in the robot.
+             */
+            void setDof(unsigned int index, double value);
+
         protected:
             void createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape);
 

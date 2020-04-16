@@ -226,6 +226,11 @@ bool Structure::solveIK()
     return ik->solveAndApply(true);
 }
 
+void Structure::setDof(unsigned int index, double value)
+{
+    skeleton_->getDof(index)->setPosition(value);
+}
+
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
 {
     const auto &dimensions = geometry->getDimensions();
