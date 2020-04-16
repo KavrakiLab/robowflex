@@ -13,14 +13,13 @@
 
 namespace robowflex
 {
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Scene)
     ROBOWFLEX_CLASS_FORWARD(Geometry)
+    /** \endcond */
 
     namespace darts
     {
-        ROBOWFLEX_CLASS_FORWARD(ACM)
-        ROBOWFLEX_CLASS_FORWARD(Structure)
-
         namespace magic
         {
             static const double DEFAULT_DENSITY = 1000.;
@@ -28,79 +27,224 @@ namespace robowflex
             static const double DEFAULT_RESTITUTION = 1;
         };  // namespace magic
 
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(ACM)
+        /** \endcond */
+
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(Structure)
+        /** \endcond */
+
+        /** \class robowflex::darts::StructurePtr
+            \brief A shared pointer wrapper for robowflex::darts::Structure. */
+
+        /** \class robowflex::darts::StructureConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::Structure. */
+
+        /** \brief Wrapper class for a dart::dynamics::Skeleton.
+         */
         class Structure
         {
         public:
-            struct Frame
-            {
-                dart::dynamics::BodyNode *node;
-                dart::dynamics::Joint *joint;
-            };
+            /** \name Constructors
+                \{ */
 
+            /** \brief Create an empty structure.
+             *  \param[in] name Name of the structure.
+             */
             Structure(const std::string &name);
+
+            /** \brief Copy a MoveIt (robowflex::Scene) into a structure.
+             *  \param[in] name Name of the structure.
+             *  \param[scene] scene Scene to copy.
+             */
             Structure(const std::string &name, const ScenePtr &scene);
+
+            /** \brief Destructor.
+             */
             virtual ~Structure() = default;
 
+            /** \brief Clones this structure with a new name.
+             *  \param[in] newName Name for clone of the structure.
+             *  \return The cloned structure.
+             */
             StructurePtr cloneStructure(const std::string &newName) const;
 
+            /** \} */
+
+            /** \name Getters and Setters
+                \{ */
+
+            /** \brief Get the name of this structure.
+             *  \return Name of the structure.
+             */
             const std::string &getName() const;
 
+            /** \brief Get the ACM for the structure.
+             *  \return The ACM.
+             */
             ACMPtr getACM();
+
+            /** \brief Get the ACM for the structure.
+             *  \return The ACM.
+             */
             const ACMPtr &getACMConst() const;
 
+            /** \brief Set the skeleton for the structure.
+             *  \param[in] skeleton The new skeleton.
+             */
             void setSkeleton(const dart::dynamics::SkeletonPtr &skeleton);
+
+            /** \brief Get the underlying skeleton for the structure.
+             *  \return The skeleton.
+             */
             dart::dynamics::SkeletonPtr &getSkeleton();
+
+            /** \brief Get the underlying skeleton for the structure.
+             *  \return The skeleton.
+             */
             const dart::dynamics::SkeletonPtr &getSkeletonConst() const;
 
+            /** \} */
+
+            /** \name Getting and Setting Configurations
+                \{ */
+
+            /** \brief Set the value of a 1-DoF joint in the structure.
+             *  \param[in] name Name of joint.
+             *  \param[in] value Value to set joint.
+             */
+            void setJoint(const std::string &name, double value);
+
+            /** \brief Set the value of a n-DoF joint in the structure.
+             *  \param[in] name Name of joint.
+             *  \param[in] value Value to set joint.
+             */
+            void setJoint(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &value);
+
+            /** \brief Solve the current whole-body IK problem imposed on the structure.
+             *  \return Returns true on success false on failure.
+             */
+            bool solveIK();
+
+            /** \brief Set the DoF at \a index to \a value.
+             *  \param[in] index Index of DoF to set.
+             *  \param[in] value Value to set DoF.
+             */
+            void setDof(unsigned int index, double value);
+
+            /** \} */
+
+            /** \name Constructing Frames
+                \{ */
+
+            /** \brief Add a new frame attached to a revolute joint to this structure.
+             *  \param[in] properties Joint properties to use for joint.
+             *  \param[in] shape Shape to attach to frame.
+             *  \param[in] parent Parent frame to attach new joint to.
+             *  \return The created joint and body node.
+             */
             std::pair<dart::dynamics::RevoluteJoint *, dart::dynamics::BodyNode *>         //
             addRevoluteFrame(const dart::dynamics::RevoluteJoint::Properties &properties,  //
                              const dart::dynamics::ShapePtr &shape,                        //
                              dart::dynamics::BodyNode *parent = nullptr);
 
+            /** \brief Add a new frame attached to a prismatic joint to this structure.
+             *  \param[in] properties Joint properties to use for joint.
+             *  \param[in] shape Shape to attach to frame.
+             *  \param[in] parent Parent frame to attach new joint to.
+             *  \return The created joint and body node.
+             */
             std::pair<dart::dynamics::PrismaticJoint *, dart::dynamics::BodyNode *>          //
             addPrismaticFrame(const dart::dynamics::PrismaticJoint::Properties &properties,  //
                               const dart::dynamics::ShapePtr &shape,                         //
                               dart::dynamics::BodyNode *parent = nullptr);
 
+            /** \brief Add a new frame attached to a free joint to this structure.
+             *  \param[in] properties Joint properties to use for joint.
+             *  \param[in] shape Shape to attach to frame.
+             *  \param[in] parent Parent frame to attach new joint to.
+             *  \return The created joint and body node.
+             */
             std::pair<dart::dynamics::FreeJoint *, dart::dynamics::BodyNode *>     //
             addFreeFrame(const dart::dynamics::FreeJoint::Properties &properties,  //
                          const dart::dynamics::ShapePtr &shape,                    //
                          dart::dynamics::BodyNode *parent = nullptr);
 
+            /** \brief Add a new frame attached to a fixed joint to this structure.
+             *  \param[in] properties Joint properties to use for joint.
+             *  \param[in] shape Shape to attach to frame.
+             *  \param[in] parent Parent frame to attach new joint to.
+             *  \return The created joint and body node.
+             */
             std::pair<dart::dynamics::WeldJoint *, dart::dynamics::BodyNode *>       //
             addWeldedFrame(const dart::dynamics::WeldJoint::Properties &properties,  //
                            const dart::dynamics::ShapePtr &shape,                    //
                            dart::dynamics::BodyNode *parent = nullptr);
 
-            void addGround(double z = 0.);
-
-            void setJoint(const std::string &name, double value);
-            void setJoint(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &value);
-
-            bool solveIK();
-
-            /** \brief Set an individual DoF in the robot.
+            /** \brief Add a ground plane.
+             *  \param[in] z Z- height of the plane.
+             *  \param[in] radius X- and Y- width of the plane.
              */
-            void setDof(unsigned int index, double value);
+            void addGround(double z = 0., double radius = 10.);
+
+            /** \} */
 
         protected:
+            /** \brief Create a shape node on a body.
+             *  \param[in,out] body Body to add shape node to.
+             *  \param[in] shape Shape to add to body.
+             */
             void createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape);
 
-            const std::string name_{"robot"};
-            dart::dynamics::SkeletonPtr skeleton_{nullptr};
-            ACMPtr acm_;
+            const std::string name_{"robot"};                ///< Name of the structure.
+            dart::dynamics::SkeletonPtr skeleton_{nullptr};  ///< Underlying skeleton.
+            ACMPtr acm_;                                     ///< ACM for structure.
         };
 
+        /** \brief Convert a robowflex::Geometry to a Dart Shape.
+         *  \param[in] geometry Geometry to convert.
+         *  \return Shape from geometry.
+         */
         dart::dynamics::ShapePtr makeGeometry(const GeometryPtr &geometry);
 
+        /** \brief Create a box.
+         *  \param[in] v Dimensions of the box.
+         *  \return The box shape.
+         */
         dart::dynamics::ShapePtr makeBox(const Eigen::Ref<const Eigen::Vector3d> &v);
+
+        /** \brief Create a box.
+         *  \param[in] x X dimension of box.
+         *  \param[in] y Y dimension of box.
+         *  \param[in] z Z dimension of box.
+         *  \return The box shape.
+         */
         dart::dynamics::ShapePtr makeBox(double x, double y, double z);
 
+        /** \brief Create a cylinder.
+         *  \param[in] radius Radius of cylinder.
+         *  \param[in] height Height of the cylinder.
+         *  \return The cylinder shape.
+         */
         dart::dynamics::ShapePtr makeCylinder(double radius, double height);
+
+        /** \brief Create a sphere.
+         *  \param[in] radius Radius of sphere.
+         *  \return The sphere shape.
+         */
         dart::dynamics::ShapePtr makeSphere(double radius);
 
+        /** \brief Create a mesh from a robowflex::Geometry that contains a mesh.
+         *  \param[in] geometry Geometry with a mesh to convert.
+         *  \return The mesh shape.
+         */
         dart::dynamics::ShapePtr makeMesh(const GeometryPtr &geometry);
 
+        /** \brief Sets the color of the shapes on a body node.
+         *  \param[in] node Node to set color of.
+         *  \param[in] color Color to set.
+         */
         void setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color);
     }  // namespace darts
 }  // namespace robowflex

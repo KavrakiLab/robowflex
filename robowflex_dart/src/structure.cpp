@@ -192,16 +192,15 @@ Structure::addWeldedFrame(const dart::dynamics::WeldJoint::Properties &propertie
     return pair;
 }
 
-void Structure::addGround(double z)
+void Structure::addGround(double z, double radius)
 {
     const double thickness = 0.01;
 
     dart::dynamics::WeldJoint::Properties joint;
     joint.mName = "ground";
-    // joint.mT_ParentBodyToJoint = Eigen::Isometry3d::Identity();
     joint.mT_ParentBodyToJoint.translation() = Eigen::Vector3d(0, 0, z - thickness);
 
-    auto ground = makeBox(10, 10, thickness);
+    auto ground = makeBox(radius, radius, thickness);
     auto pair = addWeldedFrame(joint, ground);
 
     setColor(pair.second, dart::Color::Blue(0.2));

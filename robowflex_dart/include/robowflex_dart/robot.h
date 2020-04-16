@@ -37,10 +37,15 @@ namespace robowflex
         class Robot : public Structure
         {
         public:
+            /** \brief A map of group name to member joints.
+             */
             using GroupsMap = std::map<std::string, std::vector<std::string>>;
+
+            /** \brief A map of group name to a map of state name to configurations.
+             */
             using NamedStatesMap = std::map<std::string, std::map<std::string, Eigen::VectorXd>>;
 
-            /** \name Constructors.
+            /** \name Constructors
                 \{ */
 
             /** \brief Construct an empty robot.
@@ -67,7 +72,7 @@ namespace robowflex
 
             /** \} */
 
-            /** \name File loading.
+            /** \name File Loading
                 \{ */
 
             /** \brief Load a URDF into this robot.
@@ -84,7 +89,7 @@ namespace robowflex
 
             /** \} */
 
-            /** \name Group operations.
+            /** \name Group Operations
                 \{ */
 
             /** \brief Get the groups currently in the robot. A map of group name to a list of all joints in
