@@ -16,66 +16,6 @@
 using namespace robowflex::darts;
 
 ///
-/// WorldValidityChecker
-///
-
-WorldValidityChecker::WorldValidityChecker(const ompl::base::SpaceInformationPtr &si, std::size_t n)
-  : ompl::base::StateValidityChecker(si)
-  , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
-  , space_((constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
-                           si_->getStateSpace())
-               ->as<StateSpace>())
-  , world_(space_->getWorld())
-{
-    for (std::size_t i = 0; i < n; ++i)
-        worlds_.emplace(world_->clone(std::to_string(i)));
-}
-
-bool WorldValidityChecker::isValid(const ompl::base::State *state) const
-{
-    auto world = getWorld();
-
-    auto as = getStateConst(state);
-
-    world->lock();
-    space_->setWorldState(world, as);
-    bool r = not world->inCollision();
-    world->unlock();
-
-    addWorld(world);
-
-    return r;
-}
-
-const StateSpace::StateType *WorldValidityChecker::getStateConst(const ompl::base::State *state) const
-{
-    if (constrained_)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
-    else
-        return state->as<StateSpace::StateType>();
-}
-
-WorldPtr WorldValidityChecker::getWorld() const
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-    cv_.wait(lock, [&] { return not worlds_.empty(); });
-
-    WorldPtr world = worlds_.front();
-    worlds_.pop();
-
-    return world;
-}
-
-void WorldValidityChecker::addWorld(const WorldPtr &world) const
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-    worlds_.emplace(world);
-    cv_.notify_one();
-}
-
-///
 /// TSRGoal
 ///
 
@@ -130,7 +70,6 @@ TSRGoal::~TSRGoal()
 bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::State *state)
 {
     bool success = false;
-    // std::size_t tries = attempts_;
     while (not success and not pdef_->hasSolution())
     {
         auto &&as = getState(state);
@@ -141,19 +80,11 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         if (tsr_->numTSRs() == 1)
             success = tsr_->solveWorldState(x);
         else
-        {
-            // tsr_->solveWorldState(x);
             success = tsr_->solveGradientWorldState(x);
-        }
-
-        // bool success2 = success;
 
         success &= si_->satisfiesBounds(state);
-        // std::cout << "Sampled a goal with " << tsr_->distanceWorldState(x) << " to go! " << success2 << " "
-        //           << success << std::endl;
     }
 
-    // return getStateCount() < maxStateCount_;
     return true;
 }
 
@@ -361,7 +292,11 @@ void PlanBuilder::setStartConfiguration(const std::vector<double> &q)
 void PlanBuilder::sampleStartConfiguration()
 {
     if (space)
-        setStartConfiguration(sampleState()->data);
+    {
+        auto state = sampleState();
+        setStartConfiguration(getState(state)->data);
+        space->freeState(state);
+    }
 }
 
 void PlanBuilder::setGoalConfigurationFromWorld()
@@ -393,7 +328,11 @@ void PlanBuilder::setGoalTSR(const std::vector<TSRPtr> &tsrs)
 void PlanBuilder::sampleGoalConfiguration()
 {
     if (space)
-        setGoalConfiguration(sampleState()->data);
+    {
+        auto state = sampleState();
+        setGoalConfiguration(getState(state)->data);
+        space->freeState(state);
+    }
 }
 
 void PlanBuilder::initialize()
@@ -474,7 +413,7 @@ const StateSpace::StateType *PlanBuilder::getStateConst(const ompl::base::State 
     return getState(const_cast<ompl::base::State *>(state));
 }
 
-StateSpace::StateType *PlanBuilder::sampleState() const
+ompl::base::State *PlanBuilder::sampleState() const
 {
     if (space)
     {
@@ -495,7 +434,7 @@ StateSpace::StateType *PlanBuilder::sampleState() const
                 constrained = true;
         } while (not valid or not constrained);
 
-        return getState(state);
+        return state;
     }
     else
         return nullptr;
@@ -505,16 +444,16 @@ void PlanBuilder::setStateValidityChecker()
 {
     if (ss)
     {
-        ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
-        // ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-        //     auto as = getStateConst(state);
+        // ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
+        ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
+            auto as = getStateConst(state);
 
-        //     world->lock();
-        //     rspace->setWorldState(world, as);
-        //     bool r = not world->inCollision();
-        //     world->unlock();
-        //     return r;
-        // });
+            world->lock();
+            rspace->setWorldState(world, as);
+            bool r = not world->inCollision();
+            world->unlock();
+            return r;
+        });
     }
 }
 

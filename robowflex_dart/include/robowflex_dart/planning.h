@@ -4,11 +4,6 @@
 #define ROBOWFLEX_DART_PLANNING_
 
 #include <set>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-
-
 #include <Eigen/Dense>
 
 #include <ompl/base/goals/GoalLazySamples.h>
@@ -24,132 +19,321 @@ namespace robowflex
 {
     namespace darts
     {
+        /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TSR)
         ROBOWFLEX_CLASS_FORWARD(TSRSet)
         ROBOWFLEX_CLASS_FORWARD(TSRConstraint)
         ROBOWFLEX_CLASS_FORWARD(World)
+        /** \endcond */
 
+        /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TSRGoal)
-        ROBOWFLEX_CLASS_FORWARD(WorldValidityChecker)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
+        /** \endcond */
 
-        class WorldValidityChecker : public ompl::base::StateValidityChecker
-        {
-        public:
-            WorldValidityChecker(const ompl::base::SpaceInformationPtr &si, std::size_t n = 1);
-            bool isValid(const ompl::base::State *state) const override;
+        /** \class robowflex::darts::TSRGoalPtr
+            \brief A shared pointer wrapper for robowflex::darts::TSRGoal. */
 
-        private:
-            const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
-            WorldPtr getWorld() const;
-            void addWorld(const WorldPtr &world) const;
+        /** \class robowflex::darts::TSRGoalConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::TSRGoal. */
 
-            bool constrained_;
-            StateSpace *space_;
-            WorldPtr world_;
-
-            mutable std::queue<WorldPtr> worlds_;
-            mutable std::mutex mutex_;
-            mutable std::condition_variable cv_;
-        };
-
+        /** \brief A sampleable goal region for OMPL for a set of TSRs.
+         *  Samples goals in a separate thread using a clone of the world.
+         */
         class TSRGoal : public ompl::base::GoalLazySamples
         {
         public:
+            /** \name Constructors.
+                \{ */
+
+            /** \brief Constructor.
+             *  \param[in] pdef Problem definition.
+             *  \param[in] si Space information.
+             *  \param[in] world World to use.
+             *  \param[in] tsrs TSRs to sample.
+             */
             TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
                     const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
+
+            /** \brief Constructor.
+             *  \param[in] pdef Problem definition.
+             *  \param[in] si Space information.
+             *  \param[in] world World to use.
+             *  \param[in] tsr TSR to sample.
+             */
             TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
                     const WorldPtr &world, const TSRPtr tsr);
 
+            /** \brief Constructor.
+             *  \param[in] builder Plan builder to use as base for goal.
+             *  \param[in] tsr TSR to sample.
+             */
             TSRGoal(const PlanBuilder &builder, TSRPtr tsr);
+
+            /** \brief Constructor.
+             *  \param[in] builder Plan builder to use as base for goal.
+             *  \param[in] tsrs TSRs to sample.
+             */
             TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs);
 
+            /** \brief Destructor. Stops sampling thread.
+             */
             ~TSRGoal();
 
-            bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+            /** \} */
 
+            bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
             double distanceGoal(const ompl::base::State *state) const override;
 
         private:
+            /** \brief Extract underlying state from a base state.
+             *  \param[in] state State.
+             *  \return Underlying robot state.
+             */
             StateSpace::StateType *getState(ompl::base::State *state) const;
+
+            /** \brief Extract underlying state from a base state.
+             *  \param[in] state State.
+             *  \return Underlying robot state.
+             */
             const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
+
+            /** \brief Gets the underlying state space from the space information.
+             *  \return State space.
+             */
             const StateSpace *getSpace() const;
 
-            WorldPtr world_;
-            TSRSetPtr tsr_;
-            bool constrained_;
-            ompl::base::StateSamplerPtr sampler_;
-            ompl::base::ProblemDefinitionPtr pdef_;
-            std::size_t attempts_{100};
-            std::size_t maxStateCount_{100};
+            WorldPtr world_;                         ///< World used.
+            TSRSetPtr tsr_;                          ///< TSR set to sample from.
+            bool constrained_;                       ///< Is the underlying space constrained?
+            ompl::base::StateSamplerPtr sampler_;    ///< State sampler.
+            ompl::base::ProblemDefinitionPtr pdef_;  ///< Problem definition.
         };
 
+        /** \class robowflex::darts::PlanBuilderPtr
+            \brief A shared pointer wrapper for robowflex::darts::PlanBuilder. */
+
+        /** \class robowflex::darts::PlanBuilderConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::PlanBuilder. */
+
+        /** \brief A helper class to setup common OMPL structures for planning.
+         */
         class PlanBuilder
         {
         public:
+            /** \name Setup and Initialization.
+                \{ */
+
+            /** \brief Constructor.
+             *  \param[in] world World to use for planning.
+             */
             PlanBuilder(WorldPtr world);
 
-            void getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg);
-            void getGroupFromMessage(const std::string &robot_name,
-                                     const moveit_msgs::MotionPlanRequest &msg);
-            void getStartFromMessage(const std::string &robot_name,
-                                     const moveit_msgs::MotionPlanRequest &msg);
-            void getPathConstraintsFromMessage(const std::string &robot_name,
-                                               const moveit_msgs::MotionPlanRequest &msg);
-            void getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
-
-            TSRPtr TSRfromPositionConstraint(const std::string &robot_name,
-                                             const moveit_msgs::PositionConstraint &msg) const;
-            TSRPtr TSRfromOrientationConstraint(const std::string &robot_name,
-                                                const moveit_msgs::OrientationConstraint &msg) const;
-            void fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
-
-            void addGroup(const std::string &skeleton, const std::string &name, std::size_t cyclic = 0);
-
-            void addConstraint(const TSRPtr &tsr);
-
-            void setStartConfigurationFromWorld();
-            void setStartConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
-            void setStartConfiguration(const std::vector<double> &q);
-            void sampleStartConfiguration();
-
-            void setGoalConfigurationFromWorld();
-            void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
-            void setGoalConfiguration(const std::vector<double> &q);
-            void setGoalTSR(const TSRPtr &tsr);
-            void setGoalTSR(const std::vector<TSRPtr> &tsr);
-            void sampleGoalConfiguration();
-
-            StateSpace::StateType *sampleState() const;
-
+            /** \brief Initialize OMPL structures. Only call this once all constraints, groups, and other
+             * parameters have been set for the builder.
+             */
             void initialize();
+
+            /** \brief Calls setup routines on OMPL structures. Call after all setup is done and builder is
+             * initialized.
+             */
             void setup();
 
+            /** \} */
+
+            /** \name MoveIt Planning Messages
+                \{ */
+
+            /** \brief Get workspace bounds from a planning request.
+             *  \param[in] msg Planning request message.
+             */
+            void getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \brief Set group for planning from message.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Planning request message.
+             */
+            void getGroupFromMessage(const std::string &robot_name,
+                                     const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \brief Get the start state from the request message.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Planning request message.
+             */
+            void getStartFromMessage(const std::string &robot_name,
+                                     const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \brief Get the set of path constraints from the request message.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Planning request message.
+             */
+            void getPathConstraintsFromMessage(const std::string &robot_name,
+                                               const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \brief Get the goal constraints from the planning request message.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Planning request message.
+             */
+            void getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \brief Get a TSR from an position constraint.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Position constraint.
+             */
+            TSRPtr TSRfromPositionConstraint(const std::string &robot_name,
+                                             const moveit_msgs::PositionConstraint &msg) const;
+
+            /** \brief Get a TSR from an orientation constraint.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Orientation constraint.
+             */
+            TSRPtr TSRfromOrientationConstraint(const std::string &robot_name,
+                                                const moveit_msgs::OrientationConstraint &msg) const;
+
+            /** \brief Use all of the planning request message to setup motion planning.
+             *  \param[in] robot_name Robot name to use message on.
+             *  \param[in] msg Planning request message.
+             */
+            void fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+
+            /** \} */
+
+            /** \name Other Settings
+                \{ */
+
+            /** \brief Add a robot's planning group to the controlled DoF in the state space.
+             *  \param[in] robot Name of the robot.
+             *  \param[in] name Name of the group in the robot to add.
+             *  \param[in] cyclic If > 0, if the group contains cyclic joints (SO(2), SO(3)) these will be
+             * modeled as Rn.
+             */
+            void addGroup(const std::string &robot, const std::string &name, std::size_t cyclic = 0);
+
+            /** \brief Adds a TSR as a path constraint to the problem.
+             *  \param[in] tsr Path constraint.
+             */
+            void addConstraint(const TSRPtr &tsr);
+
+            /** \} */
+
+            /** \name Start Configuration
+                \{ */
+
+            /** \brief Set the start configuration from the current state of the world.
+             */
+            void setStartConfigurationFromWorld();
+
+            /** \brief Set the start configuration from a configuration.
+             *  \param[in] q Configuration.
+             */
+            void setStartConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
+
+            /** \brief Set the start configuration from a configuration.
+             *  \param[in] q Configuration.
+             */
+            void setStartConfiguration(const std::vector<double> &q);
+
+            /** \brief Sample a valid start configuration.
+             */
+            void sampleStartConfiguration();
+
+            /** \} */
+
+            /** \name Goals
+                \{ */
+
+            /** \brief Set the goal configuration from the current state of the world.
+             */
+            void setGoalConfigurationFromWorld();
+
+            /** \brief Set the goal configuration from a configuration.
+             *  \param[in] q Configuration.
+             */
+            void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
+
+            /** \brief Set the goal configuration from a configuration.
+             *  \param[in] q Configuration.
+             */
+            void setGoalConfiguration(const std::vector<double> &q);
+
+            /** \brief Set a TSR as the goal for the planning problem (will create a TSRGoal)
+             *  \param[in] tsr TSR for the goal.
+             */
+            void setGoalTSR(const TSRPtr &tsr);
+
+            /** \brief Set a set of TSRs as the goal for the planning problem (will create a TSRGoal)
+             *  \param[in] tsrs TSRs for the goal.
+             */
+            void setGoalTSR(const std::vector<TSRPtr> &tsr);
+
+            /** \brief Sample a valid goal configuration.
+             */
+            void sampleGoalConfiguration();
+
+            /** \} */
+
+            /** \name State Access
+                \{ */
+
+            /** \brief Access the underlying state from an OMPL state.
+             *  \param[in] state State to access.
+             *  \return The underlying state.
+             */
             StateSpace::StateType *getState(ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from an OMPL state.
+             *  \param[in] state State to access.
+             *  \return The underlying state.
+             */
             const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
 
+            /** \brief Sample a valid state.
+             *  \return a Valid state.
+             */
+            ompl::base::State *sampleState() const;
+
+            /** \} */
+
+            /** \name Other Functions
+                \{ */
+
+            /** \brief Display the found solution path by animating it in a world. Useful if the OSG GUI for
+             * the world is running.
+             *  \param[in] times Times to display the path.
+             */
             void animateSolutionInWorld(std::size_t times = 0) const;
 
-            StateSpacePtr rspace{nullptr};
-            ompl::base::StateSpacePtr space{nullptr};
-            ompl::base::SpaceInformationPtr info{nullptr};
-            ompl::geometric::SimpleSetupPtr ss{nullptr};
-            WorldPtr world;
-            std::vector<TSRPtr> path_constraints;
+            /** \} */
 
-            TSRConstraintPtr constraint{nullptr};
+            StateSpacePtr rspace{nullptr};             ///< Underlying Robot State Space.
+            ompl::base::StateSpacePtr space{nullptr};  ///< Actual OMPL State Space (might be constrained).
+            ompl::base::SpaceInformationPtr info{nullptr};  ///< Space Information.
+            ompl::geometric::SimpleSetupPtr ss{nullptr};    ///< Simple Setup.
+            WorldPtr world;                                 ///< World used for planning.
 
-            Eigen::VectorXd start;
-            Eigen::VectorXd goal;
-            std::vector<TSRPtr> goal_constraints;
-            TSRGoalPtr goal_tsr{nullptr};
+            std::vector<TSRPtr> path_constraints;  ///< Path Constraints.
+            TSRConstraintPtr constraint{nullptr};  ///< OMPL Constraint for Path Constraints.
+
+            Eigen::VectorXd start;  ///< Start configuration.
+            Eigen::VectorXd goal;   ///< Goal configuration.
+
+            std::vector<TSRPtr> goal_constraints;  ///< Goal constraints.
+            TSRGoalPtr goal_tsr{nullptr};          ///< TSRGoal for Goal constraints.
 
         protected:
+            /** \brief Initialize when path constraints are present.
+             */
             void initializeConstrained();
+
+            /** \brief Initialize when no path constraints are present.
+             */
             void initializeUnconstrained();
 
+            /** \brief Set the state validity checker.
+             */
             void setStateValidityChecker();
         };
     }  // namespace darts
 }  // namespace robowflex
+
 #endif
