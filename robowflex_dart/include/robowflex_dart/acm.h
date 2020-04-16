@@ -34,9 +34,9 @@ namespace robowflex
         {
         public:
             /** \brief Constructor.
-             *  \param[in] robot The structure the ACM is for.
+             *  \param[in] structure The structure the ACM is for.
              */
-            ACM(const Structure *robot);
+            ACM(const Structure *structure);
 
             /** \name Enabling / Disabling Collisions
                 \{ */

@@ -120,11 +120,11 @@ namespace robowflex
 
                 /** \brief Constructor for basic pose TSR constrained in world frame.
                  *  \param[in] structure Structure TSR is on (both target and base frames).
-                 *  \param[in] target Target frame.
+                 *  \param[in] target_frame Target frame.
                  *  \param[in] position Desired position.
-                 *  \param[in] orientation Desired orientation.
+                 *  \param[in] rotation Desired orientation.
                  */
-                Specification(const std::string &structure, const std::string &target,
+                Specification(const std::string &structure, const std::string &target_frame,
                               const Eigen::Ref<const Eigen::Vector3d> &position,
                               const Eigen::Quaterniond &rotation);
 
@@ -598,7 +598,9 @@ namespace robowflex
             bool solveWorldState(Eigen::Ref<Eigen::VectorXd> world);
 
             /** \brief Solve for a satisfying configuration given an initial configuration of the controlled
-             * DoF. \param[in] state Controlled DoF configuration. \return True on success, false on failure.
+             * DoF.
+             *  \param[in] state Controlled DoF configuration.
+             *  \return True on success, false on failure.
              */
             bool solve(Eigen::Ref<Eigen::VectorXd> state);
 
@@ -608,14 +610,16 @@ namespace robowflex
             bool solveGradientWorld();
 
             /** \brief Solve using gradient descent for a satisfying configuration given an initial world
-             * configuration. \param[in] world World configuration (from world indices). \return True on
-             * success, false on failure.
+             * configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \return True on success, false on failure.
              */
             bool solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world);
 
             /** \brief Solve using gradient descent for a satisfying configuration given an initial
-             * configuration of the controlled DoF. \param[in] state Controlled DoF configuration. \return
-             * True on success, false on failure.
+             * configuration of the controlled DoF.
+             *  \param[in] state Controlled DoF configuration.
+             *  \return True on success, false on failure.
              */
             bool solveGradient(Eigen::Ref<Eigen::VectorXd> state);
 
@@ -624,9 +628,24 @@ namespace robowflex
             /** \name Getting and Setting Position
                 \{ */
 
+            /** \brief Set the positions of the world given a world configuration.
+             *  \param[in] world World configuration.
+             */
             void setPositionsWorldState(const Eigen::Ref<const Eigen::VectorXd> &world) const;
+
+            /** \brief Set the positions of the world given a configuration.
+             *  \param[in] state Controlled DoF configuration.
+             */
             void setPositions(const Eigen::Ref<const Eigen::VectorXd> &state) const;
+
+            /** \brief Get the positions of the world into a world configuration.
+             *  \param[out] world World configuration.
+             */
             void getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const;
+
+            /** \brief Get the positions of the world given into a configuration.
+             *  \param[out] state Controlled DoF configuration.
+             */
             void getPositions(Eigen::Ref<Eigen::VectorXd> state) const;
 
             /** \} */
@@ -652,65 +671,215 @@ namespace robowflex
             dart::dynamics::InverseKinematics::TaskSpaceRegion *tsr_{nullptr};  ///< TSR.
         };
 
+        /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TSRSet)
+        /** \endcond */
+
+        /** \class robowflex::darts::TSRSetPtr
+            \brief A shared pointer wrapper for robowflex::darts::TSRSet. */
+
+        /** \class robowflex::darts::TSRSetConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::TSRSet. */
+
+        /** \brief Manager for a set of TSR constraints. Attempts to reduce redundancy and combines errors and
+         * Jacobians together.
+         *
+         *  Will "stack" the error values and Jacobians together. For example, given two TSRs \a "a" and \a
+         * "b" in the set, the error vector will be [ea, eb] where \a ea and \a eb are \a a and \a b's error
+         * vector. The Jacobian will also correspond to this stacked error vector.
+         */
         class TSRSet
         {
         public:
+            /** \name Constructor and Initialization
+                \{ */
+
+            /** \brief Constructor.
+             *  \param[in] world World to use.
+             *  \param[in] tsr TSR to add to set.
+             */
             TSRSet(const WorldPtr &world, const TSRPtr &tsr);
+
+            /** \brief Constructor.
+             *  \param[in] world World to use.
+             *  \param[in] tsrs TSRs to add to set.
+             */
             TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
 
-            void addTSR(const TSRPtr &tsr, double weight = 1.0);
-            std::size_t numTSRs() const;
-
+            /** \brief Set the world used by this TSR set.
+             *  \param[in] world New world to use.
+             */
             void setWorld(const WorldPtr &world);
-            void addSuffix(const std::string &suffix);
 
+            /** \brief Add a TSR to the set.
+             *  \param[in] tsr TSR to add.
+             *  \param[in] weight Weight to use for this TSR.
+             */
+            void addTSR(const TSRPtr &tsr, double weight = 1.0);
+
+            /** \brief Initialize this set of TSRs
+             */
+            void initialize();
+
+            /** \} */
+
+            /** \name DoF Indexing
+                \{ */
+
+            /** \brief Use the joints in a robot's group. Robot used is the target frame's structure.
+             *  \param[in] name Name of group to use.
+             */
             void useGroup(const std::string &name);
+
+            /** \brief Use DoF indices for all TSRs computation.
+             *  \param[in] indices Indices to use.
+             */
             void useIndices(const std::vector<std::size_t> &indices);
+
+            /** \brief Use World DoF indices for all TSRs computation. World indices are pairs of skeleton
+             * index and DoF index. \param[in] indices Indices to use.
+             */
             void useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
+
+            /** \brief Output world indices. TSR information for *WorldState methods uses this set
+             * of world indices. World indices are pairs of skeleton index and DoF index.
+             *  \param[in] indices Indices to use.
+             */
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
+
+            /** \brief Set the upper limit on joints given their index in the world configuration.
+             *  \param[in] upper Upper bounds on joints.
+             */
             void setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper);
+
+            /** \brief Set the lower limit on joints given their index in the world configuration.
+             *  \param[in] lower Lower bounds on joints.
+             */
             void setWorldLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &lower);
 
+            /** \} */
+
+            /** \name Getters
+                \{ */
+
+            /** \brief Get the error dimension of this set of TSRs.
+             *  \return The error dimension of the set of TSRs.
+             */
             std::size_t getDimension() const;
 
+            /** \brief Get the number of TSRs in the set.
+             *  \return The number of TSRs.
+             */
+            std::size_t numTSRs() const;
+
+            /** \brief Get the numerical tolerance for solving.
+             *  \return The tolerance.
+             */
+            double getTolerance() const;
+
+            /** \brief Set the maximum iterations used for solving.
+             *  \param[in] iterations Max iterations to use.
+             */
+            void setMaxIterations(std::size_t iterations);
+
+            /** \brief Add a suffix to the end of all structures in the TSRs in the set.
+             *  \param[in] suffix Suffix to add.
+             */
+            void addSuffix(const std::string &suffix);
+
+            /** \} */
+
+            /** \name Error / Function Computation
+                \{ */
+
+            /** \brief Get the current error given the world state.
+             *  \param[out] error Error value for all TSRs.
+             */
             void getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const;
+
+            /** \brief Get the error given a provided world configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \param[out] error Error value for all TSRs.
+             */
             void getErrorWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
                                     Eigen::Ref<Eigen::VectorXd> error) const;
 
+            /** \} */
+
+            /** \name Jacobian Computation
+                \{ */
+
+            /** \brief Get the Jacobian given a provided world configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \param[out] jacobian Jacobian value for all TSRs.
+             */
             void getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
                                        Eigen::Ref<Eigen::MatrixXd> jacobian) const;
 
+            /** \} */
+
+            /** \name Distance Computation
+                \{ */
+
+            /** \brief Get the current distance to satisfaction given the world state.
+             *  \return Distance to TSR set satisfaction.
+             */
             double distanceWorld() const;
+
+            /** \brief Get the distance to satisfaction given a provided world configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \return Distance to TSR set satisfaction.
+             */
             double distanceWorldState(const Eigen::Ref<const Eigen::VectorXd> &world) const;
 
+            /** \} */
+
+            /** \name Solving for Satisfying Configurations
+                \{ */
+
+            /** \brief Solve for a satisfying configuration given the current state of the world.
+             *  \return True on success, false on failure.
+             */
             bool solveWorld();
+
+            /** \brief Solve for a satisfying configuration given an initial world configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \return True on success, false on failure.
+             */
             bool solveWorldState(Eigen::Ref<Eigen::VectorXd> world);
 
+            /** \brief Solve using gradient descent for a satisfying configuration given an initial world
+             * configuration.
+             *  \param[in] world World configuration (from world indices).
+             *  \return True on success, false on failure.
+             */
             bool solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world);
 
-            double getTolerance() const;
+            /** \} */
 
-            void initialize();
-
-            void setMaxIterations(std::size_t iterations);
-            void enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const;
-
+            /** \brief Print out the TSRs in this set.
+             *  \param[in] out Output stream.
+             */
             void print(std::ostream &out) const;
 
         private:
-            WorldPtr world_;
-            std::set<std::size_t> skel_indices_;
+            /** \brief Enforce upper and lower bounds on a world configuration.
+             *  \param[in,out] world World configuration to enforce.
+             */
+            void enforceBoundsWorld(Eigen::Ref<Eigen::VectorXd> world) const;
 
-            double tolerance_{magic::DEFAULT_IK_TOLERANCE};
-            std::size_t maxIter_{200};
+            WorldPtr world_;                      ///< World to use.
+            std::set<std::size_t> skel_indices_;  ///< All skeleton indices used by members of the set.
 
-            std::vector<TSRPtr> tsrs_;
-            std::vector<double> weights_;
-            std::size_t dimension_{0};
+            double tolerance_{magic::DEFAULT_IK_TOLERANCE};  ///< Tolerance for solving.
+            std::size_t maxIter_{200};                       ///< Maximum iterations to use for solving.
 
-            Eigen::VectorXd upper_;
-            Eigen::VectorXd lower_;
+            std::vector<TSRPtr> tsrs_;     ///< Set of TSRs
+            std::vector<double> weights_;  ///< Weights on TSRs
+            std::size_t dimension_{0};     ///< Total error dimension of set.
+
+            Eigen::VectorXd upper_;  ///< Upper bounds on world configuration.
+            Eigen::VectorXd lower_;  ///< Lower bounds on world configuration.
         };
 
         ROBOWFLEX_CLASS_FORWARD(TSRConstraint)

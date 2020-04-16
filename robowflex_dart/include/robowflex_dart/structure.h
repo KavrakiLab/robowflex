@@ -56,7 +56,7 @@ namespace robowflex
 
             /** \brief Copy a MoveIt (robowflex::Scene) into a structure.
              *  \param[in] name Name of the structure.
-             *  \param[scene] scene Scene to copy.
+             *  \param[in] scene Scene to copy.
              */
             Structure(const std::string &name, const ScenePtr &scene);
 

@@ -244,7 +244,7 @@ namespace robowflex
             Eigen::VectorXd high_;  ///< Upper bounds.
         };
 
-        /** \brief A SO(2) joint. Bounds are from $-pi$ to $\pi$, and wraps.
+        /** \brief A SO(2) joint. Bounds are from -pi to pi, and wraps.
          */
         class SO2Joint : public Joint
         {

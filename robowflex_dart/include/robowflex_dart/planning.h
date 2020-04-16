@@ -264,7 +264,7 @@ namespace robowflex
             /** \brief Set a set of TSRs as the goal for the planning problem (will create a TSRGoal)
              *  \param[in] tsrs TSRs for the goal.
              */
-            void setGoalTSR(const std::vector<TSRPtr> &tsr);
+            void setGoalTSR(const std::vector<TSRPtr> &tsrs);
 
             /** \brief Sample a valid goal configuration.
              */
