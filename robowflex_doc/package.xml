@@ -10,11 +10,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>robowflex_library</depend>
-  <depend>robowflex_movegroup</depend>
-  <depend>robowflex_ompl</depend>
-  <depend>robowflex_tesseract</depend>
-
   <doc_depend>doxygen</doc_depend>
   <doc_depend>dot</doc_depend>
 </package>
