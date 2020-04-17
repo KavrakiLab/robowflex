@@ -27,8 +27,6 @@ namespace robowflex
 
         namespace magic
         {
-            // static const double DEFAULT_IK_TOLERANCE = 1e-8;
-            // static const double DEFAULT_IK_TOLERANCE = 1e-4;
             static const double DEFAULT_IK_TOLERANCE = 1e-3;
             static const std::string ROOT_FRAME = "";
             static const Eigen::Vector3d DEFAULT_IK_TOLERANCES =
@@ -882,13 +880,45 @@ namespace robowflex
             Eigen::VectorXd lower_;  ///< Lower bounds on world configuration.
         };
 
+        /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TSRConstraint)
+        /** \endcond */
+
+        /** \class robowflex::darts::TSRConstraintPtr
+            \brief A shared pointer wrapper for robowflex::darts::TSRConstraint. */
+
+        /** \class robowflex::darts::TSRConstraintConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::TSRConstraint. */
+
+        /** \brief An OMPL constraint for TSRs.
+         *   Under the hood, creates a TSRSet that is used for all computation. Make sure that the robot state
+         * space has all groups setup before creation of this constraint.
+         */
         class TSRConstraint : public ompl::base::Constraint
         {
         public:
+            /** \brief Constructor for a single TSR.
+             *  \param[in] space Robot state space.
+             *  \param[in] tsr TSR to use in constraint.
+             */
             TSRConstraint(const StateSpacePtr &space, const TSRPtr &tsr);
+
+            /** \brief Constructor for multiple TSRs.
+             *  \param[in] space Robot state space.
+             *  \param[in] tsrs TSRs to use in constraint.
+             */
             TSRConstraint(const StateSpacePtr &space, const std::vector<TSRPtr> &tsrs);
+
+            /** \brief Constructor for a TSRSet.
+             *  \param[in] space Robot state space.
+             *  \param[in] tsr TSRs to use in constraint.
+             */
             TSRConstraint(const StateSpacePtr &space, const TSRSetPtr &tsr);
+
+            /** \brief Get TSR set for this constraint.
+             *  \return The constraint's TSR set.
+             */
+            TSRSetPtr getSet();
 
             void function(const Eigen::Ref<const Eigen::VectorXd> &x,
                           Eigen::Ref<Eigen::VectorXd> out) const override;
@@ -898,11 +928,9 @@ namespace robowflex
 
             bool project(Eigen::Ref<Eigen::VectorXd> x) const override;
 
-            TSRSetPtr getSet();
-
         protected:
-            StateSpacePtr space_;
-            TSRSetPtr tsr_;
+            StateSpacePtr space_;  ///< Robot state space.
+            TSRSetPtr tsr_;        ///< Set of TSR constraints.
         };
     }  // namespace darts
 }  // namespace robowflex
