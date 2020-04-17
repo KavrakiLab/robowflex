@@ -188,10 +188,20 @@ namespace robowflex
          */
         urdf::ModelInterfaceConstSharedPtr getURDF() const;
 
+        /** \brief Get the raw URDF Model as a string.
+         *  \return The URDF Model as a string.
+         */
+        const std::string &getURDFString() const;
+
         /** \brief Get the raw SRDF Model.
          *  \return The SRDF model.
          */
         srdf::ModelConstSharedPtr getSRDF() const;
+
+        /** \brief Get the raw SRDF Model as a string.
+         *  \return The SRDF model as a string.
+         */
+        const std::string &getSRDFString() const;
 
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
@@ -364,6 +374,9 @@ namespace robowflex
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
+
+        std::string urdf_; ///< The URDF as a string.
+        std::string srdf_; ///< The SRDF as a string.
 
         PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
         PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.

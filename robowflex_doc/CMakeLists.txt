@@ -32,6 +32,7 @@ add_doc(robowflex_movegroup)
 add_doc(robowflex_ompl)
 add_doc(robowflex_tesseract)
 add_doc(robowflex_visualization)
+add_doc(robowflex_dart)
 
 find_package(Doxygen QUIET)
 if (DOXYGEN_FOUND)
