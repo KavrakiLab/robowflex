@@ -48,7 +48,7 @@ if (DART_LIBRARIES)
     LIBRARIES ${LIBRARY_NAME}
     CATKIN_DEPENDS
     robowflex_library
-    dartsim
+    # dartsim
     DEPENDS
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )

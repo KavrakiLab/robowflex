@@ -18,6 +18,16 @@ namespace robowflex
 
     namespace IO
     {
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(RVIZHelper);
+        /** \endcond */
+
+        /** \class robowflex::IO::RVIZHelperPtr
+            \brief A shared pointer wrapper for robowflex::IO::RVIZHelper. */
+
+        /** \class robowflex::IO::RVIZHelperConstPtr
+            \brief A const shared pointer wrapper for robowflex::IO::RVIZHelper. */
+
         /** \brief RVIZ visualization helper. See \ref rviz for more information.
          */
         class RVIZHelper
@@ -60,7 +70,6 @@ namespace robowflex
             void visualizeCurrentState();
 
             /** \} */
-
 
             /** \name Scenes
              *  \{ */
@@ -105,9 +114,8 @@ namespace robowflex
              *  \param[in] color Color of the marker.
              *  \param[in] scale The scale of the marker.
              */
-            void addArrowMarker(const std::string &name, const std::string &base_frame,
-                                const RobotPose &pose, const Eigen::Vector4d &color,
-                                const Eigen::Vector3d &scale);
+            void addArrowMarker(const std::string &name, const std::string &base_frame, const RobotPose &pose,
+                                const Eigen::Vector4d &color, const Eigen::Vector3d &scale);
 
             /** \brief Adds a text marker to the managed list of markers. Displayed after updateMarkers().
              *  \param[in] name Name of the marker.
