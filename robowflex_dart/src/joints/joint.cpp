@@ -90,3 +90,23 @@ void Joint::getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const
     auto joint = getJoint(world);
     a = joint->getSkeleton()->getPositions(indices_);
 }
+
+void Joint::setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+{
+    throw std::runtime_error("Cannot set bounds on this joint!");
+}
+
+void Joint::setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+{
+    throw std::runtime_error("Cannot set bounds on this joint!");
+}
+
+Eigen::VectorXd Joint::getUpperLimits() const
+{
+    return space_->getUpperBound().segment(startInSpace_, sizeInSpace_);
+}
+
+Eigen::VectorXd Joint::getLowerLimits() const
+{
+    return space_->getLowerBound().segment(startInSpace_, sizeInSpace_);
+}

@@ -303,6 +303,20 @@ std::vector<std::pair<std::size_t, std::size_t>> StateSpace::getIndices() const
     return indices;
 }
 
+JointPtr StateSpace::getJoint(std::size_t index) const
+{
+    return joints_[index];
+}
+
+JointPtr StateSpace::getJoint(const std::string &name) const
+{
+    auto it = std::find_if(joints_.begin(), joints_.end(),
+                           [&](const JointPtr &j) { return j->getJoint(world_)->getName() == name; });
+    if (it != joints_.end())
+        return *it;
+    return nullptr;
+}
+
 const std::vector<JointPtr> &StateSpace::getJoints() const
 {
     return joints_;
