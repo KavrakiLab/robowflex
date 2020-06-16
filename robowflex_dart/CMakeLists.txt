@@ -50,6 +50,7 @@ if (DART_LIBRARIES)
     robowflex_library
     # dartsim
     DEPENDS
+    ompl
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )
 

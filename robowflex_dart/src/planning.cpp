@@ -381,12 +381,14 @@ void PlanBuilder::initializeConstrained()
     setStateValidityChecker();
 
     // pss->setDelta(0.05);
-    pss->setDelta(0.2);
+    // pss->setDelta(0.2);
+    pss->setDelta(options.constraints.delta);
     // pss->setDelta(0.1);
     // pss->setDelta(0.5);
     // pss->setLambda(2);
     // pss->setLambda(3);
-    pss->setLambda(5);
+    // pss->setLambda(5);
+    pss->setLambda(options.constraints.lambda);
 }
 
 void PlanBuilder::initializeUnconstrained()

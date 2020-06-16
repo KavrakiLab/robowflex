@@ -320,6 +320,19 @@ namespace robowflex
             std::vector<TSRPtr> goal_constraints;  ///< Goal constraints.
             TSRGoalPtr goal_tsr{nullptr};          ///< TSRGoal for Goal constraints.
 
+            /** \brief Hyperparameter options.
+             */
+            struct
+            {
+                /** \brief Constrained planning options.
+                 */
+                struct
+                {
+                    double delta{0.2};   ///< Manifold delta.
+                    double lambda{5.0};  ///< Manifold lambda.
+                } constraints;
+            } options;
+
         protected:
             /** \brief Initialize when path constraints are present.
              */
