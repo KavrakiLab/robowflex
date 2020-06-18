@@ -230,6 +230,22 @@ void Structure::setDof(unsigned int index, double value)
     skeleton_->getDof(index)->setPosition(value);
 }
 
+dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
+{
+    return skeleton_->getBodyNode(name);
+}
+
+void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
+{
+    auto frame = getFrame(parent);
+
+    auto tf = child->getTransform(frame);
+
+    dart::dynamics::FreeJoint::Properties joint;
+    auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
+    jt->setRelativeTransform(tf);
+}
+
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
 {
     const auto &dimensions = geometry->getDimensions();

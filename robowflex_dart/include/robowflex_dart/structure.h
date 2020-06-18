@@ -135,6 +135,23 @@ namespace robowflex
 
             /** \} */
 
+            /** \name Modifying Frames
+                \{ */
+
+            /** \brief Get a body node within the structure.
+             *  \param[in] name Name of the node to retrieve.
+             *  \return The body node if it exists, nullptr otherwise.
+             */
+            dart::dynamics::BodyNode *getFrame(const std::string &name) const;
+
+            /** \brief Reparents the child node to the parent node.
+             *  \param[in] child Child to reparent.
+             *  \parma[in] parent Name of new parent for the child frame.
+             */
+            void reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent);
+
+            /** \} */
+
             /** \name Constructing Frames
                 \{ */
 

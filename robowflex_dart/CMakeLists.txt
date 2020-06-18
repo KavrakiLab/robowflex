@@ -76,6 +76,7 @@ if (DART_LIBRARIES)
   target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 
   add_script(fetch_plan)
+  add_script(fetch_pick)
   add_script(r2free_plan)
   add_script(r2_plan)
   add_script(world_test)

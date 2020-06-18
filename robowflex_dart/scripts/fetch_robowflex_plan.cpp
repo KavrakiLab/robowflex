@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     fetch->initialize();
 
     auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
+    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch_wall.yml");
 
     //
     // Convert to Dart
