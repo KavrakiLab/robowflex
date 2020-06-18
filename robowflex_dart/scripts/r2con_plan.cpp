@@ -117,6 +117,7 @@ int main(int argc, char **argv)
 
         while (true)
         {
+            builder.goal_tsr->options.use_gradient = true;
             builder.goal_tsr->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
             // ompl::base::PlannerStatus solved = pp.solve(60.0, 1, 1, true);

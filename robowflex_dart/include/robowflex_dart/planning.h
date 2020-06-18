@@ -85,6 +85,15 @@ namespace robowflex
             bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
             double distanceGoal(const ompl::base::State *state) const override;
 
+            /** \brief Public options.
+             */
+            struct
+            {
+                bool use_gradient{false};
+                std::size_t max_samples{100};
+            } options;
+
+
         private:
             /** \brief Extract underlying state from a base state.
              *  \param[in] state State.
@@ -108,6 +117,7 @@ namespace robowflex
             bool constrained_;                       ///< Is the underlying space constrained?
             ompl::base::StateSamplerPtr sampler_;    ///< State sampler.
             ompl::base::ProblemDefinitionPtr pdef_;  ///< Problem definition.
+            std::size_t total_samples_{0};
         };
 
         /** \class robowflex::darts::PlanBuilderPtr

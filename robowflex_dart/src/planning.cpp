@@ -77,15 +77,17 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
 
         auto &&x = Eigen::Map<Eigen::VectorXd>(as->values, si_->getStateDimension());
 
-        if (tsr_->numTSRs() == 1)
+        if (tsr_->numTSRs() == 1 or not options.use_gradient)
             success = tsr_->solveWorldState(x);
-        else
+
+        else if (options.use_gradient)
             success = tsr_->solveGradientWorldState(x);
 
         success &= si_->satisfiesBounds(state);
     }
 
-    return true;
+    total_samples_++;
+    return total_samples_ < options.max_samples;
 }
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const

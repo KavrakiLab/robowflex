@@ -77,6 +77,7 @@ if (DART_LIBRARIES)
 
   add_script(fetch_plan)
   add_script(fetch_pick)
+  add_script(fetch_ik)
   add_script(r2free_plan)
   add_script(r2_plan)
   add_script(world_test)
