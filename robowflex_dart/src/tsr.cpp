@@ -43,7 +43,7 @@ void TSR::Specification::setBase(const std::string &structure, const std::string
 }
 
 void TSR::Specification::setFrame(const std::string &structure, const std::string &target_frame,
-                                2.5   const std::string &base_frame)
+                                  const std::string &base_frame)
 {
     target.structure = structure;
     base.structure = structure;
