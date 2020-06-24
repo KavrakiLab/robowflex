@@ -90,7 +90,7 @@ namespace robowflex
             struct
             {
                 bool use_gradient{false};
-                std::size_t max_samples{100};
+                std::size_t max_samples{10};
             } options;
 
         private:
@@ -318,7 +318,7 @@ namespace robowflex
              * the world is running.
              *  \param[in] times Times to display the path.
              */
-            void animateSolutionInWorld(std::size_t times = 0) const;
+            void animateSolutionInWorld(std::size_t times = 0, double fps = 60.) const;
 
             /** \} */
 

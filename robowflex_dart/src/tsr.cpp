@@ -105,7 +105,7 @@ void TSR::Specification::setPoseFromWorld(const WorldPtr &world)
     if (base.frame != magic::ROOT_FRAME)
     {
         const auto &bskl = sim->getSkeleton(base.structure);
-        const auto &bbn = tskl->getBodyNode(base.frame);
+        const auto &bbn = bskl->getBodyNode(base.frame);
 
         pose = tbn->getTransform(bbn);
     }
@@ -1150,6 +1150,7 @@ void TSRConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
 
 bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
+    space_->setWorldState(space_->getWorld(), x);
     if (tsr_->numTSRs() == 1)
         return tsr_->solveWorldState(x);
     else

@@ -485,7 +485,7 @@ void PlanBuilder::setStateValidityChecker()
     }
 }
 
-void PlanBuilder::animateSolutionInWorld(std::size_t times) const
+void PlanBuilder::animateSolutionInWorld(std::size_t times, double fps) const
 {
     ss->simplifySolution();
 
@@ -504,7 +504,7 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times) const
             if (not info->isValid(states[j]))
                 std::cout << "State " << j << " is invalid!" << std::endl;
             rspace->setWorldState(world, getState(states[j]));
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+            std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

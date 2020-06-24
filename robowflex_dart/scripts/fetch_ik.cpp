@@ -41,13 +41,14 @@ int main(int argc, char **argv)
 
     darts::TSR::Specification goal1_spec;
     goal1_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
-    goal1_spec.setPose(0.2, 0.4, 0.92,  //
-                       0.5, -0.5, 0.5, 0.5);
+    goal1_spec.setPose(0.4, 0.3, 0.92,  //
+                       // 0.5, -0.5, 0.5, 0.5);
+                       0.707, 0, 0, 0.707);
 
     darts::TSR::Specification goal2_spec;
     goal2_spec.setFrame("fetch2", "wrist_roll_link", "base_link");
-    goal2_spec.setPose(0.2, -0.4, 0.92,  //
-                       0.5, -0.5, 0.5, 0.5);
+    goal2_spec.setPose(0.4, -0.3, 0.92,  //
+                       0.707, 0, 0, -0.707);
 
     auto goal1_tsr = std::make_shared<darts::TSR>(world, goal1_spec);
     auto goal2_tsr = std::make_shared<darts::TSR>(world, goal2_spec);
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
     builder.setGoal(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    rrt->setRange(100.);
+    rrt->setRange(1.);
     builder.ss->setPlanner(rrt);
 
     builder.setup();
