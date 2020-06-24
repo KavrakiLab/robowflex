@@ -1,5 +1,5 @@
 # robowflex 💪🤖
-The Better Robot Benching Framework™.
+Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
 ## robowflex_library
