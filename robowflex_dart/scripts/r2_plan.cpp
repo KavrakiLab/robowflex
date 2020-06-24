@@ -39,7 +39,8 @@ int main(int argc, char **argv)
     builder.initialize();
 
     builder.sampleStartConfiguration();
-    builder.sampleGoalConfiguration();
+    auto goal = builder.sampleGoalConfiguration();
+    builder.setGoal(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(1.);

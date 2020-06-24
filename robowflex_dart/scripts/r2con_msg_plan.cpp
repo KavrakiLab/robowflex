@@ -46,8 +46,8 @@ int main(int argc, char **argv)
     IO::fromYAMLFile(message, "package://robowflex_library/yaml/r2_plan_waist.yml");
 
     darts::PlanBuilder builder(world);
-    builder.fromMessage("r2", message);
-    builder.initialize();
+    auto goal = builder.fromMessage("r2", message);
+    auto tsrgoal = std::dynamic_pointer_cast<darts::TSRGoal>(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(100);
@@ -60,9 +60,9 @@ int main(int argc, char **argv)
 
         while (true)
         {
-            builder.goal_tsr->startSampling();
+            tsrgoal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-            builder.goal_tsr->stopSampling();
+            tsrgoal->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {

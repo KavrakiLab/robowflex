@@ -37,6 +37,8 @@ int main(int argc, char **argv)
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
     });
 
+    builder.initialize();
+
     darts::TSR::Specification goal1_spec;
     goal1_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
     goal1_spec.setPose(0.2, 0.4, 0.92,  //
@@ -50,9 +52,8 @@ int main(int argc, char **argv)
     auto goal1_tsr = std::make_shared<darts::TSR>(world, goal1_spec);
     auto goal2_tsr = std::make_shared<darts::TSR>(world, goal2_spec);
 
-    builder.setGoalTSR({goal1_tsr, goal2_tsr});
-
-    builder.initialize();
+    auto goal = builder.getGoalTSR({goal1_tsr, goal2_tsr});
+    builder.setGoal(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(100.);
@@ -62,16 +63,23 @@ int main(int argc, char **argv)
     builder.ss->print();
 
     std::thread t([&]() {
-        builder.goal_tsr->startSampling();
-        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
-        builder.goal_tsr->stopSampling();
-        if (solved)
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        while (true)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld();
+            goal->startSampling();
+            ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+            goal->stopSampling();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+            if (solved)
+            {
+                std::cout << "Found solution:" << std::endl;
+                builder.animateSolutionInWorld(1);
+            }
+            else
+                std::cout << "No solution found" << std::endl;
+            builder.ss->clear();
         }
-        else
-            std::cout << "No solution found" << std::endl;
     });
 
     world->openOSGViewer();

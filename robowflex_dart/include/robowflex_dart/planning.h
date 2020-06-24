@@ -93,7 +93,6 @@ namespace robowflex
                 std::size_t max_samples{100};
             } options;
 
-
         private:
             /** \brief Extract underlying state from a base state.
              *  \param[in] state State.
@@ -184,7 +183,8 @@ namespace robowflex
              *  \param[in] robot_name Robot name to use message on.
              *  \param[in] msg Planning request message.
              */
-            void getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+            ompl::base::GoalPtr getGoalFromMessage(const std::string &robot_name,
+                                                   const moveit_msgs::MotionPlanRequest &msg);
 
             /** \brief Get a TSR from an position constraint.
              *  \param[in] robot_name Robot name to use message on.
@@ -204,7 +204,8 @@ namespace robowflex
              *  \param[in] robot_name Robot name to use message on.
              *  \param[in] msg Planning request message.
              */
-            void fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg);
+            ompl::base::GoalPtr fromMessage(const std::string &robot_name,
+                                            const moveit_msgs::MotionPlanRequest &msg);
 
             /** \} */
 
@@ -254,31 +255,37 @@ namespace robowflex
 
             /** \brief Set the goal configuration from the current state of the world.
              */
-            void setGoalConfigurationFromWorld();
+            std::shared_ptr<ompl::base::GoalStates> getGoalConfigurationFromWorld();
 
             /** \brief Set the goal configuration from a configuration.
              *  \param[in] q Configuration.
              */
-            void setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
+            std::shared_ptr<ompl::base::GoalStates>
+            getGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q);
 
             /** \brief Set the goal configuration from a configuration.
              *  \param[in] q Configuration.
              */
-            void setGoalConfiguration(const std::vector<double> &q);
+            std::shared_ptr<ompl::base::GoalStates> getGoalConfiguration(const std::vector<double> &q);
 
             /** \brief Set a TSR as the goal for the planning problem (will create a TSRGoal)
              *  \param[in] tsr TSR for the goal.
              */
-            void setGoalTSR(const TSRPtr &tsr);
+            TSRGoalPtr getGoalTSR(const TSRPtr &tsr);
 
             /** \brief Set a set of TSRs as the goal for the planning problem (will create a TSRGoal)
              *  \param[in] tsrs TSRs for the goal.
              */
-            void setGoalTSR(const std::vector<TSRPtr> &tsrs);
+            TSRGoalPtr getGoalTSR(const std::vector<TSRPtr> &tsrs);
 
             /** \brief Sample a valid goal configuration.
              */
-            void sampleGoalConfiguration();
+            std::shared_ptr<ompl::base::GoalStates> sampleGoalConfiguration();
+
+            /** \brief Set the goal for the problem.
+             *  \param[in] goal Goal to use.
+             */
+            void setGoal(const ompl::base::GoalPtr &goal);
 
             /** \} */
 
@@ -325,10 +332,6 @@ namespace robowflex
             TSRConstraintPtr constraint{nullptr};  ///< OMPL Constraint for Path Constraints.
 
             Eigen::VectorXd start;  ///< Start configuration.
-            Eigen::VectorXd goal;   ///< Goal configuration.
-
-            std::vector<TSRPtr> goal_constraints;  ///< Goal constraints.
-            TSRGoalPtr goal_tsr{nullptr};          ///< TSRGoal for Goal constraints.
 
             /** \brief Hyperparameter options.
              */
@@ -344,6 +347,8 @@ namespace robowflex
             } options;
 
         protected:
+            ompl::base::GoalPtr goal_{nullptr};  ///< Desired goal.
+
             /** \brief Initialize when path constraints are present.
              */
             void initializeConstrained();

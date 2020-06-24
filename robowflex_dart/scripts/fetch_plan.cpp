@@ -76,14 +76,15 @@ int main(int argc, char **argv)
         0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
     });
 
-    builder.setGoalConfiguration({
+    builder.initialize();
+
+    auto goal = builder.getGoalConfiguration({
         0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
         0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
         0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
         0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
     });
-
-    builder.initialize();
+    builder.setGoal(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(1.);

@@ -67,15 +67,16 @@ int main(int argc, char **argv)
         start_tsr.solveWorld();
         builder.setStartConfigurationFromWorld();
 
+        builder.initialize();
+
         darts::TSR::Specification goal_spec;
         goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
         goal_spec.setPose(0.4, 0.6, 0.96,  //
                           0.5, -0.5, 0.5, 0.5);
 
         auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-        builder.setGoalTSR(goal_tsr);
-
-        builder.initialize();
+        auto goal = builder.getGoalTSR(goal_tsr);
+        builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
         rrt->setRange(2);
@@ -83,9 +84,9 @@ int main(int argc, char **argv)
 
         builder.setup();
 
-        builder.goal_tsr->startSampling();
+        goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-        builder.goal_tsr->stopSampling();
+        goal->stopSampling();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
@@ -104,15 +105,16 @@ int main(int argc, char **argv)
 
         builder.setStartConfigurationFromWorld();
 
+        builder.initialize();
+
         darts::TSR::Specification goal_spec;
         goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
         goal_spec.setPose(-0.2, 0.6, 0.92,  //
                           0.5, -0.5, 0.5, 0.5);
 
         auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-        builder.setGoalTSR(goal_tsr);
-
-        builder.initialize();
+        auto goal = builder.getGoalTSR(goal_tsr);
+        builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
         rrt->setRange(2);
@@ -120,9 +122,9 @@ int main(int argc, char **argv)
 
         builder.setup();
 
-        builder.goal_tsr->startSampling();
+        goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-        builder.goal_tsr->stopSampling();
+        goal->stopSampling();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
