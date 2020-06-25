@@ -140,15 +140,6 @@ int main(int argc, char **argv)
         builder.addGroup("fetch3", "arm_with_torso");
         builder.addGroup("fetch4", "arm_with_torso");
 
-        if (false)
-        {
-            Eigen::VectorXd start(8 * 4);
-            start << 0.38615, 0.619323, -0.536358, -2.41887, 1.56348, -2.29803, 0.866326, -1.67328, 0.38615, 0.903721, -0.944315, 1.11979, -1.48891, 0.58925, 1.24421, -2.14824, 0.265554, 0.537798, -0.797927, 0.724501, -1.07833, 0.880175, 0.644113, -1.8699, 0.38615, -0.549412, -0.465999, 2.50693, 1.57843, 2.27942, 0.773795, 1.56555;
-            builder.rspace->setWorldState(world, start);
-            auto cube = scene->getFrame("box");
-            fetch1->reparentFreeFrame(cube, "wrist_roll_link");
-        }
-
         builder.setStartConfigurationFromWorld();
 
         darts::TSR::Specification con1_spec;
