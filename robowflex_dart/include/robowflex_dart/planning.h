@@ -90,7 +90,7 @@ namespace robowflex
             struct
             {
                 bool use_gradient{false};
-                std::size_t max_samples{10};
+                std::size_t max_samples{2};
             } options;
 
         private:

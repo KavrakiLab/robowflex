@@ -1151,9 +1151,11 @@ void TSRConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
 bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
     space_->setWorldState(space_->getWorld(), x);
-    if (tsr_->numTSRs() == 1)
+
+    if (tsr_->numTSRs() == 1 or not options.use_gradient)
         return tsr_->solveWorldState(x);
-    else
+
+    else if (options.use_gradient)
         return tsr_->solveGradientWorldState(x);
 }
 

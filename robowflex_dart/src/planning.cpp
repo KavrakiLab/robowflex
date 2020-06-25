@@ -69,6 +69,9 @@ TSRGoal::~TSRGoal()
 
 bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::State *state)
 {
+    if (getStateCount() >= options.max_samples)
+        return false;
+
     bool success = false;
     while (not success and not pdef_->hasSolution())
     {
@@ -86,8 +89,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         success &= si_->satisfiesBounds(state);
     }
 
-    total_samples_++;
-    return total_samples_ < options.max_samples;
+    return true;
 }
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const
