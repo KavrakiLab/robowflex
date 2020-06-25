@@ -34,6 +34,17 @@ Structure::Structure(const std::string &name)
 
 Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure(name)
 {
+    // // Add virtual root node
+    // dart::dynamics::WeldJoint::Properties root;
+    // root.mName = "root";
+    // root.mT_ParentBodyToJoint = robowflex::TF::createPoseXYZ(0, 0, 0, 0, 0, 0);
+
+    // dart::dynamics::BodyNode::Properties root_body;
+    // root_body.mName = "root";
+
+    // auto pair = skeleton_->createJointAndBodyNodePair<dart::dynamics::WeldJoint>(nullptr, root, root_body);
+    // auto root_body_ptr = pair.second;
+
     const auto objects = scene->getCollisionObjects();
 
     for (const auto &object : objects)
@@ -43,11 +54,12 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
 
         dart::dynamics::FreeJoint::Properties joint;
         joint.mName = object;
-        joint.mT_ParentBodyToJoint = pose;
+        joint.mT_ParentBodyToJoint = robowflex::TF::createPoseXYZ(0, 0, 0, 0, 0, 0);
 
         auto shape = makeGeometry(geometry);
 
         auto pair = addFreeFrame(joint, shape);
+        setJointParentTransform(object, pose);
         setColor(pair.second, dart::Color::Blue(0.2));
     }
 
@@ -238,12 +250,55 @@ dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
     auto frame = getFrame(parent);
+    if (frame == nullptr)
+    {
+        dart::dynamics::FreeJoint::Properties joint;
+        joint.mName = child->getName();
+        auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
+    }
+    else
+    {
+        auto tf = child->getTransform(frame);
+        // std::cout << "get transform\n" << "Translation\n" << tf.translation() << "\nRotation\n" << tf.rotation() << std::endl;
 
-    auto tf = child->getTransform(frame);
+        dart::dynamics::FreeJoint::Properties joint;
+        joint.mName = child->getName();
+        auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
+        jt->setRelativeTransform(tf);
+    }
+}
+
+void Structure::setJointParentTransform(const std::string &name, const Eigen::Isometry3d &_T)
+{
+    auto joint = skeleton_->getJoint(name);
+    // if (joint == nullptr)
+    //     std::cout << name << ": null joint\n";
+
+    auto body = skeleton_->getBodyNode(name);
+    // if (body == nullptr)
+    //     std::cout << name << ": null body\n";
+
+    joint->setTransformFromParentBodyNode(_T);
+}
+
+void Structure::updateCollisionObject(const std::string &name, const GeometryPtr &geometry,
+                                      const robowflex::RobotPose &pose)
+{
+    auto nodes = skeleton_->getBodyNodes(name); // Get all nodes with this name
+    if (nodes.size() != 0)
+        setJointParentTransform(name, pose);
 
     dart::dynamics::FreeJoint::Properties joint;
-    auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
-    jt->setRelativeTransform(tf);
+    joint.mName = name;
+    joint.mT_ParentBodyToJoint = robowflex::TF::createPoseXYZ(0, 0, 0, 0, 0, 0);
+
+    auto shape = makeGeometry(geometry);
+
+    // auto root_body_ptr = skeleton_->getBodyNode("root");
+    // auto pair = addFreeFrame(joint, shape, root_body_ptr);
+    auto pair = addFreeFrame(joint, shape);
+    setJointParentTransform(name, pose);
+    setColor(pair.second, dart::Color::Blue(0.2));
 }
 
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)

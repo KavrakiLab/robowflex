@@ -10,6 +10,8 @@
 #include <dart/dynamics/Skeleton.hpp>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
+#include <robowflex_library/tf.h>
 
 namespace robowflex
 {
@@ -149,6 +151,13 @@ namespace robowflex
              *  \parma[in] parent Name of new parent for the child frame.
              */
             void reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent);
+
+            // Set the transform of a joint from its parent
+            void setJointParentTransform(const std::string &name, const Eigen::Isometry3d &_T);
+
+            // Update/Add a collision object
+            void updateCollisionObject(const std::string &name, const GeometryPtr &geometry,
+                                       const robowflex::RobotPose &pose);
 
             /** \} */
 

@@ -485,3 +485,27 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times) const
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
+
+ompl::geometric::PathGeometric PlanBuilder::getSolutionPath()
+{
+    ss->simplifySolution();
+
+    auto path = ss->getSolutionPath();
+    path.interpolate(100);
+    return path;
+}
+
+void PlanBuilder::animateSolutionPath(ompl::geometric::PathGeometric path) const
+{
+    rspace->setWorldState(world, getState(path.getStates()[0]));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    const auto &states = path.getStates();
+    for (std::size_t j = 0; j < states.size(); ++j)
+    {
+        if (not info->isValid(states[j]))
+            std::cout << "State " << j << " is invalid!" << std::endl;
+        rspace->setWorldState(world, getState(states[j]));
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+}

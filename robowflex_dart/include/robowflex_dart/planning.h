@@ -313,6 +313,12 @@ namespace robowflex
              */
             void animateSolutionInWorld(std::size_t times = 0) const;
 
+            // Get the solution path if problem solved.
+            ompl::geometric::PathGeometric getSolutionPath();
+
+            // Animate one solution path
+            void animateSolutionPath(ompl::geometric::PathGeometric solution) const;
+
             /** \} */
 
             StateSpacePtr rspace{nullptr};             ///< Underlying Robot State Space.
