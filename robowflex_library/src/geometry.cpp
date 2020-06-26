@@ -95,7 +95,7 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
 }
 
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const EigenSTL::vector_Vector3d vertices, bool ***grid)
+                   const EigenSTL::vector_Vector3d vertices)
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)
@@ -278,8 +278,8 @@ void Geometry::makeMarker(visualization_msgs::Marker &marker) const
         case ShapeType::SPHERE:
         case ShapeType::CYLINDER:
         case ShapeType::CONE:
-            throw Exception(1, "Not implemented... ");
-            // geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
+            // throw Exception(1, "Not implemented... ");
+            geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
             break;
 
         default:

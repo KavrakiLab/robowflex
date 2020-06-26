@@ -1,5 +1,4 @@
 /* Author: Zachary Kingston */
-
 #include <random>
 
 #include <boost/range/combine.hpp>
@@ -192,38 +191,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
                                        const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
-
-    // TODO should all change to makeMarker?
-    auto scale = geometry->getDimensions();
-    switch (geometry->getType())
-    {
-        case Geometry::ShapeType::BOX:
-            marker.type = visualization_msgs::Marker::CUBE;
-            break;
-        case Geometry::ShapeType::SPHERE:
-            marker.type = visualization_msgs::Marker::SPHERE;
-            scale[1] = scale[2] = 2 * scale[0];  // Copy radius to other dimensions
-            break;
-        case Geometry::ShapeType::CYLINDER:
-            marker.type = visualization_msgs::Marker::CYLINDER;
-            {
-                auto scale2 = scale;
-                scale[0] = scale[1] = 2 * scale2[0];  // Copy radius to first two (x & y)
-                scale[2] = scale2[1];
-            }
-            break;
-        case Geometry::ShapeType::MESH:
-            geometry->makeMarker(marker);
-            break;
-
-        default:
-            ROS_ERROR("Unsupported geometry for marker.");
-            return;
-    };
-
-    fillMarker(marker, base_frame, pose, color, scale);
-
-    markers_.emplace(name, marker);
+    geometry->makeMarker(marker);
 }
 
 void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
