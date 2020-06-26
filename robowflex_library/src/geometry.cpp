@@ -115,7 +115,6 @@ Geometry::Geometry(const shapes::Shape &shape)
             const auto &box = static_cast<const shapes::Box &>(shape);
             dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
             shape_.reset(loadShape());
-            vertices_.clear();
             break;
         }
         case shapes::ShapeType::SPHERE:
@@ -185,12 +184,13 @@ shapes::Shape *Geometry::loadShape() const
             break;
 
         case ShapeType::MESH:
-            if (!resource_.empty())
+            if (!resource_.empty() && vertices_.empty())
                 return shapes::createMeshFromResource("file://" + resource_, dimensions_);
-            else if (!vertices_.empty())
+            else if (resource_.empty() && !vertices_.empty())
                 return shapes::createMeshFromVertices(vertices_);
             else
-                throw Exception(1, "No vertices or resource specified to Load the mesh");
+                throw Exception(1, resource_.empty() ? "No vertices/resource specified for the mesh" :
+                                                       "Both vertices/resource specified for the mesh");
             break;
 
         default:
