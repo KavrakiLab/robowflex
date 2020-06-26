@@ -208,12 +208,13 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
     return request_;
 }
 
-robot_state::RobotState MotionRequestBuilder::getStartConfiguration() const
+robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 {
-    robot_state::RobotState start_state(robot_->getModelConst());
-    start_state.setToDefaultValues();
+    robot_state::RobotStatePtr start_state =
+        std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    start_state->setToDefaultValues();
 
-    moveit::core::robotStateMsgToRobotState(request_.start_state, start_state);
+    moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
     return start_state;
 }
 

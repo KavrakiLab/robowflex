@@ -216,7 +216,7 @@ namespace robowflex
         /** \brief Get the start state of the request as a robot state.
          *  \return The start state.
          */
-        robot_state::RobotState getStartConfiguration() const;
+        robot_state::RobotStatePtr getStartConfiguration() const;
 
         /** \brief Get a reference to the current path constraints on the motion planning request.
          *  \return The motion planning request.
