@@ -66,8 +66,7 @@ Benchmarker::Results::Results(const std::string &name, const SceneConstPtr scene
 void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
 {
     Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
-    if (metrics.success)
-        computeMetric(run, metrics);
+    computeMetric(run, metrics);
 
     runs.emplace_back(metrics);
 }
@@ -77,22 +76,22 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
 
     if (options.options & MetricOptions::WAYPOINTS)
-        metrics.metrics["waypoints"] = (int)p.getWayPointCount();
+        metrics.metrics["waypoints"] = metrics.success ? (int)p.getWayPointCount() : int(0);
 
-    if (options.options & MetricOptions::PATH)
+    if (options.options & MetricOptions::PATH && metrics.success)
         p.getRobotTrajectoryMsg(metrics.path);
 
     if (options.options & MetricOptions::LENGTH)
-        metrics.metrics["length"] = path::getLength(p);
+        metrics.metrics["length"] = metrics.success ? path::getLength(p) : 0.0;
 
     if (options.options & MetricOptions::CORRECT)
-        metrics.metrics["correct"] = path::isCorrect(p, scene);
+        metrics.metrics["correct"] = metrics.success ? path::isCorrect(p, scene) : false;
 
     if (options.options & MetricOptions::CLEARANCE)
-        metrics.metrics["clearance"] = std::get<0>(path::getClearance(p, scene));
+        metrics.metrics["clearance"] = metrics.success ? std::get<0>(path::getClearance(p, scene)) : 0.0;
 
     if (options.options & MetricOptions::SMOOTHNESS)
-        metrics.metrics["smoothness"] = path::getSmoothness(p);
+        metrics.metrics["smoothness"] = metrics.success ? path::getSmoothness(p) : 0.0;
 }
 
 ///
