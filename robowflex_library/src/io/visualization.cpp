@@ -4,21 +4,21 @@
 
 #include <boost/range/combine.hpp>
 
-#include <moveit_msgs/PlanningScene.h>
-#include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/DisplayRobotState.h>
+#include <moveit_msgs/DisplayTrajectory.h>
+#include <moveit_msgs/PlanningScene.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
 #include <moveit/robot_state/conversions.h>
 
+#include <robowflex_library/builder.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/planning.h>
-#include <robowflex_library/builder.h>
-#include <robowflex_library/io/visualization.h>
 
 using namespace robowflex;
 
@@ -53,14 +53,34 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
 
 void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanResponse &response)
 {
+    updateTrajectory(response.trajectory_);
+}
+
+void IO::RVIZHelper::updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory)
+{
+    moveit_msgs::RobotTrajectory msg;
+    trajectory->getRobotTrajectoryMsg(msg);
+
+    updateTrajectory(msg, trajectory->getFirstWayPoint());
+}
+
+void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
+                                      const moveit::core::RobotState &start)
+{
     moveit_msgs::DisplayTrajectory out;
 
-    moveit_msgs::RobotTrajectory msg;
-    response.trajectory_->getRobotTrajectoryMsg(msg);
-
     out.model_id = robot_->getModelName();
-    out.trajectory.push_back(msg);
-    moveit::core::robotStateToRobotStateMsg(response.trajectory_->getFirstWayPoint(), out.trajectory_start);
+    out.trajectory.push_back(traj);
+    moveit::core::robotStateToRobotStateMsg(start, out.trajectory_start);
+
+    if (trajectory_pub_.getNumSubscribers() < 1)
+    {
+        ROS_INFO("Waiting for Trajectory subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (trajectory_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
 
     trajectory_pub_.publish(out);
 }
@@ -173,6 +193,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 {
     visualization_msgs::Marker marker;
 
+    // TODO should all change to makeMarker?
     auto scale = geometry->getDimensions();
     switch (geometry->getType())
     {
@@ -192,10 +213,9 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             }
             break;
         case Geometry::ShapeType::MESH:
-            marker.type = visualization_msgs::Marker::MESH_RESOURCE;
-            marker.mesh_resource = geometry->getResource();
-            marker.mesh_use_embedded_materials = true;
+            geometry->makeMarker(marker);
             break;
+
         default:
             ROS_ERROR("Unsupported geometry for marker.");
             return;
@@ -239,7 +259,8 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                 // Add geometry marker associated with this solid primitive
                 addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
 
-                // Iterate over all orientation constraints for the same link as the position constraint
+                // Iterate over all orientation constraints for the same link as the
+                // position constraint
                 for (const auto &og : goal.orientation_constraints)
                 {
                     const auto &oname = og.link_name;
@@ -250,15 +271,16 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
                     // Arrow display frame.
                     RobotPose qframe = RobotPose::Identity();
-                    qframe.translate(frame.translation());  // Place arrows at the origin of the position
-                                                            // volume
+                    qframe.translate(frame.translation());  // Place arrows at the origin
+                                                            // of the position volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
 
                     // Display primary orientation slightly larger
                     addArrowMarker(name, base_frame, qframe * q, color, 1.5 * scale);
 
-                    // Zip together tolerances and axes, and iterate over them to display orientation bounds
+                    // Zip together tolerances and axes, and iterate over them to display
+                    // orientation bounds
                     const auto tolerances = {og.absolute_x_axis_tolerance,  //
                                              og.absolute_y_axis_tolerance,  //
                                              og.absolute_z_axis_tolerance};
@@ -283,11 +305,18 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
             // TODO: Implement
             // for (const auto &mesh :
-            //      boost::combine(pg.constraint_region.meshes, pg.constraint_region.mesh_poses))
+            //      boost::combine(pg.constraint_region.meshes,
+            //      pg.constraint_region.mesh_poses))
             // {
             // }
         }
     }
+}
+
+void IO::RVIZHelper::removeAllMarkers()
+{
+    for (auto &marker : markers_)
+        marker.second.action = visualization_msgs::Marker::DELETE;
 }
 
 void IO::RVIZHelper::removeMarker(const std::string &name)

@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
@@ -218,6 +219,19 @@ bool Scene::attachObject(const std::string &name)
     return false;
 }
 
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+{
+    const auto &robot = state.getRobotModel();
+    const auto &ee = robot->getEndEffectors();
+    // One end-effector
+    if (ee.size() == 1)
+    {
+        const auto &links = ee[0]->getLinkModelNames();
+        return attachObject(state, name, links[0], links);
+    }
+    return false;
+}
+
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
@@ -244,6 +258,42 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
     }
 
     robot.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
+    return true;
+}
+
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                         const std::vector<std::string> &touch_links)
+{
+    auto &world = scene_->getWorldNonConst();
+    if (!world->hasObject(name))
+    {
+        ROS_ERROR("World does not have object `%s`", name.c_str());
+        return false;
+    }
+    const auto &obj = world->getObject(name);
+    if (!obj)
+    {
+        ROS_ERROR("Could not get object `%s`", name.c_str());
+        return false;
+    }
+    if (!world->removeObject(name))
+    {
+        ROS_ERROR("Could not remove object `%s`", name.c_str());
+        return false;
+    }
+
+    auto &robot = scene_->getCurrentStateNonConst();
+    scene_->setCurrentState(state);
+    const auto &tf = state.getGlobalLinkTransform(ee_link);
+
+    EigenSTL::vector_Isometry3d poses;
+    for (const auto &pose : obj->shape_poses_)
+    {
+        const Eigen::Isometry3d relative = pose.inverse() * tf;
+        poses.push_back(relative);
+    }
+
+    robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 

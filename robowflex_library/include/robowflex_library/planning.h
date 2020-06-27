@@ -70,6 +70,10 @@ namespace robowflex
          */
         const std::string &getName() const;
 
+        /** \brief this function is called before benchmarking.
+         */
+        virtual void preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
+
     protected:
         RobotPtr robot_;          ///< The robot to plan for.
         IO::Handler handler_;     ///< The parameter handler for the planner.

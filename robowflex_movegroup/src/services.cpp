@@ -77,7 +77,7 @@ MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
   , gpsc_(nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true))
   , apsc_(nh_.serviceClient<moveit_msgs::ApplyPlanningScene>(APPLY_SCENE, true))
   , co_(nh_.serviceClient<std_srvs::Empty>(CLEAR_OCTOMAP, true))
-  , eac_(nh_, EXECUTE, false)
+  , eac_(nh_, EXECUTE, true)
   , robot_(std::make_shared<ParamRobot>())
 {
     ROS_INFO("Waiting for %s to connect...", EXECUTE.c_str());

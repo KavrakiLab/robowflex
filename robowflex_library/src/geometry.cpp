@@ -1,6 +1,7 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <geometric_shapes/shape_operations.h>
+#include <geometric_shapes/shape_to_marker.h>
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
@@ -88,9 +89,16 @@ GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3
     return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
+GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
+{
+    return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
+}
+
+Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
+                   const EigenSTL::vector_Vector3d vertices, bool ***grid)
   : type_(type)
   , dimensions_(dimensions)
+  , vertices_(vertices)
   , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -176,7 +184,13 @@ shapes::Shape *Geometry::loadShape() const
             break;
 
         case ShapeType::MESH:
-            return shapes::createMeshFromResource("file://" + resource_, dimensions_);
+            if (!resource_.empty() && vertices_.empty())
+                return shapes::createMeshFromResource("file://" + resource_, dimensions_);
+            else if (resource_.empty() && !vertices_.empty())
+                return shapes::createMeshFromVertices(vertices_);
+            else
+                throw Exception(1, resource_.empty() ? "No vertices/resource specified for the mesh" :
+                                                       "Both vertices/resource specified for the mesh");
             break;
 
         default:
@@ -230,7 +244,6 @@ std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) c
 
     return std::make_pair(success, point);
 }
-
 bool Geometry::isMesh() const
 {
     return type_ == ShapeType::MESH;
@@ -254,6 +267,26 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
     return boost::get<shape_msgs::Mesh>(msg);
 }
 
+void Geometry::makeMarker(visualization_msgs::Marker &marker) const
+{
+    switch (type_)
+    {
+        case ShapeType::MESH:
+            geometric_shapes::constructMarkerFromShape(this->getMeshMsg(), marker, true);
+            break;
+        case ShapeType::BOX:
+        case ShapeType::SPHERE:
+        case ShapeType::CYLINDER:
+        case ShapeType::CONE:
+            throw Exception(1, "Not implemented... ");
+            // geometric_shapes::constructMarkerFromShape(this->getSolidMsg(), marker);
+            break;
+
+        default:
+            break;
+    }
+}
+
 const shapes::ShapePtr &Geometry::getShape() const
 {
     return shape_;
@@ -272,6 +305,11 @@ Geometry::ShapeType::Type Geometry::getType() const
 const std::string &Geometry::getResource() const
 {
     return resource_;
+}
+
+const EigenSTL::vector_Vector3d &Geometry::getVertices() const
+{
+    return vertices_;
 }
 
 const Eigen::Vector3d &Geometry::getDimensions() const

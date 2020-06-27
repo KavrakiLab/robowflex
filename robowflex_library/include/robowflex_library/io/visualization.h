@@ -40,6 +40,18 @@ namespace robowflex
              */
             void updateTrajectory(const planning_interface::MotionPlanResponse &response);
 
+            /** \brief Updates the trajectory being visualized.
+             *  \param[in] trajectory Trajectory to visualize.
+             */
+            void updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory);
+
+            /** \brief Updates the trajectory being visualized.
+             *  \param[in] traj RobotTrajectory to visualize.
+             *  \param[in] start base_state to copy values for other joints.
+             */
+            void updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
+                                  const moveit::core::RobotState &start);
+
             /** \brief Updates the trajectory being visualized to a list of trajectories.
              *  \param[in] responses Planning responses to visualize.
              */
@@ -60,7 +72,6 @@ namespace robowflex
             void visualizeCurrentState();
 
             /** \} */
-
 
             /** \name Scenes
              *  \{ */
@@ -105,9 +116,8 @@ namespace robowflex
              *  \param[in] color Color of the marker.
              *  \param[in] scale The scale of the marker.
              */
-            void addArrowMarker(const std::string &name, const std::string &base_frame,
-                                const RobotPose &pose, const Eigen::Vector4d &color,
-                                const Eigen::Vector3d &scale);
+            void addArrowMarker(const std::string &name, const std::string &base_frame, const RobotPose &pose,
+                                const Eigen::Vector4d &color, const Eigen::Vector3d &scale);
 
             /** \brief Adds a text marker to the managed list of markers. Displayed after updateMarkers().
              *  \param[in] name Name of the marker.
@@ -127,6 +137,10 @@ namespace robowflex
              *  \param[in] request Request to add goal of as a marker.
              */
             void addGoalMarker(const std::string &name, const MotionRequestBuilder &request);
+
+            /** \brief Removes all markers that were added through addMarker().
+             */
+            void removeAllMarkers();
 
             /** \brief Removes a marker that was added through addMarker().
              *  \param[in] name The name of the marker to remove.

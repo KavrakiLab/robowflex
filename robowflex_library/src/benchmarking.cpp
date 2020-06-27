@@ -122,6 +122,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         Results results(name, scene, planner, builder, options);
 
+        planner->preRun(scene, builder->getRequest());
         for (unsigned int j = 0; j < options.runs; ++j)
         {
             ros::WallTime start;
@@ -136,7 +137,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         results.finish = IO::getDate();
 
-        for (const BenchmarkOutputterPtr& output : outputs)
+        for (const BenchmarkOutputterPtr &output : outputs)
             output->dumpResult(results);
     }
 }
