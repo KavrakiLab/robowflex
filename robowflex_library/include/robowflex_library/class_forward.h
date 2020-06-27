@@ -18,4 +18,10 @@
     typedef std::shared_ptr<C> C##Ptr;                                                                       \
     typedef std::shared_ptr<const C> C##ConstPtr;
 
+/**
+ * \def ROBOWFLEX_EIGEN
+ * Macro for classes with fixed width Eigen classes.
+ */
+#define ROBOWFLEX_EIGEN EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 #endif

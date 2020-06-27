@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robowflex_doc</name>
+  <name>robowflex_dart</name>
   <version>0.0.1</version>
-  <description>Documentation for the robowflex project</description>
+  <description>The Better Benchmarking Package: DART Planning Tools</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
@@ -10,6 +10,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <doc_depend>doxygen</doc_depend>
-  <doc_depend>dot</doc_depend>
+  <depend>robowflex_library</depend>
+  <depend>dartsim</depend>
 </package>

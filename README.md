@@ -1,9 +1,9 @@
 # robowflex 💪🤖
-The Better Robot Benching Framework™.
+Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
 ## robowflex_library
-A library that simplifies using [_MoveIt!_](https://github.com/ros-planning/moveit) in applications.
+A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
 Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in the `robowflex_library/scripts` directory.
 
 ## robowflex_visualization
@@ -12,7 +12,7 @@ See [`robowflex_visualization/README.md`](robowflex_visualization/README.md) for
 
 ## robowflex_ompl
 An optionally compiled library component that adds more direct access to [OMPL](http://ompl.kavrakilab.org/) through a new `robowflex::Planner`.
-Requires [`moveit_planners_ompl`](https://github.com/ros-planning/moveit/tree/kinetic-devel/moveit_planners/ompl), from [_MoveIt!_](https://github.com/ros-planning/moveit).
+Requires [`moveit_planners_ompl`](https://github.com/ros-planning/moveit/tree/kinetic-devel/moveit_planners/ompl), from [_MoveIt_](https://github.com/ros-planning/moveit).
 Some basic examples of how to use the new planner are in `robowflex_ompl/scripts`.
 
 ## robowflex_tesseract
@@ -24,6 +24,13 @@ Some basic examples of how to use the new planner(s) are in `robowflex_tesseract
 ## robowflex_movegroup
 A library component with helper classes and functions to interact with a `move_group` process being used for motion planning.
 Scenes can be pushed and pulled and trajectories can be executed with this component through `move_group`.
+
+## robowflex_dart
+A optionally compiled library that adds support for modeling and planning through [DART (Dynamic Animation and Robotics Toolkit)](https://dartsim.github.io/).
+There are features for loading robots just through DART or by converting __MoveIt_ robots into the DART representation.
+Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
+This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
+Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.
 
 ## tmpack
 Task and motion planning using `robowflex` as the motion planning layer.
@@ -57,7 +64,7 @@ We recommend `catkin-tools` to build your ROS workspace:
 sudo apt install python-catkin-tools
 ```
 
-Install _MoveIt!_:
+Install _MoveIt_:
 ```sh
 sudo apt install ros-melodic-moveit
 ```

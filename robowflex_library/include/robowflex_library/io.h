@@ -24,6 +24,12 @@ namespace robowflex
          */
         const std::string resolvePackage(const std::string &path);
 
+        /** \brief Finds all package URIs within a string.
+         *  \param[in] string String to search.
+         *  \return List of package URIs.
+         */
+        std::set<std::string> findPackageURIs(const std::string &string);
+
         /** \brief Resolves `package://` URLs and relative file paths to their canonical form.
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.
@@ -65,6 +71,17 @@ namespace robowflex
          *  \param[in] file File to create and open.
          */
         void createFile(std::ofstream &out, const std::string &file);
+
+        /** \brief Creates a temporary file and opens an output stream.
+         *  \param[out] out Output stream to initialize.
+         *  \return Filename of temporary file.
+         */
+        std::string createTempFile(std::ofstream &out);
+
+        /** \brief Deletes a file.
+         *  \param[in] file File to delete.
+         */
+        void deleteFile(const std::string &file);
 
         /** \brief Lists of the contents of a directory.
          *  \param[in] directory Directory to list.

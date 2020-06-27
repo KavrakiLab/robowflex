@@ -3,6 +3,7 @@
 #include <cstdlib>  // for std::getenv
 #include <memory>   // for std::shared_ptr
 #include <array>    // for std::array
+#include <regex>    // for std::regex
 
 #include <boost/filesystem.hpp>  // for filesystem paths
 
@@ -112,6 +113,25 @@ const std::string IO::resolvePackage(const std::string &path)
         file = path;
 
     return expandPath(file).string();
+}
+
+std::set<std::string> IO::findPackageURIs(const std::string &string)
+{
+    const std::regex re(R"(((package):?\/)\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)?)");
+
+    std::set<std::string> packages;
+
+    auto begin = std::sregex_iterator(string.begin(), string.end(), re);
+    auto end = std::sregex_iterator();
+
+    for (auto it = begin; it != end; ++it)
+    {
+        std::smatch sm = *it;
+        std::string smstr = sm.str(3);
+        packages.emplace(smstr);
+    }
+
+    return packages;
 }
 
 const std::string IO::resolvePath(const std::string &path)
@@ -251,6 +271,24 @@ void IO::createFile(std::ofstream &out, const std::string &file)
         boost::filesystem::create_directories(parent);
 
     out.open(path.string(), std::ofstream::out | std::ofstream::trunc);
+}
+
+std::string IO::createTempFile(std::ofstream &out)
+{
+    auto temp = boost::filesystem::unique_path();
+    auto filename = "/tmp/" + temp.string();
+    createFile(out, filename);
+
+    return filename;
+}
+
+void IO::deleteFile(const std::string &file)
+{
+    boost::filesystem::path path(file);
+    path = expandHome(path);
+    path = expandSymlinks(path);
+
+    boost::filesystem::remove(path);
 }
 
 const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &directory)
