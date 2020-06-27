@@ -354,6 +354,13 @@ namespace robowflex
         bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                 double fps = 30, double threshold = 0.0) const;
 
+        /** \brief Dumps the configurations of the path in a file.
+         *  \param[in] path Path to output.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
+
         /** \} */
 
     protected:

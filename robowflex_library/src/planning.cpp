@@ -24,6 +24,9 @@ const std::string &Planner::getName() const
     return name_;
 }
 
+void Planner::preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+{
+}
 ///
 /// PoolPlanner
 ///
