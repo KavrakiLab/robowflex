@@ -111,7 +111,7 @@ namespace robowflex
          * as the mesh file to load.
          */
         Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
-                 const EigenSTL::vector_Vector3d vertices = {}, bool ***grid = nullptr);
+                 const EigenSTL::vector_Vector3d vertices = {});
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry from a MoveIt shape.
@@ -161,11 +161,6 @@ namespace robowflex
          *  \return The message.
          */
         const shape_msgs::Mesh getMeshMsg() const;
-
-        /** \brief Construct a marker from the
-         *  \return The message.
-         */
-        void makeMarker(visualization_msgs::Marker &marker) const;
 
         /** \brief Gets the underlying shape.
          *  \return The shape.

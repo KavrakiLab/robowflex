@@ -193,7 +193,6 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 {
     visualization_msgs::Marker marker;
 
-    // TODO should all change to makeMarker?
     auto scale = geometry->getDimensions();
     switch (geometry->getType())
     {
@@ -213,7 +212,24 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             }
             break;
         case Geometry::ShapeType::MESH:
-            geometry->makeMarker(marker);
+            scale[0] = scale[1] = scale[2] = 1;  // Meshes are unscalable.
+            if (!geometry->getResource().empty())
+            {
+                marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+                marker.mesh_resource = geometry->getResource();
+                marker.mesh_use_embedded_materials = true;
+            }
+            else if (!geometry->getVertices().empty())
+            {
+                auto msg = geometry->getMeshMsg();
+                marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
+                for (std::size_t i = 0; i < msg.triangles.size(); ++i)
+                {
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[0]]);
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[1]]);
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[2]]);
+                }
+            }
             break;
 
         default:
