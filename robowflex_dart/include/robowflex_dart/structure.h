@@ -140,15 +140,21 @@ namespace robowflex
 
             /** \brief Get a body node within the structure.
              *  \param[in] name Name of the node to retrieve.
-             *  \return The body node if it exists, nullptr otherwise.
+             *  \return The body node if it exists, nullptr otherwise. If name is empty, returns root.
              */
-            dart::dynamics::BodyNode *getFrame(const std::string &name) const;
+            dart::dynamics::BodyNode *getFrame(const std::string &name = "") const;
+
+            /** \brief Get the root frame of this structure.
+             *  \return The root node.
+             */
+            dart::dynamics::BodyNode *getRootFrame() const;
 
             /** \brief Reparents the child node to the parent node.
              *  \param[in] child Child to reparent.
              *  \parma[in] parent Name of new parent for the child frame.
              */
-            void reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent);
+            void reparentFreeFrame(dart::dynamics::BodyNode *child,
+                                   const std::string &parent = "");
 
             /** \} */
 

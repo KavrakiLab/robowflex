@@ -232,14 +232,26 @@ void Structure::setDof(unsigned int index, double value)
 
 dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 {
+    if (name.empty())
+        return getRootFrame();
+
     return skeleton_->getBodyNode(name);
+}
+
+dart::dynamics::BodyNode *Structure::getRootFrame() const
+{
+    return skeleton_->getRootBodyNode();
 }
 
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
     auto frame = getFrame(parent);
 
-    auto tf = child->getTransform(frame);
+    Eigen::Isometry3d tf;
+    if (frame)
+        tf = child->getTransform(frame);
+    else
+        tf = child->getWorldTransform();
 
     dart::dynamics::FreeJoint::Properties joint;
     auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
