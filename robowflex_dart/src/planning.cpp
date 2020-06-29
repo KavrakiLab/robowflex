@@ -397,6 +397,8 @@ void PlanBuilder::initializeConstrained()
 {
     world->clearIKModules();
 
+    rspace->setMetricSpace(false);
+
     constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
 
     std::cout << "Path Constraint" << std::endl;
@@ -409,14 +411,7 @@ void PlanBuilder::initializeConstrained()
     ss = std::make_shared<ompl::geometric::SimpleSetup>(info);
     setStateValidityChecker();
 
-    // pss->setDelta(0.05);
-    // pss->setDelta(0.2);
     pss->setDelta(options.constraints.delta);
-    // pss->setDelta(0.1);
-    // pss->setDelta(0.5);
-    // pss->setLambda(2);
-    // pss->setLambda(3);
-    // pss->setLambda(5);
     pss->setLambda(options.constraints.lambda);
 }
 

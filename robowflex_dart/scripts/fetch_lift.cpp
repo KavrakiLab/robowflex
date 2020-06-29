@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     //
 
     double height = 0.6;
-    double raise = 1.;
+    double raise = 1.2;
     double radius = 0.8;
     auto world = std::make_shared<darts::World>();
     auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
@@ -113,6 +113,17 @@ int main(int argc, char **argv)
         auto con1_tsr = std::make_shared<darts::TSR>(world, con1_spec);
         builder.addConstraint(con1_tsr);
 
+        darts::TSR::Specification con2_spec;
+        con2_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
+        con2_spec.setPoseFromWorld(world);
+        con2_spec.setNoPosTolerance();
+        con2_spec.setXRotTolerance(0.05);
+        con2_spec.setYRotTolerance(0.05);
+        con2_spec.setNoZRotTolerance();
+
+        auto con2_tsr = std::make_shared<darts::TSR>(world, con2_spec);
+        builder.addConstraint(con2_tsr);
+
         builder.initialize();
 
         darts::TSR::Specification goal_spec;
@@ -129,7 +140,7 @@ int main(int argc, char **argv)
 
         builder.setup();
 
-        goal->options.max_samples = 1;
+        goal->options.max_samples = 100;
         goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(240.0);
         goal->stopSampling();
