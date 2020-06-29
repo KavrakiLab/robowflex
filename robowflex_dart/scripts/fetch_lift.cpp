@@ -16,8 +16,50 @@
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 #include <ompl/geometric/planners/kpiece/KPIECE1.h>
 #include <ompl/geometric/planners/kpiece/BKPIECE1.h>
+#include <ompl/geometric/planners/kpiece/LBKPIECE1.h>
 
 using namespace robowflex;
+
+class ZEEProjection : public ompl::base::ProjectionEvaluator
+{
+public:
+    ZEEProjection(const std::string &structure, const std::string &frame, const darts::PlanBuilder *builder)
+      : ompl::base::ProjectionEvaluator(builder->space)
+      , builder_(builder)
+      , robot_(structure)
+      , frame_(frame)
+      , node_(builder_->world->getRobot(robot_)->getSkeleton()->getBodyNode(frame_))
+    {
+    }
+
+    unsigned int getDimension() const override
+    {
+        return 1;
+    }
+
+    void defaultCellSizes() override
+    {
+        cellSizes_.resize(1);
+        cellSizes_[0] = 0.05;
+        // cellSizes_[1] = 0.01;
+        // cellSizes_[2] = 0.01;
+    }
+
+    void project(const ompl::base::State *state, Eigen::Ref<Eigen::VectorXd> projection) const override
+    {
+        builder_->rspace->setWorldState(builder_->world, state);
+        auto pose = node_->getWorldTransform();
+        // projection(0) = pose.translation()[0];
+        // projection(1) = pose.translation()[1];
+        projection(0) = pose.translation()[2];
+    }
+
+private:
+    const darts::PlanBuilder *builder_;
+    const std::string robot_;
+    const std::string frame_;
+    const dart::dynamics::BodyNode *node_;
+};
 
 int main(int argc, char **argv)
 {
@@ -25,6 +67,8 @@ int main(int argc, char **argv)
     // Load and setup the fetch
     //
 
+    double height = 0.6;
+    double raise = 1.;
     double radius = 0.8;
     auto world = std::make_shared<darts::World>();
     auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
@@ -35,14 +79,14 @@ int main(int argc, char **argv)
     fetch2->setDof(3, radius);
     fetch2->setDof(4, radius);
 
-    auto fetch3 = fetch1->cloneRobot("fetch3");
-    fetch3->setDof(2, 1.57);
-    fetch3->setDof(3, radius);
-    fetch3->setDof(4, -radius);
+    // auto fetch3 = fetch1->cloneRobot("fetch3");
+    // fetch3->setDof(2, 1.57);
+    // fetch3->setDof(3, radius);
+    // fetch3->setDof(4, -radius);
 
-    auto fetch4 = fetch1->cloneRobot("fetch4");
-    fetch4->setDof(2, 3.14);
-    fetch4->setDof(3, radius * 2);
+    // auto fetch4 = fetch1->cloneRobot("fetch4");
+    // fetch4->setDof(2, 3.14);
+    // fetch4->setDof(3, radius * 2);
 
     // make box
 
@@ -50,14 +94,14 @@ int main(int argc, char **argv)
 
     dart::dynamics::FreeJoint::Properties joint;
     joint.mName = "box";
-    joint.mT_ParentBodyToJoint.translation() = Eigen::Vector3d(radius, 0, 1.8);
+    joint.mT_ParentBodyToJoint.translation() = Eigen::Vector3d(radius, 0, height);
 
-    auto pair = scene->addFreeFrame(joint, darts::makeBox(0.50, 0.50, 0.1));
+    scene->addFreeFrame(joint, darts::makeBox(0.50, 0.50, 0.1));
 
     world->addRobot(fetch1);
     world->addRobot(fetch2);
-    world->addRobot(fetch3);
-    world->addRobot(fetch4);
+    // world->addRobot(fetch3);
+    // world->addRobot(fetch4);
     world->addStructure(scene);
 
     //
@@ -67,8 +111,8 @@ int main(int argc, char **argv)
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
-        builder.addGroup("fetch3", "arm_with_torso");
-        builder.addGroup("fetch4", "arm_with_torso");
+        // builder.addGroup("fetch3", "arm_with_torso");
+        // builder.addGroup("fetch4", "arm_with_torso");
 
         builder.setStartConfiguration({
             0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
@@ -80,36 +124,37 @@ int main(int argc, char **argv)
         builder.initialize();
         darts::TSR::Specification goal1_spec;
         goal1_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
-        goal1_spec.setPose(0.5, 0, 1.7,  //
+        goal1_spec.setPose(0.5, 0, height - 0.1,  //
                            0.707, 0, -0.707, 0);
 
         darts::TSR::Specification goal2_spec;
         goal2_spec.setFrame("fetch2", "wrist_roll_link", "base_link");
-        goal2_spec.setPose(0.5, 0, 1.7,  //
+        goal2_spec.setPose(0.5, 0, height - 0.1,  //
                            0.707, 0, -0.707, 0);
 
-        darts::TSR::Specification goal3_spec;
-        goal3_spec.setFrame("fetch3", "wrist_roll_link", "base_link");
-        goal3_spec.setPose(0.5, 0, 1.7,  //
-                           0.707, 0, -0.707, 0);
+        // darts::TSR::Specification goal3_spec;
+        // goal3_spec.setFrame("fetch3", "wrist_roll_link", "base_link");
+        // goal3_spec.setPose(0.5, 0, height - 0.1,  //
+        //                    0.707, 0, -0.707, 0);
 
-        darts::TSR::Specification goal4_spec;
-        goal4_spec.setFrame("fetch4", "wrist_roll_link", "base_link");
-        goal4_spec.setPose(0.5, 0, 1.7,  //
-                           0.707, 0, -0.707, 0);
+        // darts::TSR::Specification goal4_spec;
+        // goal4_spec.setFrame("fetch4", "wrist_roll_link", "base_link");
+        // goal4_spec.setPose(0.5, 0, height - 0.1,  //
+        //                    0.707, 0, -0.707, 0);
 
         auto goal1_tsr = std::make_shared<darts::TSR>(world, goal1_spec);
         auto goal2_tsr = std::make_shared<darts::TSR>(world, goal2_spec);
-        auto goal3_tsr = std::make_shared<darts::TSR>(world, goal3_spec);
-        auto goal4_tsr = std::make_shared<darts::TSR>(world, goal4_spec);
+        // auto goal3_tsr = std::make_shared<darts::TSR>(world, goal3_spec);
+        // auto goal4_tsr = std::make_shared<darts::TSR>(world, goal4_spec);
 
-        auto goal = builder.getGoalTSR({goal1_tsr, goal2_tsr, goal3_tsr, goal4_tsr});
+        // auto goal = builder.getGoalTSR({goal1_tsr, goal2_tsr, goal3_tsr, goal4_tsr});
+        auto goal = builder.getGoalTSR({goal1_tsr, goal2_tsr});
         builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
         // auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info);
         // auto rrt = std::make_shared<ompl::geometric::RRT>(builder.info);
-        rrt->setRange(100.);
+        rrt->setRange(1.);
         builder.ss->setPlanner(rrt);
         // auto kpiece = std::make_shared<ompl::geometric::KPIECE1>(builder.info);
         // builder.ss->setPlanner(kpiece);
@@ -118,6 +163,7 @@ int main(int argc, char **argv)
 
         builder.setup();
 
+        goal->options.max_samples = 1;
         goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
         goal->stopSampling();
@@ -137,8 +183,8 @@ int main(int argc, char **argv)
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
-        builder.addGroup("fetch3", "arm_with_torso");
-        builder.addGroup("fetch4", "arm_with_torso");
+        // builder.addGroup("fetch3", "arm_with_torso");
+        // builder.addGroup("fetch4", "arm_with_torso");
 
         builder.setStartConfigurationFromWorld();
 
@@ -149,44 +195,48 @@ int main(int argc, char **argv)
         auto con1_tsr = std::make_shared<darts::TSR>(world, con1_spec);
         builder.addConstraint(con1_tsr);
 
-        darts::TSR::Specification con2_spec;
-        con2_spec.setTarget("fetch3", "wrist_roll_link");
-        con2_spec.setBase("fetch1", "wrist_roll_link");
-        con2_spec.setPoseFromWorld(world);
-        auto con2_tsr = std::make_shared<darts::TSR>(world, con2_spec);
-        builder.addConstraint(con2_tsr);
+        // darts::TSR::Specification con2_spec;
+        // con2_spec.setTarget("fetch3", "wrist_roll_link");
+        // con2_spec.setBase("fetch1", "wrist_roll_link");
+        // con2_spec.setPoseFromWorld(world);
+        // auto con2_tsr = std::make_shared<darts::TSR>(world, con2_spec);
+        // builder.addConstraint(con2_tsr);
 
-        darts::TSR::Specification con3_spec;
-        con3_spec.setTarget("fetch4", "wrist_roll_link");
-        con3_spec.setBase("fetch1", "wrist_roll_link");
-        con3_spec.setPoseFromWorld(world);
-        auto con3_tsr = std::make_shared<darts::TSR>(world, con3_spec);
-        builder.addConstraint(con3_tsr);
+        // darts::TSR::Specification con3_spec;
+        // con3_spec.setTarget("fetch4", "wrist_roll_link");
+        // con3_spec.setBase("fetch1", "wrist_roll_link");
+        // con3_spec.setPoseFromWorld(world);
+        // auto con3_tsr = std::make_shared<darts::TSR>(world, con3_spec);
+        // builder.addConstraint(con3_tsr);
 
-        builder.options.constraints.delta = 0.4;
-        builder.options.constraints.lambda = 2;
+        // builder.options.constraints.delta = 0.4;
+        // builder.options.constraints.lambda = 1.5;
         builder.initialize();
 
         darts::TSR::Specification goal_spec;
         goal_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
-        goal_spec.setPose(0.4, 0, 0.7,  //
+        goal_spec.setPose(0.4, 0, height + raise,  //
                           0.707, 0, -0.707, 0);
         auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
         auto goal = builder.getGoalTSR(goal_tsr);
         builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-        rrt->setRange(1.);
+        // auto rrt = std::make_shared<ompl::geometric::RRT>(builder.info, true);
+        rrt->setRange(100.);
         builder.ss->setPlanner(rrt);
 
-        // auto kpiece = std::make_shared<ompl::geometric::BKPIECE1>(builder.info);
-        // kpiece->setRange(2);
+        // auto kpiece = std::make_shared<ompl::geometric::KPIECE1>(builder.info);
+        // kpiece->setProjectionEvaluator(
+        //     std::make_shared<ZEEProjection>("fetch1", "wrist_roll_link", &builder));
+        // kpiece->setRange(1.);
         // builder.ss->setPlanner(kpiece);
 
         builder.setup();
 
+        goal->options.max_samples = 1;
         goal->startSampling();
-        ompl::base::PlannerStatus solved = builder.ss->solve(120.0);
+        ompl::base::PlannerStatus solved = builder.ss->solve(240.0);
         goal->stopSampling();
 
         if (solved)
@@ -201,7 +251,10 @@ int main(int argc, char **argv)
     };
 
     std::thread t([&]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "Press enter" << std::endl;
+        std::cin.ignore();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         touch();
         auto cube = scene->getFrame("box");

@@ -87,6 +87,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
             success = tsr_->solveGradientWorldState(x);
 
         success &= si_->satisfiesBounds(state);
+        si_->enforceBounds(state);
     }
 
     return true;
