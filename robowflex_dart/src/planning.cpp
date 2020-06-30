@@ -488,7 +488,7 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times, double fps) const
     ss->simplifySolution();
 
     auto path = ss->getSolutionPath();
-    path.interpolate(100);
+    path.interpolate();
     path.print(std::cout);
 
     std::size_t i = times;
