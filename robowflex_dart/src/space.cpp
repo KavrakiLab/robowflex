@@ -175,6 +175,8 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
         const auto &v = joint->getSpaceVarsConst(x);
         joint->setJointState(world, v);
     }
+
+    world->forceUpdate();
 }
 
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
@@ -303,6 +305,20 @@ std::vector<std::pair<std::size_t, std::size_t>> StateSpace::getIndices() const
     return indices;
 }
 
+JointPtr StateSpace::getJoint(std::size_t index) const
+{
+    return joints_[index];
+}
+
+JointPtr StateSpace::getJoint(const std::string &name) const
+{
+    auto it = std::find_if(joints_.begin(), joints_.end(),
+                           [&](const JointPtr &j) { return j->getJoint(world_)->getName() == name; });
+    if (it != joints_.end())
+        return *it;
+    return nullptr;
+}
+
 const std::vector<JointPtr> &StateSpace::getJoints() const
 {
     return joints_;
@@ -318,4 +334,9 @@ Eigen::VectorXd StateSpace::getUpperBound() const
 {
     const auto &bounds = getBounds();
     return Eigen::Map<const Eigen::VectorXd>(bounds.high.data(), bounds.high.size());
+}
+
+void StateSpace::setMetricSpace(bool metric)
+{
+    metric_ = metric;
 }

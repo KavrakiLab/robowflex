@@ -98,6 +98,26 @@ namespace robowflex
             /** \name Joint operations.
                 \{ */
 
+            /** \brief Set the upper limits of a joint.
+             *  \param[in] v Upper limits of the joint.
+             */
+            virtual void setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v);
+
+            /** \brief Set the lower limits of a joint.
+             *  \param[in] v Lower limits of the joint.
+             */
+            virtual void setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v);
+
+            /** \brief Get the upper limits of a joint.
+                \return The upper limits of the joint.
+             */
+            virtual Eigen::VectorXd getUpperLimits() const;
+
+            /** \brief Get the lower limits of a joint.
+             *  \return The lower limits of the joint.
+             */
+            virtual Eigen::VectorXd getLowerLimits() const;
+
             /** \brief Compute the distance between two joint configurations.
              *  \param[in] a Joint configuration a.
              *  \param[in] b Joint configuration b.
@@ -218,6 +238,10 @@ namespace robowflex
                     Eigen::VectorXd low, Eigen::VectorXd high);
 
             /** \} */
+
+
+            void setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v) override;
+            void setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v) override;
 
             double distance(const Eigen::Ref<const Eigen::VectorXd> &a,
                             const Eigen::Ref<const Eigen::VectorXd> &b) const override;

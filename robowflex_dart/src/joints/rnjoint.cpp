@@ -89,3 +89,25 @@ void RnJoint::sampleNear(Eigen::Ref<Eigen::VectorXd> a,                  //
 
     enforceBounds(a);
 }
+
+void RnJoint::setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+{
+    if (v.size() != high_.size())
+        throw std::runtime_error("Incorrect size for limits!");
+
+    high_ = v;
+
+    for (std::size_t i = 0; i < sizeInSpace_; ++i)
+        space_->bounds_.setHigh(startInSpace_ + i, high_[i]);
+}
+
+void RnJoint::setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+{
+    if (v.size() != low_.size())
+        throw std::runtime_error("Incorrect size for limits!");
+
+    low_ = v;
+
+    for (std::size_t i = 0; i < sizeInSpace_; ++i)
+        space_->bounds_.setLow(startInSpace_ + i, low_[i]);
+}

@@ -69,6 +69,9 @@ TSRGoal::~TSRGoal()
 
 bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::State *state)
 {
+    if (getStateCount() >= options.max_samples)
+        return false;
+
     bool success = false;
     while (not success and not pdef_->hasSolution())
     {
@@ -77,12 +80,14 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
 
         auto &&x = Eigen::Map<Eigen::VectorXd>(as->values, si_->getStateDimension());
 
-        if (tsr_->numTSRs() == 1)
+        if (tsr_->numTSRs() == 1 or not options.use_gradient)
             success = tsr_->solveWorldState(x);
-        else
+
+        else if (options.use_gradient)
             success = tsr_->solveGradientWorldState(x);
 
         success &= si_->satisfiesBounds(state);
+        si_->enforceBounds(state);
     }
 
     return true;
@@ -242,7 +247,8 @@ void PlanBuilder::getPathConstraintsFromMessage(const std::string &robot_name,
         addConstraint(TSRfromOrientationConstraint(robot_name, constraint));
 }
 
-void PlanBuilder::getGoalFromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg)
+ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_name,
+                                                    const moveit_msgs::MotionPlanRequest &msg)
 {
     // TODO get other goals as well
     std::vector<TSRPtr> tsrs;
@@ -251,16 +257,22 @@ void PlanBuilder::getGoalFromMessage(const std::string &robot_name, const moveit
     for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
         tsrs.emplace_back(TSRfromOrientationConstraint(robot_name, constraint));
 
-    setGoalTSR(tsrs);
+    return getGoalTSR(tsrs);
 }
 
-void PlanBuilder::fromMessage(const std::string &robot_name, const moveit_msgs::MotionPlanRequest &msg)
+ompl::base::GoalPtr PlanBuilder::fromMessage(const std::string &robot_name,
+                                             const moveit_msgs::MotionPlanRequest &msg)
 {
     getWorkspaceBoundsFromMessage(msg);
     getGroupFromMessage(robot_name, msg);
     getStartFromMessage(robot_name, msg);
     getPathConstraintsFromMessage(robot_name, msg);
-    getGoalFromMessage(robot_name, msg);
+    initialize();
+
+    auto goal = getGoalFromMessage(robot_name, msg);
+    setGoal(goal);
+
+    return goal;
 }
 
 void PlanBuilder::addGroup(const std::string &skeleton, const std::string &name, std::size_t cyclic)
@@ -299,40 +311,66 @@ void PlanBuilder::sampleStartConfiguration()
     }
 }
 
-void PlanBuilder::setGoalConfigurationFromWorld()
+std::shared_ptr<ompl::base::GoalStates> PlanBuilder::getGoalConfigurationFromWorld()
 {
-    goal = Eigen::VectorXd::Zero(rspace->getDimension());
+    Eigen::VectorXd goal = Eigen::VectorXd::Zero(rspace->getDimension());
     rspace->getWorldState(world, goal);
+    return getGoalConfiguration(goal);
 }
 
-void PlanBuilder::setGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
+std::shared_ptr<ompl::base::GoalStates>
+PlanBuilder::getGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
 {
-    goal = q;
+    if (not space)
+        throw std::runtime_error("Builder must be initialized before creating goal!");
+
+    ompl::base::ScopedState<> goal_state(space);
+    getState(goal_state.get())->data = q;
+
+    auto goal = std::make_shared<ompl::base::GoalStates>(info);
+    goal->addState(goal_state);
+
+    return goal;
 }
 
-void PlanBuilder::setGoalConfiguration(const std::vector<double> &q)
+std::shared_ptr<ompl::base::GoalStates> PlanBuilder::getGoalConfiguration(const std::vector<double> &q)
 {
-    setGoalConfiguration(Eigen::Map<const Eigen::VectorXd>(q.data(), rspace->getDimension()));
+    return getGoalConfiguration(Eigen::Map<const Eigen::VectorXd>(q.data(), rspace->getDimension()));
 }
 
-void PlanBuilder::setGoalTSR(const TSRPtr &tsr)
+TSRGoalPtr PlanBuilder::getGoalTSR(const TSRPtr &tsr)
 {
-    setGoalTSR(std::vector<TSRPtr>{tsr});
+    return getGoalTSR(std::vector<TSRPtr>{tsr});
 }
 
-void PlanBuilder::setGoalTSR(const std::vector<TSRPtr> &tsrs)
+TSRGoalPtr PlanBuilder::getGoalTSR(const std::vector<TSRPtr> &tsrs)
 {
-    goal_constraints = tsrs;
+    if (not info)
+        throw std::runtime_error("Builder must be initialized before creating goal!");
+
+    return std::make_shared<TSRGoal>(*this, tsrs);
 }
 
-void PlanBuilder::sampleGoalConfiguration()
+std::shared_ptr<ompl::base::GoalStates> PlanBuilder::sampleGoalConfiguration()
 {
     if (space)
     {
         auto state = sampleState();
-        setGoalConfiguration(getState(state)->data);
+        auto goal = getGoalConfiguration(getState(state)->data);
         space->freeState(state);
+
+        return goal;
     }
+
+    return nullptr;
+}
+
+void PlanBuilder::setGoal(const ompl::base::GoalPtr &goal)
+{
+    goal_ = goal;
+
+    if (ss)
+        ss->setGoal(goal_);
 }
 
 void PlanBuilder::initialize()
@@ -348,18 +386,9 @@ void PlanBuilder::setup()
     ompl::base::ScopedState<> start_state(space);
     getState(start_state.get())->data = start;
     ss->setStartState(start_state);
-
-    if (goal_constraints.empty())
-    {
-        ompl::base::ScopedState<> goal_state(space);
-        getState(goal_state.get())->data = goal;
-        ss->setGoalState(goal_state);
-    }
-    else
-    {
-        goal_tsr = std::make_shared<TSRGoal>(*this, goal_constraints);
-        ss->setGoal(goal_tsr);
-    }
+    if (not goal_)
+        throw std::runtime_error("No goal setup in PlanBuilder!");
+    ss->setGoal(goal_);
 
     ss->setup();
 }
@@ -367,6 +396,8 @@ void PlanBuilder::setup()
 void PlanBuilder::initializeConstrained()
 {
     world->clearIKModules();
+
+    rspace->setMetricSpace(false);
 
     constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
 
@@ -380,13 +411,8 @@ void PlanBuilder::initializeConstrained()
     ss = std::make_shared<ompl::geometric::SimpleSetup>(info);
     setStateValidityChecker();
 
-    // pss->setDelta(0.05);
-    pss->setDelta(0.2);
-    // pss->setDelta(0.1);
-    // pss->setDelta(0.5);
-    // pss->setLambda(2);
-    // pss->setLambda(3);
-    pss->setLambda(5);
+    pss->setDelta(options.constraints.delta);
+    pss->setLambda(options.constraints.lambda);
 }
 
 void PlanBuilder::initializeUnconstrained()
@@ -457,12 +483,12 @@ void PlanBuilder::setStateValidityChecker()
     }
 }
 
-void PlanBuilder::animateSolutionInWorld(std::size_t times) const
+void PlanBuilder::animateSolutionInWorld(std::size_t times, double fps) const
 {
     ss->simplifySolution();
 
     auto path = ss->getSolutionPath();
-    path.interpolate(100);
+    path.interpolate();
     path.print(std::cout);
 
     std::size_t i = times;
@@ -476,7 +502,7 @@ void PlanBuilder::animateSolutionInWorld(std::size_t times) const
             if (not info->isValid(states[j]))
                 std::cout << "State " << j << " is invalid!" << std::endl;
             rspace->setWorldState(world, getState(states[j]));
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+            std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

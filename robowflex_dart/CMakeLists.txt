@@ -48,8 +48,9 @@ if (DART_LIBRARIES)
     LIBRARIES ${LIBRARY_NAME}
     CATKIN_DEPENDS
     robowflex_library
-    dartsim
+    # dartsim
     DEPENDS
+    ompl
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )
 
@@ -75,6 +76,10 @@ if (DART_LIBRARIES)
   target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 
   add_script(fetch_plan)
+  add_script(fetch_pick)
+  add_script(fetch_ik)
+  add_script(fetch_bimanual)
+  add_script(fetch_lift)
   add_script(r2free_plan)
   add_script(r2_plan)
   add_script(world_test)

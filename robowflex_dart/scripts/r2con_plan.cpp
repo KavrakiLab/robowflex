@@ -73,6 +73,11 @@ int main(int argc, char **argv)
     builder.addConstraint(lleg_tsr);
 
     //
+    // Initialize
+    //
+    builder.initialize();
+
+    //
     // Starting Right Leg TSR
     //
     darts::TSR::Specification start_spec;
@@ -80,31 +85,12 @@ int main(int argc, char **argv)
     start_spec.setPose(1.5, -0.248108850885, -1.10411526908,  //
                        4.90351543079e-06, -0.999999999961, 1.82668011027e-06, 7.14501707513e-06);
     auto start_tsr = std::make_shared<darts::TSR>(world, start_spec);
-    builder.setGoalTSR(start_tsr);
-
-    //
-    // Initialize
-    //
-    builder.initialize();
+    auto goal = builder.getGoalTSR(start_tsr);
+    builder.setGoal(goal);
 
     //
     // Setup planner
     //
-
-    // ompl::tools::ParallelPlan pp(builder.ss->getProblemDefinition());
-    // auto rrt1 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    // rrt1->setRange(100);
-    // auto rrt2 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    // rrt2->setRange(100);
-    // auto rrt3 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    // rrt3->setRange(100);
-    // auto rrt4 = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    // rrt4->setRange(100);
-
-    // pp.addPlanner(rrt1);
-    // pp.addPlanner(rrt2);
-    // pp.addPlanner(rrt3);
-    // pp.addPlanner(rrt4);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(100);
@@ -117,10 +103,11 @@ int main(int argc, char **argv)
 
         while (true)
         {
-            builder.goal_tsr->startSampling();
+            goal->options.use_gradient = true;
+            goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
             // ompl::base::PlannerStatus solved = pp.solve(60.0, 1, 1, true);
-            builder.goal_tsr->stopSampling();
+            goal->stopSampling();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)

@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     fetch->initialize();
 
     auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
+    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch_wall.yml");
 
     //
     // Convert to Dart
@@ -93,6 +93,11 @@ int main(int argc, char **argv)
     builder.addConstraint(constraint_tsr);
 
     //
+    // Initialize and setup
+    //
+    builder.initialize();
+
+    //
     // Setup Goal
     //
     darts::TSR::Specification goal_spec;
@@ -101,12 +106,8 @@ int main(int argc, char **argv)
                       0.5, -0.5, 0.5, 0.5);
 
     auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-    builder.setGoalTSR(goal_tsr);
-
-    //
-    // Initialize and setup
-    //
-    builder.initialize();
+    auto goal = builder.getGoalTSR(goal_tsr);
+    builder.setGoal(goal);
 
     //
     // Setup Planner
@@ -136,9 +137,9 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
-            builder.goal_tsr->startSampling();
+            goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-            builder.goal_tsr->stopSampling();
+            goal->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
