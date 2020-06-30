@@ -1152,11 +1152,14 @@ bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
     space_->setWorldState(space_->getWorld(), x);
 
+    bool r = false;
     if (tsr_->numTSRs() == 1 or not options.use_gradient)
-        return tsr_->solveWorldState(x);
+        r = tsr_->solveWorldState(x);
 
     else if (options.use_gradient)
-        return tsr_->solveGradientWorldState(x);
+        r = tsr_->solveGradientWorldState(x);
+
+    return r;
 }
 
 TSRSetPtr TSRConstraint::getSet()
