@@ -1,52 +1,3 @@
-// #include <dart/dart.hpp>
-// #include <robowflex_dart/structure.h>
-// #include <dart/gui/osg/osg.hpp>
-
-// int main()
-// {
-//   // Create a world
-//   dart::simulation::WorldPtr world(new dart::simulation::World);
-
-//   // Add a target object to the world
-//   dart::gui::osg::InteractiveFramePtr target(
-//         new dart::gui::osg::InteractiveFrame(dart::dynamics::Frame::World()));
-//   world->addSimpleFrame(target);
-
-//   dart::dynamics::SimpleFramePtr frame(new dart::dynamics::SimpleFrame);
-//   frame->setShape(robowflex::darts::makeSphere(0.1));
-//   frame->createVisualAspect();
-//   world->addSimpleFrame(frame);
-
-//   // Wrap a WorldNode around it
-//   osg::ref_ptr<CustomWorldNode> node = new CustomWorldNode(world);
-
-//   // Create a Viewer and set it up with the WorldNode
-//   dart::gui::osg::ImGuiViewer viewer;
-//   viewer.addWorldNode(node);
-
-//   // Active the drag-and-drop feature for the target
-//   viewer.enableDragAndDrop(target.get());
-//   viewer.enableDragAndDrop(frame.get());
-
-//   // Pass in the custom event handler
-//   viewer.addEventHandler(new CustomEventHandler);
-
-//   // Set up the window to be 640x480
-//   viewer.setUpViewInWindow(0, 0, 640, 480);
-
-//   // Adjust the viewpoint of the Viewer
-//   viewer.getCameraManipulator()->setHomePosition(
-//         ::osg::Vec3( 2.57f,  3.14f, 1.64f),
-//         ::osg::Vec3( 0.00f,  0.00f, 0.00f),
-//         ::osg::Vec3(-0.24f, -0.25f, 0.94f));
-//   // We need to re-dirty the CameraManipulator by passing it into the viewer
-//   // again, so that the viewer knows to update its HomePosition setting
-//   viewer.setCameraManipulator(viewer.getCameraManipulator());
-
-//   // Begin running the application loop
-//   viewer.run();
-// }
-
 /* Author: Zachary Kingston */
 
 #include <thread>
@@ -63,13 +14,24 @@ using namespace robowflex;
 
 int main(int argc, char **argv)
 {
+    bool ik = true;
+
     auto world = std::make_shared<darts::World>();
 
     auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
                                          "package://fetch_description/robots/fetch.urdf",  //
                                          "package://fetch_moveit_config/config/fetch.srdf");
+    auto start = fetch1->getSkeleton()->getState();
+
+    auto scene = std::make_shared<darts::Structure>("object");
+
+    dart::dynamics::FreeJoint::Properties joint;
+    joint.mName = "box";
+    joint.mT_ParentBodyToJoint.translation() = Eigen::Vector3d(0.5, 0, 0.3);
+    scene->addFreeFrame(joint, darts::makeBox(0.05, 0.05, 0.1));
 
     world->addRobot(fetch1);
+    world->addStructure(scene);
 
     darts::Window window(world);
 
@@ -84,14 +46,17 @@ int main(int argc, char **argv)
 
     darts::Window::InteractiveOptions options_ik;
     options_ik.name = "head_look";
-    options_ik.size = 0.5;
+    options_ik.size = 0.4;
     options_ik.thickness = 1;
     options_ik.pose = fetch1->getFrame("wrist_roll_link")->getWorldTransform();
+
     options_ik.callback = [&](const auto &frame) {
         auto &spec = ik_tsr->getSpecification();
         spec.setPose(frame->getWorldTransform());
         ik_tsr->updatePose();
-        ik_tsr->solveWorld();
+
+        if (ik)
+            ik_tsr->solveWorld();
     };
 
     auto ik_ret = window.createInteractiveMarker(options_ik);
@@ -108,21 +73,54 @@ int main(int argc, char **argv)
     options_look.name = "head_look";
     options_look.pose = fetch1->getFrame("head_camera_link")->getWorldTransform();
     options_look.pose.translation()[1] += 0.5;
-    options_look.linear[0] = false;
+
+    options_look.linear[0] = false;  // disable linear control
     options_look.linear[1] = false;
     options_look.linear[2] = false;
-    options_look.rotation[0] = false;
-    options_look.planar[0] = false;
+    options_look.rotation[0] = false;  // no roll
+    options_look.planar[0] = false;    // disable planar control
     options_look.planar[1] = false;
     options_look.planar[2] = false;
+
     options_look.callback = [&](const auto &frame) {
         auto &spec = look_tsr->getSpecification();
         spec.setPose(frame->getWorldTransform());
         look_tsr->updatePose();
-        look_tsr->solveWorld();
+
+        if (ik)
+            look_tsr->solveWorld();
     };
 
     auto look_ret = window.createInteractiveMarker(options_look);
+
+    // Enable/Disable IK
+    window.getWidget()->addCheckbox("Enable IK", ik);
+
+    // Pick / Place Button
+    bool picked = false;
+    auto cube = scene->getFrame("box");
+    window.getWidget()->addButton("Pick/Place", [&] {
+        if (not picked)
+            fetch1->reparentFreeFrame(cube, "wrist_roll_link");
+        else
+            scene->reparentFreeFrame(cube);
+
+        picked = not picked;
+    });
+
+    // Setup reset button
+    window.getWidget()->addText("Press button to reset robot state!");
+    window.getWidget()->addButton("Reset", [&] {
+        // do it a few times since the IK tries to update
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            fetch1->getSkeleton()->setState(start);
+            ik_ret.target->setTransform(fetch1->getFrame("wrist_roll_link")->getWorldTransform());
+            auto tf = fetch1->getFrame("head_camera_link")->getWorldTransform();
+            tf.translation()[1] += 0.5;
+            look_ret.target->setTransform(tf);
+        }
+    });
 
     window.run();
     return 0;

@@ -3,10 +3,17 @@
 #ifndef ROBOWFLEX_DART_GUI_
 #define ROBOWFLEX_DART_GUI_
 
+#include <mutex>
+#include <condition_variable>
+
 #include <dart/dart.hpp>
+#include <dart/external/imgui/imgui.h>
+#include <dart/gui/osg/ImGuiWidget.hpp>
 #include <dart/gui/osg/osg.hpp>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
+
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/planning.h>
@@ -17,7 +24,138 @@ namespace robowflex
     {
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(Window)
+        ROBOWFLEX_CLASS_FORWARD(WindowWidget)
         /** \endcond */
+
+        class WindowWidget : public dart::gui::osg::ImGuiWidget
+        {
+        public:
+            ROBOWFLEX_CLASS_FORWARD(Element)
+            class Element
+            {
+            public:
+                virtual void render() const = 0;
+            };
+
+            class TextElement : public Element
+            {
+            public:
+                TextElement(const std::string &text) : text(text)
+                {
+                }
+
+                void render() const override
+                {
+                    ImGui::Text(text.c_str());
+                }
+
+            private:
+                const std::string text;
+            };
+
+            class CheckboxElement : public Element
+            {
+            public:
+                CheckboxElement(const std::string &text, bool &boolean) : text(text), boolean(boolean)
+                {
+                }
+
+                void render() const override
+                {
+                    ImGui::Checkbox(text.c_str(), &boolean);
+                }
+
+            private:
+                const std::string text;
+                bool &boolean;
+            };
+
+            ROBOWFLEX_CLASS_FORWARD(ButtonElement)
+            using ButtonCallback = std::function<void()>;
+            class ButtonElement : public Element
+            {
+            public:
+                ButtonElement(const std::string &text, const ButtonCallback &callback)
+                  : text(text), callback(callback)
+                {
+                }
+
+                void render() const override
+                {
+                    const auto &button = ImGui::Button(text.c_str());
+                    if (button)
+                        callback();
+                }
+
+            private:
+                const std::string text;
+                const ButtonCallback callback;
+            };
+
+            using RenderCallback = std::function<void()>;
+            class RenderElement : public Element
+            {
+            public:
+                RenderElement(const RenderCallback &callback) : callback(callback)
+                {
+                }
+
+                void render() const override
+                {
+                    if (callback)
+                        callback();
+                }
+
+            private:
+                const RenderCallback callback;
+            };
+
+            WindowWidget()
+            {
+            }
+
+            void render() override
+            {
+                if (elements_.empty())
+                    return;
+
+                ImGui::SetNextWindowPos(ImVec2(10, 20));
+                ImGui::SetNextWindowBgAlpha(0.5f);
+                if (!ImGui::Begin("Robowflex DART", nullptr,
+                                  ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar))
+                {
+                    // Early out if the window is collapsed, as an optimization.
+                    ImGui::End();
+                    return;
+                }
+
+                for (const auto &element : elements_)
+                    element->render();
+            }
+
+            void addText(const std::string &text)
+            {
+                elements_.push_back(std::make_shared<TextElement>(text));
+            }
+
+            void addButton(const std::string &text, const ButtonCallback &callback)
+            {
+                elements_.push_back(std::make_shared<ButtonElement>(text, callback));
+            }
+
+            void addCheckbox(const std::string &text, bool &boolean)
+            {
+                elements_.push_back(std::make_shared<CheckboxElement>(text, boolean));
+            }
+
+            void addCallback(const RenderCallback &callback)
+            {
+                elements_.push_back(std::make_shared<RenderElement>(callback));
+            }
+
+        private:
+            std::vector<ElementPtr> elements_;
+        };
 
         class Window : public dart::gui::osg::WorldNode
         {
@@ -32,6 +170,9 @@ namespace robowflex
                     ::osg::Vec3(0.00, 0.00, 0.00),                //
                     ::osg::Vec3(-0.24, -0.25, 0.94));
                 viewer_.setCameraManipulator(viewer_.getCameraManipulator());
+
+                widget_ = std::make_shared<WindowWidget>();
+                viewer_.getImGuiHandler()->addWidget(widget_);
             }
 
             // void customPreRefresh() override;
@@ -93,6 +234,8 @@ namespace robowflex
                     r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
                         callback(dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity));
                     });
+
+                return r;
             }
 
             using DnDCallback = std::function<void(const dart::dynamics::BodyNode *)>;
@@ -118,37 +261,84 @@ namespace robowflex
                 return r;
             }
 
-            void run()
+            void run(std::function<void()> thread = {})
             {
-                viewer_.run();
+                if (thread)
+                {
+                    std::thread t(thread);
+                    viewer_.run();
+                }
+                else
+                    viewer_.run();
+            }
+
+            void animatePath(const StateSpacePtr &space, const ompl::geometric::PathGeometric &path,
+                             std::size_t times = 1, double fps = 60, bool block = true)
+            {
+                bool active = true;
+
+                std::mutex m;
+                std::condition_variable cv;
+
+                if (animation_)
+                {
+                    animation_->join();
+                    animation_.reset();
+                }
+                auto thread = std::make_shared<std::thread>([&] {
+                    std::size_t n = path.getStateCount();
+                    std::size_t i = times;
+
+                    std::unique_lock<std::mutex> lk(m);
+                    while ((times == 0) ? true : i--)
+                    {
+                        space->setWorldState(world_, path.getState(0));
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+                        for (std::size_t j = 0; j < n; ++j)
+                        {
+                            space->setWorldState(world_, path.getState(j));
+
+                            std::this_thread::sleep_for(
+                                std::chrono::milliseconds((unsigned int)(1000 / fps)));
+                        }
+
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    }
+
+                    active = false;
+                    cv.notify_one();
+                });
+
+                animation_ = thread;
+
+                if (block)
+                {
+                    std::unique_lock<std::mutex> lk(m);
+                    cv.wait(lk, [&] { return not active; });
+                }
             }
 
             void animatePath(const PlanBuilder &builder, const ompl::geometric::PathGeometric &path,
-                             std::size_t times = 1, double fps = 60)
+                             std::size_t times = 1, double fps = 60, bool block = true)
             {
-                std::size_t n = path.getStateCount();
-                std::size_t i = times;
-                while ((times == 0) ? true : i--)
-                {
-                    builder.rspace->setWorldState(world_, builder.getStateConst(path.getState(0)));
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                ompl::geometric::PathGeometric extract(builder.rinfo);
+                for (std::size_t i = 0; i < path.getStateCount(); ++i)
+                    extract.append(builder.getStateConst(path.getState(i)));
 
-                    for (std::size_t j = 0; j < n; ++j)
-                    {
-                        if (not builder.info->isValid(path.getState(j)))
-                            std::cout << "State " << j << " is invalid!" << std::endl;
+                animatePath(builder.rspace, extract, times, fps, block);
+            }
 
-                        builder.rspace->setWorldState(world_, builder.getStateConst(path.getState(j)));
-
-                        std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
-                    }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                }
+            WindowWidgetPtr getWidget()
+            {
+                return widget_;
             }
 
         private:
             WorldPtr world_;
+            WindowWidgetPtr widget_;
+
+            std::shared_ptr<std::thread> animation_{nullptr};
 
             ::osg::ref_ptr<Window> node_;
             dart::gui::osg::ImGuiViewer viewer_;

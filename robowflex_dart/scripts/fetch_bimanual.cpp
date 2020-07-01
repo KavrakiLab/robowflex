@@ -9,6 +9,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -29,6 +30,8 @@ int main(int argc, char **argv)
 
     world->addRobot(fetch1);
     world->addRobot(fetch2);
+
+    darts::Window window(world);
 
     //
     // Initial goal - touch fingertips
@@ -73,8 +76,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -118,8 +121,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
         return solved;
     };
 
-    std::thread t([&]() {
+    window.run([&]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         while (true)
         {
@@ -138,7 +141,5 @@ int main(int argc, char **argv)
                 dance();
         }
     });
-
-    world->openOSGViewer();
     return 0;
 }

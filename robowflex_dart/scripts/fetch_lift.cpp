@@ -9,6 +9,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -47,6 +48,8 @@ int main(int argc, char **argv)
     world->addRobot(fetch1);
     world->addRobot(fetch2);
     world->addStructure(scene);
+
+    darts::Window window(world);
 
     //
     // Touch the box
@@ -91,8 +94,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -151,8 +154,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -211,8 +214,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -248,8 +251,8 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld(1);
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
@@ -257,7 +260,7 @@ int main(int argc, char **argv)
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
 
-    std::thread t([&]() {
+    window.run([&]() {
         std::cout << "Press enter" << std::endl;
         std::cin.ignore();
 
@@ -270,14 +273,17 @@ int main(int argc, char **argv)
                 auto cube = scene->getFrame("box");
                 fetch1->reparentFreeFrame(cube, "wrist_roll_link");
                 if (lift())
-                    lower();
-
-                scene->reparentFreeFrame(cube);
-                tuck();
+                {
+                    if (lower())
+                    {
+                        scene->reparentFreeFrame(cube);
+                        if (not tuck())
+                            break;
+                    }
+                }
             }
         }
     });
 
-    world->openOSGViewer();
     return 0;
 }
