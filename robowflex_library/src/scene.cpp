@@ -289,7 +289,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     EigenSTL::vector_Isometry3d poses;
     for (const auto &pose : obj->shape_poses_)
     {
-        const Eigen::Isometry3d relative = pose.inverse() * tf;
+        const Eigen::Isometry3d relative = tf.inverse() * pose;
         poses.push_back(relative);
     }
 
