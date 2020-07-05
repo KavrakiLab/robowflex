@@ -210,8 +210,7 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 
 robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 {
-    robot_state::RobotStatePtr start_state =
-        std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    auto start_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
     start_state->setToDefaultValues();
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);

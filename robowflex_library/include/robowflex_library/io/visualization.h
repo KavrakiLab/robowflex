@@ -65,6 +65,11 @@ namespace robowflex
             /** \brief Visualizes a robot state.
              *  \param[in] state The state of the robot to be visualized.
              */
+            void visualizeState(const robot_state::RobotStatePtr &state);
+
+            /** \brief Visualizes a robot state.
+             *  \param[in] state The state of the robot to be visualized.
+             */
             void visualizeState(const std::vector<double> &state);
 
             /** \brief Visualize the current state of the robot.
