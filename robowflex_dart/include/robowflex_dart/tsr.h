@@ -178,13 +178,20 @@ namespace robowflex
                  */
                 void setRotation(const Eigen::Quaterniond &orientation);
 
-                /** \brief Set the rotation of the TSR.
+                /** \brief Set the rotation of the TSR as a quaternion.
                  *  \param[in] w W-component of quaternion.
                  *  \param[in] x X-component of quaternion.
                  *  \param[in] y Y-component of quaternion.
                  *  \param[in] z Z-component of quaternion.
                  */
                 void setRotation(double w, double x, double y, double z);
+
+                /** \brief Set the rotation of the TSR as XYZ Euler angles.
+                 *  \param[in] x X-component of rotation.
+                 *  \param[in] y Y-component of rotation.
+                 *  \param[in] z Z-component of rotation.
+                 */
+                void setRotation(double x, double y, double z);
 
                 /** \brief Set the pose of the TSR.
                  *  \param[in] other Pose to use.
@@ -370,6 +377,10 @@ namespace robowflex
                 /** \} */
 
             private:
+                /** \brief Fixes bounds so they are correct.
+                 */
+                void fixBounds();
+
                 /** \brief Compute and return constraint dimension of the TSR.
                  *  \return Dimension of TSR.
                  */

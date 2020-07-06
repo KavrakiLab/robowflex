@@ -78,6 +78,15 @@ void TSR::Specification::setRotation(double w, double x, double y, double z)
     setRotation(Eigen::Quaterniond(w, x, y, z));
 }
 
+void TSR::Specification::setRotation(double x, double y, double z)
+{
+    auto n = Eigen::AngleAxisd(x, Eigen::Vector3d::UnitX()) *  //
+             Eigen::AngleAxisd(y, Eigen::Vector3d::UnitY()) *  //
+             Eigen::AngleAxisd(z, Eigen::Vector3d::UnitZ());
+
+    setRotation(n);
+}
+
 void TSR::Specification::setPose(const RobotPose &other)
 {
     pose = other;
@@ -132,6 +141,7 @@ void TSR::Specification::setXPosTolerance(double lower, double upper)
 {
     position.lower[0] = lower;
     position.upper[0] = upper;
+    fixBounds();
 
     indices[3] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -141,6 +151,7 @@ void TSR::Specification::setYPosTolerance(double lower, double upper)
 {
     position.lower[1] = lower;
     position.upper[1] = upper;
+    fixBounds();
 
     indices[4] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -150,6 +161,7 @@ void TSR::Specification::setZPosTolerance(double lower, double upper)
 {
     position.lower[2] = lower;
     position.upper[2] = upper;
+    fixBounds();
 
     indices[5] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -174,6 +186,7 @@ void TSR::Specification::setXRotTolerance(double lower, double upper)
 {
     orientation.lower[0] = lower;
     orientation.upper[0] = upper;
+    fixBounds();
 
     indices[0] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -183,6 +196,7 @@ void TSR::Specification::setYRotTolerance(double lower, double upper)
 {
     orientation.lower[1] = lower;
     orientation.upper[1] = upper;
+    fixBounds();
 
     indices[1] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -192,6 +206,7 @@ void TSR::Specification::setZRotTolerance(double lower, double upper)
 {
     orientation.lower[2] = lower;
     orientation.upper[2] = upper;
+    fixBounds();
 
     indices[2] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -239,6 +254,35 @@ void TSR::Specification::setNoRotTolerance()
     setNoXRotTolerance();
     setNoYRotTolerance();
     setNoZRotTolerance();
+}
+
+void TSR::Specification::fixBounds()
+{
+    {
+        Eigen::Vector3d u, l;
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            u[i] = std::max(position.lower[i], position.upper[i]);
+            l[i] = std::min(position.lower[i], position.upper[i]);
+        }
+
+        position.lower = l;
+        position.upper = u;
+    }
+
+    {
+        Eigen::Vector3d u, l;
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            u[i] =
+                std::max({orientation.lower[i], orientation.upper[i], -dart::math::constants<double>::pi()});
+            l[i] =
+                std::min({orientation.lower[i], orientation.upper[i], dart::math::constants<double>::pi()});
+        }
+
+        orientation.lower = l;
+        orientation.upper = u;
+    }
 }
 
 std::size_t TSR::Specification::getDimension() const
