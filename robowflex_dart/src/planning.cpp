@@ -396,8 +396,10 @@ void PlanBuilder::setup()
 void PlanBuilder::initializeConstrained()
 {
     world->clearIKModules();
-
     rspace->setMetricSpace(false);
+
+    rinfo = std::make_shared<ompl::base::SpaceInformation>(rspace);
+    rinfo->setStateValidityChecker(getSVCUnconstrained());
 
     constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
 
@@ -421,22 +423,40 @@ void PlanBuilder::initializeUnconstrained()
     ss = std::make_shared<ompl::geometric::SimpleSetup>(space);
     setStateValidityChecker();
 
-    info = ss->getSpaceInformation();
+    rinfo = info = ss->getSpaceInformation();
 }
 
 StateSpace::StateType *PlanBuilder::getState(ompl::base::State *state) const
 {
     if (constraint)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
+        return getFromConstrainedState(state);
     else
-        return state->as<StateSpace::StateType>();
+        return getFromUnconstrainedState(state);
 }
 
 const StateSpace::StateType *PlanBuilder::getStateConst(const ompl::base::State *state) const
 {
     return getState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *PlanBuilder::getFromConstrainedState(ompl::base::State *state) const
+{
+    return state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState()->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *PlanBuilder::getFromConstrainedStateConst(const ompl::base::State *state) const
+{
+    return getFromConstrainedState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *PlanBuilder::getFromUnconstrainedState(ompl::base::State *state) const
+{
+    return state->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *PlanBuilder::getFromUnconstrainedStateConst(const ompl::base::State *state) const
+{
+    return getFromUnconstrainedState(const_cast<ompl::base::State *>(state));
 }
 
 ompl::base::State *PlanBuilder::sampleState() const
@@ -483,27 +503,40 @@ void PlanBuilder::setStateValidityChecker()
     }
 }
 
-void PlanBuilder::animateSolutionInWorld(std::size_t times, double fps) const
+ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 {
-    ss->simplifySolution();
+    return [&](const ompl::base::State *state) -> bool {
+        auto as = getFromUnconstrainedStateConst(state);
+
+        world->lock();
+        rspace->setWorldState(world, as);
+        bool r = not world->inCollision();
+        world->unlock();
+        return r;
+    };
+}
+
+ompl::base::StateValidityCheckerFn PlanBuilder::getSVCConstrained()
+{
+    return [&](const ompl::base::State *state) -> bool {
+        auto as = getFromConstrainedStateConst(state);
+
+        world->lock();
+        rspace->setWorldState(world, as);
+        bool r = not world->inCollision();
+        world->unlock();
+        return r;
+    };
+}
+
+ompl::geometric::PathGeometric PlanBuilder::getSolutionPath(bool simplify, bool interpolate) const
+{
+    if (simplify)
+        ss->simplifySolution();
 
     auto path = ss->getSolutionPath();
-    path.interpolate();
-    path.print(std::cout);
+    if (interpolate)
+        path.interpolate();
 
-    std::size_t i = times;
-    while ((times == 0) ? true : i--)
-    {
-        rspace->setWorldState(world, getState(path.getStates()[0]));
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        const auto &states = path.getStates();
-        for (std::size_t j = 0; j < states.size(); ++j)
-        {
-            if (not info->isValid(states[j]))
-                std::cout << "State " << j << " is invalid!" << std::endl;
-            rspace->setWorldState(world, getState(states[j]));
-            std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
+    return path;
 }

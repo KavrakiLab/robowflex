@@ -611,6 +611,12 @@ double TSR::distance(const Eigen::Ref<const Eigen::VectorXd> &state) const
 
 bool TSR::solveWorld()
 {
+    if (not ik_)
+    {
+        std::cerr << "TSR: Solve called before initialize!" << std::endl;
+        return false;
+    }
+
     world_->lock();
     bool r = ik_->solveAndApply();
     world_->unlock();

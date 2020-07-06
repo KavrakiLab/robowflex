@@ -9,6 +9,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -28,6 +29,8 @@ int main(int argc, char **argv)
     world->addRobot(fetch1);
     world->addRobot(fetch2);
 
+    darts::Window window(world);
+
     darts::PlanBuilder builder(world);
     builder.addGroup("fetch1", "arm_with_torso");
     builder.addGroup("fetch2", "arm_with_torso");
@@ -42,7 +45,7 @@ int main(int argc, char **argv)
     darts::TSR::Specification goal1_spec;
     goal1_spec.setFrame("fetch1", "wrist_roll_link", "base_link");
     goal1_spec.setPose(0.4, 0.3, 0.92,  //
-                       // 0.5, -0.5, 0.5, 0.5);
+                                        // 0.5, -0.5, 0.5, 0.5);
                        0.707, 0, 0, 0.707);
 
     darts::TSR::Specification goal2_spec;
@@ -63,7 +66,7 @@ int main(int argc, char **argv)
     builder.setup();
     builder.ss->print();
 
-    std::thread t([&]() {
+    window.run([&]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
@@ -74,15 +77,13 @@ int main(int argc, char **argv)
 
             if (solved)
             {
-                std::cout << "Found solution:" << std::endl;
-                builder.animateSolutionInWorld(1);
+                std::cout << "Found solution!" << std::endl;
+                window.animatePath(builder, builder.getSolutionPath());
             }
             else
                 std::cout << "No solution found" << std::endl;
             builder.ss->clear();
         }
     });
-
-    world->openOSGViewer();
     return 0;
 }

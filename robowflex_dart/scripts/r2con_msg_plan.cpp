@@ -13,6 +13,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -55,7 +56,8 @@ int main(int argc, char **argv)
 
     builder.setup();
 
-    std::thread t([&]() {
+    darts::Window window(world);
+    window.run([&]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         while (true)
@@ -67,7 +69,7 @@ int main(int argc, char **argv)
             if (solved)
             {
                 std::cout << "Found solution!" << std::endl;
-                builder.animateSolutionInWorld(1);
+                window.animatePath(builder, builder.getSolutionPath());
             }
             else
                 std::cout << "No solution found" << std::endl;
@@ -76,6 +78,5 @@ int main(int argc, char **argv)
         }
     });
 
-    world->openOSGViewer();
     return 0;
 }

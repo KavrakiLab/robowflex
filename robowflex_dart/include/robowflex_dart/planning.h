@@ -304,6 +304,30 @@ namespace robowflex
              */
             const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
 
+            /** \brief Access the underlying state from a constrained OMPL state.
+             *  \param[in] state Constrained state to access.
+             *  \return The underlying state.
+             */
+            StateSpace::StateType *getFromConstrainedState(ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from a constrained OMPL state.
+             *  \param[in] state Constrained state to access.
+             *  \return The underlying state.
+             */
+            const StateSpace::StateType *getFromConstrainedStateConst(const ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from an unconstrained OMPL state.
+             *  \param[in] state Unconstrained state to access.
+             *  \return The underlying state.
+             */
+            StateSpace::StateType *getFromUnconstrainedState(ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from an unconstrained OMPL state.
+             *  \param[in] state Unconstrained state to access.
+             *  \return The underlying state.
+             */
+            const StateSpace::StateType *getFromUnconstrainedStateConst(const ompl::base::State *state) const;
+
             /** \brief Sample a valid state.
              *  \return a Valid state.
              */
@@ -314,19 +338,21 @@ namespace robowflex
             /** \name Other Functions
                 \{ */
 
-            /** \brief Display the found solution path by animating it in a world. Useful if the OSG GUI for
-             * the world is running.
-             *  \param[in] times Times to display the path.
+            /** \brief Get the solution path from a successful plan
+             *  \param[in] simplify Simplify the solution.
+             *  \param[in] interpolate Interpolate the solution.
              */
-            void animateSolutionInWorld(std::size_t times = 0, double fps = 60.) const;
+            ompl::geometric::PathGeometric getSolutionPath(bool simplify = true,
+                                                           bool interpolate = true) const;
 
             /** \} */
 
             StateSpacePtr rspace{nullptr};             ///< Underlying Robot State Space.
             ompl::base::StateSpacePtr space{nullptr};  ///< Actual OMPL State Space (might be constrained).
-            ompl::base::SpaceInformationPtr info{nullptr};  ///< Space Information.
-            ompl::geometric::SimpleSetupPtr ss{nullptr};    ///< Simple Setup.
-            WorldPtr world;                                 ///< World used for planning.
+            ompl::base::SpaceInformationPtr rinfo{nullptr};  ///< Underlying Space Information.
+            ompl::base::SpaceInformationPtr info{nullptr};   ///< Actual Space Information.
+            ompl::geometric::SimpleSetupPtr ss{nullptr};     ///< Simple Setup.
+            WorldPtr world;                                  ///< World used for planning.
 
             std::vector<TSRPtr> path_constraints;  ///< Path Constraints.
             TSRConstraintPtr constraint{nullptr};  ///< OMPL Constraint for Path Constraints.
@@ -357,9 +383,19 @@ namespace robowflex
              */
             void initializeUnconstrained();
 
-            /** \brief Set the state validity checker.
+            /** \brief Set the state validity checker on the simple setup.
              */
             void setStateValidityChecker();
+
+            /** \brief Get a state validity checker for the unconstrained space.
+             *  \return The state validity checker.
+             */
+            ompl::base::StateValidityCheckerFn getSVCUnconstrained();
+
+            /** \brief Get a state validity checker for the unconstrained space.
+             *  \return The state validity checker.
+             */
+            ompl::base::StateValidityCheckerFn getSVCConstrained();
         };
     }  // namespace darts
 }  // namespace robowflex
