@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     ik_tsr->initialize();
 
     darts::Window::InteractiveOptions options_ik;
-    options_ik.name = "head_look";
+    options_ik.name = "arm_ik";
     options_ik.size = 0.4;
     options_ik.thickness = 1;
     options_ik.pose = fetch1->getFrame("wrist_roll_link")->getWorldTransform();

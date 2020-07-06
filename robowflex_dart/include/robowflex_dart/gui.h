@@ -165,11 +165,13 @@ namespace robowflex
                 node_ = this;
                 viewer_.addWorldNode(node_);
                 viewer_.setUpViewInWindow(0, 0, 1080, 1080);
-                viewer_.getCameraManipulator()->setHomePosition(  //
-                    ::osg::Vec3(2.57, 3.14, 1.64),                //
-                    ::osg::Vec3(0.00, 0.00, 0.00),                //
+                auto cm = viewer_.getCameraManipulator();
+                cm->setHomePosition(                //
+                    ::osg::Vec3(2.57, 3.14, 1.64),  //
+                    ::osg::Vec3(0.00, 0.00, 0.00),  //
                     ::osg::Vec3(-0.24, -0.25, 0.94));
-                viewer_.setCameraManipulator(viewer_.getCameraManipulator());
+                viewer_.setCameraManipulator(cm);
+                viewer_.setVerticalFieldOfView(30);
 
                 widget_ = std::make_shared<WindowWidget>();
                 viewer_.getImGuiHandler()->addWidget(widget_);
@@ -179,13 +181,6 @@ namespace robowflex
             // void customPostRefresh() override;
             // void customPreStep() override;
             // void customPostStep() override;
-
-            void setCameraPose(const RobotPose &pose)
-            {
-                ::osg::Matrixd m(pose.data());
-                auto cm = viewer_.getCameraManipulator();
-                cm->setByMatrix(m);
-            }
 
             using InteractiveCallback = std::function<void(const dart::gui::osg::InteractiveFrame *)>;
 
