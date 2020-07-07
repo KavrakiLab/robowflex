@@ -795,6 +795,15 @@ void TSR::updateBounds()
     }
 }
 
+void TSR::updateSolver()
+{
+    if (tsr_)
+    {
+        ik_->getSolver()->setTolerance(spec_.tolerance);
+        ik_->getSolver()->setNumMaxIterations(spec_.maxIter);
+    }
+}
+
 void TSR::initialize()
 {
     const auto &sim = world_->getSim();
@@ -824,6 +833,7 @@ void TSR::initialize()
 
     updatePose();
     updateBounds();
+    updateSolver();
 
     if (indices_.empty())
         indices_ = ik_->getDofs();

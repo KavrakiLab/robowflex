@@ -25,7 +25,8 @@ int main(int argc, char **argv)
     darts::Window window(world);
 
     darts::TSR::Specification spec;
-    spec.setFrame("fetch1", "wrist_roll_link");
+    spec.setFrame("fetch1", "wrist_roll_link", "base_link");
+    spec.pose = fetch1->getFrame("wrist_roll_link")->getWorldTransform();
     window.addWidget(std::make_shared<darts::TSRWidget>("EE", spec));
 
     window.run();

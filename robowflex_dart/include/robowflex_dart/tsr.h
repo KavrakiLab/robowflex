@@ -520,6 +520,11 @@ namespace robowflex
              */
             void updateBounds();
 
+            /** \brief If the solver parameters of the specification are updated, call this to update underlying IK
+             * solver.
+             */
+            void updateSolver();
+
             /** \} */
 
             /** \name Error / Function Computation

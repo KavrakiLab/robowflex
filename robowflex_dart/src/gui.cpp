@@ -13,6 +13,10 @@ void Widget::initialize(const Window *window)
 {
 }
 
+void Widget::prerefresh()
+{
+}
+
 //
 // Window Widget
 //
@@ -116,6 +120,8 @@ void TSRWidget::initialize(const Window *window)
     Window::InteractiveOptions frame_opt;
     frame_opt.name = "TSRWidget-" + name_ + "-frame";
     frame_opt.pose = spec_.pose;
+    if (spec_.base.frame != magic::ROOT_FRAME)
+        frame_opt.parent = world_->getRobot(spec_.base.structure)->getFrame(spec_.base.frame);
     frame_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateFrameCB(frame); };
 
     frame_ = window_->createInteractiveMarker(frame_opt);
@@ -156,6 +162,9 @@ void TSRWidget::initialize(const Window *window)
     shape_ = std::make_shared<dart::dynamics::SimpleFrame>(offset_.get(), "TSRWidget-" + name_ + "-shape");
     world_->getSim()->addSimpleFrame(shape_);
 
+    tsr_ = std::make_shared<darts::TSR>(world_, spec_);
+    tsr_->initialize();
+
     syncGUI();
     syncFrame();
 
@@ -171,6 +180,16 @@ void TSRWidget::syncFrame()
     uu_frame_.target->setRelativeTranslation(spec_.position.upper);
 }
 
+void TSRWidget::syncTSR()
+{
+    std::unique_lock<std::mutex> lk(mutex_);
+
+    tsr_->getSpecification() = spec_;
+    tsr_->updatePose();
+    tsr_->updateBounds();
+    tsr_->updateSolver();
+}
+
 void TSRWidget::syncSpec()
 {
     spec_.setPosition(position_[0], position_[1], position_[2]);
@@ -184,7 +203,11 @@ void TSRWidget::syncSpec()
     spec_.setYRotTolerance(yr_[0], yr_[1]);
     spec_.setZRotTolerance(zr_[0], zr_[1]);
 
+    spec_.tolerance = tolerance_;
+    spec_.maxIter = maxIter_;
+
     updateMirror();
+    syncTSR();
 }
 
 void TSRWidget::syncGUI()
@@ -212,6 +235,9 @@ void TSRWidget::syncGUI()
     yr_[1] = spec_.orientation.upper[1];
     zr_[0] = spec_.orientation.lower[2];
     zr_[1] = spec_.orientation.upper[2];
+
+    tolerance_ = spec_.tolerance;
+    maxIter_ = spec_.maxIter;
 }
 
 void TSRWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
@@ -224,8 +250,9 @@ void TSRWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
     spec_.pose = tf;
     offset_->setRotation(Eigen::Matrix3d::Identity());
 
-    syncGUI();
     updateMirror();
+    syncGUI();
+    syncTSR();
 }
 
 void TSRWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
@@ -241,7 +268,7 @@ void TSRWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
     spec_.setZPosTolerance(t[2], spec_.position.upper[2] - diff[2]);
 
     syncGUI();
-    updateShape();
+    syncTSR();
 }
 
 void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
@@ -257,7 +284,7 @@ void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
     spec_.setZPosTolerance(spec_.position.lower[2] - diff[2], t[2]);
 
     syncGUI();
-    updateShape();
+    syncTSR();
 }
 
 void TSRWidget::updateMirror()
@@ -293,7 +320,7 @@ void TSRWidget::updateShape()
     auto va = shape_->createVisualAspect();
     va->setHidden(not show_);
     va->setShadowed(false);
-    va->setColor(dart::Color::Gray(0.1));
+    va->setColor(dart::Color::Gray(0.5));
 }
 
 void TSRWidget::render()
@@ -335,6 +362,7 @@ void TSRWidget::render()
     }
 
     ImGui::Separator();
+    ImGui::Spacing();
 
     if (ImGui::TreeNodeEx("Bounds", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -362,12 +390,20 @@ void TSRWidget::render()
         ImGui::TreePop();
     }
 
+    ImGui::Separator();
+    ImGui::Spacing();
+
     if (ImGui::TreeNodeEx("Solving", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Checkbox("Track TSR", &track_);
+        ImGui::SameLine();
+        ImGui::Checkbox("Use Gradient?", &grad_);
 
-        if (track_)
-            solve();
+        ImGui::Columns(2);
+        ImGui::SliderInt("Max Iter.", &maxIter_, 1, 1000);
+        ImGui::NextColumn();
+        ImGui::SliderFloat("Tol.", &tolerance_, 0.00001, 0.1, "< %.5f", 2.);
+        ImGui::Columns(1);
 
         if (ImGui::Button("Solve TSR"))
             solve();
@@ -379,6 +415,22 @@ void TSRWidget::render()
         else
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Failure!");
 
+        {
+            std::unique_lock<std::mutex> lk(mutex_);
+            float avg = 0.;
+            for (std::size_t i = 0; i < n_times_; ++i)
+                avg += times_[i];
+            avg /= (float)n_times_;
+
+            char overlay[32];
+            sprintf(overlay, "avg: %.3f microseconds", avg);
+
+            ImGui::PlotLines("IK Solve Time", times_, n_times_, o_times_, overlay);
+        }
+
+        if (ImGui::Button("Print TSR"))
+            spec_.print(std::cout);
+
         ImGui::TreePop();
     }
 
@@ -387,17 +439,32 @@ void TSRWidget::render()
         syncSpec();
         syncGUI();
         syncFrame();
-        updateShape();
         gui_ = false;
     }
 }
 
+void TSRWidget::prerefresh()
+{
+    if (track_)
+        solve();
+
+    updateShape();
+}
+
 void TSRWidget::solve()
 {
-    auto tsr = std::make_shared<darts::TSR>(world_, spec_);
-    tsr->initialize();
-    // tsr->getSpecification().print(std::cout);
-    last_ = tsr->solveWorld();
+    std::unique_lock<std::mutex> lk(mutex_);
+
+    auto start = std::chrono::steady_clock::now();
+    if (grad_)
+        last_ = tsr_->solveGradientWorld();
+    else
+        last_ = tsr_->solveWorld();
+    auto end = std::chrono::steady_clock::now();
+
+    auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    times_[o_times_++] = time;
+    o_times_ = o_times_ % n_times_;
 }
 
 const TSR::Specification &TSRWidget::getSpecification() const
@@ -426,8 +493,15 @@ Window::Window(const WorldPtr &world) : dart::gui::osg::WorldNode(world->getSim(
     addWidget(widget_);
 }
 
+void Window::customPreRefresh()
+{
+    for (auto widget : widgets_)
+        widget->prerefresh();
+}
+
 void Window::addWidget(const WidgetPtr &widget)
 {
+    widgets_.emplace_back(widget);
     widget->initialize(this);
     viewer_.getImGuiHandler()->addWidget(widget);
 }

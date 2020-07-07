@@ -51,6 +51,7 @@ namespace robowflex
              *  \param[in] world World to visualize.
              */
             Window(const WorldPtr &world);
+            void customPreRefresh() override;
 
             /** \name GUI Interaction
                 \{ */
@@ -154,8 +155,9 @@ namespace robowflex
             void addWidget(const WidgetPtr &widget);
 
         private:
-            WorldPtr world_;          ///< World to visualize.
-            WindowWidgetPtr widget_;  ///< IMGUI widget.
+            WorldPtr world_;                  ///< World to visualize.
+            WindowWidgetPtr widget_;          ///< IMGUI widget.
+            std::vector<WidgetPtr> widgets_;  ///< Other widgets;
 
             std::shared_ptr<std::thread> animation_{nullptr};  ///< Animation thread.
 
@@ -172,6 +174,10 @@ namespace robowflex
              *  \param[in] window GUI window.
              */
             virtual void initialize(const Window *window);
+
+            /** \brief Called before window refresh.
+             */
+            virtual void prerefresh();
         };
 
         /** \brief IMGUI widget to add interactive GUI elements programmatically.
@@ -321,6 +327,7 @@ namespace robowflex
              */
             TSRWidget(const std::string &name = "TSR", const TSR::Specification &spec = {});
             void initialize(const Window *window) override;
+            void prerefresh() override;
 
             /** \brief Render GUI.
              */
@@ -342,6 +349,7 @@ namespace robowflex
             void updateMirror();
             void updateShape();
 
+            void syncTSR();
             void syncSpec();
             void syncGUI();
             void syncFrame();
@@ -378,8 +386,17 @@ namespace robowflex
             float zr_[2];
 
             // result
+            TSRPtr tsr_;
+            std::mutex mutex_;
+            float tolerance_;
+            int maxIter_;
             bool track_{false};
+            bool grad_{false};
             bool last_{false};
+
+            static const std::size_t n_times_{100};
+            std::size_t o_times_{0};
+            float times_[n_times_] = {0.};
         };
     }  // namespace darts
 }  // namespace robowflex
