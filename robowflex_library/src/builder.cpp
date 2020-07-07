@@ -211,10 +211,36 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 {
     auto start_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
-    start_state->setToDefaultValues();
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
     return start_state;
+}
+
+robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
+{
+    auto goal_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+
+    if (request_.goal_constraints.size() != 1)
+    {
+        ROS_ERROR("Ambigous goal, mutliple or none goals exist, returning default goal");
+        return goal_state;
+    }
+
+    if (request_.goal_constraints[0].joint_constraints.empty())
+    {
+        ROS_ERROR("No joint constraints specified, returning default goal");
+        return goal_state;
+    }
+
+    std::map<std::string, double> variable_map;
+    for (const auto &joint : request_.goal_constraints[0].joint_constraints)
+        variable_map[joint.joint_name] = joint.position;
+
+    // Start state includes attached objects and values for the non-group links.
+    moveit::core::robotStateMsgToRobotState(request_.start_state, *goal_state);
+    goal_state->setVariablePositions(variable_map);
+
+    return goal_state;
 }
 
 const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequestConst() const
