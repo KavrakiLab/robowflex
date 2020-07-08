@@ -213,6 +213,16 @@ namespace robowflex
          */
         const planning_interface::MotionPlanRequest &getRequestConst() const;
 
+        /** \brief Get the start state of the request as a robot state.
+         *  \return The start state.
+         */
+        robot_state::RobotStatePtr getStartConfiguration() const;
+
+        /** \brief Get the goal state of the request as a robot state.
+         *  \return The goal state.
+         */
+        robot_state::RobotStatePtr getGoalConfiguration() const;
+
         /** \brief Get a reference to the current path constraints on the motion planning request.
          *  \return The motion planning request.
          */
