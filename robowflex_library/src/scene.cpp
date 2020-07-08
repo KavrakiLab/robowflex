@@ -290,7 +290,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 
     RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
-        poses.push_back(pose.inverse() * tf);
+        poses.push_back(tf.inverse() * pose);
 
     robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;

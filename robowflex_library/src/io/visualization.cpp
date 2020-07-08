@@ -120,9 +120,8 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     trajectory_pub_.publish(out);
 }
 
-void IO::RVIZHelper::visualizeState(const std::vector<double> &state)
+void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
 {
-    moveit_msgs::DisplayRobotState out;
     if (state_pub_.getNumSubscribers() < 1)
     {
         ROS_INFO("Waiting for State subscribers...");
@@ -131,14 +130,30 @@ void IO::RVIZHelper::visualizeState(const std::vector<double> &state)
         while (state_pub_.getNumSubscribers() < 1)
             pause.sleep();
     }
-    out.state.joint_state.name = robot_->getJointNames();
-    out.state.joint_state.position = state;
+
+    moveit_msgs::DisplayRobotState out;
+    moveit::core::robotStateToRobotStateMsg(*state, out.state);
+
     state_pub_.publish(out);
+}
+
+void IO::RVIZHelper::visualizeState(const std::vector<double> &state_vec)
+{
+    auto state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+
+    sensor_msgs::JointState joint_state;
+
+    joint_state.name = robot_->getJointNames();
+    joint_state.position = state_vec;
+
+    moveit::core::jointStateToRobotState(joint_state, *state);
+
+    visualizeState(state);
 }
 
 void IO::RVIZHelper::visualizeCurrentState()
 {
-    visualizeState(robot_->getState());
+    visualizeState(robot_->getScratchStateConst());
 }
 
 void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
