@@ -1,9 +1,22 @@
+/* Author: Zachary Kingston */
+
 #include <mutex>
 #include <condition_variable>
+
+#include <boost/uuid/uuid.hpp>             // for UUID generation
+#include <boost/uuid/uuid_generators.hpp>  // for UUID generation
+#include <boost/uuid/uuid_io.hpp>          // for UUID generationinclude <condition_variable>
 
 #include <robowflex_dart/gui.h>
 
 using namespace robowflex::darts;
+
+std::string robowflex::darts::generateUUID()
+{
+    boost::uuids::random_generator gen;
+    boost::uuids::uuid u = gen();
+    return boost::lexical_cast<std::string>(u);
+}
 
 //
 // Widget
@@ -21,45 +34,106 @@ void Widget::prerefresh()
 // Window Widget
 //
 
-WindowWidget::TextElement::TextElement(const std::string &text) : text(text)
+TextElement::TextElement(const std::string &text) : text(text)
 {
 }
 
-void WindowWidget::TextElement::render() const
+void TextElement::render() const
 {
     ImGui::Text("%s", text.c_str());
 }
 
-WindowWidget::CheckboxElement::CheckboxElement(const std::string &text, bool &boolean)
-  : text(text), boolean(boolean)
+CheckboxElement::CheckboxElement(const std::string &text, bool &boolean) : text(text), boolean(boolean)
 {
 }
 
-void WindowWidget::CheckboxElement::render() const
+void CheckboxElement::render() const
 {
     ImGui::Checkbox(text.c_str(), &boolean);
 }
 
-WindowWidget::ButtonElement::ButtonElement(const std::string &text, const ButtonCallback &callback)
+ButtonElement::ButtonElement(const std::string &text, const ButtonCallback &callback)
   : text(text), callback(callback)
 {
 }
 
-void WindowWidget::ButtonElement::render() const
+void ButtonElement::render() const
 {
     const auto &button = ImGui::Button(text.c_str());
     if (button)
         callback();
 }
 
-WindowWidget::RenderElement::RenderElement(const RenderCallback &callback) : callback(callback)
+RenderElement::RenderElement(const RenderCallback &callback) : callback(callback)
 {
 }
 
-void WindowWidget::RenderElement::render() const
+void RenderElement::render() const
 {
     if (callback)
         callback();
+}
+
+float LinePlotElement::average() const
+{
+    float avg = 0.;
+    for (std::size_t i = 0; i < total_elements; ++i)
+        avg += elements[i];
+    avg /= (float)max_size;
+    return avg;
+}
+
+float LinePlotElement::minimum() const
+{
+    float min = (total_elements) ? std::numeric_limits<float>::max() : 0;
+    for (std::size_t i = 0; i < total_elements; ++i)
+        min = (min > elements[i]) ? elements[i] : min;
+    return min;
+}
+
+float LinePlotElement::maximum() const
+{
+    float max = 0.;
+    for (std::size_t i = 0; i < total_elements; ++i)
+        max = (max < elements[i]) ? elements[i] : max;
+    return max;
+}
+
+void LinePlotElement::addPoint(float x)
+{
+    elements.resize(max_size);
+    if (index >= max_size)
+        index = 0;
+
+    if (total_elements > max_size)
+        total_elements = max_size;
+
+    latest = elements[index++] = x;
+    index = index % max_size;
+
+    if (total_elements < max_size)
+        total_elements++;
+}
+
+void LinePlotElement::render() const
+{
+    ImGui::PushID(id.c_str());
+    ImGui::PushStyleColor(ImGuiCol_PlotLines,
+                          (ImVec4)ImColor((float)color[0], (float)color[1], (float)color[2]));
+
+    char overlay[32];
+    sprintf(overlay, "%.3f %s", latest, units.c_str());
+    ImGui::PlotLines(label.c_str(), elements.data(), total_elements, index, overlay);
+
+    ImGui::PopStyleColor(1);
+    ImGui::PopID();
+
+    if (show_min)
+        ImGui::Text("min: %.3f %s", minimum(), units.c_str());
+    if (show_avg)
+        ImGui::Text("avg: %.3f %s", average(), units.c_str());
+    if (show_max)
+        ImGui::Text("max: %.3f %s", maximum(), units.c_str());
 }
 
 WindowWidget::WindowWidget()
@@ -85,22 +159,27 @@ void WindowWidget::render()
 
 void WindowWidget::addText(const std::string &text)
 {
-    elements_.push_back(std::make_shared<TextElement>(text));
+    addElement(std::make_shared<TextElement>(text));
 }
 
 void WindowWidget::addButton(const std::string &text, const ButtonCallback &callback)
 {
-    elements_.push_back(std::make_shared<ButtonElement>(text, callback));
+    addElement(std::make_shared<ButtonElement>(text, callback));
 }
 
 void WindowWidget::addCheckbox(const std::string &text, bool &boolean)
 {
-    elements_.push_back(std::make_shared<CheckboxElement>(text, boolean));
+    addElement(std::make_shared<CheckboxElement>(text, boolean));
 }
 
 void WindowWidget::addCallback(const RenderCallback &callback)
 {
-    elements_.push_back(std::make_shared<RenderElement>(callback));
+    addElement(std::make_shared<RenderElement>(callback));
+}
+
+void WindowWidget::addElement(const ImGuiElementPtr &element)
+{
+    elements_.push_back(element);
 }
 
 //
@@ -169,6 +248,29 @@ void TSRWidget::initialize(const Window *window)
     syncFrame();
 
     updateShape();
+
+    solve_.label = "Solve Time";
+    solve_.units = "microsec.";
+    solve_.show_min = true;
+    solve_.show_max = true;
+    solve_.show_avg = true;
+
+    xpd_.units = "m.";
+    xpd_.color = Eigen::Vector3d(1, 0, 0);
+    ypd_.units = "m.";
+    ypd_.color = Eigen::Vector3d(0, 1, 0);
+    zpd_.units = "m.";
+    zpd_.color = Eigen::Vector3d(0, 0, 1);
+
+    xrd_.label = "X";
+    xrd_.units = "rad.";
+    xrd_.color = Eigen::Vector3d(1, 0, 0);
+    yrd_.label = "Y";
+    yrd_.units = "rad.";
+    yrd_.color = Eigen::Vector3d(0, 1, 0);
+    zrd_.label = "Z";
+    zrd_.units = "rad.";
+    zrd_.color = Eigen::Vector3d(0, 0, 1);
 }
 
 void TSRWidget::syncFrame()
@@ -419,50 +521,34 @@ void TSRWidget::render()
 
         {
             std::unique_lock<std::mutex> lk(mutex_);
-            Plot::Render options;
-            options.label = "Solve Time";
-            options.units = "microsec.";
-            options.min = true;
-            options.max = true;
-            options.avg = true;
-            solve_.render(options);
-        }
-
-        if (ImGui::TreeNodeEx("Distance"))
-        {
-            {
-                std::unique_lock<std::mutex> lk(mutex_);
-
-                ImGui::Columns(2);
-                ImGui::Text("Pos. Error");
-                xpd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{1, 0, 0}));
-                ypd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{0, 1, 0}));
-                zpd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{0, 0, 1}));
-                ImGui::NextColumn();
-
-                ImGui::Text("Rot. Error");
-                xrd_.render(Plot::Render("X##E2", "rad.", Eigen::Vector3d{1, 0, 0}));
-                yrd_.render(Plot::Render("Y##E2", "rad.", Eigen::Vector3d{0, 1, 0}));
-                zrd_.render(Plot::Render("Z##E2", "rad.", Eigen::Vector3d{0, 0, 1}));
-
-                ImGui::Columns(1);
-
-                // ImGui::Text("Position Error");
-                // xpd_.renderLineColor("X##E1", 1, 0, 0);
-                // ypd_.renderLineColor("Y##E1", 0, 1, 0);
-                // zpd_.renderLineColor("Z##E1", 0, 0, 1);
-
-                // ImGui::Text("Rotation Error");
-                // xrd_.renderLineColor("X##E2", 1, 0, 0);
-                // yrd_.renderLineColor("Y##E2", 0, 1, 0);
-                // zrd_.renderLineColor("Z##E2", 0, 0, 1);
-            }
-
-            ImGui::TreePop();
+            solve_.render();
         }
 
         if (ImGui::Button("Print TSR"))
             spec_.print(std::cout);
+
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNodeEx("Distance"))
+    {
+        {
+            std::unique_lock<std::mutex> lk(mutex_);
+
+            ImGui::Columns(2);
+            ImGui::Text("Pos. Error");
+            xpd_.render();
+            ypd_.render();
+            zpd_.render();
+            ImGui::NextColumn();
+
+            ImGui::Text("Rot. Error");
+            xrd_.render();
+            yrd_.render();
+            zrd_.render();
+
+            ImGui::Columns(1);
+        }
 
         ImGui::TreePop();
     }
@@ -474,66 +560,6 @@ void TSRWidget::render()
         syncFrame();
         gui_ = false;
     }
-}
-
-TSRWidget::Plot::Render::Render(const std::string &label, const std::string &units,
-                                const Eigen::Ref<const Eigen::Vector3d> &rgb)
-  : label(label), units(units), r(rgb[0]), g(rgb[1]), b(rgb[2])
-{
-}
-
-float TSRWidget::Plot::average() const
-{
-    float avg = 0.;
-    for (std::size_t i = 0; i < t_times; ++i)
-        avg += times[i];
-    avg /= (float)n_times;
-    return avg;
-}
-
-float TSRWidget::Plot::minimum() const
-{
-    float min = (t_times) ? std::numeric_limits<float>::max() : 0;
-    for (std::size_t i = 0; i < t_times; ++i)
-        min = (min > times[i]) ? times[i] : min;
-    return min;
-}
-
-float TSRWidget::Plot::maximum() const
-{
-    float max = 0.;
-    for (std::size_t i = 0; i < t_times; ++i)
-        max = (max < times[i]) ? times[i] : max;
-    return max;
-}
-
-void TSRWidget::Plot::addPoint(float x)
-{
-    latest = times[o_times++] = x;
-    o_times = o_times % n_times;
-
-    if (t_times < n_times)
-        t_times++;
-}
-
-void TSRWidget::Plot::render(const Render &options)
-{
-    ImGui::PushID("##Color");
-    ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor(options.r, options.g, options.b));
-
-    char overlay[32];
-    sprintf(overlay, "%.3f %s", latest, options.units.c_str());
-    ImGui::PlotLines(options.label.c_str(), times, t_times, o_times, overlay);
-
-    ImGui::PopStyleColor(1);
-    ImGui::PopID();
-
-    if (options.min)
-        ImGui::Text("min: %.3f %s", minimum(), options.units.c_str());
-    if (options.avg)
-        ImGui::Text("avg: %.3f %s", average(), options.units.c_str());
-    if (options.max)
-        ImGui::Text("max: %.3f %s", maximum(), options.units.c_str());
 }
 
 void TSRWidget::prerefresh()

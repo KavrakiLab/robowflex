@@ -40,6 +40,11 @@ namespace robowflex
         /** \class robowflex::darts::WindowWidgetConstPtr
             \brief A const shared pointer wrapper for robowflex::darts::WindowWidget. */
 
+        /** \brief Generate a unique identifier.
+         *  \return A random unique ID.
+         */
+        std::string generateUUID();
+
         /** \brief Open Scene Graph GUI for DART visualization.
          */
         class Window : public dart::gui::osg::WorldNode
@@ -180,103 +185,146 @@ namespace robowflex
             virtual void prerefresh();
         };
 
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(ImGuiElement)
+        /** \endcond */
+
+        /** \class robowflex::darts::ImGuiElementPtr
+            \brief A shared pointer wrapper for robowflex::darts::WindowWidget::Element. */
+
+        /** \class robowflex::darts::ImGuiElementConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::WindowWidget::Element. */
+
+        /** \brief Abstract GUI element.
+         */
+        class ImGuiElement
+        {
+        public:
+            /** \brief Render method. Renders IMGUI contents.
+             */
+            virtual void render() const = 0;
+        };
+
+        /** \brief A basic text element.
+         */
+        class TextElement : public ImGuiElement
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] text Text to display.
+             */
+            TextElement(const std::string &text);
+            void render() const override;
+
+        private:
+            const std::string text;  ///< Text to display.
+        };
+
+        /** \brief A checkbox element that modifies a boolean.
+         */
+        class CheckboxElement : public ImGuiElement
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] text Text to display.
+             *  \param[in] boolean Boolean to modify.
+             */
+            CheckboxElement(const std::string &text, bool &boolean);
+            void render() const override;
+
+        private:
+            const std::string text;  ///< Display text.
+            bool &boolean;           ///< Associated boolean.
+        };
+
+        /** \brief Callback function upon a button press.
+         */
+        using ButtonCallback = std::function<void()>;
+
+        /** \brief A basic push-button element.
+         */
+        class ButtonElement : public ImGuiElement
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] text Text to display on button.
+             *  \param[in] callback Callback upon press.
+             */
+            ButtonElement(const std::string &text, const ButtonCallback &callback);
+            void render() const override;
+
+        private:
+            const std::string text;         ///< Display text.
+            const ButtonCallback callback;  ///< Callback.
+        };
+
+        /** \brief Callback upon a render call.
+         */
+        using RenderCallback = std::function<void()>;
+
+        /** \brief Generic rendered element. Use callback to display whatever GUI elements needed.
+         */
+        class RenderElement : public ImGuiElement
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] callback Callback to render.
+             */
+            RenderElement(const RenderCallback &callback);
+            void render() const override;
+
+        private:
+            const RenderCallback callback;  ///< Callback.
+        };
+
+        /** \brief Line plot element. Displays an updated line graph of data.
+         */
+        class LinePlotElement : public ImGuiElement
+        {
+        public:
+            std::string id{"##" + generateUUID()};  ///< Unique ID.
+            std::string label{""};              ///< Plot Label.
+            std::string units{""};                  ///< Plot Units.
+            bool show_min{false};                   ///< Display minimum value under plot.
+            bool show_max{false};                   ///< Display maximum value under plot.
+            bool show_avg{false};                   ///< Display average value under plot.
+            bool recent{true};                      ///< Display most recent value on plot.
+            std::size_t max_size{100};              ///< Maximum size of plot data.
+            Eigen::Vector3d color{1., 1., 1.};      ///< Color of plot.
+
+            /** \brief Add a point to the plot data.
+             *  \param[in] x Point to add.
+             */
+            void addPoint(float x);
+            void render() const override;
+
+        private:
+            std::size_t index{0};           ///< Index in data.
+            std::size_t total_elements{0};  ///< Total elements inserted in data.
+            std::vector<float> elements;    ///< All data points.
+            float latest;                   ///< Last input data point.
+
+            /** \brief Compute the average over the data.
+             *  \return The average.
+             */
+            float average() const;
+
+            /** \brief Compute the minimum over the data.
+             *  \return The minimum.
+             */
+            float minimum() const;
+
+            /** \brief Compute the maximum over the data.
+             *  \return The maximum.
+             */
+            float maximum() const;
+        };
+
         /** \brief IMGUI widget to add interactive GUI elements programmatically.
          */
         class WindowWidget : public Widget
         {
         public:
-            /** \cond IGNORE */
-            ROBOWFLEX_CLASS_FORWARD(Element)
-            /** \endcond */
-
-            /** \class robowflex::darts::WindowWidget::ElementPtr
-                \brief A shared pointer wrapper for robowflex::darts::WindowWidget::Element. */
-
-            /** \class robowflex::darts::WindowWidget::ElementConstPtr
-                \brief A const shared pointer wrapper for robowflex::darts::WindowWidget::Element. */
-
-            /** \brief Abstract GUI element.
-             */
-            class Element
-            {
-            public:
-                /** \brief Render method. Renders IMGUI contents.
-                 */
-                virtual void render() const = 0;
-            };
-
-            /** \brief A basic text element.
-             */
-            class TextElement : public Element
-            {
-            public:
-                /** \brief Constructor.
-                 *  \param[in] text Text to display.
-                 */
-                TextElement(const std::string &text);
-                void render() const override;
-
-            private:
-                const std::string text;  ///< Text to display.
-            };
-
-            /** \brief A checkbox element that modifies a boolean.
-             */
-            class CheckboxElement : public Element
-            {
-            public:
-                /** \brief Constructor.
-                 *  \param[in] text Text to display.
-                 *  \param[in] boolean Boolean to modify.
-                 */
-                CheckboxElement(const std::string &text, bool &boolean);
-                void render() const override;
-
-            private:
-                const std::string text;  ///< Display text.
-                bool &boolean;           ///< Associated boolean.
-            };
-
-            /** \brief Callback function upon a button press.
-             */
-            using ButtonCallback = std::function<void()>;
-
-            /** \brief A basic push-button element.
-             */
-            class ButtonElement : public Element
-            {
-            public:
-                /** \brief Constructor.
-                 *  \param[in] text Text to display on button.
-                 *  \param[in] callback Callback upon press.
-                 */
-                ButtonElement(const std::string &text, const ButtonCallback &callback);
-                void render() const override;
-
-            private:
-                const std::string text;         ///< Display text.
-                const ButtonCallback callback;  ///< Callback.
-            };
-
-            /** \brief Callback upon a render call.
-             */
-            using RenderCallback = std::function<void()>;
-
-            /** \brief Generic rendered element. Use callback to display whatever GUI elements needed.
-             */
-            class RenderElement : public Element
-            {
-            public:
-                /** \brief Constructor.
-                 *  \param[in] callback Callback to render.
-                 */
-                RenderElement(const RenderCallback &callback);
-                void render() const override;
-
-            private:
-                const RenderCallback callback;  ///< Callback.
-            };
-
             /** \brief Constructor.
              */
             WindowWidget();
@@ -310,10 +358,15 @@ namespace robowflex
              */
             void addCallback(const RenderCallback &callback);
 
+            /** \brief Add a generic render callback for the GUI.
+             *  \param[in] callback Callback to render.
+             */
+            void addElement(const ImGuiElementPtr &element);
+
             /** \} */
 
         private:
-            std::vector<ElementPtr> elements_;  ///< GUI elements.
+            std::vector<ImGuiElementPtr> elements_;  ///< GUI elements.
         };
 
         /** \brief IMGUI widget to design TSRs.
@@ -394,42 +447,13 @@ namespace robowflex
             bool grad_{false};
             bool last_{false};
 
-            struct Plot
-            {
-                static const std::size_t n_times{100};
-                std::size_t o_times{0};
-                std::size_t t_times{0};
-                float times[n_times] = {0.};
-                float latest;
-
-                float average() const;
-                float minimum() const;
-                float maximum() const;
-                void addPoint(float x);
-
-                struct Render
-                {
-                    float r{1}, g{1}, b{1};
-                    std::string label{""};
-                    std::string units{""};
-                    bool min{false}, max{false}, avg{false}, recent{true};
-
-                    Render() = default;
-                    Render(const std::string &label, const std::string &units,
-                           const Eigen::Ref<const Eigen::Vector3d> &rgb);
-                };
-
-                void render(const Render &options);
-            };
-
-            Plot solve_;
-
-            Plot xpd_;
-            Plot ypd_;
-            Plot zpd_;
-            Plot xrd_;
-            Plot yrd_;
-            Plot zrd_;
+            LinePlotElement solve_;
+            LinePlotElement xpd_;
+            LinePlotElement ypd_;
+            LinePlotElement zpd_;
+            LinePlotElement xrd_;
+            LinePlotElement yrd_;
+            LinePlotElement zrd_;
         };
     }  // namespace darts
 }  // namespace robowflex

@@ -797,7 +797,7 @@ void TSR::updateBounds()
 
 void TSR::updateSolver()
 {
-    if (tsr_)
+    if (ik_)
     {
         ik_->getSolver()->setTolerance(spec_.tolerance);
         ik_->getSolver()->setNumMaxIterations(spec_.maxIter);
