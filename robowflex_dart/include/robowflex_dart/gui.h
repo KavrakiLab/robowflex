@@ -394,9 +394,42 @@ namespace robowflex
             bool grad_{false};
             bool last_{false};
 
-            static const std::size_t n_times_{100};
-            std::size_t o_times_{0};
-            float times_[n_times_] = {0.};
+            struct Plot
+            {
+                static const std::size_t n_times{100};
+                std::size_t o_times{0};
+                std::size_t t_times{0};
+                float times[n_times] = {0.};
+                float latest;
+
+                float average() const;
+                float minimum() const;
+                float maximum() const;
+                void addPoint(float x);
+
+                struct Render
+                {
+                    float r{1}, g{1}, b{1};
+                    std::string label{""};
+                    std::string units{""};
+                    bool min{false}, max{false}, avg{false}, recent{true};
+
+                    Render() = default;
+                    Render(const std::string &label, const std::string &units,
+                           const Eigen::Ref<const Eigen::Vector3d> &rgb);
+                };
+
+                void render(const Render &options);
+            };
+
+            Plot solve_;
+
+            Plot xpd_;
+            Plot ypd_;
+            Plot zpd_;
+            Plot xrd_;
+            Plot yrd_;
+            Plot zrd_;
         };
     }  // namespace darts
 }  // namespace robowflex

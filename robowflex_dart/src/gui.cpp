@@ -370,13 +370,15 @@ void TSRWidget::render()
         ImGui::SameLine();
         ImGui::Checkbox("Sync. Bounds", &sync_);
 
-        update |= ImGui::DragFloat2("X Pos. Bounds", xp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Y Pos. Bounds", yp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Z Pos. Bounds", zp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        ImGui::Text("Position Bounds");
+        update |= ImGui::DragFloat2("X##1", xp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        update |= ImGui::DragFloat2("Y##1", yp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        update |= ImGui::DragFloat2("Z##1", zp_, 0.01f, -2.5f, 2.5f, "%0.4f");
 
-        update |= ImGui::DragFloat2("X Rot. Bounds", xr_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Y Rot. Bounds", yr_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Z Rot. Bounds", zr_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        ImGui::Text("Rotation Bounds");
+        update |= ImGui::DragFloat2("X##2", xr_, 0.01f, -3.14f, 3.14f, "%0.4f");
+        update |= ImGui::DragFloat2("Y##2", yr_, 0.01f, -3.14f, 3.14f, "%0.4f");
+        update |= ImGui::DragFloat2("Z##2", zr_, 0.01f, -3.14f, 3.14f, "%0.4f");
 
         if (ImGui::Button("Reset Bounds"))
         {
@@ -417,15 +419,46 @@ void TSRWidget::render()
 
         {
             std::unique_lock<std::mutex> lk(mutex_);
-            float avg = 0.;
-            for (std::size_t i = 0; i < n_times_; ++i)
-                avg += times_[i];
-            avg /= (float)n_times_;
+            Plot::Render options;
+            options.label = "Solve Time";
+            options.units = "microsec.";
+            options.min = true;
+            options.max = true;
+            options.avg = true;
+            solve_.render(options);
+        }
 
-            char overlay[32];
-            sprintf(overlay, "avg: %.3f microseconds", avg);
+        if (ImGui::TreeNodeEx("Distance"))
+        {
+            {
+                std::unique_lock<std::mutex> lk(mutex_);
 
-            ImGui::PlotLines("IK Solve Time", times_, n_times_, o_times_, overlay);
+                ImGui::Columns(2);
+                ImGui::Text("Pos. Error");
+                xpd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{1, 0, 0}));
+                ypd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{0, 1, 0}));
+                zpd_.render(Plot::Render("##E1", "m.", Eigen::Vector3d{0, 0, 1}));
+                ImGui::NextColumn();
+
+                ImGui::Text("Rot. Error");
+                xrd_.render(Plot::Render("X##E2", "rad.", Eigen::Vector3d{1, 0, 0}));
+                yrd_.render(Plot::Render("Y##E2", "rad.", Eigen::Vector3d{0, 1, 0}));
+                zrd_.render(Plot::Render("Z##E2", "rad.", Eigen::Vector3d{0, 0, 1}));
+
+                ImGui::Columns(1);
+
+                // ImGui::Text("Position Error");
+                // xpd_.renderLineColor("X##E1", 1, 0, 0);
+                // ypd_.renderLineColor("Y##E1", 0, 1, 0);
+                // zpd_.renderLineColor("Z##E1", 0, 0, 1);
+
+                // ImGui::Text("Rotation Error");
+                // xrd_.renderLineColor("X##E2", 1, 0, 0);
+                // yrd_.renderLineColor("Y##E2", 0, 1, 0);
+                // zrd_.renderLineColor("Z##E2", 0, 0, 1);
+            }
+
+            ImGui::TreePop();
         }
 
         if (ImGui::Button("Print TSR"))
@@ -443,10 +476,79 @@ void TSRWidget::render()
     }
 }
 
+TSRWidget::Plot::Render::Render(const std::string &label, const std::string &units,
+                                const Eigen::Ref<const Eigen::Vector3d> &rgb)
+  : label(label), units(units), r(rgb[0]), g(rgb[1]), b(rgb[2])
+{
+}
+
+float TSRWidget::Plot::average() const
+{
+    float avg = 0.;
+    for (std::size_t i = 0; i < t_times; ++i)
+        avg += times[i];
+    avg /= (float)n_times;
+    return avg;
+}
+
+float TSRWidget::Plot::minimum() const
+{
+    float min = (t_times) ? std::numeric_limits<float>::max() : 0;
+    for (std::size_t i = 0; i < t_times; ++i)
+        min = (min > times[i]) ? times[i] : min;
+    return min;
+}
+
+float TSRWidget::Plot::maximum() const
+{
+    float max = 0.;
+    for (std::size_t i = 0; i < t_times; ++i)
+        max = (max < times[i]) ? times[i] : max;
+    return max;
+}
+
+void TSRWidget::Plot::addPoint(float x)
+{
+    latest = times[o_times++] = x;
+    o_times = o_times % n_times;
+
+    if (t_times < n_times)
+        t_times++;
+}
+
+void TSRWidget::Plot::render(const Render &options)
+{
+    ImGui::PushID("##Color");
+    ImGui::PushStyleColor(ImGuiCol_PlotLines, (ImVec4)ImColor(options.r, options.g, options.b));
+
+    char overlay[32];
+    sprintf(overlay, "%.3f %s", latest, options.units.c_str());
+    ImGui::PlotLines(options.label.c_str(), times, t_times, o_times, overlay);
+
+    ImGui::PopStyleColor(1);
+    ImGui::PopID();
+
+    if (options.min)
+        ImGui::Text("min: %.3f %s", minimum(), options.units.c_str());
+    if (options.avg)
+        ImGui::Text("avg: %.3f %s", average(), options.units.c_str());
+    if (options.max)
+        ImGui::Text("max: %.3f %s", maximum(), options.units.c_str());
+}
+
 void TSRWidget::prerefresh()
 {
     if (track_)
         solve();
+
+    Eigen::VectorXd e(6);
+    tsr_->getErrorWorld(e);
+    xrd_.addPoint(e[0]);
+    yrd_.addPoint(e[1]);
+    zrd_.addPoint(e[2]);
+    xpd_.addPoint(e[3]);
+    ypd_.addPoint(e[4]);
+    zpd_.addPoint(e[5]);
 
     updateShape();
 }
@@ -463,8 +565,7 @@ void TSRWidget::solve()
     auto end = std::chrono::steady_clock::now();
 
     auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    times_[o_times_++] = time;
-    o_times_ = o_times_ % n_times_;
+    solve_.addPoint(time);
 }
 
 const TSR::Specification &TSRWidget::getSpecification() const
