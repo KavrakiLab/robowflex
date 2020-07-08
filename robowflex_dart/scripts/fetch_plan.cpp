@@ -8,6 +8,7 @@
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -53,57 +54,58 @@ int main(int argc, char **argv)
         world->addRobot(fetch4);
     }
 
-    darts::PlanBuilder builder(world);
-    builder.addGroup("fetch1", "arm_with_torso");
-    if (nfetch > 1)
-        builder.addGroup("fetch2", "arm_with_torso");
-    if (nfetch > 2)
-        builder.addGroup("fetch3", "arm_with_torso");
-    if (nfetch > 3)
-        builder.addGroup("fetch4", "arm_with_torso");
+    darts::Window window(world);
+    window.run([&] {
+        darts::PlanBuilder builder(world);
+        builder.addGroup("fetch1", "arm_with_torso");
+        if (nfetch > 1)
+            builder.addGroup("fetch2", "arm_with_torso");
+        if (nfetch > 2)
+            builder.addGroup("fetch3", "arm_with_torso");
+        if (nfetch > 3)
+            builder.addGroup("fetch4", "arm_with_torso");
 
-    for (const auto &index : builder.rspace->getIndices())
-        std::cout << index.first << "." << index.second << " ";
-    std::cout << std::endl;
+        for (const auto &index : builder.rspace->getIndices())
+            std::cout << index.first << "." << index.second << " ";
+        std::cout << std::endl;
 
-    for (std::size_t i = 0; i < world->getSim()->getNumSimpleFrames(); ++i)
-        std::cout << world->getSim()->getSimpleFrame(i)->getName() << std::endl;
+        for (std::size_t i = 0; i < world->getSim()->getNumSimpleFrames(); ++i)
+            std::cout << world->getSim()->getSimpleFrame(i)->getName() << std::endl;
 
-    builder.setStartConfiguration({
-        0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-        0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-        0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-        0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
-    });
+        builder.setStartConfiguration({
+            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
+        });
 
-    builder.setGoalConfiguration({
-        0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
-        0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-        0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-        0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-    });
+        builder.initialize();
 
-    builder.initialize();
+        auto goal = builder.getGoalConfiguration({
+            0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
+            0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+            0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+            0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+        });
+        builder.setGoal(goal);
 
-    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-    rrt->setRange(1.);
-    builder.ss->setPlanner(rrt);
+        auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+        rrt->setRange(1.);
+        builder.ss->setPlanner(rrt);
 
-    builder.setup();
-    builder.ss->print();
+        builder.setup();
+        builder.ss->print();
 
-    ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
 
-    std::thread t([&]() {
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld();
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
     });
 
-    world->openOSGViewer();
     return 0;
 }

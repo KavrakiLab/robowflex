@@ -928,6 +928,13 @@ namespace robowflex
 
             bool project(Eigen::Ref<Eigen::VectorXd> x) const override;
 
+            /** \brief Public options.
+             */
+            struct
+            {
+                bool use_gradient{false};
+            } options;
+
         protected:
             StateSpacePtr space_;  ///< Robot state space.
             TSRSetPtr tsr_;        ///< Set of TSR constraints.

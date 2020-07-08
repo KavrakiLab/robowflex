@@ -270,12 +270,14 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         ROS_ERROR("World does not have object `%s`", name.c_str());
         return false;
     }
+
     const auto &obj = world->getObject(name);
     if (!obj)
     {
         ROS_ERROR("Could not get object `%s`", name.c_str());
         return false;
     }
+
     if (!world->removeObject(name))
     {
         ROS_ERROR("Could not remove object `%s`", name.c_str());
@@ -286,12 +288,9 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
-    EigenSTL::vector_Isometry3d poses;
+    RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
-    {
-        const Eigen::Isometry3d relative = tf.inverse() * pose;
-        poses.push_back(relative);
-    }
+        poses.push_back(tf.inverse() * pose);
 
     robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;

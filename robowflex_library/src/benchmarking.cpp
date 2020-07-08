@@ -122,7 +122,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         Results results(name, scene, planner, builder, options);
 
         planner->preRun(scene, builder->getRequest());
-        for (unsigned int j = 0; j < options.runs; ++j)
+        for (unsigned int j = 0; j < options.runs || options.runs == 0; ++j)
         {
             ros::WallTime start;
 
@@ -131,6 +131,13 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
+            if (options.runs == 0)
+            {
+                double time_remaining = builder->getRequest().allowed_planning_time - time;
+                if (time_remaining < 0.)
+                    break;
+                builder->setAllowedPlanningTime(time_remaining);
+            }
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 

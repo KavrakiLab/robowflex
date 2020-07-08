@@ -105,7 +105,7 @@ void TSR::Specification::setPoseFromWorld(const WorldPtr &world)
     if (base.frame != magic::ROOT_FRAME)
     {
         const auto &bskl = sim->getSkeleton(base.structure);
-        const auto &bbn = tskl->getBodyNode(base.frame);
+        const auto &bbn = bskl->getBodyNode(base.frame);
 
         pose = tbn->getTransform(bbn);
     }
@@ -611,6 +611,12 @@ double TSR::distance(const Eigen::Ref<const Eigen::VectorXd> &state) const
 
 bool TSR::solveWorld()
 {
+    if (not ik_)
+    {
+        std::cerr << "TSR: Solve called before initialize!" << std::endl;
+        return false;
+    }
+
     world_->lock();
     bool r = ik_->solveAndApply();
     world_->unlock();
@@ -1150,10 +1156,16 @@ void TSRConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
 
 bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
-    if (tsr_->numTSRs() == 1)
-        return tsr_->solveWorldState(x);
-    else
-        return tsr_->solveGradientWorldState(x);
+    space_->setWorldState(space_->getWorld(), x);
+
+    bool r = false;
+    if (tsr_->numTSRs() == 1 or not options.use_gradient)
+        r = tsr_->solveWorldState(x);
+
+    else if (options.use_gradient)
+        r = tsr_->solveGradientWorldState(x);
+
+    return r;
 }
 
 TSRSetPtr TSRConstraint::getSet()
