@@ -651,6 +651,7 @@ void TSRWidget::render()
     if (ImGui::TreeNodeEx("Bounds", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Checkbox("Sync. Bounds", &sync_bounds_);
+        ImGui::Spacing();
 
         ImGui::Text("Position Bounds");
         auto half = max_position_ / 2;
@@ -659,14 +660,18 @@ void TSRWidget::render()
         ImGui::DragFloat2("Z##1", zp_, drag_step_, -half, half, "%0.4f");
         ImGui::Checkbox("Show Volume", &show_volume_);
         ImGui::Spacing();
+        ImGui::Spacing();
 
         ImGui::Text("Rotation Bounds");
         ImGui::DragFloat2("X##2", xr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
         ImGui::DragFloat2("Y##2", yr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
         ImGui::DragFloat2("Z##2", zr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
+
         ImGui::Checkbox("Show Rot. Bounds", &show_bounds_);
-        ImGui::SameLine();
+
+        ImGui::Columns(2);
         ImGui::DragFloat("Bound Rad.", &inner_radius, drag_step_, 0., 0.5, "%0.2f");
+        ImGui::Columns(1);
 
         if (ImGui::Button("Reset Bounds"))
         {
