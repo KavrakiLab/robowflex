@@ -19,10 +19,158 @@ std::string robowflex::darts::generateUUID()
 }
 
 //
+// Window
+//
+
+Window::Window(const WorldPtr &world) : dart::gui::osg::WorldNode(world->getSim()), world_(world)
+{
+    node_ = this;
+    viewer_.addWorldNode(node_);
+    viewer_.setUpViewInWindow(0, 0, 1080, 1080);
+    auto cm = viewer_.getCameraManipulator();
+    cm->setHomePosition(                //
+        ::osg::Vec3(2.57, 3.14, 1.64),  //
+        ::osg::Vec3(0.00, 0.00, 0.00),  //
+        ::osg::Vec3(-0.24, -0.25, 0.94));
+    viewer_.setCameraManipulator(cm);
+    viewer_.setVerticalFieldOfView(30);
+
+    widget_ = std::make_shared<WindowWidget>();
+    addWidget(widget_);
+}
+
+void Window::customPreRefresh()
+{
+    for (auto widget : widgets_)
+        widget->prerefresh();
+}
+
+void Window::addWidget(const WidgetPtr &widget)
+{
+    widgets_.emplace_back(widget);
+    widget->initialize(const_cast<Window *>(this));
+    viewer_.getImGuiHandler()->addWidget(widget);
+}
+
+Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptions &options)
+{
+    InteractiveReturn r;
+    r.target = std::make_shared<dart::gui::osg::InteractiveFrame>(  //
+        options.parent, options.name, options.pose, options.size, options.thickness);
+    world_->getSim()->addSimpleFrame(r.target);
+
+    for (std::size_t i = 0; i < 3; ++i)
+    {
+        auto lt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::LINEAR, i);
+        lt->setEnabled(options.linear[i]);
+        auto rt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::ANGULAR, i);
+        rt->setEnabled(options.rotation[i]);
+        auto pt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::PLANAR, i);
+        pt->setEnabled(options.planar[i]);
+    }
+
+    r.dnd = viewer_.enableDragAndDrop(r.target.get());
+    r.dnd->setObstructable(options.obstructable);
+
+    auto callback = options.callback;
+    r.signal = r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
+        callback(dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity));
+    });
+
+    return r;
+}
+
+Window::DnDReturn Window::enableNodeDragNDrop(dart::dynamics::BodyNode *node, const DnDCallback &callback)
+{
+    DnDReturn r;
+    auto dnd = viewer_.enableDragAndDrop(node, true, true);
+    r.dnd = dnd;
+
+    r.signal = node->onTransformUpdated.connect([dnd, callback](const dart::dynamics::Entity *entity) {
+        if (dnd->isMoving())
+            callback(dynamic_cast<const dart::dynamics::BodyNode *>(entity));
+    });
+
+    return r;
+}
+
+void Window::animatePath(const StateSpacePtr &space, const ompl::geometric::PathGeometric &path,
+                         std::size_t times, double fps, bool block)
+{
+    bool active = true;
+
+    std::mutex m;
+    std::condition_variable cv;
+
+    if (animation_)
+    {
+        animation_->join();
+        animation_.reset();
+    }
+    auto thread = std::make_shared<std::thread>([&] {
+        std::size_t n = path.getStateCount();
+        std::size_t i = times;
+
+        std::unique_lock<std::mutex> lk(m);
+        while ((times == 0) ? true : i--)
+        {
+            space->setWorldState(world_, path.getState(0));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+            for (std::size_t j = 0; j < n; ++j)
+            {
+                space->setWorldState(world_, path.getState(j));
+
+                std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
+        active = false;
+        cv.notify_one();
+    });
+
+    animation_ = thread;
+
+    if (block)
+    {
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, [&] { return not active; });
+    }
+}
+
+void Window::animatePath(const PlanBuilder &builder, const ompl::geometric::PathGeometric &path,
+                         std::size_t times, double fps, bool block)
+{
+    ompl::geometric::PathGeometric extract(builder.rinfo);
+    for (std::size_t i = 0; i < path.getStateCount(); ++i)
+        extract.append(builder.getStateConst(path.getState(i)));
+
+    animatePath(builder.rspace, extract, times, fps, block);
+}
+
+WindowWidgetPtr Window::getWidget()
+{
+    return widget_;
+}
+
+void Window::run(std::function<void()> thread)
+{
+    if (thread)
+    {
+        std::thread t(thread);
+        viewer_.run();
+    }
+    else
+        viewer_.run();
+}
+
+//
 // Widget
 //
 
-void Widget::initialize(const Window *window)
+void Widget::initialize(Window *window)
 {
 }
 
@@ -190,20 +338,18 @@ TSRWidget::TSRWidget(const std::string &name, const TSR::Specification &spec)
 {
 }
 
-void TSRWidget::initialize(const Window *window)
+void TSRWidget::initialize(Window *window)
 {
-    window_ = const_cast<Window *>(window);
-    world_ = window->world_;
+    auto world = window->world_;
 
     // main pose control
     Window::InteractiveOptions frame_opt;
     frame_opt.name = "TSRWidget-" + name_ + "-frame";
     frame_opt.pose = spec_.pose;
     if (spec_.base.frame != magic::ROOT_FRAME)
-        frame_opt.parent = world_->getRobot(spec_.base.structure)->getFrame(spec_.base.frame);
+        frame_opt.parent = world->getRobot(spec_.base.structure)->getFrame(spec_.base.frame);
     frame_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateFrameCB(frame); };
-
-    frame_ = window_->createInteractiveMarker(frame_opt);
+    frame_ = window->createInteractiveMarker(frame_opt);
 
     offset_ = std::make_shared<dart::dynamics::SimpleFrame>(dart::dynamics::Frame::World(),
                                                             "TSRWidget-" + name_ + "-offset");
@@ -221,7 +367,7 @@ void TSRWidget::initialize(const Window *window)
     ll_opt.planar[2] = false;
     ll_opt.size = 0.1;
     ll_opt.thickness = 2;
-    ll_frame_ = window_->createInteractiveMarker(ll_opt);
+    ll_frame_ = window->createInteractiveMarker(ll_opt);
 
     // upper bound control
     Window::InteractiveOptions uu_opt;
@@ -236,12 +382,12 @@ void TSRWidget::initialize(const Window *window)
     uu_opt.planar[2] = false;
     uu_opt.size = 0.1;
     uu_opt.thickness = 2;
-    uu_frame_ = window_->createInteractiveMarker(uu_opt);
+    uu_frame_ = window->createInteractiveMarker(uu_opt);
 
     shape_ = std::make_shared<dart::dynamics::SimpleFrame>(offset_.get(), "TSRWidget-" + name_ + "-shape");
-    world_->getSim()->addSimpleFrame(shape_);
+    world->getSim()->addSimpleFrame(shape_);
 
-    tsr_ = std::make_shared<darts::TSR>(world_, spec_);
+    tsr_ = std::make_shared<darts::TSR>(world, spec_);
     tsr_->initialize();
 
     syncGUI();
@@ -255,21 +401,15 @@ void TSRWidget::initialize(const Window *window)
     solve_.show_max = true;
     solve_.show_avg = true;
 
-    xpd_.units = "m.";
     xpd_.color = Eigen::Vector3d(1, 0, 0);
-    ypd_.units = "m.";
     ypd_.color = Eigen::Vector3d(0, 1, 0);
-    zpd_.units = "m.";
     zpd_.color = Eigen::Vector3d(0, 0, 1);
 
     xrd_.label = "X";
-    xrd_.units = "rad.";
     xrd_.color = Eigen::Vector3d(1, 0, 0);
     yrd_.label = "Y";
-    yrd_.units = "rad.";
     yrd_.color = Eigen::Vector3d(0, 1, 0);
     zrd_.label = "Z";
-    zrd_.units = "rad.";
     zrd_.color = Eigen::Vector3d(0, 0, 1);
 }
 
@@ -284,8 +424,6 @@ void TSRWidget::syncFrame()
 
 void TSRWidget::syncTSR()
 {
-    std::unique_lock<std::mutex> lk(mutex_);
-
     tsr_->getSpecification() = spec_;
     tsr_->updatePose();
     tsr_->updateBounds();
@@ -363,7 +501,8 @@ void TSRWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
         return;
 
     Eigen::Vector3d t = frame->getRelativeTransform().translation();
-    Eigen::Vector3d diff = (sync_) ? Eigen::Vector3d(t - spec_.position.lower) : Eigen::Vector3d::Zero();
+    Eigen::Vector3d diff =
+        (sync_bounds_) ? Eigen::Vector3d(t - spec_.position.lower) : Eigen::Vector3d::Zero();
 
     spec_.setXPosTolerance(t[0], spec_.position.upper[0] - diff[0]);
     spec_.setYPosTolerance(t[1], spec_.position.upper[1] - diff[1]);
@@ -379,7 +518,8 @@ void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
         return;
 
     Eigen::Vector3d t = frame->getRelativeTransform().translation();
-    Eigen::Vector3d diff = (sync_) ? Eigen::Vector3d(t - spec_.position.upper) : Eigen::Vector3d::Zero();
+    Eigen::Vector3d diff =
+        (sync_bounds_) ? Eigen::Vector3d(t - spec_.position.upper) : Eigen::Vector3d::Zero();
 
     spec_.setXPosTolerance(spec_.position.lower[0] - diff[0], t[0]);
     spec_.setYPosTolerance(spec_.position.lower[1] - diff[1], t[1]);
@@ -391,7 +531,7 @@ void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
 
 void TSRWidget::updateMirror()
 {
-    if (not sync_)
+    if (not sync_bounds_)
         return;
 
     {
@@ -420,14 +560,14 @@ void TSRWidget::updateShape()
     shape_->setShape(makeBox(abs[0], abs[1], abs[2]));
 
     auto va = shape_->createVisualAspect();
-    va->setHidden(not show_);
+    va->setHidden(not show_volume_);
     va->setShadowed(false);
     va->setColor(dart::Color::Gray(0.5));
 }
 
 void TSRWidget::render()
 {
-    prev_ = spec_;
+    prev_ = spec_;  // save previous spec
 
     ImGui::SetNextWindowBgAlpha(0.5f);
     std::string title = "TSR Helper - " + name_;
@@ -437,16 +577,13 @@ void TSRWidget::render()
         return;
     }
 
-    bool update = false;
     if (ImGui::TreeNodeEx("Frame", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        update |= ImGui::DragFloat3("Position", position_, 0.01f, -5.0f, 5.0f, "%0.2f");
-        update |= ImGui::DragFloat3("Rotation", rotation_, 0.01f, -dart::math::constants<double>::pi(),
-                                    dart::math::constants<double>::pi(), "%0.2f");
+        ImGui::DragFloat3("Position", position_, 0.01f, -5.0f, 5.0f, "%0.2f");
+        ImGui::DragFloat3("Rotation", rotation_, 0.01f, -constants::pi, constants::pi, "%0.2f");
 
         if (ImGui::Button("Reset Position"))
         {
-            update |= true;
             spec_.setPosition(original_.getPosition());
             syncGUI();
         }
@@ -455,7 +592,6 @@ void TSRWidget::render()
 
         if (ImGui::Button("Reset Rotation"))
         {
-            update |= true;
             spec_.setRotation(original_.getRotation());
             syncGUI();
         }
@@ -468,23 +604,22 @@ void TSRWidget::render()
 
     if (ImGui::TreeNodeEx("Bounds", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Checkbox("Visualize", &show_);
+        ImGui::Checkbox("Show Volume", &show_volume_);
         ImGui::SameLine();
-        ImGui::Checkbox("Sync. Bounds", &sync_);
+        ImGui::Checkbox("Sync. Bounds", &sync_bounds_);
 
         ImGui::Text("Position Bounds");
-        update |= ImGui::DragFloat2("X##1", xp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Y##1", yp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        update |= ImGui::DragFloat2("Z##1", zp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        ImGui::DragFloat2("X##1", xp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        ImGui::DragFloat2("Y##1", yp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        ImGui::DragFloat2("Z##1", zp_, 0.01f, -2.5f, 2.5f, "%0.4f");
 
         ImGui::Text("Rotation Bounds");
-        update |= ImGui::DragFloat2("X##2", xr_, 0.01f, -3.14f, 3.14f, "%0.4f");
-        update |= ImGui::DragFloat2("Y##2", yr_, 0.01f, -3.14f, 3.14f, "%0.4f");
-        update |= ImGui::DragFloat2("Z##2", zr_, 0.01f, -3.14f, 3.14f, "%0.4f");
+        ImGui::DragFloat2("X##2", xr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
+        ImGui::DragFloat2("Y##2", yr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
+        ImGui::DragFloat2("Z##2", zr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
 
         if (ImGui::Button("Reset Bounds"))
         {
-            update |= true;
             spec_.position = original_.position;
             spec_.orientation = original_.orientation;
             prev_ = spec_;
@@ -499,9 +634,9 @@ void TSRWidget::render()
 
     if (ImGui::TreeNodeEx("Solving", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Checkbox("Track TSR", &track_);
+        ImGui::Checkbox("Track TSR", &track_tsr_);
         ImGui::SameLine();
-        ImGui::Checkbox("Use Gradient?", &grad_);
+        ImGui::Checkbox("Use Gradient?", &use_gradient_);
 
         ImGui::Columns(2);
         ImGui::SliderInt("Max Iter.", &maxIter_, 1, 1000);
@@ -514,15 +649,12 @@ void TSRWidget::render()
 
         ImGui::SameLine();
 
-        if (last_)
+        if (last_solve_)
             ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Success!");
         else
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Failure!");
 
-        {
-            std::unique_lock<std::mutex> lk(mutex_);
-            solve_.render();
-        }
+        solve_time_.render();
 
         if (ImGui::Button("Print TSR"))
             spec_.print(std::cout);
@@ -532,39 +664,33 @@ void TSRWidget::render()
 
     if (ImGui::TreeNodeEx("Distance"))
     {
-        {
-            std::unique_lock<std::mutex> lk(mutex_);
+        ImGui::Columns(2);
+        ImGui::Text("Pos. Error");
+        xpd_.render();
+        ypd_.render();
+        zpd_.render();
+        ImGui::NextColumn();
 
-            ImGui::Columns(2);
-            ImGui::Text("Pos. Error");
-            xpd_.render();
-            ypd_.render();
-            zpd_.render();
-            ImGui::NextColumn();
+        ImGui::Text("Rot. Error");
+        xrd_.render();
+        yrd_.render();
+        zrd_.render();
 
-            ImGui::Text("Rot. Error");
-            xrd_.render();
-            yrd_.render();
-            zrd_.render();
-
-            ImGui::Columns(1);
-        }
+        ImGui::Columns(1);
 
         ImGui::TreePop();
     }
 
-    {
-        gui_ = true;
-        syncSpec();
-        syncGUI();
-        syncFrame();
-        gui_ = false;
-    }
+    gui_ = true;
+    syncSpec();
+    syncGUI();
+    syncFrame();
+    gui_ = false;
 }
 
 void TSRWidget::prerefresh()
 {
-    if (track_)
+    if (track_tsr_)
         solve();
 
     Eigen::VectorXd e(6);
@@ -581,17 +707,16 @@ void TSRWidget::prerefresh()
 
 void TSRWidget::solve()
 {
-    std::unique_lock<std::mutex> lk(mutex_);
-
     auto start = std::chrono::steady_clock::now();
-    if (grad_)
-        last_ = tsr_->solveGradientWorld();
+    if (use_gradient_)
+        last_solve_ = tsr_->solveGradientWorld();
     else
-        last_ = tsr_->solveWorld();
+        last_solve_ = tsr_->solveWorld();
+
     auto end = std::chrono::steady_clock::now();
 
     auto time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-    solve_.addPoint(time);
+    solve_time_.addPoint(time);
 }
 
 const TSR::Specification &TSRWidget::getSpecification() const
@@ -599,150 +724,7 @@ const TSR::Specification &TSRWidget::getSpecification() const
     return spec_;
 }
 
-//
-// Window
-//
-
-Window::Window(const WorldPtr &world) : dart::gui::osg::WorldNode(world->getSim()), world_(world)
+const TSRPtr &TSRWidget::getTSR() const
 {
-    node_ = this;
-    viewer_.addWorldNode(node_);
-    viewer_.setUpViewInWindow(0, 0, 1080, 1080);
-    auto cm = viewer_.getCameraManipulator();
-    cm->setHomePosition(                //
-        ::osg::Vec3(2.57, 3.14, 1.64),  //
-        ::osg::Vec3(0.00, 0.00, 0.00),  //
-        ::osg::Vec3(-0.24, -0.25, 0.94));
-    viewer_.setCameraManipulator(cm);
-    viewer_.setVerticalFieldOfView(30);
-
-    widget_ = std::make_shared<WindowWidget>();
-    addWidget(widget_);
-}
-
-void Window::customPreRefresh()
-{
-    for (auto widget : widgets_)
-        widget->prerefresh();
-}
-
-void Window::addWidget(const WidgetPtr &widget)
-{
-    widgets_.emplace_back(widget);
-    widget->initialize(this);
-    viewer_.getImGuiHandler()->addWidget(widget);
-}
-
-Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptions &options)
-{
-    InteractiveReturn r;
-    r.target = std::make_shared<dart::gui::osg::InteractiveFrame>(  //
-        options.parent, options.name, options.pose, options.size, options.thickness);
-    world_->getSim()->addSimpleFrame(r.target);
-
-    for (std::size_t i = 0; i < 3; ++i)
-    {
-        auto lt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::LINEAR, i);
-        lt->setEnabled(options.linear[i]);
-        auto rt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::ANGULAR, i);
-        rt->setEnabled(options.rotation[i]);
-        auto pt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::PLANAR, i);
-        pt->setEnabled(options.planar[i]);
-    }
-
-    r.dnd = viewer_.enableDragAndDrop(r.target.get());
-    r.dnd->setObstructable(options.obstructable);
-
-    auto callback = options.callback;
-    r.signal = r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
-        callback(dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity));
-    });
-
-    return r;
-}
-
-Window::DnDReturn Window::enableNodeDragNDrop(dart::dynamics::BodyNode *node, const DnDCallback &callback)
-{
-    DnDReturn r;
-    auto dnd = viewer_.enableDragAndDrop(node, true, true);
-    r.dnd = dnd;
-
-    r.signal = node->onTransformUpdated.connect([dnd, callback](const dart::dynamics::Entity *entity) {
-        if (dnd->isMoving())
-            callback(dynamic_cast<const dart::dynamics::BodyNode *>(entity));
-    });
-
-    return r;
-}
-
-void Window::animatePath(const StateSpacePtr &space, const ompl::geometric::PathGeometric &path,
-                         std::size_t times, double fps, bool block)
-{
-    bool active = true;
-
-    std::mutex m;
-    std::condition_variable cv;
-
-    if (animation_)
-    {
-        animation_->join();
-        animation_.reset();
-    }
-    auto thread = std::make_shared<std::thread>([&] {
-        std::size_t n = path.getStateCount();
-        std::size_t i = times;
-
-        std::unique_lock<std::mutex> lk(m);
-        while ((times == 0) ? true : i--)
-        {
-            space->setWorldState(world_, path.getState(0));
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-            for (std::size_t j = 0; j < n; ++j)
-            {
-                space->setWorldState(world_, path.getState(j));
-
-                std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-
-        active = false;
-        cv.notify_one();
-    });
-
-    animation_ = thread;
-
-    if (block)
-    {
-        std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, [&] { return not active; });
-    }
-}
-
-void Window::animatePath(const PlanBuilder &builder, const ompl::geometric::PathGeometric &path,
-                         std::size_t times, double fps, bool block)
-{
-    ompl::geometric::PathGeometric extract(builder.rinfo);
-    for (std::size_t i = 0; i < path.getStateCount(); ++i)
-        extract.append(builder.getStateConst(path.getState(i)));
-
-    animatePath(builder.rspace, extract, times, fps, block);
-}
-
-WindowWidgetPtr Window::getWidget()
-{
-    return widget_;
-}
-
-void Window::run(std::function<void()> thread)
-{
-    if (thread)
-    {
-        std::thread t(thread);
-        viewer_.run();
-    }
-    else
-        viewer_.run();
+    return tsr_;
 }

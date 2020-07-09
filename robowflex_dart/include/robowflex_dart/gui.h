@@ -12,6 +12,7 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
 
+#include <robowflex_dart/constants.h>
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
@@ -178,7 +179,7 @@ namespace robowflex
             /** \brief Initialization with window context.
              *  \param[in] window GUI window.
              */
-            virtual void initialize(const Window *window);
+            virtual void initialize(Window *window);
 
             /** \brief Called before window refresh.
              */
@@ -283,11 +284,11 @@ namespace robowflex
         {
         public:
             std::string id{"##" + generateUUID()};  ///< Unique ID.
-            std::string label{""};              ///< Plot Label.
+            std::string label{""};                  ///< Plot Label.
             std::string units{""};                  ///< Plot Units.
-            bool show_min{false};                   ///< Display minimum value under plot.
-            bool show_max{false};                   ///< Display maximum value under plot.
-            bool show_avg{false};                   ///< Display average value under plot.
+            bool show_volume_min{false};            ///< Display minimum value under plot.
+            bool show_volume_max{false};            ///< Display maximum value under plot.
+            bool show_volume_avg{false};            ///< Display average value under plot.
             bool recent{true};                      ///< Display most recent value on plot.
             std::size_t max_size{100};              ///< Maximum size of plot data.
             Eigen::Vector3d color{1., 1., 1.};      ///< Color of plot.
@@ -379,7 +380,7 @@ namespace robowflex
              *  \param[in] spec Base specification of the TSR
              */
             TSRWidget(const std::string &name = "TSR", const TSR::Specification &spec = {});
-            void initialize(const Window *window) override;
+            void initialize(Window *window) override;
             void prerefresh() override;
 
             /** \brief Render GUI.
@@ -395,65 +396,122 @@ namespace robowflex
              */
             const TSR::Specification &getSpecification() const;
 
+            /** \brief Get the current TSR.
+             *  \return The current TSR.
+             */
+            const TSRPtr &getTSR() const;
+
         private:
+            /** \name Element Synchronization
+                \{ */
+
+            /** \brief Frame update callback on moving the main interactive frame.
+             *  \param[in] frame The interactive frame.
+             */
             void updateFrameCB(const dart::gui::osg::InteractiveFrame *frame);
+
+            /** \brief Frame update callback on moving the lower bound control.
+             *  \param[in] frame The interactive frame.
+             */
             void updateLLCB(const dart::gui::osg::InteractiveFrame *frame);
+
+            /** \brief Frame update callback on moving the upper bound control.
+             *  \param[in] frame The interactive frame.
+             */
             void updateUUCB(const dart::gui::osg::InteractiveFrame *frame);
+
+            /** \brief If synchronizing bounds, mirrors updates on other bound.
+             */
             void updateMirror();
+
+            /** \brief Updates the displayed shape volume for the bounds.
+             */
             void updateShape();
 
+            /** \brief Updates the TSR to the specification.
+             */
             void syncTSR();
+
+            /** \brief Updates the specification to the GUI.
+             */
             void syncSpec();
+
+            /** \brief Updates the GUI to the specification.
+             */
             void syncGUI();
+
+            /** \brief Updates the display frames to the specification.
+             */
             void syncFrame();
 
-            Window *window_;
-            WorldPtr world_;
+            bool gui_{false};  ///< True if a synchronize call is coming from the GUI update loop.
 
-            const std::string name_;
-            const TSR::Specification original_;
-            TSR::Specification spec_;
-            TSR::Specification prev_;
+            /** \} */
 
-            dart::dynamics::SimpleFramePtr shape_;
-            dart::dynamics::SimpleFramePtr offset_;
-            Window::InteractiveReturn frame_;
-            Window::InteractiveReturn ll_frame_;
-            Window::InteractiveReturn uu_frame_;
+            /** \name Interactive/Display Frames
+                \{ */
 
-            bool gui_{false};
+            dart::dynamics::SimpleFramePtr shape_;   ///< Display boundary shape frame.
+            dart::dynamics::SimpleFramePtr offset_;  ///< Offset frame for bounds.
+            Window::InteractiveReturn frame_;        ///< Main interactive frame.
+            Window::InteractiveReturn ll_frame_;     ///< Lower bound interactive frame.
+            Window::InteractiveReturn uu_frame_;     ///< Upper bound interactive frame.
 
-            float position_[3];
-            float rotation_[3];
+            /** \} */
 
-            // bounds
-            bool sync_{true};
-            bool show_{true};
+            /** \name TSR Specification
+                \{ */
 
-            float xp_[2];
-            float yp_[2];
-            float zp_[2];
-
-            float xr_[2];
-            float yr_[2];
-            float zr_[2];
-
-            // result
+            const std::string name_;             ///< Name of this window.
+            const TSR::Specification original_;  ///< Original specification provided to the window.
+            TSR::Specification spec_;            ///< Current specification.
+            TSR::Specification prev_;            ///< Prior iteration specification.
             TSRPtr tsr_;
-            std::mutex mutex_;
-            float tolerance_;
-            int maxIter_;
-            bool track_{false};
-            bool grad_{false};
-            bool last_{false};
 
-            LinePlotElement solve_;
-            LinePlotElement xpd_;
-            LinePlotElement ypd_;
-            LinePlotElement zpd_;
-            LinePlotElement xrd_;
-            LinePlotElement yrd_;
-            LinePlotElement zrd_;
+            /** \} */
+
+            /** \name GUI Options
+                \{ */
+
+            bool sync_bounds_{true};    ///< Synchronize changes in volume on other bound.
+            bool show_volume_{true};    ///< Show TSR volume.
+            bool track_tsr_{false};     ///< Track the TSR by solving IK.
+            bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
+
+            /** \} */
+
+            /** \name GUI Values
+                \{ */
+
+            float position_[3];  ///< GUI frame position.
+            float rotation_[3];  ///< GUI frame rotation.
+
+            float xp_[2];  ///< GUI X position bounds.
+            float yp_[2];  ///< GUI Y position bounds.
+            float zp_[2];  ///< GUI Z position bounds.
+
+            float xr_[2];  ///< GUI X orientation bounds.
+            float yr_[2];  ///< GUI Y orientation bounds.
+            float zr_[2];  ///< GUI Z orientation bounds.
+
+            float tolerance_;  ///< GUI solver tolerance.
+            int maxIter_;      ///< GUI maximum allowed iterations.
+
+            /** \} */
+
+            /** \name GUI Plots
+                \{ */
+
+            bool last_solve_{false};      ///< Result of last TSR solve.
+            LinePlotElement solve_time_;  ///< Plot of TSR solve times.
+            LinePlotElement xpd_;         ///< X position error.
+            LinePlotElement ypd_;         ///< Y position error.
+            LinePlotElement zpd_;         ///< Z position error.
+            LinePlotElement xrd_;         ///< X orientation error.
+            LinePlotElement yrd_;         ///< Y orientation error.
+            LinePlotElement zrd_;         ///< Z orientation error.
+
+            /** \} */
         };
     }  // namespace darts
 }  // namespace robowflex

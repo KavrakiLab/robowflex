@@ -7,6 +7,7 @@
 
 #include <robowflex_library/tf.h>
 
+#include <robowflex_dart/constants.h>
 #include <robowflex_dart/structure.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
@@ -236,17 +237,17 @@ void TSR::Specification::setNoPosTolerance()
 
 void TSR::Specification::setNoXRotTolerance()
 {
-    setXRotTolerance(dart::math::constants<double>::pi());
+    setXRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoYRotTolerance()
 {
-    setYRotTolerance(dart::math::constants<double>::pi());
+    setYRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoZRotTolerance()
 {
-    setZRotTolerance(dart::math::constants<double>::pi());
+    setZRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoRotTolerance()
@@ -272,12 +273,12 @@ void TSR::Specification::fixBounds()
 
     {
         Eigen::Vector3d u, l;
-        for (std::size_t i = 0; i < 3; ++i)
+        for (std::size_t i = 0; i < 3; ++i
         {
             u[i] =
-                std::max({orientation.lower[i], orientation.upper[i], -dart::math::constants<double>::pi()});
+                std::max({orientation.lower[i], orientation.upper[i], -constants::pi});
             l[i] =
-                std::min({orientation.lower[i], orientation.upper[i], dart::math::constants<double>::pi()});
+                std::min({orientation.lower[i], orientation.upper[i], constants::pi});
         }
 
         orientation.lower = l;
@@ -304,8 +305,7 @@ bool TSR::Specification::isPosConstrained(double lower, double upper) const
 
 bool TSR::Specification::isRotConstrained(double lower, double upper) const
 {
-    const double tpi = dart::math::constants<double>::two_pi();
-    return std::abs(upper - lower) < tpi;
+    return std::abs(upper - lower) < constants::two_pi;
 }
 
 Eigen::Vector3d TSR::Specification::getPosition() const
