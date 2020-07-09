@@ -286,9 +286,9 @@ namespace robowflex
             std::string id{"##" + generateUUID()};  ///< Unique ID.
             std::string label{""};                  ///< Plot Label.
             std::string units{""};                  ///< Plot Units.
-            bool show_volume_min{false};            ///< Display minimum value under plot.
-            bool show_volume_max{false};            ///< Display maximum value under plot.
-            bool show_volume_avg{false};            ///< Display average value under plot.
+            bool show_min{false};                   ///< Display minimum value under plot.
+            bool show_max{false};                   ///< Display maximum value under plot.
+            bool show_avg{false};                   ///< Display average value under plot.
             bool recent{true};                      ///< Display most recent value on plot.
             std::size_t max_size{100};              ///< Maximum size of plot data.
             Eigen::Vector3d color{1., 1., 1.};      ///< Color of plot.
@@ -424,10 +424,6 @@ namespace robowflex
              */
             void updateMirror();
 
-            /** \brief Updates the displayed shape volume for the bounds.
-             */
-            void updateShape();
-
             /** \brief Updates the TSR to the specification.
              */
             void syncTSR();
@@ -451,11 +447,21 @@ namespace robowflex
             /** \name Interactive/Display Frames
                 \{ */
 
-            dart::dynamics::SimpleFramePtr shape_;   ///< Display boundary shape frame.
-            dart::dynamics::SimpleFramePtr offset_;  ///< Offset frame for bounds.
-            Window::InteractiveReturn frame_;        ///< Main interactive frame.
-            Window::InteractiveReturn ll_frame_;     ///< Lower bound interactive frame.
-            Window::InteractiveReturn uu_frame_;     ///< Upper bound interactive frame.
+            /** \brief Get the volume for the bounds.
+             *  \return The volume of bounds.
+             */
+            Eigen::Vector3d getVolume() const;
+
+            /** \brief Updates the displayed shape volume for the bounds.
+             */
+            void updateShape();
+
+            dart::dynamics::SimpleFramePtr offset_;      ///< Offset frame for bounds.
+            dart::dynamics::SimpleFramePtr shape_;       ///< Display boundary shape frame.
+            dart::dynamics::SimpleFramePtr rbounds_[3];  ///< Display rotation bounds.
+            Window::InteractiveReturn frame_;            ///< Main interactive frame.
+            Window::InteractiveReturn ll_frame_;         ///< Lower bound interactive frame.
+            Window::InteractiveReturn uu_frame_;         ///< Upper bound interactive frame.
 
             /** \} */
 
@@ -475,6 +481,7 @@ namespace robowflex
 
             bool sync_bounds_{true};    ///< Synchronize changes in volume on other bound.
             bool show_volume_{true};    ///< Show TSR volume.
+            bool show_bounds_{true};    ///< Show TSR rotation bounds.
             bool track_tsr_{false};     ///< Track the TSR by solving IK.
             bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
 
@@ -482,6 +489,16 @@ namespace robowflex
 
             /** \name GUI Values
                 \{ */
+
+            const double volume_alpha_{0.2};     ///< Volume alpha.
+            const double rotation_alpha_{0.6};   ///< Rotation bound alpha.
+            const double rotation_width_{0.05};  ///< Rotation bound width.
+
+            const float max_position_{5.0f};     ///< Max position value.
+            const float max_tolerance_{0.5f};    ///< Max tolerance value.
+            const int max_iteration_{1000};      ///< Max iteration value.
+            const float drag_step_{0.01f};       ///< Slider drag amount.
+            const float drag_tolerance_{0.01f};  ///< Slider drag for tolerance.
 
             float position_[3];  ///< GUI frame position.
             float rotation_[3];  ///< GUI frame rotation.
@@ -493,6 +510,8 @@ namespace robowflex
             float xr_[2];  ///< GUI X orientation bounds.
             float yr_[2];  ///< GUI Y orientation bounds.
             float zr_[2];  ///< GUI Z orientation bounds.
+
+            float inner_radius{0.2};  ///< GUI Rotation bound inner radius.
 
             float tolerance_;  ///< GUI solver tolerance.
             int maxIter_;      ///< GUI maximum allowed iterations.

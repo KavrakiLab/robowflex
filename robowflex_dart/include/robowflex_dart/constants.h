@@ -12,6 +12,7 @@ namespace robowflex
         namespace constants
         {
             const double pi = dart::math::constants<double>::pi();
+            const double half_pi = dart::math::constants<double>::half_pi();
             const double two_pi = dart::math::constants<double>::two_pi();
         }  // namespace constants
     }      // namespace darts

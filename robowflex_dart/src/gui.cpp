@@ -342,7 +342,7 @@ void TSRWidget::initialize(Window *window)
 {
     auto world = window->world_;
 
-    // main pose control
+    // Create main interactive marker.
     Window::InteractiveOptions frame_opt;
     frame_opt.name = "TSRWidget-" + name_ + "-frame";
     frame_opt.pose = spec_.pose;
@@ -351,10 +351,12 @@ void TSRWidget::initialize(Window *window)
     frame_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateFrameCB(frame); };
     frame_ = window->createInteractiveMarker(frame_opt);
 
+    // Create offset frame for bound frames.
     offset_ = std::make_shared<dart::dynamics::SimpleFrame>(dart::dynamics::Frame::World(),
                                                             "TSRWidget-" + name_ + "-offset");
+    world->getSim()->addSimpleFrame(offset_);
 
-    // lower bound control
+    // Create lower bound control.
     Window::InteractiveOptions ll_opt;
     ll_opt.name = "TSRWidget-" + name_ + "-ll";
     ll_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateLLCB(frame); };
@@ -369,7 +371,7 @@ void TSRWidget::initialize(Window *window)
     ll_opt.thickness = 2;
     ll_frame_ = window->createInteractiveMarker(ll_opt);
 
-    // upper bound control
+    // Create upper bound control.
     Window::InteractiveOptions uu_opt;
     uu_opt.name = "TSRWidget-" + name_ + "-uu";
     uu_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateUUCB(frame); };
@@ -384,22 +386,36 @@ void TSRWidget::initialize(Window *window)
     uu_opt.thickness = 2;
     uu_frame_ = window->createInteractiveMarker(uu_opt);
 
+    // Create shape frame. Shape is separate since it can be offset from main bound TF.
     shape_ = std::make_shared<dart::dynamics::SimpleFrame>(offset_.get(), "TSRWidget-" + name_ + "-shape");
     world->getSim()->addSimpleFrame(shape_);
 
+    // Create rotation bounds.
+    for (std::size_t i = 0; i < 3; ++i)
+    {
+        rbounds_[i] = std::make_shared<dart::dynamics::SimpleFrame>(
+            offset_.get(), "TSRWidget-" + name_ + "-rb" + std::to_string(i));
+
+        Eigen::Isometry3d tf = Eigen::Isometry3d::Identity();
+        if (i == 1)
+            tf.rotate(Eigen::AngleAxisd(constants::half_pi, Eigen::Vector3d::UnitZ()));
+        else if (i == 2)
+            tf.rotate(Eigen::AngleAxisd(constants::half_pi, Eigen::Vector3d::UnitY()));
+
+        rbounds_[i]->setRelativeTransform(tf);
+        world->getSim()->addSimpleFrame(rbounds_[i]);
+    }
+
+    // Create TSR.
     tsr_ = std::make_shared<darts::TSR>(world, spec_);
     tsr_->initialize();
 
-    syncGUI();
-    syncFrame();
-
-    updateShape();
-
-    solve_.label = "Solve Time";
-    solve_.units = "microsec.";
-    solve_.show_min = true;
-    solve_.show_max = true;
-    solve_.show_avg = true;
+    // Setup line plots.
+    solve_time_.label = "Solve Time";
+    solve_time_.units = "microsec.";
+    solve_time_.show_min = true;
+    solve_time_.show_max = true;
+    solve_time_.show_avg = true;
 
     xpd_.color = Eigen::Vector3d(1, 0, 0);
     ypd_.color = Eigen::Vector3d(0, 1, 0);
@@ -411,13 +427,17 @@ void TSRWidget::initialize(Window *window)
     yrd_.color = Eigen::Vector3d(0, 1, 0);
     zrd_.label = "Z";
     zrd_.color = Eigen::Vector3d(0, 0, 1);
+
+    // Synchronize elements.
+    syncGUI();
+    syncFrame();
+    updateShape();
 }
 
 void TSRWidget::syncFrame()
 {
     frame_.target->setRelativeTransform(spec_.pose);
     offset_->setTranslation(frame_.target->getWorldTransform().translation());
-
     ll_frame_.target->setRelativeTranslation(spec_.position.lower);
     uu_frame_.target->setRelativeTranslation(spec_.position.upper);
 }
@@ -457,7 +477,7 @@ void TSRWidget::syncGUI()
     position_[1] = pos[1];
     position_[2] = pos[2];
 
-    auto rot = spec_.getRotation().toRotationMatrix().eulerAngles(0, 1, 2);
+    auto rot = spec_.getEulerRotation();
     rotation_[0] = rot[0];
     rotation_[1] = rot[1];
     rotation_[2] = rot[2];
@@ -488,7 +508,6 @@ void TSRWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
     prev_ = spec_;
     auto tf = frame->getRelativeTransform();
     spec_.pose = tf;
-    offset_->setRotation(Eigen::Matrix3d::Identity());
 
     updateMirror();
     syncGUI();
@@ -551,24 +570,49 @@ void TSRWidget::updateMirror()
     }
 }
 
+Eigen::Vector3d TSRWidget::getVolume() const
+{
+    return spec_.position.upper - spec_.position.lower;
+}
+
 void TSRWidget::updateShape()
 {
-    Eigen::Vector3d abs = (spec_.position.upper - spec_.position.lower);
-    Eigen::Vector3d mid = abs / 2;
+    // Position volume
+    {
+        Eigen::Vector3d abs = getVolume();
 
-    shape_->setRelativeTranslation(spec_.position.lower + mid);
-    shape_->setShape(makeBox(abs[0], abs[1], abs[2]));
+        shape_->setShape(makeBox(abs));
+        auto va = shape_->getVisualAspect(true);
+        va->setColor(dart::Color::Gray(volume_alpha_));
+        va->setShadowed(false);
+        va->setHidden(not show_volume_);
 
-    auto va = shape_->createVisualAspect();
-    va->setHidden(not show_volume_);
-    va->setShadowed(false);
-    va->setColor(dart::Color::Gray(0.5));
+        shape_->setRelativeTranslation(spec_.position.lower + abs / 2);
+    }
+
+    // Rotation bounds
+    for (std::size_t i = 0; i < 3; ++i)
+    {
+        rbounds_[i]->setShape(makeArcsegment(spec_.orientation.lower[i], spec_.orientation.upper[i],
+                                             inner_radius, inner_radius + rotation_width_));
+        auto va = rbounds_[i]->getVisualAspect(true);
+        va->setShadowed(false);
+        va->setHidden(not show_bounds_);
+
+        if (i == 0)
+            va->setColor(dart::Color::Red(rotation_alpha_));
+        if (i == 1)
+            va->setColor(dart::Color::Green(rotation_alpha_));
+        if (i == 2)
+            va->setColor(dart::Color::Blue(rotation_alpha_));
+    }
 }
 
 void TSRWidget::render()
 {
     prev_ = spec_;  // save previous spec
 
+    // Draw main window.
     ImGui::SetNextWindowBgAlpha(0.5f);
     std::string title = "TSR Helper - " + name_;
     if (!ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
@@ -577,10 +621,11 @@ void TSRWidget::render()
         return;
     }
 
+    // Draw frame position and orientation values.
     if (ImGui::TreeNodeEx("Frame", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::DragFloat3("Position", position_, 0.01f, -5.0f, 5.0f, "%0.2f");
-        ImGui::DragFloat3("Rotation", rotation_, 0.01f, -constants::pi, constants::pi, "%0.2f");
+        ImGui::DragFloat3("Position", position_, drag_step_, -max_position_, max_position_, "%0.2f");
+        ImGui::DragFloat3("Rotation", rotation_, drag_step_, -constants::pi, constants::pi, "%0.2f");
 
         if (ImGui::Button("Reset Position"))
         {
@@ -602,21 +647,26 @@ void TSRWidget::render()
     ImGui::Separator();
     ImGui::Spacing();
 
+    // Draw TSR bound interface.
     if (ImGui::TreeNodeEx("Bounds", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::Checkbox("Show Volume", &show_volume_);
-        ImGui::SameLine();
         ImGui::Checkbox("Sync. Bounds", &sync_bounds_);
 
         ImGui::Text("Position Bounds");
-        ImGui::DragFloat2("X##1", xp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        ImGui::DragFloat2("Y##1", yp_, 0.01f, -2.5f, 2.5f, "%0.4f");
-        ImGui::DragFloat2("Z##1", zp_, 0.01f, -2.5f, 2.5f, "%0.4f");
+        auto half = max_position_ / 2;
+        ImGui::DragFloat2("X##1", xp_, drag_step_, -half, half, "%0.4f");
+        ImGui::DragFloat2("Y##1", yp_, drag_step_, -half, half, "%0.4f");
+        ImGui::DragFloat2("Z##1", zp_, drag_step_, -half, half, "%0.4f");
+        ImGui::Checkbox("Show Volume", &show_volume_);
+        ImGui::Spacing();
 
         ImGui::Text("Rotation Bounds");
-        ImGui::DragFloat2("X##2", xr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
-        ImGui::DragFloat2("Y##2", yr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
-        ImGui::DragFloat2("Z##2", zr_, 0.01f, -constants::pi, constants::pi, "%0.4f");
+        ImGui::DragFloat2("X##2", xr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
+        ImGui::DragFloat2("Y##2", yr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
+        ImGui::DragFloat2("Z##2", zr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
+        ImGui::Checkbox("Show Rot. Bounds", &show_bounds_);
+        ImGui::SameLine();
+        ImGui::DragFloat("Bound Rad.", &inner_radius, drag_step_, 0., 0.5, "%0.2f");
 
         if (ImGui::Button("Reset Bounds"))
         {
@@ -632,6 +682,7 @@ void TSRWidget::render()
     ImGui::Separator();
     ImGui::Spacing();
 
+    // Draw TSR solve interface.
     if (ImGui::TreeNodeEx("Solving", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Checkbox("Track TSR", &track_tsr_);
@@ -639,9 +690,9 @@ void TSRWidget::render()
         ImGui::Checkbox("Use Gradient?", &use_gradient_);
 
         ImGui::Columns(2);
-        ImGui::SliderInt("Max Iter.", &maxIter_, 1, 1000);
+        ImGui::SliderInt("Max Iter.", &maxIter_, 1, max_iteration_);
         ImGui::NextColumn();
-        ImGui::SliderFloat("Tol.", &tolerance_, 0.00001, 0.1, "< %.5f", 2.);
+        ImGui::SliderFloat("Tol.", &tolerance_, 1e-5, max_tolerance_, "< %.5f", 3.);
         ImGui::Columns(1);
 
         if (ImGui::Button("Solve TSR"))
@@ -650,9 +701,9 @@ void TSRWidget::render()
         ImGui::SameLine();
 
         if (last_solve_)
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Success!");
+            ImGui::TextColored((ImVec4)ImColor(0.0f, 1.0f, 0.0f), "Success!");
         else
-            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Failure!");
+            ImGui::TextColored((ImVec4)ImColor(1.0f, 0.0f, 0.0f), "Failure!");
 
         solve_time_.render();
 
@@ -662,7 +713,11 @@ void TSRWidget::render()
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNodeEx("Distance"))
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // Draw distance tracking information.
+    if (ImGui::TreeNodeEx("Distance", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::Columns(2);
         ImGui::Text("Pos. Error");

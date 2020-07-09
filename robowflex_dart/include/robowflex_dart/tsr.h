@@ -344,6 +344,11 @@ namespace robowflex
                  */
                 Eigen::Quaterniond getRotation() const;
 
+                /** \brief Get the current desired orientation.
+                 *  \return Orientation as XYZ Euler angles.
+                 */
+                Eigen::Vector3d getEulerRotation() const;
+
                 /** \brief Returns true if TSR is position constrained.
                  *  \return True if position constrained.
                  */

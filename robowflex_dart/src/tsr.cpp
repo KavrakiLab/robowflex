@@ -273,12 +273,10 @@ void TSR::Specification::fixBounds()
 
     {
         Eigen::Vector3d u, l;
-        for (std::size_t i = 0; i < 3; ++i
+        for (std::size_t i = 0; i < 3; ++i)
         {
-            u[i] =
-                std::max({orientation.lower[i], orientation.upper[i], -constants::pi});
-            l[i] =
-                std::min({orientation.lower[i], orientation.upper[i], constants::pi});
+            u[i] = std::max({orientation.lower[i], orientation.upper[i], -constants::pi});
+            l[i] = std::min({orientation.lower[i], orientation.upper[i], constants::pi});
         }
 
         orientation.lower = l;
@@ -316,6 +314,11 @@ Eigen::Vector3d TSR::Specification::getPosition() const
 Eigen::Quaterniond TSR::Specification::getRotation() const
 {
     return Eigen::Quaterniond(pose.linear());
+}
+
+Eigen::Vector3d TSR::Specification::getEulerRotation() const
+{
+    return getRotation().toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
 bool TSR::Specification::intersect(const Specification &other)
