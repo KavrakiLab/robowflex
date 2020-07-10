@@ -398,7 +398,7 @@ void TSRWidget::initialize(Window *window)
 
         Eigen::Isometry3d tf = Eigen::Isometry3d::Identity();
         if (i == 1)
-            tf.rotate(Eigen::AngleAxisd(constants::half_pi, Eigen::Vector3d::UnitZ()));
+            tf.rotate(Eigen::AngleAxisd(-constants::half_pi, Eigen::Vector3d::UnitZ()));
         else if (i == 2)
             tf.rotate(Eigen::AngleAxisd(constants::half_pi, Eigen::Vector3d::UnitY()));
 
@@ -610,6 +610,8 @@ void TSRWidget::updateShape()
 
 void TSRWidget::render()
 {
+    std::unique_lock<std::mutex> lk(mutex_);
+
     prev_ = spec_;  // save previous spec
 
     // Draw main window.
@@ -668,10 +670,7 @@ void TSRWidget::render()
         ImGui::DragFloat2("Z##2", zr_, drag_step_, -constants::pi, constants::pi, "%0.4f");
 
         ImGui::Checkbox("Show Rot. Bounds", &show_bounds_);
-
-        ImGui::Columns(2);
         ImGui::DragFloat("Bound Rad.", &inner_radius, drag_step_, 0., 0.5, "%0.2f");
-        ImGui::Columns(1);
 
         if (ImGui::Button("Reset Bounds"))
         {
@@ -701,7 +700,7 @@ void TSRWidget::render()
         ImGui::Columns(1);
 
         if (ImGui::Button("Solve TSR"))
-            solve();
+            need_solve_ = true;
 
         ImGui::SameLine();
 
@@ -750,8 +749,10 @@ void TSRWidget::render()
 
 void TSRWidget::prerefresh()
 {
-    if (track_tsr_)
+    if (track_tsr_ or need_solve_)
         solve();
+
+    need_solve_ = false;
 
     Eigen::VectorXd e(6);
     tsr_->getErrorWorld(e);
@@ -767,6 +768,8 @@ void TSRWidget::prerefresh()
 
 void TSRWidget::solve()
 {
+    std::unique_lock<std::mutex> lk(mutex_);
+
     auto start = std::chrono::steady_clock::now();
     if (use_gradient_)
         last_solve_ = tsr_->solveGradientWorld();

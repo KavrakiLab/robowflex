@@ -472,7 +472,8 @@ namespace robowflex
             const TSR::Specification original_;  ///< Original specification provided to the window.
             TSR::Specification spec_;            ///< Current specification.
             TSR::Specification prev_;            ///< Prior iteration specification.
-            TSRPtr tsr_;
+            TSRPtr tsr_;                         ///< Corresponding TSR.
+            std::mutex mutex_;                   ///< Solving mutex.
 
             /** \} */
 
@@ -484,6 +485,7 @@ namespace robowflex
             bool show_bounds_{true};    ///< Show TSR rotation bounds.
             bool track_tsr_{false};     ///< Track the TSR by solving IK.
             bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
+            bool need_solve_{false};    ///< A solve is requested.
 
             /** \} */
 

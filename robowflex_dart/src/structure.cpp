@@ -349,7 +349,7 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
     const aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
 
     // Vertices
-    for (std::size_t i = 0; i < resolution; ++i)
+    for (std::size_t i = 0; i <= resolution; ++i)
     {
         const double theta = low + step * i;
 
