@@ -19,21 +19,38 @@ std::string robowflex::darts::generateUUID()
 }
 
 //
+// Viewer
+//
+
+Viewer::Viewer(const WorldPtr &world)
+  : dart::gui::osg::ImGuiViewer(::osg::Vec4(1.0, 1.0, 1.0, 1.0)), world_(world)
+{
+}
+
+void Viewer::updateTraversal()
+{
+    // world_->lock();
+    osgViewer::Viewer::updateTraversal();
+    // world_->unlock();
+}
+
+//
 // Window
 //
 
-Window::Window(const WorldPtr &world) : dart::gui::osg::WorldNode(world->getSim()), world_(world)
+Window::Window(const WorldPtr &world)
+  : dart::gui::osg::WorldNode(world->getSim()), world_(world), viewer_(world)
 {
     node_ = this;
     viewer_.addWorldNode(node_);
-    viewer_.setUpViewInWindow(0, 0, 1080, 1080);
+    viewer_.setUpViewInWindow(0, 0, 1080, 720);
     auto cm = viewer_.getCameraManipulator();
     cm->setHomePosition(                //
-        ::osg::Vec3(2.57, 3.14, 1.64),  //
+        ::osg::Vec3(5.00, 5.00, 2.00),  //
         ::osg::Vec3(0.00, 0.00, 0.00),  //
         ::osg::Vec3(-0.24, -0.25, 0.94));
     viewer_.setCameraManipulator(cm);
-    viewer_.setVerticalFieldOfView(30);
+    viewer_.setVerticalFieldOfView(15);
 
     widget_ = std::make_shared<WindowWidget>();
     addWidget(widget_);
@@ -41,8 +58,14 @@ Window::Window(const WorldPtr &world) : dart::gui::osg::WorldNode(world->getSim(
 
 void Window::customPreRefresh()
 {
+    // world_->lock();
     for (auto widget : widgets_)
         widget->prerefresh();
+}
+
+void Window::customPostRefresh()
+{
+    // world_->unlock();
 }
 
 void Window::addWidget(const WidgetPtr &widget)
@@ -333,18 +356,18 @@ void WindowWidget::addElement(const ImGuiElementPtr &element)
 //
 // TSR Widget
 //
-TSRWidget::TSRWidget(const std::string &name, const TSR::Specification &spec)
+TSREditWidget::TSREditWidget(const std::string &name, const TSR::Specification &spec)
   : name_(name), original_(spec), spec_(spec)
 {
 }
 
-void TSRWidget::initialize(Window *window)
+void TSREditWidget::initialize(Window *window)
 {
     auto world = window->world_;
 
     // Create main interactive marker.
     Window::InteractiveOptions frame_opt;
-    frame_opt.name = "TSRWidget-" + name_ + "-frame";
+    frame_opt.name = "TSREditWidget-" + name_ + "-frame";
     frame_opt.pose = spec_.pose;
     if (spec_.base.frame != magic::ROOT_FRAME)
         frame_opt.parent = world->getRobot(spec_.base.structure)->getFrame(spec_.base.frame);
@@ -353,12 +376,12 @@ void TSRWidget::initialize(Window *window)
 
     // Create offset frame for bound frames.
     offset_ = std::make_shared<dart::dynamics::SimpleFrame>(dart::dynamics::Frame::World(),
-                                                            "TSRWidget-" + name_ + "-offset");
+                                                            "TSREditWidget-" + name_ + "-offset");
     world->getSim()->addSimpleFrame(offset_);
 
     // Create lower bound control.
     Window::InteractiveOptions ll_opt;
-    ll_opt.name = "TSRWidget-" + name_ + "-ll";
+    ll_opt.name = "TSREditWidget-" + name_ + "-ll";
     ll_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateLLCB(frame); };
     ll_opt.parent = offset_.get();
     ll_opt.rotation[0] = false;
@@ -373,7 +396,7 @@ void TSRWidget::initialize(Window *window)
 
     // Create upper bound control.
     Window::InteractiveOptions uu_opt;
-    uu_opt.name = "TSRWidget-" + name_ + "-uu";
+    uu_opt.name = "TSREditWidget-" + name_ + "-uu";
     uu_opt.callback = [&](const dart::gui::osg::InteractiveFrame *frame) { updateUUCB(frame); };
     uu_opt.parent = offset_.get();
     uu_opt.rotation[0] = false;
@@ -387,14 +410,15 @@ void TSRWidget::initialize(Window *window)
     uu_frame_ = window->createInteractiveMarker(uu_opt);
 
     // Create shape frame. Shape is separate since it can be offset from main bound TF.
-    shape_ = std::make_shared<dart::dynamics::SimpleFrame>(offset_.get(), "TSRWidget-" + name_ + "-shape");
+    shape_ =
+        std::make_shared<dart::dynamics::SimpleFrame>(offset_.get(), "TSREditWidget-" + name_ + "-shape");
     world->getSim()->addSimpleFrame(shape_);
 
     // Create rotation bounds.
     for (std::size_t i = 0; i < 3; ++i)
     {
         rbounds_[i] = std::make_shared<dart::dynamics::SimpleFrame>(
-            offset_.get(), "TSRWidget-" + name_ + "-rb" + std::to_string(i));
+            offset_.get(), "TSREditWidget-" + name_ + "-rb" + std::to_string(i));
 
         Eigen::Isometry3d tf = Eigen::Isometry3d::Identity();
         if (i == 1)
@@ -410,31 +434,13 @@ void TSRWidget::initialize(Window *window)
     tsr_ = std::make_shared<darts::TSR>(world, spec_);
     tsr_->initialize();
 
-    // Setup line plots.
-    solve_time_.label = "Solve Time";
-    solve_time_.units = "microsec.";
-    solve_time_.show_min = true;
-    solve_time_.show_max = true;
-    solve_time_.show_avg = true;
-
-    xpd_.color = Eigen::Vector3d(1, 0, 0);
-    ypd_.color = Eigen::Vector3d(0, 1, 0);
-    zpd_.color = Eigen::Vector3d(0, 0, 1);
-
-    xrd_.label = "X";
-    xrd_.color = Eigen::Vector3d(1, 0, 0);
-    yrd_.label = "Y";
-    yrd_.color = Eigen::Vector3d(0, 1, 0);
-    zrd_.label = "Z";
-    zrd_.color = Eigen::Vector3d(0, 0, 1);
-
     // Synchronize elements.
     syncGUI();
     syncFrame();
     updateShape();
 }
 
-void TSRWidget::syncFrame()
+void TSREditWidget::syncFrame()
 {
     frame_.target->setRelativeTransform(spec_.pose);
     offset_->setTranslation(frame_.target->getWorldTransform().translation());
@@ -442,7 +448,7 @@ void TSRWidget::syncFrame()
     uu_frame_.target->setRelativeTranslation(spec_.position.upper);
 }
 
-void TSRWidget::syncTSR()
+void TSREditWidget::syncTSR()
 {
     tsr_->getSpecification() = spec_;
     tsr_->updatePose();
@@ -450,7 +456,7 @@ void TSRWidget::syncTSR()
     tsr_->updateSolver();
 }
 
-void TSRWidget::syncSpec()
+void TSREditWidget::syncSpec()
 {
     spec_.setPosition(position_[0], position_[1], position_[2]);
     spec_.setRotation(rotation_[0], rotation_[1], rotation_[2]);
@@ -463,14 +469,11 @@ void TSRWidget::syncSpec()
     spec_.setYRotTolerance(yr_[0], yr_[1]);
     spec_.setZRotTolerance(zr_[0], zr_[1]);
 
-    spec_.tolerance = tolerance_;
-    spec_.maxIter = maxIter_;
-
     updateMirror();
     syncTSR();
 }
 
-void TSRWidget::syncGUI()
+void TSREditWidget::syncGUI()
 {
     auto pos = spec_.getPosition();
     position_[0] = pos[0];
@@ -495,12 +498,9 @@ void TSRWidget::syncGUI()
     yr_[1] = spec_.orientation.upper[1];
     zr_[0] = spec_.orientation.lower[2];
     zr_[1] = spec_.orientation.upper[2];
-
-    tolerance_ = spec_.tolerance;
-    maxIter_ = spec_.maxIter;
 }
 
-void TSRWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
+void TSREditWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
 {
     if (gui_)
         return;
@@ -514,7 +514,7 @@ void TSRWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
     syncTSR();
 }
 
-void TSRWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
+void TSREditWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
 {
     if (gui_)
         return;
@@ -531,7 +531,7 @@ void TSRWidget::updateLLCB(const dart::gui::osg::InteractiveFrame *frame)
     syncTSR();
 }
 
-void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
+void TSREditWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
 {
     if (gui_)
         return;
@@ -548,7 +548,7 @@ void TSRWidget::updateUUCB(const dart::gui::osg::InteractiveFrame *frame)
     syncTSR();
 }
 
-void TSRWidget::updateMirror()
+void TSREditWidget::updateMirror()
 {
     if (not sync_bounds_)
         return;
@@ -570,12 +570,12 @@ void TSRWidget::updateMirror()
     }
 }
 
-Eigen::Vector3d TSRWidget::getVolume() const
+Eigen::Vector3d TSREditWidget::getVolume() const
 {
     return spec_.position.upper - spec_.position.lower;
 }
 
-void TSRWidget::updateShape()
+void TSREditWidget::updateShape()
 {
     // Position volume
     {
@@ -608,15 +608,13 @@ void TSRWidget::updateShape()
     }
 }
 
-void TSRWidget::render()
+void TSREditWidget::render()
 {
-    std::unique_lock<std::mutex> lk(mutex_);
-
     prev_ = spec_;  // save previous spec
 
     // Draw main window.
     ImGui::SetNextWindowBgAlpha(0.5f);
-    std::string title = "TSR Helper - " + name_;
+    std::string title = "TSR Editor - " + name_;
     if (!ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
     {
         ImGui::End();
@@ -683,8 +681,54 @@ void TSRWidget::render()
         ImGui::TreePop();
     }
 
-    ImGui::Separator();
-    ImGui::Spacing();
+    if (ImGui::Button("Print TSR"))
+        spec_.print(std::cout);
+
+    gui_ = true;
+    syncSpec();
+    syncGUI();
+    syncFrame();
+    gui_ = false;
+}
+
+void TSREditWidget::prerefresh()
+{
+    updateShape();
+}
+
+const TSR::Specification &TSREditWidget::getSpecification() const
+{
+    return spec_;
+}
+
+const TSRPtr &TSREditWidget::getTSR() const
+{
+    return tsr_;
+}
+
+//
+// TSRSolveWidget
+//
+
+TSRSolveWidget::TSRSolveWidget(const WorldPtr &world, const std::vector<TSRPtr> &tsrs)
+  : TSRSolveWidget(std::make_shared<TSRSet>(world, tsrs, false))
+{
+}
+
+TSRSolveWidget::TSRSolveWidget(const TSRSetPtr &tsrs) : tsrs_(tsrs)
+{
+}
+
+void TSRSolveWidget::render()
+{
+    // Draw main window.
+    ImGui::SetNextWindowBgAlpha(0.5f);
+    std::string title = "TSR Solver";
+    if (!ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar))
+    {
+        ImGui::End();
+        return;
+    }
 
     // Draw TSR solve interface.
     if (ImGui::TreeNodeEx("Solving", ImGuiTreeNodeFlags_DefaultOpen))
@@ -694,9 +738,44 @@ void TSRWidget::render()
         ImGui::Checkbox("Use Gradient?", &use_gradient_);
 
         ImGui::Columns(2);
-        ImGui::SliderInt("Max Iter.", &maxIter_, 1, max_iteration_);
+        if (ImGui::SliderInt("Max Iter.", &maxIter_, 1, max_iteration_))
+        {
+            tsrs_->setMaxIterations(maxIter_);
+            tsrs_->updateSolver();
+        }
+        if (ImGui::SliderFloat("Step", &step_, 0.001, 1))
+            tsrs_->setStep(step_);
+
+        if (ImGui::SliderFloat("Limit", &limit_, 0.001, 1))
+            tsrs_->setLimit(limit_);
+
         ImGui::NextColumn();
-        ImGui::SliderFloat("Tol.", &tolerance_, 1e-5, max_tolerance_, "< %.5f", 3.);
+        if (ImGui::SliderFloat("Tol.", &tolerance_, 1e-5, max_tolerance_, "< %.5f", 3.))
+        {
+            tsrs_->setMaxIterations(tolerance_);
+            tsrs_->updateSolver();
+        }
+
+        const char *items[] = {"dSVD", "SVD", "QR"};
+        if (ImGui::Combo("combo", &item_, items, IM_ARRAYSIZE(items)))
+        {
+            if (item_ == 0)
+            {
+                tsrs_->useSVD();
+                tsrs_->useDamping(true);
+            }
+            else if (item_ == 1)
+            {
+                tsrs_->useSVD();
+                tsrs_->useDamping(false);
+            }
+            else
+                tsrs_->useQR();
+        }
+
+        if (ImGui::SliderFloat("Damp.", &damping_, 1e-8, 1e-3, "< %.8f", 10.))
+            tsrs_->setDamping(damping_);
+
         ImGui::Columns(1);
 
         if (ImGui::Button("Solve TSR"))
@@ -711,9 +790,6 @@ void TSRWidget::render()
 
         solve_time_.render();
 
-        if (ImGui::Button("Print TSR"))
-            spec_.print(std::cout);
-
         ImGui::TreePop();
     }
 
@@ -721,60 +797,50 @@ void TSRWidget::render()
     ImGui::Spacing();
 
     // Draw distance tracking information.
-    if (ImGui::TreeNodeEx("Distance", ImGuiTreeNodeFlags_DefaultOpen))
+
+    const auto &tsrs = tsrs_->getTSRs();
+    for (std::size_t i = 0; i < tsrs.size(); ++i)
     {
-        ImGui::Columns(2);
-        ImGui::Text("Pos. Error");
-        xpd_.render();
-        ypd_.render();
-        zpd_.render();
-        ImGui::NextColumn();
+        const auto &tsr = tsrs[i];
+        const auto &spec = tsr->getSpecification();
 
-        ImGui::Text("Rot. Error");
-        xrd_.render();
-        yrd_.render();
-        zrd_.render();
+        const std::string title = "B:" + spec.base.frame + ":" + spec.base.structure +  //
+                                  " > T:" + spec.target.frame + ":" + spec.target.structure;
 
-        ImGui::Columns(1);
+        if (ImGui::TreeNodeEx(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Columns(2);
+            ImGui::Text("Pos. Error");
+            errors_[i].xpd.render();
+            errors_[i].ypd.render();
+            errors_[i].zpd.render();
+            ImGui::NextColumn();
 
-        ImGui::TreePop();
+            ImGui::Text("Rot. Error");
+            errors_[i].xrd.render();
+            errors_[i].yrd.render();
+            errors_[i].zrd.render();
+
+            ImGui::Columns(1);
+
+            ImGui::TreePop();
+        }
     }
-
-    gui_ = true;
-    syncSpec();
-    syncGUI();
-    syncFrame();
-    gui_ = false;
 }
 
-void TSRWidget::prerefresh()
+void TSRSolveWidget::solve()
 {
-    if (track_tsr_ or need_solve_)
-        solve();
-
-    need_solve_ = false;
-
-    Eigen::VectorXd e(6);
-    tsr_->getErrorWorld(e);
-    xrd_.addPoint(e[0]);
-    yrd_.addPoint(e[1]);
-    zrd_.addPoint(e[2]);
-    xpd_.addPoint(e[3]);
-    ypd_.addPoint(e[4]);
-    zpd_.addPoint(e[5]);
-
-    updateShape();
-}
-
-void TSRWidget::solve()
-{
-    std::unique_lock<std::mutex> lk(mutex_);
-
     auto start = std::chrono::steady_clock::now();
+
     if (use_gradient_)
-        last_solve_ = tsr_->solveGradientWorld();
+    {
+        Eigen::VectorXd world(tsrs_->getWorldIndices().size());
+        tsrs_->getPositionsWorldState(world);
+
+        last_solve_ = tsrs_->solveGradientWorldState(world);
+    }
     else
-        last_solve_ = tsr_->solveWorld();
+        last_solve_ = tsrs_->solveWorld();
 
     auto end = std::chrono::steady_clock::now();
 
@@ -782,12 +848,81 @@ void TSRWidget::solve()
     solve_time_.addPoint(time);
 }
 
-const TSR::Specification &TSRWidget::getSpecification() const
+void TSRSolveWidget::initialize(Window *window)
 {
-    return spec_;
+    // Compute world indices for all TSRs
+    const auto &tsrs = tsrs_->getTSRs();
+    std::set<std::pair<std::size_t, std::size_t>> wis;
+    for (const auto &tsr : tsrs)
+    {
+        std::vector<std::pair<std::size_t, std::size_t>> wts =
+            (tsr->getNumWorldDofs()) ? tsr->getWorldIndices() : tsr->computeWorldIndices();
+
+        for (const auto &index : wts)
+            wis.emplace(index);
+    }
+
+    std::vector<std::pair<std::size_t, std::size_t>> wts;
+    for (const auto &index : wis)
+        wts.emplace_back(index);
+
+    tsrs_->useWorldIndices(wts);
+    tsrs_->setWorldIndices(wts);
+    tsrs_->computeLimits();
+
+    tsrs_->initialize();
+
+    // Setup solve parameters.
+    maxIter_ = tsrs_->getMaxIterations();
+    tolerance_ = tsrs_->getTolerance();
+    step_ = tsrs_->getStep();
+    limit_ = tsrs_->getLimit();
+    damping_ = tsrs_->getDamping();
+
+    // Setup solve time plots.
+    solve_time_.label = "Solve Time";
+    solve_time_.units = "microsec.";
+    solve_time_.show_min = true;
+    solve_time_.show_max = true;
+    solve_time_.show_avg = true;
+
+    // Setup error plots.
+    const std::size_t n = tsrs_->numTSRs();
+    errors_.resize(n);
+
+    for (std::size_t i = 0; i < n; ++i)
+    {
+        errors_[i].xpd.color = Eigen::Vector3d(1, 0, 0);
+        errors_[i].ypd.color = Eigen::Vector3d(0, 1, 0);
+        errors_[i].zpd.color = Eigen::Vector3d(0, 0, 1);
+
+        errors_[i].xrd.label = "X";
+        errors_[i].xrd.color = Eigen::Vector3d(1, 0, 0);
+        errors_[i].yrd.label = "Y";
+        errors_[i].yrd.color = Eigen::Vector3d(0, 1, 0);
+        errors_[i].zrd.label = "Z";
+        errors_[i].zrd.color = Eigen::Vector3d(0, 0, 1);
+    }
 }
 
-const TSRPtr &TSRWidget::getTSR() const
+void TSRSolveWidget::prerefresh()
 {
-    return tsr_;
+    if (track_tsr_ or need_solve_)
+        solve();
+
+    need_solve_ = false;
+
+    const auto &tsrs = tsrs_->getTSRs();
+    for (std::size_t i = 0; i < tsrs.size(); ++i)
+    {
+        Eigen::VectorXd e = Eigen::VectorXd::Zero(6);
+        tsrs[i]->getErrorWorldRaw(e);
+
+        errors_[i].xrd.addPoint(e[0]);
+        errors_[i].yrd.addPoint(e[1]);
+        errors_[i].zrd.addPoint(e[2]);
+        errors_[i].xpd.addPoint(e[3]);
+        errors_[i].ypd.addPoint(e[4]);
+        errors_[i].zpd.addPoint(e[5]);
+    }
 }

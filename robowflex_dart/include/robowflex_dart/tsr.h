@@ -455,6 +455,11 @@ namespace robowflex
              */
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
 
+            /** \brief Compute the set of world indices used based on the underlying active indices.
+             *  \return World indices corresponding to this TSR's current indices.
+             */
+            std::vector<std::pair<std::size_t, std::size_t>> computeWorldIndices() const;
+
             /** \brief Get the skeleton index for the target frame's structure.
              *  \return The index of the skeleton this TSR is targeting.
              */
@@ -525,8 +530,8 @@ namespace robowflex
              */
             void updateBounds();
 
-            /** \brief If the solver parameters of the specification are updated, call this to update underlying IK
-             * solver.
+            /** \brief If the solver parameters of the specification are updated, call this to update
+             * underlying IK solver.
              */
             void updateSolver();
 
@@ -534,6 +539,11 @@ namespace robowflex
 
             /** \name Error / Function Computation
                 \{ */
+
+            /** \brief Get the current error given the world state, with all values.
+             *  \param[out] error Error value for all TSRs.
+             */
+            void getErrorWorldRaw(Eigen::Ref<Eigen::VectorXd> error) const;
 
             /** \brief Get the current error given the world state.
              *  \param[out] error Error value.
@@ -722,8 +732,9 @@ namespace robowflex
             /** \brief Constructor.
              *  \param[in] world World to use.
              *  \param[in] tsrs TSRs to add to set.
+             *  \param[in] intersect If true, tries to simplify TSR set.
              */
-            TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
+            TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs, bool intersect = true);
 
             /** \brief Set the world used by this TSR set.
              *  \param[in] world New world to use.
@@ -732,13 +743,18 @@ namespace robowflex
 
             /** \brief Add a TSR to the set.
              *  \param[in] tsr TSR to add.
+             *  \param[in] intersect If true, tries to simplify TSR set.
              *  \param[in] weight Weight to use for this TSR.
              */
-            void addTSR(const TSRPtr &tsr, double weight = 1.0);
+            void addTSR(const TSRPtr &tsr, bool intersect = true, double weight = 1.0);
 
             /** \brief Initialize this set of TSRs
              */
             void initialize();
+
+            /** \brief Update the solver information (iterations, tolerance, etc.)
+             */
+            void updateSolver();
 
             /** \} */
 
@@ -766,6 +782,11 @@ namespace robowflex
              */
             void setWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices);
 
+            /** \brief Get the world indices used.
+             *  \return World indices.
+             */
+            const std::vector<std::pair<std::size_t, std::size_t>> &getWorldIndices() const;
+
             /** \brief Set the upper limit on joints given their index in the world configuration.
              *  \param[in] upper Upper bounds on joints.
              */
@@ -776,10 +797,19 @@ namespace robowflex
              */
             void setWorldLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &lower);
 
+            /** \brief Compute the upper and lower limits from the skeleton.
+             */
+            void computeLimits();
+
             /** \} */
 
             /** \name Getters
                 \{ */
+
+            /** \brief Get the current world state.
+             *  \param[out] State to fill.
+             */
+            void getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const;
 
             /** \brief Get the error dimension of this set of TSRs.
              *  \return The error dimension of the set of TSRs.
@@ -791,10 +821,25 @@ namespace robowflex
              */
             std::size_t numTSRs() const;
 
+            /** \brief Get the TSRs that form the set.
+             *  \return The set of TSRs.
+             */
+            const std::vector<TSRPtr> &getTSRs() const;
+
             /** \brief Get the numerical tolerance for solving.
              *  \return The tolerance.
              */
             double getTolerance() const;
+
+            /** \brief Set the maximum tolerance used for solving.
+             *  \param[in] tolerance New tolerance.
+             */
+            void setTolerance(double tolerance);
+
+            /** \brief Get the maximum iterations allowed.
+             *  \return The maximum solver iterations.
+             */
+            std::size_t getMaxIterations() const;
 
             /** \brief Set the maximum iterations used for solving.
              *  \param[in] iterations Max iterations to use.
@@ -805,6 +850,49 @@ namespace robowflex
              *  \param[in] suffix Suffix to add.
              */
             void addSuffix(const std::string &suffix);
+
+            /** \brief Set the step parameter in the solver.
+             *  \param[in] step Step parameter.
+             */
+            void setStep(double step);
+
+            /** \brief Get the solver step parameter.
+             *  \return The solver step parameter.
+             */
+            double getStep() const;
+
+            /** \brief Set the limit parameter in the solver.
+             *  \param[in] limit Limit parameter.
+             */
+            void setLimit(double limit);
+
+            /** \brief Get the solver limit parameter.
+             *  \return The solver limit parameter.
+             */
+            double getLimit() const;
+
+            /** \brief Set the damping parameter in the solver.
+             *  \param[in] damping Damping parameter.
+             */
+            void setDamping(double damping);
+
+            /** \brief Get the solver damping parameter.
+             *  \return The solver damping parameter.
+             */
+            double getDamping() const;
+
+            /** \brief Set if damping is used in SVD solving.
+             *  \param[in] damping Damping value.
+             */
+            void useDamping(bool damping);
+
+            /** \brief Use SVD for solving.
+             */
+            void useSVD();
+
+            /** \brief Use QR for solving.
+             */
+            void useQR();
 
             /** \} */
 
@@ -890,8 +978,13 @@ namespace robowflex
             WorldPtr world_;                      ///< World to use.
             std::set<std::size_t> skel_indices_;  ///< All skeleton indices used by members of the set.
 
+            bool qr_{false};          ///< If true, use QR in gradient solve. Else, SVD.
+            bool damped_{true};       ///< If true, use damped SVD.
+            double step_{1.0};        ///< Step scaling in gradient.
+            double limit_{0.1};       ///< Step size limit.
+            double damping_{0.0001};  ///< Damping factor.
             double tolerance_{magic::DEFAULT_IK_TOLERANCE};  ///< Tolerance for solving.
-            std::size_t maxIter_{200};                       ///< Maximum iterations to use for solving.
+            std::size_t maxIter_{50};                        ///< Maximum iterations to use for solving.
 
             std::vector<TSRPtr> tsrs_;     ///< Set of TSRs
             std::vector<double> weights_;  ///< Weights on TSRs

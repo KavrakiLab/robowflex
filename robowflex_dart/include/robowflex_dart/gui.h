@@ -26,7 +26,7 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(Window)
         ROBOWFLEX_CLASS_FORWARD(Widget)
         ROBOWFLEX_CLASS_FORWARD(WindowWidget)
-        ROBOWFLEX_CLASS_FORWARD(TSRWidget)
+        ROBOWFLEX_CLASS_FORWARD(TSREditWidget)
         /** \endcond */
 
         /** \class robowflex::darts::WindowPtr
@@ -46,11 +46,27 @@ namespace robowflex
          */
         std::string generateUUID();
 
+        /** \brief Viewer class.
+         */
+        class Viewer : public dart::gui::osg::ImGuiViewer
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] world World viewed.
+             */
+            Viewer(const WorldPtr &world);
+
+            void updateTraversal() override;
+
+        private:
+            WorldPtr world_;  ///< World.
+        };
+
         /** \brief Open Scene Graph GUI for DART visualization.
          */
         class Window : public dart::gui::osg::WorldNode
         {
-            friend TSRWidget;
+            friend TSREditWidget;
 
         public:
             /** \brief Constructor.
@@ -58,6 +74,7 @@ namespace robowflex
              */
             Window(const WorldPtr &world);
             void customPreRefresh() override;
+            void customPostRefresh() override;
 
             /** \name GUI Interaction
                 \{ */
@@ -167,8 +184,8 @@ namespace robowflex
 
             std::shared_ptr<std::thread> animation_{nullptr};  ///< Animation thread.
 
-            ::osg::ref_ptr<Window> node_;         ///< OSG Node.
-            dart::gui::osg::ImGuiViewer viewer_;  ///< Viewer
+            ::osg::ref_ptr<Window> node_;  ///< OSG Node.
+            Viewer viewer_;                ///< Viewer
         };
 
         /** \brief Abstract class for IMGUI Widget.
@@ -372,24 +389,20 @@ namespace robowflex
 
         /** \brief IMGUI widget to design TSRs.
          */
-        class TSRWidget : public Widget
+        class TSREditWidget : public Widget
         {
         public:
             /** \brief Constructor.
              *  \param[in] name Name of TSR.
              *  \param[in] spec Base specification of the TSR
              */
-            TSRWidget(const std::string &name = "TSR", const TSR::Specification &spec = {});
+            TSREditWidget(const std::string &name = "TSR", const TSR::Specification &spec = {});
             void initialize(Window *window) override;
             void prerefresh() override;
 
             /** \brief Render GUI.
              */
             void render() override;
-
-            /** \brief Solve for a solution to the current TSR.
-             */
-            void solve();
 
             /** \brief Get current TSR specification.
              *  \return The current TSR specification.
@@ -480,12 +493,9 @@ namespace robowflex
             /** \name GUI Options
                 \{ */
 
-            bool sync_bounds_{true};    ///< Synchronize changes in volume on other bound.
-            bool show_volume_{true};    ///< Show TSR volume.
-            bool show_bounds_{true};    ///< Show TSR rotation bounds.
-            bool track_tsr_{false};     ///< Track the TSR by solving IK.
-            bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
-            bool need_solve_{false};    ///< A solve is requested.
+            bool sync_bounds_{true};  ///< Synchronize changes in volume on other bound.
+            bool show_volume_{true};  ///< Show TSR volume.
+            bool show_bounds_{true};  ///< Show TSR rotation bounds.
 
             /** \} */
 
@@ -496,11 +506,8 @@ namespace robowflex
             const double rotation_alpha_{0.6};   ///< Rotation bound alpha.
             const double rotation_width_{0.05};  ///< Rotation bound width.
 
-            const float max_position_{5.0f};     ///< Max position value.
-            const float max_tolerance_{0.5f};    ///< Max tolerance value.
-            const int max_iteration_{1000};      ///< Max iteration value.
-            const float drag_step_{0.01f};       ///< Slider drag amount.
-            const float drag_tolerance_{0.01f};  ///< Slider drag for tolerance.
+            const float max_position_{5.0f};  ///< Max position value.
+            const float drag_step_{0.01f};    ///< Slider drag amount.
 
             float position_[3];  ///< GUI frame position.
             float rotation_[3];  ///< GUI frame rotation.
@@ -515,8 +522,56 @@ namespace robowflex
 
             float inner_radius{0.2};  ///< GUI Rotation bound inner radius.
 
-            float tolerance_;  ///< GUI solver tolerance.
+            /** \} */
+        };
+
+        /** \brief Class for solving a set of TSRs.
+         */
+        class TSRSolveWidget : public Widget
+        {
+        public:
+            /** \brief Constructor.
+             *  \param[in] world World to use.
+             *  \param[in] tsrs Set of TSRs to consider.
+             */
+            TSRSolveWidget(const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
+
+            /** \brief Constructor.
+             *  \param[in] tsrs Set of TSRs to consider.
+             */
+            TSRSolveWidget(const TSRSetPtr &tsrs);
+
+            void initialize(Window *window) override;
+            void prerefresh() override;
+
+            /** \brief Render GUI.
+             */
+            void render() override;
+
+            /** \brief Solve for a solution to the current TSR.
+             */
+            void solve();
+
+        private:
+            TSRSetPtr tsrs_;  ///< TSR set.
+
+            /** \name GUI Values
+                \{ */
+
+            const float max_tolerance_{0.1f};    ///< Max tolerance value.
+            const int max_iteration_{200};       ///< Max iteration value.
+            const float drag_tolerance_{0.01f};  ///< Slider drag for tolerance.
+
+            bool track_tsr_{false};     ///< Track the TSR by solving IK.
+            bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
+            bool need_solve_{false};    ///< A solve is requested.
+
+            float step_;       ///< GUI gradient step size.
+            float limit_;      ///< GUI gradient limit.
+            float damping_;    ///< GUI SVD damping.
+            float tolerance_;  ///< GUI solver tolerance
             int maxIter_;      ///< GUI maximum allowed iterations.
+            int item_{0};      ///< GUI solver.
 
             /** \} */
 
@@ -525,12 +580,20 @@ namespace robowflex
 
             bool last_solve_{false};      ///< Result of last TSR solve.
             LinePlotElement solve_time_;  ///< Plot of TSR solve times.
-            LinePlotElement xpd_;         ///< X position error.
-            LinePlotElement ypd_;         ///< Y position error.
-            LinePlotElement zpd_;         ///< Z position error.
-            LinePlotElement xrd_;         ///< X orientation error.
-            LinePlotElement yrd_;         ///< Y orientation error.
-            LinePlotElement zrd_;         ///< Z orientation error.
+
+            /** \brief Error plots for TSRs.
+             */
+            struct ErrorLines
+            {
+                LinePlotElement xpd;  ///< X position error.
+                LinePlotElement ypd;  ///< Y position error.
+                LinePlotElement zpd;  ///< Z position error.
+                LinePlotElement xrd;  ///< X orientation error.
+                LinePlotElement yrd;  ///< Y orientation error.
+                LinePlotElement zrd;  ///< Z orientation error.
+            };
+
+            std::vector<ErrorLines> errors_;
 
             /** \} */
         };
