@@ -211,18 +211,22 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 {
     auto start_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    start_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
+    start_state->update(true);
     return start_state;
 }
 
 robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
 {
     auto goal_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    goal_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
 
     if (request_.goal_constraints.size() != 1)
     {
-        ROS_ERROR("Ambigous goal, mutliple or none goals exist, returning default goal");
+        ROS_ERROR("Ambigous goal, %lu goal goal_constraints exist, returning default goal",
+                  request_.goal_constraints.size());
         return goal_state;
     }
 
@@ -239,6 +243,7 @@ robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
     // Start state includes attached objects and values for the non-group links.
     moveit::core::robotStateMsgToRobotState(request_.start_state, *goal_state);
     goal_state->setVariablePositions(variable_map);
+    goal_state->update(true);
 
     return goal_state;
 }
