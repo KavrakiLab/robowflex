@@ -143,7 +143,7 @@ namespace robowflex
              *  \param[in] time The time the run took.
              *  \param[in] run The results of the run.
              */
-            void addRun(int num, double time, planning_interface::MotionPlanResponse &run);
+            Run &addRun(int num, double time, planning_interface::MotionPlanResponse &run);
 
             /** \brief Compute a set of metrics about a \a run, storing the results in \a metrics.
              *  The only metrics computed are those specified by the bitmask in \a options.
