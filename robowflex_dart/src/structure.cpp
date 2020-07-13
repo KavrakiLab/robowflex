@@ -38,7 +38,7 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
 
         dart::dynamics::FreeJoint::Properties joint;
         joint.mName = object;
-        joint.mT_ParentBodyToJoint = robowflex::TF::createPoseXYZ(0, 0, 0, 0, 0, 0);
+        joint.mT_ParentBodyToJoint = robowflex::RobotPose::Identity();
 
         auto shape = makeGeometry(geometry);
 
