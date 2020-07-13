@@ -3,6 +3,10 @@
 #ifndef ROBOWFLEX_DART_STRUCTURE_
 #define ROBOWFLEX_DART_STRUCTURE_
 
+#include <dart/dynamics/BoxShape.hpp>
+#include <dart/dynamics/CylinderShape.hpp>
+#include <dart/dynamics/SphereShape.hpp>
+#include <dart/dynamics/MeshShape.hpp>
 #include <dart/dynamics/RevoluteJoint.hpp>
 #include <dart/dynamics/PrismaticJoint.hpp>
 #include <dart/dynamics/FreeJoint.hpp>
@@ -153,8 +157,7 @@ namespace robowflex
              *  \param[in] child Child to reparent.
              *  \parma[in] parent Name of new parent for the child frame.
              */
-            void reparentFreeFrame(dart::dynamics::BodyNode *child,
-                                   const std::string &parent = "");
+            void reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent = "");
 
             /** \} */
 
@@ -235,7 +238,7 @@ namespace robowflex
          *  \param[in] v Dimensions of the box.
          *  \return The box shape.
          */
-        dart::dynamics::ShapePtr makeBox(const Eigen::Ref<const Eigen::Vector3d> &v);
+        std::shared_ptr<dart::dynamics::BoxShape> makeBox(const Eigen::Ref<const Eigen::Vector3d> &v);
 
         /** \brief Create a box.
          *  \param[in] x X dimension of box.
@@ -243,26 +246,38 @@ namespace robowflex
          *  \param[in] z Z dimension of box.
          *  \return The box shape.
          */
-        dart::dynamics::ShapePtr makeBox(double x, double y, double z);
+        std::shared_ptr<dart::dynamics::BoxShape> makeBox(double x, double y, double z);
 
         /** \brief Create a cylinder.
          *  \param[in] radius Radius of cylinder.
          *  \param[in] height Height of the cylinder.
          *  \return The cylinder shape.
          */
-        dart::dynamics::ShapePtr makeCylinder(double radius, double height);
+        std::shared_ptr<dart::dynamics::CylinderShape> makeCylinder(double radius, double height);
 
         /** \brief Create a sphere.
          *  \param[in] radius Radius of sphere.
          *  \return The sphere shape.
          */
-        dart::dynamics::ShapePtr makeSphere(double radius);
+        std::shared_ptr<dart::dynamics::SphereShape> makeSphere(double radius);
 
         /** \brief Create a mesh from a robowflex::Geometry that contains a mesh.
          *  \param[in] geometry Geometry with a mesh to convert.
          *  \return The mesh shape.
          */
-        dart::dynamics::ShapePtr makeMesh(const GeometryPtr &geometry);
+        std::shared_ptr<dart::dynamics::MeshShape> makeMesh(const GeometryPtr &geometry);
+
+        /** \brief Create a circle's arcsector from one angle to another, with a specified radius.
+         *  \param[in] low Lower bound, in radians.
+         *  \param[in] high Upper bound, in radians.
+         *  \param[in] inner_radius Inner segment radius.
+         *  \param[in] outer_radius Outer segment radius.
+         *  \param[in] resolution Number of segments.
+         *  \return The mesh shape.
+         */
+        std::shared_ptr<dart::dynamics::MeshShape> makeArcsegment(double low, double high,
+                                                                  double inner_radius, double outer_radius,
+                                                                  std::size_t resolution = 32);
 
         /** \brief Sets the color of the shapes on a body node.
          *  \param[in] node Node to set color of.
