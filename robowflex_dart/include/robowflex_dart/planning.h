@@ -345,12 +345,6 @@ namespace robowflex
             ompl::geometric::PathGeometric getSolutionPath(bool simplify = true,
                                                            bool interpolate = true) const;
 
-            // Get the solution path if problem solved.
-            ompl::geometric::PathGeometric getSolutionPath();
-
-            // Animate one solution path
-            void animateSolutionPath(ompl::geometric::PathGeometric solution) const;
-
             /** \} */
 
             StateSpacePtr rspace{nullptr};             ///< Underlying Robot State Space.
