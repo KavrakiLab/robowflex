@@ -292,8 +292,10 @@ void LinePlotElement::render() const
     ImGui::PushStyleColor(ImGuiCol_PlotLines,
                           (ImVec4)ImColor((float)color[0], (float)color[1], (float)color[2]));
 
-    char overlay[32];
-    sprintf(overlay, "%.3f %s", latest, units.c_str());
+    char overlay[64] = "N/A";
+    if (total_elements)
+        sprintf(overlay, "%.3f %s", latest, units.c_str());
+
     ImGui::PlotLines(label.c_str(), elements.data(), total_elements, index, overlay);
 
     ImGui::PopStyleColor(1);
