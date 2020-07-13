@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
 
 find_package(catkin QUIET COMPONENTS
   moveit_planners_ompl

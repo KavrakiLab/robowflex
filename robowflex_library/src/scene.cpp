@@ -339,6 +339,7 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
+    // throw std::runtime_error("Not Implemented");
     if (not hasObject(object))
     {
         ROS_ERROR("World does not have object `%s`", object.c_str());
@@ -378,6 +379,8 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
+    // throw std::runtime_error("Not Implemented");
+
     // Early terminate if they are the same
     if (one == two)
         return 0.;
