@@ -114,11 +114,13 @@ int main(int argc, char **argv)
         auto ew3 = std::make_shared<darts::TSREditWidget>("RLeg", rleg_spec);
         window.addWidget(ew3);
 
-        std::vector<darts::TSRPtr> tsrs{ew1->getTSR(), ew2->getTSR(), ew3->getTSR()};
-        for (auto tsr : tsrs)
-            tsr->useGroup("legsandtorso");
+        auto tsrs = std::make_shared<darts::TSRSet>(world, ew1->getTSR());
+        tsrs->addTSR(ew2->getTSR(), false, 0.5);
+        tsrs->addTSR(ew3->getTSR(), false, 0.5);
+        tsrs->useGroup("legsandtorso");
+        tsrs->setStep(0.1);
 
-        auto sw = std::make_shared<darts::TSRSolveWidget>(world, tsrs);
+        auto sw = std::make_shared<darts::TSRSolveWidget>(tsrs);
         window.addWidget(sw);
 
         window.run();

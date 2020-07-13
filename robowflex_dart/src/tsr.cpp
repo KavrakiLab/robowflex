@@ -948,7 +948,7 @@ void TSRSet::addTSR(const TSRPtr &tsr, bool intersect, double weight)
         ntsr->setWorldIndices(tsr->getWorldIndices());
 
         // weight relative frames less
-        if (weight - 1. < 1e-4)
+        if (weight - 1. < 1e-8)
             if (spec.isRelative())
                 weight = 0.1;
     }
