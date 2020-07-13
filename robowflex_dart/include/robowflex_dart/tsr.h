@@ -978,11 +978,11 @@ namespace robowflex
             WorldPtr world_;                      ///< World to use.
             std::set<std::size_t> skel_indices_;  ///< All skeleton indices used by members of the set.
 
-            bool qr_{false};          ///< If true, use QR in gradient solve. Else, SVD.
-            bool damped_{true};       ///< If true, use damped SVD.
-            double step_{1.0};        ///< Step scaling in gradient.
-            double limit_{0.1};       ///< Step size limit.
-            double damping_{0.0001};  ///< Damping factor.
+            bool qr_{false};        ///< If true, use QR in gradient solve. Else, SVD.
+            bool damped_{true};     ///< If true, use damped SVD.
+            double step_{1.0};      ///< Step scaling in gradient.
+            double limit_{1.};      ///< Step size limit.
+            double damping_{1e-8};  ///< Damping factor.
             double tolerance_{magic::DEFAULT_IK_TOLERANCE};  ///< Tolerance for solving.
             std::size_t maxIter_{50};                        ///< Maximum iterations to use for solving.
 
