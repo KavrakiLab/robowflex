@@ -70,7 +70,9 @@ namespace robowflex
          */
         const std::string &getName() const;
 
-        /** \brief this function is called before benchmarking.
+        /** \brief This function is called before benchmarking.
+         *  \param[in] scene Scene to plan for.
+         *  \param[in] request Planning request.
          */
         virtual void preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
 
