@@ -301,7 +301,6 @@ void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::st
     dart::dynamics::FreeJoint::Properties joint;
     auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
     jt->setRelativeTransform(tf);
->>>>>>> master
 }
 
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
