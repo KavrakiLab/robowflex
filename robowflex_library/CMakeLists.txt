@@ -58,6 +58,7 @@ list(APPEND SOURCES
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/openrave.cpp
   src/io/visualization.cpp
   src/io/broadcaster.cpp
   src/io/hdf5.cpp
@@ -105,6 +106,8 @@ add_script(ur5_io)
 add_script(ur5_pool)
 add_script(ur5_visualization)
 add_script(fetch_test)
+add_script(fetch_scenes_visualize)
+add_script(fetch_scenes_benchmark)
 add_script(fetch_benchmark)
 add_script(fetch_visualization)
 add_script(r2_test)

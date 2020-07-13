@@ -5,6 +5,9 @@
 
 #include <type_traits>
 
+#include <Eigen/Geometry>
+#include <Eigen/StdVector>
+
 #include <moveit/transforms/transforms.h>
 
 namespace robowflex
@@ -19,6 +22,20 @@ namespace robowflex
             std::declval<moveit::core::Transforms>().getTransform("")  //
             )                                                          //
         >::type;
+
+    /** \brief A vector of poses.
+     */
+    using RobotPoseVector = std::vector<RobotPose, Eigen::aligned_allocator<RobotPose>>;
+
+    /** \brief Convert the Robowflex pose type to another transform type.
+     */
+    template <typename M>
+    M toMatrix(const RobotPose &pose)
+    {
+        M newpose;
+        newpose.matrix() = pose.matrix();
+        return newpose;
+    }
 }  // namespace robowflex
 
 #endif

@@ -22,6 +22,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 using namespace robowflex;
 
@@ -93,6 +94,11 @@ int main(int argc, char **argv)
     builder.addConstraint(constraint_tsr);
 
     //
+    // Initialize and setup
+    //
+    builder.initialize();
+
+    //
     // Setup Goal
     //
     darts::TSR::Specification goal_spec;
@@ -101,12 +107,8 @@ int main(int argc, char **argv)
                       0.5, -0.5, 0.5, 0.5);
 
     auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-    builder.setGoalTSR(goal_tsr);
-
-    //
-    // Initialize and setup
-    //
-    builder.initialize();
+    auto goal = builder.getGoalTSR(goal_tsr);
+    builder.setGoal(goal);
 
     //
     // Setup Planner
@@ -132,18 +134,19 @@ int main(int argc, char **argv)
         builder.ss->getOptimizationObjective()->setCostThreshold(
             ompl::base::Cost(std::numeric_limits<double>::infinity()));
 
-    std::thread t([&] {
+    darts::Window window(world);
+    window.run([&] {
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         while (true)
         {
-            builder.goal_tsr->startSampling();
+            goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-            builder.goal_tsr->stopSampling();
+            goal->stopSampling();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
                 std::cout << "Found solution!" << std::endl;
-                builder.animateSolutionInWorld(1);
+                window.animatePath(builder, builder.getSolutionPath());
             }
             else
                 std::cout << "No solution found" << std::endl;
@@ -152,6 +155,5 @@ int main(int argc, char **argv)
         }
     });
 
-    world->openOSGViewer();
     return 0;
 }

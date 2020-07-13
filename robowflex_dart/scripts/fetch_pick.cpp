@@ -17,6 +17,7 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 using namespace robowflex;
 
@@ -52,6 +53,8 @@ int main(int argc, char **argv)
     world->addStructure(scene_dart);
     world->addStructure(ground);
 
+    darts::Window window(world);
+
     const auto &planToPick = [&]() {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
@@ -65,7 +68,9 @@ int main(int argc, char **argv)
         start_tsr.useGroup(GROUP);
         start_tsr.initialize();
         start_tsr.solveWorld();
+
         builder.setStartConfigurationFromWorld();
+        builder.initialize();
 
         darts::TSR::Specification goal_spec;
         goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
@@ -73,9 +78,8 @@ int main(int argc, char **argv)
                           0.5, -0.5, 0.5, 0.5);
 
         auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-        builder.setGoalTSR(goal_tsr);
-
-        builder.initialize();
+        auto goal = builder.getGoalTSR(goal_tsr);
+        builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
         rrt->setRange(2);
@@ -83,26 +87,25 @@ int main(int argc, char **argv)
 
         builder.setup();
 
-        builder.goal_tsr->startSampling();
+        goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-        builder.goal_tsr->stopSampling();
+        goal->stopSampling();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
             std::cout << "Found solution!" << std::endl;
-            builder.animateSolutionInWorld(1);
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
     };
 
-
     const auto &planToPlace = [&]() {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
-
         builder.setStartConfigurationFromWorld();
+        builder.initialize();
 
         darts::TSR::Specification goal_spec;
         goal_spec.setFrame(fetch_name, "wrist_roll_link", "base_link");
@@ -110,9 +113,8 @@ int main(int argc, char **argv)
                           0.5, -0.5, 0.5, 0.5);
 
         auto goal_tsr = std::make_shared<darts::TSR>(world, goal_spec);
-        builder.setGoalTSR(goal_tsr);
-
-        builder.initialize();
+        auto goal = builder.getGoalTSR(goal_tsr);
+        builder.setGoal(goal);
 
         auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
         rrt->setRange(2);
@@ -120,21 +122,21 @@ int main(int argc, char **argv)
 
         builder.setup();
 
-        builder.goal_tsr->startSampling();
+        goal->startSampling();
         ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-        builder.goal_tsr->stopSampling();
+        goal->stopSampling();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
             std::cout << "Found solution!" << std::endl;
-            builder.animateSolutionInWorld(1);
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
     };
 
-    std::thread t([&] {
+    window.run([&] {
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         planToPick();
 
@@ -143,7 +145,5 @@ int main(int argc, char **argv)
 
         planToPlace();
     });
-
-    world->openOSGViewer();
     return 0;
 }

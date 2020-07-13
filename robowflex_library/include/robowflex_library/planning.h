@@ -70,6 +70,10 @@ namespace robowflex
          */
         const std::string &getName() const;
 
+        /** \brief this function is called before benchmarking.
+         */
+        virtual void preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
+
     protected:
         RobotPtr robot_;          ///< The robot to plan for.
         IO::Handler handler_;     ///< The parameter handler for the planner.
@@ -180,6 +184,23 @@ namespace robowflex
         planning_interface::MotionPlanResponse
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
+        /** \brief Retrieve planning context and dynamically cast to desired type from planning pipeline.
+         *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+         *  \param[in] request The motion planning request to solve.
+         *  \tparam T Type of underlying planning context.
+         *  \return The casted context for the motion planning request. On failure, nullptr.
+         */
+        template <typename T>
+        std::shared_ptr<T> extractPlanningContext(const SceneConstPtr &scene,
+                                                  const planning_interface::MotionPlanRequest &req) const
+        {
+            if (not pipeline_)
+                return nullptr;
+
+            auto pc = pipeline_->getPlannerManager()->getPlanningContext(scene->getSceneConst(), req);
+            return std::dynamic_pointer_cast<T>(pc);
+        }
+
     protected:
         planning_pipeline::PlanningPipelinePtr pipeline_;  ///< Loaded planning pipeline plugin.
     };
@@ -266,6 +287,89 @@ namespace robowflex
                                                 ///< initialize()
         };
     }  // namespace OMPL
+
+    namespace Opt
+    {
+        /** \brief Loads configuration YAML file onto the parameter server.
+         */
+        bool loadConfig(IO::Handler &handler, const std::string &config_file);
+
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(CHOMPPipelinePlanner);
+        /** \endcond */
+
+        /** \class robowflex::CHOMP::CHOMPPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::CHOMP::CHOMPPipelinePlanner. */
+
+        /** \class robowflex::CHOMP::CHOMPPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::CHOMP::CHOMPPipelinePlanner. */
+
+        /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! CHOMP planning pipeline.
+         */
+        class CHOMPPipelinePlanner : public PipelinePlanner
+        {
+        public:
+            CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name = "");
+
+            // non-copyable
+            CHOMPPipelinePlanner(CHOMPPipelinePlanner const &) = delete;
+            void operator=(CHOMPPipelinePlanner const &) = delete;
+
+            /** \brief Initialize planning pipeline.
+             *  Loads CHOMP planning plugin \a plugin with the planning adapters \a adapters. Parameters are
+             *  set on the parameter server from \a settings and planning configurations are loaded from the
+             *  YAML file \a config_file.
+             *  \param[in] config_file A YAML file containing CHOMP configuration.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool initialize(const std::string &config_file = "", const std::string &plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+        protected:
+            static const std::string DEFAULT_PLUGIN;                 ///< The default CHOMP plugin.
+            static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
+        };
+
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(TrajOptPipelinePlanner);
+        /** \endcond */
+
+        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+
+        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+
+        /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! TrajOpt planning pipeline.
+         */
+        class TrajOptPipelinePlanner : public PipelinePlanner
+        {
+        public:
+            TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name = "");
+
+            // non-copyable
+            TrajOptPipelinePlanner(TrajOptPipelinePlanner const &) = delete;
+            void operator=(TrajOptPipelinePlanner const &) = delete;
+
+            /** \brief Initialize planning pipeline.
+             *  Loads TrajOpt planning plugin \a plugin with the planning adapters \a adapters. Parameters are
+             *  set on the parameter server from \a settings and planning configurations are loaded from the
+             *  YAML file \a config_file.
+             *  \param[in] config_file A YAML file containing TrajOpt configuration.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool initialize(const std::string &config_file = "", const std::string &plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+        protected:
+            static const std::string DEFAULT_PLUGIN;                 ///< The default TrajOpt plugin.
+            static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
+        };
+    }  // namespace Opt
 }  // namespace robowflex
 
 #endif

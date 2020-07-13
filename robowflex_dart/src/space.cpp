@@ -175,6 +175,8 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
         const auto &v = joint->getSpaceVarsConst(x);
         joint->setJointState(world, v);
     }
+
+    world->forceUpdate();
 }
 
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
@@ -332,4 +334,9 @@ Eigen::VectorXd StateSpace::getUpperBound() const
 {
     const auto &bounds = getBounds();
     return Eigen::Map<const Eigen::VectorXd>(bounds.high.data(), bounds.high.size());
+}
+
+void StateSpace::setMetricSpace(bool metric)
+{
+    metric_ = metric;
 }

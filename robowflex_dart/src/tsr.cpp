@@ -7,6 +7,7 @@
 
 #include <robowflex_library/tf.h>
 
+#include <robowflex_dart/constants.h>
 #include <robowflex_dart/structure.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
@@ -78,6 +79,15 @@ void TSR::Specification::setRotation(double w, double x, double y, double z)
     setRotation(Eigen::Quaterniond(w, x, y, z));
 }
 
+void TSR::Specification::setRotation(double x, double y, double z)
+{
+    auto n = Eigen::AngleAxisd(x, Eigen::Vector3d::UnitX()) *  //
+             Eigen::AngleAxisd(y, Eigen::Vector3d::UnitY()) *  //
+             Eigen::AngleAxisd(z, Eigen::Vector3d::UnitZ());
+
+    setRotation(n);
+}
+
 void TSR::Specification::setPose(const RobotPose &other)
 {
     pose = other;
@@ -105,7 +115,7 @@ void TSR::Specification::setPoseFromWorld(const WorldPtr &world)
     if (base.frame != magic::ROOT_FRAME)
     {
         const auto &bskl = sim->getSkeleton(base.structure);
-        const auto &bbn = tskl->getBodyNode(base.frame);
+        const auto &bbn = bskl->getBodyNode(base.frame);
 
         pose = tbn->getTransform(bbn);
     }
@@ -132,6 +142,7 @@ void TSR::Specification::setXPosTolerance(double lower, double upper)
 {
     position.lower[0] = lower;
     position.upper[0] = upper;
+    fixBounds();
 
     indices[3] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -141,6 +152,7 @@ void TSR::Specification::setYPosTolerance(double lower, double upper)
 {
     position.lower[1] = lower;
     position.upper[1] = upper;
+    fixBounds();
 
     indices[4] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -150,6 +162,7 @@ void TSR::Specification::setZPosTolerance(double lower, double upper)
 {
     position.lower[2] = lower;
     position.upper[2] = upper;
+    fixBounds();
 
     indices[5] = isPosConstrained(lower, upper);
     dimension = getDimension();
@@ -174,6 +187,7 @@ void TSR::Specification::setXRotTolerance(double lower, double upper)
 {
     orientation.lower[0] = lower;
     orientation.upper[0] = upper;
+    fixBounds();
 
     indices[0] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -183,6 +197,7 @@ void TSR::Specification::setYRotTolerance(double lower, double upper)
 {
     orientation.lower[1] = lower;
     orientation.upper[1] = upper;
+    fixBounds();
 
     indices[1] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -192,6 +207,7 @@ void TSR::Specification::setZRotTolerance(double lower, double upper)
 {
     orientation.lower[2] = lower;
     orientation.upper[2] = upper;
+    fixBounds();
 
     indices[2] = isRotConstrained(lower, upper);
     dimension = getDimension();
@@ -221,17 +237,17 @@ void TSR::Specification::setNoPosTolerance()
 
 void TSR::Specification::setNoXRotTolerance()
 {
-    setXRotTolerance(dart::math::constants<double>::pi());
+    setXRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoYRotTolerance()
 {
-    setYRotTolerance(dart::math::constants<double>::pi());
+    setYRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoZRotTolerance()
 {
-    setZRotTolerance(dart::math::constants<double>::pi());
+    setZRotTolerance(constants::pi);
 }
 
 void TSR::Specification::setNoRotTolerance()
@@ -239,6 +255,33 @@ void TSR::Specification::setNoRotTolerance()
     setNoXRotTolerance();
     setNoYRotTolerance();
     setNoZRotTolerance();
+}
+
+void TSR::Specification::fixBounds()
+{
+    {
+        Eigen::Vector3d u, l;
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            u[i] = std::max(position.lower[i], position.upper[i]);
+            l[i] = std::min(position.lower[i], position.upper[i]);
+        }
+
+        position.lower = l;
+        position.upper = u;
+    }
+
+    {
+        Eigen::Vector3d u, l;
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            u[i] = std::max({orientation.lower[i], orientation.upper[i], -constants::pi});
+            l[i] = std::min({orientation.lower[i], orientation.upper[i], constants::pi});
+        }
+
+        orientation.lower = l;
+        orientation.upper = u;
+    }
 }
 
 std::size_t TSR::Specification::getDimension() const
@@ -260,8 +303,7 @@ bool TSR::Specification::isPosConstrained(double lower, double upper) const
 
 bool TSR::Specification::isRotConstrained(double lower, double upper) const
 {
-    const double tpi = dart::math::constants<double>::two_pi();
-    return std::abs(upper - lower) < tpi;
+    return std::abs(upper - lower) < constants::two_pi;
 }
 
 Eigen::Vector3d TSR::Specification::getPosition() const
@@ -272,6 +314,11 @@ Eigen::Vector3d TSR::Specification::getPosition() const
 Eigen::Quaterniond TSR::Specification::getRotation() const
 {
     return Eigen::Quaterniond(pose.linear());
+}
+
+Eigen::Vector3d TSR::Specification::getEulerRotation() const
+{
+    return getRotation().toRotationMatrix().eulerAngles(0, 1, 2);
 }
 
 bool TSR::Specification::intersect(const Specification &other)
@@ -453,7 +500,10 @@ void TSR::useIndices(const std::vector<std::size_t> &indices)
 {
     indices_ = indices;
     if (ik_)
+    {
         ik_->setDofs(indices_);
+        indices_ = ik_->getDofs();
+    }
 
     computeBijection();
 }
@@ -489,6 +539,15 @@ const std::vector<std::size_t> &TSR::getIndices() const
     return indices_;
 }
 
+std::vector<std::pair<std::size_t, std::size_t>> TSR::computeWorldIndices() const
+{
+    std::vector<std::pair<std::size_t, std::size_t>> wi;
+    for (const auto &index : indices_)
+        wi.emplace_back(skel_index_, index);
+
+    return wi;
+}
+
 const std::vector<std::pair<std::size_t, std::size_t>> &TSR::getWorldIndices() const
 {
     return world_indices_;
@@ -507,6 +566,13 @@ std::size_t TSR::getNumDofs() const
 std::size_t TSR::getNumWorldDofs() const
 {
     return world_indices_.size();
+}
+
+void TSR::getErrorWorldRaw(Eigen::Ref<Eigen::VectorXd> error) const
+{
+    world_->lock();
+    error = tsr_->computeError();
+    world_->unlock();
 }
 
 void TSR::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
@@ -611,6 +677,12 @@ double TSR::distance(const Eigen::Ref<const Eigen::VectorXd> &state) const
 
 bool TSR::solveWorld()
 {
+    if (not ik_)
+    {
+        std::cerr << "TSR: Solve called before initialize!" << std::endl;
+        return false;
+    }
+
     world_->lock();
     bool r = ik_->solveAndApply();
     world_->unlock();
@@ -745,6 +817,15 @@ void TSR::updateBounds()
     }
 }
 
+void TSR::updateSolver()
+{
+    if (ik_)
+    {
+        ik_->getSolver()->setTolerance(spec_.tolerance);
+        ik_->getSolver()->setNumMaxIterations(spec_.maxIter);
+    }
+}
+
 void TSR::initialize()
 {
     const auto &sim = world_->getSim();
@@ -774,6 +855,7 @@ void TSR::initialize()
 
     updatePose();
     updateBounds();
+    updateSolver();
 
     if (indices_.empty())
         indices_ = ik_->getDofs();
@@ -838,34 +920,38 @@ TSRSet::TSRSet(const WorldPtr &world, const TSRPtr &tsr) : world_(world)
     addTSR(tsr);
 }
 
-TSRSet::TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs) : world_(world)
+TSRSet::TSRSet(const WorldPtr &world, const std::vector<TSRPtr> &tsrs, bool intersect) : world_(world)
 {
     for (const auto &tsr : tsrs)
-        addTSR(tsr);
+        addTSR(tsr, intersect);
 }
 
-void TSRSet::addTSR(const TSRPtr &tsr, double weight)
+void TSRSet::addTSR(const TSRPtr &tsr, bool intersect, double weight)
 {
+    TSRPtr ntsr = tsr;
     TSR::Specification spec = tsr->getSpecification();
-    for (auto &etsr : tsrs_)
-        // Don't need this entire TSR if we can intersect
-        if (etsr->getSpecification().intersect(spec))
-        {
-            dimension_ = 0;
-            for (auto &tsr : tsrs_)
-                dimension_ += tsr->getDimension();
-            return;
-        }
+    if (intersect)
+    {
+        for (auto &etsr : tsrs_)
+            // Don't need this entire TSR if we can intersect
+            if (etsr->getSpecification().intersect(spec))
+            {
+                dimension_ = 0;
+                for (auto &tsr : tsrs_)
+                    dimension_ += tsr->getDimension();
+                return;
+            }
 
-    // copy for intersections later
-    auto ntsr = std::make_shared<TSR>(world_, spec);
-    ntsr->useIndices(tsr->getIndices());
-    ntsr->setWorldIndices(tsr->getWorldIndices());
+        // copy for intersections later
+        ntsr = std::make_shared<TSR>(world_, spec);
+        ntsr->useIndices(tsr->getIndices());
+        ntsr->setWorldIndices(tsr->getWorldIndices());
 
-    // weight relative frames less
-    if (weight - 1. < 1e-4)
-        if (spec.isRelative())
-            weight = 0.1;
+        // weight relative frames less
+        if (weight - 1. < 1e-8)
+            if (spec.isRelative())
+                weight = 0.1;
+    }
 
     tsrs_.emplace_back(ntsr);
     weights_.emplace_back(weight);
@@ -877,6 +963,11 @@ void TSRSet::addTSR(const TSRPtr &tsr, double weight)
 std::size_t TSRSet::numTSRs() const
 {
     return tsrs_.size();
+}
+
+const std::vector<TSRPtr> &TSRSet::getTSRs() const
+{
+    return tsrs_;
 }
 
 void TSRSet::setWorld(const WorldPtr &world)
@@ -948,7 +1039,7 @@ void TSRSet::getErrorWorldState(const Eigen::Ref<const Eigen::VectorXd> &world,
     std::size_t i = 0;
     for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
-        auto &tsr = tsrs_[j];
+        const auto &tsr = tsrs_[j];
         tsr->getErrorWorldState(world, error.segment(i, tsr->getDimension()));
         error.segment(i, tsr->getDimension()) *= weights_[j];
 
@@ -1039,15 +1130,42 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     Eigen::MatrixXd j(getDimension(), world.size());
 
     const double squaredTolerance = tolerance_ * tolerance_;
+    const Eigen::VectorXd limit = Eigen::VectorXd::Constant(world.size(), limit_);
 
     world_->lock();
     getErrorWorldState(world, f);
-    while ((norm = f.norm()) > squaredTolerance && iter++ < maxIter_)
-    // while ((norm = f.lpNorm<1>()) > tolerance_ && iter++ < maxIter_)
+
+    while ((norm = f.norm()) > squaredTolerance and iter++ < maxIter_)
     {
         getJacobianWorldState(world, j);
-        // world -= 0.75 * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
-        world -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
+        if (qr_)
+            world -= (step_ * j.colPivHouseholderQr().solve(f)).cwiseMin(limit).cwiseMax(-limit);
+        else
+        {
+            if (damped_)
+            {
+                auto svd = j.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
+                auto lr = svd.rank();
+                const auto &U = svd.matrixU().leftCols(lr);
+                const auto &V = svd.matrixV().leftCols(lr);
+                const auto &S = svd.singularValues().head(lr);
+                const auto &d = Eigen::VectorXd::Constant(lr, damping_);
+
+                const auto &damped = S.cwiseQuotient(S.cwiseProduct(S) + d.cwiseProduct(d));
+
+                Eigen::MatrixXd tmp;
+                tmp.noalias() = U.adjoint() * f;
+                tmp = damped.asDiagonal().inverse() * tmp;
+                auto step = V * tmp;
+
+                world -= (step_ * step).cwiseMin(limit).cwiseMax(-limit);
+            }
+            else
+                world -= (step_ * j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f))
+                             .cwiseMin(limit)
+                             .cwiseMax(-limit);
+        }
+
         enforceBoundsWorld(world);
 
         getErrorWorldState(world, f);
@@ -1056,8 +1174,26 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     world_->forceUpdate();
     world_->unlock();
 
-    // return norm < tolerance_;
     return norm < squaredTolerance;
+}
+
+void TSRSet::updateSolver()
+{
+    auto sim = world_->getSim();
+    for (const auto &skidx : skel_indices_)
+    {
+        auto skel = sim->getSkeleton(skidx);
+        auto ik = skel->getIK(true);
+
+        auto sv = ik->getSolver();
+        sv->setNumMaxIterations(maxIter_);
+        sv->setTolerance(tolerance_);
+    }
+}
+
+std::size_t TSRSet::getMaxIterations() const
+{
+    return maxIter_;
 }
 
 double TSRSet::getTolerance() const
@@ -1074,12 +1210,59 @@ void TSRSet::initialize()
         skel_indices_.emplace(tsr->getSkeletonIndex());
     }
 
+    updateSolver();
+
     std::cout << "TSRSet: Initialized " << tsrs_.size() << " TSRs!" << std::endl;
+}
+
+const std::vector<std::pair<std::size_t, std::size_t>> &TSRSet::getWorldIndices() const
+{
+    return tsrs_[0]->getWorldIndices();
+}
+
+void TSRSet::getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const
+{
+    const auto &wi = getWorldIndices();
+    for (std::size_t i = 0; i < wi.size(); ++i)
+    {
+        const auto &wii = wi[i];
+        world[i] = world_->getSim()->getSkeleton(wii.first)->getDof(wii.second)->getPosition();
+    }
+}
+
+void TSRSet::computeLimits()
+{
+    const auto &wi = getWorldIndices();
+    std::size_t n = wi.size();
+
+    upper_ = Eigen::VectorXd::Zero(n);
+    lower_ = Eigen::VectorXd::Zero(n);
+    for (std::size_t i = 0; i < n; ++i)
+    {
+        const auto &wii = wi[i];
+        const auto &dof = world_->getSim()->getSkeleton(wii.first)->getDof(wii.second);
+        // if (dof->isCyclic())
+        // {
+        //     lower_[i] = -constants::pi;
+        //     upper_[i] = constants::pi;
+        // }
+        // else
+        // {
+        auto limits = dof->getPositionLimits();
+        lower_[i] = limits.first;
+        upper_[i] = limits.second;
+        // }
+    }
 }
 
 void TSRSet::setMaxIterations(std::size_t iterations)
 {
     maxIter_ = iterations;
+}
+
+void TSRSet::setTolerance(double tolerance)
+{
+    tolerance_ = tolerance;
 }
 
 void TSRSet::setWorldUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &upper)
@@ -1106,6 +1289,51 @@ void TSRSet::print(std::ostream &out) const
     for (const auto &tsr : tsrs_)
         tsr->getSpecification().print(out);
     out << "---------------------------" << std::endl;
+}
+
+void TSRSet::setStep(double step)
+{
+    step_ = step;
+}
+
+double TSRSet::getStep() const
+{
+    return step_;
+}
+
+void TSRSet::useSVD()
+{
+    qr_ = false;
+}
+
+void TSRSet::useQR()
+{
+    qr_ = true;
+}
+
+void TSRSet::setLimit(double limit)
+{
+    limit_ = limit;
+}
+
+double TSRSet::getLimit() const
+{
+    return limit_;
+}
+
+void TSRSet::setDamping(double damping)
+{
+    damping_ = damping;
+}
+
+double TSRSet::getDamping() const
+{
+    return damping_;
+}
+
+void TSRSet::useDamping(bool damping)
+{
+    damped_ = damping;
 }
 
 ///
@@ -1150,10 +1378,16 @@ void TSRConstraint::jacobian(const Eigen::Ref<const Eigen::VectorXd> &x,
 
 bool TSRConstraint::project(Eigen::Ref<Eigen::VectorXd> x) const
 {
-    if (tsr_->numTSRs() == 1)
-        return tsr_->solveWorldState(x);
-    else
-        return tsr_->solveGradientWorldState(x);
+    space_->setWorldState(space_->getWorld(), x);
+
+    bool r = false;
+    if (tsr_->numTSRs() == 1 or not options.use_gradient)
+        r = tsr_->solveWorldState(x);
+
+    else if (options.use_gradient)
+        r = tsr_->solveGradientWorldState(x);
+
+    return r;
 }
 
 TSRSetPtr TSRConstraint::getSet()

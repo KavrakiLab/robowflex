@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_dart/constants.h>
 #include <robowflex_dart/joints.h>
 #include <robowflex_dart/space.h>
 
@@ -67,12 +68,12 @@ void SO2Joint::enforceBounds(Eigen::Ref<Eigen::VectorXd> a) const
 bool SO2Joint::satisfiesBounds(const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
     const double &v = a[0];
-    return (v >= -dart::math::constants<double>::pi()) and (v <= dart::math::constants<double>::pi());
+    return (v >= -constants::pi) and (v <= constants::pi);
 }
 
 void SO2Joint::sample(Eigen::Ref<Eigen::VectorXd> a) const
 {
-    a[0] = rng_.uniformReal(-dart::math::constants<double>::pi(), dart::math::constants<double>::pi());
+    a[0] = rng_.uniformReal(-constants::pi, constants::pi);
 }
 
 void SO2Joint::sampleNear(Eigen::Ref<Eigen::VectorXd> a,                  //

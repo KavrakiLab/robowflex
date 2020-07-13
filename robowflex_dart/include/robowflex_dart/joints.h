@@ -12,15 +12,12 @@
 
 #include <robowflex_library/class_forward.h>
 
+#include <robowflex_dart/constants.h>
+
 namespace robowflex
 {
     namespace darts
     {
-        namespace constants
-        {
-            const double pi = dart::math::constants<double>::pi();
-        }
-
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(World);
         ROBOWFLEX_CLASS_FORWARD(StateSpace);

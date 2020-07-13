@@ -190,6 +190,8 @@ namespace robowflex
 
             /** \} */
 
+            void setMetricSpace(bool metric);
+
         protected:
             WorldPtr world_;  ///< World to use for planning.
 

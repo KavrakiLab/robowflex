@@ -332,6 +332,12 @@ namespace robowflex
         /** \name IO
             \{ */
 
+        /** \brief Dumps the current configuration of the robot as a YAML file.
+         *  \param[in] file File to write to.
+         *  \return True on success, false on failure.
+         */
+        bool toYAMLFile(const std::string &file) const;
+
         /** \brief Dumps the names of links and absolute paths to their visual mesh files to a YAML file.
          *  \param[in] file File to save to.The name of the link to find the transform of.
          *  \return True on success, false on failure.
@@ -353,6 +359,13 @@ namespace robowflex
          */
         bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                 double fps = 30, double threshold = 0.0) const;
+
+        /** \brief Dumps the configurations of the path in a file.
+         *  \param[in] path Path to output.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
 
         /** \} */
 
