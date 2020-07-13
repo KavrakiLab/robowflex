@@ -30,7 +30,7 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
+include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} yaml-cpp)
 link_directories(${catkin_LIBRARY_DIRS})
 
 add_library(${LIBRARY_NAME}

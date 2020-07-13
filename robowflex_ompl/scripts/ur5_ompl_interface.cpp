@@ -5,9 +5,10 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/detail/ur5.h>
 
-#include <robowflex_ompl/ompl.h>
+#include <robowflex_ompl/ompl_interface.h>
 
 using namespace robowflex;
 
@@ -31,7 +32,7 @@ int main(int argc, char **argv)
     MotionRequestBuilder request(planner, "manipulator");
     request.setStartConfiguration({0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
 
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    RobotPose pose = RobotPose::Identity();
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
     Eigen::Quaterniond orn{0, 0, 1, 0};
 

@@ -60,6 +60,7 @@ list(APPEND SOURCES
   src/io.cpp
   src/openrave.cpp
   src/io/visualization.cpp
+  src/io/broadcaster.cpp
   src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
@@ -88,7 +89,7 @@ list(APPEND LIBRARIES
   yaml-cpp
   )
 
-include_directories(${INCLUDES})
+include_directories(SYSTEM ${INCLUDES})
 link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
@@ -99,16 +100,20 @@ target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 ##
 
 add_script(ur5_test)
+add_script(ur5_cylinder)
 add_script(ur5_benchmark)
 add_script(ur5_io)
 add_script(ur5_pool)
 add_script(ur5_visualization)
 add_script(fetch_test)
+add_script(fetch_benchmark)
+add_script(fetch_visualization)
 add_script(r2_test)
+add_script(r2_hdf5)
 add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(hdf5_io)
-add_script(r2_hdf5)
+add_script(plugin_io)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

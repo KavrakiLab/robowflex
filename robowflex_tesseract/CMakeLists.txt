@@ -13,29 +13,38 @@ include(HelperFunctions)
 
 find_package(Boost REQUIRED)
 
-find_package(catkin QUIET COMPONENTS
+list(APPEND CATKIN_DEPS
   ompl
   moveit_planners_ompl
   robowflex_library
   tesseract_planning
   tesseract_ros
-)
+  )
+
+find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
+
+# Can be installed from debian, ROS debian, or local installation
+if (ompl_DIR MATCHES "/usr*" OR ompl_DIR MATCHES "/opt*")
+  message("OMPL not found via catkin. Looking elsewhere...")
+  list(REMOVE_AT CATKIN_DEPS 0)
+  find_package(ompl REQUIRED)
+  set(OMPL_INCS ${OMPL_INCLUDE_DIRS})
+  set(OMPL_LIBS ${OMPL_LIBRARY_DIRS})
+else()
+  set(OMPL_INCS "")
+  set(OMPL_LIBS "")
+endif()
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS
-    ompl
-    moveit_planners_ompl
-    robowflex_library
-    tesseract_planning
-    tesseract_ros
+  CATKIN_DEPENDS ${CATKIN_DEPS}
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
 if (tesseract_planning_DIR)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-  link_directories(${catkin_LIBRARY_DIRS})
+  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OMPL_INCLUDE_DIRS})
+  link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
 
   add_library(${LIBRARY_NAME}
     src/tesseract_planners.cpp

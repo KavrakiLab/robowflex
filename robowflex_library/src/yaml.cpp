@@ -1089,7 +1089,10 @@ namespace YAML
         node["binary"] = boolToString(rhs.binary);
         node["id"] = rhs.id;
         node["resolution"] = rhs.resolution;
-        node["data"] = rhs.data;
+        for (const auto &d : rhs.data)
+            node["data"].push_back(static_cast<int>(d));
+        ROBOWFLEX_YAML_FLOW(node["data"]);
+
         return node;
     }
 
@@ -1112,7 +1115,10 @@ namespace YAML
             rhs.resolution = node["resolution"].as<double>();
 
         if (IO::isNode(node["data"]))
-            rhs.data = node["data"].as<std::vector<int8_t>>();
+        {
+            auto temp = node["data"].as<std::vector<int>>();
+            rhs.data = std::vector<int8_t>(temp.begin(), temp.end());
+        }
 
         return true;
     }
@@ -1789,6 +1795,13 @@ namespace robowflex
         }
 
         YAML::Node toNode(const moveit_msgs::RobotTrajectory &msg)
+        {
+            YAML::Node node;
+            node = msg;
+            return node;
+        }
+
+        YAML::Node toNode(const moveit_msgs::RobotState &msg)
         {
             YAML::Node node;
             node = msg;

@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS serialization)
 
 find_package(catkin QUIET COMPONENTS
   moveit_planners_ompl
@@ -28,7 +28,7 @@ catkin_package(
   )
 
 if (moveit_planners_ompl_DIR)
-  include_directories(${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
   link_directories(${catkin_LIBRARY_DIRS})
 
   add_library(${LIBRARY_NAME}
@@ -39,6 +39,7 @@ if (moveit_planners_ompl_DIR)
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
   add_script(ur5_ompl_interface)
+  add_script(fetch_ompl_interface)
 
   install_scripts()
   install_library()

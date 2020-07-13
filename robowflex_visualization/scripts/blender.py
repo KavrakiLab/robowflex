@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     blender_robot.animate_robot(
         'package://robowflex_visualization/yaml/ur5.yml',    # Robot geometry
-        'package://robowflex_visualization/yaml/ur5_path.yml'    # Robot path
+        ['package://robowflex_visualization/yaml/ur5_path.yml']    # Robot path
     )
 
     blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')

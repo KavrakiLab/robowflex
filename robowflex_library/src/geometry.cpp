@@ -1,6 +1,7 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <geometric_shapes/shape_operations.h>
+#include <geometric_shapes/shape_to_marker.h>
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
@@ -60,17 +61,105 @@ GeometryPtr Geometry::makeCone(double radius, double length)
     return std::make_shared<Geometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
 }
 
+GeometryPtr Geometry::makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg)
+{
+    using sm = shape_msgs::SolidPrimitive;
+
+    switch (msg.type)
+    {
+        case sm::BOX:
+            return makeBox(msg.dimensions[sm::BOX_X],  //
+                           msg.dimensions[sm::BOX_Y],  //
+                           msg.dimensions[sm::BOX_Z]);
+        case sm::SPHERE:
+            return makeSphere(msg.dimensions[sm::SPHERE_RADIUS]);
+        case sm::CYLINDER:
+            return makeCylinder(msg.dimensions[sm::CYLINDER_RADIUS],  //
+                                msg.dimensions[sm::CYLINDER_HEIGHT]);
+        case sm::CONE:
+            return makeCone(msg.dimensions[sm::CONE_RADIUS],  //
+                            msg.dimensions[sm::CONE_HEIGHT]);
+        default:
+            return nullptr;
+    }
+}
+
 GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3d &scale)
 {
     return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource)
+GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
+{
+    return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
+}
+
+Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
+                   const EigenSTL::vector_Vector3d vertices)
   : type_(type)
   , dimensions_(dimensions)
-  , resource_((resource.empty()) ? "" : "file://" + IO::resolvePath(resource))
+  , vertices_(vertices)
+  , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
+{
+}
+
+Geometry::Geometry(const shapes::Shape &shape)
+{
+    switch (shape.type)
+    {
+        case shapes::ShapeType::BOX:
+        {
+            type_ = ShapeType::BOX;
+            const auto &box = static_cast<const shapes::Box &>(shape);
+            dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::SPHERE:
+        {
+            type_ = ShapeType::SPHERE;
+            const auto &sphere = static_cast<const shapes::Sphere &>(shape);
+            dimensions_ = Eigen::Vector3d{sphere.radius, 0, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::CYLINDER:
+        {
+            type_ = ShapeType::CYLINDER;
+            const auto &cylinder = static_cast<const shapes::Cylinder &>(shape);
+            dimensions_ = Eigen::Vector3d{cylinder.radius, cylinder.length, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::CONE:
+        {
+            type_ = ShapeType::CONE;
+            const auto &cone = static_cast<const shapes::Cone &>(shape);
+            dimensions_ = Eigen::Vector3d{cone.radius, cone.length, 0};
+            shape_.reset(loadShape());
+            break;
+        }
+        case shapes::ShapeType::MESH:
+        {
+            type_ = ShapeType::MESH;
+            const auto &mesh = static_cast<const shapes::Mesh &>(shape);
+            shape_.reset(mesh.clone());
+            break;
+        }
+        default:
+            throw Exception(1, "Invalid type for geometry.");
+    }
+
+    body_.reset(loadBody());
+}
+
+Geometry::Geometry(const shape_msgs::SolidPrimitive &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
+{
+}
+
+Geometry::Geometry(const shape_msgs::Mesh &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
 {
 }
 
@@ -95,7 +184,13 @@ shapes::Shape *Geometry::loadShape() const
             break;
 
         case ShapeType::MESH:
-            return shapes::createMeshFromResource(resource_, dimensions_);
+            if (!resource_.empty() && vertices_.empty())
+                return shapes::createMeshFromResource("file://" + resource_, dimensions_);
+            else if (resource_.empty() && !vertices_.empty())
+                return shapes::createMeshFromVertices(vertices_);
+            else
+                throw Exception(1, resource_.empty() ? "No vertices/resource specified for the mesh" :
+                                                       "Both vertices/resource specified for the mesh");
             break;
 
         default:
@@ -149,7 +244,6 @@ std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) c
 
     return std::make_pair(success, point);
 }
-
 bool Geometry::isMesh() const
 {
     return type_ == ShapeType::MESH;
@@ -171,4 +265,34 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
         shapes::constructMsgFromShape(shape_.get(), msg);
 
     return boost::get<shape_msgs::Mesh>(msg);
+}
+
+const shapes::ShapePtr &Geometry::getShape() const
+{
+    return shape_;
+}
+
+const bodies::BodyPtr &Geometry::getBody() const
+{
+    return body_;
+}
+
+Geometry::ShapeType::Type Geometry::getType() const
+{
+    return type_;
+}
+
+const std::string &Geometry::getResource() const
+{
+    return resource_;
+}
+
+const EigenSTL::vector_Vector3d &Geometry::getVertices() const
+{
+    return vertices_;
+}
+
+const Eigen::Vector3d &Geometry::getDimensions() const
+{
+    return dimensions_;
 }

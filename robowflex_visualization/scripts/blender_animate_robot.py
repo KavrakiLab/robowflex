@@ -127,7 +127,16 @@ class RobotFrames(object):
         bpy.context.scene.frame_end = current_frame + self.frame_extra_count
 
 
-def animate_robot(mesh_map_file, path_file):
+def load_points(files):
+    points = [utils.read_yaml_data(path_file) for path_file in files]
+    combined = {'transforms': [], 'fps': points[0]['fps']}
+
+    for point in points:
+        combined['transforms'].extend(point['transforms'])
+
+    return combined
+
+def animate_robot(mesh_map_file, path_files):
     '''Given the data dump from robowflex::Robot::dumpGeometry and dumpPathTransforms, load the robot into blender and
     animate its path.
 
@@ -135,7 +144,7 @@ def animate_robot(mesh_map_file, path_file):
     '''
     blender_utils.delete_all()
 
-    points = utils.read_yaml_data(path_file)
+    points = load_points(path_files)
     link_map = utils.read_yaml_data(mesh_map_file)
 
     robot_frames = RobotFrames(points, link_map)

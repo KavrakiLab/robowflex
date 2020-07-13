@@ -3,8 +3,8 @@
 #ifndef ROBOWFLEX_FETCH_
 #define ROBOWFLEX_FETCH_
 
-#include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/robot.h>
 
 namespace robowflex
 {
@@ -18,8 +18,7 @@ namespace robowflex
     /** \class robowflex::FetchRobotConstPtr
         \brief A const shared pointer wrapper for robowflex::FetchRobot. */
 
-    /** \brief Convenience class that describes the default setup for Fetch (with robotiq gripper and load
-     * cell)
+    /** \brief Convenience class that describes the default setup for Fetch
      */
     class FetchRobot : public Robot
     {
@@ -49,6 +48,14 @@ namespace robowflex
          *  \param[in] point The point to look at.
          */
         void pointHead(const Eigen::Vector3d &point);
+
+        /** \brief Opens the Fetch's gripper.
+        */
+        void openGripper();
+
+        /** \brief Closes the Fetch's gripper.
+        */
+        void closeGripper();
 
     private:
         static const std::string URDF;        ///< Default URDF

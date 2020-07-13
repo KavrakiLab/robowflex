@@ -20,6 +20,7 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/io/handler.h>
 
 namespace robowflex
@@ -60,7 +61,14 @@ namespace robowflex
     class Robot
     {
     public:
+        /** \brief A function that runs after loading a YAML file and can modify its contents. Returns true on
+         * success, false on failure.
+         */
         typedef std::function<bool(YAML::Node &)> PostProcessYAMLFunction;
+
+        /** \brief A function that runs after loading a XML file and can modify its contents. Returns true on
+         * success, false on failure.
+         */
         typedef std::function<bool(tinyxml2::XMLDocument &)> PostProcessXMLFunction;
 
         static const std::string ROBOT_DESCRIPTION;  ///< Default robot description name.
@@ -180,15 +188,25 @@ namespace robowflex
          */
         urdf::ModelInterfaceConstSharedPtr getURDF() const;
 
+        /** \brief Get the raw URDF Model as a string.
+         *  \return The URDF Model as a string.
+         */
+        const std::string &getURDFString() const;
+
         /** \brief Get the raw SRDF Model.
          *  \return The SRDF model.
          */
         srdf::ModelConstSharedPtr getSRDF() const;
 
+        /** \brief Get the raw SRDF Model as a string.
+         *  \return The SRDF model as a string.
+         */
+        const std::string &getSRDFString() const;
+
         /** \brief Get a const reference to the scratch robot state.
          *  \return The scratch robot state.
          */
-        const robot_model::RobotStatePtr &getScratchState() const;
+        const robot_model::RobotStatePtr &getScratchStateConst() const;
 
         /** \brief Get a reference to the scratch robot state.
          *  \return The scratch robot state.
@@ -243,19 +261,6 @@ namespace robowflex
          */
         void setGroupState(const std::string &name, const std::vector<double> &positions);
 
-        /** \brief Sets a group of the scratch state from an IK query.
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
-         */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const Eigen::Affine3d &pose,
-                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
-
         /** \brief Gets the current joint positions of the scratch state.
          *  \return A vector of joint positions.
          */
@@ -270,19 +275,68 @@ namespace robowflex
          *  \param[in] name The name of the link to find the transform of.
          *  \return The transform of link \a name.
          */
-        const Eigen::Affine3d &getLinkTF(const std::string &name) const;
+        const RobotPose &getLinkTF(const std::string &name) const;
 
         /** \brief Get the current pose of a link \a target in the frame of \a base.
          *  \param[in] base The link to use as the base frame.
          *  \param[in] target The link to find the transform of.
          *  \return The transform of link \a target in the frame of \a base.
          */
-        const Eigen::Affine3d getRelativeLinkTF(const std::string &base, const std::string &target) const;
+        const RobotPose getRelativeLinkTF(const std::string &base, const std::string &target) const;
+
+        /** \} */
+
+        /** \name Inverse Kinematics
+            \{ */
+
+        /** \brief Set the number of attempts for IK.
+         *  \param[in] attempts Number of attempts.
+         */
+        void setIKAttempts(unsigned int attempts);
+
+        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
+         *  retains its initial value.
+         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
+         *  orientation with XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] group Group to set.
+         *  \param[in] region Region of points for position.
+         *  \param[in] pose Pose of the \a region.
+         *  \param[in] orientation Mean orientation
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+
+        /** \brief Sets a group of the scratch state from an IK query. Attempts to find a configuration that
+         * is collision-free with the scene and the robot itself. If the IK query fails the scratch state
+         *  retains its initial value.
+         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
+         *  orientation with XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] scene Scene to do collision checking with.
+         *  \param[in] group Group to set.
+         *  \param[in] region Region of points for position.
+         *  \param[in] pose Pose of the \a region.
+         *  \param[in] orientation Mean orientation
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                     const GeometryConstPtr &region, const RobotPose &pose,
+                                     const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                     bool verbose = false);
 
         /** \} */
 
         /** \name IO
             \{ */
+
+        /** \brief Dumps the current configuration of the robot as a YAML file.
+         *  \param[in] file File to write to.
+         *  \return True on success, false on failure.
+         */
+        bool toYAMLFile(const std::string &file) const;
 
         /** \brief Dumps the names of links and absolute paths to their visual mesh files to a YAML file.
          *  \param[in] file File to save to.The name of the link to find the transform of.
@@ -306,6 +360,13 @@ namespace robowflex
         bool dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                 double fps = 30, double threshold = 0.0) const;
 
+        /** \brief Dumps the configurations of the path in a file.
+         *  \param[in] path Path to output.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
+
         /** \} */
 
     protected:
@@ -327,6 +388,9 @@ namespace robowflex
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
+        std::string urdf_; ///< The URDF as a string.
+        std::string srdf_; ///< The SRDF as a string.
+
         PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
         PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.
         PostProcessYAMLFunction limits_function_;      ///< Limits YAML post-processing function.
@@ -338,6 +402,8 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+
+        unsigned int ik_attempts_{50};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */

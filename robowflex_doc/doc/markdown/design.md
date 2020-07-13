@@ -1,4 +1,4 @@
-# Robowflex Design Notes
+# Robowflex Design Notes {#design}
 
 ## Introduction (What is Robowflex?)
 
@@ -67,6 +67,18 @@ Offline visualization can be done with Blender through `robowflex_visualization`
 See the [readme](robowflex_visualization/README.html) for more details.
 
 Additionally, there are a few implementations of robowflex::Robot for some commonly used robots, such as robowflex::UR5Robot, robowflex::FetchRobot, and robowflex::R2Robot.
+
+## Compatibility
+
+Robowflex strives to maintain compatibility with all commonly used ROS distributions, from Indigo to Melodic.
+To this end, there are many adapters and internal constructs so that users can run Robowflex in any of these environments without modification.
+However, there are some things to note about how various internal APIs have changed and how this affects behavior:
+- robowflex::ROS will attempt to spin up an instance of `rosmaster` if one is not already running only on Melodic onward, due to a dependency of how this is implemented on Boost 1.64.
+- _MoveIt!_ changed from using `Eigen::Affine3d` as the representation of transformation matrices to `Eigen::Isometry3d` in Melodic in version 0.10.6. To account for this, we provide `robowflex::RobotPose` which is a type alias for the correct matrix representation.
+- YAML output does not "flow" output on Indigo for more concise files. 
+
+Note that there are other internal functions that account for API differences between ROS versions, but they are not relevant to user code.
+There are macros in [`macros.h`](macros_8h_source.html) that allow for conditional compilation on versions.
 
 ## Documentation
 

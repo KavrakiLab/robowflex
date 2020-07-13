@@ -1,4 +1,4 @@
-# Scripts
+# Scripts {#scripts}
 
 A list of provided example scripts that demonstrate some of the functionality of Robowflex.
 
@@ -19,12 +19,21 @@ Using robowflex::PoolPlanner for asynchronous motion planning.
 - [ur5_visualization.cpp](ur5__visualization_8cpp_source.html)
 Demonstration of robowflex::IO::RVIZHelper to display planning in RViz with robowflex.
 
+- [ur5_cylinder.cpp](ur5__cylinder_8cpp_source.html)
+A demonstration of robowflex::MotionRequestBuilder::addCylinderSideGrasp(), also visualized with robowflex::IO::RVIZHelper.
+
 - [ur5_io.cpp](ur5__io_8cpp_source.html)
 Basic IO testing using the UR5. Shows robowflex::IO::Bag and other IO functions.
 
 ### Fetch Tests
 - [fetch_test.cpp](fetch__test_8cpp_source.html)
 Demonstration of motion planning using the Fetch along with its unique functions.
+
+- [fetch_benchmark.cpp](fetch__benchmark_8cpp_source.html)
+Default benchmarking with the Fetch.
+
+- [fetch_visualization.cpp](fetch__visualization_8cpp_source.html)
+Demonstration of robowflex::IO::RVIZHelper to display planning in RViz with robowflex.
 
 ### Robonaut 2 Tests
 - [r2_test.cpp](r2__test_8cpp_source.html)
@@ -45,6 +54,9 @@ Basic motion planning with the WAM7 arm.
 ### Others
 - [hdf5_io.cpp](hdf5__io_8cpp_source.html)
 Demonstrating robowflex::IO::HDF5File loading of files.
+
+- [plugin_io.cpp](plugin__io_8cpp_source.html)
+Demonstrating robowflex::IO::PluginManager loading a plugin.
 
 ## robowflex_ompl
 

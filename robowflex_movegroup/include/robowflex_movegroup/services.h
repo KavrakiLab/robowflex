@@ -39,16 +39,16 @@ namespace robowflex
                 moveit_msgs::RobotTrajectory trajectory;  ///< Planned trajectory on success.
 
                 /** \brief Load a recorded action from a YAML file.
-                 *  \param[in] file Filename to load from.
+                 *  \param[in] filename Filename to load from.
                  *  \return True on success, false on failure.
                  */
-                bool fromYAMLFile(const std::string &file);
+                bool fromYAMLFile(const std::string &filename);
 
                 /** \brief Save a recorded action to a YAML file.
-                 *  \param[in] file Filename to save as.
+                 *  \param[in] filename Filename to save as.
                  *  \return True on success, false on failure.
                  */
-                bool toYAMLFile(const std::string &file);
+                bool toYAMLFile(const std::string &filename);
             };
 
             typedef std::function<void(Action &)> ResultCallback;
@@ -92,6 +92,11 @@ namespace robowflex
              */
             bool pushScene(const SceneConstPtr &scene);
 
+            /** \brief Clears the octomap in the planning scene of the movegroup.
+             *  \return True on success, false on failure.
+             */
+            bool clearOctomap();
+
         private:
             /** \brief Callback function for a move group goal.
              *  \param[in] msg Goal message.
@@ -108,6 +113,7 @@ namespace robowflex
             ros::Subscriber result_sub_;  ///< Move group result subscriber.
             ros::ServiceClient gpsc_;     ///< Get planning scene service.
             ros::ServiceClient apsc_;     ///< Apply planning scene service.
+            ros::ServiceClient co_;       ///< Clear octomap service.
 
             actionlib::SimpleActionClient<moveit_msgs::ExecuteTrajectoryAction> eac_;  ///< Execute trajectory
                                                                                        ///< client.
@@ -118,10 +124,11 @@ namespace robowflex
 
             RobotPtr robot_;  ///< Robot on the parameter server used by move group.
 
-            static const std::string MOVE_GROUP;   ///< Name of move_group namespace.
-            static const std::string GET_SCENE;    ///< Name of get scene service.
-            static const std::string APPLY_SCENE;  ///< Name of apply scene service.
-            static const std::string EXECUTE;      ///< Name of execute trajectory service.
+            static const std::string MOVE_GROUP;     ///< Name of move_group namespace.
+            static const std::string GET_SCENE;      ///< Name of get scene service.
+            static const std::string APPLY_SCENE;    ///< Name of apply scene service.
+            static const std::string CLEAR_OCTOMAP;  ///< Name of clear octomap service.
+            static const std::string EXECUTE;        ///< Name of execute trajectory service.
         };
     }  // namespace movegroup
 }  // namespace robowflex

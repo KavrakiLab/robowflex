@@ -24,6 +24,29 @@ const std::string Robot::ROBOT_SEMANTIC = "_semantic";
 const std::string Robot::ROBOT_PLANNING = "_planning";
 const std::string Robot::ROBOT_KINEMATICS = "_kinematics";
 
+namespace
+{
+    std::pair<bool, geometry_msgs::Pose> sampleInVolume(const GeometryConstPtr &geometry,
+                                                        const RobotPose &pose,
+                                                        const Eigen::Quaterniond &orientation,
+                                                        const Eigen::Vector3d &tolerances)
+    {
+        geometry_msgs::Pose msg;
+
+        auto point = geometry->sample();
+        if (point.first)
+        {
+            RobotPose sampled_pose = pose;
+            sampled_pose.translate(point.second);
+            sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
+
+            msg = TF::poseEigenToMsg(sampled_pose);
+        }
+
+        return std::make_pair(point.first, msg);
+    }
+}  // namespace
+
 Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
@@ -144,8 +167,9 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file,
 
 void Robot::loadRobotModel(bool namespaced)
 {
-    robot_model_loader::RobotModelLoader::Options options(((namespaced) ? handler_.getNamespace() : "") +
-                                                          "/" + ROBOT_DESCRIPTION);
+    std::string description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
+
+    robot_model_loader::RobotModelLoader::Options options(description);
     options.load_kinematics_solvers_ = false;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
@@ -153,6 +177,10 @@ void Robot::loadRobotModel(bool namespaced)
 
     model_ = loader_->getModel();
     scratch_.reset(new robot_state::RobotState(model_));
+    scratch_->setToDefaultValues();
+
+    handler_.getParam("/" + description, urdf_);
+    handler_.getParam("/" + description + ROBOT_SEMANTIC, srdf_);
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -198,10 +226,10 @@ bool Robot::loadKinematics(const std::string &name)
     }
 
     auto timeout = kinematics_->getIKTimeout();
-    auto attempts = kinematics_->getIKAttempts();
+    // auto attempts = kinematics_->getIKAttempts();
 
     jmg->setDefaultIKTimeout(timeout[name]);
-    jmg->setDefaultIKAttempts(attempts[name]);
+    // jmg->setDefaultIKAttempts(attempts[name]);
 
     model_->setKinematicsAllocators(imap_);
 
@@ -233,12 +261,22 @@ urdf::ModelInterfaceConstSharedPtr Robot::getURDF() const
     return model_->getURDF();
 }
 
+const std::string &Robot::getURDFString() const
+{
+    return urdf_;
+}
+
 srdf::ModelConstSharedPtr Robot::getSRDF() const
 {
     return model_->getSRDF();
 }
 
-const robot_model::RobotStatePtr &Robot::getScratchState() const
+const std::string &Robot::getSRDFString() const
+{
+    return srdf_;
+}
+
+const robot_model::RobotStatePtr &Robot::getScratchStateConst() const
 {
     return scratch_;
 }
@@ -309,41 +347,91 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
-bool Robot::setFromIK(const std::string &group,                                     //
-                      const GeometryConstPtr &region, const Eigen::Affine3d &pose,  //
+void Robot::setIKAttempts(unsigned int attempts)
+{
+    ik_attempts_ = attempts;
+}
+
+bool Robot::setFromIK(const std::string &group,                               //
+                      const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    Eigen::Affine3d sampled_pose = pose;
-    auto sample = region->sample();
-    if (!sample.first)
-        return false;
-
-    sampled_pose.translate(sample.second);
-    sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
-
-    geometry_msgs::Pose msg = TF::poseEigenToMsg(sampled_pose);
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
 
-    if (scratch_->setFromIK(jmg, msg))
+    for (unsigned int i = 0; i < ik_attempts_; ++i)
     {
-        scratch_->update();
-        return true;
+        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
+        if (!sampled.first)
+            continue;
+
+        if (scratch_->setFromIK(jmg, sampled.second, 1, 0.))
+        {
+            scratch_->update();
+            return true;
+        }
     }
 
     return false;
 }
 
-const Eigen::Affine3d &Robot::getLinkTF(const std::string &name) const
+bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                    const GeometryConstPtr &region, const RobotPose &pose,
+                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                    bool verbose)
+{
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+
+    const auto &gsvcf =                                               //
+        [&scene, &verbose](robot_state::RobotState *state,            //
+                           const moveit::core::JointModelGroup *jmg,  //
+                           const double *values)                      //
+    {
+        state->setJointGroupPositions(jmg, values);
+        state->updateCollisionBodyTransforms();
+
+        collision_detection::CollisionRequest request;
+        request.verbose = verbose;
+
+        auto result = scene->checkCollision(*state, request);
+        return !result.collision;
+    };
+
+    for (unsigned int i = 0; i < ik_attempts_; ++i)
+    {
+        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
+        if (!sampled.first)
+            continue;
+
+        if (scratch_->setFromIK(jmg, sampled.second, 1, 0., gsvcf))
+        {
+            scratch_->update();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+const RobotPose &Robot::getLinkTF(const std::string &name) const
 {
     return scratch_->getGlobalLinkTransform(name);
 }
 
-const Eigen::Affine3d Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
+const RobotPose Robot::getRelativeLinkTF(const std::string &base, const std::string &target) const
 {
     auto base_tf = scratch_->getGlobalLinkTransform(base);
     auto target_tf = scratch_->getGlobalLinkTransform(target);
 
     return base_tf.inverse() * target_tf;
+}
+
+bool Robot::toYAMLFile(const std::string &file) const
+{
+    moveit_msgs::RobotState msg;
+    moveit::core::robotStateToRobotStateMsg(*scratch_, msg);
+
+    const auto &yaml = IO::toNode(msg);
+    return IO::YAMLToFile(yaml, file);
 }
 
 namespace
@@ -410,7 +498,8 @@ namespace
     {
         YAML::Node origin;
         origin["position"] = std::vector<double>({pose.position.x, pose.position.y, pose.position.z});
-        origin["orientation"] = std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
+        origin["orientation"] =
+            std::vector<double>({pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w});
         node["origin"] = origin;
         ROBOWFLEX_YAML_FLOW(node["origin"]);
     }
@@ -433,8 +522,13 @@ namespace
 
                 const auto &pose = visual->origin;
 
+                Eigen::Vector3d position(pose.position.x, pose.position.y, pose.position.z);
+                Eigen::Quaterniond rotation(pose.rotation.w,  //
+                                            pose.rotation.x, pose.rotation.y, pose.rotation.z);
+                Eigen::Quaterniond identity = Eigen::Quaterniond::Identity();
+
                 // TODO: Also check if rotation is not zero.
-                if (pose.position.x != 0 || pose.position.y != 0 || pose.position.z != 0)
+                if (position.norm() > 0 || rotation.angularDistance(identity) > 0)
                     addLinkOrigin(node, pose);
             }
         }
@@ -457,7 +551,7 @@ namespace
         return node;
     }
 
-    Eigen::Affine3d urdfPoseToEigen(const urdf::Pose &pose)
+    RobotPose urdfPoseToEigen(const urdf::Pose &pose)
     {
         geometry_msgs::Pose msg;
         msg.position.x = pose.position.x;
@@ -531,6 +625,14 @@ bool Robot::dumpTransforms(const std::string &filename) const
     return dumpPathTransforms(trajectory, filename, 0., 0.);
 }
 
+bool Robot::dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const
+{
+    moveit_msgs::RobotTrajectory traj;
+    path.getRobotTrajectoryMsg(traj);
+
+    auto node = robowflex::IO::toNode(traj);
+    return IO::YAMLToFile(node, filename);
+}
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                double fps, double threshold) const
 {
@@ -560,8 +662,8 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             if (urdf_link->visual)
             {
                 const auto &link = model_->getLinkModel(link_name);
-                Eigen::Affine3d tf =
-                    state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
+                RobotPose tf =
+                    state->getGlobalLinkTransform(link);  // * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }
         }

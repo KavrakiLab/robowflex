@@ -10,6 +10,7 @@
 #include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/benchmarking.h>
 
 using namespace robowflex;
@@ -65,8 +66,7 @@ Benchmarker::Results::Results(const std::string &name, const SceneConstPtr scene
 void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
 {
     Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
-    if (metrics.success)
-        computeMetric(run, metrics);
+    computeMetric(run, metrics);
 
     runs.emplace_back(metrics);
 }
@@ -76,22 +76,22 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
     const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
 
     if (options.options & MetricOptions::WAYPOINTS)
-        metrics.metrics["waypoints"] = (int)p.getWayPointCount();
+        metrics.metrics["waypoints"] = metrics.success ? (int)p.getWayPointCount() : int(0);
 
-    if (options.options & MetricOptions::PATH)
+    if (options.options & MetricOptions::PATH && metrics.success)
         p.getRobotTrajectoryMsg(metrics.path);
 
     if (options.options & MetricOptions::LENGTH)
-        metrics.metrics["length"] = path::getLength(p);
+        metrics.metrics["length"] = metrics.success ? path::getLength(p) : 0.0;
 
     if (options.options & MetricOptions::CORRECT)
-        metrics.metrics["correct"] = path::isCorrect(p, scene);
+        metrics.metrics["correct"] = metrics.success ? path::isCorrect(p, scene) : false;
 
     if (options.options & MetricOptions::CLEARANCE)
-        metrics.metrics["clearance"] = std::get<0>(path::getClearance(p, scene));
+        metrics.metrics["clearance"] = metrics.success ? std::get<0>(path::getClearance(p, scene)) : 0.0;
 
     if (options.options & MetricOptions::SMOOTHNESS)
-        metrics.metrics["smoothness"] = path::getSmoothness(p);
+        metrics.metrics["smoothness"] = metrics.success ? path::getSmoothness(p) : 0.0;
 }
 
 ///
@@ -121,7 +121,8 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
         Results results(name, scene, planner, builder, options);
 
-        for (unsigned int j = 0; j < options.runs; ++j)
+        planner->preRun(scene, builder->getRequest());
+        for (unsigned int j = 0; j < options.runs || options.runs == 0; ++j)
         {
             ros::WallTime start;
 
@@ -130,12 +131,19 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
+            if (options.runs == 0)
+            {
+                double time_remaining = builder->getRequest().allowed_planning_time - time;
+                if (time_remaining < 0.)
+                    break;
+                builder->setAllowedPlanningTime(time_remaining);
+            }
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
         results.finish = IO::getDate();
 
-        for (const BenchmarkOutputterPtr& output : outputs)
+        for (const BenchmarkOutputterPtr &output : outputs)
             output->dumpResult(results);
     }
 }
@@ -238,7 +246,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     // setup
     moveit_msgs::PlanningScene scene_msg;
-    const auto &request = results.builder->getRequest();
+    const auto &request = results.builder->getRequestConst();
 
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 

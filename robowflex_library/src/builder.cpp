@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <boost/math/constants/constants.hpp>
+
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
@@ -10,6 +12,8 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/builder.h>
 
 using namespace robowflex;
 
@@ -90,12 +94,22 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 
 void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
 {
-    request_.goal_constraints.clear();
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
+void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
+                                       const RobotPose &pose, double tolerance)
+{
+    auto copy = pose;
+    Eigen::Quaterniond orientation(pose.rotation());
+    copy.linear() = Eigen::Matrix3d::Identity();
+    setGoalRegion(ee_name, base_name,                     //
+                  copy, Geometry::makeSphere(tolerance),  //
+                  orientation, {tolerance, tolerance, tolerance});
+}
+
 void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
-                                         const Eigen::Affine3d &pose, const GeometryConstPtr &geometry,
+                                         const RobotPose &pose, const GeometryConstPtr &geometry,
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
@@ -105,8 +119,48 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
     constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 
-    request_.goal_constraints.clear();
     request_.goal_constraints.push_back(constraints);
+}
+
+void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
+                                             const RobotPose &pose, const GeometryConstPtr &geometry,
+                                             const Eigen::Quaterniond &orientation,
+                                             const Eigen::Vector3d &tolerances, const RobotPose &offset,
+                                             const Eigen::Vector3d &axis, unsigned int n)
+{
+    double pi2 = 2 * boost::math::constants::pi<double>();
+
+    for (double angle = 0; angle < pi2; angle += pi2 / n)
+    {
+        Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
+        RobotPose newPose = pose * rotation * offset;
+        Eigen::Quaterniond newOrientation(rotation * orientation);
+
+        setGoalRegion(ee_name, base_name, newPose, geometry, newOrientation, tolerances);
+    }
+}
+
+void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
+                                                const RobotPose &pose, const GeometryConstPtr &cylinder,
+                                                double distance, double depth, unsigned int n)
+{
+    // Grasping region to tile
+    auto box = Geometry::makeBox(depth, depth, cylinder->getDimensions()[1]);
+    RobotPose offset(Eigen::Translation3d(cylinder->getDimensions()[0] + distance, 0, 0));
+
+    Eigen::Quaterniond orientation =
+        Eigen::AngleAxisd(-boost::math::constants::pi<double>(), Eigen::Vector3d::UnitX())  //
+        * Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY())                                    //
+        * Eigen::AngleAxisd(boost::math::constants::pi<double>(), Eigen::Vector3d::UnitZ());
+
+    addGoalRotaryTile(ee_name, base_name,                          //
+                      pose, box, orientation, {0.01, 0.01, 0.01},  //
+                      offset, Eigen::Vector3d::UnitZ(), n);
+}
+
+void MotionRequestBuilder::clearGoals()
+{
+    request_.goal_constraints.clear();
 }
 
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
@@ -114,9 +168,13 @@ void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
     request_.allowed_planning_time = allowed_planning_time;
 }
 
+void MotionRequestBuilder::setNumPlanningAttempts(unsigned int num_planning_attempts)
+{
+    request_.num_planning_attempts = num_planning_attempts;
+}
+
 void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, const std::string &base_name,
-                                                 const Eigen::Affine3d &pose,
-                                                 const GeometryConstPtr &geometry,
+                                                 const RobotPose &pose, const GeometryConstPtr &geometry,
                                                  const Eigen::Quaterniond &orientation,
                                                  const Eigen::Vector3d &tolerances)
 {
@@ -125,8 +183,7 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 }
 
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
-                                                     const Eigen::Affine3d &pose,
-                                                     const GeometryConstPtr &geometry)
+                                                     const RobotPose &pose, const GeometryConstPtr &geometry)
 {
     request_.path_constraints.position_constraints.push_back(
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
@@ -146,7 +203,52 @@ moveit_msgs::Constraints &MotionRequestBuilder::getPathConstraints()
     return request_.path_constraints;
 }
 
-const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest() const
+planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
+{
+    return request_;
+}
+
+robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
+{
+    auto start_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    start_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
+
+    moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
+    start_state->update(true);
+    return start_state;
+}
+
+robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
+{
+    auto goal_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    goal_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
+
+    if (request_.goal_constraints.size() != 1)
+    {
+        ROS_ERROR("Ambigous goal, %lu goal goal_constraints exist, returning default goal",
+                  request_.goal_constraints.size());
+        return goal_state;
+    }
+
+    if (request_.goal_constraints[0].joint_constraints.empty())
+    {
+        ROS_ERROR("No joint constraints specified, returning default goal");
+        return goal_state;
+    }
+
+    std::map<std::string, double> variable_map;
+    for (const auto &joint : request_.goal_constraints[0].joint_constraints)
+        variable_map[joint.joint_name] = joint.position;
+
+    // Start state includes attached objects and values for the non-group links.
+    moveit::core::robotStateMsgToRobotState(request_.start_state, *goal_state);
+    goal_state->setVariablePositions(variable_map);
+    goal_state->update(true);
+
+    return goal_state;
+}
+
+const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequestConst() const
 {
     return request_;
 }
@@ -159,20 +261,4 @@ bool MotionRequestBuilder::toYAMLFile(const std::string &file)
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
     return IO::fromYAMLFile(request_, file);
-}
-
-std::map<std::string, double>
-robowflex::getFinalJointPositions(const planning_interface::MotionPlanResponse &response)
-{
-    moveit_msgs::MotionPlanResponse msg;
-    response.getMessage(msg);
-
-    const std::vector<double> &joint_positions = msg.trajectory.joint_trajectory.points.back().positions;
-    const std::vector<std::string> &joint_names = msg.trajectory.joint_trajectory.joint_names;
-
-    std::map<std::string, double> map;
-    for (size_t i = 0; i < joint_names.size(); i++)
-        map.emplace(joint_names[i], joint_positions[i]);
-
-    return map;
 }

@@ -5,12 +5,12 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
 
-#include <robowflex_ompl/ompl.h>
+#include <robowflex_ompl/ompl_interface.h>
 
 using namespace robowflex;
 
 OMPL::OMPLInterfacePlanner::OMPLInterfacePlanner(const RobotPtr &robot, const std::string &name)
-  : Planner(robot, name), interface_(robot->getModel(), handler_.getHandle())
+  : Planner(robot, name)
 {
 }
 
@@ -19,11 +19,13 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     if (!loadOMPLConfig(handler_, config_file, configs_))
         return false;
 
+    interface_.reset(new ompl_interface::OMPLInterface(robot_->getModel(), handler_.getHandle()));
+
     settings.setParam(handler_);
 
-    interface_.simplifySolutions(settings.simplify_solutions);
+    interface_->simplifySolutions(settings.simplify_solutions);
 
-    auto &pcm = interface_.getPlanningContextManager();
+    auto &pcm = interface_->getPlanningContextManager();
     pcm.setMaximumSolutionSegmentLength(settings.maximum_waypoint_distance);
     pcm.setMinimumWaypointCount(settings.minimum_waypoint_count);
 
@@ -41,14 +43,14 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
 ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlanningContext(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
-    return interface_.getPlanningContext(scene->getSceneConst(), request);
+    return interface_->getPlanningContext(scene->getSceneConst(), request);
 }
 
 planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
-    response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+    response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
 
     auto context = getPlanningContext(scene, request);
 

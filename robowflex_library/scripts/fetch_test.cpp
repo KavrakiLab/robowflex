@@ -4,6 +4,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 
 using namespace robowflex;
@@ -42,6 +43,8 @@ int main(int argc, char **argv)
 
     fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
     request.setGoalConfiguration(fetch->getScratchState());
+
+    request.setConfig("RRTConnect");
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
