@@ -29,7 +29,7 @@ namespace
 {
     struct SceneParsingContext
     {
-        Eigen::Affine3d robot_offset;
+        RobotPose robot_offset;
         std::vector<moveit_msgs::CollisionObject> coll_objects;
         std::stack<std::string> directory_stack;
     };
@@ -52,10 +52,10 @@ namespace
         return child;
     }
 
-    Eigen::Affine3d TFfromXML(tinyxml2::XMLElement *transElem, tinyxml2::XMLElement *rotationElem,
-                              tinyxml2::XMLElement *quatElem)
+    RobotPose TFfromXML(tinyxml2::XMLElement *transElem, tinyxml2::XMLElement *rotationElem,
+                        tinyxml2::XMLElement *quatElem)
     {
-        Eigen::Affine3d tf = Eigen::Affine3d::Identity();
+        RobotPose tf = RobotPose::Identity();
         if (transElem)
         {
             auto trans = IO::tokenize<double>(std::string(transElem->GetText()));
@@ -85,7 +85,7 @@ namespace
         return tf;
     }
 
-    bool parseKinbody(SceneParsingContext &load_struct, tinyxml2::XMLElement *elem, const Eigen::Affine3d &tf,
+    bool parseKinbody(SceneParsingContext &load_struct, tinyxml2::XMLElement *elem, const RobotPose &tf,
                       moveit_msgs::PlanningScene &planning_scene)
     {
         if (not elem)
@@ -96,7 +96,7 @@ namespace
 
         auto transElem = getFirstChild(elem, "Translation");
         auto rotElem = getFirstChild(elem, "Rotation");
-        Eigen::Affine3d this_tf = TFfromXML(transElem, rotElem, nullptr);
+        RobotPose this_tf = TFfromXML(transElem, rotElem, nullptr);
 
         const char *filename = elem->Attribute("file");
         if (filename)
@@ -133,7 +133,7 @@ namespace
                 }
 
                 // Set Offset
-                Eigen::Affine3d offset =
+                RobotPose offset =
                     this_tf * tf *
                     TFfromXML(getFirstChild(geom, "translation"), nullptr, getFirstChild(geom, "quat"));
 
@@ -219,7 +219,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
     load_struct.directory_stack.push(model_dir);
 
     // Hardcoded offset on WAM (see wam7.kinbody.xml)
-    Eigen::Affine3d tf;
+    RobotPose tf;
     tf.translation() = Eigen::Vector3d(0.0, 0.0, -0.346);
     tf.linear() = Eigen::Quaterniond::Identity().toRotationMatrix();
     load_struct.robot_offset = tf;
