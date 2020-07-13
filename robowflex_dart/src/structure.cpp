@@ -38,7 +38,7 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
 
         dart::dynamics::FreeJoint::Properties joint;
         joint.mName = object;
-        joint.mT_ParentBodyToJoint = robowflex::RobotPose::Identity();
+        joint.mT_ParentBodyToJoint = robowflex::TF::identity();
 
         auto shape = makeGeometry(geometry);
 
@@ -272,7 +272,7 @@ void Structure::updateCollisionObject(const std::string &name, const GeometryPtr
     {
         dart::dynamics::FreeJoint::Properties joint;
         joint.mName = name;
-        joint.mT_ParentBodyToJoint = robowflex::RobotPose::Identity();
+        joint.mT_ParentBodyToJoint = robowflex::TF::identity();
 
         auto shape = makeGeometry(geometry);
 
