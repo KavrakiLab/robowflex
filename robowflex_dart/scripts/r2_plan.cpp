@@ -8,6 +8,7 @@
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/planning.h>
+#include <robowflex_dart/gui.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
@@ -39,7 +40,8 @@ int main(int argc, char **argv)
     builder.initialize();
 
     builder.sampleStartConfiguration();
-    builder.sampleGoalConfiguration();
+    auto goal = builder.sampleGoalConfiguration();
+    builder.setGoal(goal);
 
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(1.);
@@ -50,16 +52,16 @@ int main(int argc, char **argv)
 
     ompl::base::PlannerStatus solved = builder.ss->solve(10.0);
 
-    std::thread t([&]() {
+    darts::Window window(world);
+    window.run([&]() {
         if (solved)
         {
-            std::cout << "Found solution:" << std::endl;
-            builder.animateSolutionInWorld();
+            std::cout << "Found solution!" << std::endl;
+            window.animatePath(builder, builder.getSolutionPath());
         }
         else
             std::cout << "No solution found" << std::endl;
     });
 
-    world->openOSGViewer();
     return 0;
 }

@@ -78,6 +78,7 @@ namespace robowflex
 
             // Friendship
             friend Joint;
+            friend RnJoint;
             friend StateSampler;
 
             /** \name Constructor and Setup
@@ -155,6 +156,16 @@ namespace robowflex
              */
             Eigen::VectorXd getUpperBound() const;
 
+            /** \brief Get a joint that is being planned for.
+             *  \return The joint.
+             */
+            JointPtr getJoint(std::size_t index) const;
+
+            /** \brief Get a joint that is being planned for.
+             *  \return The joint.
+             */
+            JointPtr getJoint(const std::string &name) const;
+
             /** \brief Get a vector of the joints being planned for.
              *  \return The vector of joints being planned for.
              */
@@ -178,6 +189,8 @@ namespace robowflex
             void freeState(ompl::base::State *state) const override;
 
             /** \} */
+
+            void setMetricSpace(bool metric);
 
         protected:
             WorldPtr world_;  ///< World to use for planning.

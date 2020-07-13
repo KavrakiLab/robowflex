@@ -6,11 +6,6 @@
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <dart/dynamics/BoxShape.hpp>
-#include <dart/dynamics/CylinderShape.hpp>
-#include <dart/dynamics/SphereShape.hpp>
-#include <dart/dynamics/MeshShape.hpp>
-
 #include <dart/dynamics/WeldJoint.hpp>
 #include <dart/dynamics/BodyNode.hpp>
 
@@ -230,6 +225,34 @@ void Structure::setDof(unsigned int index, double value)
     skeleton_->getDof(index)->setPosition(value);
 }
 
+dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
+{
+    if (name.empty())
+        return getRootFrame();
+
+    return skeleton_->getBodyNode(name);
+}
+
+dart::dynamics::BodyNode *Structure::getRootFrame() const
+{
+    return skeleton_->getRootBodyNode();
+}
+
+void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
+{
+    auto frame = getFrame(parent);
+
+    Eigen::Isometry3d tf;
+    if (frame)
+        tf = child->getTransform(frame);
+    else
+        tf = child->getWorldTransform();
+
+    dart::dynamics::FreeJoint::Properties joint;
+    auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
+    jt->setRelativeTransform(tf);
+}
+
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
 {
     const auto &dimensions = geometry->getDimensions();
@@ -251,27 +274,28 @@ dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geome
     return nullptr;
 }
 
-dart::dynamics::ShapePtr robowflex::darts::makeBox(const Eigen::Ref<const Eigen::Vector3d> &v)
+std::shared_ptr<dart::dynamics::BoxShape>
+robowflex::darts::makeBox(const Eigen::Ref<const Eigen::Vector3d> &v)
 {
     return std::make_shared<dart::dynamics::BoxShape>(v);
 }
 
-dart::dynamics::ShapePtr robowflex::darts::makeBox(double x, double y, double z)
+std::shared_ptr<dart::dynamics::BoxShape> robowflex::darts::makeBox(double x, double y, double z)
 {
     return makeBox(Eigen::Vector3d{x, y, z});
 }
 
-dart::dynamics::ShapePtr robowflex::darts::makeCylinder(double radius, double height)
+std::shared_ptr<dart::dynamics::CylinderShape> robowflex::darts::makeCylinder(double radius, double height)
 {
     return std::make_shared<dart::dynamics::CylinderShape>(radius, height);
 }
 
-dart::dynamics::ShapePtr robowflex::darts::makeSphere(double radius)
+std::shared_ptr<dart::dynamics::SphereShape> robowflex::darts::makeSphere(double radius)
 {
     return std::make_shared<dart::dynamics::SphereShape>(radius);
 }
 
-dart::dynamics::ShapePtr robowflex::darts::makeMesh(const GeometryPtr &geometry)
+std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const GeometryPtr &geometry)
 {
     static Assimp::Importer importer_;
 
@@ -280,9 +304,140 @@ dart::dynamics::ShapePtr robowflex::darts::makeMesh(const GeometryPtr &geometry)
     shapes::writeSTLBinary(shape.get(), buffer);
 
     auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(),
-                                                aiProcessPreset_TargetRealtime_MaxQuality, "stl");
+                                                aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
 
     return std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+}
+
+std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(double low, double high,
+                                                                            double inner_radius,
+                                                                            double outer_radius,
+                                                                            std::size_t resolution)
+{
+    if (resolution < 1)
+        throw std::runtime_error("Invalid resolution.");
+
+    if (inner_radius > outer_radius)
+        throw std::runtime_error("Invalid radii.");
+
+    if (low > high)
+        low = high;
+
+    const double interval = high - low;
+    const double step = interval / resolution;
+
+    aiMesh *mesh = new aiMesh;
+    mesh->mMaterialIndex = (unsigned int)(-1);
+
+    // number of segments, *2 for inner & outer, *2 for front & back
+    const std::size_t n_seg = resolution + 1;
+    const std::size_t n_v_face = n_seg * 2;
+    const std::size_t n_vert = n_v_face * 2;
+
+    const std::size_t n_face = resolution * 2;
+
+    mesh->mNumVertices = n_vert;
+    mesh->mVertices = new aiVector3D[n_vert];
+    mesh->mNormals = new aiVector3D[n_vert];
+    mesh->mColors[0] = new aiColor4D[n_vert];
+
+    const double vx = 0;
+    aiVector3D vertex;
+
+    const aiVector3D fnormal(1.0f, 0.0f, 0.0f);
+    const aiVector3D bnormal(-1.0f, 0.0f, 0.0f);
+    const aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Vertices
+    for (std::size_t i = 0; i <= resolution; ++i)
+    {
+        const double theta = low + step * i;
+
+        // Inner Radius
+        const double yi = inner_radius * std::cos(theta);
+        const double zi = inner_radius * std::sin(theta);
+        vertex.Set(vx, yi, zi);
+
+        // front
+        const std::size_t ifv = 2 * i;
+        mesh->mVertices[ifv] = vertex;
+        mesh->mNormals[ifv] = fnormal;
+        mesh->mColors[0][ifv] = color;
+
+        // back
+        const std::size_t ibv = ifv + n_v_face;
+        mesh->mVertices[ibv] = vertex;
+        mesh->mNormals[ibv] = bnormal;
+        mesh->mColors[0][ibv] = color;
+
+        // Outer Radius
+        const double yo = outer_radius * std::cos(theta);
+        const double zo = outer_radius * std::sin(theta);
+        vertex.Set(vx, yo, zo);
+
+        // front
+        const std::size_t ofv = ifv + 1;
+        mesh->mVertices[ofv] = vertex;
+        mesh->mNormals[ofv] = fnormal;
+        mesh->mColors[0][ofv] = color;
+
+        // back
+        const std::size_t obv = ofv + n_v_face;
+        mesh->mVertices[obv] = vertex;
+        mesh->mNormals[obv] = bnormal;
+        mesh->mColors[0][obv] = color;
+    }
+
+    mesh->mNumFaces = n_face;
+    mesh->mFaces = new aiFace[n_face];
+
+    // Faces
+    for (std::size_t i = 1; i <= resolution; ++i)
+    {
+        // front
+        const std::size_t ifv = 2 * i;
+        const std::size_t ifvp = 2 * (i - 1);
+        const std::size_t ofv = ifv + 1;
+        const std::size_t ofvp = ifvp + 1;
+
+        aiFace *fface = &mesh->mFaces[i - 1];
+        fface->mNumIndices = 4;
+        fface->mIndices = new unsigned int[4];
+        fface->mIndices[0] = ifv;
+        fface->mIndices[1] = ifvp;
+        fface->mIndices[2] = ofvp;
+        fface->mIndices[3] = ofv;
+
+        // back
+        const std::size_t ibv = ifv + n_v_face;
+        const std::size_t ibvp = ifvp + n_v_face;
+        const std::size_t obv = ofv + n_v_face;
+        const std::size_t obvp = ofvp + n_v_face;
+
+        aiFace *bface = &mesh->mFaces[i + resolution - 1];
+        bface->mNumIndices = 4;
+        bface->mIndices = new unsigned int[4];
+        bface->mIndices[0] = obv;
+        bface->mIndices[1] = obvp;
+        bface->mIndices[2] = ibvp;
+        bface->mIndices[3] = ibv;
+    }
+
+    aiNode *node = new aiNode;
+    node->mNumMeshes = 1;
+    node->mMeshes = new unsigned int[1];
+    node->mMeshes[0] = 0;
+
+    aiScene *scene = new aiScene;
+    scene->mNumMeshes = 1;
+    scene->mMeshes = new aiMesh *[1];
+    scene->mMeshes[0] = mesh;
+    scene->mRootNode = node;
+
+    auto shape = std::make_shared<dart::dynamics::MeshShape>(Eigen::Vector3d::Ones(), scene);
+    shape->setColorMode(dart::dynamics::MeshShape::SHAPE_COLOR);
+
+    return shape;
 }
 
 void robowflex::darts::setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color)

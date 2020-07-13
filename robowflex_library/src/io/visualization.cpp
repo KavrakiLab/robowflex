@@ -216,7 +216,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             break;
         case Geometry::ShapeType::SPHERE:
             marker.type = visualization_msgs::Marker::SPHERE;
-            scale[1] = scale[2] = 2 * scale[0];  // Copy radius to other dimensions
+            scale[1] = scale[2] = scale[0];  // Copy radius to other dimensions
             break;
         case Geometry::ShapeType::CYLINDER:
             marker.type = visualization_msgs::Marker::CYLINDER;

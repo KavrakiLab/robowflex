@@ -18,6 +18,16 @@ namespace robowflex
 
     namespace IO
     {
+        /** \cond IGNORE */
+        ROBOWFLEX_CLASS_FORWARD(RVIZHelper);
+        /** \endcond */
+
+        /** \class robowflex::IO::RVIZHelperPtr
+            \brief A shared pointer wrapper for robowflex::IO::RVIZHelper. */
+
+        /** \class robowflex::IO::RVIZHelperConstPtr
+            \brief A const shared pointer wrapper for robowflex::IO::RVIZHelper. */
+
         /** \brief RVIZ visualization helper. See \ref rviz for more information.
          */
         class RVIZHelper
