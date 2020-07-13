@@ -68,8 +68,8 @@ int main(int argc, char **argv)
         start_tsr.useGroup(GROUP);
         start_tsr.initialize();
         start_tsr.solveWorld();
-        builder.setStartConfigurationFromWorld();
 
+        builder.setStartConfigurationFromWorld();
         builder.initialize();
 
         darts::TSR::Specification goal_spec;
@@ -104,9 +104,7 @@ int main(int argc, char **argv)
     const auto &planToPlace = [&]() {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
-
         builder.setStartConfigurationFromWorld();
-
         builder.initialize();
 
         darts::TSR::Specification goal_spec;
@@ -147,6 +145,5 @@ int main(int argc, char **argv)
 
         planToPlace();
     });
-
     return 0;
 }

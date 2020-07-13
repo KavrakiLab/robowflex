@@ -38,11 +38,12 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
 
         dart::dynamics::FreeJoint::Properties joint;
         joint.mName = object;
-        joint.mT_ParentBodyToJoint = pose;
+        joint.mT_ParentBodyToJoint = robowflex::TF::identity();
 
         auto shape = makeGeometry(geometry);
 
         auto pair = addFreeFrame(joint, shape);
+        setJointParentTransform(object, pose);
         setColor(pair.second, dart::Color::Blue(0.2));
     }
 
@@ -117,6 +118,10 @@ void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dyna
     double mass = magic::DEFAULT_DENSITY * shape->getVolume();
     inertia.setMass(mass);
     inertia.setMoment(shape->computeInertia(mass));
+
+    if (not inertia.verify(false))
+        inertia = dart::dynamics::Inertia();
+
     body->setInertia(inertia);
     body->setRestitutionCoeff(magic::DEFAULT_RESTITUTION);
 
@@ -233,16 +238,11 @@ dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
     return skeleton_->getBodyNode(name);
 }
 
-dart::dynamics::BodyNode *Structure::getRootFrame() const
-{
-    return skeleton_->getRootBodyNode();
-}
-
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
     auto frame = getFrame(parent);
 
-    Eigen::Isometry3d tf;
+    RobotPose tf;
     if (frame)
         tf = child->getTransform(frame);
     else
@@ -251,6 +251,37 @@ void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::st
     dart::dynamics::FreeJoint::Properties joint;
     auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
     jt->setRelativeTransform(tf);
+}
+
+void Structure::setJointParentTransform(const std::string &name, const RobotPose &tf)
+{
+    auto joint = skeleton_->getJoint(name);
+    joint->setTransformFromParentBodyNode(tf);
+}
+
+void Structure::updateCollisionObject(const std::string &name, const GeometryPtr &geometry,
+                                      const robowflex::RobotPose &pose)
+{
+    auto nodes = skeleton_->getBodyNodes(name);  // Get all nodes with this name
+    if (nodes.size() != 0)
+        setJointParentTransform(name, pose);
+    else
+    {
+        dart::dynamics::FreeJoint::Properties joint;
+        joint.mName = name;
+        joint.mT_ParentBodyToJoint = robowflex::TF::identity();
+
+        auto shape = makeGeometry(geometry);
+
+        auto pair = addFreeFrame(joint, shape);
+        setJointParentTransform(name, pose);
+        setColor(pair.second, dart::Color::Blue(0.2));
+    }
+}
+
+dart::dynamics::BodyNode *Structure::getRootFrame() const
+{
+    return skeleton_->getRootBodyNode();
 }
 
 dart::dynamics::ShapePtr robowflex::darts::makeGeometry(const GeometryPtr &geometry)
@@ -297,16 +328,27 @@ std::shared_ptr<dart::dynamics::SphereShape> robowflex::darts::makeSphere(double
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const GeometryPtr &geometry)
 {
-    static Assimp::Importer importer_;
+    auto uri = geometry->getResource();
+    if (uri.empty())
+    {
+        static Assimp::Importer importer_;
 
-    auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
-    std::vector<char> buffer;
-    shapes::writeSTLBinary(shape.get(), buffer);
+        auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
+        std::vector<char> buffer;
+        shapes::writeSTLBinary(shape.get(), buffer);
 
-    auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(),
-                                                aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
+        auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(),
+                                                    aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
 
-    return std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+        return mesh;
+    }
+    else
+    {
+        auto aiscene = dart::dynamics::MeshShape::loadMesh(uri);
+        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+        return mesh;
+    }
 }
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(double low, double high,

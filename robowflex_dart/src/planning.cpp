@@ -90,7 +90,8 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         si_->enforceBounds(state);
     }
 
-    return true;
+    total_samples_++;
+    return total_samples_ < options.max_samples;
 }
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const
