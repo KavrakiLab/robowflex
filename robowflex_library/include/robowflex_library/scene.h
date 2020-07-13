@@ -244,6 +244,7 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool fromYAMLFile(const std::string &file);
+        bool fromOpenRAVEXMLFile(const std::string &file, std::string models_dir = "");
 
         /** \} */
 

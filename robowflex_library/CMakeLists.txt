@@ -58,6 +58,7 @@ list(APPEND SOURCES
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/openrave.cpp
   src/io/visualization.cpp
   src/io/broadcaster.cpp
   src/io/hdf5.cpp
