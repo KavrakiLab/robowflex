@@ -29,9 +29,9 @@ Requires both [tesseract](https://github.com/ros-industrial-consortium/tesseract
 A library component with helper classes and functions to interact with a `move_group` process being used for motion planning.
 Scenes can be pushed and pulled and trajectories can be executed with this component through `move_group`.
 
-## robowflex_dart
+### robowflex_dart
 A optionally compiled library that adds support for modeling and planning through [DART (Dynamic Animation and Robotics Toolkit)](https://dartsim.github.io/).
-There are features for loading robots just through DART or by converting __MoveIt_ robots into the DART representation.
+There are features for loading robots just through DART or by converting __MoveIt__ robots into the DART representation.
 Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
 This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
 Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.

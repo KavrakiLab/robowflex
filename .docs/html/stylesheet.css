@@ -1,3 +1,5 @@
+
+
 h1.groupheader {
 font-size:130%;
 }
@@ -108,7 +110,7 @@ background-color:#FBFCFD;
 overflow:auto;
 word-wrap:break-word;
 line-height:125%;
-font-family:monospace, fixed;
+font-family:'Roboto Mono', monospace;
 font-size:105%;
 margin:4px 8px 4px 2px;
 padding:10px;
@@ -123,7 +125,7 @@ padding:20px;
 }
 
 div.line {
-font-family:monospace, fixed;
+font-family:'Roboto Mono', monospace;
 font-size:13px;
 min-height:13px;
 line-height:1.2;
@@ -222,8 +224,8 @@ body {
 background-color:#FFF;
 color:#000;
 margin:0;
+font-family:Roboto, sans-serif;
 }
-
 div.contents {
 margin-top:20px;
 margin-left:22px;
