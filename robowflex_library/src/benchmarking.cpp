@@ -225,7 +225,8 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
 /// OMPLBenchmarkOutputter
 ///
 
-OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix) : prefix_(prefix)
+OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix, bool dumpScene)
+  : prefix_(prefix), dumpScene_(dumpScene)
 {
 }
 
@@ -245,9 +246,9 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "Starting at " << IO::getDate() << std::endl;       // date
 
     // setup
-    moveit_msgs::PlanningScene scene_msg;
     const auto &request = results.builder->getRequestConst();
 
+    moveit_msgs::PlanningScene scene_msg;
     results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
     YAML::Node yaml;
@@ -258,7 +259,8 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     yaml_out << yaml;
 
     out << "<<<|" << std::endl;
-    out << yaml_out.c_str() << std::endl;
+    if (dumpScene_)
+        out << yaml_out.c_str() << std::endl;
     out << "|>>>" << std::endl;
 
     // random seed (fake)
