@@ -1,5 +1,6 @@
 #!/bin/bash
 mkdir .docs/build
-cd .docs/build
+pushd .docs/build
 cmake ..
 make
+popd
