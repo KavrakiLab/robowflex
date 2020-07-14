@@ -1,5 +1,3 @@
-sudo: false
-
 # branches:
 #   only:
 #     - master
@@ -15,9 +13,11 @@ script:
   - source ./.travis/documentation.sh
 
 deploy:
+  strategy: git
   provider: pages
   skip_cleanup: true
   local_dir: .docs/build/docs/html
   github_token: $GH_REPO_TOKEN
   on:
-    branch: master
+    # branch: master
+    branch: documentation
