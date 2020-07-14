@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>robowflex_dart</name>
+  <version>0.0.1</version>
+  <description>The Better Benchmarking Package: DART Planning Tools</description>
+  <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
+  <author email="zak@rice.edu">Zachary Kingston</author>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>robowflex_library</depend>
+  <depend>dartsim</depend>
+  <depend>ompl</depend>
+</package>

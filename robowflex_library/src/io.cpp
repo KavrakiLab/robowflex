@@ -3,6 +3,9 @@
 #include <cstdlib>  // for std::getenv
 #include <memory>   // for std::shared_ptr
 #include <array>    // for std::array
+#include <regex>    // for std::regex
+
+#include <boost/lexical_cast.hpp>
 
 #include <boost/filesystem.hpp>  // for filesystem paths
 
@@ -114,6 +117,25 @@ const std::string IO::resolvePackage(const std::string &path)
     return expandPath(file).string();
 }
 
+std::set<std::string> IO::findPackageURIs(const std::string &string)
+{
+    const std::regex re(R"(((package):?\/)\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)?)");
+
+    std::set<std::string> packages;
+
+    auto begin = std::sregex_iterator(string.begin(), string.end(), re);
+    auto end = std::sregex_iterator();
+
+    for (auto it = begin; it != end; ++it)
+    {
+        std::smatch sm = *it;
+        std::string smstr = sm.str(3);
+        packages.emplace(smstr);
+    }
+
+    return packages;
+}
+
 const std::string IO::resolvePath(const std::string &path)
 {
     boost::filesystem::path file = resolvePackage(path);
@@ -125,6 +147,12 @@ const std::string IO::resolvePath(const std::string &path)
     }
 
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
+}
+
+const std::string IO::resolveParent(const std::string &path)
+{
+    boost::filesystem::path file = resolvePackage(path);
+    return file.parent_path().string();
 }
 
 const std::string IO::loadFileToString(const std::string &path)
@@ -253,6 +281,24 @@ void IO::createFile(std::ofstream &out, const std::string &file)
     out.open(path.string(), std::ofstream::out | std::ofstream::trunc);
 }
 
+std::string IO::createTempFile(std::ofstream &out)
+{
+    auto temp = boost::filesystem::unique_path();
+    auto filename = "/tmp/" + temp.string();
+    createFile(out, filename);
+
+    return filename;
+}
+
+void IO::deleteFile(const std::string &file)
+{
+    boost::filesystem::path path(file);
+    path = expandHome(path);
+    path = expandSymlinks(path);
+
+    boost::filesystem::remove(path);
+}
+
 const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &directory)
 {
     std::vector<std::string> contents;
@@ -282,12 +328,21 @@ boost::posix_time::ptime IO::getDate()
     return boost::posix_time::microsec_clock::local_time();
 }
 
-std::vector<std::string> IO::tokenize(const std::string &s, const std::string &separators)
+template <typename T>
+std::vector<T> IO::tokenize(const std::string &s, const std::string &separators)
 {
     boost::char_separator<char> seps(separators.c_str());
     boost::tokenizer<boost::char_separator<char>> tokenizer(s, seps);
-    return std::vector<std::string>(tokenizer.begin(), tokenizer.end());
+
+    std::vector<T> values;
+    std::transform(tokenizer.begin(), tokenizer.end(), std::back_inserter(values),
+                   [](const std::string &s) { return boost::lexical_cast<T>(s); });
+
+    return std::vector<T>();
 }
+
+template std::vector<std::string> IO::tokenize(const std::string &, const std::string &);
+template std::vector<double> IO::tokenize(const std::string &, const std::string &);
 
 ///
 /// IO::Bag

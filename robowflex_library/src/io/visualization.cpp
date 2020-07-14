@@ -4,20 +4,21 @@
 
 #include <boost/range/combine.hpp>
 
-#include <moveit_msgs/PlanningScene.h>
+#include <moveit_msgs/DisplayRobotState.h>
 #include <moveit_msgs/DisplayTrajectory.h>
+#include <moveit_msgs/PlanningScene.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
 #include <moveit/robot_state/conversions.h>
 
+#include <robowflex_library/builder.h>
+#include <robowflex_library/geometry.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/planning.h>
-#include <robowflex_library/builder.h>
-#include <robowflex_library/io/visualization.h>
 
 using namespace robowflex;
 
@@ -45,20 +46,41 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
     nh_.setParam(Robot::ROBOT_DESCRIPTION + Robot::ROBOT_SEMANTIC, semantic);
 
     trajectory_pub_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("trajectory", 1);
+    state_pub_ = nh_.advertise<moveit_msgs::DisplayRobotState>("state", 1);
     scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("scene", 1);
     marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 100);
 }
 
 void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanResponse &response)
 {
+    updateTrajectory(response.trajectory_);
+}
+
+void IO::RVIZHelper::updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory)
+{
+    moveit_msgs::RobotTrajectory msg;
+    trajectory->getRobotTrajectoryMsg(msg);
+
+    updateTrajectory(msg, trajectory->getFirstWayPoint());
+}
+
+void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
+                                      const moveit::core::RobotState &start)
+{
     moveit_msgs::DisplayTrajectory out;
 
-    moveit_msgs::RobotTrajectory msg;
-    response.trajectory_->getRobotTrajectoryMsg(msg);
-
     out.model_id = robot_->getModelName();
-    out.trajectory.push_back(msg);
-    moveit::core::robotStateToRobotStateMsg(response.trajectory_->getFirstWayPoint(), out.trajectory_start);
+    out.trajectory.push_back(traj);
+    moveit::core::robotStateToRobotStateMsg(start, out.trajectory_start);
+
+    if (trajectory_pub_.getNumSubscribers() < 1)
+    {
+        ROS_INFO("Waiting for Trajectory subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (trajectory_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
 
     trajectory_pub_.publish(out);
 }
@@ -98,8 +120,44 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     trajectory_pub_.publish(out);
 }
 
+void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
+{
+    if (state_pub_.getNumSubscribers() < 1)
+    {
+        ROS_INFO("Waiting for State subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (state_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
+
+    moveit_msgs::DisplayRobotState out;
+    moveit::core::robotStateToRobotStateMsg(*state, out.state);
+
+    state_pub_.publish(out);
+}
+
+void IO::RVIZHelper::visualizeState(const std::vector<double> &state_vec)
+{
+    auto state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+
+    sensor_msgs::JointState joint_state;
+
+    joint_state.name = robot_->getJointNames();
+    joint_state.position = state_vec;
+
+    moveit::core::jointStateToRobotState(joint_state, *state);
+
+    visualizeState(state);
+}
+
+void IO::RVIZHelper::visualizeCurrentState()
+{
+    visualizeState(robot_->getScratchStateConst());
+}
+
 void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::string &base_frame,
-                                const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                const RobotPose &pose, const Eigen::Vector4d &color,
                                 const Eigen::Vector3d &scale) const
 {
     marker.header.frame_id = base_frame;
@@ -120,7 +178,7 @@ void IO::RVIZHelper::fillMarker(visualization_msgs::Marker &marker, const std::s
 }
 
 void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &base_frame,
-                                    const Eigen::Affine3d &pose, const Eigen::Vector4d &color,
+                                    const RobotPose &pose, const Eigen::Vector4d &color,
                                     const Eigen::Vector3d &scale)
 {
     visualization_msgs::Marker marker;
@@ -132,7 +190,7 @@ void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &
 }
 
 void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &text,
-                                   const std::string &base_frame, const Eigen::Affine3d &pose, double height,
+                                   const std::string &base_frame, const RobotPose &pose, double height,
                                    const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
@@ -145,7 +203,7 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
 }
 
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
-                                       const std::string &base_frame, const Eigen::Affine3d &pose,
+                                       const std::string &base_frame, const RobotPose &pose,
                                        const Eigen::Vector4d &color)
 {
     visualization_msgs::Marker marker;
@@ -158,7 +216,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             break;
         case Geometry::ShapeType::SPHERE:
             marker.type = visualization_msgs::Marker::SPHERE;
-            scale[1] = scale[2] = 2 * scale[0];  // Copy radius to other dimensions
+            scale[1] = scale[2] = scale[0];  // Copy radius to other dimensions
             break;
         case Geometry::ShapeType::CYLINDER:
             marker.type = visualization_msgs::Marker::CYLINDER;
@@ -169,10 +227,26 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             }
             break;
         case Geometry::ShapeType::MESH:
-            marker.type = visualization_msgs::Marker::MESH_RESOURCE;
-            marker.mesh_resource = geometry->getResource();
-            marker.mesh_use_embedded_materials = true;
+            scale[0] = scale[1] = scale[2] = 1;  // Meshes are unscalable.
+            if (!geometry->getResource().empty())
+            {
+                marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+                marker.mesh_resource = geometry->getResource();
+                marker.mesh_use_embedded_materials = true;
+            }
+            else if (!geometry->getVertices().empty())
+            {
+                auto msg = geometry->getMeshMsg();
+                marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
+                for (std::size_t i = 0; i < msg.triangles.size(); ++i)
+                {
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[0]]);
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[1]]);
+                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[2]]);
+                }
+            }
             break;
+
         default:
             ROS_ERROR("Unsupported geometry for marker.");
             return;
@@ -186,7 +260,6 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
 {
     const auto &goals = request.getRequestConst().goal_constraints;
-    const auto &base_frame = "map";  // Markers must be placed in "map" (default RViz frame)
 
     // Iterate over each goal (an "or"-ing together of different constraints)
     for (const auto &goal : goals)
@@ -197,9 +270,10 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
         for (const auto &pg : goal.position_constraints)
         {
             const auto &pname = pg.link_name;
+            const auto &base_frame = pg.header.frame_id;
 
             // Get global transform of position constraint
-            Eigen::Affine3d pose = robot_->getLinkTF(pg.header.frame_id);
+            RobotPose pose = robot_->getLinkTF(pg.header.frame_id);
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
 
             // Iterate over all position primitives and their poses
@@ -216,7 +290,8 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                 // Add geometry marker associated with this solid primitive
                 addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
 
-                // Iterate over all orientation constraints for the same link as the position constraint
+                // Iterate over all orientation constraints for the same link as the
+                // position constraint
                 for (const auto &og : goal.orientation_constraints)
                 {
                     const auto &oname = og.link_name;
@@ -226,15 +301,17 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                     auto q = TF::quaternionMsgToEigen(og.orientation);
 
                     // Arrow display frame.
-                    Eigen::Affine3d qframe = Eigen::Affine3d::Identity();
-                    qframe.translate(frame.translation()); // Place arrows at the origin of the position volume
+                    RobotPose qframe = RobotPose::Identity();
+                    qframe.translate(frame.translation());  // Place arrows at the origin
+                                                            // of the position volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
 
                     // Display primary orientation slightly larger
                     addArrowMarker(name, base_frame, qframe * q, color, 1.5 * scale);
 
-                    // Zip together tolerances and axes, and iterate over them to display orientation bounds
+                    // Zip together tolerances and axes, and iterate over them to display
+                    // orientation bounds
                     const auto tolerances = {og.absolute_x_axis_tolerance,  //
                                              og.absolute_y_axis_tolerance,  //
                                              og.absolute_z_axis_tolerance};
@@ -259,11 +336,18 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
             // TODO: Implement
             // for (const auto &mesh :
-            //      boost::combine(pg.constraint_region.meshes, pg.constraint_region.mesh_poses))
+            //      boost::combine(pg.constraint_region.meshes,
+            //      pg.constraint_region.mesh_poses))
             // {
             // }
         }
     }
+}
+
+void IO::RVIZHelper::removeAllMarkers()
+{
+    for (auto &marker : markers_)
+        marker.second.action = visualization_msgs::Marker::DELETE;
 }
 
 void IO::RVIZHelper::removeMarker(const std::string &name)
@@ -279,7 +363,7 @@ void IO::RVIZHelper::addMarker(float x, float y, float z)
     visualization_msgs::Marker marker;
     const std::string &base_frame = "map";
 
-    Eigen::Affine3d pose = Eigen::Affine3d::Identity();
+    RobotPose pose = RobotPose::Identity();
     pose *= Eigen::Translation3d(x, y, z);
 
     Eigen::Vector3d scale = {0.5, 0.5, 0.5};

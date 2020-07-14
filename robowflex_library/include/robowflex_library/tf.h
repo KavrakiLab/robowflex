@@ -9,12 +9,14 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/TransformStamped.h>
 
 #include <moveit_msgs/BoundingVolume.h>
 #include <moveit_msgs/PositionConstraint.h>
 #include <moveit_msgs/OrientationConstraint.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 
 namespace robowflex
 {
@@ -26,6 +28,53 @@ namespace robowflex
      */
     namespace TF
     {
+        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+         *  \param[in] x X-axis translation
+         *  \param[in] y Y-ayis translation
+         *  \param[in] z Z-azis translation
+         *  \param[in] X Rotation about X
+         *  \param[in] Y Rotation about Y
+         *  \param[in] Z Rotation about Z
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(double x, double y, double z, double X, double Y, double Z);
+
+        /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component (X, Y, Z angles)
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                                const Eigen::Ref<const Eigen::Vector3d> &rotation);
+
+        /** \brief Creates a robot pose from a linear component and a Quaternion
+         *  \param[in] x X-axis translation
+         *  \param[in] y Y-axis translation
+         *  \param[in] z Z-axis translation
+         *  \param[in] W Real quaternion component.
+         *  \param[in] X i quaternion component.
+         *  \param[in] Y j quaternion component.
+         *  \param[in] Z k quaternion component.
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(double x, double y, double z, double W, double X, double Y, double Z);
+
+        /** \brief Creates a robot pose from a linear component and a quaternion.
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component (W, X, Y, Z quaternion values)
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                              const Eigen::Ref<const Eigen::Vector4d> &rotation);
+
+        /** \brief Creates a robot pose from a linear component and a quaternion.
+         *  \param[in] translation translation component
+         *  \param[in] rotation rotational component
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
+                              const Eigen::Quaterniond &rotation);
+
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.
          *  \return \a msg as an Eigen::Vector3d.
@@ -38,17 +87,17 @@ namespace robowflex
          */
         geometry_msgs::Vector3 vectorEigenToMsg(const Eigen::Vector3d &vector);
 
-        /** \brief Converts a pose message to Eigen::Affine3d.
+        /** \brief Converts a pose message to RobotPose.
          *  \param[in] msg Message to convert.
-         *  \return \a msg an Eigen::Affine3d.
+         *  \return \a msg an RobotPose.
          */
-        Eigen::Affine3d poseMsgToEigen(const geometry_msgs::Pose &msg);
+        RobotPose poseMsgToEigen(const geometry_msgs::Pose &msg);
 
-        /** \brief Converts an Eigen::Affine3d to a pose message.
+        /** \brief Converts an RobotPose to a pose message.
          *  \param[in] pose Pose to convert.
          *  \return \a pose as a pose message.
          */
-        geometry_msgs::Pose poseEigenToMsg(const Eigen::Affine3d &pose);
+        geometry_msgs::Pose poseEigenToMsg(const RobotPose &pose);
 
         /** \brief Converts a quaternion message to Eigen::Quaterniond.
          *  \param[in] msg Message to convert.
@@ -67,7 +116,7 @@ namespace robowflex
          *  \param[in] geometry Geometry to get bounding volume for.
          *  \return Bounding volume message for \a geometry at \a pose.
          */
-        moveit_msgs::BoundingVolume getBoundingVolume(const Eigen::Affine3d &pose,
+        moveit_msgs::BoundingVolume getBoundingVolume(const RobotPose &pose,
                                                       const GeometryConstPtr &geometry);
 
         /** \brief Get a position constraint message.
@@ -78,7 +127,7 @@ namespace robowflex
          */
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
-                                                              const Eigen::Affine3d &pose,
+                                                              const RobotPose &pose,
                                                               const GeometryConstPtr &geometry);
 
         /** \brief Get an orientation constraint message.
@@ -106,6 +155,15 @@ namespace robowflex
          */
         Eigen::Quaterniond offsetOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &axis, double value);
+
+        /** \brief Encode a transform as a message.
+         *  \param[in] source Source frame.
+         *  \param[in] target Target frame.
+         *  \param[in] tf Transform between frames.
+         *  \return Transform message.
+         */
+        geometry_msgs::TransformStamped transformEigenToMsg(const std::string &source,
+                                                            const std::string &target, const RobotPose &tf);
     }  // namespace TF
 }  // namespace robowflex
 

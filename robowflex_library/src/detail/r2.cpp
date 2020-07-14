@@ -72,7 +72,7 @@ robot_trajectory::RobotTrajectoryPtr R2Robot::loadSMTData(const std::string &fil
     std::vector<hsize_t> dims;
     for (const auto &joint_name : model_->getJointModelNames())
     {
-        auto tokenized = IO::tokenize(joint_name, "/");
+        auto tokenized = IO::tokenize<std::string>(joint_name, "/");
         tokenized.insert(tokenized.begin(), "captain");
         tokenized.emplace_back("APS1");
 

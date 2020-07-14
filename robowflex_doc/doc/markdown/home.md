@@ -29,6 +29,13 @@ Requires both [tesseract](https://github.com/ros-industrial-consortium/tesseract
 A library component with helper classes and functions to interact with a `move_group` process being used for motion planning.
 Scenes can be pushed and pulled and trajectories can be executed with this component through `move_group`.
 
+## robowflex_dart
+A optionally compiled library that adds support for modeling and planning through [DART (Dynamic Animation and Robotics Toolkit)](https://dartsim.github.io/).
+There are features for loading robots just through DART or by converting __MoveIt_ robots into the DART representation.
+Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
+This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
+Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.
+
 ## Utilities
 
 Beyond the core library, there are utility packages.
@@ -38,13 +45,8 @@ Python scripts for visualizing robots and motion plans in [Blender](https://www.
 See [the readme](robowflex_visualization.html) for more information on how to use.
 
 ### robowflex_doc
-Documentation for all library and module components in robowflex (sans `tmpack`).
+Documentation for all library and module components in Robowflex.
 Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.
 The documentation can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
 To learn more about how to document code for Robowflex, take a look at [the documentation how-to](\ref doc).
-
-## Applications
-
-### tmpack
-Task and motion planning using `robowflex` as the motion planning layer.

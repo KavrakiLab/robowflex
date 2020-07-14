@@ -36,7 +36,7 @@ bool robowflex::path::isCorrect(const robot_trajectory::RobotTrajectory &path, c
         if (!s->satisfiesBounds())
             return false;
 
-        const auto result = scene->checkCollision(s);
+        const auto result = scene->checkCollision(*s);
         if (result.collision)
             return false;
     }

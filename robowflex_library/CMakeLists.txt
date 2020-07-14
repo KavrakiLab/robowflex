@@ -58,7 +58,9 @@ list(APPEND SOURCES
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
+  src/openrave.cpp
   src/io/visualization.cpp
+  src/io/broadcaster.cpp
   src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
@@ -87,7 +89,7 @@ list(APPEND LIBRARIES
   yaml-cpp
   )
 
-include_directories(${INCLUDES})
+include_directories(SYSTEM ${INCLUDES})
 link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
@@ -104,6 +106,10 @@ add_script(ur5_io)
 add_script(ur5_pool)
 add_script(ur5_visualization)
 add_script(fetch_test)
+add_script(fetch_scenes_visualize)
+add_script(fetch_scenes_benchmark)
+add_script(fetch_benchmark)
+add_script(fetch_visualization)
 add_script(r2_test)
 add_script(r2_benchmark)
 add_script(r2_walking)

@@ -26,8 +26,8 @@ if __name__ == '__main__':
 ...
     # Load a robot and a path to animate
     blender_robot.animate_robot(
-        'my_geometry.yml',    # Robot geometry
-        'my_path.yml'         # Robot path
+        'my_geometry.yml',      # Robot geometry
+        ['my_path.yml']         # Robot paths
     )
     
     # Load a planning scene

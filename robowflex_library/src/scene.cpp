@@ -1,10 +1,12 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/openrave.h>
 
 #include <pluginlib/class_loader.h>
 #include <moveit/collision_detection/collision_plugin.h>
@@ -135,7 +137,7 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 }
 
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
-                                  const Eigen::Affine3d &pose)
+                                  const RobotPose &pose)
 {
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -149,22 +151,40 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
     world->addToObject(name, geometry->getShape(), pose);
 }
 
+std::vector<std::string> Scene::getCollisionObjects() const
+{
+    auto &world = scene_->getWorld();
+    return world->getObjectIds();
+}
+
+GeometryPtr Scene::getObjectGeometry(const std::string &name) const
+{
+    auto &world = scene_->getWorld();
+
+    const auto &obj = world->getObject(name);
+    if (obj)
+        return std::make_shared<Geometry>(*obj->shapes_[0]);
+
+    ROS_WARN("Object %s does not exist in scene!", name.c_str());
+    return nullptr;
+}
+
 void Scene::removeCollisionObject(const std::string &name)
 {
     scene_->getWorldNonConst()->removeObject(name);
 }
 
-Eigen::Affine3d Scene::getObjectPose(const std::string &name)
+RobotPose Scene::getObjectPose(const std::string &name) const
 {
     auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
         return obj->shape_poses_[0];
 
-    return Eigen::Affine3d::Identity();
+    return RobotPose::Identity();
 }
 
-Eigen::Affine3d Scene::getFramePose(const std::string &id) const
+RobotPose Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
     {
@@ -200,6 +220,19 @@ bool Scene::attachObject(const std::string &name)
     return false;
 }
 
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+{
+    const auto &robot = state.getRobotModel();
+    const auto &ee = robot->getEndEffectors();
+    // One end-effector
+    if (ee.size() == 1)
+    {
+        const auto &links = ee[0]->getLinkModelNames();
+        return attachObject(state, name, links[0], links);
+    }
+    return false;
+}
+
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
@@ -229,6 +262,47 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
     return true;
 }
 
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                         const std::vector<std::string> &touch_links)
+{
+    auto &world = scene_->getWorldNonConst();
+    if (!world->hasObject(name))
+    {
+        ROS_ERROR("World does not have object `%s`", name.c_str());
+        return false;
+    }
+
+    const auto &obj = world->getObject(name);
+    if (!obj)
+    {
+        ROS_ERROR("Could not get object `%s`", name.c_str());
+        return false;
+    }
+
+    if (!world->removeObject(name))
+    {
+        ROS_ERROR("Could not remove object `%s`", name.c_str());
+        return false;
+    }
+
+    auto &robot = scene_->getCurrentStateNonConst();
+    scene_->setCurrentState(state);
+    const auto &tf = state.getGlobalLinkTransform(ee_link);
+
+    RobotPoseVector poses;
+    for (const auto &pose : obj->shape_poses_)
+        poses.push_back(tf.inverse() * pose);
+
+    robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    return true;
+}
+
+bool Scene::hasObject(const std::string &name) const
+{
+    const auto &world = scene_->getWorld();
+    return world->hasObject(name);
+}
+
 bool Scene::detachObject(const std::string &name)
 {
     auto &robot = scene_->getCurrentStateNonConst();
@@ -241,14 +315,20 @@ bool Scene::detachObject(const std::string &name)
     }
 
     world->addToObject(name, body->getShapes(), body->getFixedTransforms());
+
+    if (!robot.clearAttachedBody(name))
+    {
+        ROS_ERROR("Could not detach object `%s`", name.c_str());
+        return false;
+    }
     return true;
 }
 
 collision_detection::CollisionResult Scene::checkCollision(
-    const robot_state::RobotStatePtr &state, const collision_detection::CollisionRequest &request) const
+    const robot_state::RobotState &state, const collision_detection::CollisionRequest &request) const
 {
     collision_detection::CollisionResult result;
-    scene_->checkCollision(request, result, *state);
+    scene_->checkCollision(request, result, state);
 
     return result;
 }
@@ -256,6 +336,84 @@ collision_detection::CollisionResult Scene::checkCollision(
 double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 {
     return scene_->distanceToCollision(*state);
+}
+
+double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
+{
+    // throw std::runtime_error("Not Implemented");
+    if (not hasObject(object))
+    {
+        ROS_ERROR("World does not have object `%s`", object.c_str());
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    const auto &cw = scene_->getCollisionWorld();
+    const auto &cr = *scene_->getCollisionRobot();
+
+    collision_detection::DistanceRequest req;
+    collision_detection::DistanceResult res;
+
+    const auto &links = state->getRobotModel()->getLinkModelNames();
+    const auto &objs = getCollisionObjects();
+
+    collision_detection::AllowedCollisionMatrix acm;
+
+    // No self-collision distances
+    for (unsigned int i = 0; i < links.size(); ++i)
+        for (unsigned int j = i + 1; j < links.size(); ++j)
+            acm.setEntry(links[i], links[j], true);
+
+    // Ignore all other objects
+    for (unsigned int i = 0; i < links.size(); ++i)
+        for (unsigned int j = 0; j < objs.size(); ++j)
+            acm.setEntry(links[i], objs[j], true);
+
+    // Enable collision to the object of interest
+    for (unsigned int i = 0; i < links.size(); ++i)
+        acm.setEntry(links[i], object, false);
+
+    req.acm = &acm;
+
+    cw->distanceRobot(req, res, cr, *state);
+    return res.minimum_distance.distance;
+}
+
+double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
+{
+    // throw std::runtime_error("Not Implemented");
+
+    // Early terminate if they are the same
+    if (one == two)
+        return 0.;
+
+    if (not hasObject(one))
+    {
+        ROS_ERROR("World does not have object `%s`", one.c_str());
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    if (not hasObject(two))
+    {
+        ROS_ERROR("World does not have object `%s`", two.c_str());
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    const auto &cw = scene_->getCollisionWorld();
+
+    collision_detection::DistanceRequest req;
+    collision_detection::DistanceResult res;
+
+    const auto &objs = getCollisionObjects();
+
+    // Allow collisions between all other objects
+    collision_detection::AllowedCollisionMatrix acm(objs, true);
+    req.acm = &acm;
+
+    // But disable them for the two we care about
+    acm.setEntry(one, two, false);
+
+    cw->distanceWorld(req, res, *cw);
+    return res.minimum_distance.distance;
 }
 
 bool Scene::toYAMLFile(const std::string &file)
@@ -280,5 +438,18 @@ bool Scene::fromYAMLFile(const std::string &file)
     if (msg.allowed_collision_matrix.entry_names.empty())
         getACM() = acm;
 
+    return true;
+}
+
+bool Scene::fromOpenRAVEXMLFile(const std::string &file, std::string models_dir)
+{
+    if (models_dir.empty())
+        models_dir = IO::resolveParent(file);
+
+    moveit_msgs::PlanningScene msg;
+    if (!openrave::fromXMLFile(msg, file, models_dir))
+        return false;
+
+    scene_->usePlanningSceneMsg(msg);
     return true;
 }

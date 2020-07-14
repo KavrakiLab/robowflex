@@ -392,14 +392,14 @@
       <name>transform2fcl</name>
       <anchorfile>namespacecollision__detection.html</anchorfile>
       <anchor>ac62f07a0d167ce0255db6ab31b9506bb</anchor>
-      <arglist>(const Eigen::Affine3d &amp;b, fcl::Transform3f &amp;f)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;b, fcl::Transform3f &amp;f)</arglist>
     </member>
     <member kind="function">
       <type>fcl::Transform3f</type>
       <name>transform2fcl</name>
       <anchorfile>namespacecollision__detection.html</anchorfile>
       <anchor>a65033c779e897cf789d2be527fc26be2</anchor>
-      <arglist>(const Eigen::Affine3d &amp;b)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;b)</arglist>
     </member>
   </compound>
   <compound kind="file">
@@ -1885,7 +1885,7 @@
       <arglist></arglist>
     </member>
     <member kind="typedef">
-      <type>std::map&lt; const LinkModel *, Eigen::Affine3d, std::less&lt; const LinkModel * &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const LinkModel *const, Eigen::Affine3d &gt; &gt; &gt;</type>
+      <type>std::map&lt; const LinkModel *, Eigen::Isometry3d, std::less&lt; const LinkModel * &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const LinkModel *const, Eigen::Isometry3d &gt; &gt; &gt;</type>
       <name>LinkTransformMap</name>
       <anchorfile>namespacemoveit_1_1core.html</anchorfile>
       <anchor>a4586cb570da059f7f173b6fd9f358917</anchor>
@@ -3541,7 +3541,7 @@
     <namespace>moveit</namespace>
     <namespace>moveit::core</namespace>
     <member kind="typedef">
-      <type>std::map&lt; std::string, Eigen::Affine3d, std::less&lt; std::string &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const std::string, Eigen::Affine3d &gt; &gt; &gt;</type>
+      <type>std::map&lt; std::string, Eigen::Isometry3d, std::less&lt; std::string &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const std::string, Eigen::Isometry3d &gt; &gt; &gt;</type>
       <name>FixedTransformsMap</name>
       <anchorfile>namespacemoveit_1_1core.html</anchorfile>
       <anchor>aab2e7121788a9fdfc2ca8ad2fc2f78a2</anchor>
@@ -3755,7 +3755,7 @@
       <name>extendWithTransformedBox</name>
       <anchorfile>classmoveit_1_1core_1_1AABB.html</anchorfile>
       <anchor>a82a6a42a7e743906c9f4b607cc4143e3</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transform, const Eigen::Vector3d &amp;box)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transform, const Eigen::Vector3d &amp;box)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -4019,14 +4019,14 @@
       <name>AttachedBody</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>a50282a5a8ed6a2b6447d9245de71e663</anchor>
-      <arglist>(const LinkModel *link, const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const trajectory_msgs::JointTrajectory &amp;attach_posture)</arglist>
+      <arglist>(const LinkModel *link, const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const trajectory_msgs::JointTrajectory &amp;attach_posture)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>a7f5205d9981c02ffb6b5758babdc1ef0</anchor>
-      <arglist>(const Eigen::Affine3d &amp;parent_link_global_transform)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;parent_link_global_transform)</arglist>
     </member>
     <member kind="function">
       <type>const LinkModel *</type>
@@ -4050,14 +4050,14 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function">
-      <type>const EigenSTL::vector_Affine3d &amp;</type>
+      <type>const EigenSTL::vector_Isometry3d &amp;</type>
       <name>getFixedTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>aed0f2b8b0374c5080e646cb730e8f1dc</anchor>
       <arglist>() const </arglist>
     </member>
     <member kind="function">
-      <type>const EigenSTL::vector_Affine3d &amp;</type>
+      <type>const EigenSTL::vector_Isometry3d &amp;</type>
       <name>getGlobalCollisionBodyTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>a68a3503d854abacd63fc2ad59d737049</anchor>
@@ -4106,7 +4106,7 @@
       <arglist>()</arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>EigenSTL::vector_Affine3d</type>
+      <type>EigenSTL::vector_Isometry3d</type>
       <name>attach_trans_</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>a53b1c393e8a81431f9eeff9c4d4f4235</anchor>
@@ -4120,7 +4120,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>EigenSTL::vector_Affine3d</type>
+      <type>EigenSTL::vector_Isometry3d</type>
       <name>global_collision_body_transforms_</name>
       <anchorfile>classmoveit_1_1core_1_1AttachedBody.html</anchorfile>
       <anchor>a9aa1ab1823fc1ad413f7cbb1c0204e8e</anchor>
@@ -6431,7 +6431,7 @@
       <name>addShapeToField</name>
       <anchorfile>classdistance__field_1_1DistanceField.html</anchorfile>
       <anchor>adeca93ccdc0704a448e56a77f9a3b8cd</anchor>
-      <arglist>(const shapes::Shape *shape, const Eigen::Affine3d &amp;pose)</arglist>
+      <arglist>(const shapes::Shape *shape, const Eigen::Isometry3d &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>MOVEIT_DEPRECATED void</type>
@@ -6529,7 +6529,7 @@
       <name>getShapePoints</name>
       <anchorfile>classdistance__field_1_1DistanceField.html</anchorfile>
       <anchor>abd7ae7db9c6791d12199ee0c7226b98b</anchor>
-      <arglist>(const shapes::Shape *shape, const Eigen::Affine3d &amp;pose, EigenSTL::vector_Vector3d *points)</arglist>
+      <arglist>(const shapes::Shape *shape, const Eigen::Isometry3d &amp;pose, EigenSTL::vector_Vector3d *points)</arglist>
     </member>
     <member kind="function">
       <type>double</type>
@@ -6599,7 +6599,7 @@
       <name>moveShapeInField</name>
       <anchorfile>classdistance__field_1_1DistanceField.html</anchorfile>
       <anchor>ab53c792990adde7bb6fbf3acd39d3a01</anchor>
-      <arglist>(const shapes::Shape *shape, const Eigen::Affine3d &amp;old_pose, const Eigen::Affine3d &amp;new_pose)</arglist>
+      <arglist>(const shapes::Shape *shape, const Eigen::Isometry3d &amp;old_pose, const Eigen::Isometry3d &amp;new_pose)</arglist>
     </member>
     <member kind="function">
       <type>MOVEIT_DEPRECATED void</type>
@@ -6627,7 +6627,7 @@
       <name>removeShapeFromField</name>
       <anchorfile>classdistance__field_1_1DistanceField.html</anchorfile>
       <anchor>a6f5841f58cf2362b0d9cb2b3d98b172b</anchor>
-      <arglist>(const shapes::Shape *shape, const Eigen::Affine3d &amp;pose)</arglist>
+      <arglist>(const shapes::Shape *shape, const Eigen::Isometry3d &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>MOVEIT_DEPRECATED void</type>
@@ -7478,14 +7478,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1FixedJointModel.html</anchorfile>
       <anchor>a24aa6ee9adc1039fd0524665f60c2af0</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const </arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1FixedJointModel.html</anchorfile>
       <anchor>a5a47a4b4ebc0c550ce2b382252290d1f</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transf, double *joint_values) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transf, double *joint_values) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual double</type>
@@ -7567,14 +7567,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1FloatingJointModel.html</anchorfile>
       <anchor>a73a9f5c83ab6080ba7fcc290ffe77072</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const </arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1FloatingJointModel.html</anchorfile>
       <anchor>a2fde7bc379a64403afa3718ce3a98074</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transf, double *joint_values) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transf, double *joint_values) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual double</type>
@@ -7894,7 +7894,7 @@
       <arglist>(robot_state::RobotState &amp;state) const </arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>Eigen::Affine3d</type>
+      <type>Eigen::Isometry3d</type>
       <name>eef_to_ik_tip_transform_</name>
       <anchorfile>classconstraint__samplers_1_1IKConstraintSampler.html</anchorfile>
       <anchor>a573d61474cda1c99f285b3d12744786c</anchor>
@@ -8911,14 +8911,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1JointModel.html</anchorfile>
       <anchor>a58d9998af67f3e9d00847813131cb728</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const =0</arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1JointModel.html</anchorfile>
       <anchor>a5dc64747f5bc73a9cdfd91e149aa2976</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transform, double *joint_values) const =0</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transform, double *joint_values) const =0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type>void</type>
@@ -9268,14 +9268,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1JointModel.html</anchorfile>
       <anchor>a58d9998af67f3e9d00847813131cb728</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const =0</arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1JointModel.html</anchorfile>
       <anchor>a5dc64747f5bc73a9cdfd91e149aa2976</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transform, double *joint_values) const =0</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transform, double *joint_values) const =0</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -11155,7 +11155,7 @@
       <name>addAssociatedFixedTransform</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a9fc0ba69509b6e9c3e29cc57cfad2ecd</anchor>
-      <arglist>(const LinkModel *link_model, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const LinkModel *link_model, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -11193,7 +11193,7 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function">
-      <type>const EigenSTL::vector_Affine3d &amp;</type>
+      <type>const EigenSTL::vector_Isometry3d &amp;</type>
       <name>getCollisionOriginTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a27033b95e367e248d477ea0d4d260fc8</anchor>
@@ -11207,7 +11207,7 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointOriginTransform</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a0b68ee7f94f0f0b9cc8c4b0af2b78aec</anchor>
@@ -11263,7 +11263,7 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getVisualMeshOrigin</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a29994d4244e57486d6292f6c1db95184</anchor>
@@ -11309,14 +11309,14 @@
       <name>setGeometry</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a77830405460333197be4ba84af70ec06</anchor>
-      <arglist>(const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;origins)</arglist>
+      <arglist>(const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;origins)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>setJointOriginTransform</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>ac742dc6c7e8f9fb99497dfb505df906e</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -11344,7 +11344,7 @@
       <name>setVisualMesh</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a4589c754516558e0214c2263c3d58583</anchor>
-      <arglist>(const std::string &amp;visual_mesh, const Eigen::Affine3d &amp;origin, const Eigen::Vector3d &amp;scale)</arglist>
+      <arglist>(const std::string &amp;visual_mesh, const Eigen::Isometry3d &amp;origin, const Eigen::Vector3d &amp;scale)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -11375,7 +11375,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>EigenSTL::vector_Affine3d</type>
+      <type>EigenSTL::vector_Isometry3d</type>
       <name>collision_origin_transform_</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>ad2409c58aff489b6051c53c89546e35f</anchor>
@@ -11403,7 +11403,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>Eigen::Affine3d</type>
+      <type>Eigen::Isometry3d</type>
       <name>joint_origin_transform_</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>ae73aa3cbb0f036a34574bbb2dd3f02b2</anchor>
@@ -11466,7 +11466,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>Eigen::Affine3d</type>
+      <type>Eigen::Isometry3d</type>
       <name>visual_mesh_origin_</name>
       <anchorfile>classmoveit_1_1core_1_1LinkModel.html</anchorfile>
       <anchor>a33143600ddb0a187d075b94b4de7636d</anchor>
@@ -11947,7 +11947,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>EigenSTL::vector_Affine3d</type>
+      <type>EigenSTL::vector_Isometry3d</type>
       <name>shape_poses_</name>
       <anchorfile>structcollision__detection_1_1World_1_1Object.html</anchorfile>
       <anchor>a1ee0807d07eacee16e5b9a786ba2e5a5</anchor>
@@ -12240,14 +12240,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1PlanarJointModel.html</anchorfile>
       <anchor>ae62107a4a676278e0be770d1d56c3fa4</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const </arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1PlanarJointModel.html</anchorfile>
       <anchor>ab492618a1e8ca28431ba8503a20a1112</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transf, double *joint_values) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transf, double *joint_values) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual double</type>
@@ -13018,7 +13018,7 @@
       <name>loadGeometryFromStream</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>aa0310b2032f5ad24d658c5ff9653163a</anchor>
-      <arglist>(std::istream &amp;in, const Eigen::Affine3d &amp;offset)</arglist>
+      <arglist>(std::istream &amp;in, const Eigen::Isometry3d &amp;offset)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -13074,7 +13074,7 @@
       <name>processOctomapPtr</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>ab1f85fd67f7dfbf7457e6f3c871d78de</anchor>
-      <arglist>(const std::shared_ptr&lt; const octomap::OcTree &gt; &amp;octree, const Eigen::Affine3d &amp;t)</arglist>
+      <arglist>(const std::shared_ptr&lt; const octomap::OcTree &gt; &amp;octree, const Eigen::Isometry3d &amp;t)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -13238,28 +13238,28 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a4239584551cf1cfa096cdbbb04d2b38b</anchor>
       <arglist>(const std::string &amp;id) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a9c012948fb1348b66355479d4e5b1995</anchor>
       <arglist>(const std::string &amp;id)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a0e195d135e74bc0962c2e9bedcd9bd7f</anchor>
       <arglist>(robot_state::RobotState &amp;state, const std::string &amp;id) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>adc05ef0c260fa0b0fa7705e722467eae</anchor>
@@ -13959,28 +13959,28 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a4239584551cf1cfa096cdbbb04d2b38b</anchor>
       <arglist>(const std::string &amp;id) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a9c012948fb1348b66355479d4e5b1995</anchor>
       <arglist>(const std::string &amp;id)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>a0e195d135e74bc0962c2e9bedcd9bd7f</anchor>
       <arglist>(robot_state::RobotState &amp;state, const std::string &amp;id) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classplanning__scene_1_1PlanningScene.html</anchorfile>
       <anchor>adc05ef0c260fa0b0fa7705e722467eae</anchor>
@@ -14531,7 +14531,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>EigenSTL::vector_Affine3d</type>
+      <type>EigenSTL::vector_Isometry3d</type>
       <name>constraint_region_pose_</name>
       <anchorfile>classkinematic__constraints_1_1PositionConstraint.html</anchorfile>
       <anchor>a06f4ea1fb49bef174b0e14c2668a5741</anchor>
@@ -15043,14 +15043,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1PrismaticJointModel.html</anchorfile>
       <anchor>a6f0384b6e6df5ae95bb92e61d0dcd228</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const </arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1PrismaticJointModel.html</anchorfile>
       <anchor>af566c05a3dbf63dabb39a9c267b91688</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transf, double *joint_values) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transf, double *joint_values) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual double</type>
@@ -15745,14 +15745,14 @@
       <name>computeTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RevoluteJointModel.html</anchorfile>
       <anchor>a402a1f54f2ef8812b77ec453218cf92d</anchor>
-      <arglist>(const double *joint_values, Eigen::Affine3d &amp;transf) const </arglist>
+      <arglist>(const double *joint_values, Eigen::Isometry3d &amp;transf) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual void</type>
       <name>computeVariablePositions</name>
       <anchorfile>classmoveit_1_1core_1_1RevoluteJointModel.html</anchorfile>
       <anchor>a47e4251b8cbde0ba307b13cb0295b8f8</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transf, double *joint_values) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transf, double *joint_values) const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual double</type>
@@ -16407,7 +16407,7 @@
       <name>computeFixedTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1RobotModel.html</anchorfile>
       <anchor>a7779dbc5c3d0cf3cde31583032524e84</anchor>
-      <arglist>(const LinkModel *link, const Eigen::Affine3d &amp;transform, LinkTransformMap &amp;associated_transforms)</arglist>
+      <arglist>(const LinkModel *link, const Eigen::Isometry3d &amp;transform, LinkTransformMap &amp;associated_transforms)</arglist>
     </member>
     <member kind="function" protection="protected">
       <type>JointModel *</type>
@@ -17002,14 +17002,14 @@
       <arglist>(std::vector&lt; double &gt; &amp;aabb)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>af7482d79ce5b29e0b7b97d0f7f187af4</anchor>
       <arglist>(const std::string &amp;id)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getFrameTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ab04e7315202498cbb916403087785bb5</anchor>
@@ -17139,7 +17139,7 @@
       <name>printTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>af0f3e487de8c1ae809c044990b353841</anchor>
-      <arglist>(const Eigen::Affine3d &amp;transform, std::ostream &amp;out=std::cout) const </arglist>
+      <arglist>(const Eigen::Isometry3d &amp;transform, std::ostream &amp;out=std::cout) const </arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -17531,14 +17531,14 @@
       <name>setJointPositions</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6f29e39d4b1bad50ac078e595abaaf9c</anchor>
-      <arglist>(const std::string &amp;joint_name, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const std::string &amp;joint_name, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>setJointPositions</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>acf6603873541f8cf04476b95d43a4d5b</anchor>
-      <arglist>(const JointModel *joint, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const JointModel *joint, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -17944,94 +17944,94 @@
       <name>updateStateWithLinkAt</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6cc3a80dbf59387597d65505623bb78e</anchor>
-      <arglist>(const std::string &amp;link_name, const Eigen::Affine3d &amp;transform, bool backward=false)</arglist>
+      <arglist>(const std::string &amp;link_name, const Eigen::Isometry3d &amp;transform, bool backward=false)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>updateStateWithLinkAt</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a43bb5bb7db541e93f0102b9f290603ff</anchor>
-      <arglist>(const LinkModel *link, const Eigen::Affine3d &amp;transform, bool backward=false)</arglist>
+      <arglist>(const LinkModel *link, const Eigen::Isometry3d &amp;transform, bool backward=false)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a038dc6e7063fbc24cfb3d10d8bbb880d</anchor>
       <arglist>(const std::string &amp;link_name)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a76797b5f33b8449dcadf17c825a6ba4c</anchor>
       <arglist>(const LinkModel *link)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>af104f914b69a3703349ae3f2fd9404bc</anchor>
       <arglist>(const std::string &amp;link_name, std::size_t index)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a8858380ce3a1c053fc0f8adbd40ea3ac</anchor>
       <arglist>(const LinkModel *link, std::size_t index)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ae5001e9c5b7c22d5c8e300f7f8f81a70</anchor>
       <arglist>(const std::string &amp;joint_name)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a34aa4cffea8cb555cc1e8b5d9fa11be4</anchor>
       <arglist>(const JointModel *joint)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ada011a4a3bbe1b207c8119ec534a1e23</anchor>
       <arglist>(const std::string &amp;link_name) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ae0c9931c1790f0de60073ca4e56ab4cc</anchor>
       <arglist>(const LinkModel *link) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ad0fbac4e2e2fc18c9341da9e271cf2cf</anchor>
       <arglist>(const std::string &amp;link_name, std::size_t index) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a4aa8c6a9a798141c5cebf7134c7df74c</anchor>
       <arglist>(const LinkModel *link, std::size_t index) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aea443160079811f45fcc9eafcabbf5b2</anchor>
       <arglist>(const std::string &amp;joint_name) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aabbd41a28a1a7698fd34190d9d180e50</anchor>
@@ -18217,14 +18217,14 @@
       <name>attachBody</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6204f7ad66163fa73f713d4897c25a77</anchor>
-      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
+      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>attachBody</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a9fd2ac241124639ed77b16a995774725</anchor>
-      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;attach_trans, const std::vector&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
+      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;attach_trans, const std::vector&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -18458,14 +18458,14 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>Eigen::Affine3d *</type>
+      <type>Eigen::Isometry3d *</type>
       <name>global_collision_body_transforms_</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a9a1b84afe76b0eb6bcf49e8a95b7951c</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>Eigen::Affine3d *</type>
+      <type>Eigen::Isometry3d *</type>
       <name>global_link_transforms_</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a963901d995f1ad657966f02873fb43fe</anchor>
@@ -18521,7 +18521,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="private">
-      <type>Eigen::Affine3d *</type>
+      <type>Eigen::Isometry3d *</type>
       <name>variable_joint_transforms_</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ad46e590ed2595f6b3855ad5e780df810</anchor>
@@ -18896,14 +18896,14 @@
       <name>setJointPositions</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6f29e39d4b1bad50ac078e595abaaf9c</anchor>
-      <arglist>(const std::string &amp;joint_name, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const std::string &amp;joint_name, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>setJointPositions</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>acf6603873541f8cf04476b95d43a4d5b</anchor>
-      <arglist>(const JointModel *joint, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const JointModel *joint, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -19232,14 +19232,14 @@
       <name>setToIKSolverFrame</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a08aa8a30c5c40476f44397a9d32a9e3d</anchor>
-      <arglist>(Eigen::Affine3d &amp;pose, const kinematics::KinematicsBaseConstPtr &amp;solver)</arglist>
+      <arglist>(Eigen::Isometry3d &amp;pose, const kinematics::KinematicsBaseConstPtr &amp;solver)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setToIKSolverFrame</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aa591f09030389fff10bd4dfd4cf5ac23</anchor>
-      <arglist>(Eigen::Affine3d &amp;pose, const std::string &amp;ik_frame)</arglist>
+      <arglist>(Eigen::Isometry3d &amp;pose, const std::string &amp;ik_frame)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -19260,42 +19260,42 @@
       <name>setFromIK</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>adbb7fa25dedf3b5e324786d9165b0d92</anchor>
-      <arglist>(const JointModelGroup *group, const Eigen::Affine3d &amp;pose, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const Eigen::Isometry3d &amp;pose, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a38943d2703ea1ec7b18b7f01a05d0d7b</anchor>
-      <arglist>(const JointModelGroup *group, const Eigen::Affine3d &amp;pose, const std::string &amp;tip, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const Eigen::Isometry3d &amp;pose, const std::string &amp;tip, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a7dab73858059bedb7894cf4ec520c10d</anchor>
-      <arglist>(const JointModelGroup *group, const Eigen::Affine3d &amp;pose, const std::string &amp;tip, const std::vector&lt; double &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const Eigen::Isometry3d &amp;pose, const std::string &amp;tip, const std::vector&lt; double &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>abdf85ad8c682ebc14536e5f7648c5041</anchor>
-      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Affine3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Isometry3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setFromIK</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a9631fb6403a8afab862bd1aa52959cdc</anchor>
-      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Affine3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Isometry3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>setFromIKSubgroups</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aa3479b58416de8ea77b7f5125a546629</anchor>
-      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Affine3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, const EigenSTL::vector_Isometry3d &amp;poses, const std::vector&lt; std::string &gt; &amp;tips, const std::vector&lt; std::vector&lt; double &gt; &gt; &amp;consistency_limits, unsigned int attempts=0, double timeout=0.0, const GroupStateValidityCallbackFn &amp;constraint=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -19327,25 +19327,25 @@
       <type>double</type>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a991d3e3273968b7e932b80bd7ec6226f</anchor>
-      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const Eigen::Affine3d &amp;target, bool global_reference_frame, const MaxEEFStep &amp;max_step, const JumpThreshold &amp;jump_threshold, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const Eigen::Isometry3d &amp;target, bool global_reference_frame, const MaxEEFStep &amp;max_step, const JumpThreshold &amp;jump_threshold, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>double</type>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>afda9ff554c1d5c92c7585ee9c87cc20c</anchor>
-      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const Eigen::Affine3d &amp;target, bool global_reference_frame, double max_step, double jump_threshold_factor, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const Eigen::Isometry3d &amp;target, bool global_reference_frame, double max_step, double jump_threshold_factor, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>double</type>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a25f69a60feea6bfc8f695b42b52db447</anchor>
-      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const EigenSTL::vector_Affine3d &amp;waypoints, bool global_reference_frame, const MaxEEFStep &amp;max_step, const JumpThreshold &amp;jump_threshold, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const EigenSTL::vector_Isometry3d &amp;waypoints, bool global_reference_frame, const MaxEEFStep &amp;max_step, const JumpThreshold &amp;jump_threshold, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>double</type>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aaa0993dd42573c9aafd67c04ae1efa6a</anchor>
-      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const EigenSTL::vector_Affine3d &amp;waypoints, bool global_reference_frame, double max_step, double jump_threshold_factor, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
+      <arglist>(const JointModelGroup *group, std::vector&lt; RobotStatePtr &gt; &amp;traj, const LinkModel *link, const EigenSTL::vector_Isometry3d &amp;waypoints, bool global_reference_frame, double max_step, double jump_threshold_factor, const GroupStateValidityCallbackFn &amp;validCallback=GroupStateValidityCallbackFn(), const kinematics::KinematicsQueryOptions &amp;options=kinematics::KinematicsQueryOptions())</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -19499,94 +19499,94 @@
       <name>updateStateWithLinkAt</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6cc3a80dbf59387597d65505623bb78e</anchor>
-      <arglist>(const std::string &amp;link_name, const Eigen::Affine3d &amp;transform, bool backward=false)</arglist>
+      <arglist>(const std::string &amp;link_name, const Eigen::Isometry3d &amp;transform, bool backward=false)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>updateStateWithLinkAt</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a43bb5bb7db541e93f0102b9f290603ff</anchor>
-      <arglist>(const LinkModel *link, const Eigen::Affine3d &amp;transform, bool backward=false)</arglist>
+      <arglist>(const LinkModel *link, const Eigen::Isometry3d &amp;transform, bool backward=false)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a038dc6e7063fbc24cfb3d10d8bbb880d</anchor>
       <arglist>(const std::string &amp;link_name)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a76797b5f33b8449dcadf17c825a6ba4c</anchor>
       <arglist>(const LinkModel *link)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransforms</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>af104f914b69a3703349ae3f2fd9404bc</anchor>
       <arglist>(const std::string &amp;link_name, std::size_t index)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a8858380ce3a1c053fc0f8adbd40ea3ac</anchor>
       <arglist>(const LinkModel *link, std::size_t index)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ae5001e9c5b7c22d5c8e300f7f8f81a70</anchor>
       <arglist>(const std::string &amp;joint_name)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a34aa4cffea8cb555cc1e8b5d9fa11be4</anchor>
       <arglist>(const JointModel *joint)</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ada011a4a3bbe1b207c8119ec534a1e23</anchor>
       <arglist>(const std::string &amp;link_name) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getGlobalLinkTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ae0c9931c1790f0de60073ca4e56ab4cc</anchor>
       <arglist>(const LinkModel *link) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>ad0fbac4e2e2fc18c9341da9e271cf2cf</anchor>
       <arglist>(const std::string &amp;link_name, std::size_t index) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getCollisionBodyTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a4aa8c6a9a798141c5cebf7134c7df74c</anchor>
       <arglist>(const LinkModel *link, std::size_t index) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aea443160079811f45fcc9eafcabbf5b2</anchor>
       <arglist>(const std::string &amp;joint_name) const </arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getJointTransform</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>aabbd41a28a1a7698fd34190d9d180e50</anchor>
@@ -19772,14 +19772,14 @@
       <name>attachBody</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a6204f7ad66163fa73f713d4897c25a77</anchor>
-      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
+      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;attach_trans, const std::set&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>attachBody</name>
       <anchorfile>classmoveit_1_1core_1_1RobotState.html</anchorfile>
       <anchor>a9fd2ac241124639ed77b16a995774725</anchor>
-      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;attach_trans, const std::vector&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
+      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;attach_trans, const std::vector&lt; std::string &gt; &amp;touch_links, const std::string &amp;link_name, const trajectory_msgs::JointTrajectory &amp;detach_posture=trajectory_msgs::JointTrajectory())</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -20162,7 +20162,7 @@
       <arglist>(const std::string &amp;from_frame) const override</arglist>
     </member>
     <member kind="function">
-      <type>const Eigen::Affine3d &amp;</type>
+      <type>const Eigen::Isometry3d &amp;</type>
       <name>getTransform</name>
       <anchorfile>classplanning__scene_1_1SceneTransforms.html</anchorfile>
       <anchor>ab6bc4674267a8a2749192344eda8cb42</anchor>
@@ -20522,7 +20522,7 @@
       <arglist>() const </arglist>
     </member>
     <member kind="function" virtualness="virtual">
-      <type>virtual const Eigen::Affine3d &amp;</type>
+      <type>virtual const Eigen::Isometry3d &amp;</type>
       <name>getTransform</name>
       <anchorfile>classmoveit_1_1core_1_1Transforms.html</anchorfile>
       <anchor>a567bf07ed01be1293e2488c89fcad6db</anchor>
@@ -20568,7 +20568,7 @@
       <name>setTransform</name>
       <anchorfile>classmoveit_1_1core_1_1Transforms.html</anchorfile>
       <anchor>aec6167704b561dbc69c21fc2dee08424</anchor>
-      <arglist>(const Eigen::Affine3d &amp;t, const std::string &amp;from_frame)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;t, const std::string &amp;from_frame)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -20617,7 +20617,7 @@
       <name>transformPose</name>
       <anchorfile>classmoveit_1_1core_1_1Transforms.html</anchorfile>
       <anchor>a84bf991a795b2185e387a5a00466e75d</anchor>
-      <arglist>(const std::string &amp;from_frame, const Eigen::Affine3d &amp;t_in, Eigen::Affine3d &amp;t_out) const </arglist>
+      <arglist>(const std::string &amp;from_frame, const Eigen::Isometry3d &amp;t_in, Eigen::Isometry3d &amp;t_out) const </arglist>
     </member>
     <member kind="function" static="yes">
       <type>static bool</type>
@@ -20659,7 +20659,7 @@
       <name>setTransform</name>
       <anchorfile>classmoveit_1_1core_1_1Transforms.html</anchorfile>
       <anchor>aec6167704b561dbc69c21fc2dee08424</anchor>
-      <arglist>(const Eigen::Affine3d &amp;t, const std::string &amp;from_frame)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;t, const std::string &amp;from_frame)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -20708,7 +20708,7 @@
       <name>transformPose</name>
       <anchorfile>classmoveit_1_1core_1_1Transforms.html</anchorfile>
       <anchor>a84bf991a795b2185e387a5a00466e75d</anchor>
-      <arglist>(const std::string &amp;from_frame, const Eigen::Affine3d &amp;t_in, Eigen::Affine3d &amp;t_out) const </arglist>
+      <arglist>(const std::string &amp;from_frame, const Eigen::Isometry3d &amp;t_in, Eigen::Isometry3d &amp;t_out) const </arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -20977,7 +20977,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>Eigen::Affine3d</type>
+      <type>Eigen::Isometry3d</type>
       <name>sensor_pose_</name>
       <anchorfile>classkinematic__constraints_1_1VisibilityConstraint.html</anchorfile>
       <anchor>a62b2e41044f09df70135880e49f1058e</anchor>
@@ -20998,7 +20998,7 @@
       <arglist></arglist>
     </member>
     <member kind="variable" protection="protected">
-      <type>Eigen::Affine3d</type>
+      <type>Eigen::Isometry3d</type>
       <name>target_pose_</name>
       <anchorfile>classkinematic__constraints_1_1VisibilityConstraint.html</anchorfile>
       <anchor>adaaa2616266617afc7f247eb454e0ec7</anchor>
@@ -21707,14 +21707,14 @@
       <name>addToObject</name>
       <anchorfile>classcollision__detection_1_1World.html</anchorfile>
       <anchor>a1d13f3b6bf0ddb5bafb360ef9ea10814</anchor>
-      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Affine3d &amp;poses)</arglist>
+      <arglist>(const std::string &amp;id, const std::vector&lt; shapes::ShapeConstPtr &gt; &amp;shapes, const EigenSTL::vector_Isometry3d &amp;poses)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>addToObject</name>
       <anchorfile>classcollision__detection_1_1World.html</anchorfile>
       <anchor>a289081085766dc32e07b602438572c16</anchor>
-      <arglist>(const std::string &amp;id, const shapes::ShapeConstPtr &amp;shape, const Eigen::Affine3d &amp;pose)</arglist>
+      <arglist>(const std::string &amp;id, const shapes::ShapeConstPtr &amp;shape, const Eigen::Isometry3d &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>const_iterator</type>
@@ -21777,14 +21777,14 @@
       <name>moveObject</name>
       <anchorfile>classcollision__detection_1_1World.html</anchorfile>
       <anchor>aabf55427d7f6ea0911b32285a2f40dc1</anchor>
-      <arglist>(const std::string &amp;id, const Eigen::Affine3d &amp;transform)</arglist>
+      <arglist>(const std::string &amp;id, const Eigen::Isometry3d &amp;transform)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>moveShapeInObject</name>
       <anchorfile>classcollision__detection_1_1World.html</anchorfile>
       <anchor>a671b1507b6ffea4a478b2c903fd667e8</anchor>
-      <arglist>(const std::string &amp;id, const shapes::ShapeConstPtr &amp;shape, const Eigen::Affine3d &amp;pose)</arglist>
+      <arglist>(const std::string &amp;id, const shapes::ShapeConstPtr &amp;shape, const Eigen::Isometry3d &amp;pose)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -21847,7 +21847,7 @@
       <name>addToObjectInternal</name>
       <anchorfile>classcollision__detection_1_1World.html</anchorfile>
       <anchor>a76904d0cf2e97f475d3917bcc6007f9c</anchor>
-      <arglist>(const ObjectPtr &amp;obj, const shapes::ShapeConstPtr &amp;shape, const Eigen::Affine3d &amp;pose)</arglist>
+      <arglist>(const ObjectPtr &amp;obj, const shapes::ShapeConstPtr &amp;shape, const Eigen::Isometry3d &amp;pose)</arglist>
     </member>
     <member kind="function" protection="private">
       <type>void</type>
@@ -22357,14 +22357,14 @@
       <name>transform2fcl</name>
       <anchorfile>namespacecollision__detection.html</anchorfile>
       <anchor>ac62f07a0d167ce0255db6ab31b9506bb</anchor>
-      <arglist>(const Eigen::Affine3d &amp;b, fcl::Transform3f &amp;f)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;b, fcl::Transform3f &amp;f)</arglist>
     </member>
     <member kind="function">
       <type>fcl::Transform3f</type>
       <name>transform2fcl</name>
       <anchorfile>namespacecollision__detection.html</anchorfile>
       <anchor>a65033c779e897cf789d2be527fc26be2</anchor>
-      <arglist>(const Eigen::Affine3d &amp;b)</arglist>
+      <arglist>(const Eigen::Isometry3d &amp;b)</arglist>
     </member>
   </compound>
   <compound kind="namespace">
@@ -22941,7 +22941,7 @@
       <arglist></arglist>
     </member>
     <member kind="typedef">
-      <type>std::map&lt; std::string, Eigen::Affine3d, std::less&lt; std::string &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const std::string, Eigen::Affine3d &gt; &gt; &gt;</type>
+      <type>std::map&lt; std::string, Eigen::Isometry3d, std::less&lt; std::string &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const std::string, Eigen::Isometry3d &gt; &gt; &gt;</type>
       <name>FixedTransformsMap</name>
       <anchorfile>namespacemoveit_1_1core.html</anchorfile>
       <anchor>aab2e7121788a9fdfc2ca8ad2fc2f78a2</anchor>
@@ -23004,7 +23004,7 @@
       <arglist></arglist>
     </member>
     <member kind="typedef">
-      <type>std::map&lt; const LinkModel *, Eigen::Affine3d, std::less&lt; const LinkModel * &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const LinkModel *const, Eigen::Affine3d &gt; &gt; &gt;</type>
+      <type>std::map&lt; const LinkModel *, Eigen::Isometry3d, std::less&lt; const LinkModel * &gt;, Eigen::aligned_allocator&lt; std::pair&lt; const LinkModel *const, Eigen::Isometry3d &gt; &gt; &gt;</type>
       <name>LinkTransformMap</name>
       <anchorfile>namespacemoveit_1_1core.html</anchorfile>
       <anchor>a4586cb570da059f7f173b6fd9f358917</anchor>

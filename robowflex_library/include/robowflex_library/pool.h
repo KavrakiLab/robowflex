@@ -153,9 +153,25 @@ namespace robowflex
 
             /** \brief Waits until result of the job is available.
              */
-            void wait()
+            void wait() const
             {
                 future_.wait();
+            }
+
+            /** \brief Returns true if the task is done, false otherwise.
+             *  \return True if task is done, false otherwise.
+             */
+            bool isDone() const
+            {
+                return waitFor(0);
+            }
+
+            /** \brief Waits for a number of seconds to see if the task completes.
+             *  \return True if task is complete, false otherwise.
+             */
+            bool waitFor(double time) const
+            {
+                return future_.wait_for(std::chrono::seconds(time)) == std::future_status::ready;
             }
 
         private:

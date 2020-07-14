@@ -6,12 +6,15 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <visualization_msgs/Marker.h>
+
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/bodies.h>
 
 #include <shape_msgs/SolidPrimitive.h>
 #include <shape_msgs/Mesh.h>
 
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/class_forward.h>
 
 namespace robowflex
@@ -87,21 +90,46 @@ namespace robowflex
          */
         static GeometryPtr makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg);
 
-        /** \brief Create a mesh.
+        /** \brief Create a mesh from resource file.
          *  \param[in] resource The resource to load for the mesh.
          *  \param[in] scale The scale of the mesh.
          *  \return The created mesh.
          */
         static GeometryPtr makeMesh(const std::string &resource, const Eigen::Vector3d &scale = {1, 1, 1});
 
+        /** \brief Create a mesh from triangles represented as vertices .
+         *  \param[in] vertices The vertices that will create the mesh.
+         *  \return The created mesh.
+         */
+        static GeometryPtr makeMesh(const EigenSTL::vector_Vector3d &vertices);
+
         /** \brief Constructor.
          *  Builds and loads the specified geometry.
          *  \param[in] type Type of the geometry to create.
          *  \param[in] dimensions Dimensions of the geometry to load.
-         *  \param[in] resource If \a type is ShapeType::MESH, then resource must be specified as the mesh
-         *                      file to load.
+         *  \param[in] resource If \a type is ShapeType::MESH, then resource or vertices must be specified
+         * as the mesh file to load.
          */
-        Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "");
+        Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
+                 const EigenSTL::vector_Vector3d vertices = {});
+
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape.
+         *  \param[in] shape Shape to construct geometry from.
+         */
+        Geometry(const shapes::Shape &shape);
+
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape message.
+         *  \param[in] msg Shape message to construct geometry from.
+         */
+        Geometry(const shape_msgs::SolidPrimitive &msg);
+
+        /** \brief Constructor.
+         *  Builds and loads the specified geometry from a MoveIt shape message.
+         *  \param[in] msg Shape message to construct mesh geometry from.
+         */
+        Geometry(const shape_msgs::Mesh &msg);
 
         // non-copyable
         Geometry(const Geometry &) = delete;
@@ -154,6 +182,10 @@ namespace robowflex
          */
         const std::string &getResource() const;
 
+        /** \brief Gets the Vertices of the primitive.
+         *  \return The mesh resource of geometry.
+         */
+        const EigenSTL::vector_Vector3d &getVertices() const;
 
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
@@ -161,8 +193,8 @@ namespace robowflex
         const Eigen::Vector3d &getDimensions() const;
 
     private:
-        /** \brief Loads a shape from the set \a type_ and \a dimensions_, and \a resource_ if a mesh.
-         *  \return A pointer to a newly allocated shape.
+        /** \brief Loads a shape from the set \a type_ and \a dimensions_, and \a resource_ if a
+         * mesh. \return A pointer to a newly allocated shape.
          */
         shapes::Shape *loadShape() const;
 
@@ -171,11 +203,12 @@ namespace robowflex
          */
         bodies::Body *loadBody() const;
 
-        ShapeType::Type type_{ShapeType::Type::BOX};                 ///< Geometry Type.
-        const Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
-        std::string resource_{""};                                   ///< Resource locator for MESH types.
-        const shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
-        const bodies::BodyPtr body_{nullptr};                        ///< Body operation.
+        ShapeType::Type type_{ShapeType::Type::BOX};           ///< Geometry Type.
+        Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
+        EigenSTL::vector_Vector3d vertices_{{}};               ///< Vertices of the primitive
+        std::string resource_{""};                             ///< Resource locator for MESH types.
+        shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
+        bodies::BodyPtr body_{nullptr};                        ///< Body operation.
     };
 }  // namespace robowflex
 

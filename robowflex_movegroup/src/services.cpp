@@ -4,7 +4,9 @@
 #include <moveit_msgs/ExecuteTrajectoryResult.h>
 #include <moveit_msgs/GetPlanningScene.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
+#include <std_srvs/Empty.h>
 
+#include <robowflex_library/path.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/yaml.h>
@@ -65,17 +67,31 @@ bool MoveGroupHelper::Action::toYAMLFile(const std::string &filename)
 const std::string MoveGroupHelper::MOVE_GROUP{"/move_group"};
 const std::string MoveGroupHelper::GET_SCENE{"get_planning_scene"};
 const std::string MoveGroupHelper::APPLY_SCENE{"apply_planning_scene"};
-const std::string MoveGroupHelper::EXECUTE{"execute_trajectory"};
+const std::string MoveGroupHelper::CLEAR_OCTOMAP{"clear_octomap"};
+const std::string MoveGroupHelper::EXECUTE{"/execute_trajectory"};
 
 MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
-  : nh_("~")
+  : nh_("/")
   , goal_sub_(nh_.subscribe(move_group + "/goal", 10, &MoveGroupHelper::moveGroupGoalCallback, this))
   , result_sub_(nh_.subscribe(move_group + "/result", 10, &MoveGroupHelper::moveGroupResultCallback, this))
   , gpsc_(nh_.serviceClient<moveit_msgs::GetPlanningScene>(GET_SCENE, true))
   , apsc_(nh_.serviceClient<moveit_msgs::ApplyPlanningScene>(APPLY_SCENE, true))
-  , eac_(nh_, EXECUTE, false)
+  , co_(nh_.serviceClient<std_srvs::Empty>(CLEAR_OCTOMAP, true))
+  , eac_(nh_, EXECUTE, true)
   , robot_(std::make_shared<ParamRobot>())
 {
+    ROS_INFO("Waiting for %s to connect...", EXECUTE.c_str());
+    eac_.waitForServer();
+    ROS_INFO("%s connected!", EXECUTE.c_str());
+    ROS_INFO("Waiting for %s to connect...", GET_SCENE.c_str());
+    gpsc_.waitForExistence();
+    ROS_INFO("%s connected!", GET_SCENE.c_str());
+    ROS_INFO("Waiting for %s to connect...", APPLY_SCENE.c_str());
+    apsc_.waitForExistence();
+    ROS_INFO("%s connected!", APPLY_SCENE.c_str());
+    ROS_INFO("Waiting for %s to connect...", CLEAR_OCTOMAP.c_str());
+    co_.waitForExistence();
+    ROS_INFO("%s connected!", CLEAR_OCTOMAP.c_str());
 }
 
 MoveGroupHelper::~MoveGroupHelper()
@@ -84,6 +100,7 @@ MoveGroupHelper::~MoveGroupHelper()
     result_sub_.shutdown();
     gpsc_.shutdown();
     apsc_.shutdown();
+    co_.shutdown();
 }
 
 void MoveGroupHelper::setResultCallback(const ResultCallback &callback)
@@ -97,7 +114,18 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
         return false;
 
     moveit_msgs::ExecuteTrajectoryGoal goal;
-    path.getRobotTrajectoryMsg(goal.trajectory);
+
+    // Check if a Trajectory is time parameterized
+    if (path.getWayPointDurationFromStart(path.getWayPointCount()) == 0)
+    {
+        ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
+        // remove constness
+        auto tpath = path;
+        robowflex::path::computeTimeParameterization(tpath);
+        tpath.getRobotTrajectoryMsg(goal.trajectory);
+    }
+    else
+        path.getRobotTrajectoryMsg(goal.trajectory);
 
     eac_.sendGoal(goal);
     if (!eac_.waitForResult())
@@ -154,9 +182,19 @@ bool MoveGroupHelper::pushScene(const SceneConstPtr &scene)
     moveit_msgs::ApplyPlanningScene::Response response;
     request.scene = scene->getMessage();
 
-    if (gpsc_.call(request, response))
+    if (apsc_.call(request, response))
         return true;
 
+    return false;
+}
+
+bool MoveGroupHelper::clearOctomap()
+{
+    std_srvs::EmptyRequest request;
+    std_srvs::EmptyResponse response;
+
+    if (co_.call(request, response))
+        return true;
     return false;
 }
 

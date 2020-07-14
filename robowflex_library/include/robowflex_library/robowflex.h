@@ -12,6 +12,7 @@ namespace robowflex
 }
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/adapter.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/yaml.h>
@@ -31,6 +32,7 @@ namespace robowflex
 #include <robowflex_library/planning.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/benchmarking.h>
+#include <robowflex_library/openrave.h>
 #include <robowflex_library/path.h>
 
 #endif
