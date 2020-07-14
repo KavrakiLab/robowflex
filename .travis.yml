@@ -1,6 +1,6 @@
-# branches:
-#   only:
-#     - master
+branches:
+  only:
+    - master
 
 addons:
   apt:
@@ -19,5 +19,4 @@ deploy:
   local_dir: .docs/build/docs/html
   github_token: $GH_REPO_TOKEN
   on:
-    # branch: master
-    branch: documentation
+    branch: master
