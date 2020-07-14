@@ -225,7 +225,8 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
 /// OMPLBenchmarkOutputter
 ///
 
-OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix) : prefix_(prefix)
+OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix, bool dumpScene)
+  : prefix_(prefix), dumpScene_(dumpScene)
 {
 }
 
@@ -244,21 +245,22 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     out << "Running on " << IO::getHostname() << std::endl;    // hostname
     out << "Starting at " << IO::getDate() << std::endl;       // date
 
-    // // setup
-    // moveit_msgs::PlanningScene scene_msg;
+    // setup
     const auto &request = results.builder->getRequestConst();
 
-    // results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
+    moveit_msgs::PlanningScene scene_msg;
+    results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
 
-    // YAML::Node yaml;
-    // yaml["scene"] = IO::toNode(scene_msg);
-    // yaml["request"] = IO::toNode(request);
+    YAML::Node yaml;
+    yaml["scene"] = IO::toNode(scene_msg);
+    yaml["request"] = IO::toNode(request);
 
-    // YAML::Emitter yaml_out;
-    // yaml_out << yaml;
+    YAML::Emitter yaml_out;
+    yaml_out << yaml;
 
     out << "<<<|" << std::endl;
-    // out << yaml_out.c_str() << std::endl;
+    if (dumpScene_)
+        out << yaml_out.c_str() << std::endl;
     out << "|>>>" << std::endl;
 
     // random seed (fake)

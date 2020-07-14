@@ -260,7 +260,7 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] prefix Prefix to place in front of all log files generated.
          */
-        OMPLBenchmarkOutputter(const std::string &prefix);
+        OMPLBenchmarkOutputter(const std::string &prefix, bool dumpScene = true);
 
         /** \brief Destructor, runs `ompl_benchmark_statistics.py` to generate benchmarking database.
          */
@@ -274,6 +274,7 @@ namespace robowflex
 
     private:
         const std::string prefix_;  ///< Log file prefix.
+        const bool dumpScene_; ///< If true, outputs scene information in benchmark result.
     };
 }  // namespace robowflex
 
