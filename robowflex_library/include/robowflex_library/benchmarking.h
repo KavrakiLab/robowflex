@@ -259,6 +259,7 @@ namespace robowflex
     public:
         /** \brief Constructor.
          *  \param[in] prefix Prefix to place in front of all log files generated.
+         *  \param[in] dumpScene If true, will output scene into log file.
          */
         OMPLBenchmarkOutputter(const std::string &prefix, bool dumpScene = true);
 
@@ -274,7 +275,7 @@ namespace robowflex
 
     private:
         const std::string prefix_;  ///< Log file prefix.
-        const bool dumpScene_; ///< If true, outputs scene information in benchmark result.
+        const bool dumpScene_;      ///< If true, outputs scene information in benchmark result.
     };
 }  // namespace robowflex
 
