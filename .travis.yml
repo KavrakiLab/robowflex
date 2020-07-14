@@ -1,8 +1,8 @@
 sudo: false
 
-branches:
-  only:
-    - master
+# branches:
+#   only:
+#     - master
 
 addons:
   apt:
