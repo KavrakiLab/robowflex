@@ -192,12 +192,12 @@ namespace robowflex
          */
         template <typename T>
         std::shared_ptr<T> extractPlanningContext(const SceneConstPtr &scene,
-                                                  const planning_interface::MotionPlanRequest &req) const
+                                                  const planning_interface::MotionPlanRequest &request) const
         {
             if (not pipeline_)
                 return nullptr;
 
-            auto pc = pipeline_->getPlannerManager()->getPlanningContext(scene->getSceneConst(), req);
+            auto pc = pipeline_->getPlannerManager()->getPlanningContext(scene->getSceneConst(), request);
             return std::dynamic_pointer_cast<T>(pc);
         }
 

@@ -376,8 +376,8 @@ namespace robowflex
              */
             void addCallback(const RenderCallback &callback);
 
-            /** \brief Add a generic render callback for the GUI.
-             *  \param[in] callback Callback to render.
+            /** \brief Add a generic element to the GUI.
+             *  \param[in] element Element to render.
              */
             void addElement(const ImGuiElementPtr &element);
 

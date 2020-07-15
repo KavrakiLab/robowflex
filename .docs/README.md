@@ -1,4 +1,4 @@
-# Robowflex Documentation Generation
+# Robowflex Documentation Generation {#docgen}
 Documentation is generated with [doxygen](https://www.doxygen.nl/index.html).
 
 ## Dependencies

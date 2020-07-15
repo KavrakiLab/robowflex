@@ -807,7 +807,7 @@ namespace robowflex
                 \{ */
 
             /** \brief Get the current world state.
-             *  \param[out] State to fill.
+             *  \param[out] world State to fill.
              */
             void getPositionsWorldState(Eigen::Ref<Eigen::VectorXd> world) const;
 

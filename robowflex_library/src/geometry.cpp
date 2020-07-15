@@ -95,7 +95,7 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
 }
 
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const EigenSTL::vector_Vector3d vertices)
+                   const EigenSTL::vector_Vector3d &vertices)
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)

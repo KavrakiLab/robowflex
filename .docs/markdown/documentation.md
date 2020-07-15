@@ -4,7 +4,7 @@ This document covers how to document code in Robowflex, as well as add additiona
 
 ## Source Code Documentation
 
-Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.
+Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/) (see [documentation generation](@ref docgen) for more).
 You can see the style of commenting throughout `robowflex_library`.
 Any additional code added to `robowflex_library` or one of the optional modules should be fully documented.
 Generally, all documentation is done in the header files, with little to no high-level documentation in the source files.
@@ -117,20 +117,7 @@ def method()
 
 You can add new pages of high-level documentation like this one in two ways.
 If you are documentation a package within Robowflex, if a `README.md` exists in the top-level of the project, it is automatically added.
-See the `add_doc` macro in `robowflex_doc`'s `CMakeLists.txt` for where this is done.
+See the `add_doc` macro in the `.docs`'s' `CMakeLists.txt` for where this is done.
 
-Additionally, you can add a new markdown file (ending in a `*.md`) to the `robowflex_doc/doc/markdown` folder.
+Additionally, you can add a new markdown file (ending in a `*.md`) to the `.docs/markdown` folder.
 Any markdown file in this directory is also automatically added when generating documentation.
-
-## GitHub Pages
-
-The documentation can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
-To update the documentation on the website, the documentation has to be changed on the `gh-pages` branch of the repository.
-
-This is a simple process:
-1. Generate the documentation for the project with a crisp `catkin build robowflex_doc`
-2. Change the branch of Robowflex to `gh-pages`
-3. Make a branch from of `gh-pages`, something like `feature/doc_update`
-4. Go to `${CATKIN_DEVEL_PREFIX}/.private/robowflex_doc/share/robowflex_doc/doc/html/` for the documentation files.
-5. Copy the contents of that directory into the top-level folder of Robowflex.
-6. Commit changes to the branch, and submit a pull request.
