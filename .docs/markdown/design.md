@@ -82,7 +82,7 @@ There are macros in [`macros.h`](macros_8h_source.html) that allow for condition
 
 ## Documentation
 
-All documentation (through [Doxygen](http://www.stack.nl/~dimitri/doxygen/)) is done in the `robowflex_doc` package.
-This documents all code in the other Robowflex projects, as well as their `README.md` files if they exist (see the `add_doc` macro in `robowflex_doc/CMakeLists.txt`).
-Additional written documentation is in the `doc/markdown` folder in the `robowflex_doc` package.
+See [here](@ref doc) and [here](@ref doc) for how documentation is generated.
+This documents all code in the other Robowflex projects, as well as their `README.md` files if they exist (see the `add_doc` macro in `.docs/CMakeLists.txt`).
+Additional written documentation is in the `.docs/markdown` folder.
 

@@ -1,8 +1,7 @@
 # Robowflex {#home}
+<img src="https://travis-ci.com/KavrakiLab/robowflex.svg?token=zsePEoorZroAPTxFCVFs&branch=master"/>
 
-<i class="fas fa-dumbbell fa-3x"></i>&nbsp;&nbsp;<i class="fas fa-robot fa-3x"></i>&nbsp;&nbsp;<i class="fas fa-dumbbell fa-3x"></i>
-
-The Better Robot Benching Framework™ .
+Making MoveIt Easy!
 An overview of what this project is can be found in the [design description](\ref design).
 Examples of basic motion planning, benchmarking of planning requests, input/output, and more can be found in [scripts](\ref scripts).
 
@@ -36,17 +35,6 @@ Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
 This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
 Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.
 
-## Utilities
-
-Beyond the core library, there are utility packages.
-
 ### robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
 See [the readme](robowflex_visualization.html) for more information on how to use.
-
-### robowflex_doc
-Documentation for all library and module components in Robowflex.
-Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`.
-The documentation can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
-
-To learn more about how to document code for Robowflex, take a look at [the documentation how-to](\ref doc).

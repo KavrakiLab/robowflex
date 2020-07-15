@@ -181,7 +181,10 @@ namespace robowflex
                           const std::vector<std::string> &touch_links);
 
         /** \brief Attach the named collision object \a name to the link \a ee_link of the given robot \a
-         * state \param[in] name Name of object to attach. \param[in] ee_link Link to attach object to.
+         * state
+         *  \param[in] state State of the robot to attach.
+         *  \param[in] name Name of object to attach.
+         *  \param[in] ee_link Link to attach object to.
          *  \param[in] touch_links Links the object is allowed to touch.
          *  \return True on success, false on failure.
          */
