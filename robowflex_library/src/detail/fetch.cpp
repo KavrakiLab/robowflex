@@ -19,9 +19,10 @@ FetchRobot::FetchRobot() : Robot("fetch")
 {
 }
 
-bool FetchRobot::initialize()
+bool FetchRobot::initialize(bool addVirtual)
 {
-    setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
+    if (add_virtual)
+        setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
 
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
                    loadKinematics("arm") && loadKinematics("arm_with_torso");
@@ -77,11 +78,16 @@ void FetchRobot::closeGripper()
 
 void FetchRobot::setBasePose(double x, double y, double theta)
 {
-    const std::map<std::string, double> pose = {
-        {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
+    if (hasJoint("base_joint/x") && hasJoint("base_joint/y") && hasJoint("base_joint/theta"))
+    {
+        const std::map<std::string, double> pose = {
+            {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
 
-    scratch_->setVariablePositions(pose);
-    scratch_->update();
+        scratch_->setVariablePositions(pose);
+        scratch_->update();
+    }
+    else
+        ROS_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

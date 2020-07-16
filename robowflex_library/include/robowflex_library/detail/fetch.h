@@ -28,9 +28,10 @@ namespace robowflex
         FetchRobot();
 
         /** \brief Initialize the robot with arm and arm_with_torso kinematics.
+         *  \param[in] addVirtual flag to add virtual joint.
          *  \return True on success, false on failure.
          */
-        bool initialize();
+        bool initialize(bool addVirtual = true);
 
         /** \brief Inserts a virtual joint "base_joint" into the Fetch's SRDF.
          *  \return True on success.
@@ -50,11 +51,11 @@ namespace robowflex
         void pointHead(const Eigen::Vector3d &point);
 
         /** \brief Opens the Fetch's gripper.
-        */
+         */
         void openGripper();
 
         /** \brief Closes the Fetch's gripper.
-        */
+         */
         void closeGripper();
 
     private:
