@@ -14,11 +14,15 @@ addons:
 #   - source ./.travis/check-format.sh
 
 stages:
-  # - format
+  - format
   - documentation
   - deploy
 jobs:
   include:
+  - stage: documentation
+    script:
+      - source ./.travis/check-format.sh
+
   - stage: documentation
     if: branch = "master" 
     script:
