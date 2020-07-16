@@ -1,11 +1,13 @@
-# branches:
-#   only:
-#     - master
+git:
+  depth: 1
 
-      # - clang-format
-
-# script:
-#   - source ./.travis/check-format.sh
+addons:
+  apt:
+    packages:
+      - doxygen
+      - cmake
+      - graphviz
+      - clang-format
 
 stages:
   - format
@@ -13,22 +15,12 @@ stages:
   - deploy
 jobs:
   include:
-  - stage: format 
-    addons:
-      apt:
-        packages:
-          - clang-format
+  - stage: format
     script:
       - source ./.travis/check-format.sh
 
   - stage: documentation
     if: branch = "master" 
-    addons:
-      apt:
-        packages:
-          - doxygen
-          - cmake
-          - graphviz
     script:
       - source ./.travis/documentation.sh
 
