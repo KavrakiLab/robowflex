@@ -21,7 +21,7 @@ FetchRobot::FetchRobot() : Robot("fetch")
 
 bool FetchRobot::initialize(bool addVirtual)
 {
-    if (add_virtual)
+    if (addVirtual)
         setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
 
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
