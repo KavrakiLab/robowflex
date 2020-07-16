@@ -271,6 +271,11 @@ namespace robowflex
          */
         std::vector<std::string> getJointNames() const;
 
+        /** \brief checks if a joint exists in the robot.
+         *  \return true if the joint exists in the robot false otherwise.
+         */
+        bool hasJoint(const std::string &joint) const;
+
         /** \brief Get the current pose of a link on the scratch state.
          *  \param[in] name The name of the link to find the transform of.
          *  \return The transform of link \a name.

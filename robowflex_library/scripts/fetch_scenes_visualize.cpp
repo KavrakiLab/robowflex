@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
-    fetch->initialize();
+    fetch->initialize(false);  // False does not add the virtual joint.
 
     // Create an RViz visualization helper.
     // Publishes all topics and parameter under `/robowflex` by default.

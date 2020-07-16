@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
-    fetch->initialize();
+    fetch->initialize(false);  // false does not add the virtual joint.
 
     // Setup a benchmarking request for the joint and pose motion plan requests.
     Benchmarker benchmark;

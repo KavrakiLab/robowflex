@@ -347,6 +347,13 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
+bool Robot::hasJoint(const std::string &joint) const
+{
+    auto joint_names = getJointNames();
+    auto exists = (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
+    return exists;
+}
+
 void Robot::setIKAttempts(unsigned int attempts)
 {
     ik_attempts_ = attempts;
