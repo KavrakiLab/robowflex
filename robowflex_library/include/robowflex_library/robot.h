@@ -271,8 +271,8 @@ namespace robowflex
          */
         std::vector<std::string> getJointNames() const;
 
-        /** \brief checks if a joint exists in the robot.
-         *  \return true if the joint exists in the robot false otherwise.
+        /** \brief Checks if a joint exists in the robot.
+         *  \return True if the joint exists, false otherwise.
          */
         bool hasJoint(const std::string &joint) const;
 
@@ -393,8 +393,8 @@ namespace robowflex
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
-        std::string urdf_; ///< The URDF as a string.
-        std::string srdf_; ///< The SRDF as a string.
+        std::string urdf_;  ///< The URDF as a string.
+        std::string srdf_;  ///< The SRDF as a string.
 
         PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
         PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.

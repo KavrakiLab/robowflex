@@ -349,9 +349,8 @@ std::vector<std::string> Robot::getJointNames() const
 
 bool Robot::hasJoint(const std::string &joint) const
 {
-    auto joint_names = getJointNames();
-    auto exists = (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
-    return exists;
+    const auto &joint_names = getJointNames();
+    return (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
 }
 
 void Robot::setIKAttempts(unsigned int attempts)

@@ -19,7 +19,7 @@ FetchRobot::FetchRobot() : Robot("fetch")
 {
 }
 
-bool FetchRobot::initialize(bool add_virtual)
+bool FetchRobot::initialize(bool addVirtual)
 {
     if (add_virtual)
         setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
@@ -87,7 +87,7 @@ void FetchRobot::setBasePose(double x, double y, double theta)
         scratch_->update();
     }
     else
-        ROS_WARN("base_joint does not exist cannot move base!");
+        ROS_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

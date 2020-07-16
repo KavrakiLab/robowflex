@@ -28,9 +28,10 @@ namespace robowflex
         FetchRobot();
 
         /** \brief Initialize the robot with arm and arm_with_torso kinematics.
+         *  \param[in] addVirtual flag to add virtual joint.
          *  \return True on success, false on failure.
          */
-        bool initialize(bool add_virtual = true);
+        bool initialize(bool addVirtual = true);
 
         /** \brief Inserts a virtual joint "base_joint" into the Fetch's SRDF.
          *  \return True on success.
