@@ -42,7 +42,10 @@ IO::HDF5Data::~HDF5Data()
 {
     delete dims_;
 
+    // clang-format off
     ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)
+    // clang-format on
+
     std::free((void *)data_);
     ROBOWFLEX_POP_GCC
 }

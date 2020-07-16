@@ -96,8 +96,8 @@ int planAndBuild()
     Eigen::Vector3d tolerance_feet(0.01, 0.01, 0.01);
     Eigen::Vector3d tolerance_waist(0.005, 0.005, 0.005);
     // Set a goal region to plan to.
-    request.setGoalRegion(                                                                         //
-        right_foot, world,                                                                         //
+    request.setGoalRegion(                                                                 //
+        right_foot, world,                                                                 //
         RobotPose(Eigen::Translation3d(1.26, -0.248, -1.104)), Geometry::makeSphere(0.1),  //
         Eigen::Quaterniond(0, 0, 1, 0), Eigen::Vector3d{0.01, 0.01, 0.01});
 

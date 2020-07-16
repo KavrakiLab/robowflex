@@ -38,7 +38,6 @@ int main(int argc, char **argv)
     request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     request->setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
 
-
     // Setup a benchmarking request for the motion plan requests.
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("test", scene, planner, request);

@@ -47,8 +47,8 @@ int main(int argc, char **argv)
 
     auto region = Geometry::makeSphere(0.1);
 
-    request.setGoalRegion("ee_link", "world",      // links
-                          pose, region,            // position
+    request.setGoalRegion("ee_link", "world",   // links
+                          pose, region,         // position
                           orn, {0.1, 0.1, 0.1}  // orientation
     );
 

@@ -21,8 +21,9 @@ const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_confi
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
 
 const std::map<std::string, std::string> R2Robot::CREEPY{
-    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},
-    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}};
+    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},                 //
+    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}  //
+};
 
 R2Robot::R2Robot() : Robot("r2")
 {
