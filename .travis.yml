@@ -2,13 +2,7 @@
 #   only:
 #     - master
 
-addons:
-  apt:
-    packages:
-      - doxygen
-      - cmake
-      - graphviz
-      - clang-format
+      # - clang-format
 
 # script:
 #   - source ./.travis/check-format.sh
@@ -19,12 +13,22 @@ stages:
   - deploy
 jobs:
   include:
-  - stage: documentation
+  - stage: format 
+    addons:
+      apt:
+        packages:
+          - clang-format
     script:
       - source ./.travis/check-format.sh
 
   - stage: documentation
     if: branch = "master" 
+    addons:
+      apt:
+        packages:
+          - doxygen
+          - cmake
+          - graphviz
     script:
       - source ./.travis/documentation.sh
 
