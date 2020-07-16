@@ -1,6 +1,5 @@
-branches:
-  only:
-    - master
+git:
+  depth: 1
 
 addons:
   apt:
@@ -8,15 +7,30 @@ addons:
       - doxygen
       - cmake
       - graphviz
+      - clang-format
 
-script:
-  - source ./.travis/documentation.sh
+stages:
+  - format
+  - documentation
+  - deploy
+jobs:
+  include:
+  - stage: format
+    script:
+      - source ./.travis/check-format.sh
 
-deploy:
-  strategy: git
-  provider: pages
-  skip_cleanup: true
-  local_dir: .docs/build/doc/html
-  github_token: $GH_REPO_TOKEN
-  on:
-    branch: master
+  - stage: documentation
+    if: branch = "master" 
+    script:
+      - source ./.travis/documentation.sh
+
+  - stage: deploy
+    if: branch = "master" 
+    deploy:
+      strategy: git
+      provider: pages
+      skip_cleanup: true
+      local_dir: .docs/build/doc/html
+      github_token: $GH_REPO_TOKEN
+      on:
+        branch: master

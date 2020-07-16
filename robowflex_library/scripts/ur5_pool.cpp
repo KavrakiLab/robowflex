@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     request.setGoalRegion("ee_link", "world",               // links
                           pose, Geometry::makeSphere(0.1),  // position
                           orn, {0.01, 0.01, 0.01}           // orientation
-                          );
+    );
 
     // Submit a blocking call for planning. This plan is executed in a different thread
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());

@@ -45,7 +45,7 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
 }
 
 RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
-                      const Eigen::Quaterniond &rotation)
+                          const Eigen::Quaterniond &rotation)
 {
     RobotPose pose = RobotPose::Identity();
     pose.translate(translation);

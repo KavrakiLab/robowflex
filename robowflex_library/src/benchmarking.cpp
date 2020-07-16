@@ -63,12 +63,14 @@ Benchmarker::Results::Results(const std::string &name, const SceneConstPtr scene
     start = IO::getDate();
 }
 
-void Benchmarker::Results::addRun(int num, double time, planning_interface::MotionPlanResponse &run)
+Benchmarker::Results::Run &Benchmarker::Results::addRun(int num, double time,
+                                                        planning_interface::MotionPlanResponse &run)
 {
     Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
     computeMetric(run, metrics);
 
     runs.emplace_back(metrics);
+    return runs.back();
 }
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
@@ -130,7 +132,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
-            results.addRun(j, time, response);
+            auto &run = results.addRun(j, time, response);
             if (options.runs == 0)
             {
                 double time_remaining = builder->getRequest().allowed_planning_time - time;

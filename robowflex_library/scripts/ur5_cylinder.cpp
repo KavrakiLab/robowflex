@@ -49,9 +49,9 @@ int main(int argc, char **argv)
 
     request.addCylinderSideGrasp("ee_link", "world",  //
                                  pose, cylinder,      //
-                                 0.15, 0.04, 16);      //
+                                 0.15, 0.04, 16);     //
 
-    rviz.addGoalMarker("goal", request);                        // Visualize the grasping regions
+    rviz.addGoalMarker("goal", request);  // Visualize the grasping regions
     rviz.updateMarkers();
 
     ROS_INFO("Scene and Goal displayed! Press enter to plan...");

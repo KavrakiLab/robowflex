@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     pose_request->setGoalRegion("ee_link", "world",               // links
                                 pose, Geometry::makeSphere(0.1),  // position
                                 orn, {0.01, 0.01, 0.01}           // orientation
-                                );
+    );
 
     // Setup a benchmarking request for the joint and pose motion plan requests.
     Benchmarker benchmark;

@@ -58,8 +58,8 @@ int main(int argc, char **argv)
     auto region = Geometry::makeSphere(0.01);
 
     request.setGoalRegion("wrist_roll_link", "base_link",  // links
-                           pose, region,                // position
-                           orn, {0.1, 0.1, 0.1}         // orientation
+                          pose, region,                    // position
+                          orn, {0.1, 0.1, 0.1}             // orientation
     );
 
     rviz.addGoalMarker("goal", request);
