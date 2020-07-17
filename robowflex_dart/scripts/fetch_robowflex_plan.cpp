@@ -1,13 +1,7 @@
 #include <thread>
 #include <chrono>
 
-#include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
-#include <ompl/base/spaces/constraint/AtlasStateSpace.h>
-#include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
-#include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/geometric/planners/bitstar/BITstar.h>
-#include <ompl/geometric/planners/prm/PRM.h>
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/tf.h>
@@ -114,19 +108,9 @@ int main(int argc, char **argv)
     // Setup Planner
     //
 
-    // auto prm = std::make_shared<ompl::geometric::PRM>(ss.getSpaceInformation());
-    // builder.ss->setPlanner(prm);
-
     auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
     rrt->setRange(2);
     builder.ss->setPlanner(rrt);
-
-    // auto rrt = std::make_shared<ompl::geometric::RRTstar>(builder.info);
-    // rrt->setRange(2);
-    // builder.ss->setPlanner(rrt);
-
-    // auto bit = std::make_shared<ompl::geometric::BITstar>(builder.info);
-    // builder.ss->setPlanner(bit);
 
     builder.setup();
 
