@@ -137,6 +137,13 @@ namespace robowflex
          */
         void setURDFPostProcessFunction(const PostProcessXMLFunction &function);
 
+        /** \brief Checks if a node link exist with named name_link
+         *  \param[in] doc The URDF description.
+         *  \param[in] name The name of the link to find.
+         *  \return True if link exists, false otherwise.
+         */
+        bool isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name);
+
         /** \brief Sets a post processing function for loading the SRDF.
          *  \param[in] function The function to use.
          */

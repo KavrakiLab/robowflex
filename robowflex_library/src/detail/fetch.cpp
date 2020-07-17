@@ -22,7 +22,9 @@ FetchRobot::FetchRobot() : Robot("fetch")
 bool FetchRobot::initialize(bool addVirtual)
 {
     if (addVirtual)
-        setSRDFPostProcessFunction(std::bind(&FetchRobot::addVirtualJointSRDF, this, std::placeholders::_1));
+        setSRDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addVirtualJointSRDF(doc); });
+
+    setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
     bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
                    loadKinematics("arm") && loadKinematics("arm_with_torso");
@@ -41,6 +43,37 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
     virtual_joint->SetAttribute("child_link", "base_link");
 
     doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+    return true;
+}
+
+bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
+{
+    for (const auto name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
+    {
+        auto link_name = std::string(name) + "_link";
+        if (not isLinkURDF(doc, link_name))
+        {
+            tinyxml2::XMLElement *caster_link = doc.NewElement("link");
+            caster_link->SetAttribute("name", link_name.c_str());
+            doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
+
+            auto joint_name = std::string(name) + "_joint";
+            tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
+            caster_joint->SetAttribute("name", joint_name.c_str());
+            caster_joint->SetAttribute("type", "fixed");
+
+            tinyxml2::XMLElement *parent = doc.NewElement("parent");
+            parent->SetAttribute("link", "base_link");
+            caster_joint->InsertFirstChild(parent);
+
+            tinyxml2::XMLElement *child = doc.NewElement("child");
+            child->SetAttribute("link", link_name.c_str());
+            caster_joint->InsertFirstChild(child);
+
+            doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
+        }
+    }
 
     return true;
 }
