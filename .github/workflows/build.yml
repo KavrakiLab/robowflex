@@ -5,6 +5,10 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  paths:
+    - "**/*.cpp"
+    - "**/*.h"
+    - "**/CMakeLists.txt"
 
 jobs:
   build:
