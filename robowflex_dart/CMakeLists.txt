@@ -27,8 +27,8 @@ if (DART_LIBRARIES)
   list(APPEND LIBRARIES ${EIGEN3_LIBRARIES})
 
   find_package(ompl REQUIRED)
-  include_directories(SYSTEM ${ompl_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${ompl_LIBRARIES})
+  include_directories(SYSTEM ${OMPL_INCLUDE_DIRS})
+  list(APPEND LIBRARIES ${OMPL_LIBRARIES})
 
   find_package(TinyXML2 REQUIRED)
   include_directories(SYSTEM ${TINYXML2_INCLUDE_DIRS})
@@ -49,7 +49,6 @@ if (DART_LIBRARIES)
     CATKIN_DEPENDS
     robowflex_library
     DEPENDS
-    ompl
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )
 

@@ -15,13 +15,7 @@
 #include <robowflex_dart/planning.h>
 #include <robowflex_dart/gui.h>
 
-#include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
-#include <ompl/geometric/planners/prm/PRM.h>
-#include <ompl/geometric/planners/bitstar/BITstar.h>
-#include <ompl/geometric/planners/kpiece/KPIECE1.h>
-#include <ompl/geometric/planners/kpiece/BKPIECE1.h>
-#include <ompl/tools/multiplan/ParallelPlan.h>
 
 using namespace robowflex;
 
@@ -108,7 +102,6 @@ int main(int argc, char **argv)
             goal->options.use_gradient = true;
             goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
-            // ompl::base::PlannerStatus solved = pp.solve(60.0, 1, 1, true);
             goal->stopSampling();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
