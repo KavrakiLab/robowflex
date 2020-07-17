@@ -7,6 +7,15 @@ on:
     branches: [ master ]
 
 jobs:
+  linting:
+    runs-on: ubuntu-latest
+    
+    steps:
+     - name: clang-format lint
+       uses: DoozyX/clang-format-lint-action@v0.7
+       with:
+         extensions: cpp,h
+       
   documentation:
     runs-on: ubuntu-latest
 
@@ -22,5 +31,5 @@ jobs:
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.1.0
       with:
-         build_dir: $GITHUB_WORKSPACE/.docs/build/doc/html
+         build_dir: "$GITHUB_WORKSPACE/.docs/build/doc/html"
          jekyll: false
