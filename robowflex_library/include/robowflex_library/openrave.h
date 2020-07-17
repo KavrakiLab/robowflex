@@ -11,8 +11,8 @@ namespace robowflex
          *  \param[out] planning_scene The output MoveIt message that will be filled with the planning scene
          *  contents.
          *  \param[in] file The path to the OpenRAVE environment XML.
-         *  \param[in] model_dir The path to the models directory, which should contain files referenced by the
-         * passed in file. In OpenRAVE, "the root directory for all models files is the folder openrave is
+         *  \param[in] model_dir The path to the models directory, which should contain files referenced by
+         * the passed in file. In OpenRAVE, "the root directory for all models files is the folder openrave is
          * launched at."
          *  \return True on success, false on failure.
          */

@@ -1,2 +1,4 @@
 #!/bin/bash
-find .. -regex '.*\.\(cpp\|hpp\|cc\|cxx\)' -not -path "../.docs/*" -exec clang-format -style=file -i {} \;
+
+cd "${0%/*}"
+find . -regex '.*\.\(cpp\|h\)' -not -path ".docs/*" -exec clang-format -style=file -i {} \;

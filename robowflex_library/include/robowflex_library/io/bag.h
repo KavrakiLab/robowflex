@@ -5,7 +5,9 @@
 
 #include <robowflex_library/macros.h>
 
+// clang-format off
 ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)
+// clang-format on
 #include <rosbag/bag.h>
 ROBOWFLEX_POP_GCC
 
