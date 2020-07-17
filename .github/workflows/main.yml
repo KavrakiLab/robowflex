@@ -17,12 +17,7 @@ jobs:
       run: sudo apt-get install doxygen graphviz cmake        
 
     - name: Build Documentation
-      run: |
-        mkdir $GITHUB_WORKSPACE/.docs/build
-        pushd $GITHUB_WORKSPACE/.docs/build
-        cmake ..
-        make
-        popd
+      run: source $GITHUB_WORKSPACE/.ci/documentation.sh
 
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2.1.0
