@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-     - name: Download Dependencies
-       run: sudo apt-get install clang-format
-     - name: Check Formatting
-       run: source ./.ci/check-format.sh
+    - uses: actions/checkout@v2
+    - name: Download Dependencies
+      run: sudo apt-get install clang-format
+    - name: Check Formatting
+      run: source ./.ci/check-format.sh
        
   documentation:
     runs-on: ubuntu-latest
