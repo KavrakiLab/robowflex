@@ -236,7 +236,6 @@ namespace robowflex
 
             /** \} */
 
-
             void setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v) override;
             void setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v) override;
 

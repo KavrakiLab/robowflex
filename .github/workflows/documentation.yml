@@ -1,0 +1,26 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      
+    - name: Download Dependencies
+      run: sudo apt-get install doxygen graphviz cmake        
+
+    - name: Build Documentation
+      run: ./.ci/documentation.sh
+
+    - name: GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@3.5.7
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: .docs/build/doc/html
