@@ -62,3 +62,14 @@ Then, add DART to your local catkin workspace:
 git clone git://github.com/dartsim/dart.git
 ```
 
+## OMPL Installation
+
+The DART module relies on recent versions of OMPL (> 1.5.0).
+Either download the source into your local catkin workspace:
+```sh
+wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
+```
+Or clone from the repository:
+```sh
+git clone git:://github.com/ompl/ompl.git
+```
