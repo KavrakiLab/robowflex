@@ -49,25 +49,16 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 
 bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
 {
-    auto existsNamedCaster = [&doc](const std::string &name) {
-        auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
-        while (node != NULL)
-        {
-            if (node->Attribute("name", (name + "_link").c_str()))
-                return true;
-
-            node = node->NextSiblingElement("link");
-        }
-        return false;
-    };
-
     auto insertNamedCaster = [&doc](const std::string &name) {
+        std::string link_name = name + "_link";
+        std::string joint_name = name + "_joint";
+
         tinyxml2::XMLElement *caster_link = doc.NewElement("link");
-        caster_link->SetAttribute("name", (name + "_link").c_str());
+        caster_link->SetAttribute("name", link_name.c_str());
         doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
 
         tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
-        caster_joint->SetAttribute("name", (name + "_joint").c_str());
+        caster_joint->SetAttribute("name", joint_name.c_str());
         caster_joint->SetAttribute("type", "fixed");
 
         tinyxml2::XMLElement *parent = doc.NewElement("parent");
@@ -75,14 +66,14 @@ bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
         caster_joint->InsertFirstChild(parent);
 
         tinyxml2::XMLElement *child = doc.NewElement("child");
-        child->SetAttribute("link", (name + "_link").c_str());
+        child->SetAttribute("link", link_name.c_str());
         caster_joint->InsertFirstChild(child);
 
         doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
     };
 
     for (const auto &caster : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
-        if (!existsNamedCaster(caster))
+        if (!isLinkURDF(doc, caster))
             insertNamedCaster(caster);
 
     return true;
