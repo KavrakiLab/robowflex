@@ -38,6 +38,11 @@ namespace robowflex
          */
         bool addVirtualJointSRDF(tinyxml2::XMLDocument &doc);
 
+        /** \brief Inserts the caster links if they don't exist.
+         *  \return True on success.
+         */
+        bool addCastersURDF(tinyxml2::XMLDocument &doc);
+
         /** \brief Sets the base pose of the Fetch robot (a virtual planar joint)
          *  \param[in] x The x position.
          *  \param[in] y The y position.
