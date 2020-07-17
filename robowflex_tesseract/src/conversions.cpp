@@ -1,5 +1,8 @@
 /* Author: Bryce Willey */
 
+// Updated by Carlos Quintero
+// Added fromTesseractResToMoveitTraj
+
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
 
@@ -13,11 +16,14 @@
 using namespace robowflex;
 
 tesseract::tesseract_ros::KDLEnvPtr hypercube::constructTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                                                     const robowflex::RobotConstPtr &robot)
+                                                                     const robowflex::RobotConstPtr &robot, 
+                                                                     const std::string &name
+                                                                    )
 {
     moveit_msgs::PlanningScene scene_msg = scene->getMessage();
     auto env = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
     env->init(robot->getURDF(), robot->getSRDF());
+    env->setName(name);
 
     // Add all of the collision objects in the scene message.
     // So there's a name, robot_state, and robot_model_name. Going to ignore most
@@ -105,4 +111,47 @@ tesseract::tesseract_ros::KDLEnvPtr hypercube::constructTesseractEnv(const robow
     // TODO: object_colors: should go somewhere in visual geometry colors.
 
     return env;
+}
+
+void hypercube::fromTesseractResToMoveitTraj(const tesseract::tesseract_planning::PlannerResponse &response, 
+                                             const tesseract::tesseract_ros::KDLEnvPtr &env, 
+                                             const robowflex::RobotConstPtr &robot, 
+                                             robot_trajectory::RobotTrajectoryPtr &trajectory)
+{
+    // TODO: Just pass the RobotModel instead of the whole robot?
+    for (int i=0;i<response.trajectory.rows();i++)
+    {
+        // create a tmp state for every waypoint (initialize base joints by hand since they are not in env)
+        auto tmpState = std::make_shared<moveit::core::RobotState>(robot->getModelConst());
+        tmpState->setVariablePositions({"base_joint/x", "base_joint/y", "base_joint/theta"}, {0.0, 0.0, 0.0});
+        
+        // initialize it with the env start state (includes both group and non-group joints)
+        double* rawJointValues = new double((int)env->getJointNames().size());
+        rawJointValues = env->getCurrentJointValues().data();
+        std::vector<double> tmpCurrentValues(rawJointValues, rawJointValues+(int)env->getJointNames().size());
+        tmpState->setVariablePositions(env->getJointNames(), tmpCurrentValues);
+        
+        // set (only) group joints from tesseract response's ith row
+        double* rawGroupValues = new double(response.joint_names.size());
+        rawGroupValues = (double*) response.trajectory.row(i).transpose().data();
+        std::vector<double> tmpGroupValues(rawGroupValues, rawGroupValues+(int)response.joint_names.size());
+        tmpState->setVariablePositions(response.joint_names, tmpGroupValues);
+        
+        // add waypoint to trajectory
+        trajectory->addSuffixWayPoint(tmpState, 0.5);
+        //delete rawGroupValues;
+        //delete rawJointValues;
+    }
+    
+    /*std::cout << "First row of trajectory: " << std::endl;
+    std::cout << response.trajectory.row(0) << std::endl;
+    
+    std::cout << "Number of waypoints (Tesseract): " << trajectory->getWayPointCount() << std::endl;
+    for (int i=0;i<trajectory->getWayPointCount();i++)
+    {
+        double* val = trajectory->getWayPointPtr(i)->getVariablePositions();
+        for (int j=0;j<trajectory->getWayPointPtr(i)->getVariableCount();j++)
+            std::cout << val[j] << " ";
+        std::cout << std::endl;
+    }*/
 }
