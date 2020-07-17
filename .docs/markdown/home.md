@@ -1,5 +1,4 @@
 # Robowflex {#home}
-<img src="https://travis-ci.com/KavrakiLab/robowflex.svg?token=zsePEoorZroAPTxFCVFs&branch=master"/>
 
 Making MoveIt Easy!
 An overview of what this project is can be found in the [design description](\ref design).
