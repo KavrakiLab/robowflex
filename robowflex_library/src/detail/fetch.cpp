@@ -50,15 +50,15 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
 {
     for (const auto name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
-        if (!isLinkURDF(doc, name))
+    {
+        auto link_name = std::string(name) + "_link";
+        if (not isLinkURDF(doc, link_name))
         {
-            auto link_name = std::string(name) + "_link";
-            auto joint_name = std::string(name) + "_joint";
-
             tinyxml2::XMLElement *caster_link = doc.NewElement("link");
             caster_link->SetAttribute("name", link_name.c_str());
             doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
 
+            auto joint_name = std::string(name) + "_joint";
             tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
             caster_joint->SetAttribute("name", joint_name.c_str());
             caster_joint->SetAttribute("type", "fixed");
@@ -73,6 +73,7 @@ bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
 
             doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
         }
+    }
 
     return true;
 }

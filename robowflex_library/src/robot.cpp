@@ -84,7 +84,7 @@ bool Robot::isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name)
     auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
     while (node != NULL)
     {
-        if (node->Attribute("name", (name + "_link").c_str()))
+        if (node->Attribute("name", name.c_str()))
             return true;
 
         node = node->NextSiblingElement("link");
