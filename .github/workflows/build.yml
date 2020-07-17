@@ -14,4 +14,4 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Compile Docker Container
-      run: docker . -t robowflex
+      run: docker build -t robowflex .
