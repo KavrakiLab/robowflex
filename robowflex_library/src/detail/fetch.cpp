@@ -49,32 +49,30 @@ bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
 
 bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
 {
-    auto insertNamedCaster = [&doc](const std::string &name) {
-        std::string link_name = name + "_link";
-        std::string joint_name = name + "_joint";
+    for (const auto name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
+        if (!isLinkURDF(doc, name))
+        {
+            auto link_name = std::string(name) + "_link";
+            auto joint_name = std::string(name) + "_joint";
 
-        tinyxml2::XMLElement *caster_link = doc.NewElement("link");
-        caster_link->SetAttribute("name", link_name.c_str());
-        doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
+            tinyxml2::XMLElement *caster_link = doc.NewElement("link");
+            caster_link->SetAttribute("name", link_name.c_str());
+            doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
 
-        tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
-        caster_joint->SetAttribute("name", joint_name.c_str());
-        caster_joint->SetAttribute("type", "fixed");
+            tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
+            caster_joint->SetAttribute("name", joint_name.c_str());
+            caster_joint->SetAttribute("type", "fixed");
 
-        tinyxml2::XMLElement *parent = doc.NewElement("parent");
-        parent->SetAttribute("link", "base_link");
-        caster_joint->InsertFirstChild(parent);
+            tinyxml2::XMLElement *parent = doc.NewElement("parent");
+            parent->SetAttribute("link", "base_link");
+            caster_joint->InsertFirstChild(parent);
 
-        tinyxml2::XMLElement *child = doc.NewElement("child");
-        child->SetAttribute("link", link_name.c_str());
-        caster_joint->InsertFirstChild(child);
+            tinyxml2::XMLElement *child = doc.NewElement("child");
+            child->SetAttribute("link", link_name.c_str());
+            caster_joint->InsertFirstChild(child);
 
-        doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
-    };
-
-    for (const auto &caster : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
-        if (!isLinkURDF(doc, caster))
-            insertNamedCaster(caster);
+            doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
+        }
 
     return true;
 }
