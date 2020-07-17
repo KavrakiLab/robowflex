@@ -16,7 +16,7 @@ jobs:
       run: sudo apt-get install doxygen graphviz cmake        
 
     - name: Build Documentation
-      run: source .ci/documentation.sh
+      run: ./.ci/documentation.sh
 
     - name: GitHub Pages
       uses: JamesIves/github-pages-deploy-action@3.5.7
