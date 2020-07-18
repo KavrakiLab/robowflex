@@ -8,6 +8,7 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/pool.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/scene.h>
 
 namespace robowflex
 {
