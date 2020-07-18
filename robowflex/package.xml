@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex</name>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <description>The Better Benchmarking Package</description>
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
@@ -16,8 +16,6 @@
   <exec_depend>robowflex_movegroup</exec_depend>
   <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>robowflex_dart</exec_depend>
-  <exec_depend>robowflex_doc</exec_depend>
-  <exec_depend>tmpack</exec_depend>
 
   <export>
     <metapackage/>

@@ -1,10 +1,14 @@
-# robowflex 💪🤖
+# Robowflex 💪🤖
+![Build](https://github.com/KavrakiLab/robowflex/workflows/Build/badge.svg?branch=master)
 Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
 ## robowflex_library
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
 Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in the `robowflex_library/scripts` directory.
+
+# Optional Robowflex Modules
+Robowflex also comes with many optional modules that provide specific auxiliary library support.
 
 ## robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
@@ -31,14 +35,6 @@ There are features for loading robots just through DART or by converting __MoveI
 Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
 This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
 Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.
-
-## tmpack
-Task and motion planning using `robowflex` as the motion planning layer.
-
-## robowflex_doc
-Documentation for all library and module components in robowflex (sans `tmpack`).
-Documentation is automatically generated using [Doxygen](http://www.stack.nl/~dimitri/doxygen/), and is placed in `${CATKIN_DEVEL_PREFIX}/share/robowflex_doc/doc/index.html`. The online version exists [here](https://kavrakilab.github.io/robowflex/).
-
 
 # Installation Instructions
 
@@ -99,3 +95,7 @@ cd ~/rb_ws
 source ./devel/setup.bash
 rosrun robowflex_library fetch_test
 ```
+
+## Code Formatting
+All C++ code should be formatted with `clang-format`.
+Use the `format.sh` script to automatically format the code base.

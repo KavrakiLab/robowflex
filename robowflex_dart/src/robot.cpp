@@ -309,12 +309,12 @@ bool Robot::loadSRDF(const std::string &srdf)
             const auto &value = js->Attribute("value");
             const auto &jname = js->Attribute("name");
 
-            auto values = robowflex::IO::tokenize(value, " ");
+            auto values = robowflex::IO::tokenize<double>(value, " ");
             auto joint = getGroupJoint(group, jname);
             if (joint.second != nullptr)
             {
                 for (std::size_t i = 0; i < values.size(); ++i)
-                    state[joint.first + i] = std::stod(values[i]);
+                    state[joint.first + i] = values[i];
             }
 
             js = js->NextSiblingElement("joint");

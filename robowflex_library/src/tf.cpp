@@ -8,6 +8,11 @@
 
 using namespace robowflex;
 
+RobotPose TF::identity()
+{
+    return RobotPose::Identity();
+}
+
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
 {
     return createPoseQ(Eigen::Vector3d{x, y, z},  //
@@ -40,7 +45,7 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
 }
 
 RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
-                      const Eigen::Quaterniond &rotation)
+                          const Eigen::Quaterniond &rotation)
 {
     RobotPose pose = RobotPose::Identity();
     pose.translate(translation);

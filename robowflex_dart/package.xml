@@ -12,5 +12,4 @@
 
   <depend>robowflex_library</depend>
   <depend>dartsim</depend>
-  <depend>ompl</depend>
 </package>

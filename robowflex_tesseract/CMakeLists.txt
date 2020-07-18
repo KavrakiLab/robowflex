@@ -14,7 +14,6 @@ include(HelperFunctions)
 find_package(Boost REQUIRED)
 
 list(APPEND CATKIN_DEPS
-  ompl
   moveit_planners_ompl
   robowflex_library
   tesseract_planning

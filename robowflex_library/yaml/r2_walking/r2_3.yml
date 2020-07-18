@@ -1,0 +1,56 @@
+workspace_parameters:
+  min_corner: [-4.5, -2.5, -1.5]
+  max_corner: [4.5, 2.5, 1.5]
+start_state:
+  multi_dof_joint_state:
+    joint_names: [virtual_joint]
+    transforms: [{translation: [1.204884610309785, -0.4531584776395762, 0.0007254773329533893], rotation: [7.018631488533952e-07, -5.1368907126094e-07, 0.0899384138942998, 0.9959473287807047]}]
+    twist: []
+    wrench: []
+  joint_state:
+    position: [-0.06779653911621228, -0.4539541319184948, -0.7059956951897061, 1.936643431606844, -0.3838242301182676, 2.255198786315382, 2.297914167674764, 0, 0, 0, -0.07779735815178351, 0.4078467029268006, -0.9145207983647723, 2.179898470192444, -0.4672132414875558, 2.408989424483031, 2.36047174586734, 0, 0, 0, 0.1851201129820991, 0.8726646259971647, -1.396263401595464, -1.832595714594046, -2.443460952792061, 1.396263401595464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.8726646259971647, -1.396263401595464, 1.832595714594046, -2.443460952792061, -1.396263401595464, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.08726646259971638, 0, 0]
+    name: [r2/left_leg/joint0, r2/left_leg/joint1, r2/left_leg/joint2, r2/left_leg/joint3, r2/left_leg/joint4, r2/left_leg/joint5, r2/left_leg/joint6, r2/left_leg/gripper/jawLeft, r2/left_leg/gripper/jawRight, r2/left_leg/gripper/joint0, r2/right_leg/joint0, r2/right_leg/joint1, r2/right_leg/joint2, r2/right_leg/joint3, r2/right_leg/joint4, r2/right_leg/joint5, r2/right_leg/joint6, r2/right_leg/gripper/jawLeft, r2/right_leg/gripper/jawRight, r2/right_leg/gripper/joint0, r2/waist/joint0, r2/left_arm/joint0, r2/left_arm/joint1, r2/left_arm/joint2, r2/left_arm/joint3, r2/left_arm/joint4, r2/left_arm/wrist/pitch, r2/left_arm/wrist/yaw, r2/left_arm/hand/index/yaw, r2/left_arm/hand/index/proximal, r2/left_arm/hand/index/medial, r2/left_arm/hand/index/distal, r2/left_arm/hand/middle/yaw, r2/left_arm/hand/middle/proximal, r2/left_arm/hand/middle/medial, r2/left_arm/hand/middle/distal, r2/left_arm/hand/ringlittle/little, r2/left_arm/hand/ringlittle/littleMedial, r2/left_arm/hand/ringlittle/littleDistal, r2/left_arm/hand/ringlittle/ring, r2/left_arm/hand/ringlittle/ringMedial, r2/left_arm/hand/ringlittle/ringDistal, r2/left_arm/hand/thumb/roll, r2/left_arm/hand/thumb/proximal, r2/left_arm/hand/thumb/medial, r2/left_arm/hand/thumb/distal, r2/right_arm/joint0, r2/right_arm/joint1, r2/right_arm/joint2, r2/right_arm/joint3, r2/right_arm/joint4, r2/right_arm/wrist/pitch, r2/right_arm/wrist/yaw, r2/right_arm/hand/index/yaw, r2/right_arm/hand/index/proximal, r2/right_arm/hand/index/medial, r2/right_arm/hand/index/distal, r2/right_arm/hand/middle/yaw, r2/right_arm/hand/middle/proximal, r2/right_arm/hand/middle/medial, r2/right_arm/hand/middle/distal, r2/right_arm/hand/ringlittle/little, r2/right_arm/hand/ringlittle/littleMedial, r2/right_arm/hand/ringlittle/littleDistal, r2/right_arm/hand/ringlittle/ring, r2/right_arm/hand/ringlittle/ringMedial, r2/right_arm/hand/ringlittle/ringDistal, r2/right_arm/hand/thumb/roll, r2/right_arm/hand/thumb/proximal, r2/right_arm/hand/thumb/medial, r2/right_arm/hand/thumb/distal, r2/neck/joint0, r2/neck/joint1, r2/neck/joint2]
+goal_constraints:
+  - position_constraints:
+      - link_name: r2/left_leg/gripper/tip
+        constraint_region:
+          primitives:
+            - type: 2
+              dimensions: [0.01]
+          primitive_poses:
+            - position: [2.55676028419, 0.9, 0.05]
+              orientation: [0.0, 0.0, 0.0, 0.0]
+    orientation_constraints:
+      - orientation: [-0.707, 0, 0, 0.707]
+        link_name: r2/left_leg/gripper/tip
+        absolute_x_axis_tolerance: 0.01
+        absolute_y_axis_tolerance: 0.01
+        absolute_z_axis_tolerance: 0.01
+path_constraints:
+  position_constraints:
+    - link_name: r2/right_leg/gripper/tip
+      constraint_region:
+        primitives:
+          - type: 2
+            dimensions: [0.01]
+        primitive_poses:
+          - position: [1.45676028419, -0.246608, -0.777936]
+            orientation: [0.0, 0.0, 0.0, 1.0]
+  orientation_constraints:
+    - orientation: [-0.999999999982, 1.98040305765e-06, 5.16339177538e-06, 2.523198695e-06]
+      link_name: r2/right_leg/gripper/tip
+      absolute_x_axis_tolerance: 0.01
+      absolute_y_axis_tolerance: 0.01
+      absolute_z_axis_tolerance: 0.01
+    - header:
+        frame_id: r2/right_leg/gripper/tip
+      orientation: [-2.52319271143e-06, 3.8366002265e-06, -6.53604813238e-07, 0.999999999989]
+      link_name: r2/waist_center
+      absolute_x_axis_tolerance: 0.005
+      absolute_y_axis_tolerance: 0.005
+      absolute_z_axis_tolerance: 0.005
+# planner_id: CBiRRT2
+planner_id: RRTConnect_Constrained
+group_name: legsandtorso
+num_planning_attempts: 1
+allowed_planning_time: 60.0

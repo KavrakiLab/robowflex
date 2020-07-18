@@ -45,6 +45,12 @@ namespace robowflex
          */
         YAML::Node toNode(const moveit_msgs::RobotTrajectory &msg);
 
+        /** \brief Converts a robot state to YAML.
+         *  \param[in] msg Message to convert.
+         *  \return The converted message.
+         */
+        YAML::Node toNode(const moveit_msgs::RobotState &msg);
+
         /** \brief Loads a planning scene from a YAML file.
          *  \param[out] msg Message to load into.
          *  \param[in] file File to load.

@@ -28,6 +28,11 @@ namespace robowflex
      */
     namespace TF
     {
+        /** \brief Creates the Identity pose.
+         *  \return A new identity robot pose.
+         */
+        RobotPose identity();
+
         /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
          *  \param[in] x X-axis translation
          *  \param[in] y Y-ayis translation

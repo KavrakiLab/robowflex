@@ -137,6 +137,13 @@ namespace robowflex
          */
         void setURDFPostProcessFunction(const PostProcessXMLFunction &function);
 
+        /** \brief Checks if a node link exist with named name_link
+         *  \param[in] doc The URDF description.
+         *  \param[in] name The name of the link to find.
+         *  \return True if link exists, false otherwise.
+         */
+        bool isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name);
+
         /** \brief Sets a post processing function for loading the SRDF.
          *  \param[in] function The function to use.
          */
@@ -271,6 +278,11 @@ namespace robowflex
          */
         std::vector<std::string> getJointNames() const;
 
+        /** \brief Checks if a joint exists in the robot.
+         *  \return True if the joint exists, false otherwise.
+         */
+        bool hasJoint(const std::string &joint) const;
+
         /** \brief Get the current pose of a link on the scratch state.
          *  \param[in] name The name of the link to find the transform of.
          *  \return The transform of link \a name.
@@ -332,6 +344,12 @@ namespace robowflex
         /** \name IO
             \{ */
 
+        /** \brief Dumps the current configuration of the robot as a YAML file.
+         *  \param[in] file File to write to.
+         *  \return True on success, false on failure.
+         */
+        bool toYAMLFile(const std::string &file) const;
+
         /** \brief Dumps the names of links and absolute paths to their visual mesh files to a YAML file.
          *  \param[in] file File to save to.The name of the link to find the transform of.
          *  \return True on success, false on failure.
@@ -382,8 +400,8 @@ namespace robowflex
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
-        std::string urdf_; ///< The URDF as a string.
-        std::string srdf_; ///< The SRDF as a string.
+        std::string urdf_;  ///< The URDF as a string.
+        std::string srdf_;  ///< The SRDF as a string.
 
         PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
         PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.

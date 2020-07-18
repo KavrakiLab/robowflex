@@ -108,10 +108,11 @@ namespace robowflex
          *  \param[in] type Type of the geometry to create.
          *  \param[in] dimensions Dimensions of the geometry to load.
          *  \param[in] resource If \a type is ShapeType::MESH, then resource or vertices must be specified
+         *  \param[in] vertices List of vertices that form the mesh.
          * as the mesh file to load.
          */
         Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
-                 const EigenSTL::vector_Vector3d vertices = {});
+                 const EigenSTL::vector_Vector3d &vertices = {});
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry from a MoveIt shape.

@@ -27,8 +27,8 @@ if (DART_LIBRARIES)
   list(APPEND LIBRARIES ${EIGEN3_LIBRARIES})
 
   find_package(ompl REQUIRED)
-  include_directories(SYSTEM ${ompl_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${ompl_LIBRARIES})
+  include_directories(SYSTEM ${OMPL_INCLUDE_DIRS})
+  list(APPEND LIBRARIES ${OMPL_LIBRARIES})
 
   find_package(TinyXML2 REQUIRED)
   include_directories(SYSTEM ${TINYXML2_INCLUDE_DIRS})
@@ -48,9 +48,7 @@ if (DART_LIBRARIES)
     LIBRARIES ${LIBRARY_NAME}
     CATKIN_DEPENDS
     robowflex_library
-    # dartsim
     DEPENDS
-    ompl
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )
 
@@ -88,6 +86,7 @@ if (DART_LIBRARIES)
   add_script(r2con_plan)
   add_script(r2con_msg_plan)
   add_script(gui_test)
+  add_script(tsr_helper)
 
   install_scripts()
   install_library()

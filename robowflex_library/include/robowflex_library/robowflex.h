@@ -32,6 +32,7 @@ namespace robowflex
 #include <robowflex_library/planning.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/benchmarking.h>
+#include <robowflex_library/openrave.h>
 #include <robowflex_library/path.h>
 
 #endif

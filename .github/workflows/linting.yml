@@ -1,0 +1,27 @@
+name: Linting
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - "**/*.cpp"
+      - "**/*.h"
+  pull_request:
+    branches: [ master ]
+    paths:
+      - "**/*.cpp"
+      - "**/*.h"
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Download Dependencies
+      run: sudo apt-get install clang-format
+
+    - name: Check Formatting
+      run: ./.ci/check-format.sh

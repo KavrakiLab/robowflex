@@ -134,7 +134,6 @@ namespace robowflex
                     loader = std::dynamic_pointer_cast<Loader<T>>(cached->second);
                 else
                 {
-
                     ROS_INFO("Creating Class Loader for type `%s` from package `%s`!",  //
                              type.c_str(), package.c_str());
 

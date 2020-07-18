@@ -21,8 +21,9 @@ const std::string OMPL::R2OMPLPipelinePlanner::CONFIG{"package://r2_moveit_confi
 const std::string OMPL::R2OMPLPipelinePlanner::PLUGIN{"ompl_interface/OMPLPlanningContextManager"};
 
 const std::map<std::string, std::string> R2Robot::CREEPY{
-    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},
-    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}};
+    {"legs", "package://r2_simplified_urdf/r2c6_legs_only_creepy.xacro"},                 //
+    {"legsandtorso", "package://r2_simplified_urdf/r2c6_legsandtorso_only_creepy.xacro"}  //
+};
 
 R2Robot::R2Robot() : Robot("r2")
 {
@@ -72,7 +73,7 @@ robot_trajectory::RobotTrajectoryPtr R2Robot::loadSMTData(const std::string &fil
     std::vector<hsize_t> dims;
     for (const auto &joint_name : model_->getJointModelNames())
     {
-        auto tokenized = IO::tokenize(joint_name, "/");
+        auto tokenized = IO::tokenize<std::string>(joint_name, "/");
         tokenized.insert(tokenized.begin(), "captain");
         tokenized.emplace_back("APS1");
 

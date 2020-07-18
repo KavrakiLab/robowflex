@@ -79,6 +79,19 @@ void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
     urdf_function_ = function;
 }
 
+bool Robot::isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name)
+{
+    auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
+    while (node != NULL)
+    {
+        if (node->Attribute("name", name.c_str()))
+            return true;
+
+        node = node->NextSiblingElement("link");
+    }
+    return false;
+}
+
 void Robot::setSRDFPostProcessFunction(const PostProcessXMLFunction &function)
 {
     srdf_function_ = function;
@@ -347,6 +360,12 @@ std::vector<std::string> Robot::getJointNames() const
     return scratch_->getVariableNames();
 }
 
+bool Robot::hasJoint(const std::string &joint) const
+{
+    const auto &joint_names = getJointNames();
+    return (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
+}
+
 void Robot::setIKAttempts(unsigned int attempts)
 {
     ik_attempts_ = attempts;
@@ -423,6 +442,15 @@ const RobotPose Robot::getRelativeLinkTF(const std::string &base, const std::str
     auto target_tf = scratch_->getGlobalLinkTransform(target);
 
     return base_tf.inverse() * target_tf;
+}
+
+bool Robot::toYAMLFile(const std::string &file) const
+{
+    moveit_msgs::RobotState msg;
+    moveit::core::robotStateToRobotStateMsg(*scratch_, msg);
+
+    const auto &yaml = IO::toNode(msg);
+    return IO::YAMLToFile(yaml, file);
 }
 
 namespace
@@ -513,8 +541,13 @@ namespace
 
                 const auto &pose = visual->origin;
 
+                Eigen::Vector3d position(pose.position.x, pose.position.y, pose.position.z);
+                Eigen::Quaterniond rotation(pose.rotation.w,  //
+                                            pose.rotation.x, pose.rotation.y, pose.rotation.z);
+                Eigen::Quaterniond identity = Eigen::Quaterniond::Identity();
+
                 // TODO: Also check if rotation is not zero.
-                if (pose.position.x != 0 || pose.position.y != 0 || pose.position.z != 0)
+                if (position.norm() > 0 || rotation.angularDistance(identity) > 0)
                     addLinkOrigin(node, pose);
             }
         }
@@ -649,7 +682,7 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
             {
                 const auto &link = model_->getLinkModel(link_name);
                 RobotPose tf =
-                    state->getGlobalLinkTransform(link) * urdfPoseToEigen(urdf_link->visual->origin);
+                    state->getGlobalLinkTransform(link);  // * urdfPoseToEigen(urdf_link->visual->origin);
                 point[link->getName()] = IO::toNode(TF::poseEigenToMsg(tf));
             }
         }
