@@ -123,7 +123,7 @@ void hypercube::fromTesseractResToMoveitTraj(const tesseract::tesseract_planning
     {
         // create a tmp state for every waypoint (initialize base joints by hand since they are not in env)
         auto tmpState = std::make_shared<moveit::core::RobotState>(robot->getModelConst());
-        tmpState->setVariablePositions({"base_joint/x", "base_joint/y", "base_joint/theta"}, {0.0, 0.0, 0.0});
+        //tmpState->setVariablePositions({"base_joint/x", "base_joint/y", "base_joint/theta"}, {0.0, 0.0, 0.0});
         
         // initialize it with the env start state (includes both group and non-group joints)
         double* rawJointValues = new double((int)env->getJointNames().size());
