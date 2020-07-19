@@ -6,6 +6,7 @@
 
 // Tesseract
 #include <tesseract_msgs/AttachableObject.h>
+//#include <trajopt/file_write_callback.hpp>
 
 // TrajOptPlanner
 #include <robowflex_tesseract/trajopt_planner.h>
@@ -16,7 +17,9 @@ using namespace robowflex;
 TrajOptPlanner::TrajOptPlanner(const RobotConstPtr &robot, const std::string &group_name)
   : robot_(robot), group_(group_name)
 {
+    env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
     env_->init(robot_->getURDF(), robot_->getSRDF());
+    trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
 }
 
 tesseract::tesseract_planning::PlannerResponse TrajOptPlanner::plan(const SceneConstPtr &scene,
@@ -25,12 +28,13 @@ tesseract::tesseract_planning::PlannerResponse TrajOptPlanner::plan(const SceneC
     newEnvFromScene(scene);
     tesseract::tesseract_planning::PlannerResponse planning_response;
     
-    // Extract start state from request
+    // Extract start state from request.
     double* stateValues = new double((int)request->getStartConfiguration()->getVariableCount());
     stateValues = request->getStartConfiguration()->getVariablePositions();
     std::vector<double> values(stateValues, stateValues+(int)request->getStartConfiguration()->getVariableCount());       
     
-    // Set the extracted start state into the Tesseract environment (this is used by ProblemConstructionInfo (see basic_info.start_fixed).
+    // Set the extracted start state into the Tesseract environment
+    // (this is used by ProblemConstructionInfo (see basic_info.start_fixed).
     env_->setState(request->getStartConfiguration()->getVariableNames(), values);
     
     // Extract the goal state from the request
@@ -46,8 +50,8 @@ tesseract::tesseract_planning::PlannerResponse TrajOptPlanner::plan(const SceneC
                                               envJointName));
         vectorGoalStateValues.push_back(rawGoalstateValues[index]);
     }
-    
-    /*for (const auto &name: request->getGoalConfiguration()->getVariableNames())
+    /*
+    for (const auto &name: request->getGoalConfiguration()->getVariableNames())
         std::cout << name << ", ";
     std::cout << std::endl;
     
@@ -57,14 +61,14 @@ tesseract::tesseract_planning::PlannerResponse TrajOptPlanner::plan(const SceneC
     
     for (const auto &val: vectorGoalStateValues)
         std::cout << val << ", ";
-    std::cout << std::endl;*/
-    
+    std::cout << std::endl;
+    */
     if (env_->checkInitialized())
     {                
         // Create the planner and response
         tesseract::tesseract_planning::TrajOptPlanner trajo_planner;
         
-        int nSteps = 20;
+        int nSteps = 50;
         
         // Fill in the problem construction info and initialization
         trajopt::ProblemConstructionInfo pci(env_);
@@ -137,45 +141,47 @@ tesseract::tesseract_planning::PlannerResponse TrajOptPlanner::plan(const SceneC
         config.params.max_iter = 100;
         
         // Write planning results in file_output_pick.csv file
-        std::shared_ptr<std::ofstream> stream_ptr(new std::ofstream);
-        /*if (file_write_cb)
-        {
-            std::string path = ros::package::getPath("robowflex_datasets_fetch") + "/file_output_pick.csv";
-            stream_ptr->open(path, std::ofstream::out | std::ofstream::trunc);
-            config.callbacks.push_back(trajopt::WriteCallback(stream_ptr, prob));
-        }*/
+        //std::shared_ptr<std::ofstream> stream_ptr(new std::ofstream);
+        //if (file_write_cb)
+        //{
+        //    std::string path = ros::package::getPath("robowflex_datasets_fetch") + "/file_output_pick.csv";
+        //    stream_ptr->open(path, std::ofstream::out | std::ofstream::trunc);
+        //    config.callbacks.push_back(trajopt::WriteCallback(stream_ptr, prob));
+        //}
         
         // Solve planning problem
+        
         if (trajo_planner.solve(planning_response, config))
         {
-            /*std::cout << "Names: " << std::endl;
-            for (const auto &name : planning_response.joint_names)
-                std::cout << name <<  ", ";
-            std::cout << std::endl;
-            auto currEnvState = env->getCurrentJointValues();
-            std::cout << currEnvState << std::endl;*/
-            auto trajectory = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), 
-                                                                                  group_);
-            robowflex::hypercube::fromTesseractResToMoveitTraj(planning_response, env_, robot_, trajectory);
-            //rviz->updateTrajectory(trajectory);
-            
-            std::cout << planning_response.trajectory << '\n';
-            std::cout << planning_response.status_description << '\n';
+            //std::cout << "Names: " << std::endl;
+            //for (const auto &name : planning_response.joint_names)
+            //    std::cout << name <<  ", ";
+            //std::cout << std::endl;
+            //auto currEnvState = env_->getCurrentJointValues();
+            //std::cout << currEnvState << std::endl;
+            //auto trajectory = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+            trajectory_->clear();
+            updateTrajFromTesseractResponse(planning_response);
+            //std::cout << planning_response.trajectory << '\n';
+            //std::cout << planning_response.status_description << '\n';
         }
         
         //if (file_write_cb)
         //    stream_ptr->close();
     }
     else
-    {
         ROS_INFO("KDLEnv not initialized!!");
-    }
     return planning_response;
+}
+
+robot_trajectory::RobotTrajectoryPtr TrajOptPlanner::getTrajectory()
+{
+    return trajectory_;
 }
 
 bool TrajOptPlanner::newEnvFromScene(const robowflex::SceneConstPtr &scene)
 {
-    //env_->setName(name);
+    //TODO: Set a name for the scene?
     env_->clearAttachableObjects();
     env_->clearAttachedBodies();
     
@@ -263,4 +269,29 @@ bool TrajOptPlanner::newEnvFromScene(const robowflex::SceneConstPtr &scene)
     }
     
     return false;
+}
+
+void TrajOptPlanner::updateTrajFromTesseractResponse(const tesseract::tesseract_planning::PlannerResponse &response)
+{
+    for (int i=0;i<response.trajectory.rows();i++)
+    {
+        // create a tmp state for every waypoint (initialize base joints by hand since they are not in env)
+        auto tmpState = std::make_shared<moveit::core::RobotState>(robot_->getModelConst());
+        //tmpState->setVariablePositions({"base_joint/x", "base_joint/y", "base_joint/theta"}, {0.0, 0.0, 0.0});
+        
+        // initialize it with the env start state (includes both group and non-group joints)
+        double* rawJointValues = new double((int)env_->getJointNames().size());
+        rawJointValues = env_->getCurrentJointValues().data();
+        std::vector<double> tmpCurrentValues(rawJointValues, rawJointValues+(int)env_->getJointNames().size());
+        tmpState->setVariablePositions(env_->getJointNames(), tmpCurrentValues);
+        
+        // set (only) group joints from tesseract response's ith row
+        double* rawGroupValues = new double(response.joint_names.size());
+        rawGroupValues = (double*) response.trajectory.row(i).transpose().data();
+        std::vector<double> tmpGroupValues(rawGroupValues, rawGroupValues+(int)response.joint_names.size());
+        tmpState->setVariablePositions(response.joint_names, tmpGroupValues);
+        
+        // add waypoint to trajectory
+        trajectory_->addSuffixWayPoint(tmpState, 0.5);
+    }
 }
