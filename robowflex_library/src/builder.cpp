@@ -210,8 +210,7 @@ planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 
 robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 {
-    auto start_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
-    start_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
+    auto start_state = robot_->allocState();
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
     start_state->update(true);
@@ -220,8 +219,7 @@ robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 
 robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
 {
-    auto goal_state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
-    goal_state->setToDefaultValues();  // This is neccessary to set non-actionable links.
+    auto goal_state = robot_->allocState();
 
     if (request_.goal_constraints.size() != 1)
     {

@@ -1,4 +1,4 @@
-name: Build
+name: Build Melodic
 
 on:
   push:
@@ -26,4 +26,4 @@ jobs:
       uses: satackey/action-docker-layer-caching@v0.0.3
 
     - name: Compile Docker Container
-      run: docker build -t robowflex .
+      run: ./.docker/melodic/build-melodic.sh

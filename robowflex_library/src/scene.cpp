@@ -340,7 +340,7 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-    // throw std::runtime_error("Not Implemented");
+#if ROBOWFLEX_AT_LEAST_KINETIC
     if (not hasObject(object))
     {
         ROS_ERROR("World does not have object `%s`", object.c_str());
@@ -376,12 +376,16 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
     cw->distanceRobot(req, res, cr, *state);
     return res.minimum_distance.distance;
+
+#else
+    throw std::runtime_error("Not Implemented");
+
+#endif
 }
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-    // throw std::runtime_error("Not Implemented");
-
+#if ROBOWFLEX_AT_LEAST_KINETIC
     // Early terminate if they are the same
     if (one == two)
         return 0.;
@@ -414,6 +418,11 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 
     cw->distanceWorld(req, res, *cw);
     return res.minimum_distance.distance;
+
+#else
+    throw std::runtime_error("Not Implemented");
+
+#endif
 }
 
 bool Scene::toYAMLFile(const std::string &file)
