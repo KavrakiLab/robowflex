@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - "**/*.cpp"
+      - "**/*.h"
+      - "**/CMakeLists.txt"
+      - "**/package.xml"
+  pull_request:
+    branches: [ master ]
+    paths:
+      - "**/*.cpp"
+      - "**/*.h"
+      - "**/CMakeLists.txt"
+
+jobs:
+  build-indigo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Enable Docker Layer Caching
+      uses: satackey/action-docker-layer-caching@v0.0.3
+
+    - name: Compile Docker Container
+      run: ./.docker/indigo/build-indigo.sh
+
+  build-kinetic:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Enable Docker Layer Caching
+      uses: satackey/action-docker-layer-caching@v0.0.3
+
+    - name: Compile Docker Container
+      run: ./.docker/kinetic/build-kinetic.sh
+
+  build-melodic:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Enable Docker Layer Caching
+      uses: satackey/action-docker-layer-caching@v0.0.3
+
+    - name: Compile Docker Container
+      run: ./.docker/melodic/build-melodic.sh
