@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <string>
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/yaml.h>
 
 using namespace robowflex;

@@ -7,13 +7,13 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
+#include <robowflex_library/builder.h>
+#include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/planning.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/builder.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -133,10 +133,10 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
     for (double angle = 0; angle < pi2; angle += pi2 / n)
     {
         Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
-        RobotPose newPose = pose * rotation * offset;
-        Eigen::Quaterniond newOrientation(rotation * orientation);
+        RobotPose new_pose = pose * rotation * offset;
+        Eigen::Quaterniond new_orientation(rotation * orientation);
 
-        setGoalRegion(ee_name, base_name, newPose, geometry, newOrientation, tolerances);
+        setGoalRegion(ee_name, base_name, new_pose, geometry, new_orientation, tolerances);
     }
 }
 

@@ -2,9 +2,9 @@
 
 #include <sensor_msgs/JointState.h>
 
+#include <robowflex_library/io/broadcaster.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/io/broadcaster.h>
 
 using namespace robowflex;
 
@@ -94,7 +94,7 @@ void IO::RobotBroadcaster::update()
             link->getJointOriginTransform() * state->getJointTransform(link->getParentJointModel());
 
         std::string source = (parent) ? parent->getName() : base_;
-        std::string target = link->getName();
+        const std::string& target = link->getName();
 
         auto msg = TF::transformEigenToMsg(source, target, tf);
 

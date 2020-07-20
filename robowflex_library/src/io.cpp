@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston */
 
+#include <array>    // for std::array
 #include <cstdlib>  // for std::getenv
 #include <memory>   // for std::shared_ptr
-#include <array>    // for std::array
 #include <regex>    // for std::regex
 
 #include <boost/lexical_cast.hpp>
@@ -17,11 +17,11 @@
 
 #include <ros/package.h>  // for package resolving
 
-#include <robowflex_library/macros.h>
-#include <robowflex_library/util.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/macros.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 

@@ -5,17 +5,17 @@
 
 #include <urdf_parser/urdf_parser.h>
 
-#include <moveit/robot_state/robot_state.h>
-#include <moveit/robot_state/conversions.h>
 #include <moveit/collision_detection/collision_common.h>
+#include <moveit/robot_state/conversions.h>
+#include <moveit/robot_state/robot_state.h>
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/scene.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -82,7 +82,7 @@ void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
 bool Robot::isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name)
 {
     auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
-    while (node != NULL)
+    while (node != nullptr)
     {
         if (node->Attribute("name", name.c_str()))
             return true;

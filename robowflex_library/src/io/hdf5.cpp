@@ -3,9 +3,9 @@
 #include <iostream>
 #include <numeric>
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/hdf5.h>
+#include <robowflex_library/macros.h>
 
 using namespace robowflex;
 

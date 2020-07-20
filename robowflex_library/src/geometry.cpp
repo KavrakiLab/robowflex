@@ -3,9 +3,9 @@
 #include <geometric_shapes/shape_operations.h>
 #include <geometric_shapes/shape_to_marker.h>
 
-#include <robowflex_library/util.h>
-#include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
