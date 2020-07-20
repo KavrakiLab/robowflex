@@ -115,8 +115,14 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
 
     moveit_msgs::ExecuteTrajectoryGoal goal;
 
-    // Check if a Trajectory is time parameterized
-    if (path.getWayPointDurationFromStart(path.getWayPointCount()) == 0)
+    // Check if a Trajectory is time parameterized, with some goofiness for indigo.
+#if ROBOWFLEX_AT_LEAST_KINETIC
+    double value = path.getWayPointDurationFromStart(path.getWayPointCount());
+#else
+    double value = path.getWaypointDurationFromStart(path.getWayPointCount());
+#endif
+
+    if (value == 0)
     {
         ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
         // remove constness

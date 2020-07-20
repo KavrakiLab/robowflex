@@ -139,10 +139,9 @@ void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
 
 void IO::RVIZHelper::visualizeState(const std::vector<double> &state_vec)
 {
-    auto state = std::make_shared<robot_state::RobotState>(robot_->getModelConst());
+    auto state = robot_->allocState();
 
     sensor_msgs::JointState joint_state;
-
     joint_state.name = robot_->getJointNames();
     joint_state.position = state_vec;
 

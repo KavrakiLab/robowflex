@@ -220,6 +220,11 @@ namespace robowflex
          */
         robot_model::RobotStatePtr &getScratchState();
 
+        /** \brief Allocate a new robot state.
+         *  \return The new robot state.
+         */
+        robot_model::RobotStatePtr allocState() const;
+
         /** \brief Get the underlying IO handler used for this robot.
          *  \return A reference to the IO handler.
          */

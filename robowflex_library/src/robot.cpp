@@ -453,6 +453,16 @@ bool Robot::toYAMLFile(const std::string &file) const
     return IO::YAMLToFile(yaml, file);
 }
 
+robot_model::RobotStatePtr Robot::allocState() const
+{
+    // No make_shared() for indigo compatibility
+    robot_state::RobotStatePtr state;
+    state.reset(new robot_state::RobotState(getModelConst()));
+    state->setToDefaultValues();
+
+    return state;
+}
+
 namespace
 {
     YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry)
