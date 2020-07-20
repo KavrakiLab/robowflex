@@ -1,13 +1,14 @@
 #!/bin/bash
 
 cd "${0%/*}"
-source .ci/tidy-functions.sh
+source tidy-functions.sh
 
+cd ..
 generate-compile-commands robowflex_library
-fix-tidy
+check-tidy
 generate-compile-commands robowflex_ompl
-fix-tidy
+check-tidy
 generate-compile-commands robowflex_movegroup
-fix-tidy
+check-tidy
 generate-compile-commands robowflex_dart
-fix-tidy
+
