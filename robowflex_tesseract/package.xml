@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_tesseract</name>
-  <version>0.0.1</version>
-  <description>The Better Benchmarking Package: Tesseract Interface</description>
+  <version>0.1.0</version>
+  <description>Robowflex: ROS Industrial Tesseract Interface</description>
+
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="bryce.steven.willey@gmail.com">Bryce Willey</author>
 

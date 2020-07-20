@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_movegroup</name>
-  <version>0.0.1</version>
-  <description>Interaction of robowflex with a live move_group process.</description>
+  <version>0.1.0</version>
+  <description>Robowflex: MoveIt MoveGroup Interaction</description>
+
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
