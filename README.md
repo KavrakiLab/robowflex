@@ -1,6 +1,4 @@
 # Robowflex 💪🤖
-![Build](https://github.com/KavrakiLab/robowflex/workflows/Build/badge.svg?branch=master)
-
 Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
 
