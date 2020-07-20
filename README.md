@@ -1,7 +1,13 @@
 # Robowflex 💪🤖
 ![Build](https://github.com/KavrakiLab/robowflex/workflows/Build/badge.svg?branch=master)
+
 Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
+
+## Build Status
+| Documentation | Linting | Indigo | Kinetic | Melodic |
+| ------------- | ------- | ------ | ------- | ------- |
+|![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg) |![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg)|![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg)|![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg)|![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)|
 
 ## robowflex_library
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
