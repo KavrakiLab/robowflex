@@ -94,7 +94,7 @@ void IO::RobotBroadcaster::update()
             link->getJointOriginTransform() * state->getJointTransform(link->getParentJointModel());
 
         std::string source = (parent) ? parent->getName() : base_;
-        const std::string& target = link->getName();
+        const std::string &target = link->getName();
 
         auto msg = TF::transformEigenToMsg(source, target, tf);
 

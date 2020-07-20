@@ -338,7 +338,8 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
     return scene_->distanceToCollision(*state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/, const std::string & /*object*/) const
+double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/,
+                               const std::string & /*object*/) const
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
     if (not hasObject(object))

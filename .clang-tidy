@@ -15,12 +15,20 @@ Checks:          '-*,
                   modernize-use-nullptr,
                   modernize-use-override,
                   modernize-use-using,
+                  readability-avoid-const-params-in-decls,
+                  readability-const-return-type,
+                  readability-container-size-empty,
+                  readability-else-after-return,
+                  readability-identifier-naming,
+                  readability-make-member-function-const
                   readability-named-parameter,
+                  readability-qualified-auto,
+                  readability-redundant-control-flow,
                   readability-redundant-smartptr-get,
                   readability-redundant-string-cstr,
+                  readability-redundant-string-init,
                   readability-simplify-boolean-expr,
-                  readability-container-size-empty,
-                  readability-identifier-naming,
+                  readability-use-anyofallof,
                   '
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

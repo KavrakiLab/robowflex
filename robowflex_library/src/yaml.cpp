@@ -48,9 +48,9 @@ namespace
 
             if (s == "move")
                 return moveit_msgs::CollisionObject::MOVE;
-            else if (s == "remove")
+            if (s == "remove")
                 return moveit_msgs::CollisionObject::REMOVE;
-            else if (s == "append")
+            if (s == "append")
                 return moveit_msgs::CollisionObject::APPEND;
             else
                 return moveit_msgs::CollisionObject::ADD;

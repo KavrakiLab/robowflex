@@ -159,7 +159,8 @@ namespace
                     tinyxml2::XMLElement *data = getFirstChild(geom, "Data");
                     std::string resource_path;
                     if (data)
-                        resource_path = load_struct.directory_stack.top() + "/" + std::string(data->GetText());
+                        resource_path =
+                            load_struct.directory_stack.top() + "/" + std::string(data->GetText());
 
                     else
                     {

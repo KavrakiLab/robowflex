@@ -5,7 +5,7 @@
 
 using namespace robowflex;
 
-int main(int  /*argc*/, char ** /*argv*/)
+int main(int /*argc*/, char ** /*argv*/)
 {
     // Open the HDF5 file
     IO::HDF5File file("~/Downloads/left_foot.hdf5");

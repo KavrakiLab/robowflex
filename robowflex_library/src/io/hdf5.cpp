@@ -201,16 +201,16 @@ namespace
 
         if (r < 0)
             return type;
-        else
-            switch (info.type)
-            {
-                case H5O_TYPE_GROUP:
-                case H5O_TYPE_DATASET:
-                case H5O_TYPE_NAMED_DATATYPE:
-                    type = info.type;
-                default:
-                    break;
-            }
+
+        switch (info.type)
+        {
+            case H5O_TYPE_GROUP:
+            case H5O_TYPE_DATASET:
+            case H5O_TYPE_NAMED_DATATYPE:
+                type = info.type;
+            default:
+                break;
+        }
 
         return (type);
     }

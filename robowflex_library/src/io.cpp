@@ -217,8 +217,8 @@ const std::string IO::loadXMLToString(const std::string &path)
 
     if (isExtension(full_path, "xacro"))
         return loadXacroToString(full_path);
-    else
-        return loadFileToString(full_path);
+
+    return loadFileToString(full_path);
 }
 
 const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
