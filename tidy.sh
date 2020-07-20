@@ -13,9 +13,16 @@ function generate_compile_commands()
 
 function tidy()
 {
-	  run-clang-tidy -fix -header-filter=".*" -p $(dirname $commands)
+	  run-clang-tidy -fix -header-filter=".*" -p .build-tmp
+    rm -rf .build-tmp
 }
 
 cd "${0%/*}"
 generate_compile_commands robowflex_library
+tidy
+generate_compile_commands robowflex_ompl
+tidy
+generate_compile_commands robowflex_movegroup
+tidy
+generate_compile_commands robowflex_dart
 tidy

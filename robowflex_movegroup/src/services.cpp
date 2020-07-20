@@ -1,14 +1,14 @@
 /* Author: Zachary Kingston */
 
+#include <moveit_msgs/ApplyPlanningScene.h>
 #include <moveit_msgs/ExecuteTrajectoryGoal.h>
 #include <moveit_msgs/ExecuteTrajectoryResult.h>
 #include <moveit_msgs/GetPlanningScene.h>
-#include <moveit_msgs/ApplyPlanningScene.h>
 #include <std_srvs/Empty.h>
 
-#include <robowflex_library/path.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/path.h>
 #include <robowflex_library/yaml.h>
 
 #include <robowflex_movegroup/services.h>
@@ -137,10 +137,7 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
     if (!eac_.waitForResult())
         ROS_INFO("ExecuteTrajectory action returned early");
 
-    if (eac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-        return true;
-    else
-        return false;
+    return eac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
 
 bool MoveGroupHelper::pullState(RobotPtr &robot)
@@ -188,10 +185,7 @@ bool MoveGroupHelper::pushScene(const SceneConstPtr &scene)
     moveit_msgs::ApplyPlanningScene::Response response;
     request.scene = scene->getMessage();
 
-    if (apsc_.call(request, response))
-        return true;
-
-    return false;
+    return apsc_.call(request, response);
 }
 
 bool MoveGroupHelper::clearOctomap()
@@ -199,9 +193,7 @@ bool MoveGroupHelper::clearOctomap()
     std_srvs::EmptyRequest request;
     std_srvs::EmptyResponse response;
 
-    if (co_.call(request, response))
-        return true;
-    return false;
+    return co_.call(request, response);
 }
 
 void MoveGroupHelper::moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)

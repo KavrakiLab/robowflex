@@ -52,8 +52,8 @@ namespace
                 return moveit_msgs::CollisionObject::REMOVE;
             if (s == "append")
                 return moveit_msgs::CollisionObject::APPEND;
-            else
-                return moveit_msgs::CollisionObject::ADD;
+
+            return moveit_msgs::CollisionObject::ADD;
         }
         catch (const YAML::BadConversion &e)
         {

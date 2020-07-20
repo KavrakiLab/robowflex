@@ -2,17 +2,17 @@
 
 #include <tinyxml2.h>
 
-#include <dart/dynamics/Joint.hpp>
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/DegreeOfFreedom.hpp>
+#include <dart/dynamics/Joint.hpp>
 
-#include <robowflex_library/tf.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/tf.h>
 
+#include <robowflex_dart/acm.h>
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/acm.h>
 
 using namespace robowflex::darts;
 
@@ -408,7 +408,7 @@ const Robot::NamedStatesMap &Robot::getNamedGroupStates() const
     return group_states_;
 }
 
-std::vector<std::string> Robot::getNamedGroupStates(const std::string &group) const
+std::vector<std::string> Robot::getNamedGroupStates(const std::string & /*group*/) const
 {
     std::vector<std::string> names;
     for (const auto &group : group_states_)
@@ -432,8 +432,8 @@ bool Robot::getNamedGroupState(const std::string &group, const std::string &name
             q = it->second;
             return true;
         }
-        else
-            return false;
+
+        return false;
     }
     else
         return false;

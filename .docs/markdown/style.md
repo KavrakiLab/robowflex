@@ -3,6 +3,8 @@
 Consistent, clean style in a code base leads to code that is more readable, debuggable, and maintainable.
 Robowflex provides a prescribed style file (`.clang-format`), which enforces code style automatically.
 To automatically format the code base, either use `clang-format` within your text editor, using the style file, or run the `format.sh` script.
+Some of these conventions are captured in the `.clang-tidy` format file.
+Use the `tidy.sh` script to automatically modernize your code base with `clang-tidy`.
 
 However, there are some basic conventions that are also described in this file that must be considered when writing code for Robowflex.
 

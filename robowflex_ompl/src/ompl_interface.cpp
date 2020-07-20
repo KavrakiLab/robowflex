@@ -1,9 +1,9 @@
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
 
 #include <robowflex_ompl/ompl_interface.h>
 
