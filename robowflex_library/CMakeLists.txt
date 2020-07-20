@@ -25,22 +25,35 @@ find_package(HDF5 REQUIRED COMPONENTS C CXX)
 ## Catkin setup
 ##
 
-find_package(catkin REQUIRED COMPONENTS
-  moveit_ros_planning
-  geometric_shapes
-  eigen_conversions
-  rosbag
+list(APPEND CATKIN_SOURCES
+  std_msgs
+  sensor_msgs
+  geometry_msgs
+  visualization_msgs
+  shape_msgs
+  octomap_msgs
+  trajectory_msgs
+  object_recognition_msgs
+  moveit_msgs
+
   roscpp
+  rosbag
+  urdf
+  srdfdom
+  pluginlib
+  eigen_conversions
+  geometric_shapes
+  moveit_core
+  moveit_ros_planning
+  tf2_ros
+  xmlrpcpp
   )
+
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS
-    moveit_ros_planning
-    geometric_shapes
-    eigen_conversions
-    rosbag
-    roscpp
+  CATKIN_DEPENDS ${CATKIN_SOURCES}
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
