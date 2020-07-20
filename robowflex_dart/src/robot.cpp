@@ -435,8 +435,8 @@ bool Robot::getNamedGroupState(const std::string &group, const std::string &name
 
         return false;
     }
-    else
-        return false;
+
+    return false;
 }
 
 void Robot::setNamedGroupState(const std::string &group, const std::string &name,
