@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 #include <boost/uuid/uuid.hpp>             // for UUID generation
 #include <boost/uuid/uuid_generators.hpp>  // for UUID generation
@@ -59,7 +59,7 @@ Window::Window(const WorldPtr &world)
 void Window::customPreRefresh()
 {
     // world_->lock();
-    for (auto widget : widgets_)
+    for (const auto &widget : widgets_)
         widget->prerefresh();
 }
 
@@ -193,7 +193,7 @@ void Window::run(std::function<void()> thread)
 // Widget
 //
 
-void Widget::initialize(Window *window)
+void Widget::initialize(Window * /*window*/)
 {
 }
 
@@ -508,7 +508,7 @@ void TSREditWidget::updateFrameCB(const dart::gui::osg::InteractiveFrame *frame)
         return;
 
     prev_ = spec_;
-    auto tf = frame->getRelativeTransform();
+    const auto &tf = frame->getRelativeTransform();
     spec_.pose = tf;
 
     updateMirror();
@@ -850,7 +850,7 @@ void TSRSolveWidget::solve()
     solve_time_.addPoint(time);
 }
 
-void TSRSolveWidget::initialize(Window *window)
+void TSRSolveWidget::initialize(Window * /*window*/)
 {
     // Compute world indices for all TSRs
     const auto &tsrs = tsrs_->getTSRs();
@@ -865,6 +865,7 @@ void TSRSolveWidget::initialize(Window *window)
     }
 
     std::vector<std::pair<std::size_t, std::size_t>> wts;
+    wts.reserve(wis.size());
     for (const auto &index : wis)
         wts.emplace_back(index);
 

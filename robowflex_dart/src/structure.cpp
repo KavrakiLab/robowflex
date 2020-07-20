@@ -1,13 +1,13 @@
 /* Author: Zachary Kingston */
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <dart/dynamics/WeldJoint.hpp>
 #include <dart/dynamics/BodyNode.hpp>
+#include <dart/dynamics/WeldJoint.hpp>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/scene.h>
@@ -263,7 +263,7 @@ void Structure::updateCollisionObject(const std::string &name, const GeometryPtr
                                       const robowflex::RobotPose &pose)
 {
     auto nodes = skeleton_->getBodyNodes(name);  // Get all nodes with this name
-    if (nodes.size() != 0)
+    if (!nodes.empty())
         setJointParentTransform(name, pose);
     else
     {
@@ -331,24 +331,22 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const Geom
     auto uri = geometry->getResource();
     if (uri.empty())
     {
-        static Assimp::Importer importer_;
+        static Assimp::Importer importer;
 
         auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
         std::vector<char> buffer;
         shapes::writeSTLBinary(shape.get(), buffer);
 
-        auto aiscene = importer_.ReadFileFromMemory(buffer.data(), buffer.size(),
-                                                    aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
+        auto aiscene = importer.ReadFileFromMemory(buffer.data(), buffer.size(),
+                                                   aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
 
         auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
         return mesh;
     }
-    else
-    {
-        auto aiscene = dart::dynamics::MeshShape::loadMesh(uri);
-        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
-        return mesh;
-    }
+
+    auto aiscene = dart::dynamics::MeshShape::loadMesh(uri);
+    auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+    return mesh;
 }
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(double low, double high,

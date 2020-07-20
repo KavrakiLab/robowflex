@@ -9,8 +9,8 @@
 
 using namespace robowflex::darts;
 
-static dart::utils::DartLoader urdf_;
-static dart::utils::PackageResourceRetriever package_;
+static dart::utils::DartLoader URDF;
+static dart::utils::PackageResourceRetriever PACKAGE;
 
 void IO::addPackage(const std::string &package)
 {
@@ -21,8 +21,8 @@ void IO::addPackage(const std::string &package)
 
 void IO::addPackage(const std::string &package, const std::string &location)
 {
-    urdf_.addPackageDirectory(package, location);
-    package_.addPackageDirectory(package, location);
+    URDF.addPackageDirectory(package, location);
+    PACKAGE.addPackageDirectory(package, location);
 }
 
 bool IO::loadURDF(Robot &robot, const std::string &urdf)
@@ -35,7 +35,7 @@ bool IO::loadURDF(Robot &robot, const std::string &urdf)
     for (const auto &package : packages)
         IO::addPackage(package);
 
-    auto skeleton = urdf_.parseSkeleton(urdf);
+    auto skeleton = URDF.parseSkeleton(urdf);
     if (not skeleton)
         return false;
 
@@ -52,7 +52,7 @@ std::string IO::getPackageFile(const std::string &uri)
 {
     std::string file = robowflex::IO::resolvePackage(uri);
     if (file.empty())
-        file = package_.getFilePath(uri);
+        file = PACKAGE.getFilePath(uri);
 
     return file;
 }

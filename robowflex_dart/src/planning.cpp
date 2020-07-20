@@ -1,17 +1,18 @@
 /* Author: Zachary Kingston */
 
-#include <thread>
 #include <chrono>
+#include <thread>
+#include <utility>
 
 #include <ompl/base/ConstrainedSpaceInformation.h>
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
-#include <robowflex_library/tf.h>
 #include <moveit_msgs/MotionPlanRequest.h>
+#include <robowflex_library/tf.h>
 
+#include <robowflex_dart/planning.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/world.h>
-#include <robowflex_dart/planning.h>
 
 using namespace robowflex::darts;
 
@@ -49,7 +50,8 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
 {
 }
 
-TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr) : TSRGoal(builder, std::vector<TSRPtr>{tsr})
+TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr)
+  : TSRGoal(builder, std::vector<TSRPtr>{std::move(tsr)})
 {
 }
 
@@ -107,8 +109,8 @@ const StateSpace::StateType *TSRGoal::getStateConst(const ompl::base::State *sta
         return state->as<ompl::base::ConstrainedStateSpace::StateType>()
             ->getState()
             ->as<StateSpace::StateType>();
-    else
-        return state->as<StateSpace::StateType>();
+
+    return state->as<StateSpace::StateType>();
 }
 
 StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
@@ -117,8 +119,8 @@ StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
         return state->as<ompl::base::ConstrainedStateSpace::StateType>()
             ->getState()
             ->as<StateSpace::StateType>();
-    else
-        return state->as<StateSpace::StateType>();
+
+    return state->as<StateSpace::StateType>();
 }
 
 const StateSpace *TSRGoal::getSpace() const
@@ -175,8 +177,8 @@ void PlanBuilder::getStartFromMessage(const std::string &robot_name,
     setStartConfigurationFromWorld();
 }
 
-TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
-                                              const moveit_msgs::PositionConstraint &msg) const
+TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
+                                           const moveit_msgs::PositionConstraint &msg) const
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -221,8 +223,8 @@ TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
     return std::make_shared<TSR>(world, spec);
 }
 
-TSRPtr PlanBuilder::TSRfromOrientationConstraint(const std::string &robot_name,
-                                                 const moveit_msgs::OrientationConstraint &msg) const
+TSRPtr PlanBuilder::fromOrientationConstraint(const std::string &robot_name,
+                                              const moveit_msgs::OrientationConstraint &msg) const
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -243,9 +245,9 @@ void PlanBuilder::getPathConstraintsFromMessage(const std::string &robot_name,
                                                 const moveit_msgs::MotionPlanRequest &msg)
 {
     for (const auto &constraint : msg.path_constraints.position_constraints)
-        addConstraint(TSRfromPositionConstraint(robot_name, constraint));
+        addConstraint(fromPositionConstraint(robot_name, constraint));
     for (const auto &constraint : msg.path_constraints.orientation_constraints)
-        addConstraint(TSRfromOrientationConstraint(robot_name, constraint));
+        addConstraint(fromOrientationConstraint(robot_name, constraint));
 }
 
 ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_name,
@@ -254,9 +256,9 @@ ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_nam
     // TODO get other goals as well
     std::vector<TSRPtr> tsrs;
     for (const auto &constraint : msg.goal_constraints[0].position_constraints)
-        tsrs.emplace_back(TSRfromPositionConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromPositionConstraint(robot_name, constraint));
     for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
-        tsrs.emplace_back(TSRfromOrientationConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromOrientationConstraint(robot_name, constraint));
 
     return getGoalTSR(tsrs);
 }
@@ -431,8 +433,8 @@ StateSpace::StateType *PlanBuilder::getState(ompl::base::State *state) const
 {
     if (constraint)
         return getFromConstrainedState(state);
-    else
-        return getFromUnconstrainedState(state);
+
+    return getFromUnconstrainedState(state);
 }
 
 const StateSpace::StateType *PlanBuilder::getStateConst(const ompl::base::State *state) const
@@ -483,8 +485,8 @@ ompl::base::State *PlanBuilder::sampleState() const
 
         return state;
     }
-    else
-        return nullptr;
+
+    return nullptr;
 }
 
 void PlanBuilder::setStateValidityChecker()

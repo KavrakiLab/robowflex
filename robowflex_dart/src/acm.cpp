@@ -62,8 +62,8 @@ std::pair<std::string, std::string> ACM::makeKey(const std::string &a, const std
 {
     if (a < b)
         return std::make_pair(a, b);
-    else
-        return std::make_pair(b, a);
+
+    return std::make_pair(b, a);
 }
 
 dart::dynamics::BodyNode *ACM::getBodyNode(const std::string &key)

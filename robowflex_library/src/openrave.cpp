@@ -1,7 +1,7 @@
 /* Author: Bryce Willey */
 
-#include <stack>
 #include <algorithm>
+#include <stack>
 
 #include <tinyxml2.h>
 
@@ -18,8 +18,8 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
-#include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io.h>
 #include <robowflex_library/openrave.h>
 
 using namespace robowflex;
@@ -94,38 +94,38 @@ namespace
             return false;
         }
 
-        auto transElem = getFirstChild(elem, "Translation");
-        auto rotElem = getFirstChild(elem, "Rotation");
-        RobotPose this_tf = TFfromXML(transElem, rotElem, nullptr);
+        auto trans_elem = getFirstChild(elem, "Translation");
+        auto rot_elem = getFirstChild(elem, "Rotation");
+        RobotPose this_tf = TFfromXML(trans_elem, rot_elem, nullptr);
 
         const char *filename = elem->Attribute("file");
         if (filename)
         {
             // We need to read in another file to get the actual info.
-            std::string fullPath = load_struct.directory_stack.top() + "/" + std::string(filename);
+            std::string full_path = load_struct.directory_stack.top() + "/" + std::string(filename);
             tinyxml2::XMLDocument doc;
-            if (!doc.LoadFile(fullPath.c_str()))
+            if (!doc.LoadFile(full_path.c_str()))
             {
-                ROS_ERROR("Cannot load file %s", fullPath.c_str());
+                ROS_ERROR("Cannot load file %s", full_path.c_str());
                 return false;
             }
 
-            load_struct.directory_stack.push(IO::resolveParent(fullPath));
+            load_struct.directory_stack.push(IO::resolveParent(full_path));
             return parseKinbody(load_struct, getFirstChild(&doc, "KinBody"), tf * this_tf, planning_scene);
         }
 
-        tinyxml2::XMLElement *bodyElem = getFirstChild(elem);
-        for (; bodyElem; bodyElem = bodyElem->NextSiblingElement())
+        tinyxml2::XMLElement *body_elem = getFirstChild(elem);
+        for (; body_elem; body_elem = body_elem->NextSiblingElement())
         {
-            if (std::string(bodyElem->Value()) == "Body")
+            if (std::string(body_elem->Value()) == "Body")
             {
                 ROS_INFO("Pushing back collision object");
 
                 moveit_msgs::CollisionObject coll_obj;
-                coll_obj.id = bodyElem->Attribute("name");
+                coll_obj.id = body_elem->Attribute("name");
                 coll_obj.header.frame_id = "world";
 
-                tinyxml2::XMLElement *geom = getFirstChild(bodyElem, "Geom");
+                tinyxml2::XMLElement *geom = getFirstChild(body_elem, "Geom");
                 if (not geom)
                 {
                     ROS_ERROR("Malformed File: No Geom attribute?");
@@ -157,15 +157,16 @@ namespace
                     Eigen::Vector3d dimensions{1, 1, 1};
 
                     tinyxml2::XMLElement *data = getFirstChild(geom, "Data");
-                    std::string resourcePath;
+                    std::string resource_path;
                     if (data)
-                        resourcePath = load_struct.directory_stack.top() + "/" + std::string(data->GetText());
+                        resource_path =
+                            load_struct.directory_stack.top() + "/" + std::string(data->GetText());
 
                     else
                     {
                         tinyxml2::XMLElement *render = getFirstChild(geom, "Render");
                         if (render)
-                            resourcePath =
+                            resource_path =
                                 load_struct.directory_stack.top() + "/" + std::string(data->GetText());
                         else
                         {
@@ -173,7 +174,7 @@ namespace
                             return false;
                         }
                     }
-                    auto mesh = Geometry::makeMesh(resourcePath, dimensions);
+                    auto mesh = Geometry::makeMesh(resource_path, dimensions);
 
                     ROS_INFO("Setting mesh");
                     coll_obj.meshes.push_back(mesh->getMeshMsg());
@@ -247,14 +248,14 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
 
     for (; elem; elem = elem->NextSiblingElement())
     {
-        const std::string pKey = std::string(elem->Value());
-        if (pKey == "KinBody")
+        const std::string p_key = std::string(elem->Value());
+        if (p_key == "KinBody")
         {
             if (!parseKinbody(load_struct, elem, load_struct.robot_offset.inverse(), planning_scene))
                 return false;
         }
         else
-            ROS_INFO("Ignoring elements of value %s", pKey.c_str());
+            ROS_INFO("Ignoring elements of value %s", p_key.c_str());
     }
 
     auto rob_trans = load_struct.robot_offset.translation();

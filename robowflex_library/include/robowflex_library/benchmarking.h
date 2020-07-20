@@ -135,8 +135,8 @@ namespace robowflex
              *  \param[in] builder The request builder used for the query.
              *  \param[in] options Options for the query.
              */
-            Results(const std::string &name, const SceneConstPtr scene, const PlannerConstPtr planner,
-                    const MotionRequestBuilderConstPtr builder, const Options &options);
+            Results(const std::string &name, const SceneConstPtr &scene, const PlannerConstPtr &planner,
+                    const MotionRequestBuilderConstPtr &builder, const Options &options);
 
             /** \brief Add a run to the set of results.
              *  \param[in] num The number of the run.

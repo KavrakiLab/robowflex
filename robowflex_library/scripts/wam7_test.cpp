@@ -1,9 +1,9 @@
-#include <robowflex_library/util.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/builder.h>
-#include <robowflex_library/planning.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 

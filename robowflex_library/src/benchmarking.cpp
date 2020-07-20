@@ -2,16 +2,16 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <moveit/version.h>
 #include <moveit/collision_detection/collision_common.h>
+#include <moveit/version.h>
 
+#include <robowflex_library/benchmarking.h>
+#include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/path.h>
-#include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
-#include <robowflex_library/builder.h>
-#include <robowflex_library/benchmarking.h>
+#include <robowflex_library/scene.h>
 
 using namespace robowflex;
 
@@ -55,8 +55,8 @@ Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), t
 /// Benchmarker::Results
 ///
 
-Benchmarker::Results::Results(const std::string &name, const SceneConstPtr scene,
-                              const PlannerConstPtr planner, const MotionRequestBuilderConstPtr builder,
+Benchmarker::Results::Results(const std::string &name, const SceneConstPtr &scene,
+                              const PlannerConstPtr &planner, const MotionRequestBuilderConstPtr &builder,
                               const Options &options)
   : name(name), scene(scene), planner(planner), builder(builder), options(options)
 {
@@ -300,7 +300,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
     std::vector<std::reference_wrapper<const std::string>> keys;
     for (const auto &metric : results.runs[0].metrics)
     {
-        class toString : public boost::static_visitor<const std::string>
+        class ToString : public boost::static_visitor<const std::string>
         {
         public:
             const std::string operator()(int /* dummy */) const
@@ -322,7 +322,7 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         const auto &name = metric.first;
         keys.emplace_back(name);
 
-        out << name << " " << boost::apply_visitor(toString(), metric.second) << std::endl;
+        out << name << " " << boost::apply_visitor(ToString(), metric.second) << std::endl;
     }
 
     out << results.runs.size() << " runs" << std::endl;

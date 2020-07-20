@@ -1,15 +1,15 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/io.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/openrave.h>
+#include <robowflex_library/tf.h>
 
-#include <pluginlib/class_loader.h>
 #include <moveit/collision_detection/collision_plugin.h>
+#include <pluginlib/class_loader.h>
 
 namespace robowflex
 {
@@ -338,7 +338,8 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
     return scene_->distanceToCollision(*state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
+double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/,
+                               const std::string & /*object*/) const
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
     if (not hasObject(object))
@@ -383,7 +384,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 #endif
 }
 
-double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
+double Scene::distanceBetweenObjects(const std::string & /*one*/, const std::string & /*two*/) const
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
     // Early terminate if they are the same

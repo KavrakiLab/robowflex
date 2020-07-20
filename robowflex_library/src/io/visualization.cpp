@@ -24,13 +24,13 @@ using namespace robowflex;
 
 namespace
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static std::random_device RD;
+    static std::mt19937 GEN(RD());
 
     Eigen::Vector4d getRandomColor()
     {
         std::uniform_real_distribution<> dis(0.2, 0.7);
-        return {dis(gen), dis(gen), dis(gen), 1.};
+        return {dis(GEN), dis(GEN), dis(GEN), 1.};
     }
 };  // namespace
 
@@ -391,14 +391,14 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
             pause.sleep();
     }
 
-    moveit_msgs::PlanningScene toPub;
+    moveit_msgs::PlanningScene to_pub;
     if (scene != nullptr)
     {
-        toPub = scene->getMessage();
-        toPub.is_diff = true;
+        to_pub = scene->getMessage();
+        to_pub.is_diff = true;
     }
 
-    scene_pub_.publish(toPub);
+    scene_pub_.publish(to_pub);
 }
 
 void IO::RVIZHelper::updateMarkers()

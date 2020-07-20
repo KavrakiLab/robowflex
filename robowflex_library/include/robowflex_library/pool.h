@@ -171,7 +171,7 @@ namespace robowflex
              */
             bool waitFor(double time) const
             {
-                return future_.wait_for(std::chrono::seconds(time)) == std::future_status::ready;
+                return future_.wait_for(std::chrono::duration<double>(time)) == std::future_status::ready;
             }
 
         private:

@@ -190,15 +190,15 @@ namespace robowflex
              *  \param[in] robot_name Robot name to use message on.
              *  \param[in] msg Position constraint.
              */
-            TSRPtr TSRfromPositionConstraint(const std::string &robot_name,
-                                             const moveit_msgs::PositionConstraint &msg) const;
+            TSRPtr fromPositionConstraint(const std::string &robot_name,
+                                          const moveit_msgs::PositionConstraint &msg) const;
 
             /** \brief Get a TSR from an orientation constraint.
              *  \param[in] robot_name Robot name to use message on.
              *  \param[in] msg Orientation constraint.
              */
-            TSRPtr TSRfromOrientationConstraint(const std::string &robot_name,
-                                                const moveit_msgs::OrientationConstraint &msg) const;
+            TSRPtr fromOrientationConstraint(const std::string &robot_name,
+                                             const moveit_msgs::OrientationConstraint &msg) const;
 
             /** \brief Use all of the planning request message to setup motion planning.
              *  \param[in] robot_name Robot name to use message on.

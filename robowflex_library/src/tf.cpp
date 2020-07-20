@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#include <random>
 #include <eigen_conversions/eigen_msg.h>
+#include <random>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>

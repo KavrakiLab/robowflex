@@ -155,8 +155,8 @@ RobotPtr World::getRobot(const std::string &name)
     auto it = robots_.find(name);
     if (it != robots_.end())
         return it->second;
-    else
-        return nullptr;
+
+    return nullptr;
 }
 
 void World::addStructure(StructurePtr structure)
@@ -197,8 +197,8 @@ StructurePtr World::getStructure(const std::string &name)
     auto it = structures_.find(name);
     if (it != structures_.end())
         return it->second;
-    else
-        return nullptr;
+
+    return nullptr;
 }
 
 std::pair<Eigen::Vector3d, Eigen::Vector3d> World::getWorkspaceBounds() const
@@ -264,15 +264,15 @@ double World::distanceToCollision() const
     dart::collision::DistanceResult result;
     double d = collider_->distance(all_.get(), option, &result);
 
-    const auto &shapeNode1 = result.shapeFrame1->asShapeNode();
-    const auto &shapeNode2 = result.shapeFrame2->asShapeNode();
+    const auto &shape_node1 = result.shapeFrame1->asShapeNode();
+    const auto &shape_node2 = result.shapeFrame2->asShapeNode();
 
-    const auto &bodyNode1 = shapeNode1->getBodyNodePtr();
-    const auto &bodyNode2 = shapeNode2->getBodyNodePtr();
+    const auto &body_node1 = shape_node1->getBodyNodePtr();
+    const auto &body_node2 = shape_node2->getBodyNodePtr();
 
-    std::cout << d                                                              //
-              << ", " << shapeNode1->getName() << ", " << bodyNode1->getName()  //
-              << ", " << shapeNode2->getName() << ", " << bodyNode2->getName() << std::endl;
+    std::cout << d                                                                //
+              << ", " << shape_node1->getName() << ", " << body_node1->getName()  //
+              << ", " << shape_node2->getName() << ", " << body_node2->getName() << std::endl;
 
     return d;
 }

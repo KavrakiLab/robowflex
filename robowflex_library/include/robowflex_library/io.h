@@ -145,12 +145,10 @@ namespace robowflex
         bool YAMLFileToMessage(T &msg, const std::string &file)
         {
             const auto &result = IO::loadFileToYAML(file);
+            if (result.first)
+                msg = result.second.as<T>();
 
-            if (!result.first)
-                return false;
-
-            msg = result.second.as<T>();
-            return true;
+            return result.first;
         }
     }  // namespace IO
 }  // namespace robowflex

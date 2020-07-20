@@ -5,6 +5,8 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/world.h>
 
+#include <utility>
+
 using namespace robowflex::darts;
 
 ///
@@ -47,7 +49,7 @@ StateSpace::StateType::StateType(std::size_t n) : data(n)
 /// StateSpace::StateType
 ///
 
-StateSpace::StateSpace(WorldPtr world) : ompl::base::RealVectorStateSpace(), world_(world)
+StateSpace::StateSpace(WorldPtr world) : ompl::base::RealVectorStateSpace(), world_(std::move(world))
 {
 }
 
@@ -75,8 +77,8 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
             // SE3EZ_INFORM("Joint %1% already being planned, skipping...", joint->getName());
             continue;
         }
-        else
-            jointset_.emplace(joint);
+
+        jointset_.emplace(joint);
 
         const auto &type = joint->getType();
         if (type == "RevoluteJoint")
@@ -165,7 +167,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
 void StateSpace::setWorldState(WorldPtr world, const ompl::base::State *state)
 {
     const auto &as = state->as<StateType>();
-    setWorldState(world, as->data);
+    setWorldState(std::move(world), as->data);
 }
 
 void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x)
@@ -182,7 +184,7 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
 {
     auto as = state->as<StateType>();
-    getWorldState(world, as->data);
+    getWorldState(std::move(world), as->data);
 }
 
 void StateSpace::getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const

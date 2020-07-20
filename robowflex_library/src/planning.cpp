@@ -1,9 +1,9 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
 
 using namespace robowflex;
 
@@ -26,9 +26,11 @@ const std::string &Planner::getName() const
     return name_;
 }
 
-void Planner::preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+void Planner::preRun(const SceneConstPtr & /*scene*/,
+                     const planning_interface::MotionPlanRequest & /*request*/)
 {
 }
+
 ///
 /// PoolPlanner
 ///

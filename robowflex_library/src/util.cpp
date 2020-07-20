@@ -15,11 +15,11 @@ using namespace robowflex;
 
 namespace
 {
-    static std::shared_ptr<ros::AsyncSpinner> spinner;
+    static std::shared_ptr<ros::AsyncSpinner> SPINNER;
 
 #if IS_BOOST_164
-    static boost::process::child roscore;
-    static bool roscore_init{false};
+    static boost::process::child ROSCORE;
+    static bool ROSCORE_INIT{false};
 #endif
 
     void shutdown(int sig)
@@ -29,15 +29,15 @@ namespace
         else
             ROS_INFO("Shutting down.");
 
-        if (spinner)
-            spinner->stop();
+        if (SPINNER)
+            SPINNER->stop();
 
         // Some stuff for later
         ros::shutdown();
 
 #if IS_BOOST_164
-        if (roscore_init)
-            roscore.terminate();
+        if (ROSCORE_INIT)
+            ROSCORE.terminate();
 #endif
 
         exit(0);
@@ -50,13 +50,13 @@ namespace
             ROS_ERROR("rosmaster is not running!");
 #if IS_BOOST_164
             ROS_WARN("Booting rosmaster...");
-            roscore = boost::process::child("rosmaster",                                     //
+            ROSCORE = boost::process::child("rosmaster",                                     //
                                             boost::process::std_in.close(),                  //
                                             boost::process::std_out > boost::process::null,  //
                                             boost::process::std_err > boost::process::null   //
             );
 
-            roscore_init = true;
+            ROSCORE_INIT = true;
 #endif
         }
 
@@ -74,8 +74,8 @@ ROS::ROS(int argc, char **argv, const std::string &name, unsigned int threads) :
 
     if (threads)
     {
-        spinner.reset(new ros::AsyncSpinner(threads));
-        spinner->start();
+        SPINNER.reset(new ros::AsyncSpinner(threads));
+        SPINNER->start();
     }
 }
 
