@@ -132,7 +132,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
             double time = (ros::WallTime::now() - start).toSec();
 
-            auto &run = results.addRun(j, time, response);
+            results.addRun(j, time, response);
             if (options.runs == 0)
             {
                 double time_remaining = builder->getRequest().allowed_planning_time - time;
