@@ -8,12 +8,12 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/pool.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/scene.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
-    ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(Geometry);
     /** \endcond */
 
