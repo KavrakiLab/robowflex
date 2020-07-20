@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_library</name>
-  <version>0.0.1</version>
-  <description>The Better Benchmarking Package</description>
+  <version>0.1.0</version>
+  <description>Robowflex: Making MoveIt Easy</description>
+
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
-  <author email="bryce.steven.willey@gmail.com">Bryce Willey</author>
 
   <license>BSD</license>
 
