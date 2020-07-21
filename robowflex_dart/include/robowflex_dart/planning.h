@@ -28,6 +28,7 @@ namespace robowflex
 
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TSRGoal)
+        ROBOWFLEX_CLASS_FORWARD(JointRegionGoal)
         ROBOWFLEX_CLASS_FORWARD(PlanBuilder)
         /** \endcond */
 
@@ -37,10 +38,86 @@ namespace robowflex
         /** \class robowflex::darts::TSRGoalConstPtr
             \brief A const shared pointer wrapper for robowflex::darts::TSRGoal. */
 
+        /** \class robowflex::darts::JointRegionGoalPtr
+            \brief A shared pointer wrapper for robowflex::darts::JointRegionGoal. */
+
+        /** \class robowflex::darts::JointRegionGoalConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::JointRegionGoal. */
+
+        /** \brief Helper class to manage extracting states from a possibly constrained state space.
+         */
+        class ConstraintExtractor
+        {
+        public:
+            /** \brief Constructor.
+             */
+            ConstraintExtractor() = default;
+
+            /** \brief Constructor.
+             *  \param[in] si The space information.
+             */
+            ConstraintExtractor(const ompl::base::SpaceInformationPtr &si);
+
+            /** \name State Access
+             *  \{ */
+
+            /** \brief Extract underlying state from a base state.
+             *  \param[in] state State.
+             *  \return Underlying robot state.
+             */
+            StateSpace::StateType *toState(ompl::base::State *state) const;
+
+            /** \brief Extract underlying state from a base state.
+             *  \param[in] state State.
+             *  \return Underlying robot state.
+             */
+            const StateSpace::StateType *toStateConst(const ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from a constrained OMPL state.
+             *  \param[in] state Constrained state to access.
+             *  \return The underlying state.
+             */
+            StateSpace::StateType *fromConstrainedState(ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from a constrained OMPL state.
+             *  \param[in] state Constrained state to access.
+             *  \return The underlying state.
+             */
+            const StateSpace::StateType *fromConstrainedStateConst(const ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from an unconstrained OMPL state.
+             *  \param[in] state Unconstrained state to access.
+             *  \return The underlying state.
+             */
+            StateSpace::StateType *fromUnconstrainedState(ompl::base::State *state) const;
+
+            /** \brief Access the underlying state from an unconstrained OMPL state.
+             *  \param[in] state Unconstrained state to access.
+             *  \return The underlying state.
+             */
+            const StateSpace::StateType *fromUnconstrainedStateConst(const ompl::base::State *state) const;
+
+            /** \} */
+
+            /** \brief Gets the underlying state space from the space information.
+             *  \return State space.
+             */
+            const StateSpace *getSpace() const;
+
+            /** \brief Set space information used for constraint extraction.
+             *  \param[in] si The space information.
+             */
+            void setSpaceInformation(const ompl::base::SpaceInformationPtr &si);
+
+        private:
+            ompl::base::SpaceInformationPtr space_info_;  ///< Space Information.
+            bool is_constrained_{false};                  ///< Is the underlying space constrained?
+        };
+
         /** \brief A sampleable goal region for OMPL for a set of TSRs.
          *  Samples goals in a separate thread using a clone of the world.
          */
-        class TSRGoal : public ompl::base::GoalLazySamples
+        class TSRGoal : public ompl::base::GoalLazySamples, public ConstraintExtractor
         {
         public:
             /** \name Constructors.
@@ -82,41 +159,46 @@ namespace robowflex
 
             /** \} */
 
+            /** \brief Sampling routine. Generates IK samples from the TSR goal.
+             *  \param[in] gls This class.
+             *  \param[in] state State to sample.
+             */
             bool sample(const ompl::base::GoalLazySamples *gls, ompl::base::State *state);
+
+            /** \brief Distance to the goal.
+             *  \param[in] state State to measure.
+             */
             double distanceGoal(const ompl::base::State *state) const override;
 
             /** \brief Public options.
              */
             struct
             {
-                bool use_gradient{false};
-                std::size_t max_samples{10};
+                bool use_gradient{false};     ///< Use gradient-based TSR solver.
+                std::size_t max_samples{10};  ///< Maximum samples.
             } options;
 
         private:
-            /** \brief Extract underlying state from a base state.
-             *  \param[in] state State.
-             *  \return Underlying robot state.
-             */
-            StateSpace::StateType *getState(ompl::base::State *state) const;
-
-            /** \brief Extract underlying state from a base state.
-             *  \param[in] state State.
-             *  \return Underlying robot state.
-             */
-            const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
-
-            /** \brief Gets the underlying state space from the space information.
-             *  \return State space.
-             */
-            const StateSpace *getSpace() const;
-
             WorldPtr world_;                         ///< World used.
             TSRSetPtr tsr_;                          ///< TSR set to sample from.
-            bool constrained_;                       ///< Is the underlying space constrained?
             ompl::base::StateSamplerPtr sampler_;    ///< State sampler.
             ompl::base::ProblemDefinitionPtr pdef_;  ///< Problem definition.
             std::size_t total_samples_{0};
+        };
+
+        /** \brief A joint space goal volume.
+         */
+        class JointGoal : public ompl::base::GoalSampleableRegion
+        {
+        public:
+            JointGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &state,
+                      double tolerance);
+
+            JointGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &low_bound,
+                      const Eigen::Ref<const Eigen::VectorXd> &upper_bound);
+
+            void sampleGoal(ompl::base::State *state) const override;
+            unsigned int maxSampleCount() const override;
         };
 
         /** \class robowflex::darts::PlanBuilderPtr
@@ -127,7 +209,7 @@ namespace robowflex
 
         /** \brief A helper class to setup common OMPL structures for planning.
          */
-        class PlanBuilder
+        class PlanBuilder : public ConstraintExtractor
         {
         public:
             /** \name Setup and Initialization.
@@ -289,54 +371,13 @@ namespace robowflex
 
             /** \} */
 
-            /** \name State Access
+            /** \name Other Functions
                 \{ */
-
-            /** \brief Access the underlying state from an OMPL state.
-             *  \param[in] state State to access.
-             *  \return The underlying state.
-             */
-            StateSpace::StateType *getState(ompl::base::State *state) const;
-
-            /** \brief Access the underlying state from an OMPL state.
-             *  \param[in] state State to access.
-             *  \return The underlying state.
-             */
-            const StateSpace::StateType *getStateConst(const ompl::base::State *state) const;
-
-            /** \brief Access the underlying state from a constrained OMPL state.
-             *  \param[in] state Constrained state to access.
-             *  \return The underlying state.
-             */
-            StateSpace::StateType *getFromConstrainedState(ompl::base::State *state) const;
-
-            /** \brief Access the underlying state from a constrained OMPL state.
-             *  \param[in] state Constrained state to access.
-             *  \return The underlying state.
-             */
-            const StateSpace::StateType *getFromConstrainedStateConst(const ompl::base::State *state) const;
-
-            /** \brief Access the underlying state from an unconstrained OMPL state.
-             *  \param[in] state Unconstrained state to access.
-             *  \return The underlying state.
-             */
-            StateSpace::StateType *getFromUnconstrainedState(ompl::base::State *state) const;
-
-            /** \brief Access the underlying state from an unconstrained OMPL state.
-             *  \param[in] state Unconstrained state to access.
-             *  \return The underlying state.
-             */
-            const StateSpace::StateType *getFromUnconstrainedStateConst(const ompl::base::State *state) const;
 
             /** \brief Sample a valid state.
              *  \return a Valid state.
              */
             ompl::base::State *sampleState() const;
-
-            /** \} */
-
-            /** \name Other Functions
-                \{ */
 
             /** \brief Get the solution path from a successful plan
              *  \param[in] simplify Simplify the solution.

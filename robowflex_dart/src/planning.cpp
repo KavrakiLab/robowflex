@@ -17,6 +17,63 @@
 using namespace robowflex::darts;
 
 ///
+/// ConstraintExtractor
+///
+ConstraintExtractor::ConstraintExtractor(const ompl::base::SpaceInformationPtr &si)
+{
+    setSpaceInformation(si);
+}
+
+void ConstraintExtractor::setSpaceInformation(const ompl::base::SpaceInformationPtr &si)
+{
+    space_info_ = si;
+    is_constrained_ = std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si) != nullptr;
+}
+
+StateSpace::StateType *ConstraintExtractor::toState(ompl::base::State *state) const
+{
+    if (is_constrained_)
+        return fromConstrainedState(state);
+
+    return fromUnconstrainedState(state);
+}
+
+const StateSpace::StateType *ConstraintExtractor::toStateConst(const ompl::base::State *state) const
+{
+    return toState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *ConstraintExtractor::fromConstrainedState(ompl::base::State *state) const
+{
+    return state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState()->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *
+ConstraintExtractor::fromConstrainedStateConst(const ompl::base::State *state) const
+{
+    return fromConstrainedState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *ConstraintExtractor::fromUnconstrainedState(ompl::base::State *state) const
+{
+    return state->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *
+ConstraintExtractor::fromUnconstrainedStateConst(const ompl::base::State *state) const
+{
+    return fromUnconstrainedState(const_cast<ompl::base::State *>(state));
+}
+
+const StateSpace *ConstraintExtractor::getSpace() const
+{
+    return (is_constrained_ ?
+                space_info_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
+                space_info_->getStateSpace())
+        ->as<StateSpace>();
+}
+
+///
 /// TSRGoal
 ///
 
@@ -24,9 +81,9 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
                  const WorldPtr &world, const std::vector<TSRPtr> &tsrs)
   : ompl::base::GoalLazySamples(
         si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false, 1e-3)
+  , ConstraintExtractor(si)
   , world_(world->clone())
   , tsr_(std::make_shared<TSRSet>(world_, tsrs))
-  , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
   // Have to allocate our own sampler from scratch since the constrained sampler might use the underlying
   // world used by the planner (e.g., in project)
   , sampler_(std::make_shared<StateSpace::StateSampler>(getSpace()))
@@ -77,7 +134,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
     bool success = false;
     while (not success and not pdef_->hasSolution())
     {
-        auto &&as = getState(state);
+        auto &&as = toState(state);
         sampler_->sampleUniform(as);
 
         auto &&x = Eigen::Map<Eigen::VectorXd>(as->values, si_->getStateDimension());
@@ -98,36 +155,9 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const
 {
-    auto &&as = getStateConst(state);
+    auto &&as = toStateConst(state);
     auto &&x = Eigen::Map<const Eigen::VectorXd>(as->values, si_->getStateDimension());
     return tsr_->distanceWorldState(x);
-}
-
-const StateSpace::StateType *TSRGoal::getStateConst(const ompl::base::State *state) const
-{
-    if (constrained_)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
-
-    return state->as<StateSpace::StateType>();
-}
-
-StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
-{
-    if (constrained_)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
-
-    return state->as<StateSpace::StateType>();
-}
-
-const StateSpace *TSRGoal::getSpace() const
-{
-    return (constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
-                           si_->getStateSpace())
-        ->as<StateSpace>();
 }
 
 ///
@@ -309,7 +339,7 @@ void PlanBuilder::sampleStartConfiguration()
     if (space)
     {
         auto state = sampleState();
-        setStartConfiguration(getState(state)->data);
+        setStartConfiguration(toState(state)->data);
         space->freeState(state);
     }
 }
@@ -328,7 +358,7 @@ PlanBuilder::getGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
         throw std::runtime_error("Builder must be initialized before creating goal!");
 
     ompl::base::ScopedState<> goal_state(space);
-    getState(goal_state.get())->data = q;
+    toState(goal_state.get())->data = q;
 
     auto goal = std::make_shared<ompl::base::GoalStates>(info);
     goal->addState(goal_state);
@@ -359,7 +389,7 @@ std::shared_ptr<ompl::base::GoalStates> PlanBuilder::sampleGoalConfiguration()
     if (space)
     {
         auto state = sampleState();
-        auto goal = getGoalConfiguration(getState(state)->data);
+        auto goal = getGoalConfiguration(toState(state)->data);
         space->freeState(state);
 
         return goal;
@@ -382,12 +412,14 @@ void PlanBuilder::initialize()
         initializeUnconstrained();
     else
         initializeConstrained();
+
+    setSpaceInformation(info);
 }
 
 void PlanBuilder::setup()
 {
     ompl::base::ScopedState<> start_state(space);
-    getState(start_state.get())->data = start;
+    toState(start_state.get())->data = start;
     ss->setStartState(start_state);
     if (not goal_)
         throw std::runtime_error("No goal setup in PlanBuilder!");
@@ -429,39 +461,6 @@ void PlanBuilder::initializeUnconstrained()
     rinfo = info = ss->getSpaceInformation();
 }
 
-StateSpace::StateType *PlanBuilder::getState(ompl::base::State *state) const
-{
-    if (constraint)
-        return getFromConstrainedState(state);
-
-    return getFromUnconstrainedState(state);
-}
-
-const StateSpace::StateType *PlanBuilder::getStateConst(const ompl::base::State *state) const
-{
-    return getState(const_cast<ompl::base::State *>(state));
-}
-
-StateSpace::StateType *PlanBuilder::getFromConstrainedState(ompl::base::State *state) const
-{
-    return state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState()->as<StateSpace::StateType>();
-}
-
-const StateSpace::StateType *PlanBuilder::getFromConstrainedStateConst(const ompl::base::State *state) const
-{
-    return getFromConstrainedState(const_cast<ompl::base::State *>(state));
-}
-
-StateSpace::StateType *PlanBuilder::getFromUnconstrainedState(ompl::base::State *state) const
-{
-    return state->as<StateSpace::StateType>();
-}
-
-const StateSpace::StateType *PlanBuilder::getFromUnconstrainedStateConst(const ompl::base::State *state) const
-{
-    return getFromUnconstrainedState(const_cast<ompl::base::State *>(state));
-}
-
 ompl::base::State *PlanBuilder::sampleState() const
 {
     if (space)
@@ -495,7 +494,7 @@ void PlanBuilder::setStateValidityChecker()
     {
         // ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
         ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-            auto as = getStateConst(state);
+            auto as = toStateConst(state);
 
             world->lock();
             rspace->setWorldState(world, as);
@@ -509,7 +508,7 @@ void PlanBuilder::setStateValidityChecker()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = getFromUnconstrainedStateConst(state);
+        auto as = fromUnconstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);
@@ -522,7 +521,7 @@ ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCConstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = getFromConstrainedStateConst(state);
+        auto as = fromConstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);

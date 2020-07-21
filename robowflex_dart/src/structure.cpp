@@ -27,7 +27,7 @@ Structure::Structure(const std::string &name)
     skeleton_->setSelfCollisionCheck(true);
 }
 
-Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure(name)
+Structure::Structure(const std::string &name, const SceneConstPtr &scene) : Structure(name)
 {
     const auto objects = scene->getCollisionObjects();
 
@@ -47,7 +47,7 @@ Structure::Structure(const std::string &name, const ScenePtr &scene) : Structure
         setColor(pair.second, dart::Color::Blue(0.2));
     }
 
-    auto acm = scene->getACM();
+    const auto &acm = scene->getACMConst();
     std::vector<std::string> names;
     acm.getAllEntryNames(names);
 

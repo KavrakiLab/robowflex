@@ -5,7 +5,7 @@
 
 namespace robowflex
 {
-    /** \brief Dart-based robot modeling and planning
+    /** \brief DART-based robot modeling and planning
      */
     namespace darts
     {

@@ -65,6 +65,7 @@ if (DART_LIBRARIES)
     src/tsr.cpp
     src/planning.cpp
     src/gui.cpp
+    src/planner.cpp
     src/joints/joint.cpp
     src/joints/rnjoint.cpp
     src/joints/so2joint.cpp

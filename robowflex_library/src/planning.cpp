@@ -69,7 +69,7 @@ planning_interface::MotionPlanResponse PoolPlanner::plan(const SceneConstPtr &sc
     return job->get();
 }
 
-const std::vector<std::string> PoolPlanner::getPlannerConfigs() const
+std::vector<std::string> PoolPlanner::getPlannerConfigs() const
 {
     return planners_.front()->getPlannerConfigs();
 }
@@ -200,7 +200,7 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     return true;
 }
 
-const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
+std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
 {
     return configs_;
 }

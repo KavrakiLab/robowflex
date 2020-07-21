@@ -61,7 +61,7 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     return response;
 }
 
-const std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
+std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
 {
     return configs_;
 }
