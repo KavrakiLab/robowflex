@@ -65,7 +65,7 @@ namespace robowflex
             ompl_interface::ModelBasedPlanningContextPtr getPlanningContext(
                 const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
 
-            const std::vector<std::string> getPlannerConfigs() const override;
+            std::vector<std::string> getPlannerConfigs() const override;
 
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.

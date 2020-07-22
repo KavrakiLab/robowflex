@@ -128,6 +128,11 @@ collision_detection::AllowedCollisionMatrix &Scene::getACM()
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
+const collision_detection::AllowedCollisionMatrix &Scene::getACMConst() const
+{
+    return scene_->getAllowedCollisionMatrix();
+}
+
 void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 {
     if (!diff)

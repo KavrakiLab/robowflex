@@ -488,6 +488,11 @@ void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
     for (std::size_t i = 0; i < skeleton_->getNumJoints(); ++i)
     {
         auto joint = skeleton_->getJoint(i);
+
+        // ignore fixed joints
+        if (joint->getNumDofs() == 0)
+            continue;
+
         auto j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
         if (j)
         {

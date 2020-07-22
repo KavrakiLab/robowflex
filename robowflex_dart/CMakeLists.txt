@@ -65,6 +65,7 @@ if (DART_LIBRARIES)
     src/tsr.cpp
     src/planning.cpp
     src/gui.cpp
+    src/planner.cpp
     src/joints/joint.cpp
     src/joints/rnjoint.cpp
     src/joints/so2joint.cpp
@@ -83,6 +84,7 @@ if (DART_LIBRARIES)
   add_script(r2_plan)
   add_script(world_test)
   add_script(fetch_robowflex_plan)
+  add_script(fetch_robowflex_planner)
   add_script(r2con_plan)
   add_script(r2con_msg_plan)
   add_script(gui_test)

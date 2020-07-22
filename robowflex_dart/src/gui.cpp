@@ -168,7 +168,7 @@ void Window::animatePath(const PlanBuilder &builder, const ompl::geometric::Path
 {
     ompl::geometric::PathGeometric extract(builder.rinfo);
     for (std::size_t i = 0; i < path.getStateCount(); ++i)
-        extract.append(builder.getStateConst(path.getState(i)));
+        extract.append(builder.toStateConst(path.getState(i)));
 
     animatePath(builder.rspace, extract, times, fps, block);
 }

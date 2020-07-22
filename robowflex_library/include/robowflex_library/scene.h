@@ -86,6 +86,11 @@ namespace robowflex
          */
         collision_detection::AllowedCollisionMatrix &getACM();
 
+        /** \brief Get the current allowed collision matrix of the planning scene.
+         *  \return The allowed collision matrix.
+         */
+        const collision_detection::AllowedCollisionMatrix &getACMConst() const;
+
         /** \brief Set the planning scene to be the same as a message.
          *  \param[in] msg Message to use to set planning scene.
          *  \param[in] diff If true, uses the message as a diff.
