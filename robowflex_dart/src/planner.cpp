@@ -22,6 +22,7 @@
 
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/path.h>
 
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/structure.h>
@@ -128,6 +129,27 @@ planning_interface::MotionPlanResponse DARTPlanner::plan(const robowflex::SceneC
         response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
     else
         response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+
+    // extract trajectory
+    auto path = builder->getSolutionPath();
+
+    response.trajectory_ =
+        std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModel(), request.group_name);
+
+    for (const auto &s : path.getStates())
+    {
+        // set world state
+        builder->rspace->setWorldState(world_, s);
+
+        // copy over world state to moveit state
+        auto ms = robot_->allocState();
+        dart_robot_->setMoveItStateFromState(*ms);
+
+        response.trajectory_->addSuffixWayPoint(ms, 0);
+    }
+
+    // compute time parameterization
+    robowflex::path::computeTimeParameterization(*response.trajectory_);
 
     return response;
 }
