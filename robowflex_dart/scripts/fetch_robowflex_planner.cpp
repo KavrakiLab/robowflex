@@ -5,6 +5,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/util.h>
 
 #include <robowflex_dart/planner.h>
 
@@ -35,15 +36,12 @@ int main(int argc, char **argv)
     fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
     request.setGoalConfiguration(fetch->getScratchState());
 
-    request.setConfig("rrt::RRTConnect");
+    request.setConfig("prm::PRM");
 
     // Do motion planning!
     planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
-
-    // Output transforms from path to a file for visualization.
-    fetch->dumpPathTransforms(*res.trajectory_, "fetch_path.yml");
 
     return 0;
 }

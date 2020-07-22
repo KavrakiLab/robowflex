@@ -188,17 +188,26 @@ namespace robowflex
 
         /** \brief A joint space goal volume.
          */
-        class JointGoal : public ompl::base::GoalSampleableRegion
+        class JointRegionGoal : public ompl::base::GoalSampleableRegion, public ConstraintExtractor
         {
         public:
-            JointGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &state,
-                      double tolerance);
+            JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &state,
+                            double tolerance = 0.);
 
-            JointGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &low_bound,
-                      const Eigen::Ref<const Eigen::VectorXd> &upper_bound);
+            JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &lower,
+                            const Eigen::Ref<const Eigen::VectorXd> &upper);
+
+            ~JointRegionGoal();
 
             void sampleGoal(ompl::base::State *state) const override;
             unsigned int maxSampleCount() const override;
+            double distanceGoal(const ompl::base::State *state) const override;
+
+        private:
+            mutable ompl::RNG rng_;
+
+            ompl::base::State *lower_;
+            ompl::base::State *upper_;
         };
 
         /** \class robowflex::darts::PlanBuilderPtr
@@ -281,6 +290,13 @@ namespace robowflex
              */
             TSRPtr fromOrientationConstraint(const std::string &robot_name,
                                              const moveit_msgs::OrientationConstraint &msg) const;
+
+            /** \brief Get a joint region goal from a message.
+             *  \param[in] msgs Joint constraint messages to create region goal.
+             *  \return The joint region goal.
+             */
+            JointRegionGoalPtr
+            fromJointConstraints(const std::vector<moveit_msgs::JointConstraint> &msgs) const;
 
             /** \brief Use all of the planning request message to setup motion planning.
              *  \param[in] robot_name Robot name to use message on.

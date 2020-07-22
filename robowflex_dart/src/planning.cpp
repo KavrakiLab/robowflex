@@ -161,6 +161,81 @@ double TSRGoal::distanceGoal(const ompl::base::State *state) const
 }
 
 ///
+/// JointRegionGoal
+///
+
+JointRegionGoal::JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &state,
+                                 double tolerance)
+  : JointRegionGoal(builder,                                                     //
+                    state - Eigen::VectorXd::Constant(state.size(), tolerance),  //
+                    state + Eigen::VectorXd::Constant(state.size(), tolerance))
+{
+}
+
+JointRegionGoal::JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &lower,
+                                 const Eigen::Ref<const Eigen::VectorXd> &upper)
+  : ompl::base::GoalSampleableRegion(builder.info)
+  , ConstraintExtractor(builder.info)
+  , lower_(si_->allocState())
+  , upper_(si_->allocState())
+{
+    if (lower.size() != upper.size())
+        throw std::runtime_error("Bound size mismatch!");
+
+    if (builder.space->getDimension() != lower.size())
+        throw std::runtime_error("Bound size mismatch!");
+
+    toState(lower_)->data = lower;
+    toState(upper_)->data = upper;
+}
+
+JointRegionGoal::~JointRegionGoal()
+{
+    si_->freeState(lower_);
+    si_->freeState(upper_);
+}
+
+void JointRegionGoal::sampleGoal(ompl::base::State *state) const
+{
+    auto &s = toState(state)->data;
+    const auto &l = toStateConst(lower_)->data;
+    const auto &u = toStateConst(upper_)->data;
+
+    for (int i = 0; i < l.size(); ++i)
+        s[i] = rng_.uniformReal(l[i], u[i]);
+}
+
+unsigned int JointRegionGoal::maxSampleCount() const
+{
+    return std::numeric_limits<unsigned int>::max();
+}
+
+double JointRegionGoal::distanceGoal(const ompl::base::State *state) const
+{
+    const auto &s = toStateConst(state)->data;
+    const auto &l = toStateConst(lower_)->data;
+    const auto &u = toStateConst(upper_)->data;
+
+    const auto &ss = std::dynamic_pointer_cast<StateSpace>(si_->getStateSpace());
+
+    double d = 0.;
+    for (int i = 0; i < l.size(); ++i)
+    {
+        const auto &joint = ss->getJoint(i);
+        const auto &sv = joint->getSpaceVarsConst(s);
+        const auto &lv = joint->getSpaceVarsConst(l);
+        const auto &uv = joint->getSpaceVarsConst(u);
+
+        if (sv[0] < lv[0])
+            d += joint->distance(sv, lv);
+        if (sv[0] > uv[0])
+            d += joint->distance(sv, uv);
+    }
+
+    return d;
+}
+
+///
 /// PlanBuilder
 ///
 
@@ -205,6 +280,23 @@ void PlanBuilder::getStartFromMessage(const std::string &robot_name,
     }
 
     setStartConfigurationFromWorld();
+}
+
+JointRegionGoalPtr
+PlanBuilder::fromJointConstraints(const std::vector<moveit_msgs::JointConstraint> &msgs) const
+{
+    std::size_t n = rspace->getDimension();
+    Eigen::VectorXd lower(n);
+    Eigen::VectorXd upper(n);
+
+    for (const auto &msg : msgs)
+    {
+        const auto &joint = rspace->getJoint(msg.joint_name);
+        joint->getSpaceVars(lower)[0] = msg.position - msg.tolerance_below;
+        joint->getSpaceVars(upper)[0] = msg.position + msg.tolerance_above;
+    }
+
+    return std::make_shared<JointRegionGoal>(*this, lower, upper);
 }
 
 TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
@@ -289,6 +381,9 @@ ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_nam
         tsrs.emplace_back(fromPositionConstraint(robot_name, constraint));
     for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
         tsrs.emplace_back(fromOrientationConstraint(robot_name, constraint));
+
+    if (tsrs.empty())
+        return fromJointConstraints(msg.goal_constraints[0].joint_constraints);
 
     return getGoalTSR(tsrs);
 }
