@@ -15,7 +15,7 @@ def set_color(obj, element):
         if len(element['color']) > 3:
             mat.diffuse_color = element['color']
         else:
-            mat.diffuse_color = element['color'] + (1.,)
+            mat.diffuse_color = element['color'] + (1., )
 
         rv.utils.add_material(obj, mat)
 

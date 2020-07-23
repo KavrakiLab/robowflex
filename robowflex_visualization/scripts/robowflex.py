@@ -8,8 +8,6 @@ importlib.reload(rv.scene)
 importlib.reload(rv.utils)
 
 fetch = rv.robot.load("Fetch", "package://fetch_description/robots/fetch.urdf")
-fetch.set_joint("torso_lift_joint", 0.2)
-fetch.set_joint("shoulder_pan_joint", 1.2)
-fetch.set_joint("upperarm_roll_joint", 1.2)
+fetch.animate_path("package://robowflex_visualization/yaml/fetch_path.yml")
 
-rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
+# rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")

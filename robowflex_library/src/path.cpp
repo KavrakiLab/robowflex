@@ -4,6 +4,8 @@
 
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 
@@ -137,4 +139,14 @@ bool robowflex::path::computeTimeParameterization(robot_trajectory::RobotTraject
 {
     trajectory_processing::IterativeParabolicTimeParameterization parameterizer;
     return parameterizer.computeTimeStamps(path, max_velocity, max_acceleration);
+}
+
+
+bool robowflex::path::toYAMLFile(const std::string &filename, robot_trajectory::RobotTrajectory &path)
+{
+    moveit_msgs::RobotTrajectory msg;
+    path.getRobotTrajectoryMsg(msg);
+
+    YAML::Node node = robowflex::IO::toNode(msg);
+    return robowflex::IO::YAMLToFile(node, filename);
 }

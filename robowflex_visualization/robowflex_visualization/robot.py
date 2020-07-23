@@ -74,6 +74,28 @@ class Robot:
                 for i in range(3)
             ]
 
+    def add_keyframe(self, joint_name, frame):
+        joint_xml = self.get_joint_xml(joint_name)
+        link = self.get_link(joint_xml.child)
+
+        if (joint_xml.type == "prismatic"):
+            link.keyframe_insert(data_path = "location", frame = frame)
+        else:
+            link.keyframe_insert(data_path = "rotation_euler", frame = frame)
+
+    def animate_path(self, path_file, fps = 60., start = 30):
+        path = rv.utils.read_YAML_data(path_file)
+
+        trajectory = path["joint_trajectory"]
+        names = trajectory["joint_names"]
+
+        for point in trajectory["points"]:
+            time = float(point["time_from_start"])
+            frame = start + time * fps
+
+            for value, name in zip(point["positions"], names):
+                self.set_joint(name, value)
+                self.add_keyframe(name, frame)
 
 def load(name, urdf):
     return Robot(name, urdf)

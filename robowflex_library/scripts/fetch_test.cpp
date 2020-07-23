@@ -6,6 +6,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/path.h>
 
 using namespace robowflex;
 
@@ -52,7 +53,7 @@ int main(int argc, char **argv)
         return 1;
 
     // Output transforms from path to a file for visualization.
-    fetch->dumpPathTransforms(*res.trajectory_, "fetch_path.yml");
-
+    // fetch->dumpPathTransforms(*res.trajectory_, "fetch_path.yml");
+    path::toYAMLFile("fetch_path.yml", *res.trajectory_);
     return 0;
 }
