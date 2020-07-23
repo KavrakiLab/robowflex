@@ -73,7 +73,6 @@ namespace robowflex
         bool computeTimeParameterization(robot_trajectory::RobotTrajectory &path, double max_velocity = 1.,
                                          double max_acceleration = 1.);
 
-
         /** \brief Dump a trajectory to a file.
          *  \param[in] filename Trajectory filename.
          *  \param[in] path Path to dump.

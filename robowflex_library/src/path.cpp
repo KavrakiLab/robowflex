@@ -141,7 +141,6 @@ bool robowflex::path::computeTimeParameterization(robot_trajectory::RobotTraject
     return parameterizer.computeTimeStamps(path, max_velocity, max_acceleration);
 }
 
-
 bool robowflex::path::toYAMLFile(const std::string &filename, robot_trajectory::RobotTrajectory &path)
 {
     moveit_msgs::RobotTrajectory msg;
