@@ -10,4 +10,4 @@ importlib.reload(rv.utils)
 fetch = rv.robot.load("Fetch", "package://fetch_description/robots/fetch.urdf")
 fetch.animate_path("package://robowflex_visualization/yaml/fetch_path.yml")
 
-# rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
+rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")

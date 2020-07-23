@@ -95,12 +95,15 @@ def add_mesh(mesh):
     imported_names = new - old
     obj_list = []
 
+    top = None
     for name in imported_names:
         bpy.ops.object.select_all(action = 'DESELECT')
         i_obj = bpy.data.objects[name]
 
-        # For some dumb reason, loading robotiq's meshes loads in extra
-        # cameras and lamps. Delete those.
+        if not i_obj.parent:
+            top = i_obj
+
+        # If an object comes with extra cameras or lamps, delete those.
         if 'Camera' in name or 'Lamp' in name:
             i_obj.select = True
             bpy.ops.object.delete()
@@ -110,13 +113,12 @@ def add_mesh(mesh):
             if not i_obj.data.materials:
                 set_color(i_obj, mesh)
 
-        if 'dimensions' in mesh:
-            i_obj.scale = mesh['dimensions']
-
         obj_list.append(i_obj)
 
-    return obj_list
+    if 'dimensions' in mesh and top:
+        top.scale = mesh['dimensions']
 
+    return top
 
 def add_shape(shape):
     '''Add a shape_msgs::SolidPrimitive to the scene.
@@ -124,7 +126,7 @@ def add_shape(shape):
     if 'resource' in shape:
         return add_mesh(shape)
     else:
-        return [SHAPE_MAP[shape['type']](shape)]
+        return SHAPE_MAP[shape['type']](shape)
 
 
 def add_collision_objects(name, collision_objects):
@@ -147,9 +149,10 @@ def add_collision_objects(name, collision_objects):
             obj = add_shape(shape)
             rv.utils.deselect_all()
 
-            for i_obj in obj:
-                rv.utils.set_pose(i_obj, pose)
-                i_obj.select_set(True)
+            obj.name = coll_obj['id']
+            rv.utils.set_pose(obj, pose)
+
+            rv.utils.select_all_children(obj)
 
             rv.utils.move_selected_to_collection(name)
             rv.utils.deselect_all()

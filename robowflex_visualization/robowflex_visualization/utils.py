@@ -52,6 +52,15 @@ def resolve_path(path):
         return ""
     return full_path
 
+def select_all_children(item):
+    '''Selects and returns all children, recursively.'''
+    items = [item]
+    item.select_set(True)
+    for child in item.children:
+        items += select_all_children(child)
+
+    return items
+
 
 def apply_smooth_shade(item):
     '''Applies smooth shading to the provided object.
@@ -140,6 +149,16 @@ def make_collection(name):
 
 def deselect_all():
     bpy.ops.object.select_all(action = 'DESELECT')
+
+
+def parent_object(parent, child):
+    deselect_all()
+    parent.select_set(True)
+    child.select_set(True)
+    set_active(child)
+
+    bpy.ops.object.parent_set(type = 'OBJECT')
+    deselect_all()
 
 
 def set_active(item):
