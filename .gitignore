@@ -46,3 +46,4 @@ __pycache__
 *.swp
 
 *.build-tmp*
+*.blend1

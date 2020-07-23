@@ -6,6 +6,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/path.h>
 
 using namespace robowflex;
 
@@ -19,9 +20,6 @@ int main(int argc, char **argv)
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize();
-
-    // Dump the geometry information for visualization.
-    fetch->dumpGeometry("fetch.yml");
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
@@ -51,8 +49,7 @@ int main(int argc, char **argv)
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
-    // Output transforms from path to a file for visualization.
-    fetch->dumpPathTransforms(*res.trajectory_, "fetch_path.yml");
-
+    // Output path to a file for visualization.
+    path::toYAMLFile("fetch_path.yml", *res.trajectory_);
     return 0;
 }

@@ -29,9 +29,6 @@ int planFromFile()
     // Create an RViz visualizer
     IO::RVIZHelper rviz(r2);
 
-    // Dump the geometry information for blender visualization.
-    r2->dumpGeometry("r2.yml");
-
     // Load the ISS from a world file.
     auto iss_scene = std::make_shared<Scene>(r2);
     iss_scene->fromYAMLFile("package://robowflex_library/yaml/r2_world.yml");
@@ -57,9 +54,6 @@ int planFromFile()
 
     // Spin once to let messages escape.
     ros::spinOnce();
-
-    // Dump path transforms for visualization in blender.
-    r2->dumpPathTransforms(*res.trajectory_, "r2_path.yml", 30, 0.5);
 
     return 0;
 }
@@ -126,9 +120,6 @@ int main(int argc, char **argv)
 {
     // Startup ROS.
     ROS ros(argc, argv);
-
-    // Dump a state for animation.
-    dumpTransform();
 
     // Plan using configuration from files.
     planFromFile();

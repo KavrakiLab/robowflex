@@ -22,9 +22,10 @@ except ImportError:
     from yaml import Loader
 
 
-def resolvePackage(path):
-    '''Resolves `package://` URLs to their canonical form. The path does not need to exist, but the package does. Can be
-    used to write new files in packages. Returns "" on failure.
+def resolve_package(path):
+    '''Resolves `package://` URLs to their canonical form. The path does not need
+    to exist, but the package does. Can be used to write new files in packages.
+    Returns "" on failure.
 
     '''
     if not path:
@@ -46,7 +47,8 @@ def resolvePackage(path):
             rospack = rospkg.RosPack()
             package_path1 = rospack.get_path(package_name)
         else:
-            package_path1 = subprocess.check_output(["rospack", "find", package_name]).decode().strip()
+            package_path1 = subprocess.check_output(
+                ["rospack", "find", package_name]).decode().strip()
 
     elif '~' in path:
         path = os.path.expanduser(path)
@@ -55,8 +57,9 @@ def resolvePackage(path):
     return new_path
 
 
-def resolvePath(path):
-    '''Resolves `package://` URLs and relative file paths to their canonical form. Returns "" on failure.
+def resolve_path(path):
+    '''Resolves `package://` URLs and relative file paths to their canonical form.
+    Returns "" on failure.
 
     '''
     full_path = resolvePackage(path)
@@ -66,7 +69,7 @@ def resolvePath(path):
     return full_path
 
 
-def read_yaml_data(file_name):
+def read_YAML_data(file_name):
     '''Returns the yaml data structure of the data stored.
 
     '''

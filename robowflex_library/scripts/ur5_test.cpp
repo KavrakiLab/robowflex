@@ -19,9 +19,6 @@ int main(int argc, char **argv)
     auto ur5 = std::make_shared<UR5Robot>();
     ur5->initialize();
 
-    // Dump the geometry information for visualization.
-    ur5->dumpGeometry("ur5.yml");
-
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(ur5);
 
@@ -57,9 +54,6 @@ int main(int argc, char **argv)
         planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
         if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
             return 1;
-
-        // Output transforms from path to a file for visualization.
-        ur5->dumpPathTransforms(*res.trajectory_, "ur5_path_" + planner->getName() + ".yml");
     }
 
     return 0;
