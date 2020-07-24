@@ -48,7 +48,7 @@ rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetc
 ```
 
 3. Open blender from the current terminal and open the provided `robowflex.blend` Blender scene.
-   To the left should be a baked in Python script.
+   To the left should be a baked in Python script (if there is no script, it is also available at `scripts/blender.py`).
    This script sets up the system path for the built-in Blender Python to look at your Python3 system path as well as load the `robowflex_visualization` Python module.
    Run this script to execute whatever code you have in `scripts/robowflex.py`.
    You can change what script is called.
