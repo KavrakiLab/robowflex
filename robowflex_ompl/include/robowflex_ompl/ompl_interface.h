@@ -6,6 +6,7 @@
 #include <moveit/ompl_interface/ompl_interface.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/planning.h>
 
 namespace robowflex
 {
