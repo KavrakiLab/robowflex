@@ -10,7 +10,7 @@ importlib.reload(rv.utils)
 
 # Load a Fetch robot.
 fetch = rv.robot.Robot("Fetch", "package://fetch_description/robots/fetch.urdf")
-# fetch.prettify()    # Make it look nice.
+fetch.prettify()    # Make it look nice.
 
 # Open the Gripper
 fetch.set_joint("l_gripper_finger_joint", 0.05)
