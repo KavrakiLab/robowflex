@@ -38,13 +38,13 @@ import robowflex_visualization as rv
 ...
 
 # Load a robot under the name `Fetch`
-fetch = rv.robot.load("Fetch", "package://fetch_description/robots/fetch.urdf")
+fetch = rv.robot.Robot("Fetch", "package://fetch_description/robots/fetch.urdf")
 
 # Animate a trajectory
 fetch.animate_path("package://robowflex_visualization/yaml/fetch_path.yml")
 
 # Add a planning scene.
-rv.scene.add_planning_scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
+scene = rv.scene.Scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
 ```
 
 3. Open blender from the current terminal and open the provided `robowflex.blend` Blender scene.
