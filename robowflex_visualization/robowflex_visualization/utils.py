@@ -67,6 +67,9 @@ def select_all_children(item):
 def apply_smooth_shade(item):
     '''Applies smooth shading to the provided object.
     '''
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
     deselect_all()
     set_active(item)
     item.select_set(True)
@@ -80,6 +83,9 @@ def apply_smooth_shade(item):
 def apply_edge_split(item, angle = math.pi / 6):
     '''Applies the edge-split modifier to the provided object.
     '''
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
     deselect_all()
     set_active(item)
     item.select_set(True)
@@ -257,3 +263,35 @@ def read_YAML_data(file_name):
         return None
     with open(full_name) as input_file:
         return yaml.load(input_file.read())
+
+def remove_doubles(item, threshold = 0.0001):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+    set_active(item)
+    item.select_set(True)
+    if item.type == 'MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.remove_doubles(threshold = threshold)
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+
+def remove_inner_faces(item):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+    set_active(item)
+    item.select_set(True)
+    if item.type == 'MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.select_mode(type = 'FACE')
+        bpy.ops.mesh.select_interior_faces()
+        bpy.ops.mesh.delete(type='FACE')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()

@@ -165,3 +165,15 @@ class Robot:
     #
     def attach_object(self, link_name, item):
         rv.utils.parent_object(self.get_link(link_name), item)
+
+    ## @brief Cleans up robot mesh geometry and applies modifiers to improve
+    #         rendering aesthetics.
+    #
+    def prettify(self):
+        for link_xml in self.robot.links:
+            link = self.get_link(link_xml.name)
+            rv.utils.remove_doubles(link)
+            rv.utils.apply_edge_split(link)
+            rv.utils.apply_smooth_shade(link)
+
+
