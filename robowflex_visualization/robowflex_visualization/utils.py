@@ -80,7 +80,7 @@ def apply_smooth_shade(item):
     deselect_all()
 
 
-def apply_edge_split(item, angle = math.pi / 6):
+def apply_edge_split(item, angle = math.pi / 8):
     '''Applies the edge-split modifier to the provided object.
     '''
     if bpy.context.mode != 'OBJECT':

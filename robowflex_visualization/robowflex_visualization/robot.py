@@ -188,9 +188,48 @@ class Robot:
     #
     def prettify(self):
         for link_xml in self.robot.links:
+            # Loads original mesh.
+            self.load_link_mesh(link_xml.name)
+
             link = self.get_link(link_xml.name)
             rv.utils.remove_doubles(link)
+            # rv.utils.remove_inner_faces(link)
             rv.utils.apply_edge_split(link)
             rv.utils.apply_smooth_shade(link)
+
+    ## @brief Loads the mesh data for a specific link on the robot.
+    #
+    #  If the mesh is originally a COLLADA mesh, loads and replaces current
+    #  mesh data. This provides better textures if they exist, as collada_urdf
+    #  does not preserve them when converting the robot.
+    #
+    #  @param link_name Name of the link to the load the mesh for.
+    #
+    def load_link_mesh(self, link_name):
+        link_xml = self.get_link_xml(link_name)
+
+        name = self.name + "_temp"
+        collection = rv.utils.make_collection(name)
+
+        if link_xml.visuals:
+            visual = link_xml.visuals[0]
+            geometry = visual.geometry
+
+            # Only replace geometry if COLLADA
+            if geometry.filename and ".dae" in geometry.filename:
+                mesh = rv.primitives.add_mesh({
+                    "resource": geometry.filename
+                })
+
+                rv.utils.deselect_all()
+                mesh.select_set(True)
+                rv.utils.move_selected_to_collection(name)
+                rv.utils.deselect_all()
+
+                old = self.get_link(link_name)
+                old.data = mesh.data
+
+        rv.utils.remove_collection(name)
+
 
 
