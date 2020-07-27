@@ -9,6 +9,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/path.h>
 #include <robowflex_library/util.h>
 
 using namespace robowflex;
@@ -75,6 +76,9 @@ int main(int argc, char **argv)
 
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
+
+    // Output path to a file for visualization.
+    path::toYAMLFile("fetch_pick.yml", *res.trajectory_);
 
     ROS_INFO("Press enter to remove goal and scene.");
     std::cin.get();

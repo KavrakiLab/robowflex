@@ -142,29 +142,46 @@ class Robot:
     #  @param fps Frames-per-second to animate the path at.
     #  @param start Frame to begin the animation at.
     #
-    def animate_path(self, path_file, fps = 60., start = 30):
+    def animate_path(self, path_file, fps = 60., start = 30, reverse = False):
         path = rv.utils.read_YAML_data(path_file)
 
         trajectory = path["joint_trajectory"]
         names = trajectory["joint_names"]
 
+        last_time = float(trajectory["points"][-1]["time_from_start"])
+        last_frame = start
+
         for point in trajectory["points"]:
             time = float(point["time_from_start"])
+            if reverse:
+                time = last_time - time
+
             frame = start + time * fps
+            if frame > last_frame:
+                last_frame = frame
 
             for value, name in zip(point["positions"], names):
                 self.set_joint(name, value)
                 self.add_keyframe(name, frame)
 
+        return last_frame
+
     ## @brief Attaches an object to a link of the robot.
-    #
-    #  Actually sets the parent of the item to the link.
     #
     #  @param link_name Name of link to attach item to.
     #  @param item Blender object to attach to link.
     #
-    def attach_object(self, link_name, item):
-        rv.utils.parent_object(self.get_link(link_name), item)
+    def attach_object(self, link_name, item, frame):
+        rv.utils.parent_object(self.get_link(link_name), item, frame)
+
+    ## @brief Detaches an object to a link of the robot. Object must have been
+    #         previously parented.
+    #
+    #  @param link_name Name of link to attach item to.
+    #  @param item Blender object to attach to link.
+    #
+    def detach_object(self, link_name, item, frame):
+        rv.utils.unparent_object(self.get_link(link_name), item, frame)
 
     ## @brief Cleans up robot mesh geometry and applies modifiers to improve
     #         rendering aesthetics.
