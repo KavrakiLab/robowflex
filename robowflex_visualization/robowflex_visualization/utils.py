@@ -68,7 +68,7 @@ def apply_smooth_shade(item):
     '''Applies smooth shading to the provided object.
     '''
     if bpy.context.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
     set_active(item)
@@ -84,7 +84,7 @@ def apply_edge_split(item, angle = math.pi / 6):
     '''Applies the edge-split modifier to the provided object.
     '''
     if bpy.context.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
     set_active(item)
@@ -159,14 +159,98 @@ def deselect_all():
     bpy.ops.object.select_all(action = 'DESELECT')
 
 
-def parent_object(parent, child):
-    deselect_all()
-    parent.select_set(True)
-    child.select_set(True)
-    set_active(child)
+# def parent_object(parent, child):
+#     deselect_all()
+#     parent.select_set(True)
+#     child.select_set(True)
+#     set_active(child)
 
-    bpy.ops.object.parent_set(type = 'OBJECT')
+#     bpy.ops.object.parent_set(type = 'OBJECT')
+#     deselect_all()
+
+
+def create_object_parent(parent, child):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+
     deselect_all()
+    set_active(child)
+    child.select_set(True)
+
+    constraint = None
+    if not get_object_parent(parent, child):
+        try:
+            bpy.ops.object.constraint_add(type = 'CHILD_OF')
+            constraint = bpy.context.object.constraints["Child Of"]
+
+            constraint.name = "{}_to_{}".format(parent.name, child.name)
+            constraint.target = parent
+            constraint.influence = 0.
+        except:
+            pass
+
+    deselect_all()
+    return constraint
+
+
+def get_object_parent(parent, child):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode = 'OBJECT')
+
+    deselect_all()
+    set_active(child)
+    child.select_set(True)
+
+    try:
+        name = "{}_to_{}".format(parent.name, child.name)
+        constraint = bpy.context.object.constraints[name]
+        return constraint
+    except:
+        pass
+
+    return None
+
+
+def parent_object(parent, child, frame):
+    # Set current frame so inverse matrix can properly be computed
+    bpy.context.scene.frame_set(frame)
+    constraint = create_object_parent(parent, child)
+
+    # Set object as parented in frame
+    constraint.influence = 1
+    constraint.keyframe_insert(data_path = "influence", frame = frame)
+
+    # Compute inverse transform for proper parenting
+    deselect_all()
+    set_active(child)
+    child.select_set(True)
+
+    context_py = bpy.context.copy()
+    context_py["constraint"] = constraint
+
+    bpy.ops.constraint.childof_set_inverse(
+        context_py, constraint = constraint.name, owner = "OBJECT")
+
+    deselect_all()
+
+    # Set object as unparented in prior frame
+    constraint.influence = 0
+    constraint.keyframe_insert(data_path = "influence", frame = frame - 1)
+
+
+def unparent_object(parent, child, frame):
+    bpy.context.scene.frame_set(frame - 1)
+    constraint = get_object_parent(parent, child)
+    if not constraint:
+        return
+
+    # Set object as parented in prior frame
+    constraint.influence = 1
+    constraint.keyframe_insert(data_path = "influence", frame = frame - 1)
+
+    # Set object as unparented in prior frame
+    constraint.influence = 0
+    constraint.keyframe_insert(data_path = "influence", frame = frame)
 
 
 def set_active(item):
@@ -264,34 +348,36 @@ def read_YAML_data(file_name):
     with open(full_name) as input_file:
         return yaml.load(input_file.read())
 
+
 def remove_doubles(item, threshold = 0.0001):
     if bpy.context.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
     set_active(item)
     item.select_set(True)
     if item.type == 'MESH':
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        bpy.ops.mesh.select_all(action = 'SELECT')
         bpy.ops.mesh.remove_doubles(threshold = threshold)
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
+
 
 def remove_inner_faces(item):
     if bpy.context.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
     set_active(item)
     item.select_set(True)
     if item.type == 'MESH':
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        bpy.ops.mesh.select_all(action = 'SELECT')
         bpy.ops.mesh.select_mode(type = 'FACE')
         bpy.ops.mesh.select_interior_faces()
-        bpy.ops.mesh.delete(type='FACE')
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.mesh.delete(type = 'FACE')
+        bpy.ops.object.mode_set(mode = 'OBJECT')
 
     deselect_all()
