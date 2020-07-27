@@ -5,6 +5,9 @@ macro(add_doc project)
   get_filename_component(ABS_FILENAME_SRC "../${project}/src"
     REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
+  get_filename_component(ABS_FILENAME_PACKAGE "../${project}/${project}"
+    REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
   get_filename_component(ABS_FILENAME_INCLUDE "../${project}/include"
     REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -14,7 +17,7 @@ macro(add_doc project)
   get_filename_component(ABS_FILENAME_README "../${project}/README.md"
     REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-  set(DOC_SOURCES "${DOC_SOURCES} ${ABS_FILENAME_SRC} ${ABS_FILENAME_INCLUDE} ${ABS_FILENAME_SCRIPTS} ${ABS_FILENAME_README}")
+  set(DOC_SOURCES "${DOC_SOURCES} ${ABS_FILENAME_SRC} ${ABS_FILENAME_PACKAGE} ${ABS_FILENAME_INCLUDE} ${ABS_FILENAME_SCRIPTS} ${ABS_FILENAME_README}")
 endmacro(add_doc)
 
 add_doc(robowflex_library)
