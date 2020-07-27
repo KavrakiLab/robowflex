@@ -8,6 +8,7 @@ import math
 import os.path
 import subprocess
 import logging
+import random
 import yaml
 
 
@@ -51,6 +52,7 @@ def resolve_path(path):
         logging.warn("File {} does not exist".format(full_path))
         return ""
     return full_path
+
 
 def select_all_children(item):
     '''Selects and returns all children, recursively.'''
@@ -175,6 +177,18 @@ def add_material(item, material):
     else:
         # no slots
         item.data.materials.append(material)
+
+
+def set_color(obj, element):
+    if 'color' in element:
+        # TODO: figure out a better way to make new materials?
+        mat = bpy.data.materials.new(name = str(random.randint(1, 100000)))
+        if len(element['color']) > 3:
+            mat.diffuse_color = element['color']
+        else:
+            mat.diffuse_color = element['color'] + (1., )
+
+        add_material(obj, mat)
 
 
 def pose_to_quat(pose):

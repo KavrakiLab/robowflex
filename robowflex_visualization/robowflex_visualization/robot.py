@@ -165,12 +165,3 @@ class Robot:
     #
     def attach_object(self, link_name, item):
         rv.utils.parent_object(self.get_link(link_name), item)
-
-
-## @brief Loads a robot.
-#
-#  @param name Name of robot to use. Creates scene that contains all links.
-#  @param urdf URDF URI to load.
-#
-def load(name, urdf):
-    return Robot(name, urdf)
