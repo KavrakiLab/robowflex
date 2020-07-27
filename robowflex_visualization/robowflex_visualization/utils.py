@@ -8,6 +8,7 @@ import math
 import os.path
 import subprocess
 import logging
+import random
 import yaml
 
 
@@ -52,6 +53,7 @@ def resolve_path(path):
         return ""
     return full_path
 
+
 def select_all_children(item):
     '''Selects and returns all children, recursively.'''
     items = [item]
@@ -65,6 +67,9 @@ def select_all_children(item):
 def apply_smooth_shade(item):
     '''Applies smooth shading to the provided object.
     '''
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
     deselect_all()
     set_active(item)
     item.select_set(True)
@@ -78,6 +83,9 @@ def apply_smooth_shade(item):
 def apply_edge_split(item, angle = math.pi / 6):
     '''Applies the edge-split modifier to the provided object.
     '''
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
     deselect_all()
     set_active(item)
     item.select_set(True)
@@ -177,6 +185,18 @@ def add_material(item, material):
         item.data.materials.append(material)
 
 
+def set_color(obj, element):
+    if 'color' in element:
+        # TODO: figure out a better way to make new materials?
+        mat = bpy.data.materials.new(name = str(random.randint(1, 100000)))
+        if len(element['color']) > 3:
+            mat.diffuse_color = element['color']
+        else:
+            mat.diffuse_color = element['color'] + (1., )
+
+        add_material(obj, mat)
+
+
 def pose_to_quat(pose):
     '''Takes a pose dict and extracts the orientation quaternion. ROS quaternions or XYZW, but Blender's are WXYZ, so
     reorder them.
@@ -243,3 +263,35 @@ def read_YAML_data(file_name):
         return None
     with open(full_name) as input_file:
         return yaml.load(input_file.read())
+
+def remove_doubles(item, threshold = 0.0001):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+    set_active(item)
+    item.select_set(True)
+    if item.type == 'MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.remove_doubles(threshold = threshold)
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+
+def remove_inner_faces(item):
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()
+    set_active(item)
+    item.select_set(True)
+    if item.type == 'MESH':
+        bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.mesh.select_mode(type = 'FACE')
+        bpy.ops.mesh.select_interior_faces()
+        bpy.ops.mesh.delete(type='FACE')
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    deselect_all()

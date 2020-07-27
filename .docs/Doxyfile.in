@@ -782,7 +782,7 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = @DOXYGEN_SOURCE_DIRS@ @DOXYGEN_DOC_DIR@ @DOXYGEN_README@
-
+                       
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
 # libiconv (or the iconv built into libc) for the transcoding. See the libiconv
@@ -809,7 +809,7 @@ INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cpp \
                          *.dox \
-                         *.cmake \
+                         *.py \
                          *.md
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
