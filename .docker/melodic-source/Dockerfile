@@ -1,6 +1,11 @@
 FROM ros:melodic-ros-base
 MAINTAINER Zachary Kingston zak@rice.edu
 
+# Set Arguments
+# ENV CAKTIN_BUILD_ARGS="--limit-status-rate 0.001 --no-notify"
+ENV CAKTIN_BUILD_ARGS=""
+ENV MOVEIT_BRANCH="master"
+
 # Download Dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -12,29 +17,20 @@ RUN apt-get update && \
 RUN mkdir -p ws/src
 WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
-    catkin build --limit-status-rate 0.001 --no-notify
-WORKDIR /
-
-# Set Arguments
-# ENV CAKTIN_BUILD_ARGS="--limit-status-rate 0.001 --no-notify"
-ENV CAKTIN_BUILD_ARGS=""
-ENV MOVEIT_BRANCH="master"
+    catkin build ${CATKIN_BUILD_ARGS}
 
 # Get & Install OMPL
 WORKDIR /ws/src
 RUN wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
-WORKDIR /ws
 RUN catkin build ompl --start-with ompl $CAKTIN_BUILD_ARGS
-WORKDIR /
 
-# Get & Install MoveIt! from Source
+# Get & Install MoveIt from Source
 WORKDIR /ws
 RUN wstool init src && \
     wstool merge -t src https://raw.githubusercontent.com/ros-planning/moveit/${MOVEIT_BRANCH}/moveit.rosinstall && \
     wstool update -t src && \
     rosdep install -y --from-paths src --ignore-src --rosdistro ${ROS_DISTRO}
 RUN catkin build $CAKTIN_BUILD_ARGS
-WORKDIR /
 
 # Build Robowflex
 WORKDIR /ws/src
