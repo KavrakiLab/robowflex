@@ -2,8 +2,7 @@ FROM ros:melodic-ros-base
 MAINTAINER Zachary Kingston zak@rice.edu
 
 # Set Arguments
-# ENV CAKTIN_BUILD_ARGS="--limit-status-rate 0.001 --no-notify"
-ENV CAKTIN_BUILD_ARGS=""
+ENV CAKTIN_BUILD_ARGS="--limit-status-rate 0.001 --no-notify"
 ENV MOVEIT_BRANCH="master"
 
 # Download Dependencies
