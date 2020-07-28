@@ -19,13 +19,6 @@ RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=
     catkin build --limit-status-rate 0.001 --no-notify
 WORKDIR /
 
-# Get & Install OMPL
-WORKDIR /ws/src
-RUN wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
-WORKDIR /ws
-RUN catkin build ompl --start-with ompl --limit-status-rate 0.001 --no-notify
-WORKDIR /
-
 # Get & Install MoveIt! from Source
 WORKDIR /ws
 RUN wstool init src && \
@@ -50,12 +43,4 @@ RUN catkin build robowflex_ompl --start-with robowflex_ompl --limit-status-rate 
 # Movegroup Module
 ADD ./robowflex_movegroup robowflex_movegroup
 RUN catkin build robowflex_movegroup --start-with robowflex_movegroup --limit-status-rate 0.001 --no-notify
-
-# Tesseract Module
-ADD ./robowflex_tesseract robowflex_tesseract
-RUN catkin build robowflex_tesseract --start-with robowflex_tesseract --limit-status-rate 0.001 --no-notify
-
-# DART Module
-ADD ./robowflex_dart robowflex_dart
-RUN catkin build robowflex_dart --start-with robowflex_dart --limit-status-rate 0.001 --no-notify
 WORKDIR /
