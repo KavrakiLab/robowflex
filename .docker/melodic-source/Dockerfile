@@ -3,14 +3,10 @@ MAINTAINER Zachary Kingston zak@rice.edu
 
 # Download Dependencies
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    apt-add-repository ppa:dartsim/ppa && \
-    apt-get update && \
     apt-get install -y \
       build-essential wget pkg-config python-catkin-tools python-wstool cmake \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
-      ros-${ROS_DISTRO}-geometry \
-      libdart6-all-dev
+      ros-${ROS_DISTRO}-geometry
 
 # Setup Catkin Workspace
 RUN mkdir -p ws/src
@@ -19,13 +15,25 @@ RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=
     catkin build --limit-status-rate 0.001 --no-notify
 WORKDIR /
 
+# Set Arguments
+# ENV CAKTIN_BUILD_ARGS="--limit-status-rate 0.001 --no-notify"
+ENV CAKTIN_BUILD_ARGS=""
+ENV MOVEIT_BRANCH="master"
+
+# Get & Install OMPL
+WORKDIR /ws/src
+RUN wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
+WORKDIR /ws
+RUN catkin build ompl --start-with ompl $CAKTIN_BUILD_ARGS
+WORKDIR /
+
 # Get & Install MoveIt! from Source
 WORKDIR /ws
 RUN wstool init src && \
-    wstool merge -t src https://raw.githubusercontent.com/ros-planning/moveit/master/moveit.rosinstall && \
+    wstool merge -t src https://raw.githubusercontent.com/ros-planning/moveit/${MOVEIT_BRANCH}/moveit.rosinstall && \
     wstool update -t src && \
     rosdep install -y --from-paths src --ignore-src --rosdistro ${ROS_DISTRO}
-RUN catkin build --limit-status-rate 0.001 --no-notify
+RUN catkin build $CAKTIN_BUILD_ARGS
 WORKDIR /
 
 # Build Robowflex
@@ -34,13 +42,13 @@ ADD ./CMakeModules CMakeModules
 
 # Main Library
 ADD ./robowflex_library robowflex_library
-RUN catkin build robowflex_library --start-with robowflex_library --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_library --start-with robowflex_library $CAKTIN_BUILD_ARGS
 
 # OMPL Module
 ADD ./robowflex_ompl robowflex_ompl
-RUN catkin build robowflex_ompl --start-with robowflex_ompl --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_ompl --start-with robowflex_ompl $CAKTIN_BUILD_ARGS
 
 # Movegroup Module
 ADD ./robowflex_movegroup robowflex_movegroup
-RUN catkin build robowflex_movegroup --start-with robowflex_movegroup --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_movegroup --start-with robowflex_movegroup $CAKTIN_BUILD_ARGS
 WORKDIR /
