@@ -31,6 +31,13 @@ void Planner::preRun(const SceneConstPtr & /*scene*/,
 {
 }
 
+std::map<std::string, Planner::ProgressProperty> Planner::getProgressProperties(
+    const SceneConstPtr & /*scene*/, const planning_interface::MotionPlanRequest & /*request*/) const
+
+{
+    return {};
+}
+
 ///
 /// PoolPlanner
 ///

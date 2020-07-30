@@ -125,6 +125,8 @@ namespace robowflex
                 bool success;                       ///< Was the run successful?
                 moveit_msgs::RobotTrajectory path;  ///< Trajectory computed in run.
 
+                std::vector<std::map<std::string, std::string>> progress; ///< Planner progress data.
+
                 std::map<std::string, MetricValue> metrics;  ///< Map of metric name to value.
             };
 

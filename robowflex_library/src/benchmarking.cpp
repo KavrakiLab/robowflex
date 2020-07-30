@@ -133,6 +133,8 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
             double time = (ros::WallTime::now() - start).toSec();
 
             results.addRun(j, time, response);
+
+            // If runs == 0, run until time runs out.
             if (options.runs == 0)
             {
                 double time_remaining = builder->getRequest().allowed_planning_time - time;
@@ -140,6 +142,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
                     break;
                 builder->setAllowedPlanningTime(time_remaining);
             }
+
             ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 

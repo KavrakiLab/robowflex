@@ -32,6 +32,10 @@ namespace robowflex
     class Planner
     {
     public:
+        /** \brief A function that returns the value of a planner property over the course of a run.
+         */
+        using ProgressProperty = std::function<std::string()>;
+
         /** \brief Constructor.
          *  Takes in a \a robot description and an optional namespace \a name.
          *  If \a name is specified, planner parameters are namespaced under the namespace of \a robot.
@@ -59,6 +63,14 @@ namespace robowflex
          *  \return A vector of strings of planner configuration names.
          */
         virtual std::vector<std::string> getPlannerConfigs() const = 0;
+
+        /** \brief Retrieve the planner progress property map for this planner given a specific request.
+         *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+         *  \param[in] request Request to get progress properties for.
+         *  \return The map of progress properties.
+         */
+        virtual std::map<std::string, ProgressProperty> getProgressProperties(
+            const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const;
 
         /** \brief Return the robot for this planner.
          *  \return Get the robot associated with the planner.
@@ -277,6 +289,10 @@ namespace robowflex
             bool initialize(const std::string &config_file = "", const Settings &settings = Settings(),
                             const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+            std::map<std::string, ProgressProperty>
+            getProgressProperties(const SceneConstPtr &scene,
+                                  const planning_interface::MotionPlanRequest &request) const override;
 
             std::vector<std::string> getPlannerConfigs() const override;
 
