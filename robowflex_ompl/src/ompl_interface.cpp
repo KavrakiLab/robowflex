@@ -41,7 +41,7 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
 }
 
 ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlanningContext(
-    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
 {
     return interface_->getPlanningContext(scene->getSceneConst(), request);
 }
@@ -59,6 +59,16 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
 
     context->solve(response);
     return response;
+}
+
+std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::getProgressProperties(
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
+{
+    const auto &mbpc = getPlanningContext(scene, request);
+    const auto &ss = mbpc->getOMPLSimpleSetup();
+
+    const auto &planner = ss->getPlanner();
+    return planner->getPlannerProgressProperties();
 }
 
 std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const

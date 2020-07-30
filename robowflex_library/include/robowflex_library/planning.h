@@ -290,10 +290,6 @@ namespace robowflex
                             const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
-            std::map<std::string, ProgressProperty>
-            getProgressProperties(const SceneConstPtr &scene,
-                                  const planning_interface::MotionPlanRequest &request) const override;
-
             std::vector<std::string> getPlannerConfigs() const override;
 
         protected:

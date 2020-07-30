@@ -19,12 +19,12 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/io/bag.h>
+#include <robowflex_library/planning.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Scene);
-    ROBOWFLEX_CLASS_FORWARD(Planner);
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     /** \endcond */
 
@@ -74,11 +74,14 @@ namespace robowflex
             /** \brief Constructor.
              *  \param[in] runs Number of runs per query.
              *  \param[in] options Bitmask of robowflex::Benchmarker::MetricOptions to compute.
+             *  \param[in] progress How often (times per second) should progress properties be queried.
              */
-            Options(unsigned int runs = 100, uint32_t options = ~0);
+            Options(unsigned int runs = 100, uint32_t options = ~0, double progress = 0.1);
 
-            unsigned int runs;  ///< Number of runs per query.
-            uint32_t options;   ///< Bitmask of robowflex::Benchmarker::MetricOptions to compute.
+            unsigned int runs;            ///< Number of runs per query.
+            uint32_t options;             ///< Bitmask of robowflex::Benchmarker::MetricOptions to compute.
+            double progress_update_rate;  ///< Times per second that the planner should be queried for
+                                          ///< progress properties.
         };
 
         /** \brief Benchmark results of a single query.
@@ -125,7 +128,7 @@ namespace robowflex
                 bool success;                       ///< Was the run successful?
                 moveit_msgs::RobotTrajectory path;  ///< Trajectory computed in run.
 
-                std::vector<std::map<std::string, std::string>> progress; ///< Planner progress data.
+                std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
 
                 std::map<std::string, MetricValue> metrics;  ///< Map of metric name to value.
             };
@@ -159,6 +162,7 @@ namespace robowflex
             const PlannerConstPtr planner;               ///< Planner used for the query.
             const MotionRequestBuilderConstPtr builder;  ///< Request builder used for the query.
             const Options options;                       ///< Options for the query.
+            std::vector<std::string> properties;         ///< Progress properties.
 
             boost::posix_time::ptime start;   ///< Query start time.
             boost::posix_time::ptime finish;  ///< Query end time (after all runs).
@@ -186,7 +190,15 @@ namespace robowflex
          */
         using BenchmarkRequest = std::tuple<ScenePtr, PlannerPtr, MotionRequestBuilderPtr>;
 
+        /** \brief Capture planner progress.
+         */
+        void captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
+                             std::vector<std::map<std::string, std::string>> &progress, double rate);
+
         std::map<std::string, BenchmarkRequest> requests_;  ///< Requests to benchmark.
+
+        std::mutex solved_mutex_;
+        bool solved_;
     };
 
     /** \brief An abstract class for outputting benchmark results.

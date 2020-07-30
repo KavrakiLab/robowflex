@@ -19,7 +19,8 @@ using namespace robowflex;
 /// Benchmarker::Options
 ///
 
-Benchmarker::Options::Options(unsigned int runs, uint32_t options) : runs(runs), options(options)
+Benchmarker::Options::Options(unsigned int runs, uint32_t options, double progress)
+  : runs(runs), options(options), progress_update_rate(progress)
 {
 }
 
@@ -108,36 +109,96 @@ void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr
                       std::forward_as_tuple(scene, planner, request));
 }
 
+void Benchmarker::captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
+                                  std::vector<std::map<std::string, std::string>> &progress, double rate)
+{
+    ros::WallTime start = ros::WallTime::now();
+    while (true)
+    {
+        {
+            std::unique_lock<std::mutex>(solved_mutex_);
+            if (solved_)
+                return;
+
+            std::map<std::string, std::string> data;
+            double time = (ros::WallTime::now() - start).toSec();
+
+            data["time REAL"] = std::to_string(time);
+            for (const auto &property : properties)
+                data[property.first] = property.second();
+
+            progress.emplace_back(data);
+        }
+
+        // Sleep until the next update
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(rate * 1000)));
+    }
+}
+
 void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, const Options &options)
 {
-    unsigned int count = 0;
-    const unsigned int total = requests_.size() * options.runs;
+    unsigned int count = 0;                                      // Completed queries.
+    const unsigned int total = requests_.size() * options.runs;  // Total number of benchmarking queries.
+    std::shared_ptr<std::thread> thread;                         // Thread for querying progress properties.
 
     for (const auto &request : requests_)
     {
+        // Extract all benchmarking request information
         const auto &name = request.first;
         auto &scene = std::get<0>(request.second);
         auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
-        std::vector<moveit_msgs::RobotTrajectory> trajectories;
+        const auto &msg = builder->getRequest();
+
+        // Execute pre-run step.
+        planner->preRun(scene, msg);
 
         Results results(name, scene, planner, builder, options);
 
-        planner->preRun(scene, builder->getRequest());
+        // Get all progress property names.
+        const auto &pp = planner->getProgressProperties(scene, msg);
+        if (not pp.empty())
+        {
+            for (const auto &property : pp)
+                results.properties.emplace_back(property.first);
+            results.properties.emplace_back("time REAL");
+        }
+
         for (unsigned int j = 0; j < options.runs || options.runs == 0; ++j)
         {
-            ros::WallTime start;
+            ros::WallTime start = ros::WallTime::now();
+            solved_ = false;
 
-            start = ros::WallTime::now();
-            planning_interface::MotionPlanResponse response = planner->plan(scene, builder->getRequest());
+            // Capture planner progress.
+            const auto &pp = planner->getProgressProperties(scene, msg);
+            std::vector<std::map<std::string, std::string>> progress;
+            if (not pp.empty())
+            {
+                thread.reset(
+                    new std::thread([&] { captureProgress(pp, progress, options.progress_update_rate); }));
+            }
+
+            // Run planning.
+            planning_interface::MotionPlanResponse response = planner->plan(scene, msg);
             double time = (ros::WallTime::now() - start).toSec();
 
-            results.addRun(j, time, response);
+            // Notify progress thread.
+            {
+                std::unique_lock<std::mutex>(solved_mutex_);
+                solved_ = true;
+            }
+
+            if (thread)
+                thread->join();
+
+            // Collate results.
+            auto &run = results.addRun(j, time, response);
+            run.progress = progress;
 
             // If runs == 0, run until time runs out.
             if (options.runs == 0)
             {
-                double time_remaining = builder->getRequest().allowed_planning_time - time;
+                double time_remaining = msg.allowed_planning_time - time;
                 if (time_remaining < 0.)
                     break;
                 builder->setAllowedPlanningTime(time_remaining);
@@ -187,7 +248,8 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         const Benchmarker::Results::Run &run = results.runs[i];
         outfile_ << "{";
 
-        outfile_ << R"("name": "run_)" << run.num << "\",";
+        outfile_ << "\"name\": \"run_" << run.num << "\",";
+        // outfile_ << R"("name": "run_)" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
         outfile_ << "\"success\":" << run.success;
 
@@ -340,6 +402,30 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
                 << "; ";
 
         out << std::endl;
+    }
+
+    if (not results.properties.empty())
+    {
+        out << results.properties.size() << " progress properties for each run" << std::endl;
+        for (const auto &name : results.properties)
+            out << name << std::endl;
+
+        out << results.runs.size() << " runs" << std::endl;
+        for (const auto &run : results.runs)
+        {
+            for (const auto &point : run.progress)
+            {
+                for (const auto &name : results.properties)
+                {
+                    auto it = point.find(name);
+                    out << it->second << ",";
+                }
+
+                out << ";";
+            }
+
+            out << std::endl;
+        }
     }
 
     out << "." << std::endl;

@@ -64,7 +64,11 @@ namespace robowflex
              *  \return The motion planning context used by the planner.
              */
             ompl_interface::ModelBasedPlanningContextPtr getPlanningContext(
-                const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request);
+                const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const;
+
+            std::map<std::string, Planner::ProgressProperty>
+            getProgressProperties(const SceneConstPtr &scene,
+                                  const planning_interface::MotionPlanRequest &request) const override;
 
             std::vector<std::string> getPlannerConfigs() const override;
 

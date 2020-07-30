@@ -1,14 +1,14 @@
 /* Author: Zachary Kingston */
-/* Modified by: Juan D. Hernandez */
 
-#include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
-#include <robowflex_library/geometry.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/benchmarking.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
+
+#include <robowflex_ompl/ompl_interface.h>
 
 using namespace robowflex;
 
@@ -27,14 +27,8 @@ int main(int argc, char **argv)
     auto scene = std::make_shared<Scene>(fetch);
 
     // Create the default planner for the Fetch.
-    auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-    planner->initialize();
-
-    // Sets the Fetch's base pose.
-    fetch->setBasePose(1, 1, 0.5);
-
-    // Sets the Fetch's head pose to look at a point.
-    fetch->pointHead({2, 1, 1.5});
+    auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
+    planner->initialize("package://fetch_moveit_config/config/ompl_planning.yaml");
 
     // Create a motion planning request with a pose goal.
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
@@ -44,14 +38,16 @@ int main(int argc, char **argv)
     fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
     request->setGoalConfiguration(fetch->getScratchState());
 
-    request->setConfig("PRM");
+    request->setConfig("RRTstar");
 
-    // Setup a benchmarking request for the joint and pose motion plan requests.
     Benchmarker benchmark;
     benchmark.addBenchmarkingRequest("joint", scene, planner, request);
 
+    Benchmarker::Options options;
+    options.runs = 3;
+
     // Output results to an OMPL benchmarking file.
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")});
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")}, options);
 
     return 0;
 }
