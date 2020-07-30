@@ -16,7 +16,6 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(catkin QUIET COMPONENTS
   robowflex_library
   moveit_planners_ompl
-  moveit_ompl_planning_interface
 )
 
 catkin_package(
@@ -24,7 +23,6 @@ catkin_package(
   CATKIN_DEPENDS
     robowflex_library
     moveit_planners_ompl
-    moveit_ompl_planning_interface
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
