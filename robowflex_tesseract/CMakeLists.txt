@@ -16,6 +16,7 @@ find_package(Boost REQUIRED)
 list(APPEND CATKIN_DEPS
   moveit_planners_ompl
   robowflex_library
+  robowflex_ompl
   tesseract_planning
   tesseract_ros
   )
@@ -54,6 +55,7 @@ if (tesseract_planning_DIR)
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
+  add_script(fetch_tabletop)
   #add_script(tesseract_benchmark)
   #add_script(ur5_tesseract)
   #add_test(ur_test_env_placement)

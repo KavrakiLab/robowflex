@@ -12,6 +12,7 @@
 
   <depend>ompl</depend>
   <depend>robowflex_library</depend>
+  <depend>robowflex_ompl</depend>
   <depend>moveit_planners_ompl</depend>
   <depend>tesseract_planning</depend>
   <depend>tesseract_ros</depend>
