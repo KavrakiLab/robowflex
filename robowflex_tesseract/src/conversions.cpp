@@ -13,14 +13,11 @@
 using namespace robowflex;
 
 tesseract::tesseract_ros::KDLEnvPtr hypercube::constructTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                                                     const robowflex::RobotConstPtr &robot, 
-                                                                     const std::string &name
-                                                                    )
+                                                                     const robowflex::RobotConstPtr &robot)
 {
     moveit_msgs::PlanningScene scene_msg = scene->getMessage();
     auto env = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
     env->init(robot->getURDF(), robot->getSRDF());
-    env->setName(name);
 
     // Add all of the collision objects in the scene message.
     // So there's a name, robot_state, and robot_model_name. Going to ignore most

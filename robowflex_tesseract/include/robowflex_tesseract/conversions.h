@@ -18,14 +18,8 @@ namespace robowflex
 
     namespace hypercube
     {
-        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                                                  const robowflex::RobotConstPtr &robot, 
-                                                                  const std::string &name=""
-                                                                 );
-        void fromTesseractResToMoveitTraj(const tesseract::tesseract_planning::PlannerResponse &response, 
-                                          const tesseract::tesseract_ros::KDLEnvPtr &env, 
-                                          const robowflex::RobotConstPtr &robot, 
-                                          robot_trajectory::RobotTrajectoryPtr &trajectory);
+        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene, 
+                                                                  const robowflex::RobotConstPtr &robot);
     }
 }  // namespace robowflex
 
