@@ -7,8 +7,6 @@
 
 #include <tesseract_ros/kdl/kdl_env.h>
 
-#include <tesseract_planning/basic_planner_types.h>
-
 namespace robowflex
 {
     /** \cond IGNORE */
@@ -18,7 +16,7 @@ namespace robowflex
 
     namespace hypercube
     {
-        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene, 
+        tesseract::tesseract_ros::KDLEnvPtr constructTesseractEnv(const robowflex::SceneConstPtr &scene,
                                                                   const robowflex::RobotConstPtr &robot);
     }
 }  // namespace robowflex
