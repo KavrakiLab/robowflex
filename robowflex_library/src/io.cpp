@@ -270,8 +270,7 @@ const std::string IO::Handler::generateUUID()
 void IO::createFile(std::ofstream &out, const std::string &file)
 {
     boost::filesystem::path path(file);
-    path = expandHome(path);
-    path = expandSymlinks(path);
+    path = resolvePackage(file);
 
     const auto parent = path.parent_path().string();
 
