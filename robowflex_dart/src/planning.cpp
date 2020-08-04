@@ -111,7 +111,7 @@ TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr)
 }
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
-  : TSRGoal(builder.ss->getProblemDefinition(), builder.info, builder.world, [&] {
+  : TSRGoal(builder.info, builder.world, [&] {
       std::vector<TSRPtr> temp = builder.path_constraints;
       temp.insert(temp.end(), tsrs.begin(), tsrs.end());
       return temp;
