@@ -7,7 +7,6 @@
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/yaml.h>
 #include <robowflex_ompl/ompl_interface.h>
@@ -27,7 +26,7 @@ int main(int argc, char** argv)
     std::string manipulator = "arm_chain";
     int start = 1;
     int end = 5;
-    int num_waypoints = 20;
+    int num_waypoints = 15;
     bool solve = true;
     bool file_write_cb = false;
     bool use_ik_solution = true;
@@ -134,7 +133,6 @@ int main(int argc, char** argv)
         
         // Define final end-effector pose
         Eigen::Isometry3d place_ee_pose = pick_ee_pose;
-        //place_ee_pose.translation() += Eigen::Vector3d(0.0, 0.65, 0.0);
         place_ee_pose.translation() += Eigen::Vector3d(0.0, -0.6, 0.0);
         
         // Add a marker to the goal_pose
@@ -145,7 +143,8 @@ int main(int argc, char** argv)
         // Either use start/goal states or a start state and an end-effector goal pose
         if (use_ik_solution)
         {
-            // Solve problem using IK query from the goal pose
+            // Solve problem using IK query from the place pose
+            place_ee_pose.translation() += Eigen::Vector3d(-0.15, 0.0, 0.0);//Offset?
             std::vector<double> pick_state_vct(pick_state_dbl, pick_state_dbl+(int)ndof);
             fetch->setState(pick_state_vct);
             if (!fetch->setFromIKCollisionAware(scene, planning_group, region, place_ee_pose, rot, tol))
