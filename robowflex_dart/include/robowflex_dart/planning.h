@@ -124,22 +124,19 @@ namespace robowflex
                 \{ */
 
             /** \brief Constructor.
-             *  \param[in] pdef Problem definition.
              *  \param[in] si Space information.
              *  \param[in] world World to use.
              *  \param[in] tsrs TSRs to sample.
              */
-            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                    const WorldPtr &world, const std::vector<TSRPtr> &tsrs);
+            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
+                    const std::vector<TSRPtr> &tsrs);
 
             /** \brief Constructor.
-             *  \param[in] pdef Problem definition.
              *  \param[in] si Space information.
              *  \param[in] world World to use.
              *  \param[in] tsr TSR to sample.
              */
-            TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                    const WorldPtr &world, const TSRPtr tsr);
+            TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr);
 
             /** \brief Constructor.
              *  \param[in] builder Plan builder to use as base for goal.
@@ -179,11 +176,9 @@ namespace robowflex
             } options;
 
         private:
-            WorldPtr world_;                         ///< World used.
-            TSRSetPtr tsr_;                          ///< TSR set to sample from.
-            ompl::base::StateSamplerPtr sampler_;    ///< State sampler.
-            ompl::base::ProblemDefinitionPtr pdef_;  ///< Problem definition.
-            std::size_t total_samples_{0};
+            WorldPtr world_;                       ///< World used.
+            TSRSetPtr tsr_;                        ///< TSR set to sample from.
+            ompl::base::StateSamplerPtr sampler_;  ///< State sampler.
         };
 
         /** \brief A joint space goal volume.
