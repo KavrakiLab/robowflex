@@ -77,8 +77,8 @@ const StateSpace *ConstraintExtractor::getSpace() const
 /// TSRGoal
 ///
 
-TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                 const WorldPtr &world, const std::vector<TSRPtr> &tsrs)
+TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
+                 const std::vector<TSRPtr> &tsrs)
   : ompl::base::GoalLazySamples(
         si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false, 1e-3)
   , ConstraintExtractor(si)
@@ -87,7 +87,6 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
   // Have to allocate our own sampler from scratch since the constrained sampler might use the underlying
   // world used by the planner (e.g., in project)
   , sampler_(std::make_shared<StateSpace::StateSampler>(getSpace()))
-  , pdef_(pdef)
 {
     tsr_->useWorldIndices(getSpace()->getIndices());
     tsr_->setWorldIndices(getSpace()->getIndices());
@@ -101,9 +100,8 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
     tsr_->print(std::cout);
 }
 
-TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                 const WorldPtr &world, const TSRPtr tsr)
-  : TSRGoal(pdef, si, world, std::vector<TSRPtr>{tsr})
+TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr)
+  : TSRGoal(si, world, std::vector<TSRPtr>{tsr})
 {
 }
 
@@ -113,7 +111,7 @@ TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr)
 }
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
-  : TSRGoal(builder.ss->getProblemDefinition(), builder.info, builder.world, [&] {
+  : TSRGoal(builder.info, builder.world, [&] {
       std::vector<TSRPtr> temp = builder.path_constraints;
       temp.insert(temp.end(), tsrs.begin(), tsrs.end());
       return temp;
@@ -132,7 +130,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         return false;
 
     bool success = false;
-    while (not success and not pdef_->hasSolution())
+    while (not terminateSamplingThread_ and not success)
     {
         auto &&as = toState(state);
         sampler_->sampleUniform(as);
@@ -149,8 +147,7 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         si_->enforceBounds(state);
     }
 
-    total_samples_++;
-    return total_samples_ < options.max_samples;
+    return true;
 }
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const
