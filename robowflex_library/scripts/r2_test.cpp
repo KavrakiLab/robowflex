@@ -1,11 +1,11 @@
-#include <robowflex_library/util.h>
+#include <robowflex_library/builder.h>
+#include <robowflex_library/detail/r2.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
-#include <robowflex_library/builder.h>
-#include <robowflex_library/io/visualization.h>
-#include <robowflex_library/detail/r2.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -28,9 +28,6 @@ int planFromFile()
 
     // Create an RViz visualizer
     IO::RVIZHelper rviz(r2);
-
-    // Dump the geometry information for blender visualization.
-    r2->dumpGeometry("r2.yml");
 
     // Load the ISS from a world file.
     auto iss_scene = std::make_shared<Scene>(r2);
@@ -57,9 +54,6 @@ int planFromFile()
 
     // Spin once to let messages escape.
     ros::spinOnce();
-
-    // Dump path transforms for visualization in blender.
-    r2->dumpPathTransforms(*res.trajectory_, "r2_path.yml", 30, 0.5);
 
     return 0;
 }
@@ -126,9 +120,6 @@ int main(int argc, char **argv)
 {
     // Startup ROS.
     ROS ros(argc, argv);
-
-    // Dump a state for animation.
-    dumpTransform();
 
     // Plan using configuration from files.
     planFromFile();

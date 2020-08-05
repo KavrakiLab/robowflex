@@ -1,14 +1,31 @@
 # Robowflex 💪🤖
-![Build](https://github.com/KavrakiLab/robowflex/workflows/Build/badge.svg?branch=master)
 Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
+
+## What is Robowflex?
+
+Robowflex is primarily a wrapper around components from other robotics libraries (in particular, components from _MoveIt_).
+The name "Robowflex" is a portmanteau of "Robot" and "Bowflex", as Robowflex was intended just to be better "bench"-marking software (as in "bench press") than the rest.
+However, the software needed for doing benchmarking was the same as the software needed for running motion planning in "isolation" from a ROS system while still using ROS components, useful for many other things other than benchmarking.
+Thus, the project has spun out and become a toolbox for motion planning using real robots that are _MoveIt_ enabled.
+
+The high-level goals of the project are as follows:
+- Provide an easy to use interface to complex robotics libraries by brushing cruft and idiosyncrasies under the rug.
+- Provide access to all underlying capabilities of the libraries so users are not hampered by Robowflex in any way.
+- Remain untied as possible to the greater ROS system, and support all distros from Indigo onward.
+
+## Build Status
+| Documentation | Linting | Indigo | Kinetic | Melodic |
+| ------------- | ------- | ------ | ------- | ------- |
+|![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg) |![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg)|![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg)|![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg)|![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)|
 
 ## robowflex_library
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
 Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in the `robowflex_library/scripts` directory.
 
 # Optional Robowflex Modules
-Robowflex also comes with many optional modules that provide specific auxiliary library support.
+Robowflex also comes with many optional modules that provide specific auxiliary library support through the standard Robowflex interface.
+The modules are only compiled if the required dependencies are installed.
 
 ## robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
@@ -60,9 +77,9 @@ We recommend `catkin-tools` to build your ROS workspace:
 sudo apt install python-catkin-tools
 ```
 
-Install _MoveIt_:
+Install _MoveIt_ and other required ROS packages:
 ```sh
-sudo apt install ros-melodic-moveit
+sudo apt install ros-melodic-moveit ros-melodic-geometry
 ```
 
 Finally, create a workspace with Robowflex inside:

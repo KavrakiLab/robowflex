@@ -1,41 +1,82 @@
-#!/usr/bin/env python
-
+import bpy
 import sys
 import os
-import imp
+import importlib.util
+import subprocess
+"""Run this script in order to execute:
+        `robowflex_visualization/src/robowflex.py`
 
-# pylint: disable=import-error
-import bpy
+   This script contains some utility functions for loading system Python paths
+   and finding the ROS package. You can change which script is ran by changing
+   the arguments to `load_ROS_module` at the bottom of the file.
 
-# Blender is stupid and won't load modules from the current directory,
-# so in order to load, say, blender_utils.py, we have to specify the directory.
-CURRENT_DIRECTORY = os.getcwd()
+   Moreover, the `robowflex_visualization/src` directory is added to the path,
+   so that the various helper modules can be found.
 
-# Let python find the blender_utils directory.
-if not CURRENT_DIRECTORY in sys.path:
-    sys.path.append(CURRENT_DIRECTORY)
-    print(sys.path)
+   You should put all of your visualization code in whatever file is loaded at
+   the bottom.
+"""
 
-# pylint: disable=wrong-import-position
-import utils
-import blender_utils
-import blender_load_scene as blender_scene
-import blender_animate_robot as blender_robot
-import blender_render_scene as blender_render
-import blender_convex_hulls
+
+def add_path(path):
+    """Add a path to the system search path.
+    """
+    if not path in sys.path:
+        sys.path.append(path)
+        print("Adding path {} to system path.".format(path))
+
+
+def initialize_path():
+    """Initialize Blender Python's system path with the system Python's paths.
+    """
+    try:
+        output = subprocess.check_output(
+            ["python3", "-c", "import sys; print('\\n'.join(sys.path))"])
+        paths = output.decode().strip().split('\n')
+
+        for path in paths:
+            add_path(path)
+
+    except subprocess.CalledProcessError:
+        print("Unable to call system Python3")
+        return ""
+
+
+def find_package(package):
+    """Find a ROS package path.
+    """
+    try:
+        output = subprocess.check_output(["rospack", "find", package])
+        return output.decode().strip()
+
+    except subprocess.CalledProcessError:
+        print("Unable to find package: `{}`".format(package))
+        return ""
+
+
+def initialize_robowflex_path():
+    """Adds the robowflex_visualization/src folder to search path.
+    """
+    directory = find_package("robowflex_visualization")
+    add_path(directory)
+
+
+def load_ROS_module(module_name,
+                    module_file,
+                    package = "robowflex_visualization"):
+    """Load a robowflex visualization module.
+    """
+    directory = find_package(package)
+
+    spec = importlib.util.spec_from_file_location(    #
+        module_name, os.path.join(directory, module_file))
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
 
 if __name__ == '__main__':
-    imp.reload(utils)
-    imp.reload(blender_scene)
-    imp.reload(blender_utils)
-    imp.reload(blender_robot)
-    imp.reload(blender_render)
-    imp.reload(blender_convex_hulls)
-
-    blender_robot.animate_robot(
-        'package://robowflex_visualization/yaml/ur5.yml',    # Robot geometry
-        ['package://robowflex_visualization/yaml/ur5_path.yml']    # Robot path
-    )
-
-    blender_scene.add_planning_scene('package://robowflex_library/yaml/test.yml')
-    blender_render.add_blender_scene('package://robowflex_visualization/yaml/render_settings.yml')
+    bpy.ops.outliner.orphans_purge()
+    initialize_path()
+    initialize_robowflex_path()
+    load_ROS_module("robowflex", "scripts/robowflex.py")

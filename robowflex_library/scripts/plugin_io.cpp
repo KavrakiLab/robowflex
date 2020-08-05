@@ -2,8 +2,8 @@
 
 #include <moveit/planning_request_adapter/planning_request_adapter.h>
 
-#include <robowflex_library/util.h>
 #include <robowflex_library/io/plugin.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 

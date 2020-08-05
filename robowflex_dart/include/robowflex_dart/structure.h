@@ -64,7 +64,7 @@ namespace robowflex
              *  \param[in] name Name of the structure.
              *  \param[in] scene Scene to copy.
              */
-            Structure(const std::string &name, const ScenePtr &scene);
+            Structure(const std::string &name, const SceneConstPtr &scene);
 
             /** \brief Destructor.
              */

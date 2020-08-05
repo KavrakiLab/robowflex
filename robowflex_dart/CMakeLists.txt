@@ -27,8 +27,13 @@ if (DART_LIBRARIES)
   list(APPEND LIBRARIES ${EIGEN3_LIBRARIES})
 
   find_package(ompl REQUIRED)
-  include_directories(SYSTEM ${OMPL_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${OMPL_LIBRARIES})
+  if (ompl_LIBRARIES)
+    include_directories(SYSTEM ${ompl_INCLUDE_DIRS})
+    list(APPEND LIBRARIES ${ompl_LIBRARIES})
+  else()
+    include_directories(SYSTEM ${OMPL_INCLUDE_DIRS})
+    list(APPEND LIBRARIES ${OMPL_LIBRARIES})
+  endif (ompl_LIBRARIES)
 
   find_package(TinyXML2 REQUIRED)
   include_directories(SYSTEM ${TINYXML2_INCLUDE_DIRS})
@@ -65,6 +70,7 @@ if (DART_LIBRARIES)
     src/tsr.cpp
     src/planning.cpp
     src/gui.cpp
+    src/planner.cpp
     src/joints/joint.cpp
     src/joints/rnjoint.cpp
     src/joints/so2joint.cpp
@@ -83,6 +89,7 @@ if (DART_LIBRARIES)
   add_script(r2_plan)
   add_script(world_test)
   add_script(fetch_robowflex_plan)
+  add_script(fetch_robowflex_planner)
   add_script(r2con_plan)
   add_script(r2con_msg_plan)
   add_script(gui_test)

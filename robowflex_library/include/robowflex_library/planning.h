@@ -8,12 +8,12 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/pool.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/scene.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
-    ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(Geometry);
     /** \endcond */
 
@@ -58,7 +58,7 @@ namespace robowflex
          *  plan().
          *  \return A vector of strings of planner configuration names.
          */
-        virtual const std::vector<std::string> getPlannerConfigs() const = 0;
+        virtual std::vector<std::string> getPlannerConfigs() const = 0;
 
         /** \brief Return the robot for this planner.
          *  \return Get the robot associated with the planner.
@@ -144,7 +144,7 @@ namespace robowflex
         planning_interface::MotionPlanResponse
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
-        const std::vector<std::string> getPlannerConfigs() const override;
+        std::vector<std::string> getPlannerConfigs() const override;
 
     private:
         Pool pool_;  ///< Thread pool
@@ -278,7 +278,7 @@ namespace robowflex
                             const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
-            const std::vector<std::string> getPlannerConfigs() const override;
+            std::vector<std::string> getPlannerConfigs() const override;
 
         protected:
             static const std::string DEFAULT_PLUGIN;                 ///< The default OMPL plugin.

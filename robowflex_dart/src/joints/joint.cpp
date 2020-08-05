@@ -1,8 +1,10 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_dart/world.h>
 #include <robowflex_dart/joints.h>
 #include <robowflex_dart/space.h>
+#include <robowflex_dart/world.h>
+
+#include <utility>
 
 using namespace robowflex::darts;
 
@@ -81,22 +83,22 @@ std::size_t Joint::getSkeletonIndex() const
 
 void Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
-    auto joint = getJoint(world);
+    auto joint = getJoint(std::move(world));
     joint->getSkeleton()->setPositions(indices_, a);
 }
 
 void Joint::getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const
 {
-    auto joint = getJoint(world);
+    auto joint = getJoint(std::move(world));
     a = joint->getSkeleton()->getPositions(indices_);
 }
 
-void Joint::setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+void Joint::setUpperLimits(const Eigen::Ref<const Eigen::VectorXd> & /*v*/)
 {
     throw std::runtime_error("Cannot set bounds on this joint!");
 }
 
-void Joint::setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> &v)
+void Joint::setLowerLimits(const Eigen::Ref<const Eigen::VectorXd> & /*v*/)
 {
     throw std::runtime_error("Cannot set bounds on this joint!");
 }

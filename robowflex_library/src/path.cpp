@@ -4,6 +4,8 @@
 
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/path.h>
 #include <robowflex_library/scene.h>
 
@@ -96,11 +98,11 @@ double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &p
             // use Pythagoras generalized theorem to find the cos of the angle between segments a and b
             double b = distance(path.getWayPoint(k - 1), path.getWayPoint(k));
             double cdist = distance(path.getWayPoint(k - 2), path.getWayPoint(k));
-            double acosValue = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
-            if (acosValue > -1.0 && acosValue < 1.0)
+            double acos_value = (a * a + b * b - cdist * cdist) / (2.0 * a * b);
+            if (acos_value > -1.0 && acos_value < 1.0)
             {
                 // the smoothness is actually the outside angle of the one we compute
-                double angle = (boost::math::constants::pi<double>() - acos(acosValue));
+                double angle = (boost::math::constants::pi<double>() - acos(acos_value));
 
                 // and we normalize by the length of the segments
                 double u = 2.0 * angle;  /// (a + b);
@@ -135,6 +137,15 @@ robowflex::path::getFinalPositions(const robot_trajectory::RobotTrajectory &path
 bool robowflex::path::computeTimeParameterization(robot_trajectory::RobotTrajectory &path,
                                                   double max_velocity, double max_acceleration)
 {
-    trajectory_processing::IterativeParabolicTimeParameterization parameterizer_;
-    return parameterizer_.computeTimeStamps(path, max_velocity, max_acceleration);
+    trajectory_processing::IterativeParabolicTimeParameterization parameterizer;
+    return parameterizer.computeTimeStamps(path, max_velocity, max_acceleration);
+}
+
+bool robowflex::path::toYAMLFile(const std::string &filename, robot_trajectory::RobotTrajectory &path)
+{
+    moveit_msgs::RobotTrajectory msg;
+    path.getRobotTrajectoryMsg(msg);
+
+    YAML::Node node = robowflex::IO::toNode(msg);
+    return robowflex::IO::YAMLToFile(node, filename);
 }

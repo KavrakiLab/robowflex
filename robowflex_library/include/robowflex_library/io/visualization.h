@@ -6,6 +6,7 @@
 #include <moveit/planning_interface/planning_interface.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/tf.h>
 
 namespace robowflex
 {

@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <string>
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/yaml.h>
 
 using namespace robowflex;
@@ -48,12 +48,12 @@ namespace
 
             if (s == "move")
                 return moveit_msgs::CollisionObject::MOVE;
-            else if (s == "remove")
+            if (s == "remove")
                 return moveit_msgs::CollisionObject::REMOVE;
-            else if (s == "append")
+            if (s == "append")
                 return moveit_msgs::CollisionObject::APPEND;
-            else
-                return moveit_msgs::CollisionObject::ADD;
+
+            return moveit_msgs::CollisionObject::ADD;
         }
         catch (const YAML::BadConversion &e)
         {

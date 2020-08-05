@@ -1,15 +1,15 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/io.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/openrave.h>
+#include <robowflex_library/tf.h>
 
-#include <pluginlib/class_loader.h>
 #include <moveit/collision_detection/collision_plugin.h>
+#include <pluginlib/class_loader.h>
 
 namespace robowflex
 {
@@ -126,6 +126,11 @@ robot_state::RobotState &Scene::getCurrentState()
 collision_detection::AllowedCollisionMatrix &Scene::getACM()
 {
     return scene_->getAllowedCollisionMatrixNonConst();
+}
+
+const collision_detection::AllowedCollisionMatrix &Scene::getACMConst() const
+{
+    return scene_->getAllowedCollisionMatrix();
 }
 
 void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
@@ -338,9 +343,10 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
     return scene_->distanceToCollision(*state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
+double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/,
+                               const std::string & /*object*/) const
 {
-    // throw std::runtime_error("Not Implemented");
+#if ROBOWFLEX_AT_LEAST_KINETIC
     if (not hasObject(object))
     {
         ROS_ERROR("World does not have object `%s`", object.c_str());
@@ -376,12 +382,16 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
     cw->distanceRobot(req, res, cr, *state);
     return res.minimum_distance.distance;
+
+#else
+    throw std::runtime_error("Not Implemented");
+
+#endif
 }
 
-double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
+double Scene::distanceBetweenObjects(const std::string & /*one*/, const std::string & /*two*/) const
 {
-    // throw std::runtime_error("Not Implemented");
-
+#if ROBOWFLEX_AT_LEAST_KINETIC
     // Early terminate if they are the same
     if (one == two)
         return 0.;
@@ -414,6 +424,11 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 
     cw->distanceWorld(req, res, *cw);
     return res.minimum_distance.distance;
+
+#else
+    throw std::runtime_error("Not Implemented");
+
+#endif
 }
 
 bool Scene::toYAMLFile(const std::string &file)

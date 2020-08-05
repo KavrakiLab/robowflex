@@ -1,18 +1,18 @@
 /* Author: Zachary Kingston */
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
+#include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
-#include <robowflex_dart/gui.h>
+#include <robowflex_dart/world.h>
 
 using namespace robowflex;
 
-int main(int argc, char **argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
     bool ik = true;
 

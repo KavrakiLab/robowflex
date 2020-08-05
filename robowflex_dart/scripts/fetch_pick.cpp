@@ -1,23 +1,23 @@
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
-#include <robowflex_library/util.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/planning.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
+#include <robowflex_dart/gui.h>
+#include <robowflex_dart/planning.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
-#include <robowflex_dart/planning.h>
-#include <robowflex_dart/gui.h>
+#include <robowflex_dart/world.h>
 
 using namespace robowflex;
 
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
     darts::Window window(world);
 
-    const auto &planToPick = [&]() {
+    const auto &plan_to_pick = [&]() {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
 
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
             std::cout << "No solution found" << std::endl;
     };
 
-    const auto &planToPlace = [&]() {
+    const auto &plan_to_place = [&]() {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
         builder.setStartConfigurationFromWorld();
@@ -138,12 +138,12 @@ int main(int argc, char **argv)
 
     window.run([&] {
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        planToPick();
+        plan_to_pick();
 
         auto cube = scene_dart->getFrame("Cube3");
         fetch_dart->reparentFreeFrame(cube, "wrist_roll_link");
 
-        planToPlace();
+        plan_to_place();
     });
     return 0;
 }

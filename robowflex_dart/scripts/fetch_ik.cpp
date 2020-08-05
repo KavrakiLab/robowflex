@@ -1,22 +1,22 @@
 /* Author: Zachary Kingston */
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
+#include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
+#include <robowflex_dart/planning.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
-#include <robowflex_dart/planning.h>
-#include <robowflex_dart/gui.h>
+#include <robowflex_dart/world.h>
 
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
 using namespace robowflex;
 
-int main(int argc, char **argv)
+int main(int /*argc*/, char ** /*argv*/)
 {
     auto world = std::make_shared<darts::World>();
 

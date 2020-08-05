@@ -45,3 +45,5 @@ __pycache__
 #Vim
 *.swp
 
+*.build-tmp*
+*.blend1

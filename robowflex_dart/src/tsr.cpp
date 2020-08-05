@@ -2,17 +2,17 @@
 
 #include <boost/format.hpp>
 
-#include <dart/dynamics/SimpleFrame.hpp>
 #include <dart/dynamics/InverseKinematics.hpp>
+#include <dart/dynamics/SimpleFrame.hpp>
 
 #include <robowflex_library/tf.h>
 
 #include <robowflex_dart/constants.h>
-#include <robowflex_dart/structure.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
+#include <robowflex_dart/structure.h>
 #include <robowflex_dart/tsr.h>
+#include <robowflex_dart/world.h>
 
 using namespace robowflex::darts;
 
@@ -511,10 +511,10 @@ void TSR::useIndices(const std::vector<std::size_t> &indices)
 void TSR::useWorldIndices(const std::vector<std::pair<std::size_t, std::size_t>> &indices)
 {
     std::vector<std::size_t> use;
-    for (std::size_t i = 0; i < indices.size(); ++i)
+    for (const auto &index : indices)
     {
-        if (indices[i].first == getSkeletonIndex())
-            use.emplace_back(indices[i].second);
+        if (index.first == getSkeletonIndex())
+            use.emplace_back(index.second);
     }
 
     useIndices(use);
@@ -579,13 +579,13 @@ void TSR::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
 {
     world_->lock();
 
-    auto tsrError = tsr_->computeError();
+    auto tsr_error = tsr_->computeError();
 
     std::size_t j = 0;
     for (std::size_t i = 0; i < 6; ++i)
     {
         if (spec_.indices[i])
-            error[j++] = tsrError[i];
+            error[j++] = tsr_error[i];
     }
 
     world_->unlock();
@@ -693,14 +693,12 @@ bool TSR::solveWorldState(Eigen::Ref<Eigen::VectorXd> world)
 {
     if (bijection_.empty())
         return solve(world);
-    else
-    {
-        Eigen::VectorXd state(getNumDofs());
-        fromBijection(state, world);
-        bool r = solve(state);
-        toBijection(world, state);
-        return r;
-    }
+
+    Eigen::VectorXd state(getNumDofs());
+    fromBijection(state, world);
+    bool r = solve(state);
+    toBijection(world, state);
+    return r;
 }
 
 bool TSR::solve(Eigen::Ref<Eigen::VectorXd> state)
@@ -731,14 +729,12 @@ bool TSR::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
 {
     if (bijection_.empty())
         return solveGradient(world);
-    else
-    {
-        Eigen::VectorXd state(getNumDofs());
-        fromBijection(state, world);
-        bool r = solveGradient(state);
-        toBijection(world, state);
-        return r;
-    }
+
+    Eigen::VectorXd state(getNumDofs());
+    fromBijection(state, world);
+    bool r = solveGradient(state);
+    toBijection(world, state);
+    return r;
 }
 
 bool TSR::solveGradient(Eigen::Ref<Eigen::VectorXd> state)
@@ -750,12 +746,12 @@ bool TSR::solveGradient(Eigen::Ref<Eigen::VectorXd> state)
     Eigen::VectorXd f(getDimension());
     Eigen::MatrixXd j(getDimension(), getNumDofs());
 
-    const double squaredTolerance = spec_.tolerance * spec_.tolerance;
+    const double squared_tolerance = spec_.tolerance * spec_.tolerance;
 
     setPositions(state);
     getErrorWorld(f);
 
-    while ((norm = f.norm()) > squaredTolerance && iter++ < spec_.maxIter)
+    while ((norm = f.norm()) > squared_tolerance && iter++ < spec_.maxIter)
     {
         getJacobianWorld(j);
         state -= j.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(f);
@@ -766,7 +762,7 @@ bool TSR::solveGradient(Eigen::Ref<Eigen::VectorXd> state)
 
     world_->unlock();
 
-    return norm < squaredTolerance;
+    return norm < squared_tolerance;
 }
 
 void TSR::setPositionsWorldState(const Eigen::Ref<const Eigen::VectorXd> &world) const
@@ -1129,13 +1125,13 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     Eigen::VectorXd f(getDimension());
     Eigen::MatrixXd j(getDimension(), world.size());
 
-    const double squaredTolerance = tolerance_ * tolerance_;
+    const double squared_tolerance = tolerance_ * tolerance_;
     const Eigen::VectorXd limit = Eigen::VectorXd::Constant(world.size(), limit_);
 
     world_->lock();
     getErrorWorldState(world, f);
 
-    while ((norm = f.norm()) > squaredTolerance and iter++ < maxIter_)
+    while ((norm = f.norm()) > squared_tolerance and iter++ < maxIter_)
     {
         getJacobianWorldState(world, j);
         if (qr_)
@@ -1146,17 +1142,17 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
             {
                 auto svd = j.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
                 auto lr = svd.rank();
-                const auto &U = svd.matrixU().leftCols(lr);
-                const auto &V = svd.matrixV().leftCols(lr);
-                const auto &S = svd.singularValues().head(lr);
+                const auto &u = svd.matrixU().leftCols(lr);
+                const auto &v = svd.matrixV().leftCols(lr);
+                const auto &s = svd.singularValues().head(lr);
                 const auto &d = Eigen::VectorXd::Constant(lr, damping_);
 
-                const auto &damped = S.cwiseQuotient(S.cwiseProduct(S) + d.cwiseProduct(d));
+                const auto &damped = s.cwiseQuotient(s.cwiseProduct(s) + d.cwiseProduct(d));
 
                 Eigen::MatrixXd tmp;
-                tmp.noalias() = U.adjoint() * f;
+                tmp.noalias() = u.adjoint() * f;
                 tmp = damped.asDiagonal().inverse() * tmp;
-                auto step = V * tmp;
+                auto step = v * tmp;
 
                 world -= (step_ * step).cwiseMin(limit).cwiseMax(-limit);
             }
@@ -1174,7 +1170,7 @@ bool TSRSet::solveGradientWorldState(Eigen::Ref<Eigen::VectorXd> world)
     world_->forceUpdate();
     world_->unlock();
 
-    return norm < squaredTolerance;
+    return norm < squared_tolerance;
 }
 
 void TSRSet::updateSolver()

@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_dart</name>
-  <version>0.0.1</version>
-  <description>The Better Benchmarking Package: DART Planning Tools</description>
+  <version>0.1.0</version>
+  <description>Robowflex: DART Planning Tools</description>
+
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 

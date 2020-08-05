@@ -1,35 +1,92 @@
 /* Author: Zachary Kingston */
 
-#include <thread>
 #include <chrono>
+#include <thread>
+#include <utility>
 
 #include <ompl/base/ConstrainedSpaceInformation.h>
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
-#include <robowflex_library/tf.h>
 #include <moveit_msgs/MotionPlanRequest.h>
+#include <robowflex_library/tf.h>
 
+#include <robowflex_dart/planning.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/world.h>
-#include <robowflex_dart/planning.h>
 
 using namespace robowflex::darts;
+
+///
+/// ConstraintExtractor
+///
+ConstraintExtractor::ConstraintExtractor(const ompl::base::SpaceInformationPtr &si)
+{
+    setSpaceInformation(si);
+}
+
+void ConstraintExtractor::setSpaceInformation(const ompl::base::SpaceInformationPtr &si)
+{
+    space_info_ = si;
+    is_constrained_ = std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si) != nullptr;
+}
+
+StateSpace::StateType *ConstraintExtractor::toState(ompl::base::State *state) const
+{
+    if (is_constrained_)
+        return fromConstrainedState(state);
+
+    return fromUnconstrainedState(state);
+}
+
+const StateSpace::StateType *ConstraintExtractor::toStateConst(const ompl::base::State *state) const
+{
+    return toState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *ConstraintExtractor::fromConstrainedState(ompl::base::State *state) const
+{
+    return state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState()->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *
+ConstraintExtractor::fromConstrainedStateConst(const ompl::base::State *state) const
+{
+    return fromConstrainedState(const_cast<ompl::base::State *>(state));
+}
+
+StateSpace::StateType *ConstraintExtractor::fromUnconstrainedState(ompl::base::State *state) const
+{
+    return state->as<StateSpace::StateType>();
+}
+
+const StateSpace::StateType *
+ConstraintExtractor::fromUnconstrainedStateConst(const ompl::base::State *state) const
+{
+    return fromUnconstrainedState(const_cast<ompl::base::State *>(state));
+}
+
+const StateSpace *ConstraintExtractor::getSpace() const
+{
+    return (is_constrained_ ?
+                space_info_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
+                space_info_->getStateSpace())
+        ->as<StateSpace>();
+}
 
 ///
 /// TSRGoal
 ///
 
-TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                 const WorldPtr &world, const std::vector<TSRPtr> &tsrs)
+TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world,
+                 const std::vector<TSRPtr> &tsrs)
   : ompl::base::GoalLazySamples(
         si, std::bind(&TSRGoal::sample, this, std::placeholders::_1, std::placeholders::_2), false, 1e-3)
+  , ConstraintExtractor(si)
   , world_(world->clone())
   , tsr_(std::make_shared<TSRSet>(world_, tsrs))
-  , constrained_(std::dynamic_pointer_cast<ompl::base::ConstrainedSpaceInformation>(si))
   // Have to allocate our own sampler from scratch since the constrained sampler might use the underlying
   // world used by the planner (e.g., in project)
   , sampler_(std::make_shared<StateSpace::StateSampler>(getSpace()))
-  , pdef_(pdef)
 {
     tsr_->useWorldIndices(getSpace()->getIndices());
     tsr_->setWorldIndices(getSpace()->getIndices());
@@ -43,18 +100,18 @@ TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::
     tsr_->print(std::cout);
 }
 
-TSRGoal::TSRGoal(const ompl::base::ProblemDefinitionPtr pdef, const ompl::base::SpaceInformationPtr &si,
-                 const WorldPtr &world, const TSRPtr tsr)
-  : TSRGoal(pdef, si, world, std::vector<TSRPtr>{tsr})
+TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr)
+  : TSRGoal(si, world, std::vector<TSRPtr>{tsr})
 {
 }
 
-TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr) : TSRGoal(builder, std::vector<TSRPtr>{tsr})
+TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr)
+  : TSRGoal(builder, std::vector<TSRPtr>{std::move(tsr)})
 {
 }
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
-  : TSRGoal(builder.ss->getProblemDefinition(), builder.info, builder.world, [&] {
+  : TSRGoal(builder.info, builder.world, [&] {
       std::vector<TSRPtr> temp = builder.path_constraints;
       temp.insert(temp.end(), tsrs.begin(), tsrs.end());
       return temp;
@@ -73,9 +130,9 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         return false;
 
     bool success = false;
-    while (not success and not pdef_->hasSolution())
+    while (not terminateSamplingThread_ and not success)
     {
-        auto &&as = getState(state);
+        auto &&as = toState(state);
         sampler_->sampleUniform(as);
 
         auto &&x = Eigen::Map<Eigen::VectorXd>(as->values, si_->getStateDimension());
@@ -90,42 +147,89 @@ bool TSRGoal::sample(const ompl::base::GoalLazySamples * /*gls*/, ompl::base::St
         si_->enforceBounds(state);
     }
 
-    total_samples_++;
-    return total_samples_ < options.max_samples;
+    return true;
 }
 
 double TSRGoal::distanceGoal(const ompl::base::State *state) const
 {
-    auto &&as = getStateConst(state);
+    auto &&as = toStateConst(state);
     auto &&x = Eigen::Map<const Eigen::VectorXd>(as->values, si_->getStateDimension());
     return tsr_->distanceWorldState(x);
 }
 
-const StateSpace::StateType *TSRGoal::getStateConst(const ompl::base::State *state) const
+///
+/// JointRegionGoal
+///
+
+JointRegionGoal::JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &state,
+                                 double tolerance)
+  : JointRegionGoal(builder,                                                     //
+                    state - Eigen::VectorXd::Constant(state.size(), tolerance),  //
+                    state + Eigen::VectorXd::Constant(state.size(), tolerance))
 {
-    if (constrained_)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
-    else
-        return state->as<StateSpace::StateType>();
 }
 
-StateSpace::StateType *TSRGoal::getState(ompl::base::State *state) const
+JointRegionGoal::JointRegionGoal(const PlanBuilder &builder, const Eigen::Ref<const Eigen::VectorXd> &lower,
+                                 const Eigen::Ref<const Eigen::VectorXd> &upper)
+  : ompl::base::GoalSampleableRegion(builder.info)
+  , ConstraintExtractor(builder.info)
+  , lower_(si_->allocState())
+  , upper_(si_->allocState())
 {
-    if (constrained_)
-        return state->as<ompl::base::ConstrainedStateSpace::StateType>()
-            ->getState()
-            ->as<StateSpace::StateType>();
-    else
-        return state->as<StateSpace::StateType>();
+    if (lower.size() != upper.size())
+        throw std::runtime_error("Bound size mismatch!");
+
+    if (builder.space->getDimension() != lower.size())
+        throw std::runtime_error("Bound size mismatch!");
+
+    toState(lower_)->data = lower;
+    toState(upper_)->data = upper;
 }
 
-const StateSpace *TSRGoal::getSpace() const
+JointRegionGoal::~JointRegionGoal()
 {
-    return (constrained_ ? si_->getStateSpace()->as<ompl::base::ConstrainedStateSpace>()->getSpace() :
-                           si_->getStateSpace())
-        ->as<StateSpace>();
+    si_->freeState(lower_);
+    si_->freeState(upper_);
+}
+
+void JointRegionGoal::sampleGoal(ompl::base::State *state) const
+{
+    auto &s = toState(state)->data;
+    const auto &l = toStateConst(lower_)->data;
+    const auto &u = toStateConst(upper_)->data;
+
+    for (int i = 0; i < l.size(); ++i)
+        s[i] = rng_.uniformReal(l[i], u[i]);
+}
+
+unsigned int JointRegionGoal::maxSampleCount() const
+{
+    return std::numeric_limits<unsigned int>::max();
+}
+
+double JointRegionGoal::distanceGoal(const ompl::base::State *state) const
+{
+    const auto &s = toStateConst(state)->data;
+    const auto &l = toStateConst(lower_)->data;
+    const auto &u = toStateConst(upper_)->data;
+
+    const auto &ss = std::dynamic_pointer_cast<StateSpace>(si_->getStateSpace());
+
+    double d = 0.;
+    for (int i = 0; i < l.size(); ++i)
+    {
+        const auto &joint = ss->getJoint(i);
+        const auto &sv = joint->getSpaceVarsConst(s);
+        const auto &lv = joint->getSpaceVarsConst(l);
+        const auto &uv = joint->getSpaceVarsConst(u);
+
+        if (sv[0] < lv[0])
+            d += joint->distance(sv, lv);
+        if (sv[0] > uv[0])
+            d += joint->distance(sv, uv);
+    }
+
+    return d;
 }
 
 ///
@@ -175,8 +279,25 @@ void PlanBuilder::getStartFromMessage(const std::string &robot_name,
     setStartConfigurationFromWorld();
 }
 
-TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
-                                              const moveit_msgs::PositionConstraint &msg) const
+JointRegionGoalPtr
+PlanBuilder::fromJointConstraints(const std::vector<moveit_msgs::JointConstraint> &msgs) const
+{
+    std::size_t n = rspace->getDimension();
+    Eigen::VectorXd lower(n);
+    Eigen::VectorXd upper(n);
+
+    for (const auto &msg : msgs)
+    {
+        const auto &joint = rspace->getJoint(msg.joint_name);
+        joint->getSpaceVars(lower)[0] = msg.position - msg.tolerance_below;
+        joint->getSpaceVars(upper)[0] = msg.position + msg.tolerance_above;
+    }
+
+    return std::make_shared<JointRegionGoal>(*this, lower, upper);
+}
+
+TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
+                                           const moveit_msgs::PositionConstraint &msg) const
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -221,8 +342,8 @@ TSRPtr PlanBuilder::TSRfromPositionConstraint(const std::string &robot_name,
     return std::make_shared<TSR>(world, spec);
 }
 
-TSRPtr PlanBuilder::TSRfromOrientationConstraint(const std::string &robot_name,
-                                                 const moveit_msgs::OrientationConstraint &msg) const
+TSRPtr PlanBuilder::fromOrientationConstraint(const std::string &robot_name,
+                                              const moveit_msgs::OrientationConstraint &msg) const
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -243,9 +364,9 @@ void PlanBuilder::getPathConstraintsFromMessage(const std::string &robot_name,
                                                 const moveit_msgs::MotionPlanRequest &msg)
 {
     for (const auto &constraint : msg.path_constraints.position_constraints)
-        addConstraint(TSRfromPositionConstraint(robot_name, constraint));
+        addConstraint(fromPositionConstraint(robot_name, constraint));
     for (const auto &constraint : msg.path_constraints.orientation_constraints)
-        addConstraint(TSRfromOrientationConstraint(robot_name, constraint));
+        addConstraint(fromOrientationConstraint(robot_name, constraint));
 }
 
 ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_name,
@@ -254,9 +375,12 @@ ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_nam
     // TODO get other goals as well
     std::vector<TSRPtr> tsrs;
     for (const auto &constraint : msg.goal_constraints[0].position_constraints)
-        tsrs.emplace_back(TSRfromPositionConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromPositionConstraint(robot_name, constraint));
     for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
-        tsrs.emplace_back(TSRfromOrientationConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromOrientationConstraint(robot_name, constraint));
+
+    if (tsrs.empty())
+        return fromJointConstraints(msg.goal_constraints[0].joint_constraints);
 
     return getGoalTSR(tsrs);
 }
@@ -307,7 +431,7 @@ void PlanBuilder::sampleStartConfiguration()
     if (space)
     {
         auto state = sampleState();
-        setStartConfiguration(getState(state)->data);
+        setStartConfiguration(toState(state)->data);
         space->freeState(state);
     }
 }
@@ -326,7 +450,7 @@ PlanBuilder::getGoalConfiguration(const Eigen::Ref<const Eigen::VectorXd> &q)
         throw std::runtime_error("Builder must be initialized before creating goal!");
 
     ompl::base::ScopedState<> goal_state(space);
-    getState(goal_state.get())->data = q;
+    toState(goal_state.get())->data = q;
 
     auto goal = std::make_shared<ompl::base::GoalStates>(info);
     goal->addState(goal_state);
@@ -357,7 +481,7 @@ std::shared_ptr<ompl::base::GoalStates> PlanBuilder::sampleGoalConfiguration()
     if (space)
     {
         auto state = sampleState();
-        auto goal = getGoalConfiguration(getState(state)->data);
+        auto goal = getGoalConfiguration(toState(state)->data);
         space->freeState(state);
 
         return goal;
@@ -380,12 +504,14 @@ void PlanBuilder::initialize()
         initializeUnconstrained();
     else
         initializeConstrained();
+
+    setSpaceInformation(info);
 }
 
 void PlanBuilder::setup()
 {
     ompl::base::ScopedState<> start_state(space);
-    getState(start_state.get())->data = start;
+    toState(start_state.get())->data = start;
     ss->setStartState(start_state);
     if (not goal_)
         throw std::runtime_error("No goal setup in PlanBuilder!");
@@ -427,39 +553,6 @@ void PlanBuilder::initializeUnconstrained()
     rinfo = info = ss->getSpaceInformation();
 }
 
-StateSpace::StateType *PlanBuilder::getState(ompl::base::State *state) const
-{
-    if (constraint)
-        return getFromConstrainedState(state);
-    else
-        return getFromUnconstrainedState(state);
-}
-
-const StateSpace::StateType *PlanBuilder::getStateConst(const ompl::base::State *state) const
-{
-    return getState(const_cast<ompl::base::State *>(state));
-}
-
-StateSpace::StateType *PlanBuilder::getFromConstrainedState(ompl::base::State *state) const
-{
-    return state->as<ompl::base::ConstrainedStateSpace::StateType>()->getState()->as<StateSpace::StateType>();
-}
-
-const StateSpace::StateType *PlanBuilder::getFromConstrainedStateConst(const ompl::base::State *state) const
-{
-    return getFromConstrainedState(const_cast<ompl::base::State *>(state));
-}
-
-StateSpace::StateType *PlanBuilder::getFromUnconstrainedState(ompl::base::State *state) const
-{
-    return state->as<StateSpace::StateType>();
-}
-
-const StateSpace::StateType *PlanBuilder::getFromUnconstrainedStateConst(const ompl::base::State *state) const
-{
-    return getFromUnconstrainedState(const_cast<ompl::base::State *>(state));
-}
-
 ompl::base::State *PlanBuilder::sampleState() const
 {
     if (space)
@@ -483,8 +576,8 @@ ompl::base::State *PlanBuilder::sampleState() const
 
         return state;
     }
-    else
-        return nullptr;
+
+    return nullptr;
 }
 
 void PlanBuilder::setStateValidityChecker()
@@ -493,7 +586,7 @@ void PlanBuilder::setStateValidityChecker()
     {
         // ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
         ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-            auto as = getStateConst(state);
+            auto as = toStateConst(state);
 
             world->lock();
             rspace->setWorldState(world, as);
@@ -507,7 +600,7 @@ void PlanBuilder::setStateValidityChecker()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = getFromUnconstrainedStateConst(state);
+        auto as = fromUnconstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);
@@ -520,7 +613,7 @@ ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCConstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = getFromConstrainedStateConst(state);
+        auto as = fromConstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);

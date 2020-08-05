@@ -7,26 +7,10 @@ RUN apt-get update && \
     apt-add-repository ppa:dartsim/ppa && \
     apt-get update && \
     apt-get install -y \
-      build-essential  \
-      wget \
-      pkg-config \
-      python-catkin-tools \ 
-      castxml \
-      cmake \
-      libboost-all-dev \
-      libeigen3-dev \
-      libexpat1 \
-      libflann-dev \
-      libode-dev \
-      libtinfo5 \
-      libtriangle-dev \
-      python3-dev \
-      python3-numpy \
-      python3-pip \
-      libyaml-cpp-dev \
-      libhdf5-dev \
+      build-essential wget pkg-config python-catkin-tools cmake \
+      libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
+      ros-${ROS_DISTRO}-geometry \
       ros-${ROS_DISTRO}-moveit \
-      ros-${ROS_DISTRO}-fetch-ros \
       libdart6-all-dev
 
 # Setup Catkin Workspace

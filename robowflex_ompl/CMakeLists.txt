@@ -14,15 +14,15 @@ include(HelperFunctions)
 find_package(Boost REQUIRED COMPONENTS serialization)
 
 find_package(catkin QUIET COMPONENTS
-  moveit_planners_ompl
   robowflex_library
+  moveit_planners_ompl
 )
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS
-    moveit_planners_ompl
     robowflex_library
+    moveit_planners_ompl
   DEPENDS
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )

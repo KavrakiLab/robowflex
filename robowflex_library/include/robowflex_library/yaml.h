@@ -48,6 +48,7 @@
 #include <moveit_msgs/OrientationConstraint.h>
 #include <moveit_msgs/VisibilityConstraint.h>
 #include <moveit_msgs/TrajectoryConstraints.h>
+#include <moveit_msgs/RobotTrajectory.h>
 #include <moveit_msgs/Constraints.h>
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/AttachedCollisionObject.h>

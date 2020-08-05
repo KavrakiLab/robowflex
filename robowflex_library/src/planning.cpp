@@ -1,7 +1,9 @@
+/* Author: Zachary Kingston */
+
 #include <robowflex_library/io.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
 
 using namespace robowflex;
 
@@ -24,9 +26,11 @@ const std::string &Planner::getName() const
     return name_;
 }
 
-void Planner::preRun(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+void Planner::preRun(const SceneConstPtr & /*scene*/,
+                     const planning_interface::MotionPlanRequest & /*request*/)
 {
 }
+
 ///
 /// PoolPlanner
 ///
@@ -65,7 +69,7 @@ planning_interface::MotionPlanResponse PoolPlanner::plan(const SceneConstPtr &sc
     return job->get();
 }
 
-const std::vector<std::string> PoolPlanner::getPlannerConfigs() const
+std::vector<std::string> PoolPlanner::getPlannerConfigs() const
 {
     return planners_.front()->getPlannerConfigs();
 }
@@ -196,7 +200,7 @@ bool OMPL::OMPLPipelinePlanner::initialize(const std::string &config_file, const
     return true;
 }
 
-const std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
+std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
 {
     return configs_;
 }

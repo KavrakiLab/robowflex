@@ -2,17 +2,17 @@
 
 #include <tinyxml2.h>
 
-#include <dart/dynamics/Joint.hpp>
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/DegreeOfFreedom.hpp>
+#include <dart/dynamics/Joint.hpp>
 
-#include <robowflex_library/tf.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/robot.h>
+#include <robowflex_library/tf.h>
 
+#include <robowflex_dart/acm.h>
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>
-#include <robowflex_dart/acm.h>
 
 using namespace robowflex::darts;
 
@@ -408,7 +408,7 @@ const Robot::NamedStatesMap &Robot::getNamedGroupStates() const
     return group_states_;
 }
 
-std::vector<std::string> Robot::getNamedGroupStates(const std::string &group) const
+std::vector<std::string> Robot::getNamedGroupStates(const std::string & /*group*/) const
 {
     std::vector<std::string> names;
     for (const auto &group : group_states_)
@@ -432,11 +432,11 @@ bool Robot::getNamedGroupState(const std::string &group, const std::string &name
             q = it->second;
             return true;
         }
-        else
-            return false;
-    }
-    else
+
         return false;
+    }
+
+    return false;
 }
 
 void Robot::setNamedGroupState(const std::string &group, const std::string &name,
@@ -488,6 +488,11 @@ void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
     for (std::size_t i = 0; i < skeleton_->getNumJoints(); ++i)
     {
         auto joint = skeleton_->getJoint(i);
+
+        // ignore fixed joints
+        if (joint->getNumDofs() == 0)
+            continue;
+
         auto j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
         if (j)
         {

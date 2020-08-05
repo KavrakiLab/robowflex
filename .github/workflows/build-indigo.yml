@@ -1,4 +1,4 @@
-name: Build
+name: Build Indigo
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
       - "**/*.cpp"
       - "**/*.h"
       - "**/CMakeLists.txt"
+      - "**/package.xml"
   pull_request:
     branches: [ master ]
     paths:
@@ -15,7 +16,7 @@ on:
       - "**/CMakeLists.txt"
 
 jobs:
-  build:
+  build-indigo:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +27,4 @@ jobs:
       uses: satackey/action-docker-layer-caching@v0.0.3
 
     - name: Compile Docker Container
-      run: docker build -t robowflex .
+      run: ./.docker/indigo/build-indigo.sh
