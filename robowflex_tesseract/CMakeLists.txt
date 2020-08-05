@@ -47,7 +47,7 @@ if (tesseract_planning_DIR)
   link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
 
   add_library(${LIBRARY_NAME}
-    src/tesseract_planners.cpp
+    #src/tesseract_planners.cpp
     src/conversions.cpp
     src/trajopt_planner.cpp
     )
