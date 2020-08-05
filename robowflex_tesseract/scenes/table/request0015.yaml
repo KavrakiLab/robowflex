@@ -1,0 +1,33 @@
+start_state:
+  joint_state:
+    position: [-0.001277227152126414, 0.0001591712021191682, 0.38615, 0.1997121599872327, 9.167963233025489e-07, 0.00239999135199831, 1.320000325678876, 1.399982003624269, -0.1999873541031691, 1.719970737269598, 6.24408193594661e-07, 1.660002421607692, 1.648052769809283e-07, 0.04986503088405118, 0.04989182400407743]
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+goal_constraints:
+  - joint_constraints:
+      - position: -0.05999967432112396
+        joint_name: shoulder_pan_joint
+      - joint_name: shoulder_lift_joint
+        position: 1.318811051397544
+      - joint_name: upperarm_roll_joint
+        position: 1.632805177531972
+      - joint_name: elbow_flex_joint
+        position: 1.414688974538704
+      - joint_name: forearm_roll_joint
+        position: 1.798621613593038
+      - joint_name: wrist_flex_joint
+        position: 1.41379285652637
+      - joint_name: wrist_roll_joint
+        position: 1.712432635063788
+max_velocity_scaling_factor: 0
+max_acceleration_scaling_factor: 0
+planner_id: RRTConnectkConfigDefault
+group_name: arm
+num_planning_attempts: 3
+allowed_planning_time: 10
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""

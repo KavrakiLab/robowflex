@@ -377,7 +377,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Loop Animation: true
+      Loop Animation: false
       Name: Trajectory
       Robot Alpha: 0.5
       Robot Color: 150; 50; 150

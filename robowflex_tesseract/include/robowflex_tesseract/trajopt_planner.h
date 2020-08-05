@@ -182,7 +182,7 @@ namespace robowflex
          *  \param[in] link Link that will be constrained to be in \a start_pose in the first waypoint.
          *  \param[out] pci Pointer to problem construction info with start pose constraint added.
          */
-        void addStartPose(const Eigen::Isometry3d &start_pose, const std::string &link, 
+        void addStartPose(const robowflex::RobotPose &start_pose, const std::string &link, 
                           std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
         
         /** \brief Adds a (joint) configuration constraint in the last waypoint taken from \a request.
@@ -242,7 +242,7 @@ namespace robowflex
          *  \param[in] manip_state Tesseract manipulator state to be transformed.
          *  \param[out] robot_state Robot state representing \a manip_state.
          */
-        void manipStateToRobotState(const Eigen::VectorXd &manip_state, 
+        void manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state, 
                                     robot_state::RobotStatePtr &robot_state);
         
         RobotConstPtr robot_;                                                       ///< Robot to plan for.

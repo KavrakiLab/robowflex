@@ -1,27 +1,27 @@
+workspace_parameters:
+  min_corner: [-1, -1, -1]
+  max_corner: [1, 1, 1]
+  header:
+    frame_id: ""
 goal_constraints:
   - joint_constraints:
       - joint_name: shoulder_pan_joint
-        position: 1.500000485320851
+        position: 1.490000377797189
       - joint_name: shoulder_lift_joint
-        position: 1.410812771165231
-      - position: -2.037293457947999
-        joint_name: upperarm_roll_joint
+        position: 1.432220980697956
+      - joint_name: upperarm_roll_joint
+        position: -2.072693879175753
       - joint_name: elbow_flex_joint
-        position: 1.387639185570136
+        position: 1.375755957264359
       - joint_name: forearm_roll_joint
-        position: 1.174934052816303
+        position: 1.176247623042664
       - joint_name: wrist_flex_joint
-        position: 0.4312499402695538
+        position: 0.4589099129201651
       - joint_name: wrist_roll_joint
-        position: 1.848476317502751
-workspace_parameters:
-  max_corner: [1, 1, 1]
-  min_corner: [-1, -1, -1]
-  header:
-    frame_id: ""
+        position: 1.87369060482036
 start_state:
   joint_state:
-    position: [-0.0009518538451507297, 0.0001757692783046494, 0.38615, 0.1997121599803576, 9.173114827731865e-07, 0.002399991291448522, 1.320000485320851, 1.399982003902508, -0.1999873555944962, 1.71997073744949, 6.244226264939812e-07, 1.660002421600013, 1.649343692733396e-07, 0.04986095845803913, 0.04988775153993333]
+    position: [-0.001149847328147047, 0.0001667136396248381, 0.38615, 0.1997121599871358, 9.123928403909076e-07, 0.002399990881484015, 1.320000377797189, 1.399982003709458, -0.1999873523358149, 1.719970737427071, 6.244020820389551e-07, 1.660002421613451, 1.645909861736072e-07, 0.04996087431705216, 0.04998766739959514]
     header:
       frame_id: base_link
     name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]

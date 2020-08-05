@@ -1,7 +1,7 @@
 base_pose: [0.85, 0, 0]
 base_var: [0.0, 0.0, 0.0]
 cans_var: [0.0, 0.0, 0]
-end: 5
+end: 20
 interactive: true
 moveit_planning_group: arm
 num_threads: 3

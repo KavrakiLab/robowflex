@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     std::string dataset = ros::package::getPath("robowflex_tesseract")+"/scenes/table";
     std::string manipulator = "arm_chain";
     int start = 1;
-    int end = 5;
+    int end = 20;
     int num_waypoints = 15;
     bool solve = true;
     bool file_write_cb = false;
