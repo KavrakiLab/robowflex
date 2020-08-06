@@ -1,8 +1,9 @@
+name: (noname)+
 robot_model_name: fetch
 robot_state:
   joint_state:
-    position: [-0.001308397672999284, 0.0001577192445640918, 0.3861500002733643, 0.1997121599825974, 9.051586848940474e-07, 0.002399991020123338, 1.320000313801001, 1.399982003948809, -0.1999873540152484, 1.719970737386632, 6.243945875894497e-07, 1.660002421364997, 1.645228673297083e-07, 0.04989890999940272, 0.04992570305665357]
     name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+    position: [0.002736157049159083, 0.0002133350109660981, 0.3861500002531973, 0.199712159926346, 9.021643503359655e-07, 0.002399986836794987, 1.320000168353419, 1.399982004333469, -0.1999873538521619, 1.719970737343814, 6.244840040636745e-07, 1.660002421305583, 1.645108405057272e-07, 0.04992355917736799, 0.04995035225437611]
     header:
       frame_id: base_link
 world:
@@ -14,17 +15,17 @@ world:
         - type: cylinder
           dimensions: [0.12, 0.03]
       primitive_poses:
-        - position: [0.6458215844040592, 0.2997347329991313, 0.7892610087375751]
-          orientation: [0.001785768666009734, -0.002322847630758426, 1.948679175724737e-05, 0.9999957075054976]
-    - primitive_poses:
-        - position: [0.7499990901388091, 3.650923649113943e-06, 0.8395745386930096]
-          orientation: [-1.689829830844306e-05, -1.879662741147472e-06, 3.316861889792556e-10, 0.9999999998554572]
-      header:
-        frame_id: base_link
-      id: Cube
+        - position: [0.6497882550738878, 0.2997994822607549, 0.7893448401417202]
+          orientation: [0.001353898495333609, -0.001413108856428444, 1.868067485439867e-05, 0.9999980848647944]
+    - id: Cube
       primitives:
         - type: box
           dimensions: [0.25, 0.25, 0.25]
+      primitive_poses:
+        - orientation: [-3.194265395085074e-05, -3.248834446197789e-06, 1.219869616290634e-06, 0.9999999994838119]
+          position: [0.68747079732804, 8.260266499916291e-06, 0.8390187664542557]
+      header:
+        frame_id: base_link
     - header:
         frame_id: base_link
       id: table_bottom
@@ -32,17 +33,17 @@ world:
         - type: box
           dimensions: [0.9, 1.7, 0.04]
       primitive_poses:
-        - position: [1.049999847180155, -1.991183424473018e-07, 0.2452286231223312]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
-    - header:
+        - position: [1.04999949435958, 1.53283561707114e-06, 0.2452286235746035]
+          orientation: [3.99123033863343e-07, -3.058546506154718e-07, 1.219521275208308e-06, 0.9999999999991299]
+    - primitive_poses:
+        - position: [1.499997359981931, 0.8500025505272021, 0.3452295775581705]
+          orientation: [3.991938093709763e-07, -3.058821495572242e-07, 1.219521139781762e-06, 0.9999999999991299]
+      header:
         frame_id: base_link
       id: table_leg_left_back
       primitives:
         - type: box
           dimensions: [0.05, 0.05, 0.7]
-      primitive_poses:
-        - position: [1.499999785744747, 0.8499997212346194, 0.3452295765768948]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
     - header:
         frame_id: base_link
       id: table_leg_left_front
@@ -50,26 +51,26 @@ world:
         - type: box
           dimensions: [0.05, 0.05, 0.7]
       primitive_poses:
-        - position: [0.5999997857449152, 0.8499997209083116, 0.3452290264363331]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
-    - header:
+        - orientation: [3.991938093709763e-07, -3.058821495572242e-07, 1.219521139781762e-06, 0.9999999999991299]
+          position: [0.5999973599847764, 0.8500003553893702, 0.345229026969425]
+    - primitive_poses:
+        - position: [1.500001506354222, -0.8499974494671997, 0.3452282203004871]
+          orientation: [3.991938093709763e-07, -3.058821495572242e-07, 1.219521139781762e-06, 0.9999999999991299]
+      header:
         frame_id: base_link
       id: table_leg_right_back
       primitives:
         - type: box
           dimensions: [0.05, 0.05, 0.7]
-      primitive_poses:
-        - position: [1.499999786361936, -0.8500002787648396, 0.3452282198082283]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
-    - header:
+    - primitive_poses:
+        - position: [0.6000015063570666, -0.8499996446050315, 0.3452276697117416]
+          orientation: [3.991938093709763e-07, -3.058821495572242e-07, 1.219521139781762e-06, 0.9999999999991299]
+      header:
         frame_id: base_link
       id: table_leg_right_front
       primitives:
         - type: box
           dimensions: [0.05, 0.05, 0.7]
-      primitive_poses:
-        - position: [0.5999997863621039, -0.8500002790911474, 0.3452276696676665]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
     - header:
         frame_id: base_link
       id: table_top
@@ -77,9 +78,8 @@ world:
         - type: box
           dimensions: [1.2, 2, 0.04]
       primitive_poses:
-        - position: [1.049999572109874, -5.582629895915915e-07, 0.6952286231221038]
-          orientation: [3.99049607882707e-07, -3.056336453583631e-07, 1.814040570126792e-10, 0.9999999999998737]
-name: (noname)+
+        - position: [1.049999219090832, 1.173624550794539e-06, 0.6952286235743759]
+          orientation: [3.99123033863343e-07, -3.058546506154718e-07, 1.219521275208308e-06, 0.9999999999991299]
 fixed_frame_transforms:
   - transform:
       rotation: [0, 0, 0, 1]
@@ -87,120 +87,120 @@ fixed_frame_transforms:
     child_frame_id: base_link
     header:
       frame_id: base_link
-  - transform:
-      translation: [-0.8500000000027215, -2.935164559461015e-10, -0.004772538672791509]
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
-    child_frame_id: base_link
-    header:
+  - header:
       frame_id: map
-  - child_frame_id: base_link
     transform:
-      translation: [0, 0, 0]
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+      translation: [-0.850000352707359, -2.901793209813508e-06, -0.004772538293680612]
+    child_frame_id: base_link
+  - transform:
       rotation: [0, 0, 0, 1]
+      translation: [0, 0, 0]
+    child_frame_id: base_link
     header:
       frame_id: odom
-  - transform:
-      translation: [0.6458215840503105, 0.2997347328449823, 0.7892610090704754]
-      rotation: [0.001785768769663311, -0.002322847850748391, 1.948679911172057e-05, 0.9999957075048014]
-    header:
+  - header:
       frame_id: vicon/Can1/Can1
     child_frame_id: base_link
+    transform:
+      translation: [0.6497882554178216, 0.2997994824033123, 0.7893448398155666]
+      rotation: [0.001353898411564932, -0.001413108637377984, 1.868068122386347e-05, 0.9999980848652172]
   - header:
       frame_id: vicon/Cube/Cube
-    transform:
-      rotation: [-1.689819466688042e-05, -1.879882743017126e-06, 3.388846425700365e-10, 0.9999999998554585]
-      translation: [0.7499990897672399, 3.650760571681225e-06, 0.839574539009619]
     child_frame_id: base_link
-  - child_frame_id: base_link
-    header:
+    transform:
+      rotation: [-3.194280850813373e-05, -3.248587906980918e-06, 1.21987630771882e-06, 0.9999999994838078]
+      translation: [0.6874707977440664, 8.260537522921004e-06, 0.8390187661213628]
+  - header:
       frame_id: vicon/fetch/fetch
+    child_frame_id: base_link
     transform:
-      rotation: [5.281597655467921e-16, -8.604228440844963e-16, 4.544407276027716e-31, 1]
-      translation: [9.00390872971002e-14, 2.605937918713555e-13, -5.521659518503697e-12]
-  - child_frame_id: base_link
-    transform:
-      translation: [1.049999847070099, -1.991539005575191e-07, 0.2452286235709413]
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
-    header:
+      translation: [-1.110223024625157e-15, -2.480887504707329e-16, -2.444225377651321e-15]
+      rotation: [0, -3.962149091227536e-16, 0, 1]
+  - header:
       frame_id: vicon/table_bottom/table_bottom
+    child_frame_id: base_link
+    transform:
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+      translation: [1.049999494469073, 1.532892240764977e-06, 0.2452286231233607]
   - header:
       frame_id: vicon/table_leg_left_back/table_leg_left_back
-    transform:
-      translation: [1.499999785578447, 0.8499997211848146, 0.3452295773996973]
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
     child_frame_id: base_link
+    transform:
+      translation: [1.49999736014312, 0.8500025506564474, 0.3452295765618922]
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
   - header:
       frame_id: vicon/table_leg_left_front/table_leg_left_front
+    transform:
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+      translation: [0.5999973601459645, 0.8500003555065858, 0.345229026416918]
+    child_frame_id: base_link
+  - header:
+      frame_id: vicon/table_leg_right_back/table_leg_right_back
     child_frame_id: base_link
     transform:
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
-      translation: [0.5999997855786154, 0.8499997208455428, 0.3452290268631323]
-  - child_frame_id: base_link
-    transform:
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
-      translation: [1.499999786220124, -0.8500002788146436, 0.3452282202786493]
-    header:
-      frame_id: vicon/table_leg_right_back/table_leg_right_back
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+      translation: [1.500001506538132, -0.8499974493379544, 0.3452282198297024]
   - header:
       frame_id: vicon/table_leg_right_front/table_leg_right_front
     child_frame_id: base_link
     transform:
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
-      translation: [0.5999997862202928, -0.8500002791539156, 0.3452276697420844]
-  - child_frame_id: base_link
-    transform:
-      translation: [1.049999571801817, -5.583918251287034e-07, 0.6952286235707138]
-      rotation: [3.991532494477765e-07, -3.05853647074013e-07, 1.886064221468214e-10, 0.9999999999998735]
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+      translation: [0.6000015065409767, -0.8499996444878158, 0.3452276696847282]
+  - transform:
+      translation: [1.049999219397462, 1.173756578445956e-06, 0.6952286231231333]
+      rotation: [3.990392520681306e-07, -3.056356101241389e-07, 1.219527822809463e-06, 0.99999999999913]
+    child_frame_id: base_link
     header:
       frame_id: vicon/table_top/table_top
-  - header:
-      frame_id: vicon_object_server/Can1
-    child_frame_id: base_link
-    transform:
-      translation: [0.6458215840181968, 0.2997347329327674, 0.7892610090716873]
-      rotation: [0.001785768712283607, -0.002322847871855641, 1.948679697638996e-05, 0.9999957075048548]
-  - header:
-      frame_id: vicon_object_server/Cube
-    child_frame_id: base_link
-    transform:
-      translation: [0.7499990897567113, 3.650728443282572e-06, 0.8395745390197789]
-      rotation: [-1.689817797259329e-05, -1.879888989713394e-06, 3.365037981592839e-10, 0.9999999998554588]
   - child_frame_id: base_link
     transform:
-      translation: [1.049999847059566, -1.991304066410162e-07, 0.2452286236236073]
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
+      translation: [0.6497882554032324, 0.2997994824509342, 0.7893448398128875]
+      rotation: [0.001353898379218226, -0.001413108647550299, 1.868067869712926e-05, 0.9999980848652467]
+    header:
+      frame_id: vicon_object_server/Can1
+  - child_frame_id: base_link
+    transform:
+      rotation: [-3.1942832410342e-05, -3.24862312770911e-06, 1.219873641719937e-06, 0.9999999994838069]
+      translation: [0.6874707976846401, 8.260573798560367e-06, 0.8390187661831747]
+    header:
+      frame_id: vicon_object_server/Cube
+  - transform:
+      translation: [1.049999494464, 1.532902596046958e-06, 0.2452286231482137]
+      rotation: [3.990069091327496e-07, -3.056457794886708e-07, 1.219525236587951e-06, 0.99999999999913]
     header:
       frame_id: vicon_object_server/table_bottom
-  - header:
-      frame_id: vicon_object_server/table_leg_left_back
     child_frame_id: base_link
-    transform:
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
-      translation: [1.499999785567613, 0.8499997212177079, 0.3452295773738209]
-  - header:
-      frame_id: vicon_object_server/table_leg_left_front
-    child_frame_id: base_link
-    transform:
-      translation: [0.599999785567782, 0.8499997208825875, 0.3452290267992681]
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
   - child_frame_id: base_link
     transform:
-      translation: [1.499999786201449, -0.8500002787817508, 0.345228220447845]
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
+      translation: [1.499997360123007, 0.850002550664787, 0.3452295766403066]
+      rotation: [3.990153498415104e-07, -3.056708309340542e-07, 1.219525157776186e-06, 0.99999999999913]
     header:
+      frame_id: vicon_object_server/table_leg_left_back
+  - child_frame_id: base_link
+    transform:
+      rotation: [3.990069091327496e-07, -3.056457794886708e-07, 1.219525236587951e-06, 0.99999999999913]
+      translation: [0.599997360143254, 0.8500003555257377, 0.3452290263776356]
+    header:
+      frame_id: vicon_object_server/table_leg_left_front
+  - header:
       frame_id: vicon_object_server/table_leg_right_back
+    child_frame_id: base_link
+    transform:
+      rotation: [3.990153498415104e-07, -3.056708309340542e-07, 1.219525157776186e-06, 0.99999999999913]
+      translation: [1.500001506508958, -0.8499974493296146, 0.3452282199893845]
   - header:
       frame_id: vicon_object_server/table_leg_right_front
     child_frame_id: base_link
     transform:
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
-      translation: [0.5999997862016176, -0.8500002791168715, 0.3452276698732924]
-  - header:
-      frame_id: vicon_object_server/table_top
-    child_frame_id: base_link
+      translation: [0.6000015065118034, -0.8499996444746792, 0.3452276697810129]
+      rotation: [3.990153498415104e-07, -3.056708309340542e-07, 1.219525157776186e-06, 0.99999999999913]
+  - child_frame_id: base_link
     transform:
-      rotation: [3.99095875275435e-07, -3.058747514212224e-07, 1.863002252467063e-10, 0.9999999999998735]
-      translation: [1.04999957177229, -5.583166944460297e-07, 0.6952286236233796]
+      rotation: [3.990069091327496e-07, -3.056457794886708e-07, 1.219525236587951e-06, 0.99999999999913]
+      translation: [1.049999219383236, 1.17379604234259e-06, 0.6952286231479865]
+    header:
+      frame_id: vicon_object_server/table_top
 allowed_collision_matrix:
   entry_values:
     - [false, true, true, true, true, false, true, true, false, true, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]

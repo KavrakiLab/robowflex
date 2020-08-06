@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     int num_waypoints = 15;
     bool solve = true;
     bool file_write_cb = false;
-    bool use_ik_solution = true;
+    bool use_goal_state = false;
     bool use_straight_line_init = true;
 
     // Fetch robot
@@ -44,9 +44,7 @@ int main(int argc, char** argv)
     
     // RVIZ helper
     auto rviz = std::make_shared<IO::RVIZHelper>(fetch);
-    auto tol = Eigen::Vector3d{0.0001, 0.0001, 0.0001};
     auto region = robowflex::Geometry::makeBox(0.01, 0.01, 0.01);
-    auto rot = Eigen::Quaterniond{1, 0, 0, 0};
     auto color = Eigen::Vector4d{0.0, 0.0, 1.0, 1.0};
     auto scale = Eigen::Vector3d{0.1, 0.008, 0.008};
     
@@ -72,17 +70,26 @@ int main(int argc, char** argv)
         }
         rviz->updateScene(scene);
         
-        // Load request
-        auto frequest = dataset + "/request" + index + ".yaml";
-        auto request = std::make_shared<MotionRequestBuilder>(planner, planning_group);
-        if (!request->fromYAMLFile(frequest))
+        // Load pick request
+        auto fpick_request = dataset + "/pick_request" + index + ".yaml";
+        auto pick_request = std::make_shared<MotionRequestBuilder>(planner, planning_group);
+        if (!pick_request->fromYAMLFile(fpick_request))
         {
-            ROS_ERROR("Failed to read file: %s for request", frequest.c_str());
+            ROS_ERROR("Failed to read file: %s for request", fpick_request.c_str());
+            continue;
+        }
+        
+        // Load place request
+        auto fplace_request = dataset + "/place_request" + index + ".yaml";
+        auto place_request = std::make_shared<MotionRequestBuilder>(planner, planning_group);
+        if (!place_request->fromYAMLFile(fplace_request))
+        {
+            ROS_ERROR("Failed to read file: %s for request", fplace_request.c_str());
             continue;
         }
         
         // Add a marker to the pick_pose
-        auto pick_state = request->getGoalConfiguration();
+        auto pick_state = pick_request->getGoalConfiguration();
         auto pick_ee_pose = pick_state->getFrameTransform(ee);
         auto ndof = pick_state->getVariableCount();
         rviz->addArrowMarker("pick_pose", root_name, pick_ee_pose, color, scale);
@@ -95,14 +102,14 @@ int main(int argc, char** argv)
             rviz->visualizeState(pick_state);
             
             // Solve the pick problem using a Moveit-OMPL planner
-            auto res = planner->plan(scene, request->getRequest());
+            auto res = planner->plan(scene, pick_request->getRequest());
             if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
                 rviz->updateTrajectory(res);
         }
         else
         {
             // Read solution trajectory
-            auto fpath = dataset + "/path" + index + ".yaml";
+            auto fpath = dataset + "/pick_path" + index + ".yaml";
             moveit_msgs::RobotTrajectory traj;
             if (!IO::YAMLFileToMessage(traj, fpath))
             {
@@ -110,11 +117,11 @@ int main(int argc, char** argv)
                 continue;
             }
             
-            // Visualize goal state
+            // Visualize pick state
             rviz->visualizeState(pick_state);
             
             // Visualize trajectory
-            auto start_state = request->getStartConfiguration();
+            auto start_state = pick_request->getStartConfiguration();
             rviz->updateTrajectory(traj, *start_state);
         }
         
@@ -122,52 +129,58 @@ int main(int argc, char** argv)
         ROS_ERROR("Press enter to continue");
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         
-        // Solve Place problem using TrajOpt planner
-        
-        // Define initial state (as the goal state in the request)
-        double* pick_state_dbl = new double((int)ndof);
-        pick_state_dbl = pick_state->getVariablePositions();
-        std::unordered_map<std::string, double> pick_state_map;
-        for (int i=0;i<(int)ndof;i++)
-            pick_state_map[pick_state->getVariableNames()[i]] = pick_state_dbl[i];
-        
-        // Define final end-effector pose
-        Eigen::Isometry3d place_ee_pose = pick_ee_pose;
-        place_ee_pose.translation() += Eigen::Vector3d(0.0, -0.6, 0.0);
-        
-        // Add a marker to the goal_pose
-        rviz->addArrowMarker("goal_pose", root_name, place_ee_pose, color, scale);
+        // Add a marker to the place_pose
+        auto place_state = place_request->getGoalConfiguration();
+        auto place_ee_pose = place_state->getFrameTransform(ee);
+        rviz->addArrowMarker("place_pose", root_name, place_ee_pose, color, scale);
         rviz->updateMarkers();
-        scene->attachObject("Can1");
         
-        // Either use start/goal states or a start state and an end-effector goal pose
-        if (use_ik_solution)
+        // Solve Place problem using TrajOpt planner (or visualize a previously recorded trajectory)
+        if (solve)
         {
-            // Solve problem using IK query from the place pose
-            place_ee_pose.translation() += Eigen::Vector3d(-0.15, 0.0, 0.0);//Offset?
-            std::vector<double> pick_state_vct(pick_state_dbl, pick_state_dbl+(int)ndof);
-            fetch->setState(pick_state_vct);
-            if (!fetch->setFromIKCollisionAware(scene, planning_group, region, place_ee_pose, rot, tol))
-            {
-                ROS_ERROR("IK solution not found for the Place problem");
-                continue;
-            }
-            auto place_state = fetch->getScratchState();
+            // Visualize place state
             rviz->visualizeState(place_state);
             
-            // Initialize trajectory using a straight line in c-space
-            if (use_straight_line_init)
-                trajopt_planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
-            
-            // Solve the problem for an initial and a goal state
-            if (trajopt_planner->plan(scene, pick_state, place_state))
-                rviz->updateTrajectory(trajopt_planner->getTrajectory());
+            if (use_goal_state)
+            {
+                // Initialize trajectory using a straight line in c-space
+                if (use_straight_line_init)
+                    trajopt_planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
+                // Solve the place problem using TrajOpt
+                if (trajopt_planner->plan(scene, place_request))
+                    rviz->updateTrajectory(trajopt_planner->getTrajectory());
+            }
+            else
+            {
+                // Define initial state
+                double* pick_state_dbl = new double((int)ndof);
+                pick_state_dbl = pick_state->getVariablePositions();
+                std::unordered_map<std::string, double> pick_state_map;
+                for (int i=0;i<(int)ndof;i++)
+                    pick_state_map[pick_state->getVariableNames()[i]] = pick_state_dbl[i];
+                                
+                // Solve the problem using goal pose of the end effector
+                if (trajopt_planner->plan(scene, pick_state_map, place_ee_pose, ee))
+                    rviz->updateTrajectory(trajopt_planner->getTrajectory());
+            }
         }
         else
         {
-            // Solve the problem using goal pose of the end effector
-            if (trajopt_planner->plan(scene, pick_state_map, place_ee_pose, ee))
-                rviz->updateTrajectory(trajopt_planner->getTrajectory());
+            // Read solution trajectory
+            auto fpath = dataset + "/place_path" + index + ".yaml";
+            moveit_msgs::RobotTrajectory traj;
+            if (!IO::YAMLFileToMessage(traj, fpath))
+            {
+                ROS_ERROR("Failed to read file: %s for path", fpath.c_str());
+                continue;
+            }
+            
+            // Visualize place state
+            rviz->visualizeState(place_state);
+            
+            // Visualize trajectory
+            auto start_state = place_request->getStartConfiguration();
+            rviz->updateTrajectory(traj, *start_state);
         }
         
         ROS_INFO("Visualizing place state and trajectory");
