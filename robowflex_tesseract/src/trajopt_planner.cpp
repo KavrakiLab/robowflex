@@ -46,13 +46,13 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
         auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
         
-        // Add start state from request.
+        // Add start state.
         addStartState(start_state, pci);
         
         // Add collision costs to all waypoints in the trajectory.
         addCollisionAvoidance(pci);
             
-        // Add goal state from request.
+        // Add goal state.
         addGoalState(goal_state, pci);
     
         return solve(pci);
@@ -65,6 +65,8 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
                           const Eigen::Isometry3d &goal_pose, 
                           const std::string &link)
 {
+    //TODO: verify that link is part of the manipulator
+    //TODO: make start_state a RobotState
     if (init_type_ == trajopt::InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a goal_pose");
@@ -98,6 +100,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
                           const Eigen::Isometry3d &goal_pose, 
                           const std::string &goal_link)
 {
+    //TODO: verify that both links are part of the manipulator
     if (init_type_ == trajopt::InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a goal_pose");
@@ -170,7 +173,7 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<trajopt::ProblemConst
     collision->first_step = 0;
     collision->last_step = num_waypoints_ - 1;
     collision->gap = 1;
-    collision->info = trajopt::createSafetyMarginDataVector(pci->basic_info.n_steps, 0.025, 45);
+    collision->info = trajopt::createSafetyMarginDataVector(pci->basic_info.n_steps, 0.025, 50);
     pci->cost_infos.push_back(collision);
 }
 
@@ -395,11 +398,11 @@ void TrajOptPlanner::roboStateToManipState(const robot_state::RobotStatePtr &rob
     manip_state.clear();
     manip_state.resize(0);
     
-    // Extract the state to a raw vector
+    // Extract the state to a raw vector.
     double* raw_state_values = new double((int)robot_state->getVariableCount());
     raw_state_values = robot_state->getVariablePositions();
     
-    // Loop over manip joints and add their values to goal_state in the correct order
+    // Loop over manip joints and add their values to goal_state in the correct order.
     const auto &robot_state_joint_names = robot_state->getVariableNames();
     for (const auto &joint_name : env_->getManipulator(manip_)->getJointNames())
     {            
