@@ -9,6 +9,7 @@
 #include <trajopt/plot_callback.hpp>
 
 // TrajOptPlanner
+#include <robowflex_tesseract/conversions.h>
 #include <robowflex_tesseract/trajopt_planner.h>
 
 using namespace robowflex;
@@ -40,7 +41,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
                           const robot_state::RobotStatePtr &goal_state)
 {
     // Create the tesseract environment from the scene.
-    if (createTesseractEnvFromScene(scene))
+    if (hypercube::sceneToTesseractEnv(scene, env_))
     {
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
@@ -74,7 +75,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
     }
     
     // Create the tesseract environment from the scene.
-    if (createTesseractEnvFromScene(scene))
+    if (hypercube::sceneToTesseractEnv(scene, env_))
     {
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
@@ -108,7 +109,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
     }
     
     // Create the tesseract environment from the scene.
-    if (createTesseractEnvFromScene(scene))
+    if (hypercube::sceneToTesseractEnv(scene, env_))
     {
         // Fill in the problem construction info and initialization
         auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
@@ -131,9 +132,9 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
 void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_path)
 {
     file_write_cb_ = file_write_cb;
-    file_path_ = file_path + "/file_output.csv";
+    auto path = file_path + "/file_output.csv";
     stream_ptr_ = std::make_shared<std::ofstream>();
-    stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
+    stream_ptr_->open(path, std::ofstream::out | std::ofstream::trunc);
 }
 
 void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemConstructionInfo> &pci)
@@ -165,7 +166,6 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemCon
 
 void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<trajopt::ProblemConstructionInfo> &pci)
 {
-    //festd::shared_ptr<trajopt::CollisionTermInfo> collision(new trajopt::CollisionTermInfo);
     auto collision = std::make_shared<trajopt::CollisionTermInfo>();
     collision->name = "collision_cost";
     collision->term_type = trajopt::TT_COST;
@@ -231,9 +231,10 @@ void TrajOptPlanner::addGoalState(const MotionRequestBuilderPtr &request,
 void TrajOptPlanner::addGoalState(const robot_state::RobotStatePtr &goal_state, 
                                   std::shared_ptr<trajopt::ProblemConstructionInfo> &pci)
 {
+    const auto &manip_joint_names = env_->getManipulator(manip_)->getJointNames();
     // Transform (robot) goal_state to manip state.
     std::vector<double> goal_state_values;
-    roboStateToManipState(goal_state, goal_state_values);
+    hypercube::robotStateToManipState(goal_state, manip_joint_names, goal_state_values);
     
     // Add goal state as a joint constraint.
     addGoalState(goal_state_values, pci);
@@ -302,81 +303,6 @@ bool TrajOptPlanner::solve(const std::shared_ptr<trajopt::ProblemConstructionInf
     return false;
 }
 
-bool TrajOptPlanner::createTesseractEnvFromScene(const robowflex::SceneConstPtr &scene)
-{
-    if (env_->checkInitialized())
-    {
-        // Clear environment from scene objects.
-        env_->clearAttachableObjects();
-        env_->clearAttachedBodies();
-        
-        // Loop over collision objects in the scene.
-        const auto &scene_msg = scene->getMessage();
-        for (const auto &collision_object : scene_msg.world.collision_objects)
-        {
-            // Add collision and visual objects
-            tesseract_msgs::AttachableObject obj;
-            obj.name = collision_object.id;
-            obj.operation = tesseract_msgs::AttachableObject::ADD;
-
-            for (const shape_msgs::SolidPrimitive &primitive : collision_object.primitives)
-            {
-                obj.visual.primitives.emplace_back(primitive);
-                obj.collision.primitives.emplace_back(primitive);
-                std_msgs::Int32 cot;
-                cot.data = tesseract::CollisionObjectType::UseShapeType;
-                obj.collision.primitive_collision_object_types.emplace_back(cot);
-            }
-
-            for (const shape_msgs::Mesh &mesh : collision_object.meshes)
-            {
-                obj.visual.meshes.emplace_back(mesh);
-                obj.collision.meshes.emplace_back(mesh);
-            }
-
-            for (const shape_msgs::Plane &plane : collision_object.planes)
-            {
-                obj.visual.planes.emplace_back(plane);
-                obj.collision.planes.emplace_back(plane);
-            }
-
-            for (const geometry_msgs::Pose &pose : collision_object.primitive_poses)
-            {
-                obj.visual.primitive_poses.emplace_back(pose);
-                obj.collision.primitive_poses.emplace_back(pose);
-            }
-
-            for (const geometry_msgs::Pose &pose : collision_object.mesh_poses)
-            {
-                obj.visual.mesh_poses.emplace_back(pose);
-                obj.collision.mesh_poses.emplace_back(pose);
-            }
-
-            for (const geometry_msgs::Pose &pose : collision_object.plane_poses)
-            {
-                obj.visual.plane_poses.emplace_back(pose);
-                obj.collision.plane_poses.emplace_back(pose);
-            }
-
-            // Add collision object as attachable object.
-            auto ao = std::make_shared<tesseract::AttachableObject>();
-            tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
-            env_->addAttachableObject(ao);
-            
-            // Attach the object to the environment (to a parent frame).
-            tesseract::AttachedBodyInfo attached_body_info;
-            attached_body_info.object_name = collision_object.id;
-            attached_body_info.parent_link_name = robot_->getModelConst()->getRootLinkName();
-            attached_body_info.transform = Eigen::Isometry3d::Identity();
-            env_->attachBody(attached_body_info);
-        }
-        ROS_INFO("Tesseract environment successfully created");
-        return true;
-    }
-    ROS_ERROR("Tesseract environment not initialized");
-    return false;
-}
-
 void TrajOptPlanner::updateTrajFromTesseractRes(const tesseract::tesseract_planning::PlannerResponse &response)
 {
     for (int i=0;i<response.trajectory.rows();i++)
@@ -385,46 +311,9 @@ void TrajOptPlanner::updateTrajFromTesseractRes(const tesseract::tesseract_plann
         auto tmp_state = robot_->allocState();
         
         // Transform tesseract manip ith waypoint to robot state.
-        manipStateToRobotState(response.trajectory.row(i), tmp_state);
+        hypercube::manipStateToRobotState(response.trajectory.row(i), manip_, env_, tmp_state);
         
         // Add waypoint to trajectory.
         trajectory_->addSuffixWayPoint(tmp_state, 0.0);
     }
-}
-
-void TrajOptPlanner::roboStateToManipState(const robot_state::RobotStatePtr &robot_state, 
-                                           std::vector<double> &manip_state)
-{
-    manip_state.clear();
-    manip_state.resize(0);
-    
-    // Extract the state to a raw vector.
-    double* raw_state_values = new double((int)robot_state->getVariableCount());
-    raw_state_values = robot_state->getVariablePositions();
-    
-    // Loop over manip joints and add their values to goal_state in the correct order.
-    const auto &robot_state_joint_names = robot_state->getVariableNames();
-    for (const auto &joint_name : env_->getManipulator(manip_)->getJointNames())
-    {            
-        int index = std::distance(robot_state_joint_names.begin(),
-                                  std::find(robot_state_joint_names.begin(), 
-                                            robot_state_joint_names.end(), 
-                                            joint_name)
-                                 );
-        manip_state.push_back(raw_state_values[index]);
-    }
-}
-
-void TrajOptPlanner::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state, 
-                                            robot_state::RobotStatePtr &robot_state)
-{
-    // Initialize it with the env state (includes both group and non-group joints).
-    const auto &joint_values = env_->getCurrentJointValues();
-    std::vector<double> tmp_current_values(joint_values.data(), joint_values.data()+joint_values.size());
-    robot_state->setVariablePositions(env_->getJointNames(), tmp_current_values);
-    
-    // Set (only) group joints from tesseract waypoint.
-    const auto &joint_manip_names = env_->getManipulator(manip_)->getJointNames();
-    std::vector<double> tmp_group_values(manip_state.data(), manip_state.data()+manip_state.size());
-    robot_state->setVariablePositions(joint_manip_names, tmp_group_values);
 }

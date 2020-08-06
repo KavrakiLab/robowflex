@@ -47,7 +47,6 @@ if (tesseract_planning_DIR)
   link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
 
   add_library(${LIBRARY_NAME}
-    #src/tesseract_planners.cpp
     src/conversions.cpp
     src/trajopt_planner.cpp
     )
@@ -56,10 +55,7 @@ if (tesseract_planning_DIR)
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
   add_script(fetch_tabletop)
-  #add_script(tesseract_benchmark)
-  #add_script(ur5_tesseract)
-  #add_test(ur_test_env_placement)
-
+  
   install_scripts()
   install_tests()
   install_library()
