@@ -16,7 +16,7 @@
 
 using namespace robowflex;
 
-bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene, 
+bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
                                     tesseract::tesseract_ros::KDLEnvPtr &env)
 {
     if (env->checkInitialized())
@@ -24,7 +24,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
         // Clear environment from scene objects.
         env->clearAttachableObjects();
         env->clearAttachedBodies();
-        
+
         // Loop over collision objects in the scene.
         const auto &scene_msg = scene->getMessage();
         for (const auto &collision_object : scene_msg.world.collision_objects)
@@ -77,7 +77,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             auto ao = std::make_shared<tesseract::AttachableObject>();
             tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
             env->addAttachableObject(ao);
-            
+
             // Attach the object to the environment (to a parent frame).
             tesseract::AttachedBodyInfo attached_body_info;
             attached_body_info.object_name = collision_object.id;
@@ -96,42 +96,40 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
     // TODO: object_colors: should go somewhere in visual geometry colors.
 }
 
-void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_state, 
-                                      const std::vector<std::string> &manip_joint_names, 
-                                      std::vector<double> &manip_joint_values)
+void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_state,
+                                       const std::vector<std::string> &manip_joint_names,
+                                       std::vector<double> &manip_joint_values)
 {
     manip_joint_values.clear();
     manip_joint_values.resize(0);
-    
+
     // Extract the state to a raw vector.
-    double* raw_state_values = new double((int)robot_state->getVariableCount());
+    double *raw_state_values = new double((int)robot_state->getVariableCount());
     raw_state_values = robot_state->getVariablePositions();
-    
+
     // Loop over manip joints and add their values to goal_state in the correct order.
     const auto &robot_state_joint_names = robot_state->getVariableNames();
     for (const auto &joint_name : manip_joint_names)
-    {            
-        int index = std::distance(robot_state_joint_names.begin(),
-                                  std::find(robot_state_joint_names.begin(), 
-                                            robot_state_joint_names.end(), 
-                                            joint_name)
-                                 );
+    {
+        int index = std::distance(
+            robot_state_joint_names.begin(),
+            std::find(robot_state_joint_names.begin(), robot_state_joint_names.end(), joint_name));
         manip_joint_values.push_back(raw_state_values[index]);
     }
 }
 
-void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state, 
-                                       const std::string &manip, 
-                                       const tesseract::tesseract_ros::KDLEnvPtr &env, 
+void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state,
+                                       const std::string &manip,
+                                       const tesseract::tesseract_ros::KDLEnvPtr &env,
                                        robot_state::RobotStatePtr &robot_state)
 {
     // Initialize it with the env state (includes both group and non-group joints).
     const auto &joint_values = env->getCurrentJointValues();
-    std::vector<double> tmp_current_values(joint_values.data(), joint_values.data()+joint_values.size());
+    std::vector<double> tmp_current_values(joint_values.data(), joint_values.data() + joint_values.size());
     robot_state->setVariablePositions(env->getJointNames(), tmp_current_values);
-    
+
     // Set (only) group joints from tesseract waypoint.
     const auto &joint_manip_names = env->getManipulator(manip)->getJointNames();
-    std::vector<double> tmp_group_values(manip_state.data(), manip_state.data()+manip_state.size());
+    std::vector<double> tmp_group_values(manip_state.data(), manip_state.data() + manip_state.size());
     robot_state->setVariablePositions(joint_manip_names, tmp_group_values);
 }
