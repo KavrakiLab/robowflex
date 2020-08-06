@@ -37,6 +37,24 @@ namespace robowflex
     class TrajOptPlanner
     {
     public:
+        
+        struct Options
+        {
+            double dt_lower_lim{2.0};
+            double dt_upper_lim{100.0};
+            bool start_fixed{false};
+            bool use_time{false};
+            double init_info_dt{0.5};
+            double joint_vel_coeffs{5.0};
+            int collision_gap{1};
+            double default_safety_margin{0.025};
+            double default_safety_margin_coeffs{50.0};
+            double pose_cnt_pos_coeffs{10.0};
+            double pose_cnt_rot_coeffs{10.0};
+            double joint_pos_cnt_coeffs{5.0};
+            double config_max_iter{100.0};
+        } options;
+        
         /** \brief Constructor.
          *  \param[in] robot Robot to plan for.
          *  \param[in] group_name Name of the (joint) group to plan for.

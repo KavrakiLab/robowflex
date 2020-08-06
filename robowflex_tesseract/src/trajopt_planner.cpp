@@ -141,12 +141,12 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemCon
     pci->kin = env_->getManipulator(manip_);
     pci->basic_info.n_steps = num_waypoints_;//
     pci->basic_info.manip = manip_;
-    pci->basic_info.dt_lower_lim = 2;    // 1/most time
-    pci->basic_info.dt_upper_lim = 100;  // 1/least time
-    pci->basic_info.start_fixed = true;
-    pci->basic_info.use_time = false;
+    pci->basic_info.dt_lower_lim = options.dt_lower_lim;
+    pci->basic_info.dt_upper_lim = options.dt_upper_lim;
+    pci->basic_info.start_fixed = options.start_fixed;
+    pci->basic_info.use_time = options.use_time;
     pci->init_info.type = init_type_;
-    pci->init_info.dt = 0.5;
+    pci->init_info.dt = options.init_info_dt;
     if (init_type_ == trajopt::InitInfo::Type::GIVEN_TRAJ)
         pci->init_info.data = initial_trajectory_;
     
@@ -155,7 +155,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemCon
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<trajopt::JointVelTermInfo>();
     jv->targets = std::vector<double>(pci->kin->numJoints(), 0.0);
-    jv->coeffs = std::vector<double>(pci->kin->numJoints(), 5.0);
+    jv->coeffs = std::vector<double>(pci->kin->numJoints(), options.joint_vel_coeffs);
     jv->term_type = trajopt::TT_COST;
     jv->first_step = 0;
     jv->last_step = num_waypoints_ - 1;
@@ -172,8 +172,8 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<trajopt::ProblemConst
     collision->continuous = cont_cc_;
     collision->first_step = 0;
     collision->last_step = num_waypoints_ - 1;
-    collision->gap = 1;
-    collision->info = trajopt::createSafetyMarginDataVector(pci->basic_info.n_steps, 0.025, 50);
+    collision->gap = options.collision_gap;
+    collision->info = trajopt::createSafetyMarginDataVector(pci->basic_info.n_steps, options.default_safety_margin, options.default_safety_margin_coeffs);
     pci->cost_infos.push_back(collision);
 }
 
@@ -215,8 +215,8 @@ void TrajOptPlanner::addStartPose(const Eigen::Isometry3d &start_pose, const std
     pose_constraint->timestep = 0;
     pose_constraint->xyz = start_pose.translation();
     pose_constraint->wxyz = Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
-    pose_constraint->pos_coeffs = Eigen::Vector3d(10.0, 10.0, 10.0);
-    pose_constraint->rot_coeffs = Eigen::Vector3d(10.0, 10.0, 10.0);
+    pose_constraint->pos_coeffs = Eigen::Vector3d::Constant(options.pose_cnt_pos_coeffs);
+    pose_constraint->rot_coeffs = Eigen::Vector3d::Constant(options.pose_cnt_rot_coeffs);
     pose_constraint->name = "start_pose_cnt_link_" + link;
     pci->cnt_infos.push_back(pose_constraint);
 }
@@ -245,7 +245,7 @@ void TrajOptPlanner::addGoalState(const std::vector<double> goal_state,
     auto joint_pos_constraint = std::make_shared<trajopt::JointPosTermInfo>();
     joint_pos_constraint->term_type = trajopt::TT_CNT;
     joint_pos_constraint->name = "goal_state_cnt";
-    joint_pos_constraint->coeffs = std::vector<double>(pci->kin->numJoints(), 5.0);
+    joint_pos_constraint->coeffs = std::vector<double>(pci->kin->numJoints(), options.joint_pos_cnt_coeffs);
     joint_pos_constraint->targets = goal_state;
     joint_pos_constraint->first_step = num_waypoints_-1;
     joint_pos_constraint->last_step = num_waypoints_-1;
@@ -265,8 +265,8 @@ void TrajOptPlanner::addGoalPose(const robowflex::RobotPose &goal_pose, const st
     pose_constraint->timestep = num_waypoints_-1;
     pose_constraint->xyz = goal_pose.translation();
     pose_constraint->wxyz = Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
-    pose_constraint->pos_coeffs = Eigen::Vector3d(10.0, 10.0, 10.0);
-    pose_constraint->rot_coeffs = Eigen::Vector3d(10.0, 10.0, 10.0);
+    pose_constraint->pos_coeffs = Eigen::Vector3d::Constant(options.pose_cnt_pos_coeffs);
+    pose_constraint->rot_coeffs = Eigen::Vector3d::Constant(options.pose_cnt_rot_coeffs);
     pose_constraint->name = "goal_pose_cnt_link_" + link;
     pci->cnt_infos.push_back(pose_constraint);
 }
@@ -276,7 +276,7 @@ bool TrajOptPlanner::solve(const std::shared_ptr<trajopt::ProblemConstructionInf
     // TrajOpt problem and optimizer parameters
     trajopt::TrajOptProbPtr prob = ConstructProblem(*pci);
     tesseract::tesseract_planning::TrajOptPlannerConfig config(prob);
-    config.params.max_iter = 100;
+    config.params.max_iter = options.config_max_iter;
     if (file_write_cb_)
         config.callbacks.push_back(trajopt::WriteCallback(stream_ptr_, prob));
     
