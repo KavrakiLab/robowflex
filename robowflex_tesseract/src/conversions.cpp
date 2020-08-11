@@ -1,8 +1,4 @@
-/* Author: Bryce Willey */
-/* Modified by: Carlos Quintero 08/06/2020
- * Added: robotStateToManipState(), manipStateToRobotState()
- * Modified: sceneToTesseractEnv
- */
+/* Author: Carlos Quintero, Bryce Willey */
 
 // Robowflex
 #include <robowflex_library/scene.h>
@@ -85,9 +81,11 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             attached_body_info.transform = Eigen::Isometry3d::Identity();
             env->attachBody(attached_body_info);
         }
+        
         ROS_INFO("Tesseract environment successfully created");
         return true;
     }
+    
     ROS_ERROR("Tesseract environment not initialized");
     return false;
     // TODO: fixed_frame_transforms?
@@ -104,8 +102,7 @@ void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_s
     manip_joint_values.resize(0);
 
     // Extract the state to a raw vector.
-    double *raw_state_values = new double((int)robot_state->getVariableCount());
-    raw_state_values = robot_state->getVariablePositions();
+    double *raw_state_values = robot_state->getVariablePositions();
 
     // Loop over manip joints and add their values to goal_state in the correct order.
     const auto &robot_state_joint_names = robot_state->getVariableNames();
