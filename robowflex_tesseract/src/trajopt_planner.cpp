@@ -1,5 +1,9 @@
 /* Author: Carlos Quintero */
 
+// MoveIt
+#include <moveit/robot_state/conversions.h>
+#include <moveit_msgs/MoveItErrorCodes.h>
+
 // Robowflex
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
@@ -14,9 +18,8 @@
 
 using namespace robowflex;
 
-TrajOptPlanner::TrajOptPlanner(const RobotConstPtr &robot, const std::string &group_name,
-                               const std::string &manip)
-  : robot_(robot), group_(group_name), manip_(manip)
+TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &planner_name, const std::string &group_name, const std::string &manip)
+  : Planner(robot, planner_name), group_(group_name), manip_(manip)
 {
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
     env_->init(robot_->getURDF(), robot_->getSRDF());
@@ -165,6 +168,52 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const Eigen::Isometry3d &s
     }
     
     return false;
+}
+
+planning_interface::MotionPlanResponse TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+{
+    // Extract goal state.
+    auto goal_state = robot_->allocState();
+    if (request.goal_constraints.size() != 1)
+        ROS_ERROR("Ambigous goal, %lu goal goal_constraints exist, returning default goal",
+                  request.goal_constraints.size());
+    if (request.goal_constraints[0].joint_constraints.empty())
+        ROS_ERROR("No joint constraints specified, returning default goal");
+
+    std::map<std::string, double> variable_map;
+    for (const auto &joint : request.goal_constraints[0].joint_constraints)
+        variable_map[joint.joint_name] = joint.position;
+
+    // Start state includes attached objects and values for the non-group links.
+    moveit::core::robotStateMsgToRobotState(request.start_state, *goal_state);
+    goal_state->setVariablePositions(variable_map);
+    goal_state->update(true);
+    
+    // Extract start state.
+    auto start_state = robot_->allocState();
+    moveit::core::robotStateMsgToRobotState(request.start_state, *start_state);
+    start_state->update(true);
+    
+    planning_interface::MotionPlanResponse res;
+    // Plan.
+    if (plan(scene, start_state, goal_state))
+    {
+        res.trajectory_ = trajectory_;
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    }
+    else
+    {
+        res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+    }
+    
+    return res;
+}
+
+std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
+{
+    std::vector<std::string> config;
+    config.push_back("trajopt");
+    return config;
 }
 
 void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_path)
