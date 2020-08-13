@@ -11,7 +11,8 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/yaml.h>
 #include <robowflex_ompl/ompl_interface.h>
-#include <robowflex_tesseract/trajopt_planner.h>
+//#include <robowflex_tesseract/trajopt_planner.h>
+#include <robowflex_library/builder.h>
 
 using namespace robowflex;
 int main(int argc, char **argv)
@@ -26,7 +27,7 @@ int main(int argc, char **argv)
     int start = 1;
     int end = 5;
     int num_waypoints = 15;
-    bool solve = true;
+    bool solve = false;
     bool file_write_cb = false;
     bool use_goal_state = false;
     bool use_straight_line_init = true;
@@ -47,9 +48,11 @@ int main(int argc, char **argv)
     const auto &scale = Eigen::Vector3d{0.1, 0.008, 0.008};
 
     // TrajOpt planner
-    auto trajopt_planner = std::make_shared<TrajOptPlanner>(fetch, planning_group, manipulator);
-    trajopt_planner->options.num_waypoints = num_waypoints;
+    //auto trajopt_planner = std::make_shared<TrajOptPlanner>(fetch, planning_group, manipulator);
+    /*trajopt_planner->options.num_waypoints = num_waypoints;
     trajopt_planner->setWriteFile(file_write_cb, IO::resolvePackage("package://robowflex_tesseract/scenes/table/"));
+    */
+    
 
     // Loop over recorded scenes and requests
     for (int i = start; i <= end; i++)
@@ -67,7 +70,8 @@ int main(int argc, char **argv)
             continue;
         }
         rviz->updateScene(scene);
-
+        
+        
         // Load pick request
         const auto &fpick_request = dataset + "/pick_request" + index + ".yaml";
         const auto &pick_request = std::make_shared<MotionRequestBuilder>(planner, planning_group);
@@ -77,6 +81,7 @@ int main(int argc, char **argv)
             continue;
         }
 
+        
         // Load place request
         const auto &fplace_request = dataset + "/place_request" + index + ".yaml";
         const auto &place_request = std::make_shared<MotionRequestBuilder>(planner, planning_group);
@@ -90,9 +95,11 @@ int main(int argc, char **argv)
         const auto &pick_state = pick_request->getGoalConfiguration();
         const auto &pick_ee_pose = pick_state->getFrameTransform(ee);
         
+        
         // Add a marker to the pick_pose
         rviz->addArrowMarker("pick_pose", root_name, pick_ee_pose, color, scale);
         rviz->updateMarkers();
+        
 
         // Solve Pick problem using OMPL planner (or visualize a previously recorded trajectory)
         if (solve)
@@ -123,11 +130,12 @@ int main(int argc, char **argv)
             const auto &start_state = pick_request->getStartConfiguration();
             rviz->updateTrajectory(traj, *start_state);
         }
-
+        
+        
         ROS_INFO("Visualizing pick state and trajectory");
         std::cout << "\033[1;32m<" << "Press Enter to continue" << ">\033[0m. " << std::endl;
         std::cin.ignore();
-        
+
         // Extract place state and ee pose from request
         const auto &place_state = place_request->getGoalConfiguration();
         const auto &place_ee_pose = place_state->getFrameTransform(ee);
@@ -144,15 +152,18 @@ int main(int argc, char **argv)
 
             if (use_goal_state)
             {
+                /*
                 // Initialize trajectory using a straight line in c-space
                 if (use_straight_line_init)
                     trajopt_planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
                 // Solve the place problem using TrajOpt
                 if (trajopt_planner->plan(scene, place_request))
                     rviz->updateTrajectory(trajopt_planner->getTrajectory());
+                */
             }
             else
             {
+                /*
                 // Define initial state
                 double *pick_state_dbl = pick_state->getVariablePositions();
                 std::unordered_map<std::string, double> pick_state_map;
@@ -162,6 +173,7 @@ int main(int argc, char **argv)
                 // Solve the problem using goal pose of the end effector
                 if (trajopt_planner->plan(scene, pick_state_map, place_ee_pose, ee))
                     rviz->updateTrajectory(trajopt_planner->getTrajectory());
+                */
             }
         }
         else
@@ -187,5 +199,7 @@ int main(int argc, char **argv)
         std::cout << "\033[1;32m<" << "Press Enter to continue" << ">\033[0m. " << std::endl;
         std::cin.ignore();
     }
+    
+    ros::spin();
     return 0;
 }
