@@ -80,7 +80,8 @@ const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
     return env_->getManipulator(manip_)->getJointNames();
 }
 
-planning_interface::MotionPlanResponse TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+planning_interface::MotionPlanResponse
+TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse res;
 
@@ -88,7 +89,7 @@ planning_interface::MotionPlanResponse TrajOptPlanner::plan(const SceneConstPtr 
     auto start_state = robot_->allocState();
     moveit::core::robotStateMsgToRobotState(request.start_state, *start_state);
     start_state->update(true);
-    
+
     // Extract goal state.
     auto goal_state = robot_->allocState();
     if (request.goal_constraints.size() != 1)
@@ -153,7 +154,8 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
     return false;
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state, const Eigen::Isometry3d &goal_pose, const std::string &link)
+bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
+                          const Eigen::Isometry3d &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
@@ -329,8 +331,8 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionIn
     collision->first_step = 0;
     collision->last_step = options.num_waypoints - 1;
     collision->gap = options.collision_gap;
-    collision->info = createSafetyMarginDataVector(
-        pci->basic_info.n_steps, options.default_safety_margin, options.default_safety_margin_coeffs);
+    collision->info = createSafetyMarginDataVector(pci->basic_info.n_steps, options.default_safety_margin,
+                                                   options.default_safety_margin_coeffs);
     pci->cost_infos.push_back(collision);
 }
 
@@ -436,7 +438,7 @@ bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
     TrajOptProbPtr prob = ConstructProblem(*pci);
     auto config = std::make_shared<tesseract::tesseract_planning::TrajOptPlannerConfig>(prob);
     setOptimizerParameters(config);
-    
+
     if (file_write_cb_)
     {
         if (!stream_ptr_->is_open())
@@ -483,7 +485,8 @@ void TrajOptPlanner::updateTrajFromTesseractRes(
     }
 }
 
-void TrajOptPlanner::setOptimizerParameters(std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const
+void TrajOptPlanner::setOptimizerParameters(
+    std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const
 {
     config->params.improve_ratio_threshold = options.improve_ratio_threshold;
     config->params.min_trust_box_size = options.min_trust_box_size;

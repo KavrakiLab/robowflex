@@ -94,7 +94,7 @@ int main(int argc, char **argv)
                 // Initialize trajectory using a straight line in c-space.
                 if (use_straight_line_init)
                     trajopt_planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
-                
+
                 // Solve the place problem using TrajOpt with start and goal states.
                 const auto &res = trajopt_planner->plan(scene, place_request->getRequest());
                 if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
@@ -102,7 +102,8 @@ int main(int argc, char **argv)
             }
             else
             {
-                // Solve the place problem using TrajOpt with a start state and a goal pose for the end effector.
+                // Solve the place problem using TrajOpt with a start state and a goal pose for the end
+                // effector.
                 const auto &pick_state = place_request->getStartConfiguration();
                 if (trajopt_planner->plan(scene, pick_state, place_ee_pose, ee))
                     rviz->updateTrajectory(trajopt_planner->getTrajectory());
