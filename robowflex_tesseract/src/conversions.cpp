@@ -1,9 +1,5 @@
 /* Author: Carlos Quintero, Bryce Willey */
 
-// Robowflex
-#include <robowflex_library/scene.h>
-#include <robowflex_library/robot.h>
-
 // Tesseract
 #include <tesseract_ros/ros_tesseract_utils.h>
 
@@ -81,11 +77,11 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             attached_body_info.transform = Eigen::Isometry3d::Identity();
             env->attachBody(attached_body_info);
         }
-        
+
         ROS_INFO("Tesseract environment successfully created");
         return true;
     }
-    
+
     ROS_ERROR("Tesseract environment not initialized");
     return false;
     // TODO: fixed_frame_transforms?
