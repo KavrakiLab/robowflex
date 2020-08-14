@@ -434,14 +434,14 @@ bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
 {
     // TrajOpt problem and optimizer parameters.
     TrajOptProbPtr prob = ConstructProblem(*pci);
-    tesseract::tesseract_planning::TrajOptPlannerConfig config(prob);
-    config.params.max_iter = options.config_max_iter;
-
+    auto config = std::make_shared<tesseract::tesseract_planning::TrajOptPlannerConfig>(prob);
+    setOptimizerParameters(config);
+    
     if (file_write_cb_)
     {
         if (!stream_ptr_->is_open())
             stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
-        config.callbacks.push_back(WriteCallback(stream_ptr_, prob));
+        config->callbacks.push_back(WriteCallback(stream_ptr_, prob));
     }
 
     // Create the Tesseract Planner and response.
@@ -449,7 +449,7 @@ bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
     tesseract::tesseract_planning::PlannerResponse response;
 
     // Solve planning problem.
-    bool success_plan = planner.solve(response, config);
+    bool success_plan = planner.solve(response, *config);
     if (success_plan)
     {
         // Clear previous trajectory and update it with new one.
@@ -481,4 +481,21 @@ void TrajOptPlanner::updateTrajFromTesseractRes(
         // Add waypoint to trajectory.
         trajectory_->addSuffixWayPoint(tmp_state, 0.0);
     }
+}
+
+void TrajOptPlanner::setOptimizerParameters(std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const
+{
+    config->params.improve_ratio_threshold = options.improve_ratio_threshold;
+    config->params.min_trust_box_size = options.min_trust_box_size;
+    config->params.min_approx_improve = options.min_approx_improve;
+    config->params.min_approx_improve_frac = options.min_approx_improve_frac;
+    config->params.max_iter = options.max_iter;
+    config->params.trust_shrink_ratio = options.trust_shrink_ratio;
+    config->params.trust_expand_ratio = options.trust_expand_ratio;
+    config->params.cnt_tolerance = options.cnt_tolerance;
+    config->params.max_merit_coeff_increases = options.max_merit_coeff_increases;
+    config->params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
+    config->params.max_time = options.max_time;
+    config->params.merit_error_coeff = options.merit_error_coeff;
+    config->params.trust_box_size = options.trust_box_size;
 }
