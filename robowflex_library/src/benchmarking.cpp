@@ -58,8 +58,8 @@ Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), t
 
 Benchmarker::Results::Results(const std::string &name, const SceneConstPtr &scene,
                               const PlannerConstPtr &planner, const MotionRequestBuilderConstPtr &builder,
-                              const Options &options)
-  : name(name), scene(scene), planner(planner), builder(builder), options(options)
+                              const Options &options, ComputeMetricCallbackFn fn)
+  : name(name), scene(scene), planner(planner), builder(builder), options(options), metricCallbackFn(fn)
 {
     start = IO::getDate();
 }
@@ -95,6 +95,9 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
     if (options.options & MetricOptions::SMOOTHNESS)
         metrics.metrics["smoothness"] = metrics.success ? path::getSmoothness(p) : 0.0;
+
+    if (metricCallbackFn)
+        metricCallbackFn(run, metrics);
 }
 
 ///
@@ -149,11 +152,15 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         const auto &msg = builder->getRequest();
+        Results::ComputeMetricCallbackFn metricCallbackFn;
+
+        if (metricCallbackFnAllocator)
+            metricCallbackFn = metricCallbackFnAllocator(request.second);
 
         // Execute pre-run step.
         planner->preRun(scene, msg);
 
-        Results results(name, scene, planner, builder, options);
+        Results results(name, scene, planner, builder, options, metricCallbackFn);
 
         // Get all progress property names.
         const auto &pp = planner->getProgressProperties(scene, msg);
