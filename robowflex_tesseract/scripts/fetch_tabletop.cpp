@@ -24,6 +24,7 @@ int main(int argc, char **argv)
     int start = 1;
     int end = 10;
     int num_waypoints = 15;
+    double trajopt_iterations_limit = 100.0;
     bool solve = true;
     bool file_write_cb = false;
     bool use_goal_state = false;
@@ -45,6 +46,7 @@ int main(int argc, char **argv)
     if (!trajopt_planner->initialize())
         return -1;
     trajopt_planner->options.num_waypoints = num_waypoints;
+    trajopt_planner->options.max_iter = trajopt_iterations_limit;
     trajopt_planner->setWriteFile(file_write_cb, dataset);
 
     // Loop over recorded scenes and requests.

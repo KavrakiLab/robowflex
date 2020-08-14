@@ -61,7 +61,7 @@ namespace robowflex
             double min_approx_improve_frac{
                 -std::numeric_limits<double>::infinity()};  ///< If model improves less than this, exit and
                                                             ///< report convergence
-            double max_iter{100.0};                         ///< The max number of iterations
+            double max_iter{50.0};                         ///< The max number of iterations
             double trust_shrink_ratio{0.1};  // If improvement is less than improve_ratio_threshold, shrink
                                              // trust region by this ratio
             double trust_expand_ratio{1.5};  ///< If improvement is less than improve_ratio_threshold, shrink
@@ -156,7 +156,7 @@ namespace robowflex
          *  \return True if a plan was successfully computed.
          */
         bool plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                  const Eigen::Isometry3d &goal_pose, const std::string &link);
+                  const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
          * scene.
@@ -166,7 +166,7 @@ namespace robowflex
          *  \return True if a plan was successfully computed.
          */
         bool plan(const SceneConstPtr &scene, const std::unordered_map<std::string, double> &start_state,
-                  const Eigen::Isometry3d &goal_pose, const std::string &link);
+                  const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_pose for \a start_link and a \a goal_pose for \a goal_link.
          *  \param[in] scene A planning scene to compute the plan in.
@@ -175,8 +175,8 @@ namespace robowflex
          *  \param[in] goal_pose Cartesian goal pose for \a goal_link.
          *  \return True if a plan was successfully computed.
          */
-        bool plan(const SceneConstPtr &scene, const Eigen::Isometry3d &start_pose,
-                  const std::string &start_link, const Eigen::Isometry3d &goal_pose,
+        bool plan(const SceneConstPtr &scene, const RobotPose &start_pose,
+                  const std::string &start_link, const RobotPose &goal_pose,
                   const std::string &goal_link);
 
         /** \brief Get planner configurations offered by this planner.
@@ -264,7 +264,7 @@ namespace robowflex
          *  \param[in] link Link that will be constrained to be in \a goal_pose in the last waypoint.
          *  \param[out] pci Pointer to problem construction info with goal pose constraint added.
          */
-        void addGoalPose(const Eigen::Isometry3d &goal_pose, const std::string &link,
+        void addGoalPose(const RobotPose &goal_pose, const std::string &link,
                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Call TrajOpt \a solve() and updates \a trajectory_.

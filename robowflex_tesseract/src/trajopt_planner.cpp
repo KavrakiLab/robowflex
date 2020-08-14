@@ -7,6 +7,7 @@
 // Robowflex
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
+#include <robowflex_library/util.h>
 
 // Tesseract
 #include <tesseract_msgs/AttachableObject.h>
@@ -68,17 +69,26 @@ const robot_trajectory::RobotTrajectoryPtr &TrajOptPlanner::getTrajectory() cons
 
 const std::vector<std::string> &TrajOptPlanner::getEnvironmentLinks() const
 {
-    return env_->getLinkNames();
+    if (env_->checkInitialized())
+        return env_->getLinkNames();
+    else 
+        throw Exception(1, "KDL environment not initialized with robot links!");
 }
 
 const std::vector<std::string> &TrajOptPlanner::getManipulatorLinks() const
 {
-    return env_->getManipulator(manip_)->getLinkNames();
+    if (env_->hasManipulator(manip_))
+        return env_->getManipulator(manip_)->getLinkNames();
+    else
+        throw Exception(1, "There is no loaded manipulator!");
 }
 
 const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
 {
-    return env_->getManipulator(manip_)->getJointNames();
+    if (env_->hasManipulator(manip_))
+        return env_->getManipulator(manip_)->getJointNames();
+    else
+        throw Exception(1, "There is no loaded manipulator!");
 }
 
 planning_interface::MotionPlanResponse
@@ -156,7 +166,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
 }
 
 bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                          const Eigen::Isometry3d &goal_pose, const std::string &link)
+                          const RobotPose &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
@@ -197,7 +207,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
 
 bool TrajOptPlanner::plan(const SceneConstPtr &scene,
                           const std::unordered_map<std::string, double> &start_state,
-                          const Eigen::Isometry3d &goal_pose, const std::string &link)
+                          const RobotPose &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
@@ -236,8 +246,8 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
     return false;
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene, const Eigen::Isometry3d &start_pose,
-                          const std::string &start_link, const Eigen::Isometry3d &goal_pose,
+bool TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pose,
+                          const std::string &start_link, const RobotPose &goal_pose,
                           const std::string &goal_link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
@@ -364,7 +374,7 @@ void TrajOptPlanner::addStartState(const std::unordered_map<std::string, double>
     pci->basic_info.start_fixed = true;
 }
 
-void TrajOptPlanner::addStartPose(const Eigen::Isometry3d &start_pose, const std::string &link,
+void TrajOptPlanner::addStartPose(const RobotPose &start_pose, const std::string &link,
                                   std::shared_ptr<ProblemConstructionInfo> &pci) const
 {
     Eigen::Quaterniond rotation(start_pose.linear());
