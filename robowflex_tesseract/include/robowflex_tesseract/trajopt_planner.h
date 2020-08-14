@@ -61,7 +61,7 @@ namespace robowflex
             double min_approx_improve_frac{
                 -std::numeric_limits<double>::infinity()};  ///< If model improves less than this, exit and
                                                             ///< report convergence
-            double max_iter{50.0};                         ///< The max number of iterations
+            double max_iter{50.0};                          ///< The max number of iterations
             double trust_shrink_ratio{0.1};  // If improvement is less than improve_ratio_threshold, shrink
                                              // trust region by this ratio
             double trust_expand_ratio{1.5};  ///< If improvement is less than improve_ratio_threshold, shrink
@@ -175,9 +175,8 @@ namespace robowflex
          *  \param[in] goal_pose Cartesian goal pose for \a goal_link.
          *  \return True if a plan was successfully computed.
          */
-        bool plan(const SceneConstPtr &scene, const RobotPose &start_pose,
-                  const std::string &start_link, const RobotPose &goal_pose,
-                  const std::string &goal_link);
+        bool plan(const SceneConstPtr &scene, const RobotPose &start_pose, const std::string &start_link,
+                  const RobotPose &goal_pose, const std::string &goal_link);
 
         /** \brief Get planner configurations offered by this planner.
          *  Any of the configurations returned can be set as the planner for a motion planning query sent to
@@ -291,8 +290,9 @@ namespace robowflex
         std::shared_ptr<std::ofstream> stream_ptr_;  ///< Debug file stream.
         std::string file_path_;                      ///< Path of debug file.
         bool file_write_cb_{false};                  ///< Whether to write a debug file or not.
-        trajopt::InitInfo::Type init_type_{trajopt::InitInfo::Type::STATIONARY};  ///< Type of initial trajectory.
-        trajopt::TrajArray initial_trajectory_;                          ///< Initial trajectory (if any).
+        trajopt::InitInfo::Type init_type_{trajopt::InitInfo::Type::STATIONARY};  ///< Type of initial
+                                                                                  ///< trajectory.
+        trajopt::TrajArray initial_trajectory_;  ///< Initial trajectory (if any).
     };
 }  // namespace robowflex
 

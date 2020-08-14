@@ -71,7 +71,7 @@ const std::vector<std::string> &TrajOptPlanner::getEnvironmentLinks() const
 {
     if (env_->checkInitialized())
         return env_->getLinkNames();
-    else 
+    else
         throw Exception(1, "KDL environment not initialized with robot links!");
 }
 
