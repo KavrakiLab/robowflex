@@ -21,9 +21,30 @@ using namespace robowflex;
 TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &planner_name, const std::string &group_name, const std::string &manip)
   : Planner(robot, planner_name), group_(group_name), manip_(manip)
 {
+    
+}
+
+bool TrajOptPlanner::initialize()
+{
+    // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
-    env_->init(robot_->getURDF(), robot_->getSRDF());
+    if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
+    {
+        ROS_ERROR("Error loading robot %s", robot_->getName());
+        return false;
+    }
+    
+    // Check if manipulator was correctly loaded.
+    if (!env_->hasManipulator(manip_))
+    {
+        ROS_ERROR("No manipulator found in KDL environment");
+        return false;
+    }
+    
+    // Load trajectory.
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+    
+    return true;
 }
 
 void TrajOptPlanner::setInitialTrajectory(const trajopt::TrajArray &init_trajectory)
@@ -74,7 +95,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
-
+        
         // Add start state.
         addStartState(start_state, pci);
 
@@ -172,6 +193,8 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const Eigen::Isometry3d &s
 
 planning_interface::MotionPlanResponse TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
+    planning_interface::MotionPlanResponse res;
+    
     // Extract goal state.
     auto goal_state = robot_->allocState();
     if (request.goal_constraints.size() != 1)
@@ -194,7 +217,6 @@ planning_interface::MotionPlanResponse TrajOptPlanner::plan(const SceneConstPtr 
     moveit::core::robotStateMsgToRobotState(request.start_state, *start_state);
     start_state->update(true);
     
-    planning_interface::MotionPlanResponse res;
     // Plan.
     if (plan(scene, start_state, goal_state))
     {
@@ -241,7 +263,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemCon
         pci->init_info.data = initial_trajectory_;
 
     ROS_INFO("TrajOpt initialization: %d", init_type_);
-
+    
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<trajopt::JointVelTermInfo>();
     jv->targets = std::vector<double>(pci->kin->numJoints(), 0.0);
@@ -251,6 +273,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<trajopt::ProblemCon
     jv->last_step = options.num_waypoints - 1;
     jv->name = "joint_velocity_cost";
     pci->cost_infos.push_back(jv);
+    
 }
 
 void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const

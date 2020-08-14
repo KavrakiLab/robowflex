@@ -16,11 +16,10 @@ find_package(Boost REQUIRED)
 list(APPEND CATKIN_DEPS
   moveit_planners_ompl
   robowflex_library
-  robowflex_ompl
   tesseract_planning
   tesseract_ros
   )
-
+ 
 find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
 
 # Can be installed from debian, ROS debian, or local installation
