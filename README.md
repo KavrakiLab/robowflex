@@ -38,7 +38,6 @@ Some basic examples of how to use the new planner are in `robowflex_ompl/scripts
 
 ## robowflex_tesseract
 An optionally compiled library component that adds support for [tesseract](https://github.com/ros-industrial-consortium/tesseract)-based planners.
-Currently, only [OMPL](http://ompl.kavrakilab.org/)-based planning is available.
 Requires both [tesseract](https://github.com/ros-industrial-consortium/tesseract) and [trajopt](https://github.com/ros-industrial-consortium/trajopt_ros).
 Some basic examples of how to use the new planner(s) are in `robowflex_tesseract/scripts`.
 
