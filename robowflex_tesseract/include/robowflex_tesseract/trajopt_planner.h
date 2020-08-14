@@ -9,8 +9,6 @@
 #include <tesseract_planning/trajopt/trajopt_planner.h>
 #include <tesseract_ros/kdl/kdl_env.h>
 
-using namespace trajopt;
-
 namespace robowflex
 {
     /** \cond IGNORE */
@@ -96,7 +94,7 @@ namespace robowflex
         /** \brief Set initial trajectory for TrajOpt and set init_type to GIVEN_TRAJ
          *  \param[in] init_trajectory Trajectory to initialize TrajOpt.
          */
-        void setInitialTrajectory(const TrajArray &init_trajectory);
+        void setInitialTrajectory(const trajopt::TrajArray &init_trajectory);
 
         /** \brief Set type of initialization to use for the trajectory optimization.
          * Current options are:
@@ -106,7 +104,7 @@ namespace robowflex
          * no need to call setInitType().
          * \param[in] init_type Type of initial trajectory to be used.
          */
-        void setInitType(const InitInfo::Type &init_type);
+        void setInitType(const trajopt::InitInfo::Type &init_type);
 
         /** \brief Get the trajectory that resulted in the last call to plan().
          *  \return Last trajectory computed using plan().
@@ -204,33 +202,33 @@ namespace robowflex
         /** \brief Create a TrajOpt problem construction info object with default values.
          *  \param[out] pci Pointer to problem construction info initialized.
          */
-        void problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> &pci) const;
+        void problemConstructionInfo(std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add collision avoidance cost to the trajectory optimization for all waypoints.
          *  \param[out] pci Pointer to problem construction info with collision avoidance added.
          */
-        void addCollisionAvoidance(std::shared_ptr<ProblemConstructionInfo> &pci) const;
+        void addCollisionAvoidance(std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add a (joint) configuration constraint in the first waypoint taken from \a request.
          *  \param[in] request Request motion planning problem.
          *  \param[out] pci Pointer to problem construction info with start state constraint added.
          */
         void addStartState(const MotionRequestBuilderPtr &request,
-                           std::shared_ptr<ProblemConstructionInfo> &pci);
+                           std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
         /** \brief Add a (joint) configuration constraint \a start_state in the first waypoint.
          *  \param[in] start_state Desired robot's start state.
          *  \param[out] pci Pointer to problem construction info with start state constraint added.
          */
         void addStartState(const robot_state::RobotStatePtr &start_state,
-                           std::shared_ptr<ProblemConstructionInfo> &pci);
+                           std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
         /** \brief Add a (joint) configuration constraint \a start_state in the first waypoint.
          *  \param[in] start_state Desired start manipulator's joint names/values.
          *  \param[out] pci Pointer to problem construction info with start state constraint added.
          */
         void addStartState(const std::unordered_map<std::string, double> &start_state,
-                           std::shared_ptr<ProblemConstructionInfo> &pci);
+                           std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
         /** \brief Add a cartesian pose constraint \a start_pose for \a link in the first waypoint.
          *  \param[in] start_pose Desired start cartesian pose of \a link.
@@ -238,28 +236,28 @@ namespace robowflex
          *  \param[out] pci Pointer to problem construction info with start pose constraint added.
          */
         void addStartPose(const RobotPose &start_pose, const std::string &link,
-                          std::shared_ptr<ProblemConstructionInfo> &pci) const;
+                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add a (joint) configuration constraint in the last waypoint taken from \a request.
          *  \param[in] request Request motion planning problem.
          *  \param[out] pci Pointer to problem construction info with goal state constraint added.
          */
         void addGoalState(const MotionRequestBuilderPtr &request,
-                          std::shared_ptr<ProblemConstructionInfo> &pci) const;
+                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add a (joint) configuration constraint \a goal_state in the last waypoint.
          *  \param[in] goal_state Desired robot's goal state.
          *  \param[out] pci Pointer to problem construction info with goal state constraint added.
          */
         void addGoalState(const robot_state::RobotStatePtr &goal_state,
-                          std::shared_ptr<ProblemConstructionInfo> &pci) const;
+                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add a (joint) configuration constraint \a goal_state in the last waypoint.
          *  \param[in] goal_state Desired goal manipulator's joint values.
          *  \param[out] pci Pointer to problem construction info with goal state constraint added.
          */
         void addGoalState(const std::vector<double> goal_state,
-                          std::shared_ptr<ProblemConstructionInfo> &pci) const;
+                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Add a cartesian pose constraint \a goal_pose for \a link in the last waypoint.
          *  \param[in] goal_pose Desired goal cartesian pose of \a link.
@@ -267,12 +265,12 @@ namespace robowflex
          *  \param[out] pci Pointer to problem construction info with goal pose constraint added.
          */
         void addGoalPose(const Eigen::Isometry3d &goal_pose, const std::string &link,
-                         std::shared_ptr<ProblemConstructionInfo> &pci) const;
+                         std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
         /** \brief Call TrajOpt \a solve() and updates \a trajectory_.
          *  \param[out] pci Pointer to problem construction info initialized.
          */
-        bool solve(const std::shared_ptr<ProblemConstructionInfo> &pci);
+        bool solve(const std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
         /** \brief Update \a trajectory_ based on the planner response.
          *  \param[in] response Tesseract planner response to get trajectory from.
@@ -293,8 +291,8 @@ namespace robowflex
         std::shared_ptr<std::ofstream> stream_ptr_;  ///< Debug file stream.
         std::string file_path_;                      ///< Path of debug file.
         bool file_write_cb_{false};                  ///< Whether to write a debug file or not.
-        InitInfo::Type init_type_{InitInfo::Type::STATIONARY};  ///< Type of initial trajectory.
-        TrajArray initial_trajectory_;                          ///< Initial trajectory (if any).
+        trajopt::InitInfo::Type init_type_{trajopt::InitInfo::Type::STATIONARY};  ///< Type of initial trajectory.
+        trajopt::TrajArray initial_trajectory_;                          ///< Initial trajectory (if any).
     };
 }  // namespace robowflex
 

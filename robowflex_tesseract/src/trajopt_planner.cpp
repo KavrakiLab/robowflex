@@ -17,6 +17,7 @@
 #include <robowflex_tesseract/trajopt_planner.h>
 
 using namespace robowflex;
+using namespace trajopt;
 
 TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_name, const std::string &manip)
   : Planner(robot, "trajopt"), group_(group_name), manip_(manip)
