@@ -72,9 +72,12 @@ namespace robowflex
 
             std::vector<std::string> getPlannerConfigs() const override;
 
+            ompl::geometric::SimpleSetupPtr getLastSS() const;
+
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
+            ompl::geometric::SimpleSetupPtr ss_;  ///< Last ompl simple setup used.
         };
     }  // namespace OMPL
 }  // namespace robowflex
