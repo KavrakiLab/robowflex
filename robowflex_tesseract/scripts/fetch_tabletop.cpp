@@ -19,8 +19,10 @@ int main(int argc, char **argv)
 
     // Parameters.
     const auto &dataset = IO::resolvePackage("package://robowflex_tesseract/scenes/table");
-    const auto &planning_group = "arm";
-    const auto &manipulator = "arm_chain";
+    const auto &moveit_planning_group = "arm";
+    const auto &manip = "arm_chain";
+    const auto &manip_base_link = "torso_lift_link";
+    const auto &manip_tip_link = "gripper_link";
     int start = 1;
     int end = 10;
     int num_waypoints = 15;
@@ -34,17 +36,18 @@ int main(int argc, char **argv)
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize(false);
     const auto &ee = fetch->getModel()->getEndEffectors()[0]->getLinkModelNames()[0];
-    const auto &root_name = fetch->getModelConst()->getRootLinkName();
 
     // RVIZ helper.
     auto rviz = std::make_shared<IO::RVIZHelper>(fetch);
-    const auto &color = Eigen::Vector4d{0.0, 0.0, 1.0, 1.0};
-    const auto &scale = Eigen::Vector3d{0.1, 0.008, 0.008};
-
+    
     // TrajOpt planner.
-    auto trajopt_planner = std::make_shared<TrajOptPlanner>(fetch, planning_group, manipulator);
-    if (!trajopt_planner->initialize())
+    auto trajopt_planner = std::make_shared<TrajOptPlanner>(fetch, moveit_planning_group);
+    
+    // Initialize planner for a new grop arm_chain with all links from torso_lift_link to gripper_link.
+    if (!trajopt_planner->initialize(manip, manip_base_link, manip_tip_link))
         return -1;
+    
+    // Set planner parameters.
     trajopt_planner->options.num_waypoints = num_waypoints;
     trajopt_planner->options.max_iter = trajopt_iterations_limit;
     trajopt_planner->setWriteFile(file_write_cb, dataset);
@@ -70,7 +73,7 @@ int main(int argc, char **argv)
         // Load place request
         boost::filesystem::path request_path(dataset);
         request_path /= "place_request" + index + ".yaml";
-        const auto &place_request = std::make_shared<MotionRequestBuilder>(trajopt_planner, planning_group);
+        const auto &place_request = std::make_shared<MotionRequestBuilder>(trajopt_planner, moveit_planning_group);
         if (!place_request->fromYAMLFile(request_path.string()))
         {
             ROS_ERROR("Failed to read file: %s for request", request_path.string().c_str());
@@ -80,10 +83,6 @@ int main(int argc, char **argv)
         // Extract place state and ee pose from request.
         const auto &place_state = place_request->getGoalConfiguration();
         const auto &place_ee_pose = place_state->getFrameTransform(ee);
-
-        // Add a marker to the place_pose.
-        rviz->addArrowMarker("place_pose", root_name, place_ee_pose, color, scale);
-        rviz->updateMarkers();
 
         // Solve Place problem using TrajOpt planner or visualize a previously recorded trajectory.
         if (solve)

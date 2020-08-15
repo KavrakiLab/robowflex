@@ -20,28 +20,73 @@
 using namespace robowflex;
 using namespace trajopt;
 
-TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_name, const std::string &manip)
-  : Planner(robot, "trajopt"), group_(group_name), manip_(manip)
+TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_name)
+  : Planner(robot, "trajopt"), group_(group_name)
 {
 }
 
-bool TrajOptPlanner::initialize()
+bool TrajOptPlanner::initialize(const std::string &manip, const std::string &base_link, const std::string &tip_link)
 {
+    // Save manipulator name.
+    manip_ = manip;
+    
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
-    if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
+    
+    // If base_link and tip_link are provided, create a tmp srdf with manip to initialize env
+    if ((base_link != "") and (tip_link != ""))
     {
-        ROS_ERROR("Error loading robot %s", robot_->getName());
-        return false;
+        if (!robot_->getModelConst()->hasLinkModel(base_link))
+        {
+            ROS_ERROR("%s does not exist in robot description", base_link.c_str());
+            return false;
+        }
+        if (!robot_->getModelConst()->hasLinkModel(tip_link))
+        {
+            ROS_ERROR("%s does not exist in robot description", tip_link.c_str());
+            return false;
+        }
+        
+        ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(), tip_link.c_str());
+        
+        TiXmlDocument srdf_doc;
+        srdf_doc.Parse(robot_->getSRDFString().c_str());
+        
+        auto *group_element = new TiXmlElement("group");
+        group_element->SetAttribute("name", manip.c_str());
+        srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
+        
+        auto *chain_element = new TiXmlElement("chain");
+        chain_element->SetAttribute("base_link", base_link.c_str());
+        chain_element->SetAttribute("tip_link", tip_link.c_str());
+        group_element->LinkEndChild(chain_element);
+        
+        srdf::ModelSharedPtr srdf;
+        srdf.reset(new srdf::Model());
+        srdf->initXml(*(robot_->getURDF()), &srdf_doc);
+        
+        if (!env_->init(robot_->getURDF(), srdf))
+        {
+            ROS_ERROR("Error loading robot %s", robot_->getName().c_str());
+            return false;
+        }
     }
-
+    else
+    {
+        if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
+        {
+            ROS_ERROR("Error loading robot %s", robot_->getName().c_str());
+            return false;
+        }
+    }
+    
     // Check if manipulator was correctly loaded.
     if (!env_->hasManipulator(manip_))
     {
         ROS_ERROR("No manipulator found in KDL environment");
         return false;
     }
-
+    
     // Initialize trajectory.
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
 
