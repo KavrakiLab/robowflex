@@ -82,14 +82,14 @@ namespace robowflex
          *  \param[in] manip Name of the (chain) group to plan for.
          */
         TrajOptPlanner(const RobotPtr &robot, const std::string &group_name);
-        
-        /** \brief Initialize planner. If base_link and tip_link are not empty, it creates a \a manip from \a base_link to \a tip_link.
-         *  \param[in] manip Name of chain group to add to the robot.
-         *  \param[in] base_link base link of the chain group \a manip.
-         *  \param[in] tip_link tip link of the chain group \a manip.
-         *  \return True if initialization succeded.
+
+        /** \brief Initialize planner. If base_link and tip_link are not empty, it creates a \a manip from \a
+         * base_link to \a tip_link. \param[in] manip Name of chain group to add to the robot. \param[in]
+         * base_link base link of the chain group \a manip. \param[in] tip_link tip link of the chain group \a
+         * manip. \return True if initialization succeded.
          */
-        bool initialize(const std::string &manip, const std::string &base_link="", const std::string &tip_link="");
+        bool initialize(const std::string &manip, const std::string &base_link = "",
+                        const std::string &tip_link = "");
 
         /** \name Set and get TrajOpt parameters
             \{*/

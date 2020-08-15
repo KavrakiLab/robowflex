@@ -39,14 +39,14 @@ int main(int argc, char **argv)
 
     // RVIZ helper.
     auto rviz = std::make_shared<IO::RVIZHelper>(fetch);
-    
+
     // TrajOpt planner.
     auto trajopt_planner = std::make_shared<TrajOptPlanner>(fetch, moveit_planning_group);
-    
+
     // Initialize planner for a new grop arm_chain with all links from torso_lift_link to gripper_link.
     if (!trajopt_planner->initialize(manip, manip_base_link, manip_tip_link))
         return -1;
-    
+
     // Set planner parameters.
     trajopt_planner->options.num_waypoints = num_waypoints;
     trajopt_planner->options.max_iter = trajopt_iterations_limit;
@@ -73,7 +73,8 @@ int main(int argc, char **argv)
         // Load place request
         boost::filesystem::path request_path(dataset);
         request_path /= "place_request" + index + ".yaml";
-        const auto &place_request = std::make_shared<MotionRequestBuilder>(trajopt_planner, moveit_planning_group);
+        const auto &place_request =
+            std::make_shared<MotionRequestBuilder>(trajopt_planner, moveit_planning_group);
         if (!place_request->fromYAMLFile(request_path.string()))
         {
             ROS_ERROR("Failed to read file: %s for request", request_path.string().c_str());
