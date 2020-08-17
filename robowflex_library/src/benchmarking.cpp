@@ -58,8 +58,8 @@ Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), t
 
 Benchmarker::Results::Results(const std::string &name, const SceneConstPtr &scene,
                               const PlannerConstPtr &planner, const MotionRequestBuilderConstPtr &builder,
-                              const Options &options)
-  : name(name), scene(scene), planner(planner), builder(builder), options(options)
+                              const Options &options, ComputeMetricCallbackFn fn)
+  : name(name), scene(scene), planner(planner), builder(builder), options(options), metric_callback(fn)
 {
     start = IO::getDate();
 }
@@ -95,6 +95,9 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
 
     if (options.options & MetricOptions::SMOOTHNESS)
         metrics.metrics["smoothness"] = metrics.success ? path::getSmoothness(p) : 0.0;
+
+    if (metric_callback)
+        metric_callback(run, metrics);
 }
 
 ///
@@ -149,11 +152,15 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         const auto &msg = builder->getRequest();
+        Results::ComputeMetricCallbackFn metric_callback;
+
+        if (metric_callback_allocator_)
+            metric_callback = metric_callback_allocator_(request.second);
 
         // Execute pre-run step.
         planner->preRun(scene, msg);
 
-        Results results(name, scene, planner, builder, options);
+        Results results(name, scene, planner, builder, options, metric_callback);
 
         // Get all progress property names.
         const auto &pp = planner->getProgressProperties(scene, msg);
@@ -171,6 +178,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
             // Capture planner progress.
             const auto &pp = planner->getProgressProperties(scene, msg);
+
             std::vector<std::map<std::string, std::string>> progress;
             if (not pp.empty())
             {
@@ -212,6 +220,11 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
         for (const BenchmarkOutputterPtr &output : outputs)
             output->dumpResult(results);
     }
+}
+
+void Benchmarker::setMetricCallbackFnAllocator(MetricCallbackFnAllocator metric_alloc)
+{
+    metric_callback_allocator_ = metric_alloc;
 }
 
 ///

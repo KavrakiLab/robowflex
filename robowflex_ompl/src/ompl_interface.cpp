@@ -51,13 +51,16 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
 {
     planning_interface::MotionPlanResponse response;
     response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-
     auto context = getPlanningContext(scene, request);
-
     if (!context)
+    {
+        ROS_ERROR("Context was not set!");
         return response;
+    }
 
+    ss_ = context->getOMPLSimpleSetup();
     context->solve(response);
+
     return response;
 }
 
@@ -69,6 +72,11 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
 
     const auto &planner = ss->getPlanner();
     return planner->getPlannerProgressProperties();
+}
+
+ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const
+{
+    return ss_;
 }
 
 std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
