@@ -19,7 +19,7 @@ list(APPEND CATKIN_DEPS
   tesseract_planning
   tesseract_ros
   )
-
+ 
 find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
 
 # Can be installed from debian, ROS debian, or local installation
@@ -46,17 +46,15 @@ if (tesseract_planning_DIR)
   link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
 
   add_library(${LIBRARY_NAME}
-    src/tesseract_planners.cpp
     src/conversions.cpp
+    src/trajopt_planner.cpp
     )
 
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
-  add_script(tesseract_benchmark)
-  add_script(ur5_tesseract)
-  add_test(ur_test_env_placement)
-
+  add_script(fetch_tabletop)
+  
   install_scripts()
   install_tests()
   install_library()
