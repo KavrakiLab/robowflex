@@ -189,6 +189,16 @@ RobotPose Scene::getObjectPose(const std::string &name) const
     return RobotPose::Identity();
 }
 
+bool Scene::moveObject(const std::string &name, const RobotPose &transform)
+{
+    auto &world = scene_->getWorldNonConst();
+    bool success = world->moveObject(name, transform);
+    if (not success)
+        ROS_ERROR("Failed to moveObject %s", name.c_str());
+
+    return success;
+}
+
 RobotPose Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))

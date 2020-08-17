@@ -77,6 +77,7 @@ list(APPEND SOURCES
   src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
+  src/random.cpp
   src/yaml.cpp
   src/path.cpp
   src/detail/r2.cpp

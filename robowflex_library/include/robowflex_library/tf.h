@@ -129,6 +129,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
+         *  \return The position constraint as a moveit_msg.
          */
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
@@ -140,6 +141,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         *  \return The orientation constraint as a moveit_msg.
          */
         moveit_msgs::OrientationConstraint getOrientationConstraint(const std::string &ee_name,
                                                                     const std::string &base_name,
@@ -149,17 +151,52 @@ namespace robowflex
         /** \brief Sample an orientation from a given \a orientation with XYZ Euler angle \a tolerances.
          *  \param[in] orientation The desired mean orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         *  \return The sampled orientation.
          */
         Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &tolerances);
+
+        /** \brief Sample an orientation within the XYZ Euler angle \a bounds.
+         *  \param[in] bounds XYZ Euler angle bounds about orientation.
+         *  \return The sampled orientation.
+         */
+        Eigen::Quaterniond sampleOrientationUniform(const Eigen::Vector3d &bounds);
 
         /** \brief Offset an orientation by a rotation about an axis.
          *  \param[in] orientation Orientation to offset.
          *  \param[in] axis Axis to offset orientation about.
          *  \param[in] value Value by which to offset.
+         *  \return The new orientation.
          */
         Eigen::Quaterniond offsetOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &axis, double value);
+
+        /** \brief Sample a position within the given bounds using a uniform distribution.
+         *  \param[in] bounds The desired mean orientation.
+         *  \return The sampled position.
+         */
+        Eigen::Vector3d samplePositionUniform(const Eigen::Vector3d &bounds);
+
+        /** \brief Sample a position with the given bounds using a uniform distribution.
+         *  \param[in] position The desired mean orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         */
+        Eigen::Vector3d samplePositionGaussian(const Eigen::Vector3d &position,
+                                               const Eigen::Vector3d &stddev);
+
+        /** \brief Sample an orientation from a given \a orientation with XYZ Euler angle \a tolerances.
+         *  \param[in] orientation The desired mean orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         */
+        RobotPose samplePoseUniform(const RobotPose &pose, const Eigen::Vector3d &pos_bounds,
+                                    const Eigen::Vector3d &ornt_bounds);
+
+        /** \brief Sample an orientation from a given \a orientation with XYZ Euler angle \a tolerances.
+         *  \param[in] orientation The desired mean orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         */
+        RobotPose samplePoseGaussian(const RobotPose &pose, const Eigen::Vector3d &pos_variances,
+                                     const Eigen::Vector3d &orn_bounds);
 
         /** \brief Encode a transform as a message.
          *  \param[in] source Source frame.
