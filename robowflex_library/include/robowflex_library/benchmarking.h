@@ -50,6 +50,10 @@ namespace robowflex
 
     /** \brief A utility to benchmark many robowflex::Planner instances against different queries, specified
      *  by robowflex::Scene and robowflex::MotionRequestBuilder instances.
+     *
+     *  For efficiency, be sure to specify in the Options which metrics you want computed. For example,
+     * clearance can take a while to compute. To add more metrics, or possibly metrics that are unique to your
+     * planning problems, add a custom function.
      */
     class Benchmarker
     {
@@ -134,7 +138,8 @@ namespace robowflex
             };
             /** \brief Type for callback function to add additional metrics
              */
-            using ComputeMetricCallbackFn = std::function<void(planning_interface::MotionPlanResponse &run, Run &metrics)>;
+            using ComputeMetricCallbackFn =
+                std::function<void(planning_interface::MotionPlanResponse &run, Run &metrics)>;
 
             /** \brief Constructor.
              *  \param[in] name Name of the query.
@@ -142,6 +147,7 @@ namespace robowflex
              *  \param[in] planner The planner used for the query.
              *  \param[in] builder The request builder used for the query.
              *  \param[in] options Options for the query.
+             *  \param[in] fn User-defined callback function for computing run metrics.
              */
             Results(const std::string &name, const SceneConstPtr &scene, const PlannerConstPtr &planner,
                     const MotionRequestBuilderConstPtr &builder, const Options &options,
@@ -166,7 +172,7 @@ namespace robowflex
             const PlannerConstPtr planner;               ///< Planner used for the query.
             const MotionRequestBuilderConstPtr builder;  ///< Request builder used for the query.
             const Options options;                       ///< Options for the query.
-            ComputeMetricCallbackFn metricCallbackFn;    ///< Callback to compute user-specified metrics
+            ComputeMetricCallbackFn metric_callback;     ///< Callback to compute user-specified metrics
             std::vector<std::string> properties;         ///< Progress properties.
 
             boost::posix_time::ptime start;   ///< Query start time.
@@ -193,26 +199,30 @@ namespace robowflex
         /** \brief Parameters of a benchmark request.
          */
         using BenchmarkRequest = std::tuple<ScenePtr, PlannerPtr, MotionRequestBuilderPtr>;
-        /** \brief Function that returns a callback for computing user-defined metrics for a given benchmark request.
+
+        /** \brief Function that returns a callback for computing user-defined metrics for a given benchmark
+         * request.
          */
-        using MetricCallbackFnAllocator = std::function<Results::ComputeMetricCallbackFn(const BenchmarkRequest&)>;
-        void setMetricCallbackFnAllocator(MetricCallbackFnAllocator metricCBAlloc)
-        {
-            metricCallbackFnAllocator = metricCBAlloc;
-        }
+        using MetricCallbackFnAllocator =
+            std::function<Results::ComputeMetricCallbackFn(const BenchmarkRequest &)>;
+
+        /** \brief Set the function that returns a callback function for computing user-defined metrics.
+         *  \param[in] metricCBAlloc
+         */
+        void setMetricCallbackFnAllocator(MetricCallbackFnAllocator metric_alloc);
 
     private:
-
         /** \brief Capture planner progress.
          */
         void captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
                              std::vector<std::map<std::string, std::string>> &progress, double rate);
 
-        std::map<std::string, BenchmarkRequest> requests_;  ///< Requests to benchmark.
-        MetricCallbackFnAllocator metricCallbackFnAllocator;
+        std::map<std::string, BenchmarkRequest> requests_;     ///< Requests to benchmark.
+        MetricCallbackFnAllocator metric_callback_allocator_;  ///< Allocation function that returns function
+                                                               ///< for user callbacks.
 
-        std::mutex solved_mutex_;
-        bool solved_;
+        std::mutex solved_mutex_;  ///< Lock used for progress property computation.
+        bool solved_;              ///< Has the current benchmarking run been solved?
     };
 
     /** \brief An abstract class for outputting benchmark results.
