@@ -57,8 +57,10 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
         ROS_ERROR("Context was not set!");
         return response;
     }
+
     ss_ = context->getOMPLSimpleSetup();
     context->solve(response);
+
     return response;
 }
 
@@ -72,7 +74,7 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
     return planner->getPlannerProgressProperties();
 }
 
-ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSS() const
+ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const
 {
     return ss_;
 }

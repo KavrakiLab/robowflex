@@ -178,6 +178,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
             // Capture planner progress.
             const auto &pp = planner->getProgressProperties(scene, msg);
+
             std::vector<std::map<std::string, std::string>> progress;
             if (not pp.empty())
             {

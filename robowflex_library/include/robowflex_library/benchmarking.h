@@ -136,6 +136,7 @@ namespace robowflex
 
                 std::map<std::string, MetricValue> metrics;  ///< Map of metric name to value.
             };
+
             /** \brief Type for callback function to add additional metrics
              */
             using ComputeMetricCallbackFn =
@@ -207,7 +208,7 @@ namespace robowflex
             std::function<Results::ComputeMetricCallbackFn(const BenchmarkRequest &)>;
 
         /** \brief Set the function that returns a callback function for computing user-defined metrics.
-         *  \param[in] metricCBAlloc
+         *  \param[in] metric_alloc The allocator function.
          */
         void setMetricCallbackFnAllocator(MetricCallbackFnAllocator metric_alloc);
 
@@ -217,9 +218,8 @@ namespace robowflex
         void captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
                              std::vector<std::map<std::string, std::string>> &progress, double rate);
 
-        std::map<std::string, BenchmarkRequest> requests_;     ///< Requests to benchmark.
-        MetricCallbackFnAllocator metric_callback_allocator_;  ///< Allocation function that returns function
-                                                               ///< for user callbacks.
+        std::map<std::string, BenchmarkRequest> requests_;         ///< Requests to benchmark.
+        MetricCallbackFnAllocator metric_callback_allocator_;      ///< User metric callback allocator.
 
         std::mutex solved_mutex_;  ///< Lock used for progress property computation.
         bool solved_;              ///< Has the current benchmarking run been solved?

@@ -66,18 +66,21 @@ namespace robowflex
             ompl_interface::ModelBasedPlanningContextPtr getPlanningContext(
                 const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const;
 
+            /** \brief Get the last OMPL simple setup used in planning.
+             *  \return The last OMPL simple setup used.
+             */
+            ompl::geometric::SimpleSetupPtr getLastSimpleSetup() const;
+
             std::map<std::string, Planner::ProgressProperty>
             getProgressProperties(const SceneConstPtr &scene,
                                   const planning_interface::MotionPlanRequest &request) const override;
 
             std::vector<std::string> getPlannerConfigs() const override;
 
-            ompl::geometric::SimpleSetupPtr getLastSS() const;
-
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
-            ompl::geometric::SimpleSetupPtr ss_;  ///< Last ompl simple setup used.
+            ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for planning.
         };
     }  // namespace OMPL
 }  // namespace robowflex
