@@ -1,0 +1,231 @@
+world:
+  collision_objects:
+    - header:
+        frame_id: base_link
+      id: Can1
+      primitives:
+        - type: cylinder
+          dimensions: [0.12, 0.03]
+      primitive_poses:
+        - position: [0.6497882568857216, 0.2997994778402385, 0.7893448401713722]
+          orientation: [0.001353898504637438, -0.001413108874047923, 1.867763835349694e-05, 0.9999980848648137]
+    - header:
+        frame_id: base_link
+      id: Cube
+      primitives:
+        - type: box
+          dimensions: [0.25, 0.25, 0.25]
+      primitive_poses:
+        - orientation: [-3.194270846587093e-05, -3.248571349708461e-06, 1.216833140652919e-06, 0.9999999994838147]
+          position: [0.7510199387997242, 8.410343841141365e-06, 0.8390188049469561]
+    - header:
+        frame_id: base_link
+      id: table_bottom
+      primitives:
+        - type: box
+          dimensions: [0.9, 1.7, 0.04]
+      primitive_poses:
+        - orientation: [3.991366280407215e-07, -3.058681600402223e-07, 1.216484769349046e-06, 0.9999999999991336]
+          position: [1.049999494365437, 1.525999407748713e-06, 0.2452286236069161]
+    - header:
+        frame_id: base_link
+      id: table_leg_left_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [1.499997365340672, 0.8500025410031723, 0.3452295766870934]
+          orientation: [3.99139303289125e-07, -3.056191512504362e-07, 1.216484655398531e-06, 0.9999999999991337]
+    - primitive_poses:
+        - position: [0.5999973651690025, 0.8500003513330385, 0.3452290268567197]
+          orientation: [3.991366280407215e-07, -3.058681600402223e-07, 1.216484769349046e-06, 0.9999999999991336]
+      header:
+        frame_id: base_link
+      id: table_leg_left_front
+      primitives:
+        - dimensions: [0.05, 0.05, 0.7]
+          type: box
+    - header:
+        frame_id: base_link
+      id: table_leg_right_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [1.500001501214802, -0.849997458989023, 0.3452282203570115]
+          orientation: [3.991366280407215e-07, -3.058681600402223e-07, 1.216484769349046e-06, 0.9999999999991336]
+    - header:
+        frame_id: base_link
+      id: table_leg_right_front
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [0.6000015012176336, -0.8499996486613883, 0.3452276697934494]
+          orientation: [3.991366280407215e-07, -3.058681600402223e-07, 1.216484769349046e-06, 0.9999999999991336]
+    - header:
+        frame_id: base_link
+      id: table_top
+      primitives:
+        - type: box
+          dimensions: [1.2, 2, 0.04]
+      primitive_poses:
+        - position: [1.04999921908453, 1.166776107624432e-06, 0.6952286236066886]
+          orientation: [3.991366280407215e-07, -3.058681600402223e-07, 1.216484769349046e-06, 0.9999999999991336]
+robot_state:
+  joint_state:
+    position: [0.001376799381779037, 0.0002133597598197312, 0.3861500002611439, 0.1997121599266461, 9.027877805323214e-07, 0.002399987101487255, 1.320000259624186, 1.39998200465864, -0.1999873541300214, 1.719970737199095, 6.244706023394997e-07, 1.6600024213265, 1.645775755676482e-07, 0.04992376543775427, 0.04995055851344747]
+    header:
+      frame_id: base_link
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+allowed_collision_matrix:
+  entry_names: [base_link, bellows_link, bellows_link2, bl_caster_link, br_caster_link, elbow_flex_link, estop_link, fl_caster_link, forearm_roll_link, fr_caster_link, gripper_link, head_pan_link, head_tilt_link, l_gripper_finger_link, l_wheel_link, laser_link, r_gripper_finger_link, r_wheel_link, shoulder_lift_link, shoulder_pan_link, torso_fixed_link, torso_lift_link, upperarm_roll_link, wrist_flex_link, wrist_roll_link]
+  entry_values:
+    - [false, true, true, true, true, false, true, true, false, true, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [true, false, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [true, true, false, false, false, false, true, false, false, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, false]
+    - [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    - [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    - [false, true, false, false, false, false, true, false, true, false, true, false, false, true, true, false, true, true, true, true, false, false, true, true, true]
+    - [true, true, true, false, false, true, false, false, true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, false, true]
+    - [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    - [false, false, false, false, false, true, true, false, false, false, true, false, false, true, true, false, true, false, true, true, false, false, true, true, true]
+    - [true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+    - [false, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false, true, false, false, false, false, false, true, true, true]
+    - [true, true, true, false, false, false, true, false, false, false, false, false, true, false, true, true, false, true, true, true, true, true, false, false, false]
+    - [true, true, true, false, false, false, true, false, false, false, false, true, false, false, true, true, false, true, true, true, true, true, false, false, false]
+    - [false, false, false, false, false, true, false, false, true, false, true, false, false, false, true, false, true, false, false, false, false, false, true, true, true]
+    - [true, true, true, false, false, true, true, false, true, false, false, true, true, true, false, true, true, true, true, true, true, true, true, true, true]
+    - [true, true, true, false, false, false, true, false, false, false, false, true, true, false, true, false, true, true, true, true, true, true, true, false, false]
+    - [false, false, false, false, false, true, true, false, true, false, true, false, false, true, true, true, false, false, false, false, false, false, true, true, true]
+    - [true, true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, true, true, true, true, true, false, true]
+    - [true, true, true, false, false, true, true, false, true, false, false, true, true, false, true, true, false, true, false, true, true, false, true, true, true]
+    - [true, true, true, false, false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, false, true, true, false, true, false]
+    - [true, true, true, false, false, false, true, false, false, false, false, true, true, false, true, true, false, true, true, true, false, true, false, false, false]
+    - [true, true, true, false, false, false, true, false, false, false, false, true, true, false, true, true, false, true, false, true, true, false, false, false, false]
+    - [true, true, true, false, false, true, true, false, true, false, true, false, false, true, true, true, true, true, true, false, false, false, false, true, true]
+    - [false, false, false, false, false, true, false, false, true, false, true, false, false, true, true, false, true, false, true, true, false, false, true, false, true]
+    - [false, false, false, false, false, true, true, false, true, false, true, false, false, true, true, false, true, true, true, false, false, false, true, true, false]
+robot_model_name: fetch
+fixed_frame_transforms:
+  - child_frame_id: base_link
+    transform:
+      rotation: [0, 0, 0, 1]
+      translation: [0, 0, 0]
+    header:
+      frame_id: base_link
+  - child_frame_id: base_link
+    transform:
+      translation: [-0.8500003526947477, -2.897073751924469e-06, -0.004772538693808792]
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+    header:
+      frame_id: map
+  - child_frame_id: base_link
+    header:
+      frame_id: odom
+    transform:
+      rotation: [0, 0, 0, 1]
+      translation: [0, 0, 0]
+  - header:
+      frame_id: vicon/Can1/Can1
+    transform:
+      translation: [0.6497882568857205, 0.2997994778402389, 0.7893448401713739]
+      rotation: [0.001353898504637386, -0.001413108874047992, 1.867763835348596e-05, 0.9999980848648137]
+    child_frame_id: base_link
+  - header:
+      frame_id: vicon/Cube/Cube
+    child_frame_id: base_link
+    transform:
+      translation: [0.7510199383794989, 8.41034854411747e-06, 0.8390188053116896]
+      rotation: [-3.194271114116985e-05, -3.248820358495913e-06, 1.216833246623783e-06, 0.9999999994838138]
+  - header:
+      frame_id: vicon/fetch/fetch
+    child_frame_id: base_link
+    transform:
+      translation: [-1.092570478533617e-12, -6.755281606313354e-13, -2.523406830712283e-12]
+      rotation: [0, 0, 0, 1]
+  - transform:
+      translation: [1.049999494365436, 1.525999408017521e-06, 0.245228623606918]
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+    child_frame_id: base_link
+    header:
+      frame_id: vicon/table_bottom/table_bottom
+  - child_frame_id: base_link
+    header:
+      frame_id: vicon/table_leg_left_back/table_leg_left_back
+    transform:
+      translation: [1.499997365166169, 0.8500025410054042, 0.3452295774202835]
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+  - child_frame_id: base_link
+    transform:
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+      translation: [0.5999973651690014, 0.8500003513330389, 0.3452290268567215]
+    header:
+      frame_id: vicon/table_leg_left_front/table_leg_left_front
+  - header:
+      frame_id: vicon/table_leg_right_back/table_leg_right_back
+    child_frame_id: base_link
+    transform:
+      translation: [1.5000015012148, -0.8499974589890227, 0.3452282203570134]
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+  - header:
+      frame_id: vicon/table_leg_right_front/table_leg_right_front
+    child_frame_id: base_link
+    transform:
+      translation: [0.6000015012176325, -0.8499996486613879, 0.3452276697934513]
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+  - header:
+      frame_id: vicon/table_top/table_top
+    transform:
+      rotation: [3.991366280100495e-07, -3.058681600569282e-07, 1.216484769487824e-06, 0.9999999999991336]
+      translation: [1.049999219084529, 1.166776107933225e-06, 0.6952286236066902]
+    child_frame_id: base_link
+  - header:
+      frame_id: vicon_object_server/Can1
+    child_frame_id: base_link
+    transform:
+      rotation: [0.00135389850463745, -0.001413108874047901, 1.867763835347208e-05, 0.9999980848648137]
+      translation: [0.6497882568857216, 0.2997994778402385, 0.7893448401713722]
+  - transform:
+      translation: [0.7510199387997242, 8.410343841141365e-06, 0.8390188049469561]
+      rotation: [-3.194270846587092e-05, -3.24857134970846e-06, 1.216833140648062e-06, 0.9999999994838147]
+    header:
+      frame_id: vicon_object_server/Cube
+    child_frame_id: base_link
+  - transform:
+      rotation: [3.991366280294967e-07, -3.058681600430776e-07, 1.216484769307412e-06, 0.9999999999991336]
+      translation: [1.049999494365437, 1.525999407748713e-06, 0.2452286236069161]
+    header:
+      frame_id: vicon_object_server/table_bottom
+    child_frame_id: base_link
+  - header:
+      frame_id: vicon_object_server/table_leg_left_back
+    child_frame_id: base_link
+    transform:
+      translation: [1.499997365340672, 0.8500025410031723, 0.3452295766870934]
+      rotation: [3.991393032899272e-07, -3.056191512532564e-07, 1.216484655438573e-06, 0.9999999999991337]
+  - header:
+      frame_id: vicon_object_server/table_leg_left_front
+    child_frame_id: base_link
+    transform:
+      rotation: [3.991366280294967e-07, -3.058681600430776e-07, 1.216484769307412e-06, 0.9999999999991336]
+      translation: [0.5999973651690025, 0.8500003513330385, 0.3452290268567197]
+  - header:
+      frame_id: vicon_object_server/table_leg_right_back
+    child_frame_id: base_link
+    transform:
+      rotation: [3.991366280294967e-07, -3.058681600430776e-07, 1.216484769307412e-06, 0.9999999999991336]
+      translation: [1.500001501214802, -0.849997458989023, 0.3452282203570115]
+  - header:
+      frame_id: vicon_object_server/table_leg_right_front
+    child_frame_id: base_link
+    transform:
+      rotation: [3.991366280294967e-07, -3.058681600430776e-07, 1.216484769307412e-06, 0.9999999999991336]
+      translation: [0.6000015012176336, -0.8499996486613883, 0.3452276697934494]
+  - transform:
+      rotation: [3.991366280294967e-07, -3.058681600430776e-07, 1.216484769307412e-06, 0.9999999999991336]
+      translation: [1.04999921908453, 1.166776107624432e-06, 0.6952286236066886]
+    header:
+      frame_id: vicon_object_server/table_top
+    child_frame_id: base_link
+name: (noname)+
