@@ -43,13 +43,13 @@ double random::gaussian(double stddev)
 
 Eigen::Vector3d random::uniformRPY(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound)
 {
-    double phi_min = std::min(-pi, lbound[0]);
-    double chi_min = std::min(-pi / 2.0, lbound[1]);
-    double psi_min = std::min(-pi, lbound[2]);
+    double phi_min = std::max(-pi, lbound[0]);
+    double chi_min = std::max(-pi / 2.0, lbound[1]);
+    double psi_min = std::max(-pi, lbound[2]);
 
-    double phi_max = std::max(pi, ubound[0]);
-    double chi_max = std::max(pi / 2, ubound[1]);
-    double psi_max = std::max(pi, ubound[2]);
+    double phi_max = std::min(pi, ubound[0]);
+    double chi_max = std::min(pi / 2, ubound[1]);
+    double psi_max = std::min(pi, ubound[2]);
 
     Eigen::Vector3d v;
     // From Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, 2004
