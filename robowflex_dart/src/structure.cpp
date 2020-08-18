@@ -9,6 +9,7 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/WeldJoint.hpp>
 
+#include <robowflex_library/io.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/scene.h>
 
@@ -29,7 +30,7 @@ Structure::Structure(const std::string &name)
 
 Structure::Structure(const std::string &name, const SceneConstPtr &scene) : Structure(name)
 {
-    const auto objects = scene->getCollisionObjects();
+    const auto &objects = scene->getCollisionObjects();
 
     for (const auto &object : objects)
     {
@@ -116,11 +117,14 @@ void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dyna
 
     dart::dynamics::Inertia inertia;
     double mass = magic::DEFAULT_DENSITY * shape->getVolume();
+    if (mass <= 0)
+        mass = 1.;
+
     inertia.setMass(mass);
     inertia.setMoment(shape->computeInertia(mass));
 
     if (not inertia.verify(false))
-        inertia = dart::dynamics::Inertia();
+        inertia = dart::dynamics::Inertia(mass);
 
     body->setInertia(inertia);
     body->setRestitutionCoeff(magic::DEFAULT_RESTITUTION);
@@ -328,24 +332,31 @@ std::shared_ptr<dart::dynamics::SphereShape> robowflex::darts::makeSphere(double
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const GeometryPtr &geometry)
 {
-    auto uri = geometry->getResource();
+    std::string uri = geometry->getResource();
+    Eigen::Vector3d dimensions = geometry->getDimensions();
+
     if (uri.empty())
     {
-        static Assimp::Importer importer;
+        const auto &temp_file_name = ".robowflex_tmp.stl";
 
         auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
+        dimensions = shapes::computeShapeExtents(shape.get());
+
         std::vector<char> buffer;
         shapes::writeSTLBinary(shape.get(), buffer);
 
-        auto aiscene = importer.ReadFileFromMemory(buffer.data(), buffer.size(),
-                                                   aiProcessPreset_TargetRealtime_MaxQuality, "STOL");
+        std::ofstream out;
+        out.open(temp_file_name, std::ofstream::out | std::ofstream::binary);
+        out.write(buffer.data(), buffer.size());
+        out.close();
 
-        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
-        return mesh;
+        uri = temp_file_name;
     }
 
-    auto aiscene = dart::dynamics::MeshShape::loadMesh(uri);
-    auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+    const auto &file = robowflex::IO::resolvePackage(uri);
+    const auto &aiscene = dart::dynamics::MeshShape::loadMesh(file);
+
+    auto mesh = std::make_shared<dart::dynamics::MeshShape>(dimensions, aiscene);
     return mesh;
 }
 
