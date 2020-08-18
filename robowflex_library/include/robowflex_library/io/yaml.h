@@ -27,6 +27,12 @@ namespace robowflex
          */
         YAML::Node toNode(const geometry_msgs::Pose &msg);
 
+        /** \brief Converts a pose YAML to a goemetry message.
+         *  \param[in] node Node to convert.
+         *  \return The converted message.
+         */
+        geometry_msgs::Pose poseFromNode(const YAML::Node &node);
+
         /** \brief Converts a planning scene message to YAML.
          *  \param[in] msg Message to convert.
          *  \return The converted message.

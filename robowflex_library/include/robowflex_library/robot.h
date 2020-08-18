@@ -384,6 +384,13 @@ namespace robowflex
          */
         bool dumpPath(const robot_trajectory::RobotTrajectory &path, const std::string &filename) const;
 
+        /** \brief Dumps the current scratch configuration of the robot to a YAML file compatible with a
+         * scene.
+         *  \param[in] filename Filename to output to.
+         *  \return True on success, false on failure.
+         */
+        bool dumpToScene(const std::string &filename) const;
+
         /** \} */
 
     protected:
