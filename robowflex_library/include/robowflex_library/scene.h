@@ -48,6 +48,11 @@ namespace robowflex
          */
         Scene(const RobotConstPtr &robot);
 
+        /** \brief Constructor.
+         *  \param[in] robot Robot to construct planning scene for.
+         */
+        Scene(const robot_model::RobotModelConstPtr &robot);
+
         /** \brief Copy Constructor.
          *  \param[in] scene Scene to copy.
          */
@@ -57,6 +62,11 @@ namespace robowflex
          *  \param[in] scene Scene to copy.
          */
         void operator=(const Scene &scene);
+
+        /** \brief Deep Copy.
+         *  \return The deep copied planning scene.
+         */
+        Scene deepCopy() const;
 
         /** \name Getters and Setters
             \{ */

@@ -92,6 +92,11 @@ Scene::Scene(const RobotConstPtr &robot)
 {
 }
 
+Scene::Scene(const robot_model::RobotModelConstPtr &robot)
+  : loader_(new CollisionPluginLoader()), scene_(new planning_scene::PlanningScene(robot))
+{
+}
+
 Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(other.getSceneConst())
 {
 }
@@ -99,6 +104,14 @@ Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(
 void Scene::operator=(const Scene &other)
 {
     scene_ = other.getSceneConst();
+}
+
+Scene Scene::deepCopy() const
+{
+    auto robot = scene_->getRobotModel();
+    auto scene = Scene(robot);
+    scene.useMessage(getMessage());
+    return scene;
 }
 
 const planning_scene::PlanningScenePtr &Scene::getSceneConst() const
