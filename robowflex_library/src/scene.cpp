@@ -189,13 +189,22 @@ RobotPose Scene::getObjectPose(const std::string &name) const
     return RobotPose::Identity();
 }
 
-bool Scene::moveObject(const std::string &name, const RobotPose &transform)
+bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
 {
     auto &world = scene_->getWorldNonConst();
     bool success = world->moveObject(name, transform);
     if (not success)
-        ROS_ERROR("Failed to moveObject %s", name.c_str());
+        ROS_ERROR("Failed to move object %s", name.c_str());
 
+    return success;
+}
+
+bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
+{
+    auto pose = getObjectPose(name);
+    auto global_tf = pose * transform * pose.inverse();
+
+    bool success = moveObjectGlobal(name, global_tf);
     return success;
 }
 

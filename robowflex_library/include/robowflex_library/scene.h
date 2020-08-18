@@ -145,9 +145,17 @@ namespace robowflex
         /** \brief Move all shapes in an object according to the given transform specified in world frame.
          *  \param[in] name Name of the object to move.
          *  \param[in] transform The transform to move the object in world frame.
-         *  \return True upon success.
+         *  \return True on success.
          */
-        bool moveObject(const std::string &name, const RobotPose &transform);
+        bool moveObjectGlobal(const std::string &name, const RobotPose &transform);
+
+        /** \brief Move all shapes in an object according to the given transform specified in object frame.
+         *  If the object has multiple shapes, the first one is considered the local frame.
+         *  \param[in] name Name of the object to move.
+         *  \param[in] transform The transform to move the object in object frame.
+         *  \return True on success.
+         */
+        bool moveObjectLocal(const std::string &name, const RobotPose &transform);
 
         /** \brief Get the pose of a particular frame in the scene.
          *  Example, use this to get the pose from /world to /base_link.

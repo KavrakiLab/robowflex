@@ -36,6 +36,11 @@ double random::gaussian(double mean, double stddev)
     return gaussian01() * stddev + mean;
 }
 
+double random::gaussian(double stddev)
+{
+    return gaussian01() * stddev;
+}
+
 Eigen::Vector3d random::uniformRPY(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound)
 {
     assert(lbound[0] >= -pi);
@@ -85,6 +90,16 @@ Eigen::Vector3d random::gaussianVec(const Eigen::Vector3d &mean, const Eigen::Ve
     vec.x() = gaussian(mean[0], stddev[0]);
     vec.y() = gaussian(mean[1], stddev[1]);
     vec.z() = gaussian(mean[2], stddev[2]);
+    return vec;
+}
+
+Eigen::Vector3d random::gaussianVec(const Eigen::Vector3d &stddev)
+{
+    Eigen::Vector3d vec;
+    vec.x() = gaussian(stddev[0]);
+    vec.y() = gaussian(stddev[1]);
+    vec.z() = gaussian(stddev[2]);
+
     return vec;
 }
 

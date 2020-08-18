@@ -30,6 +30,7 @@ namespace robowflex
         double gaussian01();
 
         double gaussian(double mean, double stddev);
+        double gaussian(double stddev);
 
         Eigen::Vector3d uniformRPY(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound);
 
@@ -42,6 +43,8 @@ namespace robowflex
         Eigen::Vector3d uniformVec(const Eigen::Vector3d &bounds);
 
         Eigen::Vector3d gaussianVec(const Eigen::Vector3d &mean, const Eigen::Vector3d &stddev);
+
+        Eigen::Vector3d gaussianVec(const Eigen::Vector3d &stddev);
 
         template <typename Iter>
         Iter choice(Iter start, Iter end);

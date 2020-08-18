@@ -184,9 +184,9 @@ Eigen::Vector3d TF::samplePositionUniform(const Eigen::Vector3d &bounds)
     return random::uniformVec(bounds);
 }
 
-Eigen::Vector3d TF::samplePositionGaussian(const Eigen::Vector3d &position, const Eigen::Vector3d &stddev)
+Eigen::Vector3d TF::samplePositionGaussian(const Eigen::Vector3d &stddev)
 {
-    return random::gaussianVec(position, stddev);
+    return random::gaussianVec(stddev);
 }
 
 RobotPose TF::samplePoseUniform(const RobotPose &pose, const Eigen::Vector3d &pos_bounds,
@@ -200,16 +200,25 @@ RobotPose TF::samplePoseUniform(const RobotPose &pose, const Eigen::Vector3d &po
     return sampled;
 }
 
+RobotPose TF::samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds)
+{
+    return samplePoseUniform(RobotPose::Identity(), pos_bounds, orn_bounds);
+}
+
 RobotPose TF::samplePoseGaussian(const RobotPose &pose, const Eigen::Vector3d &pos_variances,
                                  const Eigen::Vector3d &orn_bounds)
 {
     // copy pose
     auto sampled = pose;
 
-    sampled.translate(samplePositionGaussian(pose.translation(), pos_variances));
+    sampled.translate(samplePositionGaussian(pos_variances));
     sampled.rotate(sampleOrientationUniform(orn_bounds));
 
     return sampled;
+}
+RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds)
+{
+    return samplePoseGaussian(RobotPose::Identity(), pos_variances, orn_bounds);
 }
 
 geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &source, const std::string &target,
