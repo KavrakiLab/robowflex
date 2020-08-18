@@ -43,7 +43,9 @@ int main(int argc, char **argv)
     benchmark.addBenchmarkingRequest("test", scene, planner, request);
 
     // Set benchmarking options to only compute and store paths and path length.
-    Benchmarker::Options options(10, Benchmarker::MetricOptions::PATH | Benchmarker::MetricOptions::LENGTH, 0.1);
+    Benchmarker::Options options(10,                                                                     //
+                                 Benchmarker::MetricOptions::PATH | Benchmarker::MetricOptions::LENGTH,  //
+                                 0.1);
 
     // Benchmark and output to JSON and a rosbag of trajectories.
     benchmark.benchmark({std::make_shared<JSONBenchmarkOutputter>("test_log.json"),  //

@@ -218,8 +218,8 @@ namespace robowflex
         void captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
                              std::vector<std::map<std::string, std::string>> &progress, double rate);
 
-        std::map<std::string, BenchmarkRequest> requests_;         ///< Requests to benchmark.
-        MetricCallbackFnAllocator metric_callback_allocator_;      ///< User metric callback allocator.
+        std::map<std::string, BenchmarkRequest> requests_;     ///< Requests to benchmark.
+        MetricCallbackFnAllocator metric_callback_allocator_;  ///< User metric callback allocator.
 
         std::mutex solved_mutex_;  ///< Lock used for progress property computation.
         bool solved_;              ///< Has the current benchmarking run been solved?
