@@ -71,7 +71,21 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
     const auto &ss = mbpc->getOMPLSimpleSetup();
 
     const auto &planner = ss->getPlanner();
+
+#if ROBOWFLEX_AT_LEAST_KINETIC
     return planner->getPlannerProgressProperties();
+
+    // As in Indigo they are boost::function
+#else
+    std::map<std::string, Planner::ProgressProperty> ret;
+    for (const auto &pair : planner->getPlannerProgressProperties())
+    {
+        auto function = pair.second;
+        ret[pair.first] = [function] { return function(); };
+    }
+
+    return ret;
+#endif
 }
 
 ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const
