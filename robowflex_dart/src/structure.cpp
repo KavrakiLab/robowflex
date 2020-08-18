@@ -340,7 +340,6 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const Geom
         const auto &temp_file_name = ".robowflex_tmp.stl";
 
         auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
-        dimensions = shapes::computeShapeExtents(shape.get());
 
         std::vector<char> buffer;
         shapes::writeSTLBinary(shape.get(), buffer);
