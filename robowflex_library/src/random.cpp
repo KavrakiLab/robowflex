@@ -43,18 +43,19 @@ double random::gaussian(double stddev)
 
 Eigen::Vector3d random::uniformRPY(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound)
 {
-    assert(lbound[0] >= -pi);
-    assert(lbound[1] >= -pi / 2.0);
-    assert(lbound[2] >= -pi);
-    assert(ubound[0] <= pi);
-    assert(ubound[1] <= pi / 2.0);
-    assert(ubound[2] <= pi);
+    double phi_min = std::min(-pi, lbound[0]);
+    double chi_min = std::min(-pi / 2.0, lbound[1]);
+    double psi_min = std::min(-pi, lbound[2]);
+
+    double phi_max = std::max(pi, ubound[0]);
+    double chi_max = std::max(pi / 2, ubound[1]);
+    double psi_max = std::max(pi, ubound[2]);
 
     Eigen::Vector3d v;
     // From Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, 2004
-    v[0] = uniformReal(lbound[0], ubound[0]);
-    v[1] = acos(uniformReal(cos(lbound[1] + pi / 2.0), cos(ubound[1] + pi / 2.0))) - pi / 2.0;
-    v[2] = uniformReal(lbound[2], ubound[2]);
+    v[0] = uniformReal(phi_min, phi_max);
+    v[1] = acos(uniformReal(cos(chi_min + pi / 2.0), cos(chi_max + pi / 2.0))) - pi / 2.0;
+    v[2] = uniformReal(psi_min, psi_max);
 
     return v;
 }
