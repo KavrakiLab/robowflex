@@ -739,7 +739,7 @@ bool Robot::dumpToScene(const std::string &filename) const
                 if (element)
                     visuals.emplace_back(addLinkVisual(element, false));
 #else
-            if (link->visual)
+            if (urdf_link->visual)
                 visuals.push_back(addLinkVisual(urdf_link->visual, false));
 #endif
 
