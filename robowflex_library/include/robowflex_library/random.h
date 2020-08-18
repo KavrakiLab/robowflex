@@ -14,6 +14,7 @@ namespace robowflex
     namespace random
     {
         static std::mt19937 generator_;
+        // use the uniform_int_ and uniform real from c++
         static std::uniform_real_distribution<> uniDist_{0, 1};
         static std::normal_distribution<> normalDist_{0, 1};
         static double pi = boost::math::constants::pi<double>();

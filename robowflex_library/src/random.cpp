@@ -48,7 +48,7 @@ Eigen::Vector3d random::uniformRPY(const Eigen::Vector3d &lbound, const Eigen::V
     Eigen::Vector3d v;
     // From Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, 2004
     v[0] = uniformReal(lbound[0], ubound[0]);
-    v[1] = acos(uniformReal(cos(lbound[1] + pi / 2.0), cos(ubound[1]) + pi / 2.0)) - pi / 2.0;
+    v[1] = acos(uniformReal(cos(lbound[1] + pi / 2.0), cos(ubound[1] + pi / 2.0))) - pi / 2.0;
     v[2] = uniformReal(lbound[2], ubound[2]);
 
     return v;
