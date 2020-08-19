@@ -1,9 +1,11 @@
-
 /* Author: Zachary Kingston */
+
+#include <robowflex_library/constants.h>
 
 #include <robowflex_dart/joints.h>
 #include <robowflex_dart/space.h>
 
+namespace constants = robowflex::constants;
 using namespace robowflex::darts;
 
 SO3Joint::SO3Joint(StateSpace *space,  //
@@ -38,7 +40,7 @@ double SO3Joint::distance(const Eigen::Ref<const Eigen::VectorXd> &a,
 
 double SO3Joint::getMaximumExtent() const
 {
-    return 0.5 * constants::pi;
+    return constants::half_pi;
 }
 
 void SO3Joint::interpolate(const Eigen::Ref<const Eigen::VectorXd> &a,  //
@@ -59,7 +61,7 @@ void SO3Joint::enforceBounds(Eigen::Ref<Eigen::VectorXd> a) const
 bool SO3Joint::satisfiesBounds(const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
     double n = a.norm();
-    return n - 1 < 1e-8;
+    return (n - 1.) < constants::eps;
 }
 
 void SO3Joint::sample(Eigen::Ref<Eigen::VectorXd> a) const
@@ -76,7 +78,7 @@ void SO3Joint::sampleNear(Eigen::Ref<Eigen::VectorXd> a,                  //
                           const Eigen::Ref<const Eigen::VectorXd> &near,  //
                           double r) const
 {
-    if (r >= .25 * constants::pi)
+    if (r >= constants::quarter_pi)
         sample(a);
 
     else
@@ -84,7 +86,7 @@ void SO3Joint::sampleNear(Eigen::Ref<Eigen::VectorXd> a,                  //
         double d = rng_.uniform01();
         auto qnear = toQuat(near);
         Eigen::Quaterniond q(                                                                            //
-            Eigen::AngleAxisd(2. * std::pow(d, 1. / 3.) * r,                                             //
+            Eigen::AngleAxisd(2. * std::pow(d, constants::third) * r,                                    //
                               Eigen::Vector3d{rng_.gaussian01(), rng_.gaussian01(), rng_.gaussian01()})  //
         );
         auto qs = qnear * q;

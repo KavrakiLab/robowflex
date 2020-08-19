@@ -12,8 +12,6 @@
 
 #include <robowflex_library/class_forward.h>
 
-#include <robowflex_dart/constants.h>
-
 namespace robowflex
 {
     namespace darts

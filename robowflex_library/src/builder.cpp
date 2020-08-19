@@ -1,12 +1,11 @@
 /* Author: Zachary Kingston */
 
-#include <boost/math/constants/constants.hpp>
-
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
+#include <robowflex_library/constants.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
@@ -128,9 +127,7 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
                                              const Eigen::Vector3d &tolerances, const RobotPose &offset,
                                              const Eigen::Vector3d &axis, unsigned int n)
 {
-    double pi2 = 2 * boost::math::constants::pi<double>();
-
-    for (double angle = 0; angle < pi2; angle += pi2 / n)
+    for (double angle = 0; angle < constants::two_pi; angle += constants::two_pi / n)
     {
         Eigen::Quaterniond rotation(Eigen::AngleAxisd(angle, axis));
         RobotPose new_pose = pose * rotation * offset;
@@ -148,10 +145,9 @@ void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, cons
     auto box = Geometry::makeBox(depth, depth, cylinder->getDimensions()[1]);
     RobotPose offset(Eigen::Translation3d(cylinder->getDimensions()[0] + distance, 0, 0));
 
-    Eigen::Quaterniond orientation =
-        Eigen::AngleAxisd(-boost::math::constants::pi<double>(), Eigen::Vector3d::UnitX())  //
-        * Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY())                                    //
-        * Eigen::AngleAxisd(boost::math::constants::pi<double>(), Eigen::Vector3d::UnitZ());
+    Eigen::Quaterniond orientation = Eigen::AngleAxisd(-constants::pi, Eigen::Vector3d::UnitX())  //
+                                     * Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY())             //
+                                     * Eigen::AngleAxisd(constants::pi, Eigen::Vector3d::UnitZ());
 
     addGoalRotaryTile(ee_name, base_name,                          //
                       pose, box, orientation, {0.01, 0.01, 0.01},  //
