@@ -1,0 +1,149 @@
+world:
+  collision_objects:
+    - meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/base_link.dae
+      id: base_link
+      mesh_poses:
+        - orientation: [0, 0, 0.2474039592545229, 0.9689124217106448]
+          position: [1, 1, 0]
+    - id: estop_link
+      mesh_poses:
+        - orientation: [0.6851258020678067, 0.1749413385780972, 0.1749406959838596, 0.6851232854648359]
+          position: [0.7760649839770488, 1.149911632299834, 0.31127]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/estop_link.dae
+    - meshes:
+        - resource: package://fetch_description/meshes/l_wheel_link.STL
+          dimensions: [1, 1, 1]
+      mesh_poses:
+        - position: [0.9112985526967696, 1.165060550587572, 0.055325]
+          orientation: [-2.966325379067139e-17, -7.57427221257722e-18, 0.2474039592545229, 0.9689124217106448]
+      id: l_wheel_link
+    - id: laser_link
+      meshes:
+        - resource: package://fetch_description/meshes/laser_link.STL
+          dimensions: [1, 1, 1]
+      mesh_poses:
+        - position: [1.206231902044238, 1.112665001571988, 0.2878]
+          orientation: [-0.9689124217106448, -0.2474039592545229, 2.558442778219466e-14, 1.00196738787939e-13]
+    - id: r_wheel_link
+      mesh_poses:
+        - orientation: [-2.966325379067139e-17, -7.57427221257722e-18, 0.2474039592545229, 0.9689124217106448]
+          position: [1.090968067544081, 0.8361777096935354, 0.055325]
+      meshes:
+        - resource: package://fetch_description/meshes/r_wheel_link.STL
+          dimensions: [1, 1, 1]
+    - id: torso_fixed_link
+      mesh_poses:
+        - position: [0.9237600149357739, 0.9583499063337598, 0.377425]
+          orientation: [-2.966340769810707e-17, -7.574311511597537e-18, 0.2474039592545229, 0.9689124217106448]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/torso_fixed_link.dae
+    - id: torso_lift_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/torso_lift_link.dae
+      mesh_poses:
+        - position: [0.9237600149357739, 0.9583499063337598, 0.6424300000000001]
+          orientation: [-2.966325379067139e-17, -7.57427221257722e-18, 0.2474039592545229, 0.9689124217106448]
+    - id: bellows_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/bellows_link.STL
+      mesh_poses:
+        - position: [0.9237600149357739, 0.9583499063337598, 0.6424300000000001]
+          orientation: [-2.966325379067139e-17, -7.57427221257722e-18, 0.2474039592545229, 0.9689124217106448]
+    - id: bellows_link2
+      mesh_poses:
+        - position: [0.9237600149357739, 0.9583499063337598, 0.6424300000000001]
+          orientation: [-2.966325379067139e-17, -7.57427221257722e-18, 0.2474039592545229, 0.9689124217106448]
+      meshes:
+        - resource: package://fetch_description/meshes/bellows_link.STL
+          dimensions: [1, 1, 1]
+    - id: head_pan_link
+      meshes:
+        - resource: package://fetch_description/meshes/head_pan_link.dae
+          dimensions: [1, 1, 1]
+      mesh_poses:
+        - position: [0.9703815885361999, 0.9838193880721081, 1.245431417713939]
+          orientation: [-2.698168065670057e-17, -1.446606836496462e-17, 0.00785684942277784, 0.9999691344822338]
+    - id: head_tilt_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/head_tilt_link.dae
+      mesh_poses:
+        - position: [1.112893991758782, 0.986058992439883, 1.303430417713939]
+          orientation: [0.001833876553426834, -0.2334039830979936, 0.007639828508480788, 0.972348111836054]
+    - id: shoulder_pan_link
+      mesh_poses:
+        - orientation: [-3.061499617312508e-17, 1.530749936218796e-20, 0.4798642699386742, 0.8773427394332407]
+          position: [1.028653070645721, 1.015653243835427, 0.9910100000000001]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/shoulder_pan_link.dae
+    - id: shoulder_lift_link
+      mesh_poses:
+        - orientation: [-0.2867651671980954, 0.5242968754388844, 0.384753760794648, 0.7034508290145419]
+          position: [1.091769956735797, 1.114168515191153, 1.05101]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/shoulder_lift_link.dae
+    - id: upperarm_roll_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/upperarm_roll_link.dae
+      mesh_poses:
+        - position: [1.125529827258013, 1.166862223823798, 0.8411418408789434]
+          orientation: [-0.7587917017252602, -0.128107363696942, 0.6375822875576309, 0.03622821210440209]
+    - id: elbow_flex_link
+      mesh_poses:
+        - position: [1.146032397027213, 1.198863425870108, 0.7136876620520003]
+          orientation: [-0.903871498461171, -0.02300843359893993, -0.4065615996179365, 0.1311281509401597]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/elbow_flex_link.dae
+    - id: forearm_roll_link
+      mesh_poses:
+        - position: [1.277698638440788, 1.186052514512047, 0.8596632813252139]
+          orientation: [0.2941140605271589, -0.3955087658002127, 0.09692542739531548, 0.8646821364522658]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/forearm_roll_link.dae
+    - id: wrist_flex_link
+      mesh_poses:
+        - position: [1.360909029587945, 1.17795627865378, 0.9519169087339199]
+          orientation: [0.2143383327086284, 0.05607315559149429, 0.2235099510250566, 0.9491881700413645]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/wrist_flex_link.dae
+    - id: wrist_roll_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/wrist_roll_link.dae
+      mesh_poses:
+        - position: [1.484700081123042, 1.24005181963158, 0.9504440372156189]
+          orientation: [-0.6853288492179164, -0.1583675297980438, 0.1673936154423962, 0.6908136300366658]
+    - id: gripper_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/gripper_link.dae
+      mesh_poses:
+        - position: [1.633472792516665, 1.314678554618979, 0.9486739327808088]
+          orientation: [-0.6853288492179164, -0.1583675297980438, 0.1673936154423962, 0.6908136300366658]
+    - id: l_gripper_finger_link
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/l_gripper_finger_link.STL
+      mesh_poses:
+        - position: [1.635701302942538, 1.313955869517987, 1.105506435686063]
+          orientation: [-0.6853288492179164, -0.1583675297980438, 0.1673936154423962, 0.6908136300366658]
+    - id: r_gripper_finger_link
+      mesh_poses:
+        - position: [1.631244282090792, 1.315401239719971, 0.7918414298755545]
+          orientation: [-0.6853288492179164, -0.1583675297980438, 0.1673936154423962, 0.6908136300366658]
+      meshes:
+        - dimensions: [1, 1, 1]
+          resource: package://fetch_description/meshes/r_gripper_finger_link.STL
