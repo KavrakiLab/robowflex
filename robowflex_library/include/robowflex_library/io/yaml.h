@@ -21,6 +21,8 @@ namespace robowflex
          */
         bool isNode(const YAML::Node &node);
 
+        moveit_msgs::RobotState robotStateFromNode(const YAML::Node &node);
+        
         /** \brief Converts a pose message to YAML.
          *  \param[in] msg Message to convert.
          *  \return The converted message.
