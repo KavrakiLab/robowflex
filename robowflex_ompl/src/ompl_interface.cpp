@@ -67,7 +67,7 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
 std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::getProgressProperties(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
 {
-    const auto &mbpc = getPlanningContext(scene, request);
+    auto mbpc = getPlanningContext(scene, request);
     ss_ = mbpc->getOMPLSimpleSetup();
 
     const auto &planner = ss_->getPlanner();
