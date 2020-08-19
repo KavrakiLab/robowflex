@@ -21,4 +21,4 @@ jobs:
       run: ./.docker/melodic/build-melodic.sh
 
     - name: Clean Docker
-      run: ./.ci/clean-docker.sh
+      run: sudo ./.ci/clean-docker.sh
