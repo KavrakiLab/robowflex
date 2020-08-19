@@ -262,7 +262,6 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         outfile_ << "{";
 
         outfile_ << "\"name\": \"run_" << run.num << "\",";
-        // outfile_ << R"("name": "run_)" << run.num << "\",";
         outfile_ << "\"time\":" << run.time << ",";
         outfile_ << "\"success\":" << run.success;
 

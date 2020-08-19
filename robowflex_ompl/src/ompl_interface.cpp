@@ -68,9 +68,9 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
 {
     const auto &mbpc = getPlanningContext(scene, request);
-    const auto &ss = mbpc->getOMPLSimpleSetup();
+    ss_ = mbpc->getOMPLSimpleSetup();
 
-    const auto &planner = ss->getPlanner();
+    const auto &planner = ss_->getPlanner();
 
 #if ROBOWFLEX_AT_LEAST_KINETIC
     return planner->getPlannerProgressProperties();
