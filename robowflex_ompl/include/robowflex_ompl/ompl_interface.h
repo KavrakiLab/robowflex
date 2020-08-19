@@ -80,7 +80,7 @@ namespace robowflex
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
-            ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for planning.
+            mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for planning.
         };
     }  // namespace OMPL
 }  // namespace robowflex
