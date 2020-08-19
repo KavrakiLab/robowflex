@@ -1,9 +1,8 @@
 /* Author: Zachary Kingston */
 
-#include <boost/math/constants/constants.hpp>
-
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
+#include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/path.h>
@@ -102,7 +101,7 @@ double robowflex::path::getSmoothness(const robot_trajectory::RobotTrajectory &p
             if (acos_value > -1.0 && acos_value < 1.0)
             {
                 // the smoothness is actually the outside angle of the one we compute
-                double angle = (boost::math::constants::pi<double>() - acos(acos_value));
+                double angle = (constants::pi - acos(acos_value));
 
                 // and we normalize by the length of the segments
                 double u = 2.0 * angle;  /// (a + b);

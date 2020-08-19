@@ -2,11 +2,14 @@
 
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
+#include <robowflex_library/constants.h>
+
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/world.h>
 
 #include <utility>
 
+namespace constants = robowflex::constants;
 using namespace robowflex::darts;
 
 ///

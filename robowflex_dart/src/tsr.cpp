@@ -5,15 +5,16 @@
 #include <dart/dynamics/InverseKinematics.hpp>
 #include <dart/dynamics/SimpleFrame.hpp>
 
+#include <robowflex_library/constants.h>
 #include <robowflex_library/tf.h>
 
-#include <robowflex_dart/constants.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/structure.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/world.h>
 
+namespace constants = robowflex::constants;
 using namespace robowflex::darts;
 
 ///
@@ -944,7 +945,7 @@ void TSRSet::addTSR(const TSRPtr &tsr, bool intersect, double weight)
         ntsr->setWorldIndices(tsr->getWorldIndices());
 
         // weight relative frames less
-        if (weight - 1. < 1e-8)
+        if ((weight - 1.) < constants::eps)
             if (spec.isRelative())
                 weight = 0.1;
     }
