@@ -40,6 +40,13 @@ MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const
             break;
 }
 
+MotionRequestBuilderPtr MotionRequestBuilder::clone() const
+{
+    auto clone = std::make_shared<MotionRequestBuilder>(planner_, group_name_);
+    clone->getRequest() = request_;
+    return clone;
+}
+
 bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
     const auto &configs = planner_->getPlannerConfigs();

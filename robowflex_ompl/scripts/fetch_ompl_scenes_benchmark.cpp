@@ -1,6 +1,5 @@
-/* Author: Constantinos Chamzas */
+/* Author: Constantinos Chamzas, Zachary Kingston */
 
-// Robowflex
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
@@ -9,6 +8,8 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
+
+#include <robowflex_ompl/ompl_interface.h>
 
 using namespace robowflex;
 
@@ -48,8 +49,8 @@ int main(int argc, char **argv)
         }
 
         // Create the default planner for the Fetch.
-        auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-        planner->initialize();
+        auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
+        planner->initialize("package://fetch_moveit_config/config/ompl_planning.yaml");
 
         // Create an empty motion planning request.
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
@@ -61,17 +62,17 @@ int main(int argc, char **argv)
 
         // Modify the planning request here
         request->setNumPlanningAttempts(1);
-        request->setAllowedPlanningTime(10);
+        request->setAllowedPlanningTime(200);
+        request->setConfig("PRMstar");
 
         // Add benchmarking request
         benchmark.addBenchmarkingRequest("result" + index, scene, planner, request);
     }
 
     // How many times to solve each problem
-    unsigned int reps = 10;
+    unsigned int reps = 2;
 
     Benchmarker::Options options(reps, Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH);
-    std::string bpath = ros::package::getPath("robowflex_library") + "/yaml/benchmark/";
-
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>(bpath)}, options);
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_ompl_scene_benchmark/")},
+                        options);
 }

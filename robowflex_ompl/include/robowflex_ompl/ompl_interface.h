@@ -38,7 +38,7 @@ namespace robowflex
              */
             OMPLInterfacePlanner(const RobotPtr &robot, const std::string &name = "");
 
-            // non-copyable
+            // non-copy able
             OMPLInterfacePlanner(OMPLInterfacePlanner const &) = delete;
             void operator=(OMPLInterfacePlanner const &) = delete;
 
@@ -77,9 +77,24 @@ namespace robowflex
 
             std::vector<std::string> getPlannerConfigs() const override;
 
+            void preRun(const SceneConstPtr &scene,
+                        const planning_interface::MotionPlanRequest &request) override;
+
         private:
+            /** \brief Returns the simple setup used for this motion planning request.
+             *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+             *  \param[in] request The motion planning request to solve.
+             *  \return The simple setup used by the planner.
+             */
+            void refreshContext(const SceneConstPtr &scene,
+                                const planning_interface::MotionPlanRequest &request) const;
+
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
+
+            mutable const Scene *last_scene_{nullptr};  ///< The pointer to the last scene requested.
+            mutable const planning_interface::MotionPlanRequest *last_request_{nullptr};  ///< Last request.
+            mutable ompl_interface::ModelBasedPlanningContextPtr context_;                ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for planning.
         };
     }  // namespace OMPL
