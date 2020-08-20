@@ -30,28 +30,36 @@ int main(int argc, char **argv)
     auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
     planner->initialize();
 
-    // Sets the Fetch's base pose.
-    fetch->setBasePose(1, 1, 0.5);
-
-    // Sets the Fetch's head pose to look at a point.
-    fetch->pointHead({2, 1, 1.5});
-
-    // Create a motion planning request with a pose goal.
-    auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
-    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    request->setStartConfiguration(fetch->getScratchState());
-
-    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    request->setGoalConfiguration(fetch->getScratchState());
-
-    request->setConfig("PRM");
-
     // Setup a benchmarking request for the joint and pose motion plan requests.
     Benchmarker benchmark;
-    benchmark.addBenchmarkingRequest("joint", scene, planner, request);
+
+    // Create a motion planning request with a pose goal.
+    auto request_1 = std::make_shared<MotionRequestBuilder>(planner, GROUP);
+    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
+    request_1->setStartConfiguration(fetch->getScratchState());
+
+    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
+    request_1->setGoalConfiguration(fetch->getScratchState());
+
+    request_1->setConfig("RRTConnect");
+    benchmark.addBenchmarkingRequest("rrtconnect", scene, planner, request_1);
+
+    auto request_2 = request_1->clone();
+    request_2->setConfig("RRT");
+    benchmark.addBenchmarkingRequest("rrt", scene, planner, request_2);
+
+    auto request_3 = request_1->clone();
+    request_3->setConfig("RRTstar");
+    benchmark.addBenchmarkingRequest("rrtstar", scene, planner, request_3);
 
     // Output results to an OMPL benchmarking file.
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")});
+    Benchmarker::Options options;
+
+    options.runs = 50;
+    options.options =
+        Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH | Benchmarker::SMOOTHNESS;
+
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")}, options);
 
     return 0;
 }

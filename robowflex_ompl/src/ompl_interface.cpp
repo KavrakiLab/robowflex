@@ -46,29 +46,32 @@ ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlan
     return interface_->getPlanningContext(scene->getSceneConst(), request);
 }
 
+void OMPL::OMPLInterfacePlanner::preRun(const SceneConstPtr &scene,
+                                        const planning_interface::MotionPlanRequest &request)
+{
+    refreshContext(scene, request);
+}
+
 planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
     planning_interface::MotionPlanResponse response;
     response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-    auto context = getPlanningContext(scene, request);
-    if (!context)
-    {
-        ROS_ERROR("Context was not set!");
+
+    refreshContext(scene, request);
+    if (not ss_)
         return response;
-    }
 
-    ss_ = context->getOMPLSimpleSetup();
-    context->solve(response);
-
+    context_->solve(response);
     return response;
 }
 
 std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::getProgressProperties(
     const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
 {
-    const auto &mbpc = getPlanningContext(scene, request);
-    ss_ = mbpc->getOMPLSimpleSetup();
+    refreshContext(scene, request);
+    if (not ss_)
+        return {};
 
     const auto &planner = ss_->getPlanner();
 
@@ -86,6 +89,34 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
 
     return ret;
 #endif
+}
+
+void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
+                                                const planning_interface::MotionPlanRequest &request) const
+{
+    auto *next_scene = scene.get();
+    auto *next_request = std::addressof(request);
+
+    if (last_scene_ == next_scene and last_request_ == next_request and ss_)
+    {
+        ROS_INFO("Reusing Cached Context!");
+        return;
+    }
+
+    context_ = getPlanningContext(scene, request);
+    if (not context_)
+    {
+        ROS_ERROR("Context was not set!");
+        ss_ = nullptr;
+        return;
+    }
+
+    ss_ = context_->getOMPLSimpleSetup();
+
+    last_scene_ = next_scene;
+    last_request_ = next_request;
+
+    ROS_INFO("Refreshed Context!");
 }
 
 ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const

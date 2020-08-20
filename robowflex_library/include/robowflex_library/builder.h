@@ -37,6 +37,11 @@ namespace robowflex
          */
         MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name);
 
+        /** \brief Clone this request.
+         *  \return A copy of this request.
+         */
+        MotionRequestBuilderPtr clone() const;
+
         /** \name Starting Configurations
             \{ */
 

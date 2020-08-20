@@ -36,19 +36,18 @@ int main(int argc, char **argv)
     int end = 10;
     for (int i = start; i <= end; i++)
     {
-        std::stringstream ss;
-        // (pre-appending 4 leading zeros)
-        ss << std::setw(4) << std::setfill('0') << i;
-        std::string index = ss.str();
+        const auto &is = std::to_string(i);
+        const auto &index = std::string(4 - is.size(), '0') + is;
 
-        auto fscene = "package://robowflex_library/yaml/fetch_scenes/scene_vicon" + index + ".yaml";
+        const auto &scene_file =
+            "package://robowflex_library/yaml/fetch_scenes/scene_vicon" + index + ".yaml";
+        const auto &request_file = "package://robowflex_library/yaml/fetch_scenes/request" + index + ".yaml";
 
         // Create an empty Scene.
         auto scene = std::make_shared<Scene>(fetch);
-
-        if (!scene->fromYAMLFile(fscene))
+        if (not scene->fromYAMLFile(scene_file))
         {
-            ROS_ERROR("Failed to read file: %s for scene", fscene.c_str());
+            ROS_ERROR("Failed to read file: %s for scene", scene_file.c_str());
             continue;
         }
 
@@ -58,12 +57,9 @@ int main(int argc, char **argv)
 
         // Create an empty motion planning request.
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
-
-        auto frequest = "package://robowflex_library/yaml/fetch_scenes/request" + index + ".yaml";
-
-        if (!request->fromYAMLFile(frequest))
+        if (not request->fromYAMLFile(request_file))
         {
-            ROS_ERROR("Failed to read file: %s for request", frequest.c_str());
+            ROS_ERROR("Failed to read file: %s for request", request_file.c_str());
             continue;
         }
 
