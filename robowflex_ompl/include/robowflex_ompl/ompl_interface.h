@@ -38,7 +38,7 @@ namespace robowflex
              */
             OMPLInterfacePlanner(const RobotPtr &robot, const std::string &name = "");
 
-            // non-copy able
+            // non-copyable
             OMPLInterfacePlanner(OMPLInterfacePlanner const &) = delete;
             void operator=(OMPLInterfacePlanner const &) = delete;
 
@@ -95,7 +95,8 @@ namespace robowflex
             mutable const Scene *last_scene_{nullptr};  ///< The pointer to the last scene requested.
             mutable const planning_interface::MotionPlanRequest *last_request_{nullptr};  ///< Last request.
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;                ///< Last context.
-            mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for planning.
+            mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
+                                                          ///< planning.
         };
     }  // namespace OMPL
 }  // namespace robowflex
