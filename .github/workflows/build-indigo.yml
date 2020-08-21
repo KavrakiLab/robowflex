@@ -3,17 +3,8 @@ name: Build Indigo
 on:
   push:
     branches: [ master ]
-    paths:
-      - "**/*.cpp"
-      - "**/*.h"
-      - "**/CMakeLists.txt"
-      - "**/package.xml"
   pull_request:
     branches: [ master ]
-    paths:
-      - "**/*.cpp"
-      - "**/*.h"
-      - "**/CMakeLists.txt"
 
 jobs:
   build-indigo:
@@ -24,7 +15,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Enable Docker Layer Caching
-      uses: satackey/action-docker-layer-caching@v0.0.3
+      uses: satackey/action-docker-layer-caching@v0.0.8
 
     - name: Compile Docker Container
       run: ./.docker/indigo/build-indigo.sh
+
+    - name: Clean Docker
+      run: sudo ./.ci/clean-docker.sh

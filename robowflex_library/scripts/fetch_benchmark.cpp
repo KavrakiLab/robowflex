@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     fetch->pointHead({2, 1, 1.5});
 
     // Create a motion planning request with a pose goal.
-    MotionRequestBuilderPtr request(new MotionRequestBuilder(planner, GROUP));
+    auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
     fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
     request->setStartConfiguration(fetch->getScratchState());
 

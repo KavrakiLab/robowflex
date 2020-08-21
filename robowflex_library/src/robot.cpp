@@ -465,7 +465,7 @@ robot_model::RobotStatePtr Robot::allocState() const
 
 namespace
 {
-    YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry)
+    YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry, bool resolve = true)
     {
         YAML::Node node;
         switch (geometry->type)
@@ -474,7 +474,11 @@ namespace
             {
                 const auto &mesh = static_cast<urdf::Mesh *>(geometry.get());
                 node["type"] = "mesh";
-                node["resource"] = IO::resolvePath(mesh->filename);
+
+                if (resolve)
+                    node["resource"] = IO::resolvePath(mesh->filename);
+                else
+                    node["resource"] = mesh->filename;
 
                 if (mesh->scale.x != 1 || mesh->scale.y != 1 || mesh->scale.z != 1)
                 {
@@ -533,7 +537,7 @@ namespace
         ROBOWFLEX_YAML_FLOW(node["origin"]);
     }
 
-    YAML::Node addLinkVisual(const urdf::VisualSharedPtr &visual)
+    YAML::Node addLinkVisual(const urdf::VisualSharedPtr &visual, bool resolve = true)
     {
         YAML::Node node;
         if (visual)
@@ -541,7 +545,7 @@ namespace
             if (visual->geometry)
             {
                 const auto &geometry = visual->geometry;
-                node = addLinkGeometry(geometry);
+                node = addLinkGeometry(geometry, resolve);
 
                 if (visual->material)
                 {
@@ -662,6 +666,7 @@ bool Robot::dumpPath(const robot_trajectory::RobotTrajectory &path, const std::s
     auto node = robowflex::IO::toNode(traj);
     return IO::YAMLToFile(node, filename);
 }
+
 bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, const std::string &filename,
                                double fps, double threshold) const
 {
@@ -714,6 +719,98 @@ bool Robot::dumpPathTransforms(const robot_trajectory::RobotTrajectory &path, co
     node["fps"] = fps;
 
     return IO::YAMLToFile(node, filename);
+}
+
+bool Robot::dumpToScene(const std::string &filename) const
+{
+    YAML::Node node;
+
+    const auto &urdf = model_->getURDF();
+    for (const auto &link_name : model_->getLinkModelNames())
+    {
+        const auto &urdf_link = urdf->getLink(link_name);
+        if (urdf_link->visual)
+        {
+            const auto &link = model_->getLinkModel(link_name);
+
+            std::vector<YAML::Node> visuals;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+            for (const auto &element : urdf_link->visual_array)
+                if (element)
+                    visuals.emplace_back(addLinkVisual(element, false));
+#else
+            if (urdf_link->visual)
+                visuals.push_back(addLinkVisual(urdf_link->visual, false));
+#endif
+
+            YAML::Node object;
+            object["id"] = link->getName();
+
+            YAML::Node meshes;
+            YAML::Node mesh_poses;
+            YAML::Node primitives;
+            YAML::Node primitive_poses;
+
+            RobotPose tf = scratch_->getGlobalLinkTransform(link);
+            for (const auto &visual : visuals)
+            {
+                RobotPose pose = tf;
+                if (IO::isNode(visual["origin"]))
+                {
+                    RobotPose offset = TF::poseMsgToEigen(IO::poseFromNode(visual["origin"]));
+                    pose = pose * offset;
+                }
+
+                const auto &posey = IO::toNode(TF::poseEigenToMsg(pose));
+
+                const auto &type = visual["type"].as<std::string>();
+                if (type == "mesh")
+                {
+                    YAML::Node mesh;
+                    mesh["resource"] = visual["resource"];
+                    if (IO::isNode(visual["dimensions"]))
+                        mesh["dimensions"] = visual["dimensions"];
+                    else
+                    {
+                        mesh["dimensions"].push_back(1.);
+                        mesh["dimensions"].push_back(1.);
+                        mesh["dimensions"].push_back(1.);
+                    }
+
+                    ROBOWFLEX_YAML_FLOW(mesh["dimensions"]);
+
+                    meshes.push_back(mesh);
+                    mesh_poses.push_back(posey);
+                }
+                else
+                {
+                    YAML::Node primitive;
+                    primitive["type"] = type;
+                    primitive["dimensions"] = visual["dimensions"];
+                    primitive_poses.push_back(posey);
+                }
+            }
+
+            if (meshes.size())
+            {
+                object["meshes"] = meshes;
+                object["mesh_poses"] = mesh_poses;
+            }
+
+            if (primitives.size())
+            {
+                object["primitives"] = primitives;
+                object["primitive_poses"] = primitive_poses;
+            }
+
+            node["collision_objects"].push_back(object);
+        }
+    }
+
+    YAML::Node scene;
+    scene["world"] = node;
+
+    return IO::YAMLToFile(scene, filename);
 }
 
 ///

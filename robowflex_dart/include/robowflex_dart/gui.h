@@ -12,7 +12,6 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
 
-#include <robowflex_dart/constants.h>
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>

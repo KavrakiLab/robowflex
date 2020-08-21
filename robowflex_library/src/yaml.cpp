@@ -1785,6 +1785,11 @@ namespace robowflex
             return node;
         }
 
+        geometry_msgs::Pose poseFromNode(const YAML::Node &node)
+        {
+            return node.as<geometry_msgs::Pose>();
+        }
+
         YAML::Node toNode(const moveit_msgs::PlanningScene &msg)
         {
             YAML::Node node;

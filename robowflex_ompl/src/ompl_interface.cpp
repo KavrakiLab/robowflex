@@ -41,7 +41,7 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
 }
 
 ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlanningContext(
-    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
 {
     return interface_->getPlanningContext(scene->getSceneConst(), request);
 }
@@ -51,14 +51,46 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
 {
     planning_interface::MotionPlanResponse response;
     response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-
     auto context = getPlanningContext(scene, request);
-
     if (!context)
+    {
+        ROS_ERROR("Context was not set!");
         return response;
+    }
 
+    ss_ = context->getOMPLSimpleSetup();
     context->solve(response);
+
     return response;
+}
+
+std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::getProgressProperties(
+    const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) const
+{
+    const auto &mbpc = getPlanningContext(scene, request);
+    ss_ = mbpc->getOMPLSimpleSetup();
+
+    const auto &planner = ss_->getPlanner();
+
+#if ROBOWFLEX_AT_LEAST_KINETIC
+    return planner->getPlannerProgressProperties();
+
+    // As in Indigo they are boost::function
+#else
+    std::map<std::string, Planner::ProgressProperty> ret;
+    for (const auto &pair : planner->getPlannerProgressProperties())
+    {
+        auto function = pair.second;
+        ret[pair.first] = [function] { return function(); };
+    }
+
+    return ret;
+#endif
+}
+
+ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const
+{
+    return ss_;
 }
 
 std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const

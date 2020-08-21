@@ -1,9 +1,11 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_dart/constants.h>
+#include <robowflex_library/constants.h>
+
 #include <robowflex_dart/joints.h>
 #include <robowflex_dart/space.h>
 
+namespace constants = robowflex::constants;
 using namespace robowflex::darts;
 
 ///
@@ -22,7 +24,7 @@ double SO2Joint::distance(const Eigen::Ref<const Eigen::VectorXd> &a,
                           const Eigen::Ref<const Eigen::VectorXd> &b) const
 {
     double d = std::fabs(a[0] - b[0]);
-    return (d > constants::pi) ? 2.0 * constants::pi - d : d;
+    return (d > constants::pi) ? constants::two_pi - d : d;
 }
 
 double SO2Joint::getMaximumExtent() const
@@ -41,28 +43,28 @@ void SO2Joint::interpolate(const Eigen::Ref<const Eigen::VectorXd> &a,  //
     else
     {
         if (diff > 0.0)
-            diff = 2.0 * constants::pi - diff;
+            diff = constants::two_pi - diff;
         else
-            diff = -2.0 * constants::pi - diff;
+            diff = -constants::two_pi - diff;
 
         double &v = c[0];
         v = a[0] - diff * t;
 
         if (v > constants::pi)
-            v -= 2.0 * constants::pi;
+            v -= constants::two_pi;
         else if (v < -constants::pi)
-            v += 2.0 * constants::pi;
+            v += constants::two_pi;
     }
 }
 
 void SO2Joint::enforceBounds(Eigen::Ref<Eigen::VectorXd> a) const
 {
     double &v = a[0];
-    v = std::fmod(v, 2.0 * constants::pi);
+    v = std::fmod(v, constants::two_pi);
     if (v < -constants::pi)
-        v += 2.0 * constants::pi;
+        v += constants::two_pi;
     else if (v >= constants::pi)
-        v -= 2.0 * constants::pi;
+        v -= constants::two_pi;
 }
 
 bool SO2Joint::satisfiesBounds(const Eigen::Ref<const Eigen::VectorXd> &a) const

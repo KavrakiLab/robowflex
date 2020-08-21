@@ -5,8 +5,6 @@
 
 #include <tinyxml2.h>
 
-#include <boost/math/constants/constants.hpp>
-
 #include <ros/console.h>
 
 #include <geometry_msgs/Pose.h>
@@ -18,6 +16,7 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
+#include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/openrave.h>
@@ -36,7 +35,7 @@ namespace
 
     double toRadians(double v)
     {
-        return v * boost::math::constants::pi<double>() / 180.;
+        return v * constants::pi / 180.;
     }
 
     template <typename T>
