@@ -155,7 +155,7 @@ moveit_msgs::OrientationConstraint TF::getOrientationConstraint(const std::strin
 Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
-    auto vec = random::uniformVec(tolerances);
+    auto vec = RND::uniformVec(tolerances);
     Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
                                  * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
                                  * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
@@ -165,7 +165,7 @@ Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
 
 Eigen::Quaterniond TF::sampleOrientationUniform(const Eigen::Vector3d &tolerances)
 {
-    auto vec = random::uniformRPY(tolerances);
+    auto vec = RND::uniformRPY(tolerances);
     Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
                                  * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
                                  * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
@@ -181,12 +181,12 @@ Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, 
 
 Eigen::Vector3d TF::samplePositionUniform(const Eigen::Vector3d &bounds)
 {
-    return random::uniformVec(bounds);
+    return RND::uniformVec(bounds);
 }
 
 Eigen::Vector3d TF::samplePositionGaussian(const Eigen::Vector3d &stddev)
 {
-    return random::gaussianVec(stddev);
+    return RND::gaussianVec(stddev);
 }
 
 RobotPose TF::samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds)

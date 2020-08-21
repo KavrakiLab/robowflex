@@ -188,7 +188,7 @@ namespace robowflex
          *  \param[in] ornt_bounds The desired orientation bounds.
          *  \return The sampled pose.
          */
-        RobotPose samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &ornt_bounds);
+        RobotPose samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds);
 
         /** \brief Sample a pose with gaussian sampling for position with given variances and
          *  uniform sampling for the orientation within the given bounds.
