@@ -204,8 +204,11 @@ RobotPose Scene::getObjectPose(const std::string &name) const
 
 bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
 {
+    bool success = false;
+#if ROBOWFLEX_AT_LEAST_KINETIC
     auto &world = scene_->getWorldNonConst();
-    bool success = world->moveObject(name, transform);
+    success = world->moveObject(name, transform);
+#endif
     if (not success)
         ROS_ERROR("Failed to move object %s", name.c_str());
 
