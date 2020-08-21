@@ -112,7 +112,7 @@ namespace robowflex
          */
         Eigen::Vector3d gaussianVec(const Eigen::Vector3d &stddev);
 
-        /** \brief Choose a random element between \a start and \end
+        /** \brief Choose a random element between \a start and \end.
          * \param[in] start Start iterator.
          * \param[in] end End iterator.
          * \return chosen element.

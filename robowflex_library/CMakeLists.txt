@@ -130,6 +130,7 @@ add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(hdf5_io)
 add_script(plugin_io)
+add_script(random)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts
