@@ -76,9 +76,8 @@ Eigen::Vector3d RNG::uniformRPY(const Eigen::Vector3d &bounds)
 
 Eigen::Vector3d RNG::unifromRPY()
 {
-    const double &pi = constants::pi;
-    const double &half_pi = constants::half_pi;
-    return uniformRPY(Eigen::Vector3d{-pi, -half_pi, -pi}, Eigen::Vector3d{pi, half_pi, pi});
+    return uniformRPY(Eigen::Vector3d{-constants::pi, -constants::half_pi, -constants::pi},
+                      Eigen::Vector3d{constants::pi, constants::half_pi, constants::pi});
 }
 
 Eigen::Vector3d RNG::uniformVec(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound)
