@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -378,8 +379,7 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
     return scene_->distanceToCollision(*state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/,
-                               const std::string & /*object*/) const
+double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
     if (not hasObject(object))
@@ -424,7 +424,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr & /*state*/,
 #endif
 }
 
-double Scene::distanceBetweenObjects(const std::string & /*one*/, const std::string & /*two*/) const
+double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
     // Early terminate if they are the same
