@@ -1773,6 +1773,11 @@ namespace robowflex
             return r;
         }
 
+        moveit_msgs::RobotState robotStateFromNode(const YAML::Node &node)
+        {
+            return node.as<moveit_msgs::RobotState>();
+        }
+
         YAML::Node toNode(const geometry_msgs::Pose &msg)
         {
             YAML::Node node;

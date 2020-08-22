@@ -92,6 +92,11 @@ Scene::Scene(const RobotConstPtr &robot)
 {
 }
 
+Scene::Scene(const robot_model::RobotModelConstPtr &robot)
+  : loader_(new CollisionPluginLoader()), scene_(new planning_scene::PlanningScene(robot))
+{
+}
+
 Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(other.getSceneConst())
 {
 }
@@ -99,6 +104,14 @@ Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(
 void Scene::operator=(const Scene &other)
 {
     scene_ = other.getSceneConst();
+}
+
+Scene Scene::deepCopy() const
+{
+    auto robot = scene_->getRobotModel();
+    auto scene = Scene(robot);
+    scene.useMessage(getMessage());
+    return scene;
 }
 
 const planning_scene::PlanningScenePtr &Scene::getSceneConst() const
@@ -187,6 +200,28 @@ RobotPose Scene::getObjectPose(const std::string &name) const
         return obj->shape_poses_[0];
 
     return RobotPose::Identity();
+}
+
+bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
+{
+    bool success = false;
+#if ROBOWFLEX_AT_LEAST_KINETIC
+    auto &world = scene_->getWorldNonConst();
+    success = world->moveObject(name, transform);
+#endif
+    if (not success)
+        ROS_ERROR("Failed to move object %s", name.c_str());
+
+    return success;
+}
+
+bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
+{
+    const auto pose = getObjectPose(name);
+    const auto global_tf = pose * transform * pose.inverse();
+
+    bool success = moveObjectGlobal(name, global_tf);
+    return success;
 }
 
 RobotPose Scene::getFramePose(const std::string &id) const

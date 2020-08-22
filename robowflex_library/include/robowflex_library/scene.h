@@ -48,6 +48,11 @@ namespace robowflex
          */
         Scene(const RobotConstPtr &robot);
 
+        /** \brief Constructor.
+         *  \param[in] robot Robot to construct planning scene for.
+         */
+        Scene(const robot_model::RobotModelConstPtr &robot);
+
         /** \brief Copy Constructor.
          *  \param[in] scene Scene to copy.
          */
@@ -57,6 +62,11 @@ namespace robowflex
          *  \param[in] scene Scene to copy.
          */
         void operator=(const Scene &scene);
+
+        /** \brief Deep Copy.
+         *  \return The deep copied planning scene.
+         */
+        Scene deepCopy() const;
 
         /** \name Getters and Setters
             \{ */
@@ -141,6 +151,21 @@ namespace robowflex
          *  \return Pose of the object.
          */
         RobotPose getObjectPose(const std::string &name) const;
+
+        /** \brief Move all shapes in an object according to the given transform specified in world frame.
+         *  \param[in] name Name of the object to move.
+         *  \param[in] transform The transform to move the object in world frame.
+         *  \return True on success.
+         */
+        bool moveObjectGlobal(const std::string &name, const RobotPose &transform);
+
+        /** \brief Move all shapes in an object according to the given transform specified in object frame.
+         *  If the object has multiple shapes, the first one is considered the local frame.
+         *  \param[in] name Name of the object to move.
+         *  \param[in] transform The transform to move the object in object frame.
+         *  \return True on success.
+         */
+        bool moveObjectLocal(const std::string &name, const RobotPose &transform);
 
         /** \brief Get the pose of a particular frame in the scene.
          *  Example, use this to get the pose from /world to /base_link.

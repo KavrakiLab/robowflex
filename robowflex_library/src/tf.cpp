@@ -1,10 +1,10 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <eigen_conversions/eigen_msg.h>
-#include <random>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/random.h>
 
 using namespace robowflex;
 
@@ -48,8 +48,8 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
                           const Eigen::Quaterniond &rotation)
 {
     RobotPose pose = RobotPose::Identity();
-    pose.translate(translation);
-    pose.rotate(rotation);
+    pose.translation() = translation;
+    pose.linear() = rotation.toRotationMatrix();
 
     return pose;
 }
@@ -155,21 +155,56 @@ moveit_msgs::OrientationConstraint TF::getOrientationConstraint(const std::strin
 Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> rng(-1.0, 1.0);
-
-    Eigen::Quaterniond sampled =
-        Eigen::AngleAxisd(rng(generator) * tolerances[0], Eigen::Vector3d::UnitX())    //
-        * Eigen::AngleAxisd(rng(generator) * tolerances[1], Eigen::Vector3d::UnitY())  //
-        * Eigen::AngleAxisd(rng(generator) * tolerances[2], Eigen::Vector3d::UnitZ());
+    const auto vec = RNG::uniformVec(tolerances);
+    Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
+                                 * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
+                                 * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
 
     return orientation * sampled;
+}
+
+Eigen::Quaterniond TF::sampleOrientationUniform(const Eigen::Vector3d &tolerances)
+{
+    const auto vec = RNG::uniformRPY(tolerances);
+    Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
+                                 * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
+                                 * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
+
+    return sampled;
 }
 
 Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &axis,
                                          double value)
 {
     return Eigen::AngleAxisd(value, axis) * orientation;
+}
+
+Eigen::Vector3d TF::samplePositionUniform(const Eigen::Vector3d &bounds)
+{
+    return RNG::uniformVec(bounds);
+}
+
+Eigen::Vector3d TF::samplePositionGaussian(const Eigen::Vector3d &stddev)
+{
+    return RNG::gaussianVec(stddev);
+}
+
+RobotPose TF::samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds)
+{
+    auto sampled = RobotPose::Identity();
+    sampled.translation() = samplePositionUniform(pos_bounds);
+    sampled.linear() = sampleOrientationUniform(orn_bounds).toRotationMatrix();
+
+    return sampled;
+}
+
+RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds)
+{
+    auto sampled = RobotPose::Identity();
+    sampled.translation() = samplePositionUniform(pos_variances);
+    sampled.linear() = sampleOrientationUniform(orn_bounds).toRotationMatrix();
+
+    return sampled;
 }
 
 geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &source, const std::string &target,
