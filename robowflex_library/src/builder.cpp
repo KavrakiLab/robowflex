@@ -254,7 +254,7 @@ const planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequestCon
     return request_;
 }
 
-bool MotionRequestBuilder::toYAMLFile(const std::string &file)
+bool MotionRequestBuilder::toYAMLFile(const std::string &file) const
 {
     return IO::YAMLToFile(IO::toNode(request_), file);
 }

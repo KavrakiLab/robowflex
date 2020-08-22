@@ -242,7 +242,7 @@ namespace robowflex
          *  \param[in] file The name of the file to serialize the request to.
          *  \return True on success, false on failure.
          */
-        bool toYAMLFile(const std::string &file);
+        bool toYAMLFile(const std::string &file) const;
 
         /** \brief Load a planning request from a YAML file \a file.
          *  \param[in] file The name of the file to load the request from.

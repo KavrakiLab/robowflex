@@ -466,7 +466,7 @@ double Scene::distanceBetweenObjects(const std::string & /*one*/, const std::str
 #endif
 }
 
-bool Scene::toYAMLFile(const std::string &file)
+bool Scene::toYAMLFile(const std::string &file) const
 {
     moveit_msgs::PlanningScene msg;
     scene_->getPlanningSceneMsg(msg);
