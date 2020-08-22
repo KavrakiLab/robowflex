@@ -129,7 +129,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
-         *  \return The position constraint as a MoveIt msg.
+         *  \return The position constraint as a MoveIt messsage.
          */
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
@@ -141,7 +141,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
-         *  \return The orientation constraint as a MoveIt msg.
+         *  \return The orientation constraint as a MoveIt message.
          */
         moveit_msgs::OrientationConstraint getOrientationConstraint(const std::string &ee_name,
                                                                     const std::string &base_name,

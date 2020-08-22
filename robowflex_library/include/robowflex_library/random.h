@@ -53,8 +53,8 @@ namespace robowflex
 
         /** \brief Generate a random real using a normal distribution with zero mean and given \e standard
          * deviation
-         * \param[in] stddev Standard deviation of the normal distribution.
-         * \return sampled number.
+         *  \param[in] stddev Standard deviation of the normal distribution.
+         *  \return sampled number.
          */
         double gaussian(double stddev);
 
@@ -95,23 +95,23 @@ namespace robowflex
 
         /** \brief Generate a random real vector using a normal distribution with given \a mean and \e
          * standard deviation
-         * \param[in] mean Mean vector of the normal distribution.
-         * \param[in] stddev Standard deviation vector (diagonal covariance) of the normal distribution.
-         * \return sampled vector.
+         *  \param[in] mean Mean vector of the normal distribution.
+         *  \param[in] stddev Standard deviation vector (diagonal covariance) of the normal distribution.
+         *  \return sampled vector.
          */
         Eigen::Vector3d gaussianVec(const Eigen::Vector3d &mean, const Eigen::Vector3d &stddev);
 
         /** \brief Generate a random real vector using a normal distribution with \e mean zero and \e
          * standard deviation.
-         * \param[in] stddev Standard deviation vector (diagonal covariance) of the normal distribution.
-         * \return sampled vector.
+         *  \param[in] stddev Standard deviation vector (diagonal covariance) of the normal distribution.
+         *  \return sampled vector.
          */
         Eigen::Vector3d gaussianVec(const Eigen::Vector3d &stddev);
 
         /** \brief Choose a random element between \a start and \end.
-         * \param[in] start Start iterator.
-         * \param[in] end End iterator.
-         * \return chosen element.
+         *  \param[in] start Start iterator.
+         *  \param[in] end End iterator.
+         *  \return chosen element.
          */
         template <typename Iter>
         Iter uniformSample(Iter start, Iter end)
@@ -121,11 +121,11 @@ namespace robowflex
         };
 
         /** \brief Choose a random element from a vector.
-         * \param[in] vector Vector to sample from.
-         * \return chosen element.
+         *  \param[in] vector Vector to sample from.
+         *  \return chosen element.
          */
         template <typename Type>
-        Type uniformSample(std::vector<Type> vector)
+        Type &uniformSample(std::vector<Type> vector)
         {
             return *uniformSample(vector.begin(), vector.end());
         }
