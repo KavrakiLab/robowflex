@@ -77,8 +77,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             attached_body_info.transform = Eigen::Isometry3d::Identity();
             env->attachBody(attached_body_info);
         }
-
-        ROS_INFO("Tesseract environment successfully created");
+        
         return true;
     }
 

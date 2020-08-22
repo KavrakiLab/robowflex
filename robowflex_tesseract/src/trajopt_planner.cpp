@@ -48,7 +48,8 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
             return false;
         }
 
-        ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(), tip_link.c_str());
+        if (options.verbose)
+            ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(), tip_link.c_str());
 
         TiXmlDocument srdf_doc;
         srdf_doc.Parse(robot_->getSRDFString().c_str());
@@ -366,7 +367,8 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
     if (init_type_ == InitInfo::Type::GIVEN_TRAJ)
         pci->init_info.data = initial_trajectory_;
 
-    ROS_INFO("TrajOpt initialization: %d", init_type_);
+    if (options.verbose)
+        ROS_INFO("TrajOpt initialization: %d", init_type_);
 
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<JointVelTermInfo>();
@@ -384,7 +386,7 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionIn
     auto collision = std::make_shared<CollisionTermInfo>();
     collision->name = "collision_cost";
     collision->term_type = TT_COST;
-    collision->continuous = cont_cc_;
+    collision->continuous = options.use_cont_col_avoid;
     collision->first_step = 0;
     collision->last_step = options.num_waypoints - 1;
     collision->gap = options.collision_gap;
@@ -515,8 +517,11 @@ bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
         trajectory_->clear();
         updateTrajFromTesseractRes(response);
 
-        std::cout << response.trajectory << std::endl;
-        std::cout << response.status_description << std::endl;
+        if (options.verbose)
+        {
+            std::cout << response.trajectory << std::endl;
+            std::cout << response.status_description << std::endl;
+        }
     }
 
     // Write optimization results in file.

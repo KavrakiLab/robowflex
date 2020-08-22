@@ -37,6 +37,8 @@ namespace robowflex
          */
         struct Options
         {
+            bool verbose{true};           ///< Verbosity
+            bool use_cont_col_avoid{true};    ///< Whether to use continuous collision avoidance or not
             int num_waypoints{20};         ///< Number of waypoints.
             double dt_lower_lim{2.0};      ///< 1/max_dt.
             double dt_upper_lim{100.0};    ///< 1/min_dt.
