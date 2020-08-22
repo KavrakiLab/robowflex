@@ -270,7 +270,7 @@ namespace robowflex
          *  \param[in] file File to serialize planning scene to.
          *  \return True on success, false on failure.
          */
-        bool toYAMLFile(const std::string &file);
+        bool toYAMLFile(const std::string &file) const;
 
         /** \brief Load a planning scene from a YAML file.
          *  \param[in] file File to load planning scene from.
