@@ -114,15 +114,21 @@ namespace robowflex
          * \return chosen element.
          */
         template <typename Iter>
-        Iter uniformSample(Iter start, Iter end);
+        Iter uniformSample(Iter start, Iter end)
+        {
+            std::advance(start, uniformInt(0, std::distance(start, end) - 1));
+            return start;
+        };
 
         /** \brief Choose a random element from a vector.
-         * \param[in] start Start iterator.
-         * \param[in] end End iterator.
+         * \param[in] vector Vector to sample from.
          * \return chosen element.
          */
         template <typename Type>
-        Type uniformSample(std::vector<Type> vector);
+        Type uniformSample(std::vector<Type> vector)
+        {
+            return *uniformSample(vector.begin(), vector.end());
+        }
     }  // namespace RNG
 
 }  // namespace robowflex

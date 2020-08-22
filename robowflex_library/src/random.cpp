@@ -113,16 +113,3 @@ Eigen::Vector3d RNG::gaussianVec(const Eigen::Vector3d &stddev)
 
     return vec;
 }
-
-template <typename Iter>
-Iter RNG::uniformSample(Iter start, Iter end)
-{
-    std::advance(start, uniformInt(0, std::distance(start, end) - 1));
-    return start;
-}
-
-template <typename Type>
-Type RNG::uniformSample(std::vector<Type> vector)
-{
-    return uniformSample(vector.begin(), vector.end());
-}
