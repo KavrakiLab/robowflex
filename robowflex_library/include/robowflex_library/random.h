@@ -12,14 +12,10 @@ namespace robowflex
 {
     /** \brief Collection of methods relating to random sampling
      */
-    namespace RND
+    namespace RNG
     {
-        static std::mt19937 generator_;
-        static std::uniform_real_distribution<> uniDist_{0, 1};
-        static std::normal_distribution<> normalDist_{0, 1};
-
-        /** \brief Generate a random real between 0 and 1
-         *  \ return sampled number.
+        /** \brief Generate a random real in  [0,1).
+         *  \return sampled number.
          */
         double uniform01();
 
@@ -30,7 +26,7 @@ namespace robowflex
          */
         double uniformReal(double lower_bound, double upper_bound);
 
-        /** \brief Generate a random intiger within given bounds: [\a lower_bound, \a upper_bound)
+        /** \brief Generate a random integer within given bounds: [\a lower_bound, \a upper_bound)
          *  \param[in] lower_bound Lower bound of uniform distribution.
          *  \param[in] upper_bound Upper bound of uniform distribution.
          *  \return sampled number.
@@ -38,12 +34,12 @@ namespace robowflex
         int uniformInt(int lower_bound, int upper_bound);
 
         /** \brief Generate a random boolean.
-         *  \ return sampled number.
+         *  \return sampled number.
          */
         bool uniformBool();
 
         /** Generate a random real using a normal distribution with mean 0 and variance 1
-         *  \ return sampled number.
+         *  \return sampled number.
          */
         double gaussian01();
 
@@ -58,7 +54,7 @@ namespace robowflex
         /** \brief Generate a random real using a normal distribution with zero mean and given \e standard
          * deviation
          * \param[in] stddev Standard deviation of the normal distribution.
-         * \ return sampled number.
+         * \return sampled number.
          */
         double gaussian(double stddev);
 
@@ -77,8 +73,8 @@ namespace robowflex
          */
         Eigen::Vector3d uniformRPY(const Eigen::Vector3d &bounds);
 
-        /** \brief Uniform random sampling of Euler roll-pitch-yaw angles, roll, yaw in range (-pi, pi] and
-         * pitch in range(-pi/2, pi/2) computed value has the order (roll, pitch, yaw).
+        /** \brief Uniform random sampling of Euler roll-pitch-yaw angles, roll, yaw in range [-pi, pi) and
+         * pitch in range[-pi/2, pi/2) computed value has the order (roll, pitch, yaw).
          *  \return roll-pitch-yaw vector.
          */
         Eigen::Vector3d unifromRPY();
@@ -86,14 +82,14 @@ namespace robowflex
         /** \brief Generate a uniform real vector within given bounds: [\a lower_bound, \a upper_bound)
          *  \param[in] lower_bound Lower bound vector of uniform distribution.
          *  \param[in] upper_bound Upper bound vector of uniform distribution.
-         * \return sampled number.
+         *  \return sampled number.
          */
         Eigen::Vector3d uniformVec(const Eigen::Vector3d &lbound, const Eigen::Vector3d &ubound);
 
         /** \brief Generate a uniform real vector within given bounds: [\a lower_bound, \a upper_bound)
          *  \param[in] lower_bound Lower bound vector of uniform distribution.
          *  \param[in] upper_bound Upper bound vector of uniform distribution.
-         * \return sampled number.
+         *  \return sampled number.
          */
         Eigen::Vector3d uniformVec(const Eigen::Vector3d &bounds);
 
@@ -118,7 +114,7 @@ namespace robowflex
          * \return chosen element.
          */
         template <typename Iter>
-        Iter choice(Iter start, Iter end);
+        Iter uniformSample(Iter start, Iter end);
 
         /** \brief Choose a random element from a vector.
          * \param[in] start Start iterator.
@@ -126,8 +122,8 @@ namespace robowflex
          * \return chosen element.
          */
         template <typename Type>
-        Type choice(std::vector<Type> vector);
-    }  // namespace RND
+        Type uniformSample(std::vector<Type> vector);
+    }  // namespace RNG
 
 }  // namespace robowflex
 

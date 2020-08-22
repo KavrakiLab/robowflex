@@ -217,8 +217,8 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
 
 bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 {
-    auto pose = getObjectPose(name);
-    auto global_tf = pose * transform * pose.inverse();
+    const auto pose = getObjectPose(name);
+    const auto global_tf = pose * transform * pose.inverse();
 
     bool success = moveObjectGlobal(name, global_tf);
     return success;

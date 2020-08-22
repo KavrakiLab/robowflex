@@ -129,7 +129,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
-         *  \return The position constraint as a moveit_msg.
+         *  \return The position constraint as a MoveIt msg.
          */
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
@@ -141,7 +141,7 @@ namespace robowflex
          *  \param[in] base_name The frame of pose and orientation.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
-         *  \return The orientation constraint as a moveit_msg.
+         *  \return The orientation constraint as a MoveIt msg.
          */
         moveit_msgs::OrientationConstraint getOrientationConstraint(const std::string &ee_name,
                                                                     const std::string &base_name,
@@ -185,7 +185,7 @@ namespace robowflex
 
         /** \brief Sample a pose within the given position, orientation bounds.
          *  \param[in] pos_bounds The desired position bounds.
-         *  \param[in] ornt_bounds The desired orientation bounds.
+         *  \param[in] orn_bounds The desired orientation bounds.
          *  \return The sampled pose.
          */
         RobotPose samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds);
