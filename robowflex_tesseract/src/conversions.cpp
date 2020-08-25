@@ -125,3 +125,18 @@ void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &
     std::vector<double> tmp_group_values(manip_state.data(), manip_state.data() + manip_state.size());
     robot_state->setVariablePositions(joint_manip_names, tmp_group_values);
 }
+
+void hypercube::tesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const RobotPtr &robot, const std::string &manip, const tesseract::tesseract_ros::KDLEnvPtr &env, robot_trajectory::RobotTrajectoryPtr &trajectory)
+{
+    for (int i = 0; i < tesseract_traj.rows(); i++)
+    {
+        // Create a tmp state for every waypoint.
+        auto tmp_state = robot->allocState();
+
+        // Transform tesseract manip ith waypoint to robot state.
+        manipStateToRobotState(tesseract_traj.row(i), manip, env, tmp_state);
+
+        // Add waypoint to trajectory.
+        trajectory->addSuffixWayPoint(tmp_state, 0.0);
+    }
+}

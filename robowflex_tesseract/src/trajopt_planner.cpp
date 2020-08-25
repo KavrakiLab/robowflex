@@ -138,6 +138,11 @@ const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
         throw Exception(1, "There is no loaded manipulator!");
 }
 
+double TrajOptPlanner::getPlanningTime() const
+{
+    return time_;
+}
+
 planning_interface::MotionPlanResponse
 TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
@@ -206,7 +211,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
         // Add goal state.
         addGoalState(goal_state, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
     return false;
@@ -246,7 +251,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
         // Add goal pose for link.
         addGoalPose(goal_pose, link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
     return false;
@@ -287,7 +292,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
         // Add goal pose for link.
         addGoalPose(goal_pose, link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
     return false;
@@ -330,7 +335,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pos
         // Add goal_pose for goal_link.
         addGoalPose(goal_pose, goal_link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
     return false;
@@ -491,76 +496,101 @@ void TrajOptPlanner::addGoalPose(const RobotPose &goal_pose, const std::string &
     pci->cnt_infos.push_back(pose_constraint);
 }
 
-bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
+bool TrajOptPlanner::solve(const SceneConstPtr &scene, const std::shared_ptr<ProblemConstructionInfo> &pci)
 {
-    // TrajOpt problem and optimizer parameters.
+    // Create optimizer, populate parameters and initialize.
     TrajOptProbPtr prob = ConstructProblem(*pci);
-    auto config = std::make_shared<tesseract::tesseract_planning::TrajOptPlannerConfig>(prob);
-    setOptimizerParameters(config);
+    sco::BasicTrustRegionSQP opt(prob);
+    opt.setParameters(getTrustRegionSQPParameters());
+    opt.initialize(trajToDblVec(prob->GetInitTraj()));
 
+    // Add write file callback.
     if (file_write_cb_)
     {
         if (!stream_ptr_->is_open())
             stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
-        config->callbacks.push_back(WriteCallback(stream_ptr_, prob));
+        
+        opt.addCallback(WriteCallback(stream_ptr_, prob));
     }
 
-    // Create the Tesseract Planner and response.
-    tesseract::tesseract_planning::TrajOptPlanner planner;
-    tesseract::tesseract_planning::PlannerResponse response;
-
-    // Solve planning problem.
-    bool success_plan = planner.solve(response, *config);
-    if (success_plan)
+    // Optimize.
+    ros::Time tStart = ros::Time::now();
+    opt.optimize();
+    
+    // Measure and print time.
+    time_ = (ros::Time::now() - tStart).toSec();
+    if (options.verbose)
+        ROS_INFO("Planning time: %.3f", time_);
+    
+    // Check for status result.
+    bool success = true;
+    tesseract::TrajArray tesseract_traj;
+    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT || opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
     {
-        // Clear previous trajectory and update it with new one.
+        success = false;
+    }
+    else
+    {
+        // Clear current trajectory.
         trajectory_->clear();
-        updateTrajFromTesseractRes(response);
-
-        if (options.verbose)
+        
+        // Update trajectory.
+        tesseract_traj = getTraj(opt.x(), prob->GetVars());
+        hypercube::tesseractTrajToRobotTraj(tesseract_traj, robot_, manip_, env_, trajectory_);
+        
+        // Check for collisions.
+        int i = 0;
+        while (i<options.num_waypoints and success)
         {
-            std::cout << response.trajectory << std::endl;
-            std::cout << response.status_description << std::endl;
+            const auto &st = trajectory_->getWayPoint(i);
+            collision_detection::CollisionRequest col_request;
+            col_request.verbose = options.verbose;
+            auto result = scene->checkCollision(st, col_request);
+            
+            if (result.collision)
+            {
+                if (options.verbose)
+                    ROS_ERROR("%u-th waypoint in collision", i);
+                
+                success = false;
+            }
+            
+            i++;
         }
+    }
+    
+    // Print status
+    if (options.verbose)
+    {
+        std::cout << "OPTIMIZATION STATUS: " << sco::statusToString(opt.results().status) << std::endl;
+        std::cout << "OUTPUT TRAJECTORY: " << std::endl;
+        std::cout << tesseract_traj << std::endl;
     }
 
     // Write optimization results in file.
     if (file_write_cb_)
         stream_ptr_->close();
 
-    return success_plan;
+    return success;
 }
 
-void TrajOptPlanner::updateTrajFromTesseractRes(
-    const tesseract::tesseract_planning::PlannerResponse &response)
+sco::BasicTrustRegionSQPParameters TrajOptPlanner::getTrustRegionSQPParameters() const
 {
-    for (int i = 0; i < response.trajectory.rows(); i++)
-    {
-        // Create a tmp state for every waypoint.
-        auto tmp_state = robot_->allocState();
-
-        // Transform tesseract manip ith waypoint to robot state.
-        hypercube::manipStateToRobotState(response.trajectory.row(i), manip_, env_, tmp_state);
-
-        // Add waypoint to trajectory.
-        trajectory_->addSuffixWayPoint(tmp_state, 0.0);
-    }
-}
-
-void TrajOptPlanner::setOptimizerParameters(
-    std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const
-{
-    config->params.improve_ratio_threshold = options.improve_ratio_threshold;
-    config->params.min_trust_box_size = options.min_trust_box_size;
-    config->params.min_approx_improve = options.min_approx_improve;
-    config->params.min_approx_improve_frac = options.min_approx_improve_frac;
-    config->params.max_iter = options.max_iter;
-    config->params.trust_shrink_ratio = options.trust_shrink_ratio;
-    config->params.trust_expand_ratio = options.trust_expand_ratio;
-    config->params.cnt_tolerance = options.cnt_tolerance;
-    config->params.max_merit_coeff_increases = options.max_merit_coeff_increases;
-    config->params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
-    config->params.max_time = options.max_time;
-    config->params.merit_error_coeff = options.merit_error_coeff;
-    config->params.trust_box_size = options.trust_box_size;
+    sco::BasicTrustRegionSQPParameters params;
+    
+    params.improve_ratio_threshold = options.improve_ratio_threshold;
+    params.min_trust_box_size = options.min_trust_box_size;
+    params.min_approx_improve = options.min_approx_improve;
+    params.min_approx_improve_frac = options.min_approx_improve_frac;
+    params.max_iter = options.max_iter;
+    params.trust_shrink_ratio = options.trust_shrink_ratio;
+    params.trust_expand_ratio = options.trust_expand_ratio;
+    params.cnt_tolerance = options.cnt_tolerance;
+    params.max_merit_coeff_increases = options.max_merit_coeff_increases;
+    params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
+    params.max_time = options.max_time;
+    params.merit_error_coeff = options.merit_error_coeff;
+    params.trust_box_size = options.trust_box_size;
+    
+    return params;
 }
