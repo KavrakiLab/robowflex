@@ -109,6 +109,10 @@ namespace robowflex
                 /** \brief Disables all planar controls.
                  */
                 void disablePlanarControls();
+
+                /** \brief Disables all controls.
+                 */
+                void disableControls();
             };
 
             /** \brief Return from creating an interactive marker.

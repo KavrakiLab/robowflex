@@ -62,6 +62,13 @@ void Window::InteractiveOptions::disablePlanarControls()
     planar[2] = false;
 }
 
+void Window::InteractiveOptions::disableControls()
+{
+    disableLinearControls();
+    disableRotationControls();
+    disablePlanarControls();
+}
+
 //
 // Window
 //
