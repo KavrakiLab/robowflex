@@ -26,8 +26,9 @@ bool FetchRobot::initialize(bool addVirtual)
 
     setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
-    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS) &&  //
-                   loadKinematics("arm") && loadKinematics("arm_with_torso");
+    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
+    loadKinematics("arm");
+    loadKinematics("arm_with_torso");
 
     FetchRobot::openGripper();
 

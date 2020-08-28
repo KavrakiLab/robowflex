@@ -18,21 +18,16 @@ using namespace robowflex;
 
 const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"RRTConnect"});
 
-MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name)
-  : planner_(planner)
-  , robot_(planner->getRobot())
-  , group_name_(group_name)
-  , jmg_(robot_->getModelConst()->getJointModelGroup(group_name))
+MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot) : robot_(robot)
 {
-    request_.group_name = group_name_;
+    initialize();
+}
 
-    // Default workspace
-    moveit_msgs::WorkspaceParameters &wp = request_.workspace_parameters;
-    wp.min_corner.x = wp.min_corner.y = wp.min_corner.z = -1;
-    wp.max_corner.x = wp.max_corner.y = wp.max_corner.z = 1;
-
-    // Default planning time
-    request_.allowed_planning_time = 5.0;
+MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name)
+  : MotionRequestBuilder(planner->getRobot())
+{
+    setPlanningGroup(group_name);
+    setPlanner(planner);
 
     // Default planner (find an RRTConnect config, for Indigo)
     for (const auto &config : DEFAULT_CONFIGS)
@@ -40,15 +35,68 @@ MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const
             break;
 }
 
+void MotionRequestBuilder::initialize()
+{
+    setWorkspaceBounds(Eigen::Vector3d::Constant(-1), Eigen::Vector3d::Constant(1));
+    request_.allowed_planning_time = 5.0;
+}
+
+void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)
+{
+    const auto &rname = robot_->getName();
+    const auto &pname = planner->getRobot()->getName();
+
+    if (rname != pname)
+    {
+        ROS_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname.c_str(), pname.c_str());
+        throw std::runtime_error("Invalid planner!");
+    }
+
+    planner_ = planner;
+}
+
+void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
+{
+    const auto &model = robot_->getModelConst();
+
+    if (model->hasJointModelGroup(group_name))
+    {
+        group_name_ = group_name;
+        jmg_ = robot_->getModelConst()->getJointModelGroup(group_name_);
+
+        request_.group_name = group_name_;
+    }
+    else
+    {
+        ROS_ERROR("Joint group `%s` does not exist in robot!", group_name.c_str());
+        throw std::runtime_error("Invalid joint group name!");
+    }
+}
+
 MotionRequestBuilderPtr MotionRequestBuilder::clone() const
 {
-    auto clone = std::make_shared<MotionRequestBuilder>(planner_, group_name_);
+    auto clone = std::make_shared<MotionRequestBuilder>(robot_);
+
+    if (jmg_)
+        clone->setPlanningGroup(group_name_);
+
+    if (planner_)
+        clone->setPlanner(planner_);
+
     clone->getRequest() = request_;
+
     return clone;
 }
 
 bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
+    if (not planner_)
+    {
+        ROS_INFO("No planner set, using requested config as is.");
+        request_.planner_id = requested_config;
+        return true;
+    }
+
     const auto &configs = planner_->getPlannerConfigs();
 
     std::vector<std::reference_wrapper<const std::string>> matches;
@@ -75,8 +123,28 @@ void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParame
     request_.workspace_parameters = wp;
 }
 
+void MotionRequestBuilder::setWorkspaceBounds(const Eigen::Ref<const Eigen::VectorXd> &min,
+                                              const Eigen::Ref<const Eigen::VectorXd> &max)
+{
+    moveit_msgs::WorkspaceParameters wp;
+    wp.min_corner.x = min[0];
+    wp.min_corner.y = min[1];
+    wp.min_corner.z = min[2];
+    wp.max_corner.x = max[0];
+    wp.max_corner.y = max[1];
+    wp.max_corner.z = max[2];
+
+    setWorkspaceBounds(wp);
+}
+
 void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
 {
+    if (not jmg_)
+    {
+        ROS_ERROR("No planning group set!");
+        throw std::runtime_error("No planning group set!");
+    }
+
     robot_state::RobotState start_state(robot_->getModelConst());
     start_state.setToDefaultValues();
     start_state.setJointGroupPositions(jmg_, joints);
@@ -91,6 +159,12 @@ void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePt
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
 {
+    if (not jmg_)
+    {
+        ROS_ERROR("No planning group set!");
+        throw std::runtime_error("No planning group set!");
+    }
+
     robot_state::RobotStatePtr state;
     state.reset(new robot_state::RobotState(robot_->getModelConst()));
     state->setJointGroupPositions(jmg_, joints);
@@ -100,6 +174,12 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 
 void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
 {
+    if (not jmg_)
+    {
+        ROS_ERROR("No planning group set!");
+        throw std::runtime_error("No planning group set!");
+    }
+
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
