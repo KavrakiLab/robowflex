@@ -187,7 +187,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
 
     // Plan.
     auto result = plan(scene, start_state, goal_state);
-    res.error_code_.val = res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+    res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     if (result.first and result.second)
     {
         res.trajectory_ = trajectory_;
