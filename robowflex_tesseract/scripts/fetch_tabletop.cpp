@@ -107,7 +107,8 @@ int main(int argc, char **argv)
                 // Solve the place problem using TrajOpt with a start state and a goal pose for the end
                 // effector.
                 const auto &pick_state = place_request->getStartConfiguration();
-                if (trajopt_planner->plan(scene, pick_state, place_ee_pose, ee))
+                auto result = trajopt_planner->plan(scene, pick_state, place_ee_pose, ee);
+                if (result.first)
                     rviz->updateTrajectory(trajopt_planner->getTrajectory());
             }
         }
@@ -137,7 +138,9 @@ int main(int argc, char **argv)
                   << ">\033[0m. " << std::endl;
         std::cin.ignore();
     }
+    
+    ROS_INFO("Finished");
 
-    ros::spin();
+    ros.wait();
     return 0;
 }
