@@ -15,8 +15,8 @@ RobotPose TF::identity()
 
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
 {
-    return createPoseQ(Eigen::Vector3d{x, y, z},  //
-                       Eigen::Vector3d{X, Y, Z});
+    return createPoseXYZ(Eigen::Vector3d{x, y, z},  //
+                         Eigen::Vector3d{X, Y, Z});
 }
 
 RobotPose TF::createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation,
@@ -25,9 +25,10 @@ RobotPose TF::createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation
     RobotPose pose = RobotPose::Identity();
     pose.translation() = translation;
 
-    pose.linear() = Eigen::AngleAxisd(rotation[0], Eigen::Vector3d::UnitX()) *
-                    Eigen::AngleAxisd(rotation[1], Eigen::Vector3d::UnitY()) *
-                    Eigen::AngleAxisd(rotation[2], Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    pose.linear() = (Eigen::AngleAxisd(rotation[0], Eigen::Vector3d::UnitX()) *
+                     Eigen::AngleAxisd(rotation[1], Eigen::Vector3d::UnitY()) *
+                     Eigen::AngleAxisd(rotation[2], Eigen::Vector3d::UnitZ()))
+                        .toRotationMatrix();
 
     return pose;
 }
