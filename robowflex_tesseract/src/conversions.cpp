@@ -77,7 +77,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             attached_body_info.transform = Eigen::Isometry3d::Identity();
             env->attachBody(attached_body_info);
         }
-        
+
         return true;
     }
 
@@ -126,7 +126,10 @@ void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &
     robot_state->setVariablePositions(joint_manip_names, tmp_group_values);
 }
 
-void hypercube::tesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const RobotPtr &robot, const std::string &manip, const tesseract::tesseract_ros::KDLEnvPtr &env, robot_trajectory::RobotTrajectoryPtr &trajectory)
+void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj,
+                                              const RobotPtr &robot, const std::string &manip,
+                                              const tesseract::tesseract_ros::KDLEnvPtr &env,
+                                              robot_trajectory::RobotTrajectoryPtr &trajectory)
 {
     for (int i = 0; i < tesseract_traj.rows(); i++)
     {
@@ -138,5 +141,25 @@ void hypercube::tesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_t
 
         // Add waypoint to trajectory.
         trajectory->addSuffixWayPoint(tmp_state, 0.0);
+    }
+}
+
+void hypercube::robotTrajToManipTesseractTraj(const robot_trajectory::RobotTrajectoryPtr &robot_traj,
+                                              const std::string &manip,
+                                              const tesseract::tesseract_ros::KDLEnvPtr &env,
+                                              tesseract::TrajArray &trajectory)
+{
+    trajectory.resize(0, 0);
+    trajectory.resize(robot_traj->getWayPointCount(), robot_traj->getGroup()->getVariableCount());
+
+    for (unsigned int i = 0; i < robot_traj->getWayPointCount(); ++i)
+    {
+        // Transform each traj waypoint to tesseract manip state.
+        std::vector<double> manip_joint_values;
+        robotStateToManipState(robot_traj->getWayPointPtr(i), env->getManipulator(manip)->getJointNames(),
+                               manip_joint_values);
+
+        // Push manip state to manip tesseract trajectory .
+        trajectory.row(i) = Eigen::VectorXd::Map(manip_joint_values.data(), manip_joint_values.size());
     }
 }

@@ -45,7 +45,7 @@ namespace robowflex
         void manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state,
                                     const std::string &manip, const tesseract::tesseract_ros::KDLEnvPtr &env,
                                     robot_state::RobotStatePtr &robot_state);
-        
+
         /** \brief Transform a tesseract trajectory to a robot \a trajectory.
          *  \param[in] tesseract_traj Tesseract trajectory to transform.
          *  \param[in] robot Robot \a tesseract_traj belongs to.
@@ -53,7 +53,21 @@ namespace robowflex
          *  \param[in] env KDL environment with the robot (and manipulator) information already loaded.
          *  \param[out] trajectory Robot trajectory corresponding to \a tesseract_traj.
          */
-        void tesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const RobotPtr &robot, const std::string &manip, const tesseract::tesseract_ros::KDLEnvPtr &env, robot_trajectory::RobotTrajectoryPtr &trajectory);
+        void manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const RobotPtr &robot,
+                                           const std::string &manip,
+                                           const tesseract::tesseract_ros::KDLEnvPtr &env,
+                                           robot_trajectory::RobotTrajectoryPtr &trajectory);
+
+        /** \brief Transform a \a robot_trajectory to a tesseract manipulator \a trajectory.
+         *  \param[in] robot_traj Robot Trajectory to transform.
+         *  \param[in] manip Name of manipulator in KDL env.
+         *  \param[in] env KDL environment with the robot (and manipulator) information already loaded.
+         *  \param[out] trajectory Tesseract trajectory array corresponding to \a robot_trajectory.
+         */
+        void robotTrajToManipTesseractTraj(const robot_trajectory::RobotTrajectoryPtr &robot_traj,
+                                           const std::string &manip,
+                                           const tesseract::tesseract_ros::KDLEnvPtr &env,
+                                           tesseract::TrajArray &trajectory);
 
     }  // namespace hypercube
 }  // namespace robowflex

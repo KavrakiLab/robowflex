@@ -49,7 +49,8 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
         }
 
         if (options.verbose)
-            ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(), tip_link.c_str());
+            ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(),
+                     tip_link.c_str());
 
         TiXmlDocument srdf_doc;
         srdf_doc.Parse(robot_->getSRDFString().c_str());
@@ -93,6 +94,12 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
 
     return true;
+}
+
+void TrajOptPlanner::setInitialTrajectory(const robot_trajectory::RobotTrajectoryPtr &init_trajectory)
+{
+    hypercube::robotTrajToManipTesseractTraj(init_trajectory, manip_, env_, initial_trajectory_);
+    init_type_ = InitInfo::Type::GIVEN_TRAJ;
 }
 
 void TrajOptPlanner::setInitialTrajectory(const TrajArray &init_trajectory)
@@ -509,23 +516,24 @@ bool TrajOptPlanner::solve(const SceneConstPtr &scene, const std::shared_ptr<Pro
     {
         if (!stream_ptr_->is_open())
             stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
-        
+
         opt.addCallback(WriteCallback(stream_ptr_, prob));
     }
 
     // Optimize.
     ros::Time tStart = ros::Time::now();
     opt.optimize();
-    
+
     // Measure and print time.
     time_ = (ros::Time::now() - tStart).toSec();
     if (options.verbose)
         ROS_INFO("Planning time: %.3f", time_);
-    
+
     // Check for status result.
     bool success = true;
     tesseract::TrajArray tesseract_traj;
-    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT || opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
+    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT ||
+        opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
     {
         success = false;
     }
@@ -533,32 +541,32 @@ bool TrajOptPlanner::solve(const SceneConstPtr &scene, const std::shared_ptr<Pro
     {
         // Clear current trajectory.
         trajectory_->clear();
-        
+
         // Update trajectory.
         tesseract_traj = getTraj(opt.x(), prob->GetVars());
-        hypercube::tesseractTrajToRobotTraj(tesseract_traj, robot_, manip_, env_, trajectory_);
-        
+        hypercube::manipTesseractTrajToRobotTraj(tesseract_traj, robot_, manip_, env_, trajectory_);
+
         // Check for collisions.
         int i = 0;
-        while (i<options.num_waypoints and success)
+        while (i < options.num_waypoints and success)
         {
             const auto &st = trajectory_->getWayPoint(i);
             collision_detection::CollisionRequest col_request;
             col_request.verbose = options.verbose;
             auto result = scene->checkCollision(st, col_request);
-            
+
             if (result.collision)
             {
                 if (options.verbose)
                     ROS_ERROR("%u-th waypoint in collision", i);
-                
+
                 success = false;
             }
-            
+
             i++;
         }
     }
-    
+
     // Print status
     if (options.verbose)
     {
@@ -577,7 +585,7 @@ bool TrajOptPlanner::solve(const SceneConstPtr &scene, const std::shared_ptr<Pro
 sco::BasicTrustRegionSQPParameters TrajOptPlanner::getTrustRegionSQPParameters() const
 {
     sco::BasicTrustRegionSQPParameters params;
-    
+
     params.improve_ratio_threshold = options.improve_ratio_threshold;
     params.min_trust_box_size = options.min_trust_box_size;
     params.min_approx_improve = options.min_approx_improve;
@@ -591,6 +599,6 @@ sco::BasicTrustRegionSQPParameters TrajOptPlanner::getTrustRegionSQPParameters()
     params.max_time = options.max_time;
     params.merit_error_coeff = options.merit_error_coeff;
     params.trust_box_size = options.trust_box_size;
-    
+
     return params;
 }
