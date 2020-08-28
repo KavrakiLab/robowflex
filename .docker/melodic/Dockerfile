@@ -43,10 +43,6 @@ RUN catkin build robowflex_ompl --start-with robowflex_ompl --limit-status-rate 
 ADD ./robowflex_movegroup robowflex_movegroup
 RUN catkin build robowflex_movegroup --start-with robowflex_movegroup --limit-status-rate 0.001 --no-notify
 
-# Tesseract Module
-ADD ./robowflex_tesseract robowflex_tesseract
-RUN catkin build robowflex_tesseract --start-with robowflex_tesseract --limit-status-rate 0.001 --no-notify
-
 # DART Module
 ADD ./robowflex_dart robowflex_dart
 RUN catkin build robowflex_dart --start-with robowflex_dart --limit-status-rate 0.001 --no-notify
