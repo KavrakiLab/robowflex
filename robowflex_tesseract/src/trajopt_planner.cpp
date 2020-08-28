@@ -187,14 +187,11 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
 
     // Plan.
     auto result = plan(scene, start_state, goal_state);
-    if (result.second)
+    res.error_code_.val = res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+    if (result.first and result.second)
     {
         res.trajectory_ = trajectory_;
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-    }
-    else
-    {
-        res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     }
 
     return res;
@@ -366,7 +363,8 @@ void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_pa
     boost::filesystem::path path(file_path);
     path /= "file_output.csv";
     file_path_ = path.string();
-    stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
+    if (file_write_cb_)
+        stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
 }
 
 void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> &pci) const
