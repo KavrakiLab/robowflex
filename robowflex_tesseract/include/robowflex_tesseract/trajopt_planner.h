@@ -48,12 +48,15 @@ namespace robowflex
             double joint_vel_coeffs{5.0};  ///< Coefficients for joint_vel costs.
             int collision_gap{1};  ///< For continuous collision avoidance, compute swept-volume between
                                    ///< timestep t and t+gap.
-            double default_safety_margin{0.025};        ///< Default safety margin for collision avoidance.
-            double default_safety_margin_coeffs{50.0};  ///< Coefficients for default safety margin in
-                                                        ///< collision cost/constraints.
-            double pose_cnt_pos_coeffs{10.0};           ///< Coefficients for pose constraints (position).
-            double pose_cnt_rot_coeffs{10.0};           ///< Coefficients for pose constraints (rotation).
-            double joint_pos_cnt_coeffs{5.0};           ///< Coefficients for joint position constraints.
+            double default_safety_margin{0.025};           ///< Default safety margin for collision avoidance.
+            double default_safety_margin_coeffs{50.0};     ///< Coefficients for safety margin.
+            double joint_pose_safety_margin_coeffs{50.0};  ///< Coefficients for safety margin when using
+                                                           ///< joint pose costs/cnts.
+            double joint_state_safety_margin_coeffs{350.0};  ///< Coefficients for safety margin when using
+                                                             ///< joint state costs/cnts.
+            double pose_cnt_pos_coeffs{10.0};      ///< Coefficients for pose constraints (position).
+            double pose_cnt_rot_coeffs{10.0};      ///< Coefficients for pose constraints (rotation).
+            double joint_pos_cnt_coeffs{1.0};      ///< Coefficients for joint position constraints.
             double improve_ratio_threshold{0.25};  ///< Minimum ratio true_improve/approx_improve to accept
                                                    ///< step
             double min_trust_box_size{1e-4};       ///< If trust region gets any smaller, exit and report
@@ -76,7 +79,7 @@ namespace robowflex
             double merit_error_coeff{10.0};                            ///< Initial penalty coefficient
             double trust_box_size{1e-1};  ///< Current size of trust region (component-wise)
         } options;
-        
+
         /** \brief Planner result: first->converged, second->collision_free
          */
         typedef std::pair<bool, bool> PlannerResult;
@@ -164,40 +167,42 @@ namespace robowflex
          *  \param[in] scene Scene to plan for.
          *  \param[in] start_state Start state for the robot.
          *  \param[in] goal_state Goal state for the robot.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                  const robot_state::RobotStatePtr &goal_state);
+                           const robot_state::RobotStatePtr &goal_state);
 
         /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
          * scene.
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
          * \param[in] goal_pose Cartesian goal pose for \a link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                  const RobotPose &goal_pose, const std::string &link);
+                           const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
          * scene.
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
          * \param[in] goal_pose Cartesian goal pose for \a link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        PlannerResult plan(const SceneConstPtr &scene, const std::unordered_map<std::string, double> &start_state,
-                  const RobotPose &goal_pose, const std::string &link);
+        PlannerResult plan(const SceneConstPtr &scene,
+                           const std::unordered_map<std::string, double> &start_state,
+                           const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_pose for \a start_link and a \a goal_pose for \a goal_link.
          *  \param[in] scene A planning scene to compute the plan in.
          *  \param[in] start_pose Cartesian start pose for \a start_link.
          *  \param[in] start_link Robot's link with \a start_pose.
          *  \param[in] goal_pose Cartesian goal pose for \a goal_link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        PlannerResult plan(const SceneConstPtr &scene, const RobotPose &start_pose, const std::string &start_link,
-                  const RobotPose &goal_pose, const std::string &goal_link);
+        PlannerResult plan(const SceneConstPtr &scene, const RobotPose &start_pose,
+                           const std::string &start_link, const RobotPose &goal_pose,
+                           const std::string &goal_link);
 
         /** \brief Get planner configurations offered by this planner.
          *  Any of the configurations returned can be set as the planner for a motion planning query sent to
@@ -290,9 +295,10 @@ namespace robowflex
         /** \brief Solve SQP optimization problem.
          *  \param[in] scene Scene to plan for.
          *  \param[in] pci Pointer to problem construction info initialized.
-         *  \return True if the generated trajectory is collision free and false otherwise.
+         *  \return Planner result with convergence and collision status.
          */
-        PlannerResult solve(const SceneConstPtr &scene, const std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
+        PlannerResult solve(const SceneConstPtr &scene,
+                            const std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
         /** \brief Get parameters of the SQP.
          *  \return SQP parameters.

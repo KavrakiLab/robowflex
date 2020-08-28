@@ -138,7 +138,7 @@ int main(int argc, char **argv)
                   << ">\033[0m. " << std::endl;
         std::cin.ignore();
     }
-    
+
     ROS_INFO("Finished");
 
     ros.wait();

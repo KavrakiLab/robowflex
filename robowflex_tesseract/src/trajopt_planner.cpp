@@ -200,8 +200,9 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     return res;
 }
 
-TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                          const robot_state::RobotStatePtr &goal_state)
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const robot_state::RobotStatePtr &start_state,
+                                                   const robot_state::RobotStatePtr &goal_state)
 {
     // Create the tesseract environment from the scene.
     if (hypercube::sceneToTesseractEnv(scene, env_))
@@ -214,6 +215,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
         addStartState(start_state, pci);
 
         // Add collision costs to all waypoints in the trajectory.
+        options.default_safety_margin_coeffs = options.joint_state_safety_margin_coeffs;
         addCollisionAvoidance(pci);
 
         // Add goal state.
@@ -222,57 +224,17 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
         return solve(scene, pci);
     }
 
-    return PlannerResult(false,false);
-}
-
-TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                          const RobotPose &goal_pose, const std::string &link)
-{
-    if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
-    {
-        ROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
-        return PlannerResult(false,false);
-    }
-
-    auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
-    auto end_it = env_->getManipulator(manip_)->getLinkNames().end();
-    auto link_it = std::find(begin_it, end_it, link);
-    if (link_it == end_it)
-    {
-        ROS_ERROR("Link %s is not part of robot manipulator", link.c_str());
-        return PlannerResult(false,false);
-    }
-
-    // Create the tesseract environment from the scene.
-    if (hypercube::sceneToTesseractEnv(scene, env_))
-    {
-        // Fill in the problem construction info and initialization.
-        auto pci = std::make_shared<ProblemConstructionInfo>(env_);
-        problemConstructionInfo(pci);
-
-        // Add start state
-        addStartState(start_state, pci);
-
-        // Add collision costs to all waypoints in the trajectory.
-        addCollisionAvoidance(pci);
-
-        // Add goal pose for link.
-        addGoalPose(goal_pose, link, pci);
-
-        return solve(scene, pci);
-    }
-
-    return PlannerResult(false,false);
+    return PlannerResult(false, false);
 }
 
 TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
-                          const std::unordered_map<std::string, double> &start_state,
-                          const RobotPose &goal_pose, const std::string &link)
+                                                   const robot_state::RobotStatePtr &start_state,
+                                                   const RobotPose &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
-        return PlannerResult(false,false);
+        return PlannerResult(false, false);
     }
 
     auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
@@ -281,7 +243,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     if (link_it == end_it)
     {
         ROS_ERROR("Link %s is not part of robot manipulator", link.c_str());
-        return PlannerResult(false,false);
+        return PlannerResult(false, false);
     }
 
     // Create the tesseract environment from the scene.
@@ -303,17 +265,58 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         return solve(scene, pci);
     }
 
-    return PlannerResult(false,false);
+    return PlannerResult(false, false);
+}
+
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const std::unordered_map<std::string, double> &start_state,
+                                                   const RobotPose &goal_pose, const std::string &link)
+{
+    if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
+    {
+        ROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
+        return PlannerResult(false, false);
+    }
+
+    auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
+    auto end_it = env_->getManipulator(manip_)->getLinkNames().end();
+    auto link_it = std::find(begin_it, end_it, link);
+    if (link_it == end_it)
+    {
+        ROS_ERROR("Link %s is not part of robot manipulator", link.c_str());
+        return PlannerResult(false, false);
+    }
+
+    // Create the tesseract environment from the scene.
+    if (hypercube::sceneToTesseractEnv(scene, env_))
+    {
+        // Fill in the problem construction info and initialization.
+        auto pci = std::make_shared<ProblemConstructionInfo>(env_);
+        problemConstructionInfo(pci);
+
+        // Add start state
+        addStartState(start_state, pci);
+
+        // Add collision costs to all waypoints in the trajectory.
+        addCollisionAvoidance(pci);
+
+        // Add goal pose for link.
+        addGoalPose(goal_pose, link, pci);
+
+        return solve(scene, pci);
+    }
+
+    return PlannerResult(false, false);
 }
 
 TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pose,
-                          const std::string &start_link, const RobotPose &goal_pose,
-                          const std::string &goal_link)
+                                                   const std::string &start_link, const RobotPose &goal_pose,
+                                                   const std::string &goal_link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a start_pose or a goal_pose");
-        return PlannerResult(false,false);
+        return PlannerResult(false, false);
     }
 
     auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
@@ -324,7 +327,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     {
         ROS_ERROR("Given links %s or %s are not part of robot manipulator", start_link.c_str(),
                   goal_link.c_str());
-        return PlannerResult(false,false);
+        return PlannerResult(false, false);
     }
 
     // Create the tesseract environment from the scene.
@@ -346,7 +349,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
         return solve(scene, pci);
     }
 
-    return PlannerResult(false,false);
+    return PlannerResult(false, false);
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
@@ -504,10 +507,11 @@ void TrajOptPlanner::addGoalPose(const RobotPose &goal_pose, const std::string &
     pci->cnt_infos.push_back(pose_constraint);
 }
 
-TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene, const std::shared_ptr<ProblemConstructionInfo> &pci)
+TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
+                                                    const std::shared_ptr<ProblemConstructionInfo> &pci)
 {
     PlannerResult planner_result(true, true);
-    
+
     // Create optimizer, populate parameters and initialize.
     TrajOptProbPtr prob = ConstructProblem(*pci);
     sco::BasicTrustRegionSQP opt(prob);
@@ -544,7 +548,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene, 
     {
         // Optimization problem converged.
         planner_result.first = true;
-        
+
         // Clear current trajectory.
         trajectory_->clear();
 
@@ -578,12 +582,12 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene, 
     {
         std::cout << "OPTIMIZATION STATUS: " << sco::statusToString(opt.results().status) << std::endl;
         std::cout << "COLLISION STATUS:";
-        
+
         if (planner_result.second)
             std::cout << "COLLISION FREE" << std::endl;
         else
             std::cout << "IN COLLISION" << std::endl;
-        
+
         if (planner_result.first)
         {
             std::cout << "OUTPUT TRAJECTORY: " << std::endl;
