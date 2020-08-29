@@ -80,7 +80,6 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
     }
 
-
     if (not loadURDFFile(urdf_file))
     {
         ROS_ERROR("Failed to load URDF!");
