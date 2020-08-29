@@ -12,7 +12,7 @@ include(CompileOptions)
 include(HelperFunctions)
 
 find_package(DART #REQUIRED
-  COMPONENTS utils utils-urdf gui-osg optimizer-nlopt optimizer-ipopt collision-bullet collision-ode
+  COMPONENTS utils utils-urdf gui-osg
   OPTIONAL_COMPONENTS
   CONFIG
   )
