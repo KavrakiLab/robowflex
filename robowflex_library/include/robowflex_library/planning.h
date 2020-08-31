@@ -307,6 +307,50 @@ namespace robowflex
         /** \brief Loads configuration YAML file onto the parameter server.
          */
         bool loadConfig(IO::Handler &handler, const std::string &config_file);
+        
+        /** \brief Settings descriptor for settings provided by the default \a MoveIt! CHOMP planning pipeline.
+         */
+        class CHOMPSettings
+        {
+        public:
+            /** \brief Constructor.
+             *  Initialized here so an empty class can be used as default arguments in a function.
+             */
+            CHOMPSettings();
+
+            double planning_time_limit;
+            int max_iterations;
+            int max_iterations_after_collision_free;
+            double smoothness_cost_weight;
+            double obstacle_cost_weight;
+            double learning_rate;
+            bool animate_path;
+            bool add_randomness;
+            double smoothness_cost_velocity;
+            double smoothness_cost_acceleration;
+            double smoothness_cost_jerk;
+            double hmc_discretization;
+            double hmc_stochasticity;
+            double hmc_annealing_factor;
+            bool use_hamiltonian_monte_carlo;
+            double ridge_factor;
+            bool use_pseudo_inverse;
+            double pseudo_inverse_ridge_factor;
+            bool animate_endeffector;
+            std::string animate_endeffector_segment;
+            double joint_update_limit;
+            double collision_clearence;
+            double collision_threshold;
+            double random_jump_amount;
+            bool use_stochastic_descent;
+            bool enable_failure_recovery;
+            int max_recovery_attepmts;
+            std::string trajectory_initialization_method;
+
+            /** \brief Sets member variables on the parameter server using \a handler.
+             */
+            void setParam(IO::Handler &handler) const;
+        };
 
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(CHOMPPipelinePlanner);
@@ -338,12 +382,18 @@ namespace robowflex
              *  \param[in] adapters Planning adapters to load.
              *  \return True upon success, false on failure.
              */
-            bool initialize(const std::string &config_file = "", const std::string &plugin = DEFAULT_PLUGIN,
+            bool initialize(const std::string &config_file = "", const CHOMPSettings &settings = CHOMPSettings(), 
+                            const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+            
+            std::vector<std::string> getPlannerConfigs() const override;
 
         protected:
             static const std::string DEFAULT_PLUGIN;                 ///< The default CHOMP plugin.
             static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
+            
+        private:
+            std::vector<std::string> configs_;  ///< Planning configurations loaded from \a config_file.
         };
 
         /** \cond IGNORE */

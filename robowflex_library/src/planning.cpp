@@ -234,6 +234,75 @@ bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 }
 
 ///
+/// Opt::CHOMPSettings
+///
+
+Opt::CHOMPSettings::CHOMPSettings()
+  : planning_time_limit(10.0)
+  , max_iterations(200)
+  , max_iterations_after_collision_free(5)
+  , smoothness_cost_weight(0.1)
+  , obstacle_cost_weight(0.0)
+  , learning_rate(0.01)
+  , animate_path(true)
+  , add_randomness(false)
+  , smoothness_cost_velocity(0.0)
+  , smoothness_cost_acceleration(1.0)
+  , smoothness_cost_jerk(0.0)
+  , hmc_discretization(0.01)
+  , hmc_stochasticity(0.01)
+  , hmc_annealing_factor(0.99)
+  , use_hamiltonian_monte_carlo(false)
+  , ridge_factor(0.001)
+  , use_pseudo_inverse(false)
+  , pseudo_inverse_ridge_factor(1e-4)
+  , animate_endeffector(false)
+  , animate_endeffector_segment("r_gripper_tool_frame")
+  , joint_update_limit(0.1)
+  , collision_clearence(0.2)
+  , collision_threshold(0.07)
+  , random_jump_amount(1.0)
+  , use_stochastic_descent(true)
+  , enable_failure_recovery(true)
+  , max_recovery_attepmts(5)
+  , trajectory_initialization_method("quintic-spline")
+{
+}
+
+void Opt::CHOMPSettings::setParam(IO::Handler &handler) const
+{
+    const std::string prefix = "";
+    handler.setParam(prefix + "planning_time_limit", planning_time_limit);
+    handler.setParam(prefix + "max_iterations", max_iterations);
+    handler.setParam(prefix + "max_iterations_after_collision_free", max_iterations_after_collision_free);
+    handler.setParam(prefix + "smoothness_cost_weight", smoothness_cost_weight);
+    handler.setParam(prefix + "obstacle_cost_weight", obstacle_cost_weight);
+    handler.setParam(prefix + "learning_rate", learning_rate);
+    handler.setParam(prefix + "animate_path", animate_path);
+    handler.setParam(prefix + "add_randomness", add_randomness);
+    handler.setParam(prefix + "smoothness_cost_velocity", smoothness_cost_velocity);
+    handler.setParam(prefix + "smoothness_cost_acceleration", smoothness_cost_acceleration);
+    handler.setParam(prefix + "smoothness_cost_jerk", smoothness_cost_jerk);
+    handler.setParam(prefix + "hmc_discretization", hmc_discretization);
+    handler.setParam(prefix + "hmc_stochasticity", hmc_stochasticity);
+    handler.setParam(prefix + "hmc_annealing_factor", hmc_annealing_factor);
+    handler.setParam(prefix + "use_hamiltonian_monte_carlo", use_hamiltonian_monte_carlo);
+    handler.setParam(prefix + "ridge_factor", ridge_factor);
+    handler.setParam(prefix + "use_pseudo_inverse", use_pseudo_inverse);
+    handler.setParam(prefix + "pseudo_inverse_ridge_factor", pseudo_inverse_ridge_factor);
+    handler.setParam(prefix + "animate_endeffector", animate_endeffector);
+    handler.setParam(prefix + "animate_endeffector_segment", animate_endeffector_segment);
+    handler.setParam(prefix + "joint_update_limit", joint_update_limit);
+    handler.setParam(prefix + "collision_clearence", collision_clearence);
+    handler.setParam(prefix + "collision_threshold", collision_threshold);
+    handler.setParam(prefix + "random_jump_amount", random_jump_amount);
+    handler.setParam(prefix + "use_stochastic_descent", use_stochastic_descent);
+    handler.setParam(prefix + "enable_failure_recovery", enable_failure_recovery);
+    handler.setParam(prefix + "max_recovery_attepmts", max_recovery_attepmts);
+    handler.setParam(prefix + "trajectory_initialization_method", trajectory_initialization_method);
+}
+
+///
 /// Opt::CHOMPPipelinePlanner
 ///
 
@@ -244,7 +313,7 @@ const std::vector<std::string>                                             //
          "default_planner_request_adapters/FixStartStateBounds",           //
          "default_planner_request_adapters/FixStartStateCollision",        //
          "default_planner_request_adapters/FixStartStatePathConstraints",  //
-         "default_planner_request_adapters/ResolveConstraintFrames",       //
+         "chomp/OptimizerAdapter",       //
          "default_planner_request_adapters/AddTimeParameterization"});
 
 Opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
@@ -252,11 +321,14 @@ Opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std
 {
 }
 
-bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const CHOMPSettings &settings, 
+                                           const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
         return false;
+    
+    configs_.push_back("chomp");
 
     handler_.setParam("planning_plugin", plugin);
 
@@ -269,11 +341,17 @@ bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const
     }
 
     handler_.setParam("request_adapters", ss.str());
+    settings.setParam(handler_);
 
     pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
 
     return true;
+}
+
+std::vector<std::string> Opt::CHOMPPipelinePlanner::getPlannerConfigs() const
+{
+    return configs_;
 }
 
 ///
