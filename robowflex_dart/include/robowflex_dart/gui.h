@@ -97,6 +97,22 @@ namespace robowflex
                 bool linear[3]{true, true, true};    ///< Linear position controls enabled.
                 bool rotation[3]{true, true, true};  ///< Rotation ring controls enabled.
                 bool planar[3]{true, true, true};    ///< Planar translation controls enabled.
+
+                /** \brief Disables all linear controls.
+                 */
+                void disableLinearControls();
+
+                /** \brief Disables all rotation controls.
+                 */
+                void disableRotationControls();
+
+                /** \brief Disables all planar controls.
+                 */
+                void disablePlanarControls();
+
+                /** \brief Disables all controls.
+                 */
+                void disableControls();
             };
 
             /** \brief Return from creating an interactive marker.

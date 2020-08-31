@@ -38,6 +38,38 @@ void Viewer::updateTraversal()
 }
 
 //
+// Window::InteractiveOptions
+//
+
+void Window::InteractiveOptions::disableLinearControls()
+{
+    linear[0] = false;
+    linear[1] = false;
+    linear[2] = false;
+}
+
+void Window::InteractiveOptions::disableRotationControls()
+{
+    rotation[0] = false;
+    rotation[1] = false;
+    rotation[2] = false;
+}
+
+void Window::InteractiveOptions::disablePlanarControls()
+{
+    planar[0] = false;
+    planar[1] = false;
+    planar[2] = false;
+}
+
+void Window::InteractiveOptions::disableControls()
+{
+    disableLinearControls();
+    disableRotationControls();
+    disablePlanarControls();
+}
+
+//
 // Window
 //
 
