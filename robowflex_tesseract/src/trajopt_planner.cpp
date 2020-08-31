@@ -48,7 +48,9 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
             return false;
         }
 
-        ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(), tip_link.c_str());
+        if (options.verbose)
+            ROS_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(),
+                     tip_link.c_str());
 
         TiXmlDocument srdf_doc;
         srdf_doc.Parse(robot_->getSRDFString().c_str());
@@ -94,6 +96,12 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
     return true;
 }
 
+void TrajOptPlanner::setInitialTrajectory(const robot_trajectory::RobotTrajectoryPtr &init_trajectory)
+{
+    hypercube::robotTrajToManipTesseractTraj(init_trajectory, manip_, env_, initial_trajectory_);
+    init_type_ = InitInfo::Type::GIVEN_TRAJ;
+}
+
 void TrajOptPlanner::setInitialTrajectory(const TrajArray &init_trajectory)
 {
     initial_trajectory_ = init_trajectory;
@@ -137,6 +145,11 @@ const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
         throw Exception(1, "There is no loaded manipulator!");
 }
 
+double TrajOptPlanner::getPlanningTime() const
+{
+    return time_;
+}
+
 planning_interface::MotionPlanResponse
 TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
@@ -173,21 +186,20 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->update(true);
 
     // Plan.
-    if (plan(scene, start_state, goal_state))
+    auto result = plan(scene, start_state, goal_state);
+    res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+    if (result.first and result.second)
     {
         res.trajectory_ = trajectory_;
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-    }
-    else
-    {
-        res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     }
 
     return res;
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                          const robot_state::RobotStatePtr &goal_state)
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const robot_state::RobotStatePtr &start_state,
+                                                   const robot_state::RobotStatePtr &goal_state)
 {
     // Create the tesseract environment from the scene.
     if (hypercube::sceneToTesseractEnv(scene, env_))
@@ -200,24 +212,26 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
         addStartState(start_state, pci);
 
         // Add collision costs to all waypoints in the trajectory.
+        options.default_safety_margin_coeffs = options.joint_state_safety_margin_coeffs;
         addCollisionAvoidance(pci);
 
         // Add goal state.
         addGoalState(goal_state, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
-    return false;
+    return PlannerResult(false, false);
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                          const RobotPose &goal_pose, const std::string &link)
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const robot_state::RobotStatePtr &start_state,
+                                                   const RobotPose &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
-        return false;
+        return PlannerResult(false, false);
     }
 
     auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
@@ -226,7 +240,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
     if (link_it == end_it)
     {
         ROS_ERROR("Link %s is not part of robot manipulator", link.c_str());
-        return false;
+        return PlannerResult(false, false);
     }
 
     // Create the tesseract environment from the scene.
@@ -245,20 +259,20 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const robot_state::RobotSt
         // Add goal pose for link.
         addGoalPose(goal_pose, link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
-    return false;
+    return PlannerResult(false, false);
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene,
-                          const std::unordered_map<std::string, double> &start_state,
-                          const RobotPose &goal_pose, const std::string &link)
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const std::unordered_map<std::string, double> &start_state,
+                                                   const RobotPose &goal_pose, const std::string &link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
-        return false;
+        return PlannerResult(false, false);
     }
 
     auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
@@ -267,7 +281,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
     if (link_it == end_it)
     {
         ROS_ERROR("Link %s is not part of robot manipulator", link.c_str());
-        return false;
+        return PlannerResult(false, false);
     }
 
     // Create the tesseract environment from the scene.
@@ -286,20 +300,20 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene,
         // Add goal pose for link.
         addGoalPose(goal_pose, link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
-    return false;
+    return PlannerResult(false, false);
 }
 
-bool TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pose,
-                          const std::string &start_link, const RobotPose &goal_pose,
-                          const std::string &goal_link)
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pose,
+                                                   const std::string &start_link, const RobotPose &goal_pose,
+                                                   const std::string &goal_link)
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
         ROS_ERROR("Straight line interpolation can not be done with a start_pose or a goal_pose");
-        return false;
+        return PlannerResult(false, false);
     }
 
     auto begin_it = env_->getManipulator(manip_)->getLinkNames().begin();
@@ -310,7 +324,7 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pos
     {
         ROS_ERROR("Given links %s or %s are not part of robot manipulator", start_link.c_str(),
                   goal_link.c_str());
-        return false;
+        return PlannerResult(false, false);
     }
 
     // Create the tesseract environment from the scene.
@@ -329,10 +343,10 @@ bool TrajOptPlanner::plan(const SceneConstPtr &scene, const RobotPose &start_pos
         // Add goal_pose for goal_link.
         addGoalPose(goal_pose, goal_link, pci);
 
-        return solve(pci);
+        return solve(scene, pci);
     }
 
-    return false;
+    return PlannerResult(false, false);
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
@@ -349,7 +363,8 @@ void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_pa
     boost::filesystem::path path(file_path);
     path /= "file_output.csv";
     file_path_ = path.string();
-    stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
+    if (file_write_cb_)
+        stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
 }
 
 void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> &pci) const
@@ -366,7 +381,8 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
     if (init_type_ == InitInfo::Type::GIVEN_TRAJ)
         pci->init_info.data = initial_trajectory_;
 
-    ROS_INFO("TrajOpt initialization: %d", init_type_);
+    if (options.verbose)
+        ROS_INFO("TrajOpt initialization: %d", init_type_);
 
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<JointVelTermInfo>();
@@ -384,7 +400,7 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionIn
     auto collision = std::make_shared<CollisionTermInfo>();
     collision->name = "collision_cost";
     collision->term_type = TT_COST;
-    collision->continuous = cont_cc_;
+    collision->continuous = options.use_cont_col_avoid;
     collision->first_step = 0;
     collision->last_step = options.num_waypoints - 1;
     collision->gap = options.collision_gap;
@@ -489,73 +505,118 @@ void TrajOptPlanner::addGoalPose(const RobotPose &goal_pose, const std::string &
     pci->cnt_infos.push_back(pose_constraint);
 }
 
-bool TrajOptPlanner::solve(const std::shared_ptr<ProblemConstructionInfo> &pci)
+TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
+                                                    const std::shared_ptr<ProblemConstructionInfo> &pci)
 {
-    // TrajOpt problem and optimizer parameters.
-    TrajOptProbPtr prob = ConstructProblem(*pci);
-    auto config = std::make_shared<tesseract::tesseract_planning::TrajOptPlannerConfig>(prob);
-    setOptimizerParameters(config);
+    PlannerResult planner_result(true, true);
 
+    // Create optimizer, populate parameters and initialize.
+    TrajOptProbPtr prob = ConstructProblem(*pci);
+    sco::BasicTrustRegionSQP opt(prob);
+    opt.setParameters(getTrustRegionSQPParameters());
+    opt.initialize(trajToDblVec(prob->GetInitTraj()));
+
+    // Add write file callback.
     if (file_write_cb_)
     {
         if (!stream_ptr_->is_open())
             stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
-        config->callbacks.push_back(WriteCallback(stream_ptr_, prob));
+
+        opt.addCallback(WriteCallback(stream_ptr_, prob));
     }
 
-    // Create the Tesseract Planner and response.
-    tesseract::tesseract_planning::TrajOptPlanner planner;
-    tesseract::tesseract_planning::PlannerResponse response;
+    // Optimize.
+    ros::Time tStart = ros::Time::now();
+    opt.optimize();
 
-    // Solve planning problem.
-    bool success_plan = planner.solve(response, *config);
-    if (success_plan)
+    // Measure and print time.
+    time_ = (ros::Time::now() - tStart).toSec();
+    if (options.verbose)
+        ROS_INFO("Planning time: %.3f", time_);
+
+    // Check for status result.
+    tesseract::TrajArray tesseract_traj;
+    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT ||
+        opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
     {
-        // Clear previous trajectory and update it with new one.
-        trajectory_->clear();
-        updateTrajFromTesseractRes(response);
+        // Optimization problem did not converge.
+        planner_result.first = false;
+    }
+    else
+    {
+        // Optimization problem converged.
+        planner_result.first = true;
 
-        std::cout << response.trajectory << std::endl;
-        std::cout << response.status_description << std::endl;
+        // Clear current trajectory.
+        trajectory_->clear();
+
+        // Update trajectory.
+        tesseract_traj = getTraj(opt.x(), prob->GetVars());
+        hypercube::manipTesseractTrajToRobotTraj(tesseract_traj, robot_, manip_, env_, trajectory_);
+
+        // Check for collisions.
+        int i = 0;
+        while (i < options.num_waypoints and planner_result.second)
+        {
+            const auto &st = trajectory_->getWayPoint(i);
+            collision_detection::CollisionRequest col_request;
+            col_request.verbose = options.verbose;
+            auto result = scene->checkCollision(st, col_request);
+
+            if (result.collision)
+            {
+                if (options.verbose)
+                    ROS_ERROR("%u-th waypoint in collision", i);
+
+                planner_result.second = false;
+            }
+
+            i++;
+        }
+    }
+
+    // Print status
+    if (options.verbose)
+    {
+        std::cout << "OPTIMIZATION STATUS: " << sco::statusToString(opt.results().status) << std::endl;
+        std::cout << "COLLISION STATUS:";
+
+        if (planner_result.second)
+            std::cout << "COLLISION FREE" << std::endl;
+        else
+            std::cout << "IN COLLISION" << std::endl;
+
+        if (planner_result.first)
+        {
+            std::cout << "OUTPUT TRAJECTORY: " << std::endl;
+            std::cout << tesseract_traj << std::endl;
+        }
     }
 
     // Write optimization results in file.
     if (file_write_cb_)
         stream_ptr_->close();
 
-    return success_plan;
+    return planner_result;
 }
 
-void TrajOptPlanner::updateTrajFromTesseractRes(
-    const tesseract::tesseract_planning::PlannerResponse &response)
+sco::BasicTrustRegionSQPParameters TrajOptPlanner::getTrustRegionSQPParameters() const
 {
-    for (int i = 0; i < response.trajectory.rows(); i++)
-    {
-        // Create a tmp state for every waypoint.
-        auto tmp_state = robot_->allocState();
+    sco::BasicTrustRegionSQPParameters params;
 
-        // Transform tesseract manip ith waypoint to robot state.
-        hypercube::manipStateToRobotState(response.trajectory.row(i), manip_, env_, tmp_state);
+    params.improve_ratio_threshold = options.improve_ratio_threshold;
+    params.min_trust_box_size = options.min_trust_box_size;
+    params.min_approx_improve = options.min_approx_improve;
+    params.min_approx_improve_frac = options.min_approx_improve_frac;
+    params.max_iter = options.max_iter;
+    params.trust_shrink_ratio = options.trust_shrink_ratio;
+    params.trust_expand_ratio = options.trust_expand_ratio;
+    params.cnt_tolerance = options.cnt_tolerance;
+    params.max_merit_coeff_increases = options.max_merit_coeff_increases;
+    params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
+    params.max_time = options.max_time;
+    params.merit_error_coeff = options.merit_error_coeff;
+    params.trust_box_size = options.trust_box_size;
 
-        // Add waypoint to trajectory.
-        trajectory_->addSuffixWayPoint(tmp_state, 0.0);
-    }
-}
-
-void TrajOptPlanner::setOptimizerParameters(
-    std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const
-{
-    config->params.improve_ratio_threshold = options.improve_ratio_threshold;
-    config->params.min_trust_box_size = options.min_trust_box_size;
-    config->params.min_approx_improve = options.min_approx_improve;
-    config->params.min_approx_improve_frac = options.min_approx_improve_frac;
-    config->params.max_iter = options.max_iter;
-    config->params.trust_shrink_ratio = options.trust_shrink_ratio;
-    config->params.trust_expand_ratio = options.trust_expand_ratio;
-    config->params.cnt_tolerance = options.cnt_tolerance;
-    config->params.max_merit_coeff_increases = options.max_merit_coeff_increases;
-    config->params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
-    config->params.max_time = options.max_time;
-    config->params.merit_error_coeff = options.merit_error_coeff;
-    config->params.trust_box_size = options.trust_box_size;
+    return params;
 }

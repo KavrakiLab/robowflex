@@ -37,21 +37,26 @@ namespace robowflex
          */
         struct Options
         {
-            int num_waypoints{20};         ///< Number of waypoints.
-            double dt_lower_lim{2.0};      ///< 1/max_dt.
-            double dt_upper_lim{100.0};    ///< 1/min_dt.
+            bool verbose{true};             ///< Verbosity
+            bool use_cont_col_avoid{true};  ///< Whether to use continuous collision avoidance or not
+            int num_waypoints{20};          ///< Number of waypoints.
+            double dt_lower_lim{2.0};       ///< 1/max_dt.
+            double dt_upper_lim{100.0};     ///< 1/min_dt.
             bool start_fixed{false};       ///< Whether to use the current env state as a fixed initial state.
             bool use_time{false};          ///< Whether any cost/cnt use time.
             double init_info_dt{0.5};      ///< Value of dt in init_info.
             double joint_vel_coeffs{5.0};  ///< Coefficients for joint_vel costs.
             int collision_gap{1};  ///< For continuous collision avoidance, compute swept-volume between
                                    ///< timestep t and t+gap.
-            double default_safety_margin{0.025};        ///< Default safety margin for collision avoidance.
-            double default_safety_margin_coeffs{50.0};  ///< Coefficients for default safety margin in
-                                                        ///< collision cost/constraints.
-            double pose_cnt_pos_coeffs{10.0};           ///< Coefficients for pose constraints (position).
-            double pose_cnt_rot_coeffs{10.0};           ///< Coefficients for pose constraints (rotation).
-            double joint_pos_cnt_coeffs{5.0};           ///< Coefficients for joint position constraints.
+            double default_safety_margin{0.025};           ///< Default safety margin for collision avoidance.
+            double default_safety_margin_coeffs{50.0};     ///< Coefficients for safety margin.
+            double joint_pose_safety_margin_coeffs{50.0};  ///< Coefficients for safety margin when using
+                                                           ///< joint pose costs/cnts.
+            double joint_state_safety_margin_coeffs{350.0};  ///< Coefficients for safety margin when using
+                                                             ///< joint state costs/cnts.
+            double pose_cnt_pos_coeffs{10.0};      ///< Coefficients for pose constraints (position).
+            double pose_cnt_rot_coeffs{10.0};      ///< Coefficients for pose constraints (rotation).
+            double joint_pos_cnt_coeffs{1.0};      ///< Coefficients for joint position constraints.
             double improve_ratio_threshold{0.25};  ///< Minimum ratio true_improve/approx_improve to accept
                                                    ///< step
             double min_trust_box_size{1e-4};       ///< If trust region gets any smaller, exit and report
@@ -75,6 +80,10 @@ namespace robowflex
             double trust_box_size{1e-1};  ///< Current size of trust region (component-wise)
         } options;
 
+        /** \brief Planner result: first->converged, second->collision_free
+         */
+        typedef std::pair<bool, bool> PlannerResult;
+
         /** \brief Constructor.
          *  \param[in] robot Robot to plan for.
          *  \param[in] planner_name Name of the planner.
@@ -95,6 +104,11 @@ namespace robowflex
 
         /** \name Set and get TrajOpt parameters
             \{*/
+
+        /** \brief Set initial trajectory for TrajOpt and set init_type to GIVEN_TRAJ
+         *  \param[in] init_trajectory Trajectory to initialize TrajOpt.
+         */
+        void setInitialTrajectory(const robot_trajectory::RobotTrajectoryPtr &init_trajectory);
 
         /** \brief Set initial trajectory for TrajOpt and set init_type to GIVEN_TRAJ
          *  \param[in] init_trajectory Trajectory to initialize TrajOpt.
@@ -131,6 +145,11 @@ namespace robowflex
          */
         const std::vector<std::string> &getManipulatorJoints() const;
 
+        /** \brief Get the time spent by the planner the last time it was called.
+         *  \return Planning time.
+         */
+        double getPlanningTime() const;
+
         /** \} */
 
         /** \name Planning functions
@@ -148,40 +167,42 @@ namespace robowflex
          *  \param[in] scene Scene to plan for.
          *  \param[in] start_state Start state for the robot.
          *  \param[in] goal_state Goal state for the robot.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        bool plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                  const robot_state::RobotStatePtr &goal_state);
+        PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
+                           const robot_state::RobotStatePtr &goal_state);
 
         /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
          * scene.
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
          * \param[in] goal_pose Cartesian goal pose for \a link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        bool plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
-                  const RobotPose &goal_pose, const std::string &link);
+        PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
+                           const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
          * scene.
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
          * \param[in] goal_pose Cartesian goal pose for \a link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        bool plan(const SceneConstPtr &scene, const std::unordered_map<std::string, double> &start_state,
-                  const RobotPose &goal_pose, const std::string &link);
+        PlannerResult plan(const SceneConstPtr &scene,
+                           const std::unordered_map<std::string, double> &start_state,
+                           const RobotPose &goal_pose, const std::string &link);
 
         /** \brief Plan a motion given a \a start_pose for \a start_link and a \a goal_pose for \a goal_link.
          *  \param[in] scene A planning scene to compute the plan in.
          *  \param[in] start_pose Cartesian start pose for \a start_link.
          *  \param[in] start_link Robot's link with \a start_pose.
          *  \param[in] goal_pose Cartesian goal pose for \a goal_link.
-         *  \return True if a plan was successfully computed.
+         *  \return Planner result with convergence and collision status.
          */
-        bool plan(const SceneConstPtr &scene, const RobotPose &start_pose, const std::string &start_link,
-                  const RobotPose &goal_pose, const std::string &goal_link);
+        PlannerResult plan(const SceneConstPtr &scene, const RobotPose &start_pose,
+                           const std::string &start_link, const RobotPose &goal_pose,
+                           const std::string &goal_link);
 
         /** \brief Get planner configurations offered by this planner.
          *  Any of the configurations returned can be set as the planner for a motion planning query sent to
@@ -271,23 +292,21 @@ namespace robowflex
         void addGoalPose(const RobotPose &goal_pose, const std::string &link,
                          std::shared_ptr<trajopt::ProblemConstructionInfo> &pci) const;
 
-        /** \brief Call TrajOpt \a solve() and updates \a trajectory_.
-         *  \param[out] pci Pointer to problem construction info initialized.
+        /** \brief Solve SQP optimization problem.
+         *  \param[in] scene Scene to plan for.
+         *  \param[in] pci Pointer to problem construction info initialized.
+         *  \return Planner result with convergence and collision status.
          */
-        bool solve(const std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
+        PlannerResult solve(const SceneConstPtr &scene,
+                            const std::shared_ptr<trajopt::ProblemConstructionInfo> &pci);
 
-        /** \brief Update \a trajectory_ based on the planner response.
-         *  \param[in] response Tesseract planner response to get trajectory from.
+        /** \brief Get parameters of the SQP.
+         *  \return SQP parameters.
          */
-        void updateTrajFromTesseractRes(const tesseract::tesseract_planning::PlannerResponse &response);
+        sco::BasicTrustRegionSQPParameters getTrustRegionSQPParameters() const;
 
-        /** \brief Set optimizer parameters.
-         *  \param[in] config TrajOpt planner config.
-         */
-        void setOptimizerParameters(
-            std::shared_ptr<tesseract::tesseract_planning::TrajOptPlannerConfig> &config) const;
-
-        robot_trajectory::RobotTrajectoryPtr trajectory_;  ///< Last trajectory generated by the planner.
+        robot_trajectory::RobotTrajectoryPtr trajectory_;  ///< Last successful trajectory generated by the
+                                                           ///< planner.
         tesseract::tesseract_ros::KDLEnvPtr env_;          ///< KDL environment.
         std::string group_;                                ///< Name of group to plan for.
         std::string manip_;                          ///< Name of manipulator chain to check for collisions.
@@ -298,6 +317,7 @@ namespace robowflex
         trajopt::InitInfo::Type init_type_{trajopt::InitInfo::Type::STATIONARY};  ///< Type of initial
                                                                                   ///< trajectory.
         trajopt::TrajArray initial_trajectory_;  ///< Initial trajectory (if any).
+        double time_{0.0};                       ///< Time taken by the optimizer the last time it was called.
     };
 }  // namespace robowflex
 

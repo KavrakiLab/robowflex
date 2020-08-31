@@ -15,21 +15,21 @@ using namespace robowflex;
 
 int main(int argc, char **argv)
 {
-    ROS ros(argc, argv, "fetch_tabletop", 0);
+    ROS ros(argc, argv, "fetch_tabletop");
 
     // Parameters.
     const auto &dataset = IO::resolvePackage("package://robowflex_tesseract/scenes/table");
     const auto &moveit_planning_group = "arm";
     const auto &manip = "arm_chain";
     const auto &manip_base_link = "torso_lift_link";
-    const auto &manip_tip_link = "gripper_link";
+    const auto &manip_tip_link = "l_gripper_finger_link";
     int start = 1;
-    int end = 10;
-    int num_waypoints = 15;
+    int end = 20;
+    int num_waypoints = 10;
     double trajopt_iterations_limit = 100.0;
     bool solve = true;
     bool file_write_cb = false;
-    bool use_goal_state = false;
+    bool use_goal_state = true;
     bool use_straight_line_init = true;
 
     // Fetch robot.
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
         // Load scene
         boost::filesystem::path scene_path(dataset);
-        scene_path /= "scene_vicon" + index + ".yaml";
+        scene_path /= "scene_table" + index + ".yaml";
         const auto &scene = std::make_shared<Scene>(fetch);
         if (!scene->fromYAMLFile(scene_path.string()))
         {
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 
         // Load place request
         boost::filesystem::path request_path(dataset);
-        request_path /= "place_request" + index + ".yaml";
+        request_path /= "request_table" + index + ".yaml";
         const auto &place_request =
             std::make_shared<MotionRequestBuilder>(trajopt_planner, moveit_planning_group);
         if (!place_request->fromYAMLFile(request_path.string()))
@@ -107,7 +107,8 @@ int main(int argc, char **argv)
                 // Solve the place problem using TrajOpt with a start state and a goal pose for the end
                 // effector.
                 const auto &pick_state = place_request->getStartConfiguration();
-                if (trajopt_planner->plan(scene, pick_state, place_ee_pose, ee))
+                auto result = trajopt_planner->plan(scene, pick_state, place_ee_pose, ee);
+                if (result.first)
                     rviz->updateTrajectory(trajopt_planner->getTrajectory());
             }
         }
@@ -138,6 +139,8 @@ int main(int argc, char **argv)
         std::cin.ignore();
     }
 
-    ros::spin();
+    ROS_INFO("Finished");
+
+    ros.wait();
     return 0;
 }
