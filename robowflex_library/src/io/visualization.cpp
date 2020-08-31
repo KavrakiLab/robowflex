@@ -19,18 +19,16 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/random.h>
+#include <robowflex_library/constants.h>
 
 using namespace robowflex;
 
 namespace
 {
-    static std::random_device RD;
-    static std::mt19937 GEN(RD());
-
     Eigen::Vector4d getRandomColor()
     {
-        std::uniform_real_distribution<> dis(0.2, 0.7);
-        return {dis(GEN), dis(GEN), dis(GEN), 1.};
+        return {RNG::uniformReal(0.2, 0.7), RNG::uniformReal(0.2, 0.7), RNG::uniformReal(0.2, 0.7), 1};
     }
 };  // namespace
 
@@ -199,6 +197,21 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
     marker.text = text;
 
     markers_.emplace(name, marker);
+}
+
+void IO::RVIZHelper::addTransformMarker(const std::string &name, const std::string &base_frame,
+                                        const RobotPose &pose)
+{
+    Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
+    auto z_rot90 = TF::createPoseXYZ(0, 0, 0, 0, 0, constants::half_pi);
+    auto y_rot90 = TF::createPoseXYZ(0, 0, 0, 0, -constants::half_pi, 0);
+    auto red_color = Eigen::Vector4d{1, 0, 0, 1};
+    auto green_color = Eigen::Vector4d{0, 1, 0, 1};
+    auto blue_color = Eigen::Vector4d{0, 0, 1, 1};
+
+    addArrowMarker(name + "X", base_frame, pose, red_color, scale);
+    addArrowMarker(name + "Y", base_frame, pose * z_rot90, green_color, scale);
+    addArrowMarker(name + "Z", base_frame, pose * y_rot90, blue_color, scale);
 }
 
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
@@ -373,6 +386,28 @@ void IO::RVIZHelper::addMarker(float x, float y, float z)
     marker.type = visualization_msgs::Marker::SPHERE;
 
     markers_.emplace("", marker);
+}
+
+void IO::RVIZHelper::addPointMarker(const std::string &name, float x, float y, float z)
+{
+    visualization_msgs::Marker marker;
+    const std::string &base_frame = "map";
+
+    RobotPose pose = RobotPose::Identity();
+    pose *= Eigen::Translation3d(x, y, z);
+
+    Eigen::Vector3d scale = {0.05, 0.05, 0.05};
+    auto color = getRandomColor();
+
+    fillMarker(marker, base_frame, pose, color, scale);
+
+    marker.type = visualization_msgs::Marker::SPHERE;
+
+    markers_.emplace(name, marker);
+}
+void IO::RVIZHelper::addPointMarker(const std::string &name, const Eigen::Vector3d &point)
+{
+    addPointMarker(name, point.x(), point.y(), point.z());
 }
 
 void IO::RVIZHelper::removeScene()

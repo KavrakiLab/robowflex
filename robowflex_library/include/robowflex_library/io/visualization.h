@@ -113,6 +113,29 @@ namespace robowflex
              */
             void addMarker(float x, float y, float z);
 
+            /** \brief Add a point (spherical) marker to the scene.
+             *  \param[in] name The name of the marker.
+             *  \param[in] x The x coordinate of the sphere.
+             *  \param[in] y The y coordinate of the sphere.
+             *  \param[in] z The z coordinate of the sphere.
+             */
+            void addPointMarker(const std::string &name, float x, float y, float z);
+
+            /** \brief Easily add a point (spherical) marker to the scene.
+             *  \param[in] name The name of the marker.
+             *  \param[in] point The x,y,z coordinates as a vector
+             */
+            void addPointMarker(const std::string &name, const Eigen::Vector3d &point);
+
+            /** \brief Add a transform marker to the managed list of markers.
+             * Displayed after an updateMarkers() call.
+             *  \param[in] name Name of the marker.
+             *  \param[in] base_frame Base frame of the pose of the marker.
+             *  \param[in] pose Pose of the transform.
+             */
+            void addTransformMarker(const std::string &name, const std::string &base_frame,
+                                    const RobotPose &pose);
+
             /** \brief Add a marker to the managed list of markers. Displayed after an updateMarkers() call.
              *  \param[in] name Name of the marker.
              *  \param[in] geometry Geometry of the marker to create.
