@@ -111,6 +111,12 @@ namespace robowflex
              */
             const dart::dynamics::SkeletonPtr &getSkeletonConst() const;
 
+            /** \brief Dumps the structure of the skeleton to a GraphViz file.
+             *  \param[in] out Stream to output to.
+             *  \param[in] standalone If false, does not include graph header.
+             */
+            void dumpGraphViz(std::ostream &out, bool standalone = true);
+
             /** \} */
 
             /** \name Getting and Setting Configurations
