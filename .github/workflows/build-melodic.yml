@@ -14,9 +14,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Enable Docker Layer Caching
-      uses: satackey/action-docker-layer-caching@v0.0.8
-
     - name: Compile Docker Container
       run: ./.docker/melodic/build-melodic.sh
 
