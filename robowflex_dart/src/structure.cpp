@@ -127,7 +127,10 @@ void Structure::dumpGraphViz(std::ostream &out, bool standalone)
         if (parent)
         {
             const auto &pindex = parent->getIndexInSkeleton();
-            out << sname << "_" << pindex << "->" << sname << "_" << index << "[label=\"" << jname << std::endl << type << "\"]" << std::endl;
+            out << sname << "_" << pindex << "->"  //
+                << sname << "_" << index           //
+                << "[label=\"" << jname << std::endl
+                << type << "\"]" << std::endl;
         }
     }
 
