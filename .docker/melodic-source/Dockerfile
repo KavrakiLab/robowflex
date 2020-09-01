@@ -9,8 +9,7 @@ ENV MOVEIT_BRANCH="master"
 RUN apt-get update && \
     apt-get install -y \
       build-essential wget pkg-config python-catkin-tools python-wstool cmake \
-      libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
-      ros-${ROS_DISTRO}-geometry
+      libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev
 
 # Setup Catkin Workspace
 RUN mkdir -p ws/src
