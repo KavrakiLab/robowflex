@@ -302,13 +302,14 @@ namespace robowflex
         };
     }  // namespace OMPL
 
-    namespace Opt
+    namespace opt
     {
         /** \brief Loads configuration YAML file onto the parameter server.
          */
         bool loadConfig(IO::Handler &handler, const std::string &config_file);
-        
-        /** \brief Settings descriptor for settings provided by the default \a MoveIt! CHOMP planning pipeline.
+
+        /** \brief Settings descriptor for settings provided by the default \a MoveIt! CHOMP planning
+         * pipeline.
          */
         class CHOMPSettings
         {
@@ -375,23 +376,41 @@ namespace robowflex
 
             /** \brief Initialize planning pipeline.
              *  Loads CHOMP planning plugin \a plugin with the planning adapters \a adapters. Parameters are
-             *  set on the parameter server from \a settings and planning configurations are loaded from the
-             *  YAML file \a config_file.
+             *  set on the parameter server from \a config_file.
              *  \param[in] config_file A YAML file containing CHOMP configuration.
              *  \param[in] plugin Planning plugin to load.
              *  \param[in] adapters Planning adapters to load.
              *  \return True upon success, false on failure.
              */
-            bool initialize(const std::string &config_file = "", const CHOMPSettings &settings = CHOMPSettings(), 
+            bool initialize(const std::string &config_file,
                             const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
-            
+
+            /** \brief Initialize planning pipeline.
+             *  Loads CHOMP planning plugin \a plugin with the planning adapters \a adapters. Parameters are
+             *  set on the parameter server from \a settings.
+             *  \param[in] settings Planner settings.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool initialize(const CHOMPSettings &settings = CHOMPSettings(),
+                            const std::string &plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
             std::vector<std::string> getPlannerConfigs() const override;
 
         protected:
+            /** \brief Finalize the initialization process after parameters are set.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool finishInitialize(const std::string &plugin, const std::vector<std::string> &adapters);
+
             static const std::string DEFAULT_PLUGIN;                 ///< The default CHOMP plugin.
             static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
-            
+
         private:
             std::vector<std::string> configs_;  ///< Planning configurations loaded from \a config_file.
         };
@@ -400,11 +419,11 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(TrajOptPipelinePlanner);
         /** \endcond */
 
-        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerPtr
-            \brief A shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+        /** \class robowflex::Trajopt::TrajOptPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::Trajopt::TrajOptPipelinePlanner. */
 
-        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerConstPtr
-            \brief A const shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+        /** \class robowflex::Trajopt::TrajOptPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::Trajopt::TrajOptPipelinePlanner. */
 
         /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! TrajOpt planning pipeline.
          */

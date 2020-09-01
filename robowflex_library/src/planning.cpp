@@ -216,7 +216,7 @@ std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
 /// Opt
 ///
 
-bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
+bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 {
     if (config_file.empty())
         return false;
@@ -234,10 +234,10 @@ bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 }
 
 ///
-/// Opt::CHOMPSettings
+/// opt::CHOMPSettings
 ///
 
-Opt::CHOMPSettings::CHOMPSettings()
+opt::CHOMPSettings::CHOMPSettings()
   : planning_time_limit(10.0)
   , max_iterations(200)
   , max_iterations_after_collision_free(5)
@@ -257,7 +257,7 @@ Opt::CHOMPSettings::CHOMPSettings()
   , use_pseudo_inverse(false)
   , pseudo_inverse_ridge_factor(1e-4)
   , animate_endeffector(false)
-  , animate_endeffector_segment("r_gripper_tool_frame")
+  , animate_endeffector_segment("")
   , joint_update_limit(0.1)
   , collision_clearence(0.2)
   , collision_threshold(0.07)
@@ -269,7 +269,7 @@ Opt::CHOMPSettings::CHOMPSettings()
 {
 }
 
-void Opt::CHOMPSettings::setParam(IO::Handler &handler) const
+void opt::CHOMPSettings::setParam(IO::Handler &handler) const
 {
     const std::string prefix = "";
     handler.setParam(prefix + "planning_time_limit", planning_time_limit);
@@ -303,33 +303,46 @@ void Opt::CHOMPSettings::setParam(IO::Handler &handler) const
 }
 
 ///
-/// Opt::CHOMPPipelinePlanner
+/// opt::CHOMPPipelinePlanner
 ///
 
-const std::string Opt::CHOMPPipelinePlanner::DEFAULT_PLUGIN("chomp_interface/CHOMPPlanner");
+const std::string opt::CHOMPPipelinePlanner::DEFAULT_PLUGIN("chomp_interface/CHOMPPlanner");
 const std::vector<std::string>                                             //
-    Opt::CHOMPPipelinePlanner::DEFAULT_ADAPTERS(                           //
+    opt::CHOMPPipelinePlanner::DEFAULT_ADAPTERS(                           //
         {"default_planner_request_adapters/FixWorkspaceBounds",            //
          "default_planner_request_adapters/FixStartStateBounds",           //
          "default_planner_request_adapters/FixStartStateCollision",        //
          "default_planner_request_adapters/FixStartStatePathConstraints",  //
-         "chomp/OptimizerAdapter",       //
+         // "chomp/OptimizerAdapter",                                         //
          "default_planner_request_adapters/AddTimeParameterization"});
 
-Opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
+opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
 }
 
-bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const CHOMPSettings &settings, 
+bool opt::CHOMPPipelinePlanner::initialize(const CHOMPSettings &settings,
+                                           const std::string &plugin,
+                                           const std::vector<std::string> &adapters)
+{
+    settings.setParam(handler_);
+    return finishInitialize(plugin, adapters);
+}
+
+bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file,
                                            const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
         return false;
-    
-    configs_.push_back("chomp");
 
+    return finishInitialize(plugin, adapters);
+}
+
+bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin, const std::vector<std::string> &adapters)
+{
+
+    configs_.push_back("chomp");
     handler_.setParam("planning_plugin", plugin);
 
     std::stringstream ss;
@@ -341,7 +354,6 @@ bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const
     }
 
     handler_.setParam("request_adapters", ss.str());
-    settings.setParam(handler_);
 
     pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
@@ -349,30 +361,30 @@ bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const
     return true;
 }
 
-std::vector<std::string> Opt::CHOMPPipelinePlanner::getPlannerConfigs() const
+std::vector<std::string> opt::CHOMPPipelinePlanner::getPlannerConfigs() const
 {
     return configs_;
 }
 
 ///
-/// Opt::TrajOptPipelinePlanner
+/// opt::TrajOptPipelinePlanner
 ///
 
-const std::string Opt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
+const std::string opt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
 const std::vector<std::string>                                        //
-    Opt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                    //
+    opt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                    //
         {"default_planner_request_adapters/AddTimeParameterization",  //
          "default_planner_request_adapters/FixWorkspaceBounds",       //
          "default_planner_request_adapters/FixStartStateBounds",      //
          "default_planner_request_adapters/FixStartStateCollision",   //
          "default_planner_request_adapters/FixStartStatePathConstraints"});
 
-Opt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
+opt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
 }
 
-bool Opt::TrajOptPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+bool opt::TrajOptPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
                                              const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
