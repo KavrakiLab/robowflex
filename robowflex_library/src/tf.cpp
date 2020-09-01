@@ -1,6 +1,6 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#include <eigen_conversions/eigen_msg.h>
+#include <tf2_eigen/tf2_eigen.h>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
@@ -58,43 +58,45 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
 Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3 &msg)
 {
     Eigen::Vector3d vector;
-    tf::vectorMsgToEigen(msg, vector);
+    vector[0] = msg.x;
+    vector[1] = msg.y;
+    vector[2] = msg.z;
+
     return vector;
 }
 
 geometry_msgs::Vector3 TF::vectorEigenToMsg(const Eigen::Vector3d &vector)
 {
     geometry_msgs::Vector3 msg;
-    tf::vectorEigenToMsg(vector, msg);
+    msg.x = vector[0];
+    msg.y = vector[1];
+    msg.z = vector[2];
+
     return msg;
 }
 
 RobotPose TF::poseMsgToEigen(const geometry_msgs::Pose &msg)
 {
     RobotPose pose;
-    tf::poseMsgToEigen(msg, pose);
+    tf2::fromMsg(msg, pose);
     return pose;
 }
 
 geometry_msgs::Pose TF::poseEigenToMsg(const RobotPose &pose)
 {
-    geometry_msgs::Pose msg;
-    tf::poseEigenToMsg(pose, msg);
-    return msg;
+    return tf2::toMsg(pose);
 }
 
 Eigen::Quaterniond TF::quaternionMsgToEigen(const geometry_msgs::Quaternion &msg)
 {
     Eigen::Quaterniond quaternion;
-    tf::quaternionMsgToEigen(msg, quaternion);
+    tf2::fromMsg(msg, quaternion);
     return quaternion;
 }
 
 geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond &quaternion)
 {
-    geometry_msgs::Quaternion msg;
-    tf::quaternionEigenToMsg(quaternion, msg);
-    return msg;
+    return tf2::toMsg(quaternion);
 }
 
 moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const GeometryConstPtr &geometry)
@@ -211,13 +213,11 @@ RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eig
 geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &source, const std::string &target,
                                                         const RobotPose &tf)
 {
-    geometry_msgs::TransformStamped msg;
+    geometry_msgs::TransformStamped msg = tf2::eigenToTransform(tf);
 
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = source;
     msg.child_frame_id = target;
-
-    tf::transformEigenToMsg(tf, msg.transform);
 
     return msg;
 }
