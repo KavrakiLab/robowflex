@@ -20,13 +20,6 @@ WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     catkin build --limit-status-rate 0.001 --no-notify
 
-# Install TF2 - not included in Indigo repositories
-WORKDIR /
-RUN git clone --single-branch --branch indigo-devel --depth 1 https://github.com/ros/geometry2.git
-RUN ln -s /geometry2/tf2 /ws/src/tf2 && ln -s /geometry2/tf2_eigen /ws/src/tf2_eigen
-WORKDIR /ws
-RUN catkin build --limit-status-rate 0.001 --no-notify
-
 # Build Robowflex
 WORKDIR /ws/src
 ADD ./CMakeModules CMakeModules

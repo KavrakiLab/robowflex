@@ -1,7 +1,5 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#include <tf2_eigen/tf2_eigen.h>
-
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/random.h>
@@ -77,26 +75,39 @@ geometry_msgs::Vector3 TF::vectorEigenToMsg(const Eigen::Vector3d &vector)
 
 RobotPose TF::poseMsgToEigen(const geometry_msgs::Pose &msg)
 {
-    RobotPose pose;
-    tf2::fromMsg(msg, pose);
-    return pose;
+    return RobotPose(Eigen::Translation3d(msg.position.x, msg.position.y, msg.position.z) *
+                     quaternionMsgToEigen(msg.orientation));
 }
 
 geometry_msgs::Pose TF::poseEigenToMsg(const RobotPose &pose)
 {
-    return tf2::toMsg(pose);
+    geometry_msgs::Pose msg;
+
+    const auto &t = pose.translation();
+    msg.position.x = t.x();
+    msg.position.y = t.y();
+    msg.position.z = t.z();
+
+    const auto &r = Eigen::Quaterniond(pose.rotation());
+    msg.orientation = quaternionEigenToMsg(r);
+
+    return msg;
 }
 
 Eigen::Quaterniond TF::quaternionMsgToEigen(const geometry_msgs::Quaternion &msg)
 {
-    Eigen::Quaterniond quaternion;
-    tf2::fromMsg(msg, quaternion);
-    return quaternion;
+    return Eigen::Quaterniond(msg.w, msg.x, msg.y, msg.z);
 }
 
 geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond &quaternion)
 {
-    return tf2::toMsg(quaternion);
+    geometry_msgs::Quaternion msg;
+    msg.w = quaternion.w();
+    msg.x = quaternion.x();
+    msg.y = quaternion.y();
+    msg.z = quaternion.z();
+
+    return msg;
 }
 
 moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const GeometryConstPtr &geometry)
@@ -213,11 +224,19 @@ RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eig
 geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &source, const std::string &target,
                                                         const RobotPose &tf)
 {
-    geometry_msgs::TransformStamped msg = tf2::eigenToTransform(tf);
+    geometry_msgs::TransformStamped msg;
 
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = source;
     msg.child_frame_id = target;
+
+    const auto &t = tf.translation();
+    msg.transform.translation.x = t.x();
+    msg.transform.translation.y = t.y();
+    msg.transform.translation.z = t.z();
+
+    const auto &r = Eigen::Quaterniond(tf.rotation());
+    msg.transform.rotation = quaternionEigenToMsg(r);
 
     return msg;
 }

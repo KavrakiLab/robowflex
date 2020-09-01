@@ -45,7 +45,6 @@ list(APPEND CATKIN_SOURCES
   moveit_core
   moveit_ros_planning
   tf2_ros
-  tf2_eigen
   xmlrpcpp
   )
 
