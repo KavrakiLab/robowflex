@@ -420,11 +420,11 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(TrajOptPipelinePlanner);
         /** \endcond */
 
-        /** \class robowflex::Trajopt::TrajOptPipelinePlannerPtr
-            \brief A shared pointer wrapper for robowflex::Trajopt::TrajOptPipelinePlanner. */
+        /** \class robowflex::opt::TrajOptPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::opt::TrajOptPipelinePlanner. */
 
-        /** \class robowflex::Trajopt::TrajOptPipelinePlannerConstPtr
-            \brief A const shared pointer wrapper for robowflex::Trajopt::TrajOptPipelinePlanner. */
+        /** \class robowflex::opt::TrajOptPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::opt::TrajOptPipelinePlanner. */
 
         /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! TrajOpt planning pipeline.
          */
