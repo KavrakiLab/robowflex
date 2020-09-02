@@ -319,35 +319,35 @@ namespace robowflex
              */
             CHOMPSettings();
 
-            double planning_time_limit;
-            int max_iterations;
-            int max_iterations_after_collision_free;
-            double smoothness_cost_weight;
-            double obstacle_cost_weight;
-            double learning_rate;
-            bool animate_path;
-            bool add_randomness;
-            double smoothness_cost_velocity;
-            double smoothness_cost_acceleration;
-            double smoothness_cost_jerk;
-            double hmc_discretization;
-            double hmc_stochasticity;
-            double hmc_annealing_factor;
-            bool use_hamiltonian_monte_carlo;
-            double ridge_factor;
-            bool use_pseudo_inverse;
-            double pseudo_inverse_ridge_factor;
-            bool animate_endeffector;
-            std::string animate_endeffector_segment;
-            double joint_update_limit;
-            double collision_clearence;
-            double collision_threshold;
-            double random_jump_amount;
-            bool use_stochastic_descent;
-            bool enable_failure_recovery;
-            int max_recovery_attempts;
-            std::string trajectory_initialization_method;
-            double start_state_max_bounds_error;
+            double planning_time_limit;            ///< Maximum time the optimizer can take to find a solution.
+            int max_iterations;                    ///< Maximum number of iterations the planner can take while optimization.
+            int max_iterations_after_collision_free;    ///< Maximum number of iterations the planner will take after having found a collision-free path.
+            double smoothness_cost_weight;         ///< Weight given to the smoothnes cost in optimization problem.
+            double obstacle_cost_weight;           ///< Weight given to the obstacle cost in optimization problem.
+            double learning_rate;                  ///< Learning rate for gradient descent.
+            bool animate_path;                     ///< Whether to create an animated path.
+            bool add_randomness;                   ///< Whether to add randomness.
+            double smoothness_cost_velocity;       ///< Variable associated with the cost in velocity.
+            double smoothness_cost_acceleration;   ///< Variable associtated with the cost in acceleration.
+            double smoothness_cost_jerk;           ///< Variable associated with the cost in jerk.
+            double hmc_discretization;             ///< Discretization level for the Hamiltonian MonteCarlo.
+            double hmc_stochasticity;              ///< Stochasticity level of Hamitonian MonteCarlo.
+            double hmc_annealing_factor;           ///< Annealing factor in Hamiltonian MonteCarlo.
+            bool use_hamiltonian_monte_carlo;      ///< Whether to use hamiltonian monte carlo or not.
+            double ridge_factor;                   ///< Amount of noise added to the diagonal of the quadratic cost matrix. Needs to be grater than zero to allow CHOMP to avoid obstacles.
+            bool use_pseudo_inverse;               ///< Whether to use pseudo-inverse computations or not.
+            double pseudo_inverse_ridge_factor;    ///< ridge factor when pseudo-inverse is on.
+            bool animate_endeffector;              ///< Whether to animate the end effector or not.
+            std::string animate_endeffector_segment;    ///< Name of end effector segment to animate
+            double joint_update_limit;                  ///< Update limit for the robot joints
+            double collision_clearence;            ///< Minimum distance to the obstacles that the robot needs to stay away from.
+            double collision_threshold;            ///< Cost threshold for collision detection.
+            double random_jump_amount;             ///< Amount of random jump.
+            bool use_stochastic_descent;           ///< Whether to use SGD or not.
+            bool enable_failure_recovery;          ///< If enabled, CHOMP can tweak the parameters hoping to find a solution if one is not found using the default parameters.
+            int max_recovery_attempts;             ///< Maximum number of times that CHOMP tweaks parameters.
+            std::string trajectory_initialization_method;       ///< Type of initial trajectory for CHOMP. Possible values are quintic-spline, linear, cubic or fillTrajectory.
+            double start_state_max_bounds_error;   ///< Maximum bound errors for the initial state.
 
             /** \brief Sets member variables on the parameter server using \a handler.
              */
