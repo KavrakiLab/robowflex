@@ -114,6 +114,38 @@ const dart::dynamics::SkeletonPtr &Structure::getSkeletonConst() const
     return skeleton_;
 }
 
+void Structure::dumpGraphViz(std::ostream &out, bool standalone)
+{
+    if (standalone)
+        out << "digraph {" << std::endl;
+
+    const std::string &sname = skeleton_->getName();
+    for (const auto &node : skeleton_->getBodyNodes())
+    {
+        const std::string &name = node->getName();
+        const std::size_t index = node->getIndexInSkeleton();
+
+        out << sname << "_" << index << "[label=\"" << name << "\"]" << std::endl;
+
+        const auto &joint = node->getParentJoint();
+        const std::string &jname = joint->getName();
+        const std::string &type = joint->getType();
+
+        const auto &parent = joint->getParentBodyNode();
+        if (parent)
+        {
+            const auto &pindex = parent->getIndexInSkeleton();
+            out << sname << "_" << pindex << "->"  //
+                << sname << "_" << index           //
+                << "[label=\"" << jname << std::endl
+                << type << "\"]" << std::endl;
+        }
+    }
+
+    if (standalone)
+        out << "}" << std::endl;
+}
+
 void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape)
 {
     if (not shape)
