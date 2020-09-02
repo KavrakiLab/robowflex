@@ -132,7 +132,12 @@ Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptio
 
     auto callback = options.callback;
     r.signal = r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
-        callback(dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity));
+        if (entity)
+        {
+            auto cast = dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity);
+            if (cast and callback)
+                callback(cast);
+        }
     });
 
     return r;
