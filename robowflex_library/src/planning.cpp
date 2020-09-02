@@ -266,6 +266,7 @@ opt::CHOMPSettings::CHOMPSettings()
   , enable_failure_recovery(true)
   , max_recovery_attepmts(5)
   , trajectory_initialization_method("quintic-spline")
+  , start_state_max_bounds_error(0.1)
 {
 }
 
@@ -298,8 +299,9 @@ void opt::CHOMPSettings::setParam(IO::Handler &handler) const
     handler.setParam(prefix + "random_jump_amount", random_jump_amount);
     handler.setParam(prefix + "use_stochastic_descent", use_stochastic_descent);
     handler.setParam(prefix + "enable_failure_recovery", enable_failure_recovery);
-    handler.setParam(prefix + "max_recovery_attepmts", max_recovery_attepmts);
+    handler.setParam(prefix + "max_recovery_attempts", max_recovery_attepmts);
     handler.setParam(prefix + "trajectory_initialization_method", trajectory_initialization_method);
+    handler.setParam(prefix + "start_state_max_bounds_error", start_state_max_bounds_error);
 }
 
 ///
@@ -313,7 +315,7 @@ const std::vector<std::string>                                             //
          "default_planner_request_adapters/FixStartStateBounds",           //
          "default_planner_request_adapters/FixStartStateCollision",        //
          "default_planner_request_adapters/FixStartStatePathConstraints",  //
-         // "chomp/OptimizerAdapter",                                         //
+         // "default_planner_request_adapters/ResolveConstraintFrames",       //
          "default_planner_request_adapters/AddTimeParameterization"});
 
 opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
@@ -321,16 +323,14 @@ opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std
 {
 }
 
-bool opt::CHOMPPipelinePlanner::initialize(const CHOMPSettings &settings,
-                                           const std::string &plugin,
+bool opt::CHOMPPipelinePlanner::initialize(const CHOMPSettings &settings, const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {
     settings.setParam(handler_);
     return finishInitialize(plugin, adapters);
 }
 
-bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file,
-                                           const std::string &plugin,
+bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
@@ -339,9 +339,9 @@ bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file,
     return finishInitialize(plugin, adapters);
 }
 
-bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin, const std::vector<std::string> &adapters)
+bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin,
+                                                 const std::vector<std::string> &adapters)
 {
-
     configs_.push_back("chomp");
     handler_.setParam("planning_plugin", plugin);
 
@@ -354,7 +354,6 @@ bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin, cons
     }
 
     handler_.setParam("request_adapters", ss.str());
-
     pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
 

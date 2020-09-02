@@ -345,8 +345,9 @@ namespace robowflex
             double random_jump_amount;
             bool use_stochastic_descent;
             bool enable_failure_recovery;
-            int max_recovery_attepmts;
+            int max_recovery_attempts;
             std::string trajectory_initialization_method;
+            double start_state_max_bounds_error;
 
             /** \brief Sets member variables on the parameter server using \a handler.
              */
