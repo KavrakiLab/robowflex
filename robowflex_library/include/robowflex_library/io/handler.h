@@ -89,10 +89,6 @@ namespace robowflex
             const std::string &getNamespace() const;
 
         private:
-            /** \brief Generates a UUID for the handler.
-             *  \return String of UUID.
-             */
-            static const std::string generateUUID();
             static const std::string UUID;  ///< UUID of handler.
 
             const std::string name_;       ///< Name of handler.
