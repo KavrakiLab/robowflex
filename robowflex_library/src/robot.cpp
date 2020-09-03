@@ -140,8 +140,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
     }
 
-    bool success = loadURDFFile(urdf_file) && loadSRDFFile(srdf_file);
-    if (not success)
+    if (not loadURDFFile(urdf_file) or not loadSRDFFile(srdf_file))
         return false;
 
     loadRobotModel();
@@ -285,8 +284,6 @@ bool Robot::loadKinematics(const std::string &name)
     if (imap_.find(name) != imap_.end())
         return true;
 
-    ROS_INFO(name.c_str());
-
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
@@ -323,6 +320,8 @@ bool Robot::loadKinematics(const std::string &name)
         ROS_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name.c_str());
         return false;
     }
+
+    ROS_INFO("Loaded Kinematics Solver for  `%s`", name.c_str());
 
     auto timeout = kinematics_->getIKTimeout();
     jmg->setDefaultIKTimeout(timeout[name]);

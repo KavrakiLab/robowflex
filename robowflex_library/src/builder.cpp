@@ -16,27 +16,39 @@
 
 using namespace robowflex;
 
-const std::vector<std::string> MotionRequestBuilder::DEFAULT_CONFIGS({"RRTConnect"});
+// Typical name for RRTConnect configuration in MoveIt
+const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnectkConfigDefault";
 
 MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot) : robot_(robot)
 {
     initialize();
 }
 
-MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name)
+MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot, const std::string &group_name,
+                                           const std::string &planner_config)
+  : MotionRequestBuilder(robot)
+{
+    setPlanningGroup(group_name);
+
+    if (not planner_config.empty())
+        setConfig(planner_config);
+}
+
+MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name,
+                                           const std::string &planner_config)
   : MotionRequestBuilder(planner->getRobot())
 {
     setPlanningGroup(group_name);
     setPlanner(planner);
 
-    // Default planner (find an RRTConnect config, for Indigo)
-    for (const auto &config : DEFAULT_CONFIGS)
-        if (setConfig(config))
-            break;
+    if (not planner_config.empty())
+        setConfig(planner_config);
 }
 
 void MotionRequestBuilder::initialize()
 {
+    setConfig(DEFAULT_CONFIG);
+
     setWorkspaceBounds(Eigen::Vector3d::Constant(-1), Eigen::Vector3d::Constant(1));
     request_.allowed_planning_time = 5.0;
 }
@@ -92,7 +104,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
     if (not planner_)
     {
-        ROS_INFO("No planner set, using requested config as is.");
+        ROS_INFO("No planner set! Using requested config `%s`", requested_config.c_str());
         request_.planner_id = requested_config;
         return true;
     }
@@ -114,7 +126,8 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
                          [](const std::string &a, const std::string &b) { return a.size() < b.size(); });
 
     request_.planner_id = *found;
-    ROS_INFO("Using planner: %s", request_.planner_id.c_str());
+    ROS_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config.c_str(),
+             request_.planner_id.c_str());
     return true;
 }
 
