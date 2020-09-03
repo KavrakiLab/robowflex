@@ -125,6 +125,8 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
         std::min_element(matches.begin(), matches.end(),
                          [](const std::string &a, const std::string &b) { return a.size() < b.size(); });
 
+    incrementVersion();
+
     request_.planner_id = *found;
     ROS_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config.c_str(),
              request_.planner_id.c_str());
@@ -133,6 +135,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)
 {
+    incrementVersion();
     request_.workspace_parameters = wp;
 }
 
@@ -158,6 +161,8 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
         throw std::runtime_error("No planning group set!");
     }
 
+    incrementVersion();
+
     robot_state::RobotState start_state(robot_->getModelConst());
     start_state.setToDefaultValues();
     start_state.setJointGroupPositions(jmg_, joints);
@@ -167,6 +172,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
 
 void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &state)
 {
+    incrementVersion();
     moveit::core::robotStateToRobotStateMsg(*state, request_.start_state);
 }
 
@@ -177,6 +183,8 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
         ROS_ERROR("No planning group set!");
         throw std::runtime_error("No planning group set!");
     }
+
+    incrementVersion();
 
     robot_state::RobotStatePtr state;
     state.reset(new robot_state::RobotState(robot_->getModelConst()));
@@ -193,6 +201,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
         throw std::runtime_error("No planning group set!");
     }
 
+    incrementVersion();
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
@@ -212,6 +221,8 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
+    incrementVersion();
+
     moveit_msgs::Constraints constraints;
 
     constraints.position_constraints.push_back(TF::getPositionConstraint(ee_name, base_name, pose, geometry));
@@ -256,16 +267,19 @@ void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, cons
 
 void MotionRequestBuilder::clearGoals()
 {
+    incrementVersion();
     request_.goal_constraints.clear();
 }
 
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
 {
+    incrementVersion();
     request_.allowed_planning_time = allowed_planning_time;
 }
 
 void MotionRequestBuilder::setNumPlanningAttempts(unsigned int num_planning_attempts)
 {
+    incrementVersion();
     request_.num_planning_attempts = num_planning_attempts;
 }
 
@@ -281,6 +295,7 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
                                                      const RobotPose &pose, const GeometryConstPtr &geometry)
 {
+    incrementVersion();
     request_.path_constraints.position_constraints.push_back(
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
 }
@@ -290,17 +305,20 @@ void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_na
                                                         const Eigen::Quaterniond &orientation,
                                                         const Eigen::Vector3d &tolerances)
 {
+    incrementVersion();
     request_.path_constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 }
 
 moveit_msgs::Constraints &MotionRequestBuilder::getPathConstraints()
 {
+    incrementVersion();
     return request_.path_constraints;
 }
 
 planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 {
+    incrementVersion();
     return request_;
 }
 
@@ -310,6 +328,7 @@ robot_state::RobotStatePtr MotionRequestBuilder::getStartConfiguration() const
 
     moveit::core::robotStateMsgToRobotState(request_.start_state, *start_state);
     start_state->update(true);
+
     return start_state;
 }
 
@@ -354,5 +373,6 @@ bool MotionRequestBuilder::toYAMLFile(const std::string &file) const
 
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
+    incrementVersion();
     return IO::fromYAMLFile(request_, file);
 }
