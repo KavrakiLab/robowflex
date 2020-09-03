@@ -302,11 +302,63 @@ namespace robowflex
         };
     }  // namespace OMPL
 
-    namespace Opt
+    namespace opt
     {
         /** \brief Loads configuration YAML file onto the parameter server.
          */
         bool loadConfig(IO::Handler &handler, const std::string &config_file);
+
+        /** \brief Settings descriptor for settings provided by the default \a MoveIt! CHOMP planning
+         * pipeline.
+         */
+        class CHOMPSettings
+        {
+        public:
+            /** \brief Constructor.
+             *  Initialized here so an empty class can be used as default arguments in a function.
+             */
+            CHOMPSettings();
+
+            double planning_time_limit;  ///< Maximum time the optimizer can take to find a solution.
+            int max_iterations;  ///< Maximum number of iterations the planner can take while optimization.
+            int max_iterations_after_collision_free;  ///< Maximum number of iterations the planner will take
+                                                      ///< after having found a collision-free path.
+            double smoothness_cost_weight;    ///< Weight given to the smoothnes cost in optimization problem.
+            double obstacle_cost_weight;      ///< Weight given to the obstacle cost in optimization problem.
+            double learning_rate;             ///< Learning rate for gradient descent.
+            bool animate_path;                ///< Whether to create an animated path.
+            bool add_randomness;              ///< Whether to add randomness.
+            double smoothness_cost_velocity;  ///< Variable associated with the cost in velocity.
+            double smoothness_cost_acceleration;  ///< Variable associtated with the cost in acceleration.
+            double smoothness_cost_jerk;          ///< Variable associated with the cost in jerk.
+            double hmc_discretization;            ///< Discretization level for the Hamiltonian MonteCarlo.
+            double hmc_stochasticity;             ///< Stochasticity level of Hamitonian MonteCarlo.
+            double hmc_annealing_factor;          ///< Annealing factor in Hamiltonian MonteCarlo.
+            bool use_hamiltonian_monte_carlo;     ///< Whether to use hamiltonian monte carlo or not.
+            double ridge_factor;      ///< Amount of noise added to the diagonal of the quadratic cost matrix.
+                                      ///< Needs to be grater than zero to allow CHOMP to avoid obstacles.
+            bool use_pseudo_inverse;  ///< Whether to use pseudo-inverse computations or not.
+            double pseudo_inverse_ridge_factor;       ///< ridge factor when pseudo-inverse is on.
+            bool animate_endeffector;                 ///< Whether to animate the end effector or not.
+            std::string animate_endeffector_segment;  ///< Name of end effector segment to animate
+            double joint_update_limit;                ///< Update limit for the robot joints
+            double collision_clearence;    ///< Minimum distance to the obstacles that the robot needs to stay
+                                           ///< away from.
+            double collision_threshold;    ///< Cost threshold for collision detection.
+            double random_jump_amount;     ///< Amount of random jump.
+            bool use_stochastic_descent;   ///< Whether to use SGD or not.
+            bool enable_failure_recovery;  ///< If enabled, CHOMP can tweak the parameters hoping to find a
+                                           ///< solution if one is not found using the default parameters.
+            int max_recovery_attempts;     ///< Maximum number of times that CHOMP tweaks parameters.
+            std::string trajectory_initialization_method;  ///< Type of initial trajectory for CHOMP. Possible
+                                                           ///< values are quintic-spline, linear, cubic or
+                                                           ///< fillTrajectory.
+            double start_state_max_bounds_error;           ///< Maximum bound errors for the initial state.
+
+            /** \brief Sets member variables on the parameter server using \a handler.
+             */
+            void setParam(IO::Handler &handler) const;
+        };
 
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(CHOMPPipelinePlanner);
@@ -331,30 +383,53 @@ namespace robowflex
 
             /** \brief Initialize planning pipeline.
              *  Loads CHOMP planning plugin \a plugin with the planning adapters \a adapters. Parameters are
-             *  set on the parameter server from \a settings and planning configurations are loaded from the
-             *  YAML file \a config_file.
+             *  set on the parameter server from \a config_file.
              *  \param[in] config_file A YAML file containing CHOMP configuration.
              *  \param[in] plugin Planning plugin to load.
              *  \param[in] adapters Planning adapters to load.
              *  \return True upon success, false on failure.
              */
-            bool initialize(const std::string &config_file = "", const std::string &plugin = DEFAULT_PLUGIN,
+            bool initialize(const std::string &config_file, const std::string &plugin = DEFAULT_PLUGIN,
                             const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
 
+            /** \brief Initialize planning pipeline.
+             *  Loads CHOMP planning plugin \a plugin with the planning adapters \a adapters. Parameters are
+             *  set on the parameter server from \a settings.
+             *  \param[in] settings Planner settings.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool initialize(const CHOMPSettings &settings = CHOMPSettings(),
+                            const std::string &plugin = DEFAULT_PLUGIN,
+                            const std::vector<std::string> &adapters = DEFAULT_ADAPTERS);
+
+            std::vector<std::string> getPlannerConfigs() const override;
+
         protected:
+            /** \brief Finalize the initialization process after parameters are set.
+             *  \param[in] plugin Planning plugin to load.
+             *  \param[in] adapters Planning adapters to load.
+             *  \return True upon success, false on failure.
+             */
+            bool finishInitialize(const std::string &plugin, const std::vector<std::string> &adapters);
+
             static const std::string DEFAULT_PLUGIN;                 ///< The default CHOMP plugin.
             static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
+
+        private:
+            std::vector<std::string> configs_;  ///< Planning configurations loaded from \a config_file.
         };
 
         /** \cond IGNORE */
         ROBOWFLEX_CLASS_FORWARD(TrajOptPipelinePlanner);
         /** \endcond */
 
-        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerPtr
-            \brief A shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+        /** \class robowflex::opt::TrajOptPipelinePlannerPtr
+            \brief A shared pointer wrapper for robowflex::opt::TrajOptPipelinePlanner. */
 
-        /** \class robowflex::TrajOpt::TrajOptPipelinePlannerConstPtr
-            \brief A const shared pointer wrapper for robowflex::TrajOpt::TrajOptPipelinePlanner. */
+        /** \class robowflex::opt::TrajOptPipelinePlannerConstPtr
+            \brief A const shared pointer wrapper for robowflex::opt::TrajOptPipelinePlanner. */
 
         /** \brief A robowflex::PipelinePlanner that uses the \a MoveIt! TrajOpt planning pipeline.
          */
@@ -383,7 +458,7 @@ namespace robowflex
             static const std::string DEFAULT_PLUGIN;                 ///< The default TrajOpt plugin.
             static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
         };
-    }  // namespace Opt
+    }  // namespace opt
 }  // namespace robowflex
 
 #endif

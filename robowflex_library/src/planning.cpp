@@ -216,7 +216,7 @@ std::vector<std::string> OMPL::OMPLPipelinePlanner::getPlannerConfigs() const
 /// Opt
 ///
 
-bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
+bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 {
     if (config_file.empty())
         return false;
@@ -234,30 +234,115 @@ bool Opt::loadConfig(IO::Handler &handler, const std::string &config_file)
 }
 
 ///
-/// Opt::CHOMPPipelinePlanner
+/// opt::CHOMPSettings
 ///
 
-const std::string Opt::CHOMPPipelinePlanner::DEFAULT_PLUGIN("chomp_interface/CHOMPPlanner");
+opt::CHOMPSettings::CHOMPSettings()
+  : planning_time_limit(10.0)
+  , max_iterations(200)
+  , max_iterations_after_collision_free(5)
+  , smoothness_cost_weight(0.1)
+  , obstacle_cost_weight(0.0)
+  , learning_rate(0.01)
+  , animate_path(true)
+  , add_randomness(false)
+  , smoothness_cost_velocity(0.0)
+  , smoothness_cost_acceleration(1.0)
+  , smoothness_cost_jerk(0.0)
+  , hmc_discretization(0.01)
+  , hmc_stochasticity(0.01)
+  , hmc_annealing_factor(0.99)
+  , use_hamiltonian_monte_carlo(false)
+  , ridge_factor(0.001)
+  , use_pseudo_inverse(false)
+  , pseudo_inverse_ridge_factor(1e-4)
+  , animate_endeffector(false)
+  , animate_endeffector_segment("")
+  , joint_update_limit(0.1)
+  , collision_clearence(0.2)
+  , collision_threshold(0.07)
+  , random_jump_amount(1.0)
+  , use_stochastic_descent(true)
+  , enable_failure_recovery(true)
+  , max_recovery_attempts(5)
+  , trajectory_initialization_method("quintic-spline")
+  , start_state_max_bounds_error(0.1)
+{
+}
+
+void opt::CHOMPSettings::setParam(IO::Handler &handler) const
+{
+    const std::string prefix = "";
+    handler.setParam(prefix + "planning_time_limit", planning_time_limit);
+    handler.setParam(prefix + "max_iterations", max_iterations);
+    handler.setParam(prefix + "max_iterations_after_collision_free", max_iterations_after_collision_free);
+    handler.setParam(prefix + "smoothness_cost_weight", smoothness_cost_weight);
+    handler.setParam(prefix + "obstacle_cost_weight", obstacle_cost_weight);
+    handler.setParam(prefix + "learning_rate", learning_rate);
+    handler.setParam(prefix + "animate_path", animate_path);
+    handler.setParam(prefix + "add_randomness", add_randomness);
+    handler.setParam(prefix + "smoothness_cost_velocity", smoothness_cost_velocity);
+    handler.setParam(prefix + "smoothness_cost_acceleration", smoothness_cost_acceleration);
+    handler.setParam(prefix + "smoothness_cost_jerk", smoothness_cost_jerk);
+    handler.setParam(prefix + "hmc_discretization", hmc_discretization);
+    handler.setParam(prefix + "hmc_stochasticity", hmc_stochasticity);
+    handler.setParam(prefix + "hmc_annealing_factor", hmc_annealing_factor);
+    handler.setParam(prefix + "use_hamiltonian_monte_carlo", use_hamiltonian_monte_carlo);
+    handler.setParam(prefix + "ridge_factor", ridge_factor);
+    handler.setParam(prefix + "use_pseudo_inverse", use_pseudo_inverse);
+    handler.setParam(prefix + "pseudo_inverse_ridge_factor", pseudo_inverse_ridge_factor);
+    handler.setParam(prefix + "animate_endeffector", animate_endeffector);
+    handler.setParam(prefix + "animate_endeffector_segment", animate_endeffector_segment);
+    handler.setParam(prefix + "joint_update_limit", joint_update_limit);
+    handler.setParam(prefix + "collision_clearence", collision_clearence);
+    handler.setParam(prefix + "collision_threshold", collision_threshold);
+    handler.setParam(prefix + "random_jump_amount", random_jump_amount);
+    handler.setParam(prefix + "use_stochastic_descent", use_stochastic_descent);
+    handler.setParam(prefix + "enable_failure_recovery", enable_failure_recovery);
+    handler.setParam(prefix + "max_recovery_attempts", max_recovery_attempts);
+    handler.setParam(prefix + "trajectory_initialization_method", trajectory_initialization_method);
+    handler.setParam(prefix + "start_state_max_bounds_error", start_state_max_bounds_error);
+}
+
+///
+/// opt::CHOMPPipelinePlanner
+///
+
+const std::string opt::CHOMPPipelinePlanner::DEFAULT_PLUGIN("chomp_interface/CHOMPPlanner");
 const std::vector<std::string>                                             //
-    Opt::CHOMPPipelinePlanner::DEFAULT_ADAPTERS(                           //
+    opt::CHOMPPipelinePlanner::DEFAULT_ADAPTERS(                           //
         {"default_planner_request_adapters/FixWorkspaceBounds",            //
          "default_planner_request_adapters/FixStartStateBounds",           //
          "default_planner_request_adapters/FixStartStateCollision",        //
          "default_planner_request_adapters/FixStartStatePathConstraints",  //
-         "default_planner_request_adapters/ResolveConstraintFrames",       //
+         // "default_planner_request_adapters/ResolveConstraintFrames",       //
          "default_planner_request_adapters/AddTimeParameterization"});
 
-Opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
+opt::CHOMPPipelinePlanner::CHOMPPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
 }
 
-bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+bool opt::CHOMPPipelinePlanner::initialize(const CHOMPSettings &settings, const std::string &plugin,
+                                           const std::vector<std::string> &adapters)
+{
+    settings.setParam(handler_);
+    return finishInitialize(plugin, adapters);
+}
+
+bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
                                            const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
         return false;
 
+    return finishInitialize(plugin, adapters);
+}
+
+bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin,
+                                                 const std::vector<std::string> &adapters)
+{
+    configs_.push_back("chomp");
     handler_.setParam("planning_plugin", plugin);
 
     std::stringstream ss;
@@ -269,32 +354,36 @@ bool Opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const
     }
 
     handler_.setParam("request_adapters", ss.str());
-
     pipeline_.reset(new planning_pipeline::PlanningPipeline(robot_->getModelConst(), handler_.getHandle(),
                                                             "planning_plugin", "request_adapters"));
 
     return true;
 }
 
+std::vector<std::string> opt::CHOMPPipelinePlanner::getPlannerConfigs() const
+{
+    return configs_;
+}
+
 ///
-/// Opt::TrajOptPipelinePlanner
+/// opt::TrajOptPipelinePlanner
 ///
 
-const std::string Opt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
+const std::string opt::TrajOptPipelinePlanner::DEFAULT_PLUGIN("trajopt_interface/TrajOptPlanner");
 const std::vector<std::string>                                        //
-    Opt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                    //
+    opt::TrajOptPipelinePlanner::DEFAULT_ADAPTERS(                    //
         {"default_planner_request_adapters/AddTimeParameterization",  //
          "default_planner_request_adapters/FixWorkspaceBounds",       //
          "default_planner_request_adapters/FixStartStateBounds",      //
          "default_planner_request_adapters/FixStartStateCollision",   //
          "default_planner_request_adapters/FixStartStatePathConstraints"});
 
-Opt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
+opt::TrajOptPipelinePlanner::TrajOptPipelinePlanner(const RobotPtr &robot, const std::string &name)
   : PipelinePlanner(robot, name)
 {
 }
 
-bool Opt::TrajOptPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
+bool opt::TrajOptPipelinePlanner::initialize(const std::string &config_file, const std::string &plugin,
                                              const std::vector<std::string> &adapters)
 {
     if (!loadConfig(handler_, config_file))
