@@ -35,7 +35,7 @@ bool IO::loadURDF(Robot &robot, const std::string &urdf)
     for (const auto &package : packages)
         IO::addPackage(package);
 
-    auto skeleton = URDF.parseSkeleton(urdf);
+    auto skeleton = URDF.parseSkeletonString(text, "");
     if (not skeleton)
         return false;
 
