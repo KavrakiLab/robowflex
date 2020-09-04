@@ -16,6 +16,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/id.h>
 
 namespace robowflex
 {
@@ -40,7 +41,7 @@ namespace robowflex
      * and manipulate collision objects, attach and detach objects to the robot, and so on. There are also
      * utilities to load and save planning scenes from YAML files (toYAMLFile() and fromYAMLFile()).
      */
-    class Scene
+    class Scene : public ID
     {
     public:
         /** \brief Constructor.

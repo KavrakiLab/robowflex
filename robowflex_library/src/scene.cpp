@@ -104,6 +104,7 @@ Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(
 
 void Scene::operator=(const Scene &other)
 {
+    incrementVersion();
     scene_ = other.getSceneConst();
 }
 
@@ -122,6 +123,7 @@ const planning_scene::PlanningScenePtr &Scene::getSceneConst() const
 
 planning_scene::PlanningScenePtr &Scene::getScene()
 {
+    incrementVersion();
     return scene_;
 }
 
@@ -134,11 +136,13 @@ moveit_msgs::PlanningScene Scene::getMessage() const
 
 robot_state::RobotState &Scene::getCurrentState()
 {
+    incrementVersion();
     return scene_->getCurrentStateNonConst();
 }
 
 collision_detection::AllowedCollisionMatrix &Scene::getACM()
 {
+    incrementVersion();
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
@@ -149,6 +153,8 @@ const collision_detection::AllowedCollisionMatrix &Scene::getACMConst() const
 
 void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 {
+    incrementVersion();
+
     if (!diff)
         scene_->setPlanningSceneMsg(msg);
     else
@@ -158,6 +164,8 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                   const RobotPose &pose)
 {
+    incrementVersion();
+
     auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
     {
@@ -205,6 +213,8 @@ RobotPose Scene::getObjectPose(const std::string &name) const
 
 bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
 {
+    incrementVersion();
+
     bool success = false;
 #if ROBOWFLEX_AT_LEAST_KINETIC
     auto &world = scene_->getWorldNonConst();
@@ -218,6 +228,8 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
 
 bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 {
+    incrementVersion();
+
     const auto pose = getObjectPose(name);
     const auto global_tf = pose * transform * pose.inverse();
 
@@ -228,9 +240,8 @@ bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 RobotPose Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
-    {
         ROS_WARN("Frame %s in not present in the scene!", id.c_str());
-    }
+
     return scene_->getFrameTransform(id);
 }
 
@@ -242,6 +253,7 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
         success = false;
         ROS_WARN("Was not able to load collision detector plugin '%s'", detector_name.c_str());
     }
+
     ROS_INFO("Using collision detector: %s", scene_->getActiveCollisionDetectorName().c_str());
     return success;
 }
@@ -265,18 +277,22 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 {
     const auto &robot = state.getRobotModel();
     const auto &ee = robot->getEndEffectors();
+
     // One end-effector
     if (ee.size() == 1)
     {
         const auto &links = ee[0]->getLinkModelNames();
         return attachObject(state, name, links[0], links);
     }
+
     return false;
 }
 
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
+    incrementVersion();
+
     auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
@@ -306,6 +322,8 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
 bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
+    incrementVersion();
+
     auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
@@ -346,9 +364,12 @@ bool Scene::hasObject(const std::string &name) const
 
 bool Scene::detachObject(const std::string &name)
 {
+    incrementVersion();
+
     auto &robot = scene_->getCurrentStateNonConst();
     auto &world = scene_->getWorldNonConst();
     auto body = robot.getAttachedBody(name);
+
     if (!body)
     {
         ROS_ERROR("Robot does not have attached object `%s`", name.c_str());
@@ -362,6 +383,7 @@ bool Scene::detachObject(const std::string &name)
         ROS_ERROR("Could not detach object `%s`", name.c_str());
         return false;
     }
+
     return true;
 }
 

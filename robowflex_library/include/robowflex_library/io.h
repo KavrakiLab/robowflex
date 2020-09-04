@@ -17,6 +17,11 @@ namespace robowflex
      */
     namespace IO
     {
+        /** \brief Generates a UUID.
+         *  \return String of UUID.
+         */
+        std::string generateUUID();
+
         /** \brief Resolves `package://` URLs to their canonical form.
          *  The path does not need to exist, but the package does. Can be used to write new files in packages.
          *  \param[in] path Path to resolve.

@@ -255,7 +255,7 @@ bool IO::YAMLToFile(const YAML::Node &node, const std::string &file)
     return true;
 }
 
-const std::string IO::Handler::generateUUID()
+std::string IO::generateUUID()
 {
     boost::uuids::random_generator gen;
     boost::uuids::uuid u = gen();
@@ -364,6 +364,7 @@ IO::Bag::~Bag()
 /// IO::Handler
 ///
 
+// Static ID for all handlers
 const std::string IO::Handler::UUID(generateUUID());
 
 namespace

@@ -7,6 +7,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/id.h>
 #include <robowflex_library/geometry.h>
 
 namespace robowflex
@@ -28,7 +29,7 @@ namespace robowflex
 
     /** \brief A helper class to build motion planning requests for a robowflex::Planner
      */
-    class MotionRequestBuilder
+    class MotionRequestBuilder : public ID
     {
     public:
         /** \brief Constructor.
@@ -51,6 +52,11 @@ namespace robowflex
          */
         MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name,
                              const std::string &planner_config = "");
+
+        /** \brief Copy Constructor.
+         *  \param[in] other Request to copy.
+         */
+        MotionRequestBuilder(const MotionRequestBuilder &other);
 
         /** \brief Clone this request.
          *  \return A copy of this request.
@@ -273,6 +279,26 @@ namespace robowflex
          *  \return The motion planning request.
          */
         moveit_msgs::Constraints &getPathConstraints();
+
+        /** \brief Get the robot for this request.
+         *  \return The robot.
+         */
+        const RobotConstPtr &getRobot() const;
+
+        /** \brief Get the planner for this request.
+         *  \return The planner. Will be null if not set.
+         */
+        const PlannerConstPtr &getPlanner() const;
+
+        /** \brief Get the planning group.
+         *  \return The current planning group used.
+         */
+        const std::string &getPlanningGroup() const;
+
+        /** \brief Get the planner config.
+         *  \return The current planner config used.
+         */
+        const std::string &getPlannerConfig() const;
 
         /** \} */
 

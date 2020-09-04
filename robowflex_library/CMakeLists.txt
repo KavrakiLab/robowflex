@@ -70,6 +70,7 @@ list(APPEND SOURCES
   src/geometry.cpp
   src/benchmarking.cpp
   src/util.cpp
+  src/id.cpp
   src/io.cpp
   src/openrave.cpp
   src/io/visualization.cpp
