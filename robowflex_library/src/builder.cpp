@@ -45,6 +45,21 @@ MotionRequestBuilder::MotionRequestBuilder(const PlannerConstPtr &planner, const
         setConfig(planner_config);
 }
 
+MotionRequestBuilder::MotionRequestBuilder(const MotionRequestBuilder &other)
+  : MotionRequestBuilder(other.getRobot())
+{
+    request_ = other.getRequestConst();
+
+    const auto &planner = other.getPlanner();
+    if (planner)
+        setPlanner(planner);
+}
+
+MotionRequestBuilderPtr MotionRequestBuilder::clone() const
+{
+    return std::make_shared<MotionRequestBuilder>(*this);
+}
+
 void MotionRequestBuilder::initialize()
 {
     setConfig(DEFAULT_CONFIG);
@@ -83,21 +98,6 @@ void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
         ROS_ERROR("Joint group `%s` does not exist in robot!", group_name.c_str());
         throw std::runtime_error("Invalid joint group name!");
     }
-}
-
-MotionRequestBuilderPtr MotionRequestBuilder::clone() const
-{
-    auto clone = std::make_shared<MotionRequestBuilder>(robot_);
-
-    if (jmg_)
-        clone->setPlanningGroup(group_name_);
-
-    if (planner_)
-        clone->setPlanner(planner_);
-
-    clone->getRequest() = request_;
-
-    return clone;
 }
 
 bool MotionRequestBuilder::setConfig(const std::string &requested_config)
@@ -375,4 +375,24 @@ bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
     incrementVersion();
     return IO::fromYAMLFile(request_, file);
+}
+
+const RobotConstPtr &MotionRequestBuilder::getRobot() const
+{
+    return robot_;
+}
+
+const PlannerConstPtr &MotionRequestBuilder::getPlanner() const
+{
+    return planner_;
+}
+
+const std::string &MotionRequestBuilder::getPlanningGroup() const
+{
+    return group_name_;
+}
+
+const std::string &MotionRequestBuilder::getPlannerConfig() const
+{
+    return request_.planner_id;
 }
