@@ -32,15 +32,49 @@ namespace robowflex
     {
     public:
         /** \brief Constructor.
+         *  \param[in] robot Robot to build planning problem for.
+         */
+        MotionRequestBuilder(const RobotConstPtr &robot);
+
+        /** \brief Constructor. Set planner config and group as well.
+         *  \param[in] robot Robot to build planning problem for.
+         *  \param[in] group_name The motion planning group to build the request for.
+         *  \param[in] planner_config Desired planning configuration to use.
+         */
+        MotionRequestBuilder(const RobotConstPtr &robot, const std::string &group_name,
+                             const std::string &planner_config = "");
+
+        /** \brief Constructor.
          *  \param[in] planner The motion planner to build a request for.
          *  \param[in] group_name The motion planning group to build the request for.
+         *  \param[in] planner_config Desired planning configuration to use.
          */
-        MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name);
+        MotionRequestBuilder(const PlannerConstPtr &planner, const std::string &group_name,
+                             const std::string &planner_config = "");
 
         /** \brief Clone this request.
          *  \return A copy of this request.
          */
         MotionRequestBuilderPtr clone() const;
+
+        /** \name Configuring Builder
+            \{ */
+
+        /** \brief Sets defaults.
+         */
+        void initialize();
+
+        /** \brief Set the planning group to use for this request builder.
+         *  \param[in] group_name Name of planning group.
+         */
+        void setPlanningGroup(const std::string &group_name);
+
+        /** \brief Set the Robowflex planner to use.
+         *  \param[in] planner Robowflex planner to build request for.
+         */
+        void setPlanner(const PlannerConstPtr &planner);
+
+        /** \} */
 
         /** \name Starting Configurations
             \{ */
@@ -203,6 +237,13 @@ namespace robowflex
          */
         void setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp);
 
+        /** \brief Sets workspace bounds of the planning request.
+         *  \param[in] min XYZ vector of minimum workspace bounds.
+         *  \param[in] max XYZ vector of maximum workspace bounds.
+         */
+        void setWorkspaceBounds(const Eigen::Ref<const Eigen::VectorXd> &min,
+                                const Eigen::Ref<const Eigen::VectorXd> &max);
+
         /** \} */
 
         /** \name Getters
@@ -253,15 +294,16 @@ namespace robowflex
         /** \} */
 
     private:
-        const PlannerConstPtr planner_;            ///< The planner to build the request for.
-        const RobotConstPtr robot_;                ///< The robot to build the request for (from \a planner_)
-        const std::string group_name_;             ///< The group to plan for.
-        const robot_model::JointModelGroup *jmg_;  ///< The joint model group of the robot (from \a
-                                                   ///< group_name_)
+        const RobotConstPtr robot_;  ///< The robot to build the request for.
+
+        PlannerConstPtr planner_;                     ///< The planner to build the request for.
+        std::string group_name_;                      ///< The group to plan for.
+        robot_model::JointModelGroup *jmg_{nullptr};  ///< The joint model group of the robot (from \a
+                                                      ///< group_name_)
 
         planning_interface::MotionPlanRequest request_;  ///< The build request.
 
-        static const std::vector<std::string> DEFAULT_CONFIGS;  ///< Default planner configurations to use
+        static const std::string DEFAULT_CONFIG;  ///< Default planner configuration to use
     };
 }  // namespace robowflex
 

@@ -88,6 +88,27 @@ namespace robowflex
         /** \name Initialization and Loading
             \{ */
 
+        /** \brief Initializes a robot from a kinematic description.
+         *  A default semantic description is used.
+         *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
+         *  \return True on success, false on failure.
+         */
+        bool initialize(const std::string &urdf_file);
+
+        /** \brief Initializes a robot from a kinematic and semantic description.
+         *  All files are loaded under the robot's namespace.
+         *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
+         *  \param[in] srdf_file Location of the robot's SRDF (XML or .xacro file).
+         *  \return True on success, false on failure.
+         */
+        bool initialize(const std::string &urdf_file, const std::string &srdf_file);
+
+        /** \brief Initialize a robot with a kinematics description.
+         *  \param[in] kinematics_file Location of the kinematics plugin information (a YAML file).
+         *  \return True on success, false on failure.
+         */
+        bool initializeKinematics(const std::string &kinematics_file);
+
         /** \brief Initializes a robot from a kinematic and semantic description.
          *  All files are loaded under the robot's namespace.
          *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
@@ -119,18 +140,18 @@ namespace robowflex
          *  function.
          *  \param[in] name Name to load file under.
          *  \param[in] file File to load.
-         *  \return True on success, false on failure.
+         *  \return XML string upon success, empty string on failure.
          */
-        bool loadXMLFile(const std::string &name, const std::string &file);
+        std::string loadXMLFile(const std::string &name, const std::string &file);
 
         /** \brief Loads an XML or .xacro file into the robot's namespace under \a name.
          * \param[in] name Name to load file under.
          * \param[in] file File to load.
          * \param[in] function Optional post processing function.
-         * \return True on success, false on failure.
+         *  \return XML string upon success, empty string on failure.
          */
-        bool loadXMLFile(const std::string &name, const std::string &file,
-                         const PostProcessXMLFunction &function);
+        std::string loadXMLFile(const std::string &name, const std::string &file,
+                                const PostProcessXMLFunction &function);
 
         /** \brief Sets a post processing function for loading the URDF.
          *  \param[in] function The function to use.
@@ -394,16 +415,17 @@ namespace robowflex
         /** \} */
 
     protected:
-        /** \brief Loads robot description files to parameter server.
-         *  All files are loaded under the robot's namespace.
-         *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
-         *  \param[in] srdf_file Location of the robot's SRDF (XML or .xacro file).
-         *  \param[in] limits_file Location of the joint limit information (a YAML file).
-         *  \param[in] kinematics_file Location of the kinematics plugin information (a YAML file).
+        /** \brief Loads the URDF file.
+         *  \param[in] urdf_file The URDF file name.
          *  \return True on success, false on failure.
          */
-        bool loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
-                                  const std::string &limits_file, const std::string &kinematics_file);
+        bool loadURDFFile(const std::string &urdf_file);
+
+        /** \brief Loads the SRDF file.
+         *  \param[in] srdf_file The SRDF file name.
+         *  \return True on success, false on failure.
+         */
+        bool loadSRDFFile(const std::string &srdf_file);
 
         /** \brief Loads a robot model from the loaded information on the parameter server.
          */

@@ -51,10 +51,96 @@ Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
 
+bool Robot::loadURDFFile(const std::string &urdf_file)
+{
+    std::string urdf = loadXMLFile(ROBOT_DESCRIPTION, urdf_file, urdf_function_);
+    if (urdf.empty())
+        return false;
+
+    urdf_ = urdf;
+    return true;
+}
+
+bool Robot::loadSRDFFile(const std::string &srdf_file)
+{
+    std::string srdf = loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file, srdf_function_);
+    if (srdf.empty())
+        return false;
+
+    srdf_ = srdf;
+    return true;
+}
+
 bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_file,
                        const std::string &limits_file, const std::string &kinematics_file)
 {
-    if (!loadRobotDescription(urdf_file, srdf_file, limits_file, kinematics_file))
+    if (loader_)
+    {
+        ROS_ERROR("Already initialized!");
+        return false;
+    }
+
+    if (not loadURDFFile(urdf_file))
+    {
+        ROS_ERROR("Failed to load URDF!");
+        return false;
+    }
+
+    if (not loadSRDFFile(srdf_file))
+    {
+        ROS_ERROR("Failed to load SRDF!");
+        return false;
+    }
+
+    if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_))
+    {
+        ROS_ERROR("Failed to load joint limits!");
+        return false;
+    }
+
+    if (not initializeKinematics(kinematics_file))
+    {
+        ROS_ERROR("Failed to load kinematics!");
+        return false;
+    }
+
+    loadRobotModel();
+    return true;
+}
+
+bool Robot::initialize(const std::string &urdf_file)
+{
+    if (loader_)
+    {
+        ROS_ERROR("Already initialized!");
+        return false;
+    }
+
+    if (not loadURDFFile(urdf_file))
+        return false;
+
+    // Generate basic SRDF on the fly.
+    tinyxml2::XMLDocument doc;
+    doc.Parse(urdf_.c_str());
+    const auto &name = doc.FirstChildElement("robot")->Attribute("name");
+    const std::string &srdf = "<?xml version=\"1.0\" ?><robot name=\"" + std::string(name) + "\"></robot>";
+
+    srdf_ = srdf;
+
+    loadRobotModel();
+
+    return true;
+}
+
+bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_file)
+{
+    if (loader_)
+    {
+        ROS_ERROR("Already initialized!");
+        return false;
+    }
+
+    if (not loadURDFFile(urdf_file) or not loadSRDFFile(srdf_file))
         return false;
 
     loadRobotModel();
@@ -62,16 +148,15 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
     return true;
 }
 
-bool Robot::loadRobotDescription(const std::string &urdf_file, const std::string &srdf_file,
-                                 const std::string &limits_file, const std::string &kinematics_file)
+bool Robot::initializeKinematics(const std::string &kinematics_file)
 {
-    bool success =
-        loadXMLFile(ROBOT_DESCRIPTION, urdf_file, urdf_function_)                           // urdf
-        && loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file, srdf_function_)       // srdf
-        && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_)  // joint limits
-        && loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file, kinematics_function_);
+    if (kinematics_)
+    {
+        ROS_ERROR("Already loaded kinematics!");
+        return false;
+    }
 
-    return success;
+    return loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_KINEMATICS, kinematics_file, kinematics_function_);
 }
 
 void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
@@ -140,20 +225,20 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
     return true;
 }
 
-bool Robot::loadXMLFile(const std::string &name, const std::string &file)
+std::string Robot::loadXMLFile(const std::string &name, const std::string &file)
 {
     PostProcessXMLFunction function;
     return loadXMLFile(name, file, function);
 }
 
-bool Robot::loadXMLFile(const std::string &name, const std::string &file,
-                        const PostProcessXMLFunction &function)
+std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
+                               const PostProcessXMLFunction &function)
 {
-    const std::string string = IO::loadXMLToString(file);
+    std::string string = IO::loadXMLToString(file);
     if (string.empty())
     {
         ROS_ERROR("Failed to load XML file `%s`.", file.c_str());
-        return false;
+        return "";
     }
 
     if (function)
@@ -164,36 +249,34 @@ bool Robot::loadXMLFile(const std::string &name, const std::string &file,
         if (!function(doc))
         {
             ROS_ERROR("Failed to process XML file `%s`.", file.c_str());
-            return false;
+            return "";
         }
 
         tinyxml2::XMLPrinter printer;
         doc.Print(&printer);
 
-        handler_.setParam(name, std::string(printer.CStr()));
+        string = std::string(printer.CStr());
     }
-    else
-        handler_.setParam(name, string);
 
-    return true;
+    handler_.setParam(name, string);
+    return string;
 }
 
 void Robot::loadRobotModel(bool namespaced)
 {
-    std::string description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
+    const std::string &description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
 
     robot_model_loader::RobotModelLoader::Options options(description);
     options.load_kinematics_solvers_ = false;
+    options.urdf_string_ = urdf_;
+    options.srdf_string_ = srdf_;
 
     loader_.reset(new robot_model_loader::RobotModelLoader(options));
-    kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(loader_->getRobotDescription()));
+    kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(description));
 
     model_ = loader_->getModel();
     scratch_.reset(new robot_state::RobotState(model_));
     scratch_->setToDefaultValues();
-
-    handler_.getParam("/" + description, urdf_);
-    handler_.getParam("/" + description + ROBOT_SEMANTIC, srdf_);
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -238,12 +321,10 @@ bool Robot::loadKinematics(const std::string &name)
         return false;
     }
 
+    ROS_INFO("Loaded Kinematics Solver for  `%s`", name.c_str());
+
     auto timeout = kinematics_->getIKTimeout();
-    // auto attempts = kinematics_->getIKAttempts();
-
     jmg->setDefaultIKTimeout(timeout[name]);
-    // jmg->setDefaultIKAttempts(attempts[name]);
-
     model_->setKinematicsAllocators(imap_);
 
     return true;
