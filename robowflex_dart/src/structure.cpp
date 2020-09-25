@@ -276,8 +276,12 @@ void Structure::setDof(unsigned int index, double value)
 
 dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 {
-    if (name.empty())
-        return getRootFrame();
+    // if (name.empty())
+    // {
+    //     std::cout << "name empty\n";
+    //     std::cout << "root frame is " << getRootFrame()->getName() << std::endl;
+    //     return getRootFrame();
+    // }
 
     return skeleton_->getBodyNode(name);
 }
@@ -285,17 +289,25 @@ dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
     auto frame = getFrame(parent);
-    RobotPose tf = child->getTransform(frame);
+
+    RobotPose tf;
+    if (frame)
+        tf = child->getTransform(frame);
+    else
+        tf = child->getWorldTransform();
 
     dart::dynamics::FreeJoint::Properties joint;
+    joint.mName = child->getName();
     auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
 
-    jt->setRelativeTransform(tf);
+    setJointParentTransform(joint.mName, tf);
 }
 
 void Structure::setJointParentTransform(const std::string &name, const RobotPose &tf)
 {
     auto joint = skeleton_->getJoint(name);
+    if (joint == nullptr)
+        std::cout << "no joint named " << name << std::endl;
     joint->setTransformFromParentBodyNode(tf);
 }
 

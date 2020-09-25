@@ -686,7 +686,23 @@ bool TSR::solveWorld()
 
     world_->lock();
     bool r = ik_->solveAndApply();
+
+    // Eigen::VectorXd p(6);
+    // bool r = ik_->solveAndApply(p);
+    // std::cout << "solve and apply positions\n" << p << std::endl;
+
+    // r = ik_->findSolution(p);
+    // std::cout << "find solution\n" << p << std::endl;
+
+    // auto problem = ik_->getProblem();
+    // auto initguess = problem->getInitialGuess();
+    // std::cout << "problem init guess\n" << initguess << std::endl;
     world_->unlock();
+
+    // Eigen::VectorXd q(6);
+    // auto robot = world_->getRobot("ur52");
+    // robot->getGroupState("manipulator", q);
+    // std::cout << "tsr world group state \n" << q << std::endl;
     return r;
 }
 
