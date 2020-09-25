@@ -206,6 +206,24 @@ namespace robowflex
          */
         geometry_msgs::TransformStamped transformEigenToMsg(const std::string &source,
                                                             const std::string &target, const RobotPose &tf);
+        /** \brief Normalize an angle between -pi to pi.
+         *  \param[in] v The angle.
+         *  \return The normalized angle.
+         */
+        double angleNormalize(double v);
+
+        /** \brief Convert an angle to degrees.
+         *  \param[in] v The angle in radians.
+         *  \return The angle in degrees.
+         */
+        double toDegrees(double v);
+
+        /** \brief Convert an angle to radians.
+         *  \param[in] v The angle in degrees.
+         *  \return The angle in radians.
+         */
+        double toRadians(double v);
+
     }  // namespace TF
 }  // namespace robowflex
 

@@ -221,3 +221,31 @@ geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &sourc
 
     return msg;
 }
+
+double TF::angleNormalize(double v)
+{
+    return (v > constants::pi) ? constants::two_pi - v : v;
+}
+
+double TF::toDegrees(double v)
+{
+    double n = angleNormalize(v);
+    double d = n * 180. / constants::pi;
+    if (n >= 0)
+        return d;
+    else
+        return 360. + d;
+}
+
+double TF::toRadians(double v)
+{
+    if (v < 0)
+        v += 360.;
+    if (v >= 360.)
+        v -= 360.;
+
+    if (v <= 180.)
+        return v * constants::pi / 180.;
+    else
+        return -(360. - v) * constants::pi / 180.;
+}

@@ -1,4 +1,4 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <random>
 
@@ -15,6 +15,7 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/visualization.h>
+#include <robowflex_library/io/colormap.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -28,7 +29,9 @@ namespace
 {
     Eigen::Vector4d getRandomColor()
     {
-        return {RNG::uniformReal(0.2, 0.7), RNG::uniformReal(0.2, 0.7), RNG::uniformReal(0.2, 0.7), 1};
+        double r, g, b;
+        color::viridis(RNG::uniform01(), r, g, b);
+        return Eigen::Vector4d{r, g, b, 1};
     }
 };  // namespace
 
@@ -200,18 +203,18 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
 }
 
 void IO::RVIZHelper::addTransformMarker(const std::string &name, const std::string &base_frame,
-                                        const RobotPose &pose)
+                                        const RobotPose &pose, const double &scale)
 {
-    Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
-    auto z_rot90 = TF::createPoseXYZ(0, 0, 0, 0, 0, constants::half_pi);
-    auto y_rot90 = TF::createPoseXYZ(0, 0, 0, 0, -constants::half_pi, 0);
-    auto red_color = Eigen::Vector4d{1, 0, 0, 1};
-    auto green_color = Eigen::Vector4d{0, 1, 0, 1};
-    auto blue_color = Eigen::Vector4d{0, 0, 1, 1};
+    const auto &&arrow_size = Eigen::Vector3d{0.1, 0.008, 0.003};  // A nice default size of arrow
+    const auto &z_rot90 = TF::createPoseXYZ(0, 0, 0, 0, 0, constants::half_pi);
+    const auto &y_rot90 = TF::createPoseXYZ(0, 0, 0, 0, -constants::half_pi, 0);
+    const auto &red_color = Eigen::Vector4d{1, 0, 0, 1};
+    const auto &green_color = Eigen::Vector4d{0, 1, 0, 1};
+    const auto &blue_color = Eigen::Vector4d{0, 0, 1, 1};
 
-    addArrowMarker(name + "X", base_frame, pose, red_color, scale);
-    addArrowMarker(name + "Y", base_frame, pose * z_rot90, green_color, scale);
-    addArrowMarker(name + "Z", base_frame, pose * y_rot90, blue_color, scale);
+    addArrowMarker(name + "X", base_frame, pose, red_color, scale * arrow_size);
+    addArrowMarker(name + "Y", base_frame, pose * z_rot90, green_color, scale * arrow_size);
+    addArrowMarker(name + "Z", base_frame, pose * y_rot90, blue_color, scale * arrow_size);
 }
 
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
@@ -370,13 +373,12 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
         it->second.action = visualization_msgs::Marker::DELETE;
 }
 
-void IO::RVIZHelper::addMarker(float x, float y, float z)
+void IO::RVIZHelper::addMarker(const float &x, const float &y, const float &z, const std::string &name)
 {
     visualization_msgs::Marker marker;
     const std::string &base_frame = "map";
 
-    RobotPose pose = RobotPose::Identity();
-    pose *= Eigen::Translation3d(x, y, z);
+    RobotPose pose = TF::createPoseXYZ(x, y, z, 0, 0, 0);
 
     Eigen::Vector3d scale = {0.5, 0.5, 0.5};
     auto color = getRandomColor();
@@ -385,29 +387,12 @@ void IO::RVIZHelper::addMarker(float x, float y, float z)
 
     marker.type = visualization_msgs::Marker::SPHERE;
 
-    markers_.emplace("", marker);
-}
-
-void IO::RVIZHelper::addPointMarker(const std::string &name, float x, float y, float z)
-{
-    visualization_msgs::Marker marker;
-    const std::string &base_frame = "map";
-
-    RobotPose pose = RobotPose::Identity();
-    pose *= Eigen::Translation3d(x, y, z);
-
-    Eigen::Vector3d scale = {0.05, 0.05, 0.05};
-    auto color = getRandomColor();
-
-    fillMarker(marker, base_frame, pose, color, scale);
-
-    marker.type = visualization_msgs::Marker::SPHERE;
-
     markers_.emplace(name, marker);
 }
-void IO::RVIZHelper::addPointMarker(const std::string &name, const Eigen::Vector3d &point)
+
+void IO::RVIZHelper::addMarker(const Eigen::Vector3d &point, const std::string &name)
 {
-    addPointMarker(name, point.x(), point.y(), point.z());
+    addMarker(point.x(), point.y(), point.z(), name);
 }
 
 void IO::RVIZHelper::removeScene()
