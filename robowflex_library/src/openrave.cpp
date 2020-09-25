@@ -11,7 +11,6 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3.h>
 
-#include <eigen_conversions/eigen_msg.h>
 #include <geometric_shapes/shape_operations.h>
 
 #include <moveit_msgs/CollisionObject.h>
@@ -19,6 +18,7 @@
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/openrave.h>
 
 using namespace robowflex;
@@ -136,8 +136,7 @@ namespace
                     this_tf * tf *
                     TFfromXML(getFirstChild(geom, "translation"), nullptr, getFirstChild(geom, "quat"));
 
-                geometry_msgs::Pose pose_msg;
-                tf::poseEigenToMsg(offset, pose_msg);
+                geometry_msgs::Pose pose_msg = TF::poseEigenToMsg(offset);
 
                 // Set type.
                 const char *geom_type = geom->Attribute("type");

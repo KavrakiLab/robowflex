@@ -9,7 +9,6 @@ RUN apt-get update && \
     apt-get install -y \
       build-essential wget pkg-config python-catkin-tools cmake \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
-      ros-${ROS_DISTRO}-geometry \
       ros-${ROS_DISTRO}-moveit \
       libdart6-all-dev
 
@@ -18,14 +17,6 @@ RUN mkdir -p ws/src
 WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     catkin build --limit-status-rate 0.001 --no-notify
-WORKDIR /
-
-# Get & Install OMPL
-WORKDIR /ws/src
-RUN wget -O - https://github.com/ompl/ompl/archive/1.5.0.tar.gz | tar zxf -
-WORKDIR /ws
-RUN catkin build ompl --start-with ompl --limit-status-rate 0.001 --no-notify
-WORKDIR /
 
 # Build Robowflex
 WORKDIR /ws/src

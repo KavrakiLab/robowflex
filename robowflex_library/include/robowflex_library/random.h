@@ -1,7 +1,7 @@
 /* Author: Constantinos Chamzas */
 
-#ifndef ROBOWFLEX_LIBRARY_RANDOM_
-#define ROBOWFLEX_LIBRARY_RANDOM_
+#ifndef ROBOWFLEX_RANDOM_
+#define ROBOWFLEX_RANDOM_
 
 #include <random>
 #include <robowflex_library/constants.h>

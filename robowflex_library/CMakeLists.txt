@@ -41,7 +41,6 @@ list(APPEND CATKIN_SOURCES
   urdf
   srdfdom
   pluginlib
-  eigen_conversions
   geometric_shapes
   moveit_core
   moveit_ros_planning
