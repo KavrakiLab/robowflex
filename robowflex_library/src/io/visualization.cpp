@@ -378,10 +378,10 @@ void IO::RVIZHelper::addMarker(const float &x, const float &y, const float &z, c
     visualization_msgs::Marker marker;
     const std::string &base_frame = "map";
 
-    RobotPose pose = TF::createPoseXYZ(x, y, z, 0, 0, 0);
+    const auto &pose = TF::createPoseXYZ(x, y, z, 0, 0, 0);
 
-    Eigen::Vector3d scale = {0.5, 0.5, 0.5};
-    auto color = getRandomColor();
+    const auto &scale = Eigen::Vector3d{0.05, 0.05, 0.05};
+    const auto color = getRandomColor();
 
     fillMarker(marker, base_frame, pose, color, scale);
 
