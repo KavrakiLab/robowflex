@@ -44,6 +44,7 @@ list(APPEND CATKIN_SOURCES
   geometric_shapes
   moveit_core
   moveit_ros_planning
+  moveit_planners_chomp
   tf2_ros
   xmlrpcpp
   )
