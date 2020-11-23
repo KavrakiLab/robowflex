@@ -149,7 +149,7 @@ planning_interface::MotionPlanResponse DARTPlanner::plan(const robowflex::SceneC
     }
 
     // compute time parameterization
-    robowflex::trajectory::computeTimeParameterization(*response.trajectory_);
+    robowflex::Trajectory::computeTimeParameterization(*response.trajectory_);
 
     return response;
 }
