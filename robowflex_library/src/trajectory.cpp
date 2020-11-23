@@ -15,12 +15,12 @@ using namespace robowflex;
 
 Trajectory::Trajectory(const RobotConstPtr &robot, const std::string &group)
 {
-    trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot->getModelConst(), group);
+    trajectory_.reset(new robot_trajectory::RobotTrajectory(robot->getModelConst(), group));
 }
 
 Trajectory::Trajectory(robot_trajectory::RobotTrajectory &trajectory)
 {
-    trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(trajectory);
+    trajectory_.reset(new robot_trajectory::RobotTrajectory(trajectory));
 }
 
 void Trajectory::useMessage(const robot_state::RobotState &reference_state,
@@ -83,6 +83,7 @@ bool Trajectory::computeTimeParameterization(double max_velocity, double max_acc
 
 void Trajectory::interpolate(unsigned int requestCount)
 {
+#if ROBOWFLEX_AT_LEAST_KINETIC
     if (requestCount < this->size() || trajectory_->getWayPointCount() < 2)
         return;
 
@@ -129,7 +130,7 @@ void Trajectory::interpolate(unsigned int requestCount)
 
                     s1->interpolate(*s2, dt, *state);
                     state->update(true);
-                    trajectory_->insertWayPoint(i + j, state, dt);
+                    trajectory_->insertWayPoint(i + j, *state, dt);
                     // count how many stated have been added
                     added++;
                 }
@@ -144,7 +145,10 @@ void Trajectory::interpolate(unsigned int requestCount)
         else
             count--;
     }
-    ROS_INFO("Added %d extra states", added);
+    ROS_INFO("Added %d extra states in the trajectory", added);
+    return;
+#endif
+    throw std::runtime_error("Not Implemented");
 }
 
 double Trajectory::getLength(const PathMetric &metric) const
@@ -267,4 +271,3 @@ std::map<std::string, double> Trajectory::getFinalPositions() const
 
     return map;
 }
-
