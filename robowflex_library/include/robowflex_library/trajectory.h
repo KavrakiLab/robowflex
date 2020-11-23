@@ -60,6 +60,13 @@ namespace robowflex
          */
         bool toYAMLFile(const std::string &filename) const;
 
+        /** \brief Read a trajectory from a file to a file.
+         *  \param[in] reference_state A full state that contains the values for all the joints.
+         *  \param[in] filename Trajectory filename.
+         *  \return True on success.
+         */
+        bool fromYAMLFile(const robot_state::RobotState &reference_state, const std::string &filename);
+
         /** \name Getters and Setters
                     \{ */
 

@@ -7,6 +7,7 @@
 #include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/yaml.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
 
@@ -41,6 +42,15 @@ bool Trajectory::toYAMLFile(const std::string &filename) const
 
     YAML::Node node = robowflex::IO::toNode(msg);
     return robowflex::IO::YAMLToFile(node, filename);
+}
+bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, const std::string &filename)
+{
+    moveit_msgs::RobotTrajectory msg;
+    if (!IO::YAMLFileToMessage(msg, filename))
+        return false;
+
+    useMessage(reference_state, msg);
+    return true;
 }
 
 const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTajectoryConst() const
