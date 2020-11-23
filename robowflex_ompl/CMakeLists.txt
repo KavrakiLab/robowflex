@@ -33,6 +33,7 @@ if (moveit_planners_ompl_DIR)
 
   add_library(${LIBRARY_NAME}
     src/ompl_interface.cpp
+    src/ompl_trajectory.cpp
     )
 
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
