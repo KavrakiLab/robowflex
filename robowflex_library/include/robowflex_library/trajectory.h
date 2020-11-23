@@ -102,6 +102,16 @@ namespace robowflex
          */
         bool computeTimeParameterization(double max_velocity = 1., double max_acceleration = 1.);
 
+        /** \brief Computes the time parameterization of a path according to a desired max velocity or
+         * acceleration.
+         *  \param[in] trajectory to compute time parameterization.
+         *  \param[in] max_velocity Maximum path velocity.
+         *  \param[in] max_acceleration Maximum path acceleration.
+         *  \return True on success, false on failure.
+         */
+        static bool computeTimeParameterization(robot_trajectory::RobotTrajectory &trajectory,
+                                                double max_velocity = 1., double max_acceleration = 1.);
+
         /** \brief Insert a number of states in a path so that the path is made up of exactly count states.
          * States are inserted uniformly (more states on longer segments). Changes are performed only if a
          * path has less than count states.

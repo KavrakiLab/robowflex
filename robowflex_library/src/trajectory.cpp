@@ -81,6 +81,13 @@ bool Trajectory::computeTimeParameterization(double max_velocity, double max_acc
     return parameterizer.computeTimeStamps(*trajectory_, max_velocity, max_acceleration);
 }
 
+bool Trajectory::computeTimeParameterization(robot_trajectory::RobotTrajectory &trajectory,
+                                             double max_velocity, double max_acceleration)
+{
+    trajectory_processing::IterativeParabolicTimeParameterization parameterizer;
+    return parameterizer.computeTimeStamps(trajectory, max_velocity, max_acceleration);
+}
+
 void Trajectory::interpolate(unsigned int requestCount)
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
