@@ -88,69 +88,50 @@ bool Trajectory::computeTimeParameterization(robot_trajectory::RobotTrajectory &
     return parameterizer.computeTimeStamps(trajectory, max_velocity, max_acceleration);
 }
 
-void Trajectory::interpolate(unsigned int requestCount)
+void Trajectory::interpolate(unsigned int count)
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
-    if (requestCount < this->size() || trajectory_->getWayPointCount() < 2)
+    if (count < this->size() || trajectory_->getWayPointCount() < 2)
         return;
 
-    auto count = requestCount;
-
     // the remaining length of the path we need to add states along
-    double remainingLength = getLength();
+    double totalLength = getLength();
 
+    // the Number of segments that exist in this path.
     const int n1 = this->size() - 1;
     int added = 0;
 
-    for (int i = 0; i < n1; ++i)
+    for (int seg = 0; seg < n1; ++seg)
     {
-        // new states are constantly added so we need to get the correct pointers every time;
-        auto s1 = trajectory_->getWayPointPtr(i + added);
-        auto s2 = trajectory_->getWayPointPtr(i + +added + 1);
+        // Last waypoint that has not been interpolated.
+        int i = seg + added;
+        auto s0 = trajectory_->getWayPointPtr(i);      // First point of the (uninterploated) segment
+        auto s2 = trajectory_->getWayPointPtr(i + 1);  // Last point of the (uninterploated) segment
 
-        // the maximum number of states that can be added on the current motion (without its endpoints)
-        // such that we can at least fit the remaining states
-        int maxNStates = count + i - this->size();
+        // compute an approximate number of states the following segment needs to contain; this includes
+        // endpoints
+        double segmentLength = s0->distance(*s2);
+        int ns = (int)floor(0.5 + (double)count * segmentLength / totalLength) + 1;
 
-        if (maxNStates > 0)
+        // if more than endpoints are needed
+        if (ns > 2)
         {
-            // compute an approximate number of states the following segment needs to contain; this includes
-            // endpoints
-            double segmentLength = s1->distance(*s2);
-            int ns = i + 1 == n1 ? maxNStates + 2 :
-                                   (int)floor(0.5 + (double)count * segmentLength / remainingLength) + 1;
+            ns -= 2;  // subtract endpoints
 
-            // if more than endpoints are needed
-            if (ns > 2)
+            // compute intermediate states
+            for (int j = 1; j < ns; j++)
             {
-                ns -= 2;  // subtract endpoints
+                // The state to be inserted
+                auto s1 = std::make_shared<robot_state::RobotState>(trajectory_->getRobotModel());
+                double dt = double(j) / double(ns);
 
-                // make sure we don't add too many states
-                if (ns > maxNStates)
-                    ns = maxNStates;
-
-                // compute intermediate states
-                for (unsigned int j = 1; j < count; j++)
-                {
-                    auto state = std::make_shared<robot_state::RobotState>(trajectory_->getRobotModel());
-                    double dt = double(j) / double(count);
-
-                    s1->interpolate(*s2, dt, *state);
-                    state->update(true);
-                    trajectory_->insertWayPoint(i + j, *state, dt);
-                    // count how many stated have been added
-                    added++;
-                }
+                s0->interpolate(*s2, dt, *s1);
+                s1->update(true);
+                trajectory_->insertWayPoint(i + j, *s1, dt);
+                // count how many stated have been added
+                added++;
             }
-            else
-                ns = 0;
-
-            // update what remains to be done
-            count -= (ns + 1);
-            remainingLength -= segmentLength;
         }
-        else
-            count--;
     }
     ROS_INFO("Added %d extra states in the trajectory", added);
     return;
