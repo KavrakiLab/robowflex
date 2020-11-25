@@ -76,7 +76,9 @@ Benchmarker::Results::Run &Benchmarker::Results::addRun(int num, double time,
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    auto traj = std::make_shared<Trajectory>(*run.trajectory_);
+    TrajectoryPtr traj;
+    if (metrics.success)
+        traj = std::make_shared<Trajectory>(*run.trajectory_);
 
     if (options.options & MetricOptions::WAYPOINTS)
         metrics.metrics["waypoints"] = metrics.success ? int(traj->size()) : int(0);

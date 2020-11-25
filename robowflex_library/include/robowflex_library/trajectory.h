@@ -16,8 +16,13 @@
 namespace robowflex
 {
     /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
+    /** \endcond */
+
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
     ROBOWFLEX_CLASS_FORWARD(Scene);
+
     /** \endcond */
 
     /** \brief A metric over robot states.
