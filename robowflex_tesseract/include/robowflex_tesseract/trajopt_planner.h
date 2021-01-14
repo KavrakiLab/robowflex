@@ -37,6 +37,7 @@ namespace robowflex
          */
         struct Options
         {
+            sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};   ///< Optimizer to use
             bool verbose{true};             ///< Verbosity
             bool use_cont_col_avoid{true};  ///< Whether to use continuous collision avoidance or not
             int num_waypoints{20};          ///< Number of waypoints.

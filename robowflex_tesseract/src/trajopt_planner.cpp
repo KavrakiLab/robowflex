@@ -399,6 +399,7 @@ void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_pa
 
 void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> &pci) const
 {
+    pci->basic_info.convex_solver = options.backend_optimizer;
     pci->kin = env_->getManipulator(manip_);
     pci->basic_info.n_steps = options.num_waypoints;
     pci->basic_info.manip = manip_;
@@ -566,8 +567,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         ROS_INFO("Planning time: %.3f", time_);
 
     // Check for status result.
-    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT ||
-        opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
+    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT or
+        opt.results().status == sco::OptStatus::OPT_FAILED or opt.results().status == sco::OptStatus::INVALID)
     {
         // Optimization problem did not converge.
         planner_result.first = false;
