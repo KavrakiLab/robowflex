@@ -121,6 +121,11 @@ const robot_trajectory::RobotTrajectoryPtr &TrajOptPlanner::getTrajectory() cons
     return trajectory_;
 }
 
+const trajopt::TrajArray &TrajOptPlanner::getTesseractTrajectory() const
+{
+    return tesseract_trajectory_;
+}
+
 const std::vector<std::string> &TrajOptPlanner::getEnvironmentLinks() const
 {
     if (env_->checkInitialized())
@@ -561,7 +566,6 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         ROS_INFO("Planning time: %.3f", time_);
 
     // Check for status result.
-    tesseract::TrajArray tesseract_traj;
     if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT ||
         opt.results().status == sco::OptStatus::OPT_FAILED || opt.results().status == sco::OptStatus::INVALID)
     {
@@ -577,8 +581,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         trajectory_->clear();
 
         // Update trajectory.
-        tesseract_traj = getTraj(opt.x(), prob->GetVars());
-        hypercube::manipTesseractTrajToRobotTraj(tesseract_traj, robot_, manip_, env_, trajectory_);
+        tesseract_trajectory_ = getTraj(opt.x(), prob->GetVars());
+        hypercube::manipTesseractTrajToRobotTraj(tesseract_trajectory_, robot_, manip_, env_, trajectory_);
 
         // Check for collisions.
         int i = 0;
@@ -615,7 +619,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         if (planner_result.first)
         {
             std::cout << "OUTPUT TRAJECTORY: " << std::endl;
-            std::cout << tesseract_traj << std::endl;
+            std::cout << tesseract_trajectory_ << std::endl;
         }
     }
 
