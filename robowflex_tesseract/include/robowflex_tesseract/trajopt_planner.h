@@ -89,9 +89,10 @@ namespace robowflex
          *  \param[in] robot Robot to plan for.
          *  \param[in] planner_name Name of the planner.
          *  \param[in] group_name Name of the (joint) group to plan for.
+         *  \param[in] name Name of planner.
          *  \param[in] manip Name of the (chain) group to plan for.
          */
-        TrajOptPlanner(const RobotPtr &robot, const std::string &group_name);
+        TrajOptPlanner(const RobotPtr &robot, const std::string &group_name, const std::string &name="trajopt");
 
         /** \brief Initialize planner. If base_link and tip_link are not empty, it creates a \a manip from \a
          * base_link to \a tip_link.

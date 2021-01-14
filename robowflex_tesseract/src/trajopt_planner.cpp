@@ -20,8 +20,8 @@
 using namespace robowflex;
 using namespace trajopt;
 
-TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_name)
-  : Planner(robot, "trajopt"), group_(group_name)
+TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_name, const std::string &name)
+  : Planner(robot, name), group_(group_name)
 {
 }
 
