@@ -150,6 +150,31 @@ double TrajOptPlanner::getPlanningTime() const
     return time_;
 }
 
+void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
+{
+    if (!env_->hasManipulator(manip_))
+    {
+        throw Exception(1, "There is no loaded manipulator!");
+    }
+    else
+    {
+        auto joint_names = env_->getManipulator(manip_)->getJointNames();
+        for (const auto &name : joints)
+        {
+            auto it = std::find(joint_names.begin(), joint_names.end(), name);
+            if (it == joint_names.end())
+            {
+                throw Exception(1, "Joint to be fixed does not exist");
+            }
+            else
+            {
+                int index = std::distance(joint_names.begin(), it);
+                fixed_joints_.push_back(index);
+            }
+        }
+    }
+}
+
 planning_interface::MotionPlanResponse
 TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
@@ -375,6 +400,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
     pci->basic_info.dt_lower_lim = options.dt_lower_lim;
     pci->basic_info.dt_upper_lim = options.dt_upper_lim;
     pci->basic_info.start_fixed = options.start_fixed;
+    pci->basic_info.dofs_fixed = fixed_joints_;
     pci->basic_info.use_time = options.use_time;
     pci->init_info.type = init_type_;
     pci->init_info.dt = options.init_info_dt;

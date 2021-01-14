@@ -149,6 +149,11 @@ namespace robowflex
          *  \return Planning time.
          */
         double getPlanningTime() const;
+        
+        /** \brief Constrain certain joints during optimization to their initial value.
+         *  \param[in] joints Vector of joints to freeze.
+         */
+        void fixJoints(const std::vector<std::string> &joints);
 
         /** \} */
 
@@ -318,6 +323,7 @@ namespace robowflex
                                                                                   ///< trajectory.
         trajopt::TrajArray initial_trajectory_;  ///< Initial trajectory (if any).
         double time_{0.0};                       ///< Time taken by the optimizer the last time it was called.
+        std::vector<int> fixed_joints_;          ///< List of joints that need to be fixed, indexed in the order they appear in the manipulator.
     };
 }  // namespace robowflex
 
