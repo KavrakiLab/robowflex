@@ -34,6 +34,11 @@ class Scene:
             for co in self.yaml["world"]["collision_objects"]:
                 self.add_collision_object(co)
 
+        if self.yaml["robot_state"]:
+            if "attached_collision_objects" in self.yaml["robot_state"].keys(): 
+               for cao in self.yaml["robot_state"]["attached_collision_objects"]:
+                   self.add_collision_object(cao["object"])
+
     ## @brief Adds a collision object (moveit_msgs::CollisionObject) to the scene.
     #
     #  @param cos Collision object.
