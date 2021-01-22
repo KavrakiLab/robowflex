@@ -220,6 +220,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     if (result.first and result.second)
     {
+        res.planning_time_ = time_;
         res.trajectory_ = trajectory_;
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
     }
@@ -562,9 +563,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
     opt.optimize();
 
     // Measure and print time.
-    time_ = (ros::Time::now() - tStart).toSec();
+    double time = (ros::Time::now() - tStart).toSec();
     if (options.verbose)
-        ROS_INFO("Planning time: %.3f", time_);
+        ROS_INFO("Planning time: %.3f", time);
 
     // Check for status result.
     if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT or
@@ -577,6 +578,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
     {
         // Optimization problem converged.
         planner_result.first = true;
+        
+        // Update time
+        time_ = time;
 
         // Clear current trajectory.
         trajectory_->clear();
