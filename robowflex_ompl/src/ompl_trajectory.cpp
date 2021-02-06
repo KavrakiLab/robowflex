@@ -2,6 +2,7 @@
 
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
 
 #include <moveit/ompl_interface/parameterization/model_based_state_space.h>
 #include <robowflex_ompl/ompl_trajectory.h>

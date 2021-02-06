@@ -4,7 +4,9 @@
 #define ROBOWFLEX_OMPL_TRAJECTORY
 
 #include <robowflex_library/class_forward.h>
-#include <robowflex_library/trajectory.h>
+
+// Moveit
+#include <moveit/robot_trajectory/robot_trajectory.h>
 
 // OMPL
 #include <ompl/geometric/PathGeometric.h>
@@ -15,6 +17,7 @@ namespace robowflex
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
     ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
     /** \endcond */
 
     namespace OMPL
@@ -23,25 +26,25 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(OMPLTrajectory);
         /** \endcond */
 
-        /** \class robowflex::OMPL::OMPLInterfacePlannerPtr
-            \brief A shared pointer wrapper for robowflex::OMPL::OMPLInterfacePlanner. */
+        /** \class robowflex::OMPL::OMPLTrajectoryPtr
+            \brief A shared pointer wrapper for robowflex::OMPL::OMPLTrajectory. */
 
-        /** \class robowflex::OMPL::OMPLInterfacePlannerConstPtr
-            \brief A const shared pointer wrapper for robowflex::OMPL::OMPLInterfacePlanner. */
+        /** \class robowflex::OMPL::OMPLTrajectoryConstPtr
+            \brief A const shared pointer wrapper for robowflex::OMPL::OMPLTrajectory. */
 
-        /** \brief A planner that directly uses \a MoveIt!'s OMPL planning interface.
+        /** \brief OMPLTrajectory provides ompl path utilities to the Trajectory class.
          */
         class OMPLTrajectory : public Trajectory
         {
         public:
             /** \brief Constructor.
-             *  \param[in] robot Robot to construct planning scene for.
+             *  \param[in] robot Robot to construct trajectory for.
              *  \param[in] group Planning group of the trajectory.
              */
             OMPLTrajectory(const RobotConstPtr &robot, const std::string &group);
 
             /** \brief Constructor.
-             *  \param[in] robot Robot to construct planning scene for.
+             *  \param[in] robot Robot to construct trajectory for.
              *  \param[in] group Planning group of the trajectory.
              */
             OMPLTrajectory(robot_trajectory::RobotTrajectory &trajectory);

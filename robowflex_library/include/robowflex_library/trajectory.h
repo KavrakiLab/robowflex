@@ -11,18 +11,12 @@
 #include <moveit_msgs/RobotTrajectory.h>
 
 #include <robowflex_library/class_forward.h>
-#include <robowflex_library/io/visualization.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
-    ROBOWFLEX_CLASS_FORWARD(Trajectory);
-    /** \endcond */
-
-    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
     ROBOWFLEX_CLASS_FORWARD(Scene);
-
     /** \endcond */
 
     /** \brief A metric over robot states.
@@ -30,31 +24,52 @@ namespace robowflex
     typedef std::function<double(const robot_state::RobotState &, const robot_state::RobotState &)>
         PathMetric;
 
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
+    /** \endcond */
+
+    /** \class robowflex::TrajectoryPtr
+        \brief A shared pointer wrapper for robowflex::Trajectory. */
+
+    /** \class robowflex::TrajectoryConstPtr
+        \brief A const shared pointer wrapper for robowflex::Trajectory. */
+
+    /** \brief  The Trajectory class is a wrapper around _MoveIt!_'s robot_trajectory::RobotTrajectory,
+     * with extra convenience functions such interpolation and collision checking.
+     * There are also utilities to load and save trajectories from YAML files (toYAMLFile() and
+     * fromYAMLFile()).
+     */
     class Trajectory
     {
     public:
-        /** \brief Constructor.
-         *  \param[in] robot Robot to construct planning scene for.
+        /** \brief Constructor for an empty trajectory.
+         *  \param[in] robot Robot to construct trajectory for.
          *  \param[in] group Planning group of the trajectory.
          */
         Trajectory(const RobotConstPtr &robot, const std::string &group);
 
-        /** \brief Constructor.
-         *  \param[in] robot Robot to construct planning scene for.
+        /** \brief Constructor from moveit trajectory.
+         *  \param[in] robot Robot to construct trajectory for.
          *  \param[in] group Planning group of the trajectory.
          */
-        Trajectory(robot_trajectory::RobotTrajectory &trajectory);
+        Trajectory(const robot_trajectory::RobotTrajectory &trajectory);
 
-        /** \brief Set the planning scene to be the same as a message.
+        /** \brief Constructor from moveit trajectory.
+         *  \param[in] robot Robot to construct trajectory for.
+         *  \param[in] group Planning group of the trajectory.
+         */
+        Trajectory(const robot_trajectory::RobotTrajectoryPtr trajectory);
+
+        /** \brief Set the trajectory to be the same as a message.
          *  \param[in] reference_state A full state that contains the values for all the joints
-         *  \param[in] message Message used to set planning scene
+         *  \param[in] message Message used to set the trajectory
          */
         void useMessage(const robot_state::RobotState &reference_state,
                         const moveit_msgs::RobotTrajectory &msg);
 
-        /** \brief Set the planning scene to be the same as a message.
+        /** \brief Set the trajectory to be the same as a message.
          *  \param[in] reference_state A full state that contains the values for all the joints.
-         *  \param[in] message Message used to set planning scene
+         *  \param[in] message Message used to set the trajectory
          */
         void useMessage(const robot_state::RobotState &reference_state,
                         const trajectory_msgs::JointTrajectory &msg);
@@ -65,7 +80,7 @@ namespace robowflex
          */
         bool toYAMLFile(const std::string &filename) const;
 
-        /** \brief Read a trajectory from a file to a file.
+        /** \brief Load a trajectory from a YAML file.
          *  \param[in] reference_state A full state that contains the values for all the joints.
          *  \param[in] filename Trajectory filename.
          *  \return True on success.
@@ -73,7 +88,7 @@ namespace robowflex
         bool fromYAMLFile(const robot_state::RobotState &reference_state, const std::string &filename);
 
         /** \name Getters and Setters
-                    \{ */
+            \{ */
 
         /** \brief Get a const reference to the trajectory.
          *  \return The trajectory.
@@ -81,7 +96,7 @@ namespace robowflex
         const robot_trajectory::RobotTrajectoryPtr &getTajectoryConst() const;
 
         /** \brief Get a reference to the trajectory.
-         *  \return The trajectory .
+         *  \return The trajectory.
          */
         robot_trajectory::RobotTrajectoryPtr &getTrajectory();
 
@@ -90,12 +105,13 @@ namespace robowflex
          */
         moveit_msgs::RobotTrajectory getMessage() const;
 
-        /** \brief Get the message that describes the trajectory.
-         *  \return The trajectory message.
+        /** \brief Returns the number of waypoints of the trajectory.
+         *  \return The numbers of waypoints of the trajectory.
          */
-        std::size_t size() const;
+        std::size_t getNumWaypoints() const;
 
         /** \} */
+
         /** \name Processing Functions
             \{ */
 
@@ -137,11 +153,11 @@ namespace robowflex
          */
         double getLength(const PathMetric &metric = {}) const;
 
-        /** \brief Checks if a path is correct.
-         *  \param[in] scene Scene to check path against.
+        /** \brief Checks if a path is collsion free.
+         *  \param[in] scene Scene to collision check the path with.
          *  \return True if the path is collision free in the scene.
          */
-        bool isCorrect(const SceneConstPtr &scene) const;
+        bool isCollisionFree(const SceneConstPtr &scene) const;
 
         /** \brief Get the average, minimum, and maximum clearance of a path.
          *  \param[in] scene Scene to compute clearance to.

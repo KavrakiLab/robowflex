@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     rviz.updateTrajectory(res);
 
     // Create a trajectory object for better manipulation.
-    auto trajectory = std::make_shared<Trajectory>(*res.trajectory_);
+    auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
 
     // Output path to a file for visualization.
     trajectory->toYAMLFile("fetch_pick.yml");

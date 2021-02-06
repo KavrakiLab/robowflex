@@ -81,7 +81,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         traj = std::make_shared<Trajectory>(*run.trajectory_);
 
     if (options.options & MetricOptions::WAYPOINTS)
-        metrics.metrics["waypoints"] = metrics.success ? int(traj->size()) : int(0);
+        metrics.metrics["waypoints"] = metrics.success ? int(traj->getNumWaypoints()) : int(0);
 
     if (options.options & MetricOptions::PATH && metrics.success)
         metrics.path = traj->getMessage();
@@ -90,7 +90,7 @@ void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse 
         metrics.metrics["length"] = metrics.success ? traj->getLength() : 0.0;
 
     if (options.options & MetricOptions::CORRECT)
-        metrics.metrics["correct"] = metrics.success ? traj->isCorrect(scene) : false;
+        metrics.metrics["correct"] = metrics.success ? traj->isCollisionFree(scene) : false;
 
     if (options.options & MetricOptions::CLEARANCE)
         metrics.metrics["clearance"] = metrics.success ? std::get<0>(traj->getClearance(scene)) : 0.0;

@@ -14,13 +14,18 @@
 using namespace robowflex;
 
 Trajectory::Trajectory(const RobotConstPtr &robot, const std::string &group)
+  : trajectory_(new robot_trajectory::RobotTrajectory(robot->getModelConst(), group))
 {
-    trajectory_.reset(new robot_trajectory::RobotTrajectory(robot->getModelConst(), group));
 }
 
-Trajectory::Trajectory(robot_trajectory::RobotTrajectory &trajectory)
+Trajectory::Trajectory(const robot_trajectory::RobotTrajectory &trajectory)
+  : trajectory_(new robot_trajectory::RobotTrajectory(trajectory))
 {
-    trajectory_.reset(new robot_trajectory::RobotTrajectory(trajectory));
+}
+
+Trajectory::Trajectory(robot_trajectory::RobotTrajectoryPtr trajectory)
+  : trajectory_(new robot_trajectory::RobotTrajectory(*trajectory))
+{
 }
 
 void Trajectory::useMessage(const robot_state::RobotState &reference_state,
@@ -70,7 +75,7 @@ moveit_msgs::RobotTrajectory Trajectory::getMessage() const
     return msg;
 }
 
-std::size_t Trajectory::size() const
+std::size_t Trajectory::getNumWaypoints() const
 {
     return trajectory_->getWayPointCount();
 }
@@ -91,14 +96,14 @@ bool Trajectory::computeTimeParameterization(robot_trajectory::RobotTrajectory &
 void Trajectory::interpolate(unsigned int count)
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
-    if (count < this->size() || trajectory_->getWayPointCount() < 2)
+    if (count < this->getNumWaypoints() || trajectory_->getWayPointCount() < 2)
         return;
 
     // the remaining length of the path we need to add states along
     double totalLength = getLength();
 
     // the Number of segments that exist in this path.
-    const int n1 = this->size() - 1;
+    const int n1 = this->getNumWaypoints() - 1;
     int added = 0;
 
     for (int seg = 0; seg < n1; ++seg)
@@ -157,7 +162,7 @@ double Trajectory::getLength(const PathMetric &metric) const
     return length;
 }
 
-bool Trajectory::isCorrect(const SceneConstPtr &scene) const
+bool Trajectory::isCollisionFree(const SceneConstPtr &scene) const
 {
     bool correct = true;
 
