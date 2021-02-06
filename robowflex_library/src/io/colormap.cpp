@@ -294,12 +294,6 @@ namespace
 
         double bv = b1 + dbv;
 
-        // SE2EZ_DEBUG("%1% - %2% - %3% (%6%/%7%) -> %4% - %10% - %5% (%8%/%9%)",  //
-        //             a1, av, a2,                                                 //
-        //             b1, b2,                                                     //
-        //             dav, dat,                                                   //
-        //             dbv, dbt, bv);
-
         return bv;
     }
     void colormap(double s, double &r, double &g, double &b, unsigned int size, const Entry map[])

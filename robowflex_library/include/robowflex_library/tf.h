@@ -33,6 +33,14 @@ namespace robowflex
          */
         RobotPose identity();
 
+        /** \brief Creates a robot pose from a linear component and zero orientation.
+            \param[in] x X-axis translation
+            \param[in] y Y-ayis translation
+            \param[in] z Z-azis translation
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(double x, double y, double z);
+
         /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
          *  \param[in] x X-axis translation
          *  \param[in] y Y-ayis translation
@@ -206,6 +214,7 @@ namespace robowflex
          */
         geometry_msgs::TransformStamped transformEigenToMsg(const std::string &source,
                                                             const std::string &target, const RobotPose &tf);
+
         /** \brief Normalize an angle between -pi to pi.
          *  \param[in] v The angle.
          *  \return The normalized angle.

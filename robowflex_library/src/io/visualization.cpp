@@ -203,9 +203,9 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
 }
 
 void IO::RVIZHelper::addTransformMarker(const std::string &name, const std::string &base_frame,
-                                        const RobotPose &pose, const double &scale)
+                                        const RobotPose &pose, double scale)
 {
-    const auto &&arrow_size = Eigen::Vector3d{0.1, 0.008, 0.003};  // A nice default size of arrow
+    const auto &arrow_size = Eigen::Vector3d{0.1, 0.008, 0.003};  // A nice default size of arrow
     const auto &z_rot90 = TF::createPoseXYZ(0, 0, 0, 0, 0, constants::half_pi);
     const auto &y_rot90 = TF::createPoseXYZ(0, 0, 0, 0, -constants::half_pi, 0);
     const auto &red_color = Eigen::Vector4d{1, 0, 0, 1};
@@ -373,15 +373,15 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
         it->second.action = visualization_msgs::Marker::DELETE;
 }
 
-void IO::RVIZHelper::addMarker(const float &x, const float &y, const float &z, const std::string &name)
+void IO::RVIZHelper::addMarker(double x, double y, double z, const std::string &name)
 {
     visualization_msgs::Marker marker;
     const std::string &base_frame = "map";
 
-    const auto &pose = TF::createPoseXYZ(x, y, z, 0, 0, 0);
+    const auto &pose = TF::createPoseXYZ(x, y, z);
 
     const auto &scale = Eigen::Vector3d{0.05, 0.05, 0.05};
-    const auto color = getRandomColor();
+    const auto &color = getRandomColor();
 
     fillMarker(marker, base_frame, pose, color, scale);
 

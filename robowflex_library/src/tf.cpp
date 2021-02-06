@@ -13,6 +13,11 @@ RobotPose TF::identity()
     return RobotPose::Identity();
 }
 
+RobotPose TF::createPoseXYZ(double x, double y, double z)
+{
+    return createPoseXYZ(x, y, z, 0, 0, 0);
+}
+
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
 {
     return createPoseXYZ(Eigen::Vector3d{x, y, z},  //
