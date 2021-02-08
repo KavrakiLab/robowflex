@@ -11,6 +11,11 @@ RobotPose TF::identity()
     return RobotPose::Identity();
 }
 
+RobotPose TF::createPoseXYZ(double x, double y, double z)
+{
+    return createPoseXYZ(x, y, z, 0, 0, 0);
+}
+
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
 {
     return createPoseXYZ(Eigen::Vector3d{x, y, z},  //
@@ -239,4 +244,32 @@ geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &sourc
     msg.transform.rotation = quaternionEigenToMsg(r);
 
     return msg;
+}
+
+double TF::angleNormalize(double v)
+{
+    return (v > constants::pi) ? constants::two_pi - v : v;
+}
+
+double TF::toDegrees(double v)
+{
+    double n = angleNormalize(v);
+    double d = n * 180. / constants::pi;
+    if (n >= 0)
+        return d;
+    else
+        return 360. + d;
+}
+
+double TF::toRadians(double v)
+{
+    if (v < 0)
+        v += 360.;
+    if (v >= 360.)
+        v -= 360.;
+
+    if (v <= 180.)
+        return v * constants::pi / 180.;
+    else
+        return -(360. - v) * constants::pi / 180.;
 }
