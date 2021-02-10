@@ -3,6 +3,8 @@
 #ifndef ROBOWFLEX_IO_COLORMAP_
 #define ROBOWFLEX_IO_COLORMAP_
 
+#include <Eigen/Geometry>
+
 namespace robowflex
 {
     namespace color
@@ -81,6 +83,20 @@ namespace robowflex
          *  \param[out] b Blue value in [0, 1]
          */
         void hsv2rgb(double h, double s, double v, double &r, double &g, double &b);
+
+        // Commonly used named colors.
+        const static Eigen::Vector4d BLACK{0., 0, 0, 1};
+        const static Eigen::Vector4d WHITE{1, 1, 1, 1};
+        const static Eigen::Vector4d GRAY{0.5, 0.5, 0.5, 1};
+        const static Eigen::Vector4d RED{1, 0, 0, 1};
+        const static Eigen::Vector4d PINK{1, 0.37, 0.81, 1};
+        const static Eigen::Vector4d PURPLE{0.62, 0.32, 1, 1};
+        const static Eigen::Vector4d GREEN{0, 1, 0, 1};
+        const static Eigen::Vector4d BLUE{0, 0, 1, 1};
+        const static Eigen::Vector4d YELLOW{1, 0.88, 0.12, 1};
+        const static Eigen::Vector4d ORANGE{1, 0.6, 0.06, 1};
+        const static Eigen::Vector4d BROWN{0.6, 0.5, 0.38, 1};
+
     }  // namespace color
 }  // namespace robowflex
 
