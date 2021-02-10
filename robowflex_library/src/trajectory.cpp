@@ -48,6 +48,7 @@ bool Trajectory::toYAMLFile(const std::string &filename) const
     YAML::Node node = robowflex::IO::toNode(msg);
     return robowflex::IO::YAMLToFile(node, filename);
 }
+
 bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, const std::string &filename)
 {
     moveit_msgs::RobotTrajectory msg;

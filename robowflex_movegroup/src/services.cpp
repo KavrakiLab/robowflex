@@ -124,12 +124,9 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
 
     if (value == 0)
     {
-        ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
-        // Remove constness
-        auto tpath = path;
-        auto trajectory = Trajectory(tpath);
-        trajectory.computeTimeParameterization();
-        goal.trajectory = trajectory.getMessage();
+        ROS_ERROR("Trajectory is not parameterized and cannot be executed!  did you use "
+                  "Trajectory::computeTimeParameterization?");
+        return false;
     }
     else
         path.getRobotTrajectoryMsg(goal.trajectory);

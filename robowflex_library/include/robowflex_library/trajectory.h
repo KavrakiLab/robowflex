@@ -21,8 +21,8 @@ namespace robowflex
 
     /** \brief A metric over robot states.
      */
-    typedef std::function<double(const robot_state::RobotState &, const robot_state::RobotState &)>
-        PathMetric;
+    using PathMetric =
+        std::function<double(const robot_state::RobotState &, const robot_state::RobotState &)>;
 
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Trajectory);
