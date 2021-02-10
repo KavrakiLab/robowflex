@@ -208,13 +208,10 @@ void IO::RVIZHelper::addTransformMarker(const std::string &name, const std::stri
     const auto &arrow_size = Eigen::Vector3d{0.1, 0.008, 0.003};  // A nice default size of arrow
     const auto &z_rot90 = TF::createPoseXYZ(0, 0, 0, 0, 0, constants::half_pi);
     const auto &y_rot90 = TF::createPoseXYZ(0, 0, 0, 0, -constants::half_pi, 0);
-    const auto &red_color = Eigen::Vector4d{1, 0, 0, 1};
-    const auto &green_color = Eigen::Vector4d{0, 1, 0, 1};
-    const auto &blue_color = Eigen::Vector4d{0, 0, 1, 1};
 
-    addArrowMarker(name + "X", base_frame, pose, red_color, scale * arrow_size);
-    addArrowMarker(name + "Y", base_frame, pose * z_rot90, green_color, scale * arrow_size);
-    addArrowMarker(name + "Z", base_frame, pose * y_rot90, blue_color, scale * arrow_size);
+    addArrowMarker(name + "X", base_frame, pose, color::RED, scale * arrow_size);
+    addArrowMarker(name + "Y", base_frame, pose * z_rot90, color::GREEN, scale * arrow_size);
+    addArrowMarker(name + "Z", base_frame, pose * y_rot90, color::BLUE, scale * arrow_size);
 }
 
 void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
