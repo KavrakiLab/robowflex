@@ -9,7 +9,7 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/path.h>
+#include <robowflex_library/trajectory.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 
@@ -76,25 +76,27 @@ Benchmarker::Results::Run &Benchmarker::Results::addRun(int num, double time,
 
 void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
 {
-    const robot_trajectory::RobotTrajectory &p = *run.trajectory_;
+    TrajectoryPtr traj;
+    if (metrics.success)
+        traj = std::make_shared<Trajectory>(*run.trajectory_);
 
     if (options.options & MetricOptions::WAYPOINTS)
-        metrics.metrics["waypoints"] = metrics.success ? (int)p.getWayPointCount() : int(0);
+        metrics.metrics["waypoints"] = metrics.success ? int(traj->getNumWaypoints()) : int(0);
 
     if (options.options & MetricOptions::PATH && metrics.success)
-        p.getRobotTrajectoryMsg(metrics.path);
+        metrics.path = traj->getMessage();
 
     if (options.options & MetricOptions::LENGTH)
-        metrics.metrics["length"] = metrics.success ? path::getLength(p) : 0.0;
+        metrics.metrics["length"] = metrics.success ? traj->getLength() : 0.0;
 
     if (options.options & MetricOptions::CORRECT)
-        metrics.metrics["correct"] = metrics.success ? path::isCorrect(p, scene) : false;
+        metrics.metrics["correct"] = metrics.success ? traj->isCollisionFree(scene) : false;
 
     if (options.options & MetricOptions::CLEARANCE)
-        metrics.metrics["clearance"] = metrics.success ? std::get<0>(path::getClearance(p, scene)) : 0.0;
+        metrics.metrics["clearance"] = metrics.success ? std::get<0>(traj->getClearance(scene)) : 0.0;
 
     if (options.options & MetricOptions::SMOOTHNESS)
-        metrics.metrics["smoothness"] = metrics.success ? path::getSmoothness(p) : 0.0;
+        metrics.metrics["smoothness"] = metrics.success ? traj->getSmoothness() : 0.0;
 
     if (metric_callback)
         metric_callback(run, metrics);

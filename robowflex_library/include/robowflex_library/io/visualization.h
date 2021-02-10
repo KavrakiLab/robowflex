@@ -15,6 +15,7 @@ namespace robowflex
     ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     ROBOWFLEX_CLASS_FORWARD(Geometry);
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
     /** \endcond */
 
     namespace IO
@@ -50,6 +51,11 @@ namespace robowflex
              *  \param[in] response Planning response to visualize.
              */
             void updateTrajectory(const planning_interface::MotionPlanResponse &response);
+
+            /** \brief Updates the trajectory being visualized.
+             *  \param[in] trajectory Trajectory to visualize.
+             */
+            void updateTrajectory(const Trajectory &trajectory);
 
             /** \brief Updates the trajectory being visualized.
              *  \param[in] trajectory Trajectory to visualize.

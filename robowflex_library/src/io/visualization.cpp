@@ -19,6 +19,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/random.h>
 #include <robowflex_library/constants.h>
@@ -55,6 +56,11 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
 void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanResponse &response)
 {
     updateTrajectory(response.trajectory_);
+}
+
+void IO::RVIZHelper::updateTrajectory(const Trajectory &trajectory)
+{
+    updateTrajectory(trajectory.getTajectoryConst());
 }
 
 void IO::RVIZHelper::updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory)
