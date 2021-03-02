@@ -8,6 +8,12 @@
 
 using namespace robowflex;
 
+/* \file wam7_benchmark.cpp
+ * A basic script that demonstrates benchmarking with the WAM7 arm. Here, a
+ * scene is loaded from an OpenRAVE scene file. Benchmarking output is saved in
+ * a JSON file and a ROS bag of trajectories.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS

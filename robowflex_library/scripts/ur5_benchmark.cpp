@@ -11,6 +11,14 @@
 
 using namespace robowflex;
 
+/* \file ur5_benchmark.cpp
+ * A basic script that demonstrates benchmarking with the UR5 robot.
+ * Benchmarking output is saved in the OMPL format. See
+ * https://ompl.kavrakilab.org/benchmark.html for more information on the
+ * benchmark data format and how to use. http://plannerarena.org/ can be used to
+ * visualize results.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -51,7 +59,7 @@ int main(int argc, char **argv)
     benchmark.addBenchmarkingRequest("pose", scene, planner, pose_request);
 
     // Output results to an OMPL benchmarking file.
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_ur5_test/")});
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_ur5_benchmark/")});
 
     return 0;
 }

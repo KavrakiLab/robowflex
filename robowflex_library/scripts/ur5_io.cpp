@@ -9,6 +9,10 @@
 
 using namespace robowflex;
 
+/* \file ur5_io.cpp
+ * Simple test of IO::Bag for loading and saving messages.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -17,12 +21,6 @@ int main(int argc, char **argv)
     // Create the default UR5 robot.
     auto ur5 = std::make_shared<UR5Robot>();
     ur5->initialize();
-
-    // Test path resolving functions.
-    ROS_INFO_STREAM("Resolve Path: "  //
-                    << IO::resolvePath("package://robowflex_library/doesnt/exist.log"));
-    ROS_INFO_STREAM("Resolve Package: "  //
-                    << IO::resolvePackage("package://robowflex_library/doesnt/exist.log"));
 
     // Load a scene from a file.
     auto scene = std::make_shared<Scene>(ur5);

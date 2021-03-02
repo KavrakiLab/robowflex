@@ -36,4 +36,4 @@ Additionally, this module has [manifold-constrained motion planning](http://ompl
 
 ### robowflex_visualization
 Python scripts for visualizing robots and motion plans in [Blender](https://www.blender.org/).
-See [the readme](robowflex_visualization.html) for more information on how to use.
+See [the readme](md__home_runner_work_robowflex_robowflex_robowflex_visualization_README.html) for more information on how to use.

@@ -14,6 +14,13 @@
 
 using namespace robowflex;
 
+/* \file fetch_visualization.cpp
+ * A simple script that demonstrates how to use RViz with Robowflex with the
+ * Fetch robot. See https://kavrakilab.github.io/robowflex/rviz.html for how to
+ * use RViz visualization. Here, the scene, the pose goal, and motion plan
+ * displayed in RViz.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)
@@ -34,11 +41,11 @@ int main(int argc, char **argv)
     ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
-    // Create an empty scene.
+    // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(fetch);
     scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
 
-    // Visualize the scene.
+    // Visualize the scene in RViz.
     rviz.updateScene(scene);
 
     // Create the default planner for the UR5.
@@ -63,6 +70,7 @@ int main(int argc, char **argv)
                           orn, {0.1, 0.1, 0.1}             // orientation
     );
 
+    // Display the goal region in RViz.
     rviz.addGoalMarker("goal", request);
     rviz.updateMarkers();
 
@@ -74,7 +82,7 @@ int main(int argc, char **argv)
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
-    // Publish the trajectory to a topic to display in RViz
+    // Publish the trajectory to a topic to display in RViz.
     rviz.updateTrajectory(res);
 
     // Output path to a file for visualization.
@@ -83,9 +91,9 @@ int main(int argc, char **argv)
     ROS_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
+    // Clean up RViz.
     rviz.removeMarker("goal");
     rviz.updateMarkers();
-
     rviz.removeScene();
 
     ROS_INFO("Press enter to exit.");

@@ -10,6 +10,12 @@
 
 using namespace robowflex;
 
+/* \file fetch_test.cpp
+ * A simple script that demonstrates motion planning with the Fetch robot. The
+ * resulting trajectory is output to a YAML file. This file can be visualized
+ * using Blender. See the corresponding robowflex_visualization readme.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)

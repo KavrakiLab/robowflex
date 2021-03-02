@@ -12,6 +12,19 @@
 
 using namespace robowflex;
 
+/* \file fetch_scenes_benchmark.cpp
+ * A script that demonstrates benchmarking over a number of scenes and planning
+ * requests for the Fetch robot. A number of example scene and planning request
+ * pairs are included in 'package://robowflex_library/yaml/fetch_scenes'. This
+ * script sets up benchmarking for all of these pairs. See
+ * `fetch_scenes_visualize.cpp` to visualize these scenes.
+ *
+ * Benchmarking output is saved in the OMPL format. See
+ * https://ompl.kavrakilab.org/benchmark.html for more information on the
+ * benchmark data format and how to use. http://plannerarena.org/ can be used to
+ * visualize results.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)
@@ -28,8 +41,8 @@ int main(int argc, char **argv)
     // Setup a benchmarking request for the joint and pose motion plan requests.
     Benchmarker benchmark;
 
-    int start = 1;
-    int end = 10;
+    const int start = 1;
+    const int end = 10;
     for (int i = start; i <= end; i++)
     {
         const auto &is = std::to_string(i);
@@ -68,10 +81,9 @@ int main(int argc, char **argv)
     }
 
     // How many times to solve each problem
-    unsigned int reps = 10;
-
+    const unsigned int reps = 10;
     Benchmarker::Options options(reps, Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH);
-    std::string bpath = ros::package::getPath("robowflex_library") + "/yaml/benchmark/";
 
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>(bpath)}, options);
+    // Benchmark and save results to "robowflex_fetch_scenes_benchmark/"
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_scenes_benchmark/")}, options);
 }

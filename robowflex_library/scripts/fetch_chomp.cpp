@@ -10,6 +10,12 @@
 
 using namespace robowflex;
 
+/* \file fetch_chomp.cpp
+ * A basic script that demonstrates using MoveIt's built-in CHOMP planner. The
+ * resulting trajectory is output to a YAML file. This file can be visualized
+ * using Blender. See the corresponding robowflex_visualization readme.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)
