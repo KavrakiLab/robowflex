@@ -85,5 +85,6 @@ int main(int argc, char **argv)
     Benchmarker::Options options(reps, Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH);
 
     // Benchmark and save results to "robowflex_fetch_scenes_benchmark/"
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_scenes_benchmark/")}, options);
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_scenes_benchmark/")},
+                        options);
 }
