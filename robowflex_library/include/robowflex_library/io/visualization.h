@@ -1,4 +1,4 @@
-/* Author: Zachary Kingston */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #ifndef ROBOWFLEX_IO_VISUALIZATION_
 #define ROBOWFLEX_IO_VISUALIZATION_
@@ -15,6 +15,7 @@ namespace robowflex
     ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     ROBOWFLEX_CLASS_FORWARD(Geometry);
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
     /** \endcond */
 
     namespace IO
@@ -50,6 +51,11 @@ namespace robowflex
              *  \param[in] response Planning response to visualize.
              */
             void updateTrajectory(const planning_interface::MotionPlanResponse &response);
+
+            /** \brief Updates the trajectory being visualized.
+             *  \param[in] trajectory Trajectory to visualize.
+             */
+            void updateTrajectory(const Trajectory &trajectory);
 
             /** \brief Updates the trajectory being visualized.
              *  \param[in] trajectory Trajectory to visualize.
@@ -106,12 +112,28 @@ namespace robowflex
             /** \name Markers
              *  \{ */
 
-            /** \brief Easily add a spherical marker (under the name "" - the empty string) to the scene.
+            /** \brief Add a spherical marker (under the name "name") to the scene.
              *  \param[in] x The x coordinate of the sphere.
              *  \param[in] y The y coordinate of the sphere.
              *  \param[in] z The z coordinate of the sphere.
              */
-            void addMarker(float x, float y, float z);
+            void addMarker(double x, double y, double z, const std::string &name = "");
+
+            /** \brief Add a point (spherical) marker to the scene.
+             *  \param[in] name The name of the marker.
+             *  \param[in] point The x,y,z coordinates as a vector
+             */
+            void addMarker(const Eigen::Vector3d &point, const std::string &name = "");
+
+            /** \brief Add a transform marker to the managed list of markers.
+             * Displayed after an updateMarkers() call.
+             *  \param[in] name Name of the marker.
+             *  \param[in] base_frame Base frame of the pose of the marker.
+             *  \param[in] pose Pose of the transform.
+             *  \param[in] scale Scale factor that controls the size of the frame marker.
+             */
+            void addTransformMarker(const std::string &name, const std::string &base_frame,
+                                    const RobotPose &pose, double scale = 1);
 
             /** \brief Add a marker to the managed list of markers. Displayed after an updateMarkers() call.
              *  \param[in] name Name of the marker.

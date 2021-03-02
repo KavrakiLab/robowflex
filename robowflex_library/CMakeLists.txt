@@ -73,13 +73,14 @@ list(APPEND SOURCES
   src/io.cpp
   src/openrave.cpp
   src/io/visualization.cpp
+  src/io/colormap.cpp
   src/io/broadcaster.cpp
   src/io/hdf5.cpp
   src/pool.cpp
   src/tf.cpp
   src/random.cpp
   src/yaml.cpp
-  src/path.cpp
+  src/trajectory.cpp
   src/detail/r2.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp

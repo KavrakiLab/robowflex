@@ -22,7 +22,7 @@
 
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/path.h>
+#include <robowflex_library/trajectory.h>
 
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/structure.h>
@@ -149,7 +149,7 @@ planning_interface::MotionPlanResponse DARTPlanner::plan(const robowflex::SceneC
     }
 
     // compute time parameterization
-    robowflex::path::computeTimeParameterization(*response.trajectory_);
+    robowflex::Trajectory::computeTimeParameterization(*response.trajectory_);
 
     return response;
 }
