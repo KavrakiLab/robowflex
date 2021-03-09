@@ -18,7 +18,6 @@ All code for this library is within the `robowflex_visualization` folder.
 1. Dump a trajectory to a YAML file via the `robowflex::path::toYAMLFile()` function.
 An example of this can be found in `robowflex_library/scripts/fetch_test.cpp`:
 ```cpp
-# fetch_test.cpp
 ...
 // Generate a plan
 planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
@@ -32,8 +31,6 @@ Planning scenes can be edited manually by writing the YAML file (an example is i
 
 2. Edit the provided file, `scripts/robowflex.py` to use your desired files.
 ```py
-# robowflex.py
-
 import robowflex_visualization as rv
 ...
 
