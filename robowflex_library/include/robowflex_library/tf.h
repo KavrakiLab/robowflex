@@ -200,7 +200,7 @@ namespace robowflex
 
         /** \brief Sample a pose with gaussian sampling for the position with given variances and
          *  uniform sampling for the orientation within the given bounds.
-         *  \param[in] pos_bounds The desired position variances.
+         *  \param[in] pos_variances The desired position variances.
          *  \param[in] orn_bounds The desired orientation bounds.
          *  \return The sampled pose.
          */

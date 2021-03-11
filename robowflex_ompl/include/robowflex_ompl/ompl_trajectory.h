@@ -44,8 +44,7 @@ namespace robowflex
             OMPLTrajectory(const RobotConstPtr &robot, const std::string &group);
 
             /** \brief Constructor.
-             *  \param[in] robot Robot to construct trajectory for.
-             *  \param[in] group Planning group of the trajectory.
+             *  \param[in] trajectory Trajectory to initialize with.
              */
             OMPLTrajectory(robot_trajectory::RobotTrajectory &trajectory);
 
