@@ -27,6 +27,13 @@
 /** \brief Tests if the ROS version is Melodic or higher. */
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
+/** \brief Tests if the ROS version is Melodic or higher. */
+#define ROBOWFLEX_AT_LEAST_NOETIC ROS_VERSION_MINIMUM(1, 15, 0)
+
+/** \brief Tests if the ROS version is not further than Melodic */
+#define ROBOWFLEX_AT_MOST_MELODIC                                                                            \
+    ROS_VERSION_GE(1, 14, 0, ROS_VERSION_MAJOR, ROS_VERSION_MINOR, ROS_VERSION_PATCH)
+
 /** \brief Tests if boost is at least version 1.64 */
 #define IS_BOOST_164 (BOOST_VERSION >= 106400u)
 

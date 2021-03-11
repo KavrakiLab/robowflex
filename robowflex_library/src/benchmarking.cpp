@@ -121,7 +121,7 @@ void Benchmarker::captureProgress(const std::map<std::string, Planner::ProgressP
     while (true)
     {
         {
-            std::unique_lock<std::mutex>(solved_mutex_);
+            std::unique_lock<std::mutex> lock(solved_mutex_);
             if (solved_)
                 return;
 
@@ -194,7 +194,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
             // Notify progress thread.
             {
-                std::unique_lock<std::mutex>(solved_mutex_);
+                std::unique_lock<std::mutex> lock(solved_mutex_);
                 solved_ = true;
             }
 
