@@ -141,6 +141,7 @@ class Robot:
     #  @param path_file YAML file for moveit_msgs::RobotTrajectoryMsg.
     #  @param fps Frames-per-second to animate the path at.
     #  @param start Frame to begin the animation at.
+    #  @param reverse If true, load path from end-to-start rather than start-to-end.
     #
     def animate_path(self, path_file, fps = 60., start = 30, reverse = False):
         path = rv.utils.read_YAML_data(path_file)
@@ -170,6 +171,7 @@ class Robot:
     #
     #  @param link_name Name of link to attach item to.
     #  @param item Blender object to attach to link.
+    #  @param frame Animation frame to parent in.
     #
     def attach_object(self, link_name, item, frame):
         rv.utils.parent_object(self.get_link(link_name), item, frame)
@@ -179,6 +181,7 @@ class Robot:
     #
     #  @param link_name Name of link to attach item to.
     #  @param item Blender object to attach to link.
+    #  @param frame Animation frame to parent in.
     #
     def detach_object(self, link_name, item, frame):
         rv.utils.unparent_object(self.get_link(link_name), item, frame)

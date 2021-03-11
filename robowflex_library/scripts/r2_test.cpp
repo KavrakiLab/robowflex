@@ -9,6 +9,11 @@
 
 using namespace robowflex;
 
+/* \file r2_test.cpp
+ * Script for motion planning with R2 with legs. Shows loading a request from a
+ * file as well as building a request with path constraints.
+ */
+
 int dumpTransform()
 {
     auto r2 = std::make_shared<R2Robot>();

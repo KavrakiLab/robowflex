@@ -10,6 +10,11 @@
 
 using namespace robowflex;
 
+/* \file ur5_pool.cpp
+ * Demonstration of PoolPlanner with the UR5. Here, many planning requests are
+ * executed asynchronously.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS

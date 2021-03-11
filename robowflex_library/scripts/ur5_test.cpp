@@ -10,6 +10,12 @@
 
 using namespace robowflex;
 
+/* \file fetch_test.cpp
+ * A simple script that demonstrates motion planning with the UR5 robot. Here,
+ * two planners are created: the default OMPL planner, and the default OMPL
+ * planner but with simplified solutions disabled.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS

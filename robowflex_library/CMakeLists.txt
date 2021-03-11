@@ -127,12 +127,9 @@ add_script(fetch_scenes_benchmark)
 add_script(fetch_benchmark)
 add_script(fetch_visualization)
 add_script(r2_test)
-add_script(r2_hdf5)
 add_script(wam7_test)
 add_script(wam7_benchmark)
-add_script(hdf5_io)
 add_script(plugin_io)
-add_script(random)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

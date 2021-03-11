@@ -30,9 +30,9 @@ path::toYAMLFile("fetch_path.yml", *res.trajectory_);
 Planning scenes can be edited manually by writing the YAML file (an example is in `robowflex_library/yaml/test.yml`), or by calling `robowflex::Scene::toYAMLFile()` on a loaded planning scene.
 
 2. Edit the provided file, `scripts/robowflex.py` to use your desired files.
-```py
+Note the loaded files for the trajectory and scene in the following script:
+~~~py
 import robowflex_visualization as rv
-...
 
 # Load a robot under the name `Fetch`
 fetch = rv.robot.Robot("Fetch", "package://fetch_description/robots/fetch.urdf")
@@ -42,7 +42,8 @@ fetch.animate_path("package://robowflex_visualization/yaml/fetch_path.yml")
 
 # Add a planning scene.
 scene = rv.scene.Scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
-```
+~~~
+
 
 3. Open blender from the current terminal and open the provided `robowflex.blend` Blender scene.
    To the left should be a baked in Python script (if there is no script, it is also available at `scripts/blender.py`).

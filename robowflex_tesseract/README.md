@@ -11,3 +11,5 @@ There is an example script (`scripts` directory) that shows how the module can b
 
 Both Tesseract and TrajOpt can be added as catkin packages in your workspace. 
 Currently, Robowflex Tesseract uses the `kinetic-devel` branch of both [tesseract](https://github.com/ros-industrial-consortium/tesseract/tree/kinetic-devel) and [trajopt](https://github.com/ros-industrial-consortium/trajopt_ros/tree/kinetic-devel).
+The Tesseract module can be difficult to compile and integrate in a complex ROS workspace.
+See the provided Docker image for an example of installation.

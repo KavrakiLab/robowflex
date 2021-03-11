@@ -11,6 +11,15 @@
 
 using namespace robowflex;
 
+/* \file ur5_cylinder.cpp
+ * A simple script that demonstrates how to use RViz with Robowflex with the UR5
+ * robot. Here, the goal is created using the `addCylinderSideGrasp` function,
+ * which creates a more complicated grasp to grasp any side of a cylinder. See
+ * https://kavrakilab.github.io/robowflex/rviz.html for how to use RViz
+ * visualization. Here, the scene, the pose goal, and motion plan displayed in
+ * RViz.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS

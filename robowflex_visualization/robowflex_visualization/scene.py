@@ -41,7 +41,7 @@ class Scene:
 
     ## @brief Adds a collision object (moveit_msgs::CollisionObject) to the scene.
     #
-    #  @param cos Collision object.
+    #  @param co Collision object.
     #
     def add_collision_object(self, co):
         if 'primitives' in co:
