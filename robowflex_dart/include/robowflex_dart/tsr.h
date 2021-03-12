@@ -443,9 +443,10 @@ namespace robowflex
              */
             void useIndices(const std::vector<std::size_t> &indices);
 
-            /** \brief Gets the transformation from the specification frame to the TSR's center.
+            /** \brief Gets the transformation from the specification's base to the TSR's frame.
+              * \return RobotPose representing the transform.
              */
-            robowflex::RobotPose getTransformToCenter() const;
+            robowflex::RobotPose getTransformToFrame() const;
 
             /** \brief Use World DoF indices for TSR computation. World indices are pairs of skeleton index
              * and DoF index.
