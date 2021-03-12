@@ -575,7 +575,10 @@ robowflex::RobotPose TSR::getTransformToFrame() const
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
     auto bnd = bskl->getBodyNode(spec_.base.frame);
 
-    return tnd_->getTransform(bnd);
+    if (not tnd_)
+        throw std::runtime_error(“Target body node is not initialized”);
+
+    return tnd_->getTransform(bnd)
 }
 
 void TSR::getErrorWorldRaw(Eigen::Ref<Eigen::VectorXd> error) const
