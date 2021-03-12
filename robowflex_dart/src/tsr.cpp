@@ -572,7 +572,6 @@ std::size_t TSR::getNumWorldDofs() const
 Eigen::Isometry3d TSR::getTransformToCenter() const
 {
     const auto &sim = world_->getSim();
-    const auto &tskl = sim->getSkeleton(spec_.target.structure);
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
     auto bnd = bskl->getBodyNode(spec_.base.frame);
 
