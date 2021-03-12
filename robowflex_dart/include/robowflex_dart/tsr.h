@@ -444,7 +444,7 @@ namespace robowflex
             void useIndices(const std::vector<std::size_t> &indices);
 
             /** \brief Gets the transformation from the specification's base to the TSR's frame.
-              * \return RobotPose representing the transform.
+             * \return RobotPose representing the transform.
              */
             robowflex::RobotPose getTransformToFrame() const;
 
