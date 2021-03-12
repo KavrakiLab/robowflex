@@ -445,7 +445,7 @@ namespace robowflex
 
             /** \brief Gets the transformation from the specification frame to the TSR's center.
              */
-            Eigen::Isometry3d getTransformToCenter() const;
+            robowflex::RobotPose getTransformToCenter() const;
 
             /** \brief Use World DoF indices for TSR computation. World indices are pairs of skeleton index
              * and DoF index.

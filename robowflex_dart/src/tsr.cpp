@@ -569,7 +569,7 @@ std::size_t TSR::getNumWorldDofs() const
     return world_indices_.size();
 }
 
-Eigen::Isometry3d TSR::getTransformToCenter() const
+robowflex::RobotPose TSR::getTransformToCenter() const
 {
     const auto &sim = world_->getSim();
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
