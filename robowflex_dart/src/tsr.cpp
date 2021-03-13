@@ -578,7 +578,7 @@ robowflex::RobotPose TSR::getTransformToFrame() const
     if (not tnd_)
         throw std::runtime_error("Target body node is not initialized");
 
-    return tnd_->getTransform(bnd)
+    return tnd_->getTransform(bnd);
 }
 
 void TSR::getErrorWorldRaw(Eigen::Ref<Eigen::VectorXd> error) const
