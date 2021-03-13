@@ -9,8 +9,9 @@
 
 using namespace robowflex;
 
-const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::MESH + 1;
-const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh"});
+const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::GRIDBOX + 1;
+const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh",
+                                                             "octobox"});
 
 Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
 {
@@ -94,11 +95,21 @@ GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
     return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
 }
 
+GeometryPtr Geometry::makeGridBox(bool ***grid, int sidenum, double voxelsize)
+{
+    double boxSize = sidenum * voxelsize;
+    return std::make_shared<Geometry>(ShapeType::GRIDBOX,                            //
+                                      Eigen::Vector3d(boxSize, voxelsize, sidenum),  //
+                                      "",                                            //
+                                      EigenSTL::vector_Vector3d(), grid);
+}
+
 Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const EigenSTL::vector_Vector3d &vertices)
+                   const EigenSTL::vector_Vector3d &vertices, bool ***grid)
   : type_(type)
   , dimensions_(dimensions)
   , vertices_(vertices)
+  , grid_(grid)
   , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
   , shape_(loadShape())
   , body_(loadBody())
@@ -193,6 +204,10 @@ shapes::Shape *Geometry::loadShape() const
                                                        "Both vertices/resource specified for the mesh");
             break;
 
+        case ShapeType::GRIDBOX:
+            return new shapes::Box(dimensions_[0], dimensions_[0], dimensions_[0]);
+            break;
+
         default:
             break;
     }
@@ -205,6 +220,7 @@ bodies::Body *Geometry::loadBody() const
     switch (type_)
     {
         case ShapeType::BOX:
+        case ShapeType::GRIDBOX:
             return new bodies::Box(shape_.get());
             break;
 
@@ -249,6 +265,11 @@ bool Geometry::isMesh() const
     return type_ == ShapeType::MESH;
 }
 
+bool Geometry::isGridBox() const
+{
+    return type_ == ShapeType::GRIDBOX;
+}
+
 const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
 {
     shapes::ShapeMsg msg;
@@ -290,6 +311,11 @@ const std::string &Geometry::getResource() const
 const EigenSTL::vector_Vector3d &Geometry::getVertices() const
 {
     return vertices_;
+}
+
+bool ***Geometry::getGrid() const
+{
+    return grid_;
 }
 
 const Eigen::Vector3d &Geometry::getDimensions() const

@@ -46,7 +46,8 @@ namespace robowflex
                 SPHERE = 1,    ///< Solid primitive sphere. Uses one dimension (radius).
                 CYLINDER = 2,  ///< Solid primitive cylinder. Uses two dimensions (height, radius).
                 CONE = 3,      ///< Solid primitive cone. Uses two dimensions (height, radius).
-                MESH = 4       ///< Mesh. Dimensions scale along x, y, z.
+                MESH = 4,      ///< Mesh. Dimensions scale along x, y, z.
+                GRIDBOX = 5    ///< Grid. A Cube with three parameters(grid,sidenum,voxelsize).
             };
 
             static const unsigned int MAX;                  ///< Maximum value of ShapeType.
@@ -97,11 +98,19 @@ namespace robowflex
          */
         static GeometryPtr makeMesh(const std::string &resource, const Eigen::Vector3d &scale = {1, 1, 1});
 
-        /** \brief Create a mesh from triangles represented as vertices .
+        /** \brief Create a mesh from triangles represented as vertices.
          *  \param[in] vertices The vertices that will create the mesh.
          *  \return The created mesh.
          */
         static GeometryPtr makeMesh(const EigenSTL::vector_Vector3d &vertices);
+
+        /** \brief Create a gridbox from a 3D bool grid.
+         *  \param[in] grid The 3D volumetric grid.
+         *  \param[in] sidenum The number of voxels each side has.
+         *  \param[in] voxelsize The size of each voxel.
+         *  \return The created gridBox.
+         */
+        static GeometryPtr makeGridBox(bool ***grid, int sidenum, double voxelsize);
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry.
@@ -109,10 +118,12 @@ namespace robowflex
          *  \param[in] dimensions Dimensions of the geometry to load.
          *  \param[in] resource If \a type is ShapeType::MESH, then resource or vertices must be specified
          *  \param[in] vertices List of vertices that form the mesh.
+         *  \param[in] grid If \a type is ShapeType::GRIDBOX then grid must be given.
          * as the mesh file to load.
          */
         Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource = "",
-                 const EigenSTL::vector_Vector3d &vertices = EigenSTL::vector_Vector3d{});
+                 const EigenSTL::vector_Vector3d &vertices = EigenSTL::vector_Vector3d{},
+                 bool ***grid = nullptr);
 
         /** \brief Constructor.
          *  Builds and loads the specified geometry from a MoveIt shape.
@@ -153,6 +164,11 @@ namespace robowflex
          */
         bool isMesh() const;
 
+        /** \brief Checks if the geometry is a gridbox geometry.
+         *  \return True if the \a type_ is an gridbox (ShapeType::GRIDBOX).
+         */
+        bool isGridBox() const;
+
         /** \brief Gets the message form of solid primitive geometry (all but ShapeType::MESH).
          *  \return The message.
          */
@@ -188,6 +204,11 @@ namespace robowflex
          */
         const EigenSTL::vector_Vector3d &getVertices() const;
 
+        /** \brief Gets the grid of the primitive
+         *  \return The grid of the geometry.
+         */
+        bool ***getGrid() const;
+
         /** \brief Gets the dimensions of the geometry.
          *  \return The dimensions of geometry.
          */
@@ -207,6 +228,7 @@ namespace robowflex
         ShapeType::Type type_{ShapeType::Type::BOX};           ///< Geometry Type.
         Eigen::Vector3d dimensions_{Eigen::Vector3d::Ones()};  ///< Dimensions to scale geometry.
         EigenSTL::vector_Vector3d vertices_{{}};               ///< Vertices of the primitive
+        bool ***grid_{nullptr};                                ///< Data grid to represent gridboxes.
         std::string resource_{""};                             ///< Resource locator for MESH types.
         shapes::ShapePtr shape_{nullptr};                      ///< Loaded shape.
         bodies::BodyPtr body_{nullptr};                        ///< Body operation.
