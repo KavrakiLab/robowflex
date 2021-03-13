@@ -576,7 +576,7 @@ robowflex::RobotPose TSR::getTransformToFrame() const
     auto bnd = bskl->getBodyNode(spec_.base.frame);
 
     if (not tnd_)
-        throw std::runtime_error(“Target body node is not initialized”);
+        throw std::runtime_error("Target body node is not initialized");
 
     return tnd_->getTransform(bnd)
 }
