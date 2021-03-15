@@ -218,7 +218,7 @@ WindowWidgetPtr Window::getWidget()
     return widget_;
 }
 
-WorldPtr Window::getWorld() const
+WorldPtr Window::getWorld()
 {
     return world_;
 }
