@@ -218,12 +218,12 @@ WindowWidgetPtr Window::getWidget()
     return widget_;
 }
 
-WorldPtr getWorld() const
+WorldPtr Window::getWorld() const
 {
     return world_;
 }
 
-const WorldPtr &getWorldConst() const
+const WorldPtr &Window::getWorldConst() const
 {
     return world_;
 }
