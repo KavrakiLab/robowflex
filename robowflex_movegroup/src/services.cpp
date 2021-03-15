@@ -8,7 +8,7 @@
 
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/path.h>
+#include <robowflex_library/trajectory.h>
 #include <robowflex_library/yaml.h>
 
 #include <robowflex_movegroup/services.h>
@@ -124,11 +124,9 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
 
     if (value == 0)
     {
-        ROS_WARN("Trajectory not parameterized, using TimeParameterization with default values");
-        // remove constness
-        auto tpath = path;
-        robowflex::path::computeTimeParameterization(tpath);
-        tpath.getRobotTrajectoryMsg(goal.trajectory);
+        ROS_ERROR("Trajectory is not parameterized and cannot be executed!  did you use "
+                  "Trajectory::computeTimeParameterization?");
+        return false;
     }
     else
         path.getRobotTrajectoryMsg(goal.trajectory);

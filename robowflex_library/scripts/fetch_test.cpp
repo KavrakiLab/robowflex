@@ -6,7 +6,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
-#include <robowflex_library/path.h>
+#include <robowflex_library/trajectory.h>
 
 using namespace robowflex;
 
@@ -49,7 +49,11 @@ int main(int argc, char **argv)
     if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
         return 1;
 
+    // Create a trajectory object for better manipulation.
+    auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
+
     // Output path to a file for visualization.
-    path::toYAMLFile("fetch_path.yml", *res.trajectory_);
+    trajectory->toYAMLFile("fetch_path.yml");
+
     return 0;
 }
