@@ -163,7 +163,7 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 
 void Scene::fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg)
 {
-    for (auto &co: msg.world.collision_objects)
+    for (auto &co : msg.world.collision_objects)
         if (co.header.frame_id.empty() or not scene_->knowsFrameTransform(co.header.frame_id))
             co.header.frame_id = scene_->getRobotModel()->getRootLinkName();
 }
