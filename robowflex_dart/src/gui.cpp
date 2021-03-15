@@ -218,6 +218,16 @@ WindowWidgetPtr Window::getWidget()
     return widget_;
 }
 
+WorldPtr getWorld() const
+{
+    return world_;
+}
+
+const WorldPtr &getWorldConst() const
+{
+    return world_;
+}
+
 void Window::run(std::function<void()> thread)
 {
     if (thread)

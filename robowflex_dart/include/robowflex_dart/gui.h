@@ -192,6 +192,16 @@ namespace robowflex
              */
             void addWidget(const WidgetPtr &widget);
 
+            /** \brief Get world used for visualization.
+             *  \return World used by window.
+             */
+            WorldPtr getWorld();
+
+            /** \brief Get world used for visualization.
+             *  \return World used by window.
+             */
+            const WorldPtr &getWorldConst() const;
+
         private:
             WorldPtr world_;                  ///< World to visualize.
             WindowWidgetPtr widget_;          ///< IMGUI widget.
