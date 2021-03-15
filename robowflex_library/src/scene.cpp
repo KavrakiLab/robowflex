@@ -161,6 +161,13 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
         scene_->setPlanningSceneDiffMsg(msg);
 }
 
+void Scene::fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg)
+{
+    for (auto &co: msg.world.collision_objects)
+        if (co.header.frame_id.empty() or not scene_->knowsFrameTransform(co.header.frame_id))
+            co.header.frame_id = scene_->getRobotModel()->getRootLinkName();
+}
+
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                   const RobotPose &pose)
 {
@@ -502,6 +509,8 @@ bool Scene::fromYAMLFile(const std::string &file)
     moveit_msgs::PlanningScene msg;
     if (!IO::fromYAMLFile(msg, file))
         return false;
+
+    fixCollisionObjectFrame(msg);
 
     auto acm(getACM());
     useMessage(msg);
