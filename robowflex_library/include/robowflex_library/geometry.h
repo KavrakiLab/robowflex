@@ -6,13 +6,13 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <visualization_msgs/Marker.h>
-
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/bodies.h>
 
 #include <shape_msgs/SolidPrimitive.h>
 #include <shape_msgs/Mesh.h>
+
+#include <moveit/robot_model/aabb.h>
 
 #include <robowflex_library/adapter.h>
 #include <robowflex_library/class_forward.h>
@@ -192,6 +192,12 @@ namespace robowflex
          *  \return The dimensions of geometry.
          */
         const Eigen::Vector3d &getDimensions() const;
+
+        /** \brief Compute the AABB (axis-aligned bounding box) of the geometry at a given pose.
+         *  \param[in] pose Pose to compute AABB of geometry at.
+         *  \return The AABB.
+         */
+        moveit::core::AABB getAABB(const RobotPose &pose = RobotPose::Identity()) const;
 
     private:
         /** \brief Loads a shape from the set \a type_ and \a dimensions_, and \a resource_ if a
