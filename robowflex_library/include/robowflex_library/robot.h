@@ -21,6 +21,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/constants.h>
 #include <robowflex_library/io/handler.h>
 
 namespace robowflex
@@ -334,6 +335,21 @@ namespace robowflex
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
+         *  Position of query is specified by a \a pose, at which there is a small ball of \a radius, and
+         *  orientation is set by \a orientation with XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] group Group to set.
+         *  \param[in] position Position to achieve.
+         *  \param[in] orientation Mean orientation
+         *  \param[in] radius Radius tolerance around position.
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIK(const std::string &group, const Eigen::Vector3d &position,
+                       const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
+                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+
+        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
+         *  retains its initial value.
          *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
          *  orientation with XYZ Euler angle tolerances from \a tolerances.
          *  \param[in] group Group to set.
@@ -344,7 +360,8 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
-                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances);
+                       const Eigen::Quaterniond &orientation,
+                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
 
         /** \brief Sets a group of the scratch state from an IK query. Attempts to find a configuration that
          * is collision-free with the scene and the robot itself. If the IK query fails the scratch state
@@ -362,7 +379,8 @@ namespace robowflex
          */
         bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
                                      const GeometryConstPtr &region, const RobotPose &pose,
-                                     const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
+                                     const Eigen::Quaterniond &orientation,
+                                     const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
                                      bool verbose = false);
 
         /** \} */
@@ -442,7 +460,7 @@ namespace robowflex
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
 
-        unsigned int ik_attempts_{50};  ///< Number of attempts at IK.
+        unsigned int ik_attempts_{constants::ik_attempts};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */

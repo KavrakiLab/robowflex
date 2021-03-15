@@ -34,12 +34,18 @@ namespace robowflex
         RobotPose identity();
 
         /** \brief Creates a robot pose from a linear component and zero orientation.
-            \param[in] x X-axis translation
-            \param[in] y Y-ayis translation
-            \param[in] z Z-azis translation
+         *  \param[in] x X-axis translation
+         *  \param[in] y Y-ayis translation
+         *  \param[in] z Z-azis translation
          *  \return A new robot pose from components.
          */
         RobotPose createPoseXYZ(double x, double y, double z);
+
+        /** \brief Creates a robot pose from a linear component and zero orientation.
+         *  \param[in] translation Translation component
+         *  \return A new robot pose from components.
+         */
+        RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation);
 
         /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
          *  \param[in] x X-axis translation
@@ -53,8 +59,8 @@ namespace robowflex
         RobotPose createPoseXYZ(double x, double y, double z, double X, double Y, double Z);
 
         /** \brief Creates a robot pose from a linear component and XYZ convention Euler angles
-         *  \param[in] translation translation component
-         *  \param[in] rotation rotational component (X, Y, Z angles)
+         *  \param[in] translation Translation component
+         *  \param[in] rotation Rotational component (X, Y, Z angles)
          *  \return A new robot pose from components.
          */
         RobotPose createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation,

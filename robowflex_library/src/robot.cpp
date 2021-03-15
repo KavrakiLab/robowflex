@@ -452,6 +452,13 @@ void Robot::setIKAttempts(unsigned int attempts)
     ik_attempts_ = attempts;
 }
 
+bool Robot::setFromIK(const std::string &group,                                                //
+                      const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
+                      double radius, const Eigen::Vector3d &tolerances)
+{
+    return setFromIK(group, Geometry::makeSphere(radius), TF::createPoseXYZ(position), orientation, tolerances);
+}
+
 bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
