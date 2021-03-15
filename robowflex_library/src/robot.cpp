@@ -456,7 +456,9 @@ bool Robot::setFromIK(const std::string &group,                                 
                       const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
                       double radius, const Eigen::Vector3d &tolerances)
 {
-    return setFromIK(group, Geometry::makeSphere(radius), TF::createPoseXYZ(position), orientation, tolerances);
+    return setFromIK(group,                                                      //
+                     Geometry::makeSphere(radius), TF::createPoseXYZ(position),  //
+                     orientation, tolerances);
 }
 
 bool Robot::setFromIK(const std::string &group,                               //
