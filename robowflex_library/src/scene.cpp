@@ -1,9 +1,9 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -427,13 +427,13 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
             acm.setEntry(links[i], links[j], true);
 
     // Ignore all other objects
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = 0; j < objs.size(); ++j)
-            acm.setEntry(links[i], objs[j], true);
+    for (const auto &link : links)
+        for (const auto &obj : objs)
+            acm.setEntry(link, obj, true);
 
     // Enable collision to the object of interest
-    for (unsigned int i = 0; i < links.size(); ++i)
-        acm.setEntry(links[i], object, false);
+    for (const auto &link : links)
+        acm.setEntry(link, object, false);
 
     req.acm = &acm;
 
