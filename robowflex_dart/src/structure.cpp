@@ -276,26 +276,31 @@ void Structure::setDof(unsigned int index, double value)
 
 dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 {
-    if (name.empty())
-        return getRootFrame();
-
     return skeleton_->getBodyNode(name);
 }
 
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
     auto frame = getFrame(parent);
-    RobotPose tf = child->getTransform(frame);
+
+    RobotPose tf;
+    if (frame)
+        tf = child->getTransform(frame);
+    else
+        tf = child->getWorldTransform();
 
     dart::dynamics::FreeJoint::Properties joint;
+    joint.mName = child->getName();
     auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
 
-    jt->setRelativeTransform(tf);
+    setJointParentTransform(joint.mName, tf);
 }
 
 void Structure::setJointParentTransform(const std::string &name, const RobotPose &tf)
 {
     auto joint = skeleton_->getJoint(name);
+    if (joint == nullptr)
+        std::cerr << "Cannot find joint named " << name << " to set TF!" << std::endl;
     joint->setTransformFromParentBodyNode(tf);
 }
 
