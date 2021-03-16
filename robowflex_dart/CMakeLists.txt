@@ -92,7 +92,7 @@ if (DART_LIBRARIES)
   add_script(fetch_robowflex_planner)
   add_script(r2con_plan)
   add_script(r2con_msg_plan)
-  # add_script(gui_test)
+  add_script(gui_test)
   add_script(tsr_helper)
 
   install_scripts()
