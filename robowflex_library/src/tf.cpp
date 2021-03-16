@@ -16,6 +16,14 @@ RobotPose TF::createPoseXYZ(double x, double y, double z)
     return createPoseXYZ(x, y, z, 0, 0, 0);
 }
 
+RobotPose TF::createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation)
+{
+    RobotPose pose = RobotPose::Identity();
+    pose.translation() = translation;
+
+    return pose;
+}
+
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
 {
     return createPoseXYZ(Eigen::Vector3d{x, y, z},  //
