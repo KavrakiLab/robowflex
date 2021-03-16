@@ -168,7 +168,8 @@ namespace robowflex
             double distanceGoal(const ompl::base::State *state) const override;
 
 
-            /** \brief Get the TSR set of this goal region
+            /** \brief Get the TSR set of this goal region.
+             *  \return The TSR set.
              */
             TSRSetPtr getTSRSet();
 
