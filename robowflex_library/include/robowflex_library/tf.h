@@ -206,6 +206,12 @@ namespace robowflex
          */
         RobotPose samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds);
 
+        /** \brief Decode a message as a transform.
+         *  \param[in] tf Transform message.
+         *  \return The transform.
+         */
+        RobotPose transformMsgToEigen(const geometry_msgs::TransformStamped &tf);
+
         /** \brief Encode a transform as a message.
          *  \param[in] source Source frame.
          *  \param[in] target Target frame.

@@ -246,6 +246,17 @@ geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &sourc
     return msg;
 }
 
+RobotPose TF::transformMsgToEigen(const geometry_msgs::TransformStamped &tf)
+{
+    RobotPose pose;
+    pose.translation().x() = tf.transform.translation.x;
+    pose.translation().y() = tf.transform.translation.y;
+    pose.translation().z() = tf.transform.translation.z;
+
+    pose.linear() = quaternionMsgToEigen(tf.transform.rotation).toRotationMatrix();
+    return pose;
+}
+
 double TF::angleNormalize(double v)
 {
     return (v > constants::pi) ? constants::two_pi - v : v;
