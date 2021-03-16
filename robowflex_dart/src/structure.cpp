@@ -276,13 +276,6 @@ void Structure::setDof(unsigned int index, double value)
 
 dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 {
-    // if (name.empty())
-    // {
-    //     std::cout << "name empty\n";
-    //     std::cout << "root frame is " << getRootFrame()->getName() << std::endl;
-    //     return getRootFrame();
-    // }
-
     return skeleton_->getBodyNode(name);
 }
 
