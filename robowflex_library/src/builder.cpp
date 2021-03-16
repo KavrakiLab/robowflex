@@ -184,7 +184,26 @@ void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePt
 
 void MotionRequestBuilder::useSceneStateAsStart(const SceneConstPtr &scene)
 {
-    setStartConfiguration(scene->getSceneConst()->getCurrentState());
+    setStartConfiguration(scene->getCurrentStateConst());
+}
+
+bool MotionRequestBuilder::attachObjectToStart(ScenePtr scene, const std::string &object)
+{
+    // Copy current scene state for posterity.
+    auto &current = scene->getCurrentState();
+    robot_state::RobotState copy = current;
+
+    // Attach object to current start configuration.
+    const auto &start = getStartConfiguration();
+    if (not scene->attachObject(*start, object))
+        return false;
+
+    // Use attached object state.
+    setStartConfiguration(current);
+
+    // Reset scene state.
+    current = copy;
+    return true;
 }
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)

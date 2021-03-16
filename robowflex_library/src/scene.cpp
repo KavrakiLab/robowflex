@@ -140,6 +140,11 @@ robot_state::RobotState &Scene::getCurrentState()
     return scene_->getCurrentStateNonConst();
 }
 
+const robot_state::RobotState &Scene::getCurrentStateConst() const
+{
+    return scene_->getCurrentState();
+}
+
 collision_detection::AllowedCollisionMatrix &Scene::getACM()
 {
     incrementVersion();
@@ -260,7 +265,7 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
 
 bool Scene::attachObject(const std::string &name)
 {
-    const auto &robot = scene_->getCurrentState().getRobotModel();
+    const auto &robot = getCurrentState().getRobotModel();
     const auto &ee = robot->getEndEffectors();
 
     // One end-effector
@@ -283,6 +288,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     {
         const auto &links = ee[0]->getLinkModelNames();
         return attachObject(state, name, links[0], links);
+
     }
 
     return false;
@@ -300,7 +306,6 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
         return false;
     }
 
-    auto &robot = scene_->getCurrentStateNonConst();
     const auto &obj = world->getObject(name);
 
     if (!obj)
@@ -315,6 +320,7 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
         return false;
     }
 
+    auto &robot = getCurrentState();
     robot.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
     return true;
 }
@@ -344,7 +350,6 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    auto &robot = scene_->getCurrentStateNonConst();
     scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
@@ -352,6 +357,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
+    auto &robot = getCurrentState();
     robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
