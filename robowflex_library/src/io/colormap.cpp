@@ -318,142 +318,40 @@ namespace
     }
 }  // namespace
 
-void robowflex::color::viridis(double s, double &r, double &g, double &b)
+void robowflex::color::viridis(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    colormap(s, r, g, b, 32, VIRIDIS);
+    colormap(s, color[0], color[1], color[2], 32, VIRIDIS);
 }
 
-void robowflex::color::coolwarm(double s, double &r, double &g, double &b)
+void robowflex::color::coolwarm(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    colormap(s, r, g, b, 32, COOLWARM);
+    colormap(s, color[0], color[1], color[2], 32, COOLWARM);
 }
 
-void robowflex::color::extKindlmann(double s, double &r, double &g, double &b)
+void robowflex::color::extKindlmann(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    colormap(s, r, g, b, 32, EXT_KINDLMANN);
+    colormap(s, color[0], color[1], color[2], 32, EXT_KINDLMANN);
 }
 
-void robowflex::color::plasma(double s, double &r, double &g, double &b)
+void robowflex::color::plasma(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    colormap(s, r, g, b, 32, PLASMA);
+    colormap(s, color[0], color[1], color[2], 32, PLASMA);
 }
 
-void robowflex::color::turbo(double s, double &r, double &g, double &b)
+void robowflex::color::turbo(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    colormap(s, r, g, b, 256, TURBO);
+    colormap(s, color[0], color[1], color[2], 256, TURBO);
 }
 
-void robowflex::color::grayscale(double s, double &r, double &g, double &b)
+void robowflex::color::grayscale(double s, Eigen::Ref<Eigen::Vector4d> color)
 {
-    r = s;
-    g = s;
-    b = s;
+    color[0] = s;
+    color[1] = s;
+    color[2] = s;
 }
 
-void robowflex::color::toGrayscale(double &r, double &g, double &b)
+void robowflex::color::toGrayscale(Eigen::Ref<Eigen::Vector4d> color)
 {
-    double v = 0.3 * r + 0.59 * g + 0.11 * b;
-    r = g = b = v;
-}
-
-void robowflex::color::rgb2hsv(double r, double g, double b, double &h, double &s, double &v)
-{
-    double min, max, delta;
-
-    min = r < g ? r : g;
-    min = min < b ? min : b;
-
-    max = r > g ? r : g;
-    max = max > b ? max : b;
-
-    v = max;
-    delta = max - min;
-    if (delta < 0.00001)
-    {
-        s = 0;
-        h = 0;
-        return;
-    }
-    if (max > 0.0)
-        s = delta / max;
-    else
-    {
-        s = 0.0;
-        h = constants::nan;
-        return;
-    }
-    if (r >= max)
-        h = (g - b) / delta;  // between yellow & magenta
-    else if (g >= max)
-        h = 2.0 + (b - r) / delta;  // between cyan & yellow
-    else
-        h = 4.0 + (r - g) / delta;  // between magenta & cyan
-
-    h *= 60.0;  // degrees
-    if (h < 0.0)
-        h += 360.0;
-
-    h = TF::toRadians(h);
-}
-
-void robowflex::color::hsv2rgb(double h, double s, double v, double &r, double &g, double &b)
-{
-    double hh, p, q, t, ff;
-    long i;
-
-    if (s <= 0.0)
-    {
-        r = v;
-        g = v;
-        b = v;
-        return;
-    }
-
-    hh = TF::toDegrees(h);
-    if (hh < 0.0)
-        hh += 360.0;
-    else if (hh >= 360.0)
-        hh = 0.0;
-
-    hh /= 60.0;
-    i = (long)hh;
-    ff = hh - i;
-    p = v * (1.0 - s);
-    q = v * (1.0 - (s * ff));
-    t = v * (1.0 - (s * (1.0 - ff)));
-
-    switch (i)
-    {
-        case 0:
-            r = v;
-            g = t;
-            b = p;
-            break;
-        case 1:
-            r = q;
-            g = v;
-            b = p;
-            break;
-        case 2:
-            r = p;
-            g = v;
-            b = t;
-            break;
-        case 3:
-            r = p;
-            g = q;
-            b = v;
-            break;
-        case 4:
-            r = t;
-            g = p;
-            b = v;
-            break;
-        case 5:
-        default:
-            r = v;
-            g = p;
-            b = q;
-            break;
-    }
+    double v = 0.3 * color[0] + 0.59 * color[1] + 0.11 * color[2];
+    grayscale(v, color);
 }

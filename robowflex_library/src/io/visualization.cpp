@@ -30,9 +30,9 @@ namespace
 {
     Eigen::Vector4d getRandomColor()
     {
-        double r, g, b;
-        color::viridis(RNG::uniform01(), r, g, b);
-        return Eigen::Vector4d{r, g, b, 1};
+        Eigen::Vector4d color;
+        color::turbo(RNG::uniform01(), color);
+        return color;
     }
 };  // namespace
 

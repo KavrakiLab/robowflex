@@ -287,6 +287,11 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(CollisionPluginLoader);
         /** \endcond */
 
+        /** \brief Corrects frame mismatches on loaded scenes by using the current root frame instead.
+         *  \param[in,out] msg Message to correct frame names for.
+         */
+        void fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg);
+
         CollisionPluginLoaderPtr loader_;  ///< Plugin loader that sets collision detectors for the scene.
         planning_scene::PlanningScenePtr scene_;  ///< Underlying planning scene.
     };

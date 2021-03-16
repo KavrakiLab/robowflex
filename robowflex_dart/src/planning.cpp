@@ -157,6 +157,11 @@ double TSRGoal::distanceGoal(const ompl::base::State *state) const
     return tsr_->distanceWorldState(x);
 }
 
+TSRSetPtr TSRGoal::getTSRSet()
+{
+    return tsr_;
+}
+
 ///
 /// JointRegionGoal
 ///
