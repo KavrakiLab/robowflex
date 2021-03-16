@@ -339,7 +339,7 @@ namespace robowflex
          *  orientation is set by \a orientation with XYZ Euler angle tolerances from \a tolerances.
          *  \param[in] group Group to set.
          *  \param[in] position Position to achieve.
-         *  \param[in] orientation Mean orientation
+         *  \param[in] orientation Mean orientation.
          *  \param[in] radius Radius tolerance around position.
          *  \param[in] tolerances Tolerance about \a orientation.
          *  \return True on success, false on failure.
@@ -355,7 +355,7 @@ namespace robowflex
          *  \param[in] group Group to set.
          *  \param[in] region Region of points for position.
          *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation
+         *  \param[in] orientation Mean orientation.
          *  \param[in] tolerances Tolerance about \a orientation.
          *  \return True on success, false on failure.
          */
@@ -372,7 +372,7 @@ namespace robowflex
          *  \param[in] group Group to set.
          *  \param[in] region Region of points for position.
          *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation
+         *  \param[in] orientation Mean orientation.
          *  \param[in] tolerances Tolerance about \a orientation.
          *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
          *  \return True on success, false on failure.
