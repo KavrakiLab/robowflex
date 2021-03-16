@@ -288,7 +288,6 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     {
         const auto &links = ee[0]->getLinkModelNames();
         return attachObject(state, name, links[0], links);
-
     }
 
     return false;
