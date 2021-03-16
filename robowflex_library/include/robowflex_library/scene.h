@@ -95,7 +95,7 @@ namespace robowflex
         /** \brief Get a constant reference to the current robot state in the planning scene.
          *  \return The planning scene robot.
          */
-        const robot_state::RobotState &getCurrentState() const;
+        const robot_state::RobotState &getCurrentStateConst() const;
 
         /** \brief Get the current allowed collision matrix of the planning scene.
          *  \return The allowed collision matrix.
