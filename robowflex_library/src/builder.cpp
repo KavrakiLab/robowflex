@@ -12,6 +12,7 @@
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
 
 using namespace robowflex;
@@ -170,10 +171,20 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
-void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &state)
+void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotState &state)
 {
     incrementVersion();
-    moveit::core::robotStateToRobotStateMsg(*state, request_.start_state);
+    moveit::core::robotStateToRobotStateMsg(state, request_.start_state);
+}
+
+void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotStatePtr &state)
+{
+    setStartConfiguration(*state);
+}
+
+void MotionRequestBuilder::useSceneStateAsStart(const SceneConstPtr &scene)
+{
+    setStartConfiguration(scene->getSceneConst()->getCurrentState());
 }
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)

@@ -14,6 +14,7 @@ namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
+    ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(Planner);
     /** \endcond */
 
@@ -94,7 +95,17 @@ namespace robowflex
         /** \brief Set the start configuration from a robot state.
          *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
          */
+        void setStartConfiguration(const robot_state::RobotState &state);
+
+        /** \brief Set the start configuration from a robot state.
+         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+         */
         void setStartConfiguration(const robot_state::RobotStatePtr &state);
+
+        /** \brief Use the current scene state for the starting configuration.
+         *  \param[in] scene Scene to use state from.
+         */
+        void useSceneStateAsStart(const SceneConstPtr &scene);
 
         /** \} */
 
