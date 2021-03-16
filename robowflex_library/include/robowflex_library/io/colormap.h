@@ -11,56 +11,42 @@ namespace robowflex
     {
         /** \brief Maps a scalar s in [0, 1] to the Viridis colormap.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void viridis(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps a scalar s in [0, 1] to the Cool-Warm colormap.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void coolwarm(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps a scalar s in [0, 1] to the Extended Kindlmann colormap.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void extKindlmann(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps a scalar s in [0, 1] to the Plasma colormap.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void plasma(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps a scalar s in [0, 1] to the Turbo colormap.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void turbo(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps a scalar s in [0, 1] to greyscale.
          *  \param[in] s Scalar to map.
-         *  \param[out] r Red value in [0, 1]
-         *  \param[out] g Green value in [0, 1]
-         *  \param[out] b Blue value in [0, 1]
+         *  \param[out] color Output color.
          */
         void grayscale(double s, Eigen::Ref<Eigen::Vector4d> color);
 
         /** \brief Maps an RGB color to a greyscale color based on luminosity.
-         *  \param[in,out] r Red value in [0, 1]
-         *  \param[in,out] g Green value in [0, 1]
-         *  \param[in,out] b Blue value in [0, 1]
+         *  \param[in,out] color Color to convert.
          */
         void toGrayscale(Eigen::Ref<Eigen::Vector4d> color);
 

@@ -1,4 +1,4 @@
-/* Author: Zachary Kingston, Constantinos Champs */
+/* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <random>
 
