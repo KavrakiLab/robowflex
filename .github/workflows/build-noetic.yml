@@ -1,0 +1,21 @@
+name: Build Noetic
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-melodic:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Compile Docker Container
+      run: ./.docker/noetic/build-noetic.sh
+
+    - name: Clean Docker
+      run: sudo ./.ci/clean-docker.sh
