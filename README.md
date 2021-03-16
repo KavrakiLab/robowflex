@@ -15,9 +15,14 @@ The high-level goals of the project are as follows:
 - Remain untied as possible to the greater ROS system, and support all distros from Indigo onward.
 
 ## Build Status
-| Documentation | Linting | Indigo | Kinetic | Melodic |
-| ------------- | ------- | ------ | ------- | ------- |
-|![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg) |![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg)|![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg)|![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg)|![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)|
+| Workflow | Status |
+|-|-|
+| Documentation | ![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg) |
+| Linting | ![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg) |
+| Indigo | ![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg) | 
+| Kinetic | ![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg) | 
+| Melodic | ![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg) | 
+| Noetic | [![Build Noetic](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml/badge.svg)](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml) |
 
 ## robowflex_library
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
