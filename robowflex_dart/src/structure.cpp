@@ -300,7 +300,7 @@ void Structure::setJointParentTransform(const std::string &name, const RobotPose
 {
     auto joint = skeleton_->getJoint(name);
     if (joint == nullptr)
-        std::cerr << "Cannot find joint named " << name <<" to set TF!" << std::endl;
+        std::cerr << "Cannot find joint named " << name << " to set TF!" << std::endl;
     joint->setTransformFromParentBodyNode(tf);
 }
 
