@@ -7,9 +7,9 @@
 #include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/yaml.h>
-#include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
+#include <robowflex_library/scene.h>
+#include <robowflex_library/yaml.h>
 
 using namespace robowflex;
 
@@ -101,7 +101,7 @@ void Trajectory::interpolate(unsigned int count)
         return;
 
     // the remaining length of the path we need to add states along
-    double totalLength = getLength();
+    double total_length = getLength();
 
     // the Number of segments that exist in this path.
     const int n1 = this->getNumWaypoints() - 1;
@@ -116,8 +116,8 @@ void Trajectory::interpolate(unsigned int count)
 
         // compute an approximate number of states the following segment needs to contain; this includes
         // endpoints
-        double segmentLength = s0->distance(*s2);
-        int ns = (int)floor(0.5 + (double)count * segmentLength / totalLength) + 1;
+        double segment_length = s0->distance(*s2);
+        int ns = (int)floor(0.5 + (double)count * segment_length / total_length) + 1;
 
         // if more than endpoints are needed
         if (ns > 2)

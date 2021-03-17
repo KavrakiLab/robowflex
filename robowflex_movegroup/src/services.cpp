@@ -128,8 +128,8 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
                   "Trajectory::computeTimeParameterization?");
         return false;
     }
-    else
-        path.getRobotTrajectoryMsg(goal.trajectory);
+
+    path.getRobotTrajectoryMsg(goal.trajectory);
 
     eac_.sendGoal(goal);
     if (!eac_.waitForResult())

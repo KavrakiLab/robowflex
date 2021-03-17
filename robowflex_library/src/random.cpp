@@ -1,20 +1,20 @@
 /* Author: Constantinos Chamzas */
 
-#include <robowflex_library/random.h>
 #include <robowflex_library/constants.h>
+#include <robowflex_library/random.h>
 
 using namespace robowflex;
 
 namespace
 {
-    static std::mt19937 GENERATOR_;                          ///< Random engine generator.
-    static std::uniform_real_distribution<> UNIDIST_{0, 1};  ///< Uniform distribution.
-    static std::normal_distribution<> NORMALDIST_{0, 1};     ///< Normal distribution.
+    static std::mt19937 GENERATOR;                          ///< Random engine generator.
+    static std::uniform_real_distribution<> UNIDIST{0, 1};  ///< Uniform distribution.
+    static std::normal_distribution<> NORMALDIST{0, 1};     ///< Normal distribution.
 }  // namespace
 
 double RNG::uniform01()
 {
-    return UNIDIST_(GENERATOR_);
+    return UNIDIST(GENERATOR);
 }
 
 double RNG::uniformReal(double lower_bound, double upper_bound)
@@ -36,7 +36,7 @@ bool RNG::uniformBool()
 
 double RNG::gaussian01()
 {
-    return NORMALDIST_(GENERATOR_);
+    return NORMALDIST(GENERATOR);
 }
 
 double RNG::gaussian(double mean, double stddev)

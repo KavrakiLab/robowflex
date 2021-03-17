@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/tf.h>
 #include <robowflex_library/random.h>
+#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -276,8 +276,8 @@ double TF::toDegrees(double v)
     double d = n * 180. / constants::pi;
     if (n >= 0)
         return d;
-    else
-        return 360. + d;
+
+    return 360. + d;
 }
 
 double TF::toRadians(double v)
@@ -289,6 +289,6 @@ double TF::toRadians(double v)
 
     if (v <= 180.)
         return v * constants::pi / 180.;
-    else
-        return -(360. - v) * constants::pi / 180.;
+
+    return -(360. - v) * constants::pi / 180.;
 }
