@@ -24,6 +24,14 @@ namespace robowflex
          */
         bool sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
                                  tesseract::tesseract_ros::KDLEnvPtr &env);
+        
+        /** \brief Add bodies attached to the robot scratch state to the KDL environment.
+         *  \param[in] state Robot state with objects attached.
+         *  \param[out] env KDL environment to add the attached objects.
+         *  \return True if the KDL environment was correctly updated.
+         */
+        bool addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr &state,
+                                             tesseract::tesseract_ros::KDLEnvPtr &env);
 
         /** \brief Transform a \a robot_state to a vector representing joint values for the manipulator (in
          * the order given by \a manip_joint_names).
@@ -53,7 +61,7 @@ namespace robowflex
          *  \param[in] env KDL environment with the robot (and manipulator) information already loaded.
          *  \param[out] trajectory Robot trajectory corresponding to \a tesseract_traj.
          */
-        void manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const RobotPtr &robot,
+        void manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj, const robot_state::RobotStatePtr &ref_state,
                                            const std::string &manip,
                                            const tesseract::tesseract_ros::KDLEnvPtr &env,
                                            robot_trajectory::RobotTrajectoryPtr &trajectory);

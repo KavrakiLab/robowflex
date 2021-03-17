@@ -335,6 +335,7 @@ namespace robowflex
         double time_{0.0};                       ///< Time taken by the optimizer the last time it was called.
         std::vector<int> fixed_joints_;  ///< List of joints that need to be fixed, indexed in the order they
                                          ///< appear in the manipulator.
+        robot_state::RobotStatePtr ref_state_;  ///< Reference state to build moveit trajectory waypoints.
     };
 }  // namespace robowflex
 
