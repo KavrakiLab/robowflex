@@ -197,7 +197,7 @@ namespace robowflex
          *  \param[in] pose Pose to compute AABB of geometry at.
          *  \return The AABB.
          */
-        moveit::core::AABB getAABB(const RobotPose &pose = RobotPose::Identity()) const;
+        Eigen::AlignedBox3d getAABB(const RobotPose &pose = RobotPose::Identity()) const;
 
     private:
         /** \brief Loads a shape from the set \a type_ and \a dimensions_, and \a resource_ if a

@@ -296,7 +296,7 @@ const Eigen::Vector3d &Geometry::getDimensions() const
     return dimensions_;
 }
 
-moveit::core::AABB Geometry::getAABB(const RobotPose &pose) const
+Eigen::AlignedBox3d Geometry::getAABB(const RobotPose &pose) const
 {
     moveit::core::AABB aabb;
 
