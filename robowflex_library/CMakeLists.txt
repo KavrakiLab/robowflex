@@ -81,7 +81,6 @@ list(APPEND SOURCES
   src/random.cpp
   src/yaml.cpp
   src/trajectory.cpp
-  src/detail/r2.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp
   )
@@ -126,7 +125,6 @@ add_script(fetch_scenes_visualize)
 add_script(fetch_scenes_benchmark)
 add_script(fetch_benchmark)
 add_script(fetch_visualization)
-add_script(r2_test)
 add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(plugin_io)
