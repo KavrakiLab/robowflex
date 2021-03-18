@@ -145,6 +145,16 @@ void Trajectory::interpolate(unsigned int count)
     throw std::runtime_error("Not Implemented");
 }
 
+std::vector<std::vector<double>> Trajectory::vectorize() const
+{
+    std::vector<std::vector<double>> traj_vec;
+    auto msg = getMessage();
+    for (const auto &p : msg.joint_trajectory.points)
+        traj_vec.emplace_back(p.positions);
+
+    return traj_vec;
+}
+
 double Trajectory::getLength(const PathMetric &metric) const
 {
     double length = 0.0;

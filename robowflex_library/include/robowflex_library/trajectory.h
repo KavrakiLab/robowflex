@@ -138,6 +138,11 @@ namespace robowflex
          * */
         void interpolate(unsigned int count);
 
+        /** \brief Converts a trajectory to a vectorized form.
+         *  \return The vectorized trajectory.
+         */
+        std::vector<std::vector<double>> vectorize() const;
+
         /** \} */
 
         /** \name Metrics
