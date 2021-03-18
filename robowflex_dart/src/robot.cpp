@@ -6,6 +6,7 @@
 #include <dart/dynamics/DegreeOfFreedom.hpp>
 #include <dart/dynamics/Joint.hpp>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
@@ -72,7 +73,7 @@ bool Robot::addNameToGroup(const std::string &group, const std::string &name)
 {
     if (not isGroup(group))
     {
-        // SE3EZ_DEBUG("Adding joint %1% to group %2%.", name, group);
+        RBX_DEBUG("Adding joint %1% to group %2%.", name, group);
         groups_.emplace(group, std::vector<std::string>{name});
         return true;
     }
@@ -83,7 +84,7 @@ bool Robot::addNameToGroup(const std::string &group, const std::string &name)
         if (item == name)
             return false;
 
-    // SE3EZ_DEBUG("Adding joint %1% to group %2%.", name, group);
+    RBX_DEBUG("Adding joint %1% to group %2%.", name, group);
     names.emplace_back(name);
     return true;
 }
@@ -93,7 +94,7 @@ bool Robot::addJointToGroup(const std::string &group, const std::string &joint_n
     const auto &joint = skeleton_->getJoint(joint_name);
     if (not joint)
     {
-        // SE3EZ_ERROR("Joint %1% not in skeleton.", joint_name);
+        RBX_ERROR("Joint %1% not in skeleton.", joint_name);
         return false;
     }
 
@@ -109,14 +110,14 @@ bool Robot::addLinkToGroup(const std::string &group, const std::string &link_nam
     const auto &node = skeleton_->getBodyNode(link_name);
     if (not node)
     {
-        // SE3EZ_ERROR("Link %1% not in skeleton.", link_name);
+        RBX_ERROR("Link %1% not in skeleton.", link_name);
         return false;
     }
 
     const auto &joint = node->getParentJoint();
     if (not joint)
     {
-        // SE3EZ_ERROR("Link %1% has no parent joint", link_name);
+        RBX_ERROR("Link %1% has no parent joint", link_name);
         return false;
     }
 
@@ -136,7 +137,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
     auto *node = skeleton_->getBodyNode(tip);
     if (not node)
     {
-        // SE3EZ_ERROR("Tip link %1% not in skeleton.", tip);
+        RBX_ERROR("Tip link %1% not in skeleton.", tip);
         return false;
     }
 
@@ -146,7 +147,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
         const auto &joint = node->getParentJoint();
         if (not joint)
         {
-            // SE3EZ_ERROR("Link %1% has no parent joint", node->getName());
+            RBX_ERROR("Link %1% has no parent joint", node->getName());
             return false;
         }
 
@@ -158,7 +159,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
 
     if (not node)
     {
-        // SE3EZ_ERROR("Base link %1% not parent of tip link %2%", base, tip);
+        RBX_ERROR("Base link %1% not parent of tip link %2%", base, tip);
         return false;
     }
 
@@ -173,7 +174,7 @@ bool Robot::addGroupToGroup(const std::string &group, const std::string &other)
 {
     if (not isGroup(other))
     {
-        // SE3EZ_ERROR("Group %1% does not exist", other);
+        RBX_ERROR("Group %1% does not exist", other);
         return false;
     }
 
@@ -189,7 +190,7 @@ bool Robot::loadSRDF(const std::string &srdf)
     const auto &file = IO::getPackageFile(srdf);
     if (file.empty())
     {
-        // SE3EZ_ERROR("File %1% cannot be found!", srdf);
+        RBX_ERROR("File %1% cannot be found!", srdf);
         return false;
     }
 
@@ -199,7 +200,7 @@ bool Robot::loadSRDF(const std::string &srdf)
     tinyxml2::XMLElement *root = doc.FirstChildElement();
     if (not root)
     {
-        // SE3EZ_ERROR("No child element in SRDF");
+        RBX_ERROR("No child element in SRDF");
         return false;
     }
 
