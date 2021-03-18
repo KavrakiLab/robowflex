@@ -25,7 +25,7 @@ namespace robowflex
 
         // tolerances
         static const double ik_tolerance = 0.001;
-        static const double ik_attempts = 50;
+        static const unsigned int ik_attempts = 50;
         static const Eigen::Vector3d ik_rot_tolerance = {ik_tolerance, ik_tolerance, ik_tolerance};
 
     }  // namespace constants
