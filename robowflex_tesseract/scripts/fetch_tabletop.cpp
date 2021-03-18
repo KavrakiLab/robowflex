@@ -134,9 +134,7 @@ int main(int argc, char **argv)
         }
 
         RBX_INFO("Visualizing place state and trajectory");
-        std::cout << "\033[1;32m<"
-                  << "Press Enter to continue"
-                  << ">\033[0m. " << std::endl;
+        RBX_INFO("Press Enter to continue");
         std::cin.ignore();
     }
 

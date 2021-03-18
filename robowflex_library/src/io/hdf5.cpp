@@ -271,7 +271,6 @@ void IO::HDF5File::loadData(Node &node, const T &location, const std::string &na
         }
         case H5O_TYPE_DATASET:
         {
-            // std::cout << name << std::endl;
             map[name] = std::make_shared<HDF5Data>(location, name);
             break;
         }

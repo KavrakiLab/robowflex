@@ -322,8 +322,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     auto goal_it = std::find(begin_it, end_it, goal_link);
     if ((start_it == end_it) or (goal_it == end_it))
     {
-        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link,
-                  goal_link);
+        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link, goal_link);
         return PlannerResult(false, false);
     }
 
@@ -578,19 +577,11 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
     // Print status
     if (options.verbose)
     {
-        std::cout << "OPTIMIZATION STATUS: " << sco::statusToString(opt.results().status) << std::endl;
-        std::cout << "COLLISION STATUS:";
-
-        if (planner_result.second)
-            std::cout << "COLLISION FREE" << std::endl;
-        else
-            std::cout << "IN COLLISION" << std::endl;
+        RBX_INFO("OPTIMIZATION STATUS: %s", sco::statusToString(opt.results().status));
+        RBX_INFO("COLLISION STATUS: %s", (planner_result.second) ? "COLLISION FREE" : "IN COLLISION");
 
         if (planner_result.first)
-        {
-            std::cout << "OUTPUT TRAJECTORY: " << std::endl;
-            std::cout << tesseract_traj << std::endl;
-        }
+            RBX_INFO("OUTPUT TRAJECTORY: %s", tesseract_traj);
     }
 
     // Write optimization results in file.
