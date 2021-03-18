@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 
@@ -121,7 +122,7 @@ void FetchRobot::setBasePose(double x, double y, double theta)
         scratch_->update();
     }
     else
-        ROS_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
+        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

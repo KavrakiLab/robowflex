@@ -1,6 +1,7 @@
 /* Author: Constantinos Chamzas */
 
 // Robowflex
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/geometry.h>
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
     // Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(fetch);
 
-    ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     const int start = 1;
@@ -55,7 +56,7 @@ int main(int argc, char **argv)
         auto scene = std::make_shared<Scene>(fetch);
         if (not scene->fromYAMLFile(scene_file))
         {
-            ROS_ERROR("Failed to read file: %s for scene", scene_file.c_str());
+            RBX_ERROR("Failed to read file: %s for scene", scene_file);
             continue;
         }
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
         if (not request->fromYAMLFile(request_file))
         {
-            ROS_ERROR("Failed to read file: %s for request", request_file.c_str());
+            RBX_ERROR("Failed to read file: %s for request", request_file);
             continue;
         }
 
@@ -75,7 +76,7 @@ int main(int argc, char **argv)
         rviz.updateScene(scene);
         rviz.updateMarkers();
 
-        ROS_INFO("Scene displayed! Press enter to plan...");
+        RBX_INFO("Scene displayed! Press enter to plan...");
         std::cin.get();
 
         // Do motion planning!
@@ -86,7 +87,7 @@ int main(int argc, char **argv)
         // Publish the trajectory to a topic to display in RViz
         rviz.updateTrajectory(res);
 
-        ROS_INFO("Press enter to remove the scene.");
+        RBX_INFO("Press enter to remove the scene.");
         std::cin.get();
 
         rviz.removeScene();

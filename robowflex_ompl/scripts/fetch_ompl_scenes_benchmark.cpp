@@ -1,5 +1,6 @@
 /* Author: Constantinos Chamzas, Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
         auto scene = std::make_shared<Scene>(fetch);
         if (not scene->fromYAMLFile(scene_file))
         {
-            ROS_ERROR("Failed to read file: %s for scene", scene_file.c_str());
+            RBX_ERROR("Failed to read file: %s for scene", scene_file.c_str());
             continue;
         }
 
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
         if (not request->fromYAMLFile(request_file))
         {
-            ROS_ERROR("Failed to read file: %s for request", request_file.c_str());
+            RBX_ERROR("Failed to read file: %s for request", request_file.c_str());
             continue;
         }
 

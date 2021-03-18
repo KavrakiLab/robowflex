@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 /* Modified by: Juan D. Hernandez */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/geometry.h>
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     IO::RobotBroadcaster bc(fetch);
     bc.start();
 
-    ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Load a scene from a YAML file.
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
     rviz.addGoalMarker("goal", request);
     rviz.updateMarkers();
 
-    ROS_INFO("Scene and Goal displayed! Press enter to plan...");
+    RBX_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
     // Output path to a file for visualization.
     trajectory->toYAMLFile("fetch_pick.yml");
 
-    ROS_INFO("Press enter to remove goal and scene.");
+    RBX_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
     // Clean up RViz.
@@ -99,7 +100,7 @@ int main(int argc, char **argv)
     rviz.updateMarkers();
     rviz.removeScene();
 
-    ROS_INFO("Press enter to exit.");
+    RBX_INFO("Press enter to exit.");
     std::cin.get();
 
     return 0;
