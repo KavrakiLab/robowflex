@@ -218,7 +218,7 @@ bool Robot::loadSRDF(const std::string &srdf)
         {
             pnode = skeleton_->getBodyNode(parent);
             if (not pnode)
-                std::cerr << "Couldn't find " << parent << " for virtual joint!" << std::endl;
+                RBX_ERROR("Couldn't find %s for virtual joint!", parent);
         }
 
         auto cnode = skeleton_->getBodyNode(child);
@@ -230,7 +230,6 @@ bool Robot::loadSRDF(const std::string &srdf)
                 joint.mName = name;
 
                 cnode->moveTo<dart::dynamics::FreeJoint>(pnode, joint);
-                // std::cout << cnode->getName() << " " << cnode->getParentJoint()->getName() << std::endl;
             }
         }
 
