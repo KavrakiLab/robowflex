@@ -19,6 +19,10 @@ namespace robowflex
         \brief A const shared pointer wrapper for robowflex::UR5Robot. */
 
     /** \brief Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell)
+     *  Will first attempt to load configuration and description from the robowflex_resources package.
+     *  See https://github.com/KavrakiLab/robowflex_resources for this package.
+     *  If this package is not available, then ur_description / robotiq packages will be used.
+     */
      */
     class UR5Robot : public Robot
     {

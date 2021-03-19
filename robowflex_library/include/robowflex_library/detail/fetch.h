@@ -19,9 +19,9 @@ namespace robowflex
         \brief A const shared pointer wrapper for robowflex::FetchRobot. */
 
     /** \brief Convenience class that describes the default setup for Fetch.
-     *  Will first attempt to load configuration and description from the fetch_description /
-     *  fetch_moveit_config packages.
-     *  If these do not exist, the robowflex_resources package will be attempted.
+     *  Will first attempt to load configuration and description from the robowflex_resources package.
+     *  See https://github.com/KavrakiLab/robowflex_resources for this package.
+     *  If this package is not available, then fetch_description / fetch_moveit_config packages will be used.
      */
     class FetchRobot : public Robot
     {
