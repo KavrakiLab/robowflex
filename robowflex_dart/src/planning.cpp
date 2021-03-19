@@ -8,6 +8,8 @@
 #include <ompl/base/spaces/constraint/ProjectedStateSpace.h>
 
 #include <moveit_msgs/MotionPlanRequest.h>
+
+#include <robowflex_library/log.h>
 #include <robowflex_library/tf.h>
 
 #include <robowflex_dart/planning.h>
@@ -95,9 +97,6 @@ TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &worl
     tsr_->setWorldUpperLimits(getSpace()->getUpperBound());
 
     tsr_->initialize();
-
-    std::cout << "TSRGoal" << std::endl;
-    tsr_->print(std::cout);
 }
 
 TSRGoal::TSRGoal(const ompl::base::SpaceInformationPtr &si, const WorldPtr &world, const TSRPtr tsr)
@@ -311,15 +310,13 @@ TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
 
     if (not msg.constraint_region.meshes.empty())
     {
-        // TODO error, can't do this
-        std::cerr << "Invalid Position Constraint" << std::endl;
+        RBX_ERROR("Invalid Position Constraint");
         return nullptr;
     }
 
     if (msg.constraint_region.primitives.size() != 1)
     {
-        // TODO error, can't do this
-        std::cerr << "Invalid Position Constraint" << std::endl;
+        RBX_ERROR("Invalid Position Constraint");
         return nullptr;
     }
 
@@ -343,7 +340,6 @@ TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
         spec.setZPosTolerance(primitive.dimensions[0]);
     }
 
-    // spec.print(std::cout);
     return std::make_shared<TSR>(world, spec);
 }
 
@@ -361,7 +357,6 @@ TSRPtr PlanBuilder::fromOrientationConstraint(const std::string &robot_name,
     spec.setYRotTolerance(msg.absolute_y_axis_tolerance);
     spec.setZRotTolerance(msg.absolute_z_axis_tolerance);
 
-    // spec.print(std::cout);
     return std::make_shared<TSR>(world, spec);
 }
 
@@ -534,9 +529,6 @@ void PlanBuilder::initializeConstrained()
     rinfo->setStateValidityChecker(getSVCUnconstrained());
 
     constraint = std::make_shared<TSRConstraint>(rspace, path_constraints);
-
-    std::cout << "Path Constraint" << std::endl;
-    constraint->getSet()->print(std::cout);
 
     auto pss = std::make_shared<ompl::base::ProjectedStateSpace>(rspace, constraint);
     space = pss;

@@ -4,6 +4,7 @@
 
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -97,14 +98,14 @@ bool Trajectory::computeTimeParameterization(robot_trajectory::RobotTrajectory &
 void Trajectory::interpolate(unsigned int count)
 {
 #if ROBOWFLEX_AT_LEAST_KINETIC
-    if (count < this->getNumWaypoints() || trajectory_->getWayPointCount() < 2)
+    if (count < getNumWaypoints() || trajectory_->getWayPointCount() < 2)
         return;
 
     // the remaining length of the path we need to add states along
     double total_length = getLength();
 
     // the Number of segments that exist in this path.
-    const int n1 = this->getNumWaypoints() - 1;
+    const int n1 = getNumWaypoints() - 1;
     int added = 0;
 
     for (int seg = 0; seg < n1; ++seg)
@@ -139,8 +140,10 @@ void Trajectory::interpolate(unsigned int count)
             }
         }
     }
-    ROS_INFO("Added %d extra states in the trajectory", added);
+
+    RBX_INFO("Added %d extra states in the trajectory", added);
     return;
+
 #endif
     throw std::runtime_error("Not Implemented");
 }

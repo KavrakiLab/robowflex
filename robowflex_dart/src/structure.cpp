@@ -9,6 +9,7 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/WeldJoint.hpp>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/scene.h>
@@ -300,7 +301,8 @@ void Structure::setJointParentTransform(const std::string &name, const RobotPose
 {
     auto joint = skeleton_->getJoint(name);
     if (joint == nullptr)
-        std::cerr << "Cannot find joint named " << name << " to set TF!" << std::endl;
+        RBX_ERROR("Cannot find joint named %s to set TF!", name);
+
     joint->setTransformFromParentBodyNode(tf);
 }
 

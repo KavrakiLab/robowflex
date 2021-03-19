@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io/visualization.h>
@@ -25,7 +26,7 @@ int main(int argc, char **argv)
 
     // Create an RViz visualization helper
     IO::RVIZHelper rviz(fetch);
-    ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Create an empty scene.

@@ -1,6 +1,7 @@
 /* Author: Carlos Quintero */
 
 // Robowflex
+#include <robowflex_library/log.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
@@ -65,7 +66,7 @@ int main(int argc, char **argv)
         const auto &scene = std::make_shared<Scene>(fetch);
         if (!scene->fromYAMLFile(scene_path.string()))
         {
-            ROS_ERROR("Failed to read file: %s for scene", scene_path.string().c_str());
+            RBX_ERROR("Failed to read file: %s for scene", scene_path.string());
             continue;
         }
         rviz->updateScene(scene);
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
             std::make_shared<MotionRequestBuilder>(trajopt_planner, moveit_planning_group);
         if (!place_request->fromYAMLFile(request_path.string()))
         {
-            ROS_ERROR("Failed to read file: %s for request", request_path.string().c_str());
+            RBX_ERROR("Failed to read file: %s for request", request_path.string());
             continue;
         }
 
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
             moveit_msgs::RobotTrajectory traj;
             if (!IO::YAMLFileToMessage(traj, traj_path.string()))
             {
-                ROS_ERROR("Failed to read file: %s for path", traj_path.string().c_str());
+                RBX_ERROR("Failed to read file: %s for path", traj_path.string());
                 continue;
             }
 
@@ -132,14 +133,12 @@ int main(int argc, char **argv)
             rviz->updateTrajectory(traj, *start_state);
         }
 
-        ROS_INFO("Visualizing place state and trajectory");
-        std::cout << "\033[1;32m<"
-                  << "Press Enter to continue"
-                  << ">\033[0m. " << std::endl;
+        RBX_INFO("Visualizing place state and trajectory");
+        RBX_INFO("Press Enter to continue");
         std::cin.ignore();
     }
 
-    ROS_INFO("Finished");
+    RBX_INFO("Finished");
 
     ros.wait();
     return 0;
