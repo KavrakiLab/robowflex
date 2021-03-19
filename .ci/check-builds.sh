@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 cd "${0%/*}"
 pushd ../.docker
 ./indigo/build-indigo.sh
