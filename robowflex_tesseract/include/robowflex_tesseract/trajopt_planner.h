@@ -87,10 +87,8 @@ namespace robowflex
 
         /** \brief Constructor.
          *  \param[in] robot Robot to plan for.
-         *  \param[in] planner_name Name of the planner.
          *  \param[in] group_name Name of the (joint) group to plan for.
          *  \param[in] name Name of planner.
-         *  \param[in] manip Name of the (chain) group to plan for.
          */
         TrajOptPlanner(const RobotPtr &robot, const std::string &group_name,
                        const std::string &name = "trajopt");
@@ -185,11 +183,11 @@ namespace robowflex
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
                            const robot_state::RobotStatePtr &goal_state);
 
-        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a 
-         * \a scene.
-         * \param[in] scene A planning scene for the same robot to compute the plan in.
-         * \param[in] start_state Start state for the robot.
-         * \param[in] goal_pose Cartesian goal pose for \a link.
+        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a scene.
+         *  \param[in] scene A planning scene for the same robot to compute the plan in.
+         *  \param[in] start_state Start state for the robot.
+         *  \param[in] goal_pose Cartesian goal pose for \a link.
+         *  \param[in] link Link to find pose for.
          *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
@@ -200,6 +198,7 @@ namespace robowflex
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
          * \param[in] goal_pose Cartesian goal pose for \a link.
+         *  \param[in] link Link to find pose for.
          *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene,
@@ -211,6 +210,7 @@ namespace robowflex
          *  \param[in] start_pose Cartesian start pose for \a start_link.
          *  \param[in] start_link Robot's link with \a start_pose.
          *  \param[in] goal_pose Cartesian goal pose for \a goal_link.
+         *  \param[in] goal_link Robot's link with \a goal_pose.
          *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene, const RobotPose &start_pose,

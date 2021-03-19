@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/tf.h>
 #include <robowflex_library/random.h>
+#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -14,6 +14,14 @@ RobotPose TF::identity()
 RobotPose TF::createPoseXYZ(double x, double y, double z)
 {
     return createPoseXYZ(x, y, z, 0, 0, 0);
+}
+
+RobotPose TF::createPoseXYZ(const Eigen::Ref<const Eigen::Vector3d> &translation)
+{
+    RobotPose pose = RobotPose::Identity();
+    pose.translation() = translation;
+
+    return pose;
 }
 
 RobotPose TF::createPoseXYZ(double x, double y, double z, double X, double Y, double Z)
@@ -246,6 +254,17 @@ geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &sourc
     return msg;
 }
 
+RobotPose TF::transformMsgToEigen(const geometry_msgs::TransformStamped &tf)
+{
+    RobotPose pose;
+    pose.translation().x() = tf.transform.translation.x;
+    pose.translation().y() = tf.transform.translation.y;
+    pose.translation().z() = tf.transform.translation.z;
+
+    pose.linear() = quaternionMsgToEigen(tf.transform.rotation).toRotationMatrix();
+    return pose;
+}
+
 double TF::angleNormalize(double v)
 {
     return (v > constants::pi) ? constants::two_pi - v : v;
@@ -257,8 +276,8 @@ double TF::toDegrees(double v)
     double d = n * 180. / constants::pi;
     if (n >= 0)
         return d;
-    else
-        return 360. + d;
+
+    return 360. + d;
 }
 
 double TF::toRadians(double v)
@@ -270,6 +289,6 @@ double TF::toRadians(double v)
 
     if (v <= 180.)
         return v * constants::pi / 180.;
-    else
-        return -(360. - v) * constants::pi / 180.;
+
+    return -(360. - v) * constants::pi / 180.;
 }

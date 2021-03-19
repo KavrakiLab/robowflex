@@ -272,7 +272,7 @@ opt::CHOMPSettings::CHOMPSettings()
 
 void opt::CHOMPSettings::setParam(IO::Handler &handler) const
 {
-    const std::string prefix = "";
+    const std::string prefix;
     handler.setParam(prefix + "planning_time_limit", planning_time_limit);
     handler.setParam(prefix + "max_iterations", max_iterations);
     handler.setParam(prefix + "max_iterations_after_collision_free", max_iterations_after_collision_free);
@@ -342,7 +342,7 @@ bool opt::CHOMPPipelinePlanner::initialize(const std::string &config_file, const
 bool opt::CHOMPPipelinePlanner::finishInitialize(const std::string &plugin,
                                                  const std::vector<std::string> &adapters)
 {
-    configs_.push_back("chomp");
+    configs_.emplace_back("chomp");
     handler_.setParam("planning_plugin", plugin);
 
     std::stringstream ss;

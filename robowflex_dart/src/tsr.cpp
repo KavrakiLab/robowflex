@@ -569,6 +569,18 @@ std::size_t TSR::getNumWorldDofs() const
     return world_indices_.size();
 }
 
+robowflex::RobotPose TSR::getTransformToFrame() const
+{
+    const auto &sim = world_->getSim();
+    const auto &bskl = sim->getSkeleton(spec_.base.structure);
+    auto bnd = bskl->getBodyNode(spec_.base.frame);
+
+    if (not tnd_)
+        throw std::runtime_error("Target body node is not initialized");
+
+    return tnd_->getTransform(bnd);
+}
+
 void TSR::getErrorWorldRaw(Eigen::Ref<Eigen::VectorXd> error) const
 {
     world_->lock();

@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston, Bryce Willey */
 
 #include <boost/lexical_cast.hpp>
+#include <utility>
 
 #include <moveit/collision_detection/collision_common.h>
 #include <moveit/version.h>
@@ -9,9 +10,9 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/trajectory.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
 
 using namespace robowflex;
 
@@ -59,7 +60,12 @@ Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), t
 Benchmarker::Results::Results(const std::string &name, const SceneConstPtr &scene,
                               const PlannerConstPtr &planner, const MotionRequestBuilderConstPtr &builder,
                               const Options &options, ComputeMetricCallbackFn fn)
-  : name(name), scene(scene), planner(planner), builder(builder), options(options), metric_callback(fn)
+  : name(name)
+  , scene(scene)
+  , planner(planner)
+  , builder(builder)
+  , options(options)
+  , metric_callback(std::move(fn))
 {
     start = IO::getDate();
 }
@@ -121,7 +127,7 @@ void Benchmarker::captureProgress(const std::map<std::string, Planner::ProgressP
     while (true)
     {
         {
-            std::unique_lock<std::mutex>(solved_mutex_);
+            std::unique_lock<std::mutex> lock(solved_mutex_);
             if (solved_)
                 return;
 
@@ -194,7 +200,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
             // Notify progress thread.
             {
-                std::unique_lock<std::mutex>(solved_mutex_);
+                std::unique_lock<std::mutex> lock(solved_mutex_);
                 solved_ = true;
             }
 
@@ -226,7 +232,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
 
 void Benchmarker::setMetricCallbackFnAllocator(MetricCallbackFnAllocator metric_alloc)
 {
-    metric_callback_allocator_ = metric_alloc;
+    metric_callback_allocator_ = std::move(metric_alloc);
 }
 
 ///

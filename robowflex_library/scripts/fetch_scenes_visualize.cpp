@@ -12,6 +12,14 @@
 
 using namespace robowflex;
 
+/* \file fetch_scenes_visualize.cpp
+ * Visualizes a set of scenes and motion plans from requests in these scenes. A
+ * number of example scene and planning request pairs are included in
+ * 'package://robowflex_library/yaml/fetch_scenes'. See the associated
+ * `fetch_scenes_benchmark.cpp` for benchmarking over these scenes. See
+ * https://kavrakilab.github.io/robowflex/rviz.html for RViz visualization.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)
@@ -32,8 +40,8 @@ int main(int argc, char **argv)
     ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
-    int start = 1;
-    int end = 10;
+    const int start = 1;
+    const int end = 10;
     for (int i = start; i <= end; i++)
     {
         const auto &is = std::to_string(i);

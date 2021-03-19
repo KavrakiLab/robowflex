@@ -1,33 +1,33 @@
 /* Author: Zachary Kingston */
 
-#include <ompl/geometric/planners/rrt/RRT.h>
-#include <ompl/geometric/planners/rrt/LazyRRT.h>
-#include <ompl/geometric/planners/rrt/RRTConnect.h>
-#include <ompl/geometric/planners/rrt/RRTstar.h>
-#include <ompl/geometric/planners/est/EST.h>
 #include <ompl/geometric/planners/est/BiEST.h>
+#include <ompl/geometric/planners/est/EST.h>
 #include <ompl/geometric/planners/est/ProjEST.h>
-#include <ompl/geometric/planners/prm/PRM.h>
-#include <ompl/geometric/planners/prm/PRMstar.h>
+#include <ompl/geometric/planners/fmt/BFMT.h>
+#include <ompl/geometric/planners/fmt/FMT.h>
+#include <ompl/geometric/planners/kpiece/BKPIECE1.h>
+#include <ompl/geometric/planners/kpiece/KPIECE1.h>
+#include <ompl/geometric/planners/kpiece/LBKPIECE1.h>
+#include <ompl/geometric/planners/pdst/PDST.h>
 #include <ompl/geometric/planners/prm/LazyPRM.h>
 #include <ompl/geometric/planners/prm/LazyPRMstar.h>
+#include <ompl/geometric/planners/prm/PRM.h>
+#include <ompl/geometric/planners/prm/PRMstar.h>
 #include <ompl/geometric/planners/prm/SPARS.h>
 #include <ompl/geometric/planners/prm/SPARStwo.h>
-#include <ompl/geometric/planners/fmt/FMT.h>
-#include <ompl/geometric/planners/fmt/BFMT.h>
-#include <ompl/geometric/planners/pdst/PDST.h>
-#include <ompl/geometric/planners/kpiece/KPIECE1.h>
-#include <ompl/geometric/planners/kpiece/BKPIECE1.h>
-#include <ompl/geometric/planners/kpiece/LBKPIECE1.h>
+#include <ompl/geometric/planners/rrt/LazyRRT.h>
+#include <ompl/geometric/planners/rrt/RRT.h>
+#include <ompl/geometric/planners/rrt/RRTConnect.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
 
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 
+#include <robowflex_dart/planner.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/structure.h>
 #include <robowflex_dart/world.h>
-#include <robowflex_dart/planner.h>
 
 using namespace robowflex::darts;
 

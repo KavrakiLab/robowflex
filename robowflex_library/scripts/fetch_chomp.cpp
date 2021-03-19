@@ -5,10 +5,16 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
 #include <robowflex_library/trajectory.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
+
+/* \file fetch_chomp.cpp
+ * A basic script that demonstrates using MoveIt's built-in CHOMP planner. The
+ * resulting trajectory is output to a YAML file. This file can be visualized
+ * using Blender. See the corresponding robowflex_visualization readme.
+ */
 
 static const std::string GROUP = "arm_with_torso";
 

@@ -78,13 +78,13 @@ namespace robowflex
              *  \param[out] robot Robot whose state to set.
              *  \return True on success, false on failure.
              */
-            bool pullState(RobotPtr &robot);
+            bool pullState(RobotPtr robot);
 
             /** \brief Pulls the current planning scene from move group.
              *  \param[out] scene Scene to set to the current scene observed by move group.
              *  \return True on success, false on failure.
              */
-            bool pullScene(ScenePtr &scene);
+            bool pullScene(ScenePtr scene);
 
             /** \brief Pushes the current planning scene to move group.
              *  \param[in] scene Scene to use to set move group's current scene.

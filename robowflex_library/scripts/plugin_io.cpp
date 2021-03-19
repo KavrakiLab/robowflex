@@ -7,6 +7,11 @@
 
 using namespace robowflex;
 
+/* \file plugin_io.cpp
+ * Demonstrates how to use the plugin loader helper class to load some MoveIt
+ * plugins.
+ */
+
 int main(int argc, char **argv)
 {
     ROS ros(argc, argv);

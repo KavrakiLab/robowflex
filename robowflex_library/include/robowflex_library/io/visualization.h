@@ -6,6 +6,7 @@
 #include <moveit/planning_interface/planning_interface.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/io/colormap.h>
 #include <robowflex_library/tf.h>
 
 namespace robowflex
@@ -116,12 +117,13 @@ namespace robowflex
              *  \param[in] x The x coordinate of the sphere.
              *  \param[in] y The y coordinate of the sphere.
              *  \param[in] z The z coordinate of the sphere.
+             *  \param[in] name Name of marker.
              */
             void addMarker(double x, double y, double z, const std::string &name = "");
 
             /** \brief Add a point (spherical) marker to the scene.
-             *  \param[in] name The name of the marker.
              *  \param[in] point The x,y,z coordinates as a vector
+             *  \param[in] name Name of marker.
              */
             void addMarker(const Eigen::Vector3d &point, const std::string &name = "");
 
@@ -144,7 +146,7 @@ namespace robowflex
              */
             void addGeometryMarker(const std::string &name, const GeometryConstPtr &geometry,
                                    const std::string &base_frame, const RobotPose &pose,
-                                   const Eigen::Vector4d &color = {0.2, 0.3, 0.7, 1.0});
+                                   const Eigen::Vector4d &color = color::WHITE);
 
             /** \brief Adds an arrow marker to the managed list of markers. Displayed after an updateMarkers()
              *  call.
@@ -167,7 +169,7 @@ namespace robowflex
              */
             void addTextMarker(const std::string &name, const std::string &text,
                                const std::string &base_frame, const RobotPose &pose, double height,
-                               const Eigen::Vector4d &color = {1, 1, 1, 1});
+                               const Eigen::Vector4d &color = color::WHITE);
 
             /** \brief Adds the current goal of the motion request builder as a
              * set of markers in the marker array.

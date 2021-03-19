@@ -3,6 +3,7 @@
 #ifndef ROBOWFLEX_CONSTANTS_
 #define ROBOWFLEX_CONSTANTS_
 
+#include <Eigen/Core>
 #include <boost/math/constants/constants.hpp>
 
 namespace robowflex
@@ -21,6 +22,11 @@ namespace robowflex
         static const double half_pi = boost::math::constants::half_pi<double>();
         static const double quarter_pi = half_pi * half;
         static const double two_pi = boost::math::constants::two_pi<double>();
+
+        // tolerances
+        static const double ik_tolerance = 0.001;
+        static const unsigned int ik_attempts = 50;
+        static const Eigen::Vector3d ik_rot_tolerance = {ik_tolerance, ik_tolerance, ik_tolerance};
 
     }  // namespace constants
 }  // namespace robowflex

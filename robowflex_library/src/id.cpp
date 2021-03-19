@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/io.h>
 #include <robowflex_library/id.h>
+#include <robowflex_library/io.h>
 
 using namespace robowflex;
 

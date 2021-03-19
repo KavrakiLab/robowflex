@@ -5,8 +5,8 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
-#include <robowflex_library/constants.h>
 #include <robowflex_library/builder.h>
+#include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>

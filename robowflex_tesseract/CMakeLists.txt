@@ -22,18 +22,6 @@ list(APPEND CATKIN_DEPS
  
 find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
 
-# Can be installed from debian, ROS debian, or local installation
-if (ompl_DIR MATCHES "/usr*" OR ompl_DIR MATCHES "/opt*")
-  message("OMPL not found via catkin. Looking elsewhere...")
-  list(REMOVE_AT CATKIN_DEPS 0)
-  find_package(ompl REQUIRED)
-  set(OMPL_INCS ${OMPL_INCLUDE_DIRS})
-  set(OMPL_LIBS ${OMPL_LIBRARY_DIRS})
-else()
-  set(OMPL_INCS "")
-  set(OMPL_LIBS "")
-endif()
-
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS ${CATKIN_DEPS}

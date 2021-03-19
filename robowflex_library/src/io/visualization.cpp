@@ -13,16 +13,16 @@
 #include <moveit/robot_state/conversions.h>
 
 #include <robowflex_library/builder.h>
+#include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/io/visualization.h>
 #include <robowflex_library/io/colormap.h>
+#include <robowflex_library/io/visualization.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/random.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/trajectory.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/random.h>
-#include <robowflex_library/constants.h>
+#include <robowflex_library/trajectory.h>
 
 using namespace robowflex;
 
@@ -30,9 +30,9 @@ namespace
 {
     Eigen::Vector4d getRandomColor()
     {
-        double r, g, b;
-        color::viridis(RNG::uniform01(), r, g, b);
-        return Eigen::Vector4d{r, g, b, 1};
+        Eigen::Vector4d color;
+        color::turbo(RNG::uniform01(), color);
+        return color;
     }
 };  // namespace
 

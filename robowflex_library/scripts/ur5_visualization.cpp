@@ -11,6 +11,13 @@
 
 using namespace robowflex;
 
+/* \file ur5_visualization.cpp
+ * A simple script that demonstrates how to use RViz with Robowflex with the
+ * UR5 robot. See https://kavrakilab.github.io/robowflex/rviz.html for how to
+ * use RViz visualization. Here, the scene, the pose goal, and motion plan
+ * displayed in RViz.
+ */
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -26,7 +33,7 @@ int main(int argc, char **argv)
     ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
-    // Create an empty scene.
+    // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(ur5);
     scene->fromYAMLFile("package://robowflex_library/yaml/test.yml");
 

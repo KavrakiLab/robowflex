@@ -1,9 +1,9 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/macros.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -159,6 +159,13 @@ void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
         scene_->setPlanningSceneMsg(msg);
     else
         scene_->setPlanningSceneDiffMsg(msg);
+}
+
+void Scene::fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg)
+{
+    for (auto &co : msg.world.collision_objects)
+        if (co.header.frame_id.empty() or not scene_->knowsFrameTransform(co.header.frame_id))
+            co.header.frame_id = scene_->getRobotModel()->getRootLinkName();
 }
 
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
@@ -403,7 +410,7 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC
+#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC
     if (not hasObject(object))
     {
         ROS_ERROR("World does not have object `%s`", object.c_str());
@@ -427,13 +434,13 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
             acm.setEntry(links[i], links[j], true);
 
     // Ignore all other objects
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = 0; j < objs.size(); ++j)
-            acm.setEntry(links[i], objs[j], true);
+    for (const auto &link : links)
+        for (const auto &obj : objs)
+            acm.setEntry(link, obj, true);
 
     // Enable collision to the object of interest
-    for (unsigned int i = 0; i < links.size(); ++i)
-        acm.setEntry(links[i], object, false);
+    for (const auto &link : links)
+        acm.setEntry(link, object, false);
 
     req.acm = &acm;
 
@@ -448,7 +455,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC
+#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC
     // Early terminate if they are the same
     if (one == two)
         return 0.;
@@ -502,6 +509,8 @@ bool Scene::fromYAMLFile(const std::string &file)
     moveit_msgs::PlanningScene msg;
     if (!IO::fromYAMLFile(msg, file))
         return false;
+
+    fixCollisionObjectFrame(msg);
 
     auto acm(getACM());
     useMessage(msg);

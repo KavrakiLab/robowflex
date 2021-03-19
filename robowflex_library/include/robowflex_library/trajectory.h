@@ -49,27 +49,25 @@ namespace robowflex
         Trajectory(const RobotConstPtr &robot, const std::string &group);
 
         /** \brief Constructor from moveit trajectory.
-         *  \param[in] robot Robot to construct trajectory for.
-         *  \param[in] group Planning group of the trajectory.
+         *  \param[in] trajectory Trajectory to initialize with.
          */
         Trajectory(const robot_trajectory::RobotTrajectory &trajectory);
 
         /** \brief Constructor from moveit trajectory.
-         *  \param[in] robot Robot to construct trajectory for.
-         *  \param[in] group Planning group of the trajectory.
+         *  \param[in] trajectory Trajectory to initialize with.
          */
         Trajectory(const robot_trajectory::RobotTrajectoryPtr trajectory);
 
         /** \brief Set the trajectory to be the same as a message.
          *  \param[in] reference_state A full state that contains the values for all the joints
-         *  \param[in] message Message used to set the trajectory
+         *  \param[in] msg Message used to set the trajectory
          */
         void useMessage(const robot_state::RobotState &reference_state,
                         const moveit_msgs::RobotTrajectory &msg);
 
         /** \brief Set the trajectory to be the same as a message.
          *  \param[in] reference_state A full state that contains the values for all the joints.
-         *  \param[in] message Message used to set the trajectory
+         *  \param[in] msg Message used to set the trajectory
          */
         void useMessage(const robot_state::RobotState &reference_state,
                         const trajectory_msgs::JointTrajectory &msg);
@@ -147,7 +145,6 @@ namespace robowflex
 
         /** \brief Get the length of a path.
          *  Optionally, a metric can be specified other than the default (the L2 norm).
-         *  \param[in] path The path to compute the length of.
          *  \param[in] metric An optional metric to use to compute the length of the path.
          *  \return Length of the path according to the metric.
          */

@@ -12,6 +12,14 @@
 
 using namespace robowflex;
 
+/* \file fetch_benchmark.cpp
+ * A basic script that demonstrates benchmarking with the Fetch robot.
+ * Benchmarking output is saved in the OMPL format. See
+ * https://ompl.kavrakilab.org/benchmark.html for more information on the
+ * benchmark data format and how to use. http://plannerarena.org/ can be used to
+ * visualize results.
+ */
+
 static const std::string GROUP = "arm_with_torso";
 
 int main(int argc, char **argv)
@@ -41,6 +49,7 @@ int main(int argc, char **argv)
     fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
     request_1->setGoalConfiguration(fetch->getScratchState());
 
+    // Setup three planners for benchmarking
     request_1->setConfig("RRTConnect");
     benchmark.addBenchmarkingRequest("rrtconnect", scene, planner, request_1);
 
@@ -59,7 +68,8 @@ int main(int argc, char **argv)
     options.options =
         Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH | Benchmarker::SMOOTHNESS;
 
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")}, options);
+    // Benchmark and save results to "robowflex_fetch_benchmark/"
+    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_benchmark/")}, options);
 
     return 0;
 }

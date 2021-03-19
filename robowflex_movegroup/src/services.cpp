@@ -128,8 +128,8 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
                   "Trajectory::computeTimeParameterization?");
         return false;
     }
-    else
-        path.getRobotTrajectoryMsg(goal.trajectory);
+
+    path.getRobotTrajectoryMsg(goal.trajectory);
 
     eac_.sendGoal(goal);
     if (!eac_.waitForResult())
@@ -138,7 +138,7 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
     return eac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
 
-bool MoveGroupHelper::pullState(RobotPtr &robot)
+bool MoveGroupHelper::pullState(RobotPtr robot)
 {
     moveit_msgs::GetPlanningScene::Request request;
     moveit_msgs::GetPlanningScene::Response response;
@@ -153,7 +153,7 @@ bool MoveGroupHelper::pullState(RobotPtr &robot)
     return false;
 }
 
-bool MoveGroupHelper::pullScene(ScenePtr &scene)
+bool MoveGroupHelper::pullScene(ScenePtr scene)
 {
     moveit_msgs::GetPlanningScene::Request request;
     moveit_msgs::GetPlanningScene::Response response;

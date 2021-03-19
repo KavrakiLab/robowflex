@@ -1,7 +1,6 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <geometric_shapes/shape_operations.h>
-#include <geometric_shapes/shape_to_marker.h>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
@@ -295,4 +294,14 @@ const EigenSTL::vector_Vector3d &Geometry::getVertices() const
 const Eigen::Vector3d &Geometry::getDimensions() const
 {
     return dimensions_;
+}
+
+Eigen::AlignedBox3d Geometry::getAABB(const RobotPose &pose) const
+{
+    moveit::core::AABB aabb;
+
+    const auto &extents = shapes::computeShapeExtents(shape_.get());
+    aabb.extendWithTransformedBox(pose, extents);
+
+    return aabb;
 }
