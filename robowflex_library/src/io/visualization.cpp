@@ -12,6 +12,7 @@
 
 #include <moveit/robot_state/conversions.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
@@ -82,7 +83,7 @@ void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
 
     if (trajectory_pub_.getNumSubscribers() < 1)
     {
-        ROS_INFO("Waiting for Trajectory subscribers...");
+        RBX_INFO("Waiting for Trajectory subscribers...");
 
         ros::WallDuration pause(0.1);
         while (trajectory_pub_.getNumSubscribers() < 1)
@@ -117,7 +118,7 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
 
     if (trajectory_pub_.getNumSubscribers() < 1)
     {
-        ROS_INFO("Waiting for Trajectory subscribers...");
+        RBX_INFO("Waiting for Trajectory subscribers...");
 
         ros::WallDuration pause(0.1);
         while (trajectory_pub_.getNumSubscribers() < 1)
@@ -131,7 +132,7 @@ void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
 {
     if (state_pub_.getNumSubscribers() < 1)
     {
-        ROS_INFO("Waiting for State subscribers...");
+        RBX_INFO("Waiting for State subscribers...");
 
         ros::WallDuration pause(0.1);
         while (state_pub_.getNumSubscribers() < 1)
@@ -266,7 +267,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             break;
 
         default:
-            ROS_ERROR("Unsupported geometry for marker.");
+            RBX_ERROR("Unsupported geometry for marker.");
             return;
     };
 
@@ -407,7 +408,7 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
 {
     if (scene_pub_.getNumSubscribers() < 1)
     {
-        ROS_INFO("Waiting for Scene subscribers...");
+        RBX_INFO("Waiting for Scene subscribers...");
 
         ros::WallDuration pause(0.1);
         while (scene_pub_.getNumSubscribers() < 1)
@@ -442,7 +443,7 @@ void IO::RVIZHelper::updateMarkers()
 
     if (marker_pub_.getNumSubscribers() < 1)
     {
-        ROS_INFO("Waiting for MarkerArray subscribers...");
+        RBX_INFO("Waiting for MarkerArray subscribers...");
 
         ros::WallDuration pause(0.1);
         while (marker_pub_.getNumSubscribers() < 1)

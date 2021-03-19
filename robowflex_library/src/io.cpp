@@ -17,6 +17,7 @@
 
 #include <ros/package.h>  // for package resolving
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
@@ -32,7 +33,7 @@ namespace
         const char *home = std::getenv("HOME");
         if (home == nullptr)
         {
-            ROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
+            RBX_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
             return in;
         }
 
@@ -103,7 +104,7 @@ const std::string IO::resolvePackage(const std::string &path)
         const std::string package = ros::package::getPath(package_name);
         if (package.empty())
         {
-            ROS_WARN("Package `%s` does not exist.", package_name.c_str());
+            RBX_WARN("Package `%s` does not exist.", package_name);
             return "";
         }
 
@@ -142,7 +143,7 @@ const std::string IO::resolvePath(const std::string &path)
 
     if (!boost::filesystem::exists(file))
     {
-        ROS_WARN("File `%s` does not exist.", path.c_str());
+        RBX_WARN("File `%s` does not exist.", path);
         return "";
     }
 
@@ -179,7 +180,7 @@ const std::string IO::runCommand(const std::string &cmd)
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
     if (!pipe)
     {
-        ROS_ERROR("Failed to run command `%s`!", cmd.c_str());
+        RBX_ERROR("Failed to run command `%s`!", cmd);
         return "";
     }
 

@@ -15,6 +15,7 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
@@ -89,7 +90,7 @@ namespace
     {
         if (not elem)
         {
-            ROS_ERROR("Element doesn't exist?");
+            RBX_ERROR("Ran into element that does not exist!");
             return false;
         }
 
@@ -105,7 +106,7 @@ namespace
             tinyxml2::XMLDocument doc;
             if (!doc.LoadFile(full_path.c_str()))
             {
-                ROS_ERROR("Cannot load file %s", full_path.c_str());
+                RBX_ERROR("Cannot load file %s", full_path);
                 return false;
             }
 
@@ -118,8 +119,6 @@ namespace
         {
             if (std::string(body_elem->Value()) == "Body")
             {
-                ROS_INFO("Pushing back collision object");
-
                 moveit_msgs::CollisionObject coll_obj;
                 coll_obj.id = body_elem->Attribute("name");
                 coll_obj.header.frame_id = "world";
@@ -127,7 +126,7 @@ namespace
                 tinyxml2::XMLElement *geom = getFirstChild(body_elem, "Geom");
                 if (not geom)
                 {
-                    ROS_ERROR("Malformed File: No Geom attribute?");
+                    RBX_ERROR("Malformed File: No Geom attribute?");
                     return false;
                 }
 
@@ -142,7 +141,7 @@ namespace
                 const char *geom_type = geom->Attribute("type");
                 if (not geom_type)
                 {
-                    ROS_ERROR("Malformed File: No type attribute in geom element");
+                    RBX_ERROR("Malformed File: No type attribute in geom element");
                     return false;
                 }
 
@@ -168,25 +167,22 @@ namespace
                                 load_struct.directory_stack.top() + "/" + std::string(data->GetText());
                         else
                         {
-                            ROS_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
+                            RBX_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
                             return false;
                         }
                     }
                     auto mesh = Geometry::makeMesh(resource_path, dimensions);
 
-                    ROS_INFO("Setting mesh");
                     coll_obj.meshes.push_back(mesh->getMeshMsg());
                     coll_obj.mesh_poses.push_back(pose_msg);
                 }
 
-                ROS_INFO("Type: %s", geom_str.c_str());
                 if (geom_str == "box")
                 {
-                    ROS_INFO("Setting box");
                     tinyxml2::XMLElement *extents_elem = getFirstChild(geom, "extents_elem");
                     if (not extents_elem)
                     {
-                        ROS_ERROR("Malformed File: No extents_elem in a box geometry.");
+                        RBX_ERROR("Malformed File: No extents_elem in a box geometry.");
                         return false;
                     }
 
@@ -226,7 +222,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
     tinyxml2::XMLDocument doc;
     if (!doc.LoadFile(IO::resolvePath(file).c_str()))
     {
-        ROS_ERROR("Cannot load file %s", file.c_str());
+        RBX_ERROR("Cannot load file %s", file);
         return false;
     }
 
@@ -240,7 +236,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
     auto elem = getFirstChild(env);
     if (not elem)
     {
-        ROS_ERROR("There is no/an empty environment element in this openrave scene.");
+        RBX_ERROR("There is no/an empty environment element in this openrave scene.");
         return false;
     }
 
@@ -253,12 +249,8 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
                 return false;
         }
         else
-            ROS_INFO("Ignoring elements of value %s", p_key.c_str());
+            RBX_INFO("Ignoring elements of value %s", p_key);
     }
-
-    auto rob_trans = load_struct.robot_offset.translation();
-    ROS_INFO("At the end, we found a rob translation of (%f, %f, %f), and we found %zu objects", rob_trans[0],
-             rob_trans[1], rob_trans[2], load_struct.coll_objects.size());
 
     if (not load_struct.coll_objects.empty())
         planning_scene.is_diff = true;

@@ -3,6 +3,7 @@
 
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/planning.h>
@@ -126,14 +127,15 @@ int main(int argc, char **argv)
             goal->startSampling();
             ompl::base::PlannerStatus solved = builder.ss->solve(60.0);
             goal->stopSampling();
+
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
-                std::cout << "Found solution!" << std::endl;
+                RBX_INFO("Found solution!");
                 window.animatePath(builder, builder.getSolutionPath());
             }
             else
-                std::cout << "No solution found" << std::endl;
+                RBX_WARN("No solution found");
 
             builder.ss->clear();
         }

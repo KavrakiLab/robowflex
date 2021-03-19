@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/ur5.h>
 #include <robowflex_library/geometry.h>
@@ -32,7 +33,7 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(ur5);
 
-    ROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Create the cylinder we want to grasp
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
     rviz.addGoalMarker("goal", request);  // Visualize the grasping regions
     rviz.updateMarkers();
 
-    ROS_INFO("Scene and Goal displayed! Press enter to plan...");
+    RBX_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
 
-    ROS_INFO("Press enter to remove goal and scene.");
+    RBX_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
     rviz.removeMarker("goal");
@@ -82,7 +83,7 @@ int main(int argc, char **argv)
 
     rviz.removeScene();
 
-    ROS_INFO("Press enter to exit.");
+    RBX_INFO("Press enter to exit.");
     std::cin.get();
 
     return 0;

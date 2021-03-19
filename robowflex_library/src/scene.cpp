@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -33,7 +34,7 @@ namespace robowflex
             }
             catch (pluginlib::PluginlibException &e)
             {
-                ROS_ERROR("Unable to construct collision plugin loader. Error: %s", e.what());
+                RBX_ERROR("Unable to construct collision plugin loader. Error: %s", e.what());
             }
         }
 
@@ -53,7 +54,7 @@ namespace robowflex
             }
             catch (pluginlib::PluginlibException &ex)
             {
-                ROS_ERROR_STREAM("Exception while loading " << name << ": " << ex.what());
+                RBX_ERROR("Exception while loading %s: %s", name, ex.what());
             }
 
             return plugin;
@@ -199,7 +200,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     if (obj)
         return std::make_shared<Geometry>(*obj->shapes_[0]);
 
-    ROS_WARN("Object %s does not exist in scene!", name.c_str());
+    RBX_WARN("Object %s does not exist in scene!", name);
     return nullptr;
 }
 
@@ -228,7 +229,7 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
     success = world->moveObject(name, transform);
 #endif
     if (not success)
-        ROS_ERROR("Failed to move object %s", name.c_str());
+        RBX_ERROR("Failed to move object %s", name);
 
     return success;
 }
@@ -247,7 +248,7 @@ bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 RobotPose Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
-        ROS_WARN("Frame %s in not present in the scene!", id.c_str());
+        RBX_WARN("Frame %s in not present in the scene!", id);
 
     return scene_->getFrameTransform(id);
 }
@@ -258,10 +259,10 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
     if (not loader_->activate(detector_name, scene_, true))
     {
         success = false;
-        ROS_WARN("Was not able to load collision detector plugin '%s'", detector_name.c_str());
+        RBX_WARN("Was not able to load collision detector plugin '%s'", detector_name);
     }
 
-    ROS_INFO("Using collision detector: %s", scene_->getActiveCollisionDetectorName().c_str());
+    RBX_INFO("Using collision detector: %s", scene_->getActiveCollisionDetectorName());
     return success;
 }
 
@@ -303,7 +304,7 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
     auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
-        ROS_ERROR("World does not have object `%s`", name.c_str());
+        RBX_ERROR("World does not have object `%s`", name);
         return false;
     }
 
@@ -312,13 +313,13 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
 
     if (!obj)
     {
-        ROS_ERROR("Could not get object `%s`", name.c_str());
+        RBX_ERROR("Could not get object `%s`", name);
         return false;
     }
 
     if (!world->removeObject(name))
     {
-        ROS_ERROR("Could not remove object `%s`", name.c_str());
+        RBX_ERROR("Could not remove object `%s`", name);
         return false;
     }
 
@@ -334,20 +335,20 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
-        ROS_ERROR("World does not have object `%s`", name.c_str());
+        RBX_ERROR("World does not have object `%s`", name);
         return false;
     }
 
     const auto &obj = world->getObject(name);
     if (!obj)
     {
-        ROS_ERROR("Could not get object `%s`", name.c_str());
+        RBX_ERROR("Could not get object `%s`", name);
         return false;
     }
 
     if (!world->removeObject(name))
     {
-        ROS_ERROR("Could not remove object `%s`", name.c_str());
+        RBX_ERROR("Could not remove object `%s`", name);
         return false;
     }
 
@@ -379,7 +380,7 @@ bool Scene::detachObject(const std::string &name)
 
     if (!body)
     {
-        ROS_ERROR("Robot does not have attached object `%s`", name.c_str());
+        RBX_ERROR("Robot does not have attached object `%s`", name);
         return false;
     }
 
@@ -387,7 +388,7 @@ bool Scene::detachObject(const std::string &name)
 
     if (!robot.clearAttachedBody(name))
     {
-        ROS_ERROR("Could not detach object `%s`", name.c_str());
+        RBX_ERROR("Could not detach object `%s`", name);
         return false;
     }
 
@@ -413,7 +414,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 #if not ROBOWFLEX_MOVEIT_COLLISION_ENV
     if (not hasObject(object))
     {
-        ROS_ERROR("World does not have object `%s`", object.c_str());
+        RBX_ERROR("World does not have object `%s`", object);
         return std::numeric_limits<double>::quiet_NaN();
     }
 
@@ -462,13 +463,13 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 
     if (not hasObject(one))
     {
-        ROS_ERROR("World does not have object `%s`", one.c_str());
+        RBX_ERROR("World does not have object `%s`", one);
         return std::numeric_limits<double>::quiet_NaN();
     }
 
     if (not hasObject(two))
     {
-        ROS_ERROR("World does not have object `%s`", two.c_str());
+        RBX_ERROR("World does not have object `%s`", two);
         return std::numeric_limits<double>::quiet_NaN();
     }
 

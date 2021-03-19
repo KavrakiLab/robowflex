@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+#include <robowflex_library/log.h>
+
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/planning.h>
@@ -22,6 +24,7 @@ int main(int argc, char **argv)
     auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
                                          "package://fetch_description/robots/fetch.urdf",  //
                                          "package://fetch_moveit_config/config/fetch.srdf");
+
     world->addRobot(fetch1);
 
     int nfetch = 1;
@@ -65,13 +68,6 @@ int main(int argc, char **argv)
         if (nfetch > 3)
             builder.addGroup("fetch4", "arm_with_torso");
 
-        for (const auto &index : builder.rspace->getIndices())
-            std::cout << index.first << "." << index.second << " ";
-        std::cout << std::endl;
-
-        for (std::size_t i = 0; i < world->getSim()->getNumSimpleFrames(); ++i)
-            std::cout << world->getSim()->getSimpleFrame(i)->getName() << std::endl;
-
         builder.setStartConfiguration({
             0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
             0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
@@ -100,11 +96,11 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            std::cout << "Found solution!" << std::endl;
+            RBX_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            std::cout << "No solution found" << std::endl;
+            RBX_WARN("No solution found");
     });
 
     return 0;

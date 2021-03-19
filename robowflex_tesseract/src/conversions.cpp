@@ -1,5 +1,8 @@
 /* Author: Carlos Quintero, Bryce Willey */
 
+// Robowflex
+#include <robowflex_library/log.h>
+
 // Tesseract
 #include <tesseract_ros/ros_tesseract_utils.h>
 
@@ -81,7 +84,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
         return true;
     }
 
-    ROS_ERROR("Tesseract environment not initialized");
+    RBX_ERROR("Tesseract environment not initialized");
     return false;
     // TODO: fixed_frame_transforms?
     // TODO: actually use LinkPadding and LinkScales.
