@@ -9,9 +9,7 @@ namespace
     void setLoggerLevel(ros::console::Level level)
     {
         if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, level))
-        {
             ros::console::notifyLoggerLevelsChanged();
-        }
     }
 }  // namespace
 

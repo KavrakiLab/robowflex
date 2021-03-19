@@ -338,7 +338,7 @@ robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
 
     if (request_.goal_constraints.size() != 1)
     {
-        RBX_ERROR("Ambigous goal, %lu goal goal_constraints exist, returning default goal",
+        RBX_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
                   request_.goal_constraints.size());
         return goal_state;
     }

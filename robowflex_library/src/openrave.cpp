@@ -90,7 +90,7 @@ namespace
     {
         if (not elem)
         {
-            RBX_ERROR("Element doesn't exist?");
+            RBX_ERROR("Ran into element that does not exist!");
             return false;
         }
 
@@ -119,8 +119,6 @@ namespace
         {
             if (std::string(body_elem->Value()) == "Body")
             {
-                RBX_INFO("Pushing back collision object");
-
                 moveit_msgs::CollisionObject coll_obj;
                 coll_obj.id = body_elem->Attribute("name");
                 coll_obj.header.frame_id = "world";
@@ -175,15 +173,12 @@ namespace
                     }
                     auto mesh = Geometry::makeMesh(resource_path, dimensions);
 
-                    RBX_INFO("Setting mesh");
                     coll_obj.meshes.push_back(mesh->getMeshMsg());
                     coll_obj.mesh_poses.push_back(pose_msg);
                 }
 
-                RBX_INFO("Type: %s", geom_str);
                 if (geom_str == "box")
                 {
-                    RBX_INFO("Setting box");
                     tinyxml2::XMLElement *extents_elem = getFirstChild(geom, "extents_elem");
                     if (not extents_elem)
                     {
@@ -256,10 +251,6 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
         else
             RBX_INFO("Ignoring elements of value %s", p_key);
     }
-
-    auto rob_trans = load_struct.robot_offset.translation();
-    RBX_INFO("At the end, we found a rob translation of (%f, %f, %f), and we found %zu objects", rob_trans[0],
-             rob_trans[1], rob_trans[2], load_struct.coll_objects.size());
 
     if (not load_struct.coll_objects.empty())
         planning_scene.is_diff = true;

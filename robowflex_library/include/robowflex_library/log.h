@@ -13,6 +13,13 @@
  *  e.g., RBX_ERROR("%s failed! Try %+08d", "test", 10)
  *        RBX_ERROR("%1%: %2%", "argument 1", "argument 2")
  *
+ *  There are the following debugging levels available, in descending order of priority:
+ *  - FATAL, which also causes the program to terminate.
+ *  - ERROR
+ *  - WARN
+ *  - INFO
+ *  - DEBUG, which are not visible unless enabled (e.g., with showUpToDebug())
+ *
  *  Currently, all logging is done through rosconsole. It is good practice to use the defined
  *  macros here for abstraction purpose.
  */
