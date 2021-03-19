@@ -146,7 +146,7 @@ namespace robowflex
 
         /** \brief  Get the names of the variables that make up this trajectory, in the same order as in
          * MoveIt JointModelGroup.
-         * \return A an ordered vector of joint names.
+         * \return A vector of joint names in order.
          */
         std::vector<std::string> getJointNames() const;
 
