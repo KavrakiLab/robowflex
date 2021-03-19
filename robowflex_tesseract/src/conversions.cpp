@@ -101,7 +101,7 @@ bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr
         const auto &shapes = link->getShapes();
         int num_shapes = shapes.size();
         const auto &poses = link->getFixedTransforms();
-        //const auto global_poses = link->getGlobalCollisionBodyTransforms();
+        // const auto global_poses = link->getGlobalCollisionBodyTransforms();
 
         // Declare an attachable object for this attached body.
         tesseract_msgs::AttachableObject obj;
@@ -181,13 +181,14 @@ void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &
 }
 
 void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj,
-                                              const robot_state::RobotStatePtr &ref_state, const std::string &manip,
+                                              const robot_state::RobotStatePtr &ref_state,
+                                              const std::string &manip,
                                               const tesseract::tesseract_ros::KDLEnvPtr &env,
                                               robot_trajectory::RobotTrajectoryPtr &trajectory)
 {
-    const robot_state::RobotState& copy = *ref_state;
+    const robot_state::RobotState &copy = *ref_state;
     trajectory->clear();
-    
+
     for (int i = 0; i < tesseract_traj.rows(); i++)
     {
         // Create a tmp state for every waypoint.

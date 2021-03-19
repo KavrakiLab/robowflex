@@ -89,7 +89,7 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
         ROS_ERROR("No manipulator found in KDL environment");
         return false;
     }
-    
+
     // Initialize trajectory.
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
 
@@ -189,7 +189,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     auto start_state = robot_->allocState();
     moveit::core::robotStateMsgToRobotState(request.start_state, *start_state);
     start_state->update(true);
-    
+
     // Use the start state as reference state to build trajectory_.
     ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
 
@@ -240,7 +240,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     {
         // Attach bodies to KDL env.
         hypercube::addAttachedBodiesToTesseractEnv(ref_state_, env_);
-        
+
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
@@ -282,13 +282,13 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
 
     // Use the start state as reference state to build trajectory_.
     ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
-    
+
     // Create the tesseract environment from the scene.
     if (hypercube::sceneToTesseractEnv(scene, env_))
     {
         // Attach bodies to KDL env.
         hypercube::addAttachedBodiesToTesseractEnv(ref_state_, env_);
-        
+
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
@@ -590,7 +590,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
     {
         // Optimization problem converged.
         planner_result.first = true;
-        
+
         // Update time
         time_ = time;
 
@@ -599,7 +599,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
 
         // Update trajectory.
         tesseract_trajectory_ = getTraj(opt.x(), prob->GetVars());
-        hypercube::manipTesseractTrajToRobotTraj(tesseract_trajectory_, ref_state_, manip_, env_, trajectory_);
+        hypercube::manipTesseractTrajToRobotTraj(tesseract_trajectory_, ref_state_, manip_, env_,
+                                                 trajectory_);
 
         auto const &trajectory = std::make_shared<Trajectory>(trajectory_);
         planner_result.second = trajectory->isCollisionFree(scene);

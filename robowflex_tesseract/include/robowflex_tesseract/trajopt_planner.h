@@ -93,7 +93,7 @@ namespace robowflex
         TrajOptPlanner(const RobotPtr &robot, const std::string &group_name,
                        const std::string &name = "trajopt");
 
-        /** \brief Initialize planner. If base_link and tip_link are not empty, it creates a \a manip from 
+        /** \brief Initialize planner. If base_link and tip_link are not empty, it creates a \a manip from
          * \a base_link to \a tip_link.
          * \param[in] manip Name of chain group to add to the robot.
          * \param[in] base_link base link of the chain group \a manip.
@@ -183,17 +183,16 @@ namespace robowflex
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
                            const robot_state::RobotStatePtr &goal_state);
 
-        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a scene.
-         *  \param[in] scene A planning scene for the same robot to compute the plan in.
-         *  \param[in] start_state Start state for the robot.
-         *  \param[in] goal_pose Cartesian goal pose for \a link.
+        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a \a
+         * scene. \param[in] scene A planning scene for the same robot to compute the plan in. \param[in]
+         * start_state Start state for the robot. \param[in] goal_pose Cartesian goal pose for \a link.
          *  \param[in] link Link to find pose for.
          *  \return Planner result with convergence and collision status.
          */
         PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state,
                            const RobotPose &goal_pose, const std::string &link);
 
-        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a 
+        /** \brief Plan a motion given a \a start_state, a cartesian \a goal_pose for a \a link and a
          * \a scene.
          * \param[in] scene A planning scene for the same robot to compute the plan in.
          * \param[in] start_state Start state for the robot.
