@@ -148,11 +148,21 @@ void Trajectory::interpolate(unsigned int count)
 std::vector<std::vector<double>> Trajectory::vectorize() const
 {
     std::vector<std::vector<double>> traj_vec;
-    auto msg = getMessage();
+    const auto &msg = getMessage();
     for (const auto &p : msg.joint_trajectory.points)
         traj_vec.emplace_back(p.positions);
 
     return traj_vec;
+}
+
+std::vector<std::string> Trajectory::getJointNames() const
+{
+    std::vector<std::string> joint_names;
+    const auto &msg = getMessage();
+    for (const auto &jn : msg.joint_trajectory.joint_names)
+        joint_names.emplace_back(jn);
+
+    return joint_names;
 }
 
 double Trajectory::getLength(const PathMetric &metric) const
