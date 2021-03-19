@@ -411,7 +411,7 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-#if not ROBOWFLEX_MOVEIT_COLLISION_ENV
+#if ROBOWFLEX_AT_LEAST_KINETIC and not ROBOWFLEX_MOVEIT_COLLISION_ENV
     if (not hasObject(object))
     {
         RBX_ERROR("World does not have object `%s`", object);
@@ -456,7 +456,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if not ROBOWFLEX_MOVEIT_COLLISION_ENV
+#if ROBOWFLEX_AT_LEAST_KINETIC and not ROBOWFLEX_MOVEIT_COLLISION_ENV
     // Early terminate if they are the same
     if (one == two)
         return 0.;
