@@ -95,12 +95,12 @@ bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr
     // Find bodies attached to the robot scratch state.
     std::vector<const moveit::core::AttachedBody *> attached_bodies;
     state->getAttachedBodies(attached_bodies);
-    for (auto link : attached_bodies)
+    for (const auto &link : attached_bodies)
     {
         // Get shapes and poses of this attached body.
-        const auto shapes = link->getShapes();
+        const auto &shapes = link->getShapes();
         int num_shapes = shapes.size();
-        const auto poses = link->getFixedTransforms();
+        const auto &poses = link->getFixedTransforms();
         //const auto global_poses = link->getGlobalCollisionBodyTransforms();
 
         // Declare an attachable object for this attached body.

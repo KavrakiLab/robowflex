@@ -8,6 +8,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/trajectory.h>
 
 // Tesseract
 #include <trajopt/file_write_callback.hpp>
@@ -112,7 +113,7 @@ void TrajOptPlanner::setInitType(const InitInfo::Type &init_type)
     if (init_type != InitInfo::Type::GIVEN_TRAJ)
         init_type_ = init_type;
     else
-        ROS_ERROR("init type can only be set to GIVEN_TRAJ calling the giveInitialTrajectory() function");
+        ROS_ERROR("init type can only be set to GIVEN_TRAJ calling the setInitialTrajectory() function");
 }
 
 const robot_trajectory::RobotTrajectoryPtr &TrajOptPlanner::getTrajectory() const
@@ -162,7 +163,7 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
     }
     else
     {
-        auto joint_names = env_->getManipulator(manip_)->getJointNames();
+        const auto &joint_names = env_->getManipulator(manip_)->getJointNames();
         for (const auto &name : joints)
         {
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
@@ -279,9 +280,15 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         return PlannerResult(false, false);
     }
 
+    // Use the start state as reference state to build trajectory_.
+    ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
+    
     // Create the tesseract environment from the scene.
     if (hypercube::sceneToTesseractEnv(scene, env_))
     {
+        // Attach bodies to KDL env.
+        hypercube::addAttachedBodiesToTesseractEnv(ref_state_, env_);
+        
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
@@ -594,25 +601,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         tesseract_trajectory_ = getTraj(opt.x(), prob->GetVars());
         hypercube::manipTesseractTrajToRobotTraj(tesseract_trajectory_, ref_state_, manip_, env_, trajectory_);
 
-        // Check for collisions.
-        int i = 0;
-        while (i < options.num_waypoints and planner_result.second)
-        {
-            const auto &st = trajectory_->getWayPoint(i);
-            collision_detection::CollisionRequest col_request;
-            col_request.verbose = options.verbose;
-            auto result = scene->checkCollision(st, col_request);
-
-            if (result.collision)
-            {
-                if (options.verbose)
-                    ROS_ERROR("%u-th waypoint in collision", i);
-
-                planner_result.second = false;
-            }
-
-            i++;
-        }
+        auto const &trajectory = std::make_shared<Trajectory>(trajectory_);
+        planner_result.second = trajectory->isCollisionFree(scene);
     }
 
     // Print status

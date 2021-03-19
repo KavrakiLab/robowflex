@@ -1,0 +1,49 @@
+start_state:
+  attached_collision_objects:
+    - object:
+        primitive_poses:
+          - position: [0.03360957426989708, -0.0005185608964976551, -0.02462558968502093]
+            orientation: [0.001092153463991719, -0.001006562221771093, -0.001405502234554409, 0.9999979092962012]
+        header:
+          frame_id: gripper_link
+        id: Can1
+        primitives:
+          - dimensions: [0.1, 0.03]
+            type: cylinder
+      touch_links:
+        - gripper_link
+        - l_gripper_finger_link
+        - r_gripper_finger_link
+      link_name: gripper_link
+      weight: 0
+  joint_state:
+    header:
+      frame_id: base_link
+    position: [-0.0003997190310860432, 0.0002133940717845562, 0.38615, 0.1997121599204449, 9.028836123192718e-07, 0.002399987167772899, -0.1349994403792381, 1.453915381564148, 1.50204308714454, 1.551087883649017, 1.684639616960671, 1.498991074971971, 1.599030772138053, 0.04992403458690093, 0.04995082766085816]
+    name: [l_wheel_joint, r_wheel_joint, torso_lift_joint, bellows_joint, head_pan_joint, head_tilt_joint, shoulder_pan_joint, shoulder_lift_joint, upperarm_roll_joint, elbow_flex_joint, forearm_roll_joint, wrist_flex_joint, wrist_roll_joint, l_gripper_finger_joint, r_gripper_finger_joint]
+goal_constraints:
+  - joint_constraints:
+      - joint_name: shoulder_pan_joint
+        position: -1.389999440379238
+      - joint_name: shoulder_lift_joint
+        position: 0.1977395737257543
+      - joint_name: upperarm_roll_joint
+        position: 0.5930076552859318
+      - joint_name: elbow_flex_joint
+        position: 1.80876210908553
+      - joint_name: forearm_roll_joint
+        position: 1.908199851260852
+      - joint_name: wrist_flex_joint
+        position: 1.088849801995825
+      - joint_name: wrist_roll_joint
+        position: 2.566546324089854
+workspace_parameters:
+  max_corner: [1, 1, 1]
+  min_corner: [-1, -1, -1]
+  header:
+    frame_id: ""
+planner_id: RRTConnectkConfigDefault
+group_name: arm
+allowed_planning_time: 5
+max_velocity_scaling_factor: 0
+max_acceleration_scaling_factor: 0

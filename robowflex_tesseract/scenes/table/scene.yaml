@@ -1,0 +1,74 @@
+world:
+  collision_objects:
+    - header:
+        frame_id: base_link
+      id: Can1
+      primitives:
+        - type: cylinder
+          dimensions: [0.1, 0.03]
+      primitive_poses:
+        - position: [0.55, 0.2997994722263027, 0.7893448398657438]
+          orientation: [0.001353898394225947, -0.001413108676048193, 1.86736507787716e-05, 0.9999980848653174]
+    - header:
+        frame_id: base_link
+      id: Cube
+      primitives:
+        - type: box
+          dimensions: [0.25, 0.25, 0.25]
+      primitive_poses:
+        - position: [0.76, 8.433902659017084e-06, 0.839018812904158]
+          orientation: [-3.19427086946521e-05, -3.248814443275678e-06, 1.21284567499891e-06, 0.9999999994838188]
+    - header:
+        frame_id: base_link
+      id: table_bottom
+      primitives:
+        - type: box
+          dimensions: [0.9, 1.7, 0.04]
+      primitive_poses:
+        - position: [1.049999494385826, 1.51702591216964e-06, 0.2452286235913045]
+          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+    - header:
+        frame_id: base_link
+      id: table_leg_left_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [1.499997371966598, 0.8500025284426187, 0.3452295774036421]
+          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+    - header:
+        frame_id: base_link
+      id: table_leg_left_front
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [0.5999973719694124, 0.8500003459478829, 0.3452290268504982]
+          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+    - header:
+        frame_id: base_link
+      id: table_leg_right_back
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [1.500001494457485, -0.8499974715518412, 0.3452282203320098]
+          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+    - header:
+        frame_id: base_link
+      id: table_leg_right_front
+      primitives:
+        - type: box
+          dimensions: [0.05, 0.05, 0.7]
+      primitive_poses:
+        - position: [0.6000014944602995, -0.8499996540465774, 0.3452276697788659]
+          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+    - header:
+        frame_id: base_link
+      id: table_top
+      primitives:
+        - type: box
+          dimensions: [1.2, 2, 0.04]
+      primitive_poses:
+        - position: [1.049999219386779, 1.157950802175581e-06, 0.695228623201083]
+          orientation: [3.990318462230049e-07, -3.056647647420437e-07, 1.212497314272982e-06, 0.9999999999991386]
