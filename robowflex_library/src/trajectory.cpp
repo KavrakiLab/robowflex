@@ -157,12 +157,7 @@ std::vector<std::vector<double>> Trajectory::vectorize() const
 
 std::vector<std::string> Trajectory::getJointNames() const
 {
-    std::vector<std::string> joint_names;
-    const auto &msg = getMessage();
-    for (const auto &jn : msg.joint_trajectory.joint_names)
-        joint_names.emplace_back(jn);
-
-    return joint_names;
+    return getMessage().joint_trajectory.joint_names;
 }
 
 double Trajectory::getLength(const PathMetric &metric) const
