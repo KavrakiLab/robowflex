@@ -38,7 +38,11 @@ namespace robowflex
         struct Options
         {
             sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};  ///< Optimizer to use
-            bool verbose{true};                                             ///< Verbosity
+            bool perturb_init_traj{false};  ///< Whether the initial trajectory should be randomly perturbed
+                                            ///< or not.
+            double noise_init_traj{0.09};   ///< Max and (negative) min amount of uniform noise added to each
+                                            ///< joint value for all waypoints of an initial trajectory
+            bool verbose{true};             ///< Verbosity
             bool use_cont_col_avoid{true};  ///< Whether to use continuous collision avoidance or not
             int num_waypoints{20};          ///< Number of waypoints.
             double dt_lower_lim{2.0};       ///< 1/max_dt.

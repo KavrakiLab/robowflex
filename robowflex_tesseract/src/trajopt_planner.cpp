@@ -555,11 +555,26 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
 {
     PlannerResult planner_result(true, true);
 
-    // Create optimizer, populate parameters and initialize.
+    // Create optimizer and populate parameters.
     TrajOptProbPtr prob = ConstructProblem(*pci);
     sco::BasicTrustRegionSQP opt(prob);
     opt.setParameters(getTrustRegionSQPParameters());
-    opt.initialize(trajToDblVec(prob->GetInitTraj()));
+
+    // Perturb initial trajectory if needed.
+    auto init_trajectory = prob->GetInitTraj();
+    if (options.perturb_init_traj)
+    {
+        // Perturb all waypoints but start and goal.
+        int rows = options.num_waypoints - 2;
+        int cols = pci->kin->numJoints();
+        double noise = options.noise_init_traj;
+
+        init_trajectory.block(1, 0, rows, cols) +=
+            (Eigen::MatrixXd::Constant(rows, cols, -noise) +
+             2 * noise *
+                 (Eigen::MatrixXd::Random(rows, cols) * 0.5 + Eigen::MatrixXd::Constant(rows, cols, 0.5)));
+    }
+    opt.initialize(trajToDblVec(init_trajectory));
 
     // Add write file callback.
     if (file_write_cb_)
