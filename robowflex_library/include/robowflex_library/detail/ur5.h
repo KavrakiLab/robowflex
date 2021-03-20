@@ -23,7 +23,6 @@ namespace robowflex
      *  See https://github.com/KavrakiLab/robowflex_resources for this package.
      *  If this package is not available, then ur_description / robotiq packages will be used.
      */
-     */
     class UR5Robot : public Robot
     {
     public:
