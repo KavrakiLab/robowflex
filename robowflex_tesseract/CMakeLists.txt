@@ -42,6 +42,7 @@ target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES})
 add_script(fetch_tabletop_goalpose)
 add_script(fetch_tabletop_goalstate)
 add_script(fetch_tabletop_inits)
+add_script(fetch_tabletop_planning_time)
 add_script(fetch_trajopt)
 
 install_scripts()

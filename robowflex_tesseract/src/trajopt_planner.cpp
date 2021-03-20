@@ -218,6 +218,10 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->setVariablePositions(variable_map);
     goal_state->update(true);
 
+    // If planner runs until timeout, use the allowed_planning_time from the request.
+    if (options.return_after_timeout)
+        options.max_planning_time = request.allowed_planning_time;
+
     // Plan.
     auto result = plan(scene, start_state, goal_state);
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
@@ -553,28 +557,12 @@ void TrajOptPlanner::addGoalPose(const RobotPose &goal_pose, const std::string &
 TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
                                                     const std::shared_ptr<ProblemConstructionInfo> &pci)
 {
-    PlannerResult planner_result(true, true);
+    PlannerResult planner_result(false, false);
 
     // Create optimizer and populate parameters.
     TrajOptProbPtr prob = ConstructProblem(*pci);
     sco::BasicTrustRegionSQP opt(prob);
     opt.setParameters(getTrustRegionSQPParameters());
-
-    // Perturb initial trajectory if needed.
-    auto init_trajectory = prob->GetInitTraj();
-    if (options.perturb_init_traj)
-    {
-        // Perturb all waypoints but start and goal.
-        int rows = options.num_waypoints - 2;
-        int cols = pci->kin->numJoints();
-        double noise = options.noise_init_traj;
-
-        init_trajectory.block(1, 0, rows, cols) +=
-            (Eigen::MatrixXd::Constant(rows, cols, -noise) +
-             2 * noise *
-                 (Eigen::MatrixXd::Random(rows, cols) * 0.5 + Eigen::MatrixXd::Constant(rows, cols, 0.5)));
-    }
-    opt.initialize(trajToDblVec(init_trajectory));
 
     // Add write file callback.
     if (file_write_cb_)
@@ -585,46 +573,89 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         opt.addCallback(WriteCallback(stream_ptr_, prob));
     }
 
-    // Optimize.
-    ros::Time tStart = ros::Time::now();
-    opt.optimize();
+    // If the planner needs to run more than once, add noise to the initial trajectory.
+    if (!options.return_first_sol)
+        options.perturb_init_traj = true;
 
-    // Measure and print time.
-    double time = (ros::Time::now() - tStart).toSec();
-    if (options.verbose)
-        ROS_INFO("Planning time: %.3f", time);
+    // Initialize.
+    double total_time = 0.0;
+    double best_cost = std::numeric_limits<double>::infinity();
 
-    // Check for status result.
-    if (opt.results().status == sco::OptStatus::OPT_PENALTY_ITERATION_LIMIT or
-        opt.results().status == sco::OptStatus::OPT_FAILED or opt.results().status == sco::OptStatus::INVALID)
+    do
     {
-        // Optimization problem did not converge.
-        planner_result.first = false;
-    }
-    else
-    {
-        // Optimization problem converged.
-        planner_result.first = true;
+        // Perturb initial trajectory if needed.
+        auto init_trajectory = prob->GetInitTraj();
+        if (options.perturb_init_traj)
+        {
+            // Perturb all waypoints but start and goal.
+            int rows = options.num_waypoints - 2;
+            int cols = pci->kin->numJoints();
+            double noise = options.noise_init_traj;
 
-        // Update time
-        time_ = time;
+            init_trajectory.block(1, 0, rows, cols) += (Eigen::MatrixXd::Constant(rows, cols, -noise) +
+                                                        2 * noise *
+                                                            (Eigen::MatrixXd::Random(rows, cols) * 0.5 +
+                                                             Eigen::MatrixXd::Constant(rows, cols, 0.5)));
+        }
+        opt.initialize(trajToDblVec(init_trajectory));
 
-        // Clear current trajectory.
-        trajectory_->clear();
+        // Optimize.
+        ros::Time tStart = ros::Time::now();
+        opt.optimize();
 
-        // Update trajectory.
-        tesseract_trajectory_ = getTraj(opt.x(), prob->GetVars());
-        hypercube::manipTesseractTrajToRobotTraj(tesseract_trajectory_, ref_state_, manip_, env_,
-                                                 trajectory_);
+        // Measure and print time.
+        double time = (ros::Time::now() - tStart).toSec();
+        if (options.verbose)
+        {
+            ROS_INFO("Planning time: %.3f, cost: %.3f", time, opt.results().total_cost);
+        }
+        total_time += time;
+        time_ = total_time;
 
-        auto const &trajectory = std::make_shared<Trajectory>(trajectory_);
-        planner_result.second = trajectory->isCollisionFree(scene);
-    }
+        if (opt.results().status == sco::OptStatus::OPT_CONVERGED)
+        {
+            // Optimization problem converged.
+            planner_result.first = true;
+
+            // Check for collisions.
+            auto tss_current_traj = getTraj(opt.x(), prob->GetVars());
+            auto current_traj =
+                std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+            hypercube::manipTesseractTrajToRobotTraj(tss_current_traj, ref_state_, manip_, env_,
+                                                     current_traj);
+            auto const &ct = std::make_shared<Trajectory>(current_traj);
+            bool is_ct_collision_free = ct->isCollisionFree(scene);
+
+            // If trajectory is better than current, update the trajectory and cost.
+            if ((opt.results().total_cost < best_cost) and is_ct_collision_free)
+            {
+                // Update best cost.
+                best_cost = opt.results().total_cost;
+
+                // Clear current trajectory.
+                trajectory_->clear();
+
+                // Update trajectory.
+                tesseract_trajectory_ = tss_current_traj;
+                trajectory_ = current_traj;
+
+                // Solution is collision-free.
+                planner_result.second = true;
+            }
+        }
+
+        if (options.return_first_sol or
+            (options.return_after_timeout and (total_time >= options.max_planning_time)) or
+            (!options.return_after_timeout and planner_result.second))
+            break;
+    } while (1);
 
     // Print status
     if (options.verbose)
     {
         std::cout << "OPTIMIZATION STATUS: " << sco::statusToString(opt.results().status) << std::endl;
+        std::cout << "TOTAL PLANNING TIME: " << time_ << std::endl;
+        std::cout << "COST: " << best_cost << std::endl;
         std::cout << "COLLISION STATUS:";
 
         if (planner_result.second)

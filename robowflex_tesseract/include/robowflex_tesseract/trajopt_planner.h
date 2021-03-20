@@ -43,6 +43,13 @@ namespace robowflex
             double noise_init_traj{0.09};   ///< Max and (negative) min amount of uniform noise added to each
                                             ///< joint value for all waypoints of an initial trajectory
             bool verbose{true};             ///< Verbosity
+            bool return_first_sol{true};    ///< Whether the planner runs only once or not. This has higher
+                                            ///< piority than return_until_timeout. Choosing false will set
+                                            ///< perturb_init_traj to true.
+            bool return_after_timeout{false};  ///< Whether the planner returns after timeout or after the
+                                               ///< first feasible solution.
+            double max_planning_time{1.0};  ///< Maximum amount of time the planner is allowed to search for a
+                                            ///< feasible solution.
             bool use_cont_col_avoid{true};  ///< Whether to use continuous collision avoidance or not
             int num_waypoints{20};          ///< Number of waypoints.
             double dt_lower_lim{2.0};       ///< 1/max_dt.
