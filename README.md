@@ -15,14 +15,14 @@ The high-level goals of the project are as follows:
 - Remain untied as possible to the greater ROS system, and support all distros from Indigo onward.
 
 ## Build Status
-| Workflow | Status |
-|-|-|
-| Documentation | ![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg) |
-| Linting | ![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg) |
-| Indigo | ![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg) | 
-| Kinetic | ![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg) | 
-| Melodic | ![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg) | 
-| Noetic | [![Build Noetic](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml/badge.svg)](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml) |
+| Workflow      | Status                                                                                                                                                                              |
+|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Documentation | ![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg)                                                                                         |
+| Linting       | ![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg)                                                                                                     |
+| Indigo        | ![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg)                                                                                         |
+| Kinetic       | ![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg)                                                                                       |
+| Melodic       | ![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)                                                                                       |
+| Noetic        | [![Build Noetic](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml/badge.svg)](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml) |
 
 ## robowflex_library
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
@@ -56,6 +56,9 @@ There are features for loading robots just through DART or by converting __MoveI
 Motion planning is supported through [OMPL](http://ompl.kavrakilab.org/).
 This module offers easy multi-robot motion planning through composing complex worlds with multiple robots.
 Additionally, this module has [manifold-constrained motion planning](http://ompl.kavrakilab.org/constrainedPlanning.html) with a Task Space Region constraint specification.
+
+## robowflex_resources
+[robowflex_resources](https://github.com/KavrakiLab/robowflex_resources) is a separate repository that contains the MoveIt configuration and kinematic description for robots used in example scripts.
 
 # Installation Instructions
 
