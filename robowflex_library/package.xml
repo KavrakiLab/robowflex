@@ -40,4 +40,6 @@
   <depend>moveit_ros_planning</depend>
   <depend>tf2_ros</depend>
   <depend>xmlrpcpp</depend>
+
+  <exec_depend>moveit_kinematics</exec_depend>
 </package>
