@@ -189,16 +189,12 @@ void MotionRequestBuilder::useSceneStateAsStart(const SceneConstPtr &scene)
 
 bool MotionRequestBuilder::attachObjectToStart(ScenePtr scene, const std::string &object)
 {
-    // Copy current scene state for posterity.
-    auto &current = scene->getCurrentState();
-
     // Attach object to current start configuration.
     const auto &start = getStartConfiguration();
     if (not scene->attachObject(*start, object))
         return false;
 
-    // Use attached object state.
-    setStartConfiguration(current);
+    useSceneStateAsStart(scene);
     return true;
 }
 
