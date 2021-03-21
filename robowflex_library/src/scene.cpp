@@ -109,11 +109,11 @@ void Scene::operator=(const Scene &other)
     scene_ = other.getSceneConst();
 }
 
-Scene Scene::deepCopy() const
+ScenePtr Scene::deepCopy() const
 {
-    auto robot = scene_->getRobotModel();
-    auto scene = Scene(robot);
-    scene.useMessage(getMessage());
+    auto scene = std::make_shared<Scene>(scene_->getRobotModel());
+    scene->useMessage(getMessage());
+
     return scene;
 }
 
@@ -139,6 +139,11 @@ robot_state::RobotState &Scene::getCurrentState()
 {
     incrementVersion();
     return scene_->getCurrentStateNonConst();
+}
+
+const robot_state::RobotState &Scene::getCurrentStateConst() const
+{
+    return scene_->getCurrentState();
 }
 
 collision_detection::AllowedCollisionMatrix &Scene::getACM()
@@ -268,7 +273,7 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
 
 bool Scene::attachObject(const std::string &name)
 {
-    const auto &robot = scene_->getCurrentState().getRobotModel();
+    const auto &robot = getCurrentState().getRobotModel();
     const auto &ee = robot->getEndEffectors();
 
     // One end-effector
@@ -308,7 +313,6 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
         return false;
     }
 
-    auto &robot = scene_->getCurrentStateNonConst();
     const auto &obj = world->getObject(name);
 
     if (!obj)
@@ -323,7 +327,8 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
         return false;
     }
 
-    robot.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
+    auto &scene_state = getCurrentState();
+    scene_state.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
     return true;
 }
 
@@ -352,7 +357,6 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    auto &robot = scene_->getCurrentStateNonConst();
     scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
@@ -360,7 +364,8 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    auto &scene_state = getCurrentState();
+    scene_state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 

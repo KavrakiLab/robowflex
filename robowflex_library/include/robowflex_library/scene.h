@@ -67,7 +67,7 @@ namespace robowflex
         /** \brief Deep Copy.
          *  \return The deep copied planning scene.
          */
-        Scene deepCopy() const;
+        ScenePtr deepCopy() const;
 
         /** \name Getters and Setters
             \{ */
@@ -91,6 +91,11 @@ namespace robowflex
          *  \return The planning scene robot.
          */
         robot_state::RobotState &getCurrentState();
+
+        /** \brief Get a constant reference to the current robot state in the planning scene.
+         *  \return The planning scene robot.
+         */
+        const robot_state::RobotState &getCurrentStateConst() const;
 
         /** \brief Get the current allowed collision matrix of the planning scene.
          *  \return The allowed collision matrix.
