@@ -2,6 +2,7 @@
 
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 
 #include <robowflex_dart/space.h>
@@ -66,7 +67,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
     auto robot = world_->getRobot(name);
     if (not robot)
     {
-        // SE3EZ_ERROR("Robot %1% does not exist in world.", name);
+        RBX_ERROR("Robot %1% does not exist in world.", name);
         throw std::runtime_error("Invalid robot");
     }
 
@@ -77,7 +78,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
     {
         if (jointset_.find(joint) != jointset_.end())
         {
-            // SE3EZ_INFORM("Joint %1% already being planned, skipping...", joint->getName());
+            RBX_INFO("Joint %1% already being planned, skipping...", joint->getName());
             continue;
         }
 
@@ -159,8 +160,8 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
                 metric_ = false;
             }
         }
-        // else
-        //     SE3EZ_WARN("Unknown joint type %1%, skipping.", type);
+        else
+            RBX_WARN("Unknown joint type %1%, skipping.", type);
     }
 
     registerDefaultProjection(

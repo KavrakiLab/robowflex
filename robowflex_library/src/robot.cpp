@@ -9,6 +9,7 @@
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -76,31 +77,31 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
 {
     if (loader_)
     {
-        ROS_ERROR("Already initialized!");
+        RBX_ERROR("Already initialized!");
         return false;
     }
 
     if (not loadURDFFile(urdf_file))
     {
-        ROS_ERROR("Failed to load URDF!");
+        RBX_ERROR("Failed to load URDF!");
         return false;
     }
 
     if (not loadSRDFFile(srdf_file))
     {
-        ROS_ERROR("Failed to load SRDF!");
+        RBX_ERROR("Failed to load SRDF!");
         return false;
     }
 
     if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_))
     {
-        ROS_ERROR("Failed to load joint limits!");
+        RBX_ERROR("Failed to load joint limits!");
         return false;
     }
 
     if (not initializeKinematics(kinematics_file))
     {
-        ROS_ERROR("Failed to load kinematics!");
+        RBX_ERROR("Failed to load kinematics!");
         return false;
     }
 
@@ -112,7 +113,7 @@ bool Robot::initialize(const std::string &urdf_file)
 {
     if (loader_)
     {
-        ROS_ERROR("Already initialized!");
+        RBX_ERROR("Already initialized!");
         return false;
     }
 
@@ -136,7 +137,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
 {
     if (loader_)
     {
-        ROS_ERROR("Already initialized!");
+        RBX_ERROR("Already initialized!");
         return false;
     }
 
@@ -152,7 +153,7 @@ bool Robot::initializeKinematics(const std::string &kinematics_file)
 {
     if (kinematics_)
     {
-        ROS_ERROR("Already loaded kinematics!");
+        RBX_ERROR("Already loaded kinematics!");
         return false;
     }
 
@@ -204,7 +205,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
     auto &yaml = IO::loadFileToYAML(file);
     if (!yaml.first)
     {
-        ROS_ERROR("Failed to load YAML file `%s`.", file.c_str());
+        RBX_ERROR("Failed to load YAML file `%s`.", file);
         return false;
     }
 
@@ -213,7 +214,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
         YAML::Node copy = yaml.second;
         if (!function(copy))
         {
-            ROS_ERROR("Failed to process YAML file `%s`.", file.c_str());
+            RBX_ERROR("Failed to process YAML file `%s`.", file);
             return false;
         }
 
@@ -237,7 +238,7 @@ std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
     std::string string = IO::loadXMLToString(file);
     if (string.empty())
     {
-        ROS_ERROR("Failed to load XML file `%s`.", file.c_str());
+        RBX_ERROR("Failed to load XML file `%s`.", file);
         return "";
     }
 
@@ -248,7 +249,7 @@ std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
 
         if (!function(doc))
         {
-            ROS_ERROR("Failed to process XML file `%s`.", file.c_str());
+            RBX_ERROR("Failed to process XML file `%s`.", file);
             return "";
         }
 
@@ -289,13 +290,13 @@ bool Robot::loadKinematics(const std::string &name)
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
-        ROS_WARN("No kinematics plugins defined. Fill and load kinematics.yaml!");
+        RBX_WARN("No kinematics plugins defined. Fill and load kinematics.yaml!");
         return false;
     }
 
     if (!model_->hasJointModelGroup(name) || std::find(groups.begin(), groups.end(), name) == groups.end())
     {
-        ROS_WARN("No JMG or Kinematics defined for `%s`!", name.c_str());
+        RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
         return false;
     }
 
@@ -310,18 +311,18 @@ bool Robot::loadKinematics(const std::string &name)
 
         else
         {
-            ROS_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
-                      typeid(*solver).name(), name.c_str(), error_msg.c_str());
+            RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
+                      typeid(*solver).name(), name, error_msg);
             return false;
         }
     }
     else
     {
-        ROS_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name.c_str());
+        RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
         return false;
     }
 
-    ROS_INFO("Loaded Kinematics Solver for  `%s`", name.c_str());
+    RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
 
     auto timeout = kinematics_->getIKTimeout();
     jmg->setDefaultIKTimeout(timeout[name]);

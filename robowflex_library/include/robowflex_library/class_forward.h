@@ -9,7 +9,7 @@
 
 /**
  * \def ROBOWFLEX_CLASS_FORWARD
- * Macro that forward declares a class and defines two shared ptrs types:
+ * \brief Macro that forward declares a class and defines two shared ptrs types:
  *  - ${Class}Ptr      = shared_ptr<${Class}>
  *  - ${Class}ConstPtr = shared_ptr<const ${Class}>
  */
@@ -20,7 +20,7 @@
 
 /**
  * \def ROBOWFLEX_EIGEN
- * Macro for classes with fixed width Eigen classes.
+ * \brief Macro for classes with fixed width Eigen classes.
  */
 #define ROBOWFLEX_EIGEN EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

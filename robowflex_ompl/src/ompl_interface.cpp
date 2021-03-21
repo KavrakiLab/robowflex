@@ -1,5 +1,6 @@
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/io/handler.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
@@ -99,14 +100,14 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 
     if (last_scene_ == next_scene and last_request_ == next_request and ss_)
     {
-        ROS_INFO("Reusing Cached Context!");
+        RBX_INFO("Reusing Cached Context!");
         return;
     }
 
     context_ = getPlanningContext(scene, request);
     if (not context_)
     {
-        ROS_ERROR("Context was not set!");
+        RBX_ERROR("Context was not set!");
         ss_ = nullptr;
         return;
     }
@@ -116,7 +117,7 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
     last_scene_ = next_scene;
     last_request_ = next_request;
 
-    ROS_INFO("Refreshed Context!");
+    RBX_INFO("Refreshed Context!");
 }
 
 ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const

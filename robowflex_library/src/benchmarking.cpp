@@ -6,6 +6,7 @@
 #include <moveit/collision_detection/collision_common.h>
 #include <moveit/version.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
@@ -220,7 +221,7 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
                 builder->setAllowedPlanningTime(time_remaining);
             }
 
-            ROS_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
+            RBX_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
         }
 
         results.finish = IO::getDate();
@@ -299,7 +300,7 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
 {
     if (!(results.options.options & Benchmarker::MetricOptions::PATH))
     {
-        ROS_WARN("These results did not save the path according to the options. Skipping.");
+        RBX_WARN("These results did not save the path according to the options. Skipping.");
         return;
     }
     const std::string &name = results.name;

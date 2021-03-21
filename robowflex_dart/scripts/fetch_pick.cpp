@@ -4,6 +4,7 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/planning.h>
@@ -94,11 +95,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            std::cout << "Found solution!" << std::endl;
+            RBX_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            std::cout << "No solution found" << std::endl;
+            RBX_WARN("No solution found");
     };
 
     const auto &plan_to_grasp = [&]() {
@@ -138,11 +139,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            std::cout << "Found solution!" << std::endl;
+            RBX_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            std::cout << "No solution found" << std::endl;
+            RBX_WARN("No solution found");
     };
 
     const auto &plan_to_place = [&]() {
@@ -173,11 +174,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            std::cout << "Found solution!" << std::endl;
+            RBX_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            std::cout << "No solution found" << std::endl;
+            RBX_WARN("No solution found");
     };
 
     window.run([&] {

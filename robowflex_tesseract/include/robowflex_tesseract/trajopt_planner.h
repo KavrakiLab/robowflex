@@ -1,4 +1,4 @@
-/* Author: Carlos Quintero */
+/* Author: Carlos Quintero Pena */
 
 #ifndef ROBOWFLEX_TRAJOPT_PLANNER_
 #define ROBOWFLEX_TRAJOPT_PLANNER_

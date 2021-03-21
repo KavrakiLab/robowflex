@@ -71,6 +71,7 @@ list(APPEND SOURCES
   src/util.cpp
   src/id.cpp
   src/io.cpp
+  src/log.cpp
   src/openrave.cpp
   src/io/visualization.cpp
   src/io/colormap.cpp

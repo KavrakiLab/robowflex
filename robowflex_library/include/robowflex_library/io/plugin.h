@@ -9,6 +9,7 @@
 
 #include <ros/package.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 
 #if IS_BOOST_158
@@ -34,7 +35,7 @@ namespace robowflex
             PluginManager(PluginManager const &) = delete;
             void operator=(PluginManager const &) = delete;
 
-            /** \brief Get the singleton instance of PluginManager.
+            /** \brief Get the singleton instance of PluginManager
              *  \return The singleton PluginManager.
              */
             static PluginManager &getInstance()
@@ -66,7 +67,7 @@ namespace robowflex
             {
                 if (ros::package::getPath(package).empty())
                 {
-                    ROS_ERROR("Package `%s` does not exist.", package.c_str());
+                    RBX_ERROR("Package `%s` does not exist.", package);
                     return nullptr;
                 }
 
@@ -79,7 +80,7 @@ namespace robowflex
                 }
                 catch (pluginlib::LibraryLoadException &e)
                 {
-                    ROS_ERROR("Failed to library: %s", e.what());
+                    RBX_ERROR("Failed to library: %s", e.what());
                     return nullptr;
                 }
             }
@@ -134,8 +135,7 @@ namespace robowflex
                     loader = std::dynamic_pointer_cast<Loader<T>>(cached->second);
                 else
                 {
-                    ROS_INFO("Creating Class Loader for type `%s` from package `%s`!",  //
-                             type.c_str(), package.c_str());
+                    RBX_INFO("Creating Class Loader for type `%s` from package `%s`!", type, package);
 
                     loader.reset(new pluginlib::ClassLoader<T>(package, type));
                     loaders_[key] = std::static_pointer_cast<BaseLoader>(loader);

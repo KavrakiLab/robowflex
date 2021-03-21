@@ -5,6 +5,7 @@
 
 #include <moveit_msgs/MoveItErrorCodes.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
@@ -75,7 +76,7 @@ void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)
 
     if (rname != pname)
     {
-        ROS_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname.c_str(), pname.c_str());
+        RBX_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname, pname);
         throw std::runtime_error("Invalid planner!");
     }
 
@@ -95,7 +96,7 @@ void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
     }
     else
     {
-        ROS_ERROR("Joint group `%s` does not exist in robot!", group_name.c_str());
+        RBX_ERROR("Joint group `%s` does not exist in robot!", group_name);
         throw std::runtime_error("Invalid joint group name!");
     }
 }
@@ -104,7 +105,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
     if (not planner_)
     {
-        ROS_INFO("No planner set! Using requested config `%s`", requested_config.c_str());
+        RBX_INFO("No planner set! Using requested config `%s`", requested_config);
         request_.planner_id = requested_config;
         return true;
     }
@@ -128,8 +129,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
     incrementVersion();
 
     request_.planner_id = *found;
-    ROS_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config.c_str(),
-             request_.planner_id.c_str());
+    RBX_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config, request_.planner_id);
     return true;
 }
 
@@ -157,7 +157,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
 {
     if (not jmg_)
     {
-        ROS_ERROR("No planning group set!");
+        RBX_ERROR("No planning group set!");
         throw std::runtime_error("No planning group set!");
     }
 
@@ -180,7 +180,7 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 {
     if (not jmg_)
     {
-        ROS_ERROR("No planning group set!");
+        RBX_ERROR("No planning group set!");
         throw std::runtime_error("No planning group set!");
     }
 
@@ -197,7 +197,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
 {
     if (not jmg_)
     {
-        ROS_ERROR("No planning group set!");
+        RBX_ERROR("No planning group set!");
         throw std::runtime_error("No planning group set!");
     }
 
@@ -338,14 +338,14 @@ robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
 
     if (request_.goal_constraints.size() != 1)
     {
-        ROS_ERROR("Ambigous goal, %lu goal goal_constraints exist, returning default goal",
+        RBX_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
                   request_.goal_constraints.size());
         return goal_state;
     }
 
     if (request_.goal_constraints[0].joint_constraints.empty())
     {
-        ROS_ERROR("No joint constraints specified, returning default goal");
+        RBX_ERROR("No joint constraints specified, returning default goal");
         return goal_state;
     }
 

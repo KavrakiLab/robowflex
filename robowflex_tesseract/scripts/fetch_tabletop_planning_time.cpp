@@ -1,6 +1,7 @@
 /* Author: Carlos Quintero Pena*/
 
 #include <robowflex_library/util.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
@@ -52,8 +53,8 @@ int main(int argc, char **argv)
     rviz->updateScene(scene);
     rviz->visualizeState(request->getStartConfiguration());
 
-    ROS_INFO("Visualizing start state");
-    ROS_INFO("Press Enter to run the planner and returning its first solution");
+    RBX_INFO("Visualizing start state");
+    RBX_INFO("Press Enter to run the planner and returning its first solution");
     std::cin.ignore();
 
     // Do motion planning. By default, TrajOpt will run only once and will return that solution, regardless of
@@ -64,8 +65,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    ROS_INFO("Visualizing goal state");
-    ROS_INFO("Press Enter to run the planner with a time bound but returning as soon as it finds the first "
+    RBX_INFO("Visualizing goal state");
+    RBX_INFO("Press Enter to run the planner with a time bound but returning as soon as it finds the first "
              "feasible solution");
     std::cin.ignore();
 
@@ -76,8 +77,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    ROS_INFO("Visualizing goal state");
-    ROS_INFO("Press Enter to run the planner for the whole time budget");
+    RBX_INFO("Visualizing goal state");
+    RBX_INFO("Press Enter to run the planner for the whole time budget");
     std::cin.ignore();
 
     planner->options.return_after_timeout = true;
@@ -87,8 +88,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    ROS_INFO("Visualizing goal state");
-    ROS_INFO("Press Enter to finish");
+    RBX_INFO("Visualizing goal state");
+    RBX_INFO("Press Enter to finish");
     std::cin.ignore();
 
     return 0;

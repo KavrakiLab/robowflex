@@ -2,6 +2,7 @@
 
 #include <sensor_msgs/JointState.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/io/broadcaster.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
@@ -69,7 +70,7 @@ void IO::RobotBroadcaster::addStaticTransform(const std::string &name, const std
         static_.emplace(name, stf);
     }
     else
-        ROS_ERROR("Static transform %s already in map!", name.c_str());
+        RBX_ERROR("Static transform %s already in map!", name);
 }
 
 void IO::RobotBroadcaster::removeStaticTransform(const std::string &name)
@@ -78,7 +79,7 @@ void IO::RobotBroadcaster::removeStaticTransform(const std::string &name)
     if (it != static_.end())
         static_.erase(it);
     else
-        ROS_ERROR("Static transform %s does not exist in map!", name.c_str());
+        RBX_ERROR("Static transform %s does not exist in map!", name);
 }
 
 void IO::RobotBroadcaster::update()

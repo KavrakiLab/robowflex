@@ -5,6 +5,8 @@
 
 #include <dart/gui/osg/osg.hpp>
 
+#include <robowflex_library/log.h>
+
 #include <robowflex_dart/acm.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
@@ -25,16 +27,6 @@ bool DistanceCollisionWrapper::needDistance(const dart::collision::CollisionObje
                                             const dart::collision::CollisionObject *object2) const
 {
     return not filter_->ignoresCollision(object1, object2);
-
-    // auto shapeNode1 = object1->getShapeFrame()->asShapeNode();
-    // auto shapeNode2 = object2->getShapeFrame()->asShapeNode();
-
-    // auto bodyNode1 = shapeNode1->getBodyNodePtr();
-    // auto bodyNode2 = shapeNode2->getBodyNodePtr();
-
-    // std::cout << r                                                                            //
-    //           << ", " << object1->getShapeFrame()->getName() << ", " << bodyNode1->getName()  //
-    //           << ", " << object2->getShapeFrame()->getName() << ", " << bodyNode2->getName() << std::endl;
 }
 
 ///
@@ -270,9 +262,10 @@ double World::distanceToCollision() const
     const auto &body_node1 = shape_node1->getBodyNodePtr();
     const auto &body_node2 = shape_node2->getBodyNodePtr();
 
-    std::cout << d                                                                //
-              << ", " << shape_node1->getName() << ", " << body_node1->getName()  //
-              << ", " << shape_node2->getName() << ", " << body_node2->getName() << std::endl;
+    RBX_INFO("Distance B1:%s:%s -> B2:%s:%s = %d",           //
+             shape_node1->getName(), body_node1->getName(),  //
+             shape_node2->getName(), body_node2->getName(),  //
+             d);
 
     return d;
 }

@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
@@ -50,7 +51,7 @@ int main(int argc, char **argv)
                 std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(std::get<1>(request));
 
             if (not planner)
-                ROS_FATAL("Unexpected planner!");
+                RBX_FATAL("Unexpected planner!");
 
             const auto &ss = planner->getLastSimpleSetup();
 

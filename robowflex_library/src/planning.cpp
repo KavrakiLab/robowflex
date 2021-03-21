@@ -1,5 +1,6 @@
 /* Author: Zachary Kingston */
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
@@ -112,7 +113,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
     auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
-        ROS_ERROR("Failed to load planner configs.");
+        RBX_ERROR("Failed to load planner configs.");
         return false;
     }
 
@@ -224,7 +225,7 @@ bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
     auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
-        ROS_ERROR("Failed to load planner configs.");
+        RBX_ERROR("Failed to load planner configs.");
         return false;
     }
 

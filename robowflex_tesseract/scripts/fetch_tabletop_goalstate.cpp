@@ -1,6 +1,7 @@
 /* Author: Carlos Quintero Pena*/
 
 #include <robowflex_library/util.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
@@ -52,8 +53,8 @@ int main(int argc, char **argv)
     rviz->updateScene(scene);
     rviz->visualizeState(request->getStartConfiguration());
 
-    ROS_INFO("Visualizing start state");
-    ROS_INFO("Press Enter to continue");
+    RBX_INFO("Visualizing start state");
+    RBX_INFO("Press Enter to continue");
     std::cin.ignore();
 
     // Do motion planning.
@@ -63,8 +64,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    ROS_INFO("Visualizing goal state");
-    ROS_INFO("Press Enter to exit");
+    RBX_INFO("Visualizing goal state");
+    RBX_INFO("Press Enter to exit");
     std::cin.ignore();
 
     return 0;
