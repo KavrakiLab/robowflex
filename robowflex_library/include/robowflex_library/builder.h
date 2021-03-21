@@ -107,14 +107,23 @@ namespace robowflex
          */
         void useSceneStateAsStart(const SceneConstPtr &scene);
 
-        /** \brief Attach an object to the current request start state. Uses \a object from \a scene, and uses
-         *  underlying scene state as a scratch state. This uses `attachObject()` on the scene, so note that
-         *  the attached object will have to be re-added to the scene.
-         *  \param[in] scene Scene to use objects from.
+        /** \brief Attach an object to the current request start state. Uses \a object from \a scene, and
+         *  modifies the underlying scene state. This uses `attachObject()` on the scene, so note that the
+         *  attached object will have to be re-added to the scene.
+         *  \param[in] scene Scene to use objects from. Will be modified.
          *  \param[in] object Object to attach.
          *  \return True on success, false on failure.
          */
         bool attachObjectToStart(ScenePtr scene, const std::string &object);
+
+        /** \brief Attach an object to the current request start state. Uses \a object from \a scene, but does
+         *  not modify the underlying scene. Be aware that attached objects can collide with themselves if not
+         *  removed from the provided scene.
+         *  \param[in] scene Scene to use objects from.
+         *  \param[in] object Object to attach.
+         *  \return True on success, false on failure.
+         */
+        bool attachObjectToStartConst(const SceneConstPtr &scene, const std::string &object);
 
         /** \} */
 

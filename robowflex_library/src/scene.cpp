@@ -108,11 +108,11 @@ void Scene::operator=(const Scene &other)
     scene_ = other.getSceneConst();
 }
 
-Scene Scene::deepCopy() const
+ScenePtr Scene::deepCopy() const
 {
-    auto robot = scene_->getRobotModel();
-    auto scene = Scene(robot);
-    scene.useMessage(getMessage());
+    auto scene = std::make_shared<Scene>(scene_->getRobotModel());
+    scene->useMessage(getMessage());
+
     return scene;
 }
 
@@ -319,8 +319,8 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
         return false;
     }
 
-    auto &robot = getCurrentState();
-    robot.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
+    auto &scene_state = getCurrentState();
+    scene_state.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
     return true;
 }
 
@@ -356,8 +356,8 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    auto &robot = getCurrentState();
-    robot.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    auto &scene_state = getCurrentState();
+    scene_state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 

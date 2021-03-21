@@ -191,7 +191,6 @@ bool MotionRequestBuilder::attachObjectToStart(ScenePtr scene, const std::string
 {
     // Copy current scene state for posterity.
     auto &current = scene->getCurrentState();
-    robot_state::RobotState copy = current;
 
     // Attach object to current start configuration.
     const auto &start = getStartConfiguration();
@@ -200,10 +199,13 @@ bool MotionRequestBuilder::attachObjectToStart(ScenePtr scene, const std::string
 
     // Use attached object state.
     setStartConfiguration(current);
-
-    // Reset scene state.
-    current = copy;
     return true;
+}
+
+bool MotionRequestBuilder::attachObjectToStartConst(const SceneConstPtr &scene, const std::string &object)
+{
+    auto copy = scene->deepCopy();
+    return attachObjectToStart(copy, object);
 }
 
 void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)

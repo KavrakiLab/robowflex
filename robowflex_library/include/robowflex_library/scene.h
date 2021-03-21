@@ -67,7 +67,7 @@ namespace robowflex
         /** \brief Deep Copy.
          *  \return The deep copied planning scene.
          */
-        Scene deepCopy() const;
+        ScenePtr deepCopy() const;
 
         /** \name Getters and Setters
             \{ */
