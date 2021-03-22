@@ -979,6 +979,11 @@ const std::vector<TSRPtr> &TSRSet::getTSRs() const
     return tsrs_;
 }
 
+const TSRPtr TSRSet::getTSR(const unsigned index) 
+{
+    return tsrs_[index];
+}
+
 void TSRSet::setWorld(const WorldPtr &world)
 {
     for (auto &tsr : tsrs_)

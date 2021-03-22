@@ -831,6 +831,12 @@ namespace robowflex
              */
             const std::vector<TSRPtr> &getTSRs() const;
 
+
+            /** \brief Gets a specific TSR within a TSR set.
+             *  \return The TSR cooresponding to index in this set.
+             */
+            const TSRPtr getTSR(const unsigned index);
+
             /** \brief Get the numerical tolerance for solving.
              *  \return The tolerance.
              */
