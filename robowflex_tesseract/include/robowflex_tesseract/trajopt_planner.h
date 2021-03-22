@@ -135,8 +135,9 @@ namespace robowflex
          *  Current options are:
          *  STATIONARY
          *  JOINT_INTERPOLATED
-         *  The user can also provide their own trajectory using setInitialTrajectory(). In such case, there
-         * is no need to call setInitType(). \param[in] init_type Type of initial trajectory to be used.
+         *  The user can also provide their own trajectory using setInitialTrajectory(). In
+         *  such case, there is no need to call setInitType(). \param[in] init_type Type of
+         *  initial trajectory to be used.
          */
         void setInitType(const trajopt::InitInfo::Type &init_type);
 
@@ -235,8 +236,8 @@ namespace robowflex
                            const std::string &goal_link);
 
         /** \brief Get planner configurations offered by this planner.
-         *  Any of the configurations returned can be set as the planner for a motion planning query sent to
-         *  plan().
+         *  Any of the configurations returned can be set as the planner for a motion planning
+         *  query sent to plan().
          *  \return A vector of strings of planner configuration names.
          */
         std::vector<std::string> getPlannerConfigs() const override;
