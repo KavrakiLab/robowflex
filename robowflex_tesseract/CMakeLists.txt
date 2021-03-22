@@ -11,28 +11,13 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(Boost REQUIRED)
-
 list(APPEND CATKIN_DEPS
-  moveit_planners_ompl
   robowflex_library
   tesseract_planning
   tesseract_ros
   )
  
-find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
-
-# Can be installed from debian, ROS debian, or local installation
-if (ompl_DIR MATCHES "/usr*" OR ompl_DIR MATCHES "/opt*")
-  message("OMPL not found via catkin. Looking elsewhere...")
-  list(REMOVE_AT CATKIN_DEPS 0)
-  find_package(ompl REQUIRED)
-  set(OMPL_INCS ${OMPL_INCLUDE_DIRS})
-  set(OMPL_LIBS ${OMPL_LIBRARY_DIRS})
-else()
-  set(OMPL_INCS "")
-  set(OMPL_LIBS "")
-endif()
+find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
@@ -41,23 +26,25 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-if (tesseract_planning_DIR)
-  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${OMPL_INCLUDE_DIRS})
-  link_directories(${catkin_LIBRARY_DIRS} ${OMPL_LIBS})
+include_directories(SYSTEM 
+${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS})
 
-  add_library(${LIBRARY_NAME}
-    src/conversions.cpp
-    src/trajopt_planner.cpp
-    )
+link_directories(${catkin_LIBRARY_DIRS})
 
-  set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-  target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_library(${LIBRARY_NAME}
+  src/conversions.cpp
+  src/trajopt_planner.cpp
+  )
 
-  add_script(fetch_tabletop)
-  
-  install_scripts()
-  install_tests()
-  install_library()
-else()
-  message("`tesseract_planning` not found, not compiling robowflex_tesseract library or executables.")
-endif()
+set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES})
+
+add_script(fetch_tabletop_goalpose)
+add_script(fetch_tabletop_goalstate)
+add_script(fetch_tabletop_inits)
+add_script(fetch_tabletop_planning_time)
+add_script(fetch_trajopt)
+
+install_scripts()
+install_tests()
+install_library()

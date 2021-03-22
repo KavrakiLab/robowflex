@@ -1,5 +1,8 @@
 /* Author: Carlos Quintero, Bryce Willey */
 
+// MoveIt!
+#include <moveit/robot_state/conversions.h>
+
 // Robowflex
 #include <robowflex_library/log.h>
 
@@ -12,7 +15,7 @@
 using namespace robowflex;
 
 bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                    tesseract::tesseract_ros::KDLEnvPtr &env)
+                                    tesseract::tesseract_ros::KDLEnvPtr env)
 {
     if (env->checkInitialized())
     {
@@ -85,11 +88,63 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
     }
 
     RBX_ERROR("Tesseract environment not initialized");
+
     return false;
     // TODO: fixed_frame_transforms?
     // TODO: actually use LinkPadding and LinkScales.
     // TODO: octomap
     // TODO: object_colors: should go somewhere in visual geometry colors.
+}
+
+bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr &state,
+                                                tesseract::tesseract_ros::KDLEnvPtr env)
+{
+    moveit_msgs::RobotState state_msg;
+    moveit::core::robotStateToRobotStateMsg(*state, state_msg);
+
+    std_msgs::Int32 cot;
+    cot.data = tesseract::CollisionObjectType::UseShapeType;
+
+    for (const auto &co : state_msg.attached_collision_objects)
+    {
+        // Declare an attachable object for this attached body.
+        tesseract_msgs::AttachableObject obj;
+        obj.name = co.object.id;
+        obj.operation = tesseract_msgs::AttachableObject::ADD;
+
+        // Add visual object.
+        obj.visual.primitives = co.object.primitives;
+        obj.visual.primitive_poses = co.object.primitive_poses;
+        obj.visual.meshes = co.object.meshes;
+        obj.visual.mesh_poses = co.object.mesh_poses;
+        obj.visual.planes = co.object.planes;
+        obj.visual.plane_poses = co.object.plane_poses;
+
+        // Add collision object.
+        obj.collision.primitives = co.object.primitives;
+        obj.collision.primitive_poses = co.object.primitive_poses;
+        obj.collision.primitive_collision_object_types.resize(co.object.primitives.size());
+        std::fill(obj.collision.primitive_collision_object_types.begin(),
+                  obj.collision.primitive_collision_object_types.end(), cot);
+        obj.collision.meshes = co.object.meshes;
+        obj.collision.mesh_poses = co.object.mesh_poses;
+        obj.collision.planes = co.object.planes;
+        obj.collision.plane_poses = co.object.plane_poses;
+
+        // Create Tesseract attachable object.
+        auto ao = std::make_shared<tesseract::AttachableObject>();
+        tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
+        env->addAttachableObject(ao);
+
+        // Attach the object to the environment (to a parent frame).
+        tesseract::AttachedBodyInfo attached_body_info;
+        attached_body_info.object_name = co.object.id;
+        attached_body_info.parent_link_name = co.link_name;
+        attached_body_info.transform = Eigen::Isometry3d::Identity();
+        env->attachBody(attached_body_info);
+    }
+
+    return true;
 }
 
 void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_state,
@@ -116,7 +171,7 @@ void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_s
 void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state,
                                        const std::string &manip,
                                        const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                       robot_state::RobotStatePtr &robot_state)
+                                       robot_state::RobotStatePtr robot_state)
 {
     // Initialize it with the env state (includes both group and non-group joints).
     const auto &joint_values = env->getCurrentJointValues();
@@ -130,14 +185,18 @@ void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &
 }
 
 void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj,
-                                              const RobotPtr &robot, const std::string &manip,
+                                              const robot_state::RobotStatePtr &ref_state,
+                                              const std::string &manip,
                                               const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                              robot_trajectory::RobotTrajectoryPtr &trajectory)
+                                              robot_trajectory::RobotTrajectoryPtr trajectory)
 {
+    const robot_state::RobotState &copy = *ref_state;
+    trajectory->clear();
+
     for (int i = 0; i < tesseract_traj.rows(); i++)
     {
         // Create a tmp state for every waypoint.
-        auto tmp_state = robot->allocState();
+        auto tmp_state = std::make_shared<robot_state::RobotState>(copy);
 
         // Transform tesseract manip ith waypoint to robot state.
         manipStateToRobotState(tesseract_traj.row(i), manip, env, tmp_state);
