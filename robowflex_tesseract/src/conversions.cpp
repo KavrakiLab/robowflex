@@ -1,5 +1,8 @@
 /* Author: Carlos Quintero, Bryce Willey */
 
+// MoveIt!
+#include <moveit/robot_state/conversions.h>
+
 // Robowflex
 #include <robowflex_library/log.h>
 
@@ -12,7 +15,7 @@
 using namespace robowflex;
 
 bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                    tesseract::tesseract_ros::KDLEnvPtr &env)
+                                    tesseract::tesseract_ros::KDLEnvPtr env)
 {
     if (env->checkInitialized())
     {
@@ -85,6 +88,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
     }
 
     RBX_ERROR("Tesseract environment not initialized");
+
     return false;
     // TODO: fixed_frame_transforms?
     // TODO: actually use LinkPadding and LinkScales.
@@ -93,52 +97,49 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
 }
 
 bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr &state,
-                                                tesseract::tesseract_ros::KDLEnvPtr &env)
+                                                tesseract::tesseract_ros::KDLEnvPtr env)
 {
-    // Find bodies attached to the robot scratch state.
-    std::vector<const moveit::core::AttachedBody *> attached_bodies;
-    state->getAttachedBodies(attached_bodies);
-    for (const auto &link : attached_bodies)
-    {
-        // Get shapes and poses of this attached body.
-        const auto &shapes = link->getShapes();
-        int num_shapes = shapes.size();
-        const auto &poses = link->getFixedTransforms();
-        // const auto global_poses = link->getGlobalCollisionBodyTransforms();
+    moveit_msgs::RobotState state_msg;
+    moveit::core::robotStateToRobotStateMsg(*state, state_msg);
 
+    std_msgs::Int32 cot;
+    cot.data = tesseract::CollisionObjectType::UseShapeType;
+
+    for (const auto &co : state_msg.attached_collision_objects)
+    {
         // Declare an attachable object for this attached body.
         tesseract_msgs::AttachableObject obj;
-        obj.name = link->getName();
+        obj.name = co.object.id;
         obj.operation = tesseract_msgs::AttachableObject::ADD;
 
-        for (int i = 0; i < num_shapes; ++i)
-        {
-            // Add shape primitive to visual and collision for this shape.
-            shapes::ShapeMsg shape_msg;
-            shapes::constructMsgFromShape(shapes[i].get(), shape_msg);
-            auto shape_primitive = boost::get<shape_msgs::SolidPrimitive>(shape_msg);
-            obj.visual.primitives.emplace_back(shape_primitive);
-            obj.collision.primitives.emplace_back(shape_primitive);
+        // Add visual object.
+        obj.visual.primitives = co.object.primitives;
+        obj.visual.primitive_poses = co.object.primitive_poses;
+        obj.visual.meshes = co.object.meshes;
+        obj.visual.mesh_poses = co.object.mesh_poses;
+        obj.visual.planes = co.object.planes;
+        obj.visual.plane_poses = co.object.plane_poses;
 
-            std_msgs::Int32 cot;
-            cot.data = tesseract::CollisionObjectType::UseShapeType;
-            obj.collision.primitive_collision_object_types.emplace_back(cot);
+        // Add collision object.
+        obj.collision.primitives = co.object.primitives;
+        obj.collision.primitive_poses = co.object.primitive_poses;
+        obj.collision.primitive_collision_object_types.resize(co.object.primitives.size());
+        std::fill(obj.collision.primitive_collision_object_types.begin(),
+                  obj.collision.primitive_collision_object_types.end(), cot);
+        obj.collision.meshes = co.object.meshes;
+        obj.collision.mesh_poses = co.object.mesh_poses;
+        obj.collision.planes = co.object.planes;
+        obj.collision.plane_poses = co.object.plane_poses;
 
-            // Add primitive poses for this shape
-            geometry_msgs::Pose primitive_pose;
-            tf::poseEigenToMsg(poses[i], primitive_pose);
-            obj.visual.primitive_poses.emplace_back(primitive_pose);
-            obj.collision.primitive_poses.emplace_back(primitive_pose);
-        }
-
+        // Create Tesseract attachable object.
         auto ao = std::make_shared<tesseract::AttachableObject>();
         tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
         env->addAttachableObject(ao);
 
         // Attach the object to the environment (to a parent frame).
         tesseract::AttachedBodyInfo attached_body_info;
-        attached_body_info.object_name = link->getName();
-        attached_body_info.parent_link_name = link->getAttachedLinkName();
+        attached_body_info.object_name = co.object.id;
+        attached_body_info.parent_link_name = co.link_name;
         attached_body_info.transform = Eigen::Isometry3d::Identity();
         env->attachBody(attached_body_info);
     }
@@ -170,7 +171,7 @@ void hypercube::robotStateToManipState(const robot_state::RobotStatePtr &robot_s
 void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state,
                                        const std::string &manip,
                                        const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                       robot_state::RobotStatePtr &robot_state)
+                                       robot_state::RobotStatePtr robot_state)
 {
     // Initialize it with the env state (includes both group and non-group joints).
     const auto &joint_values = env->getCurrentJointValues();
@@ -187,7 +188,7 @@ void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesser
                                               const robot_state::RobotStatePtr &ref_state,
                                               const std::string &manip,
                                               const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                              robot_trajectory::RobotTrajectoryPtr &trajectory)
+                                              robot_trajectory::RobotTrajectoryPtr trajectory)
 {
     const robot_state::RobotState &copy = *ref_state;
     trajectory->clear();

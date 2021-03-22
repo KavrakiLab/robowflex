@@ -18,7 +18,6 @@ using namespace robowflex;
  */
 
 static const std::string GROUP = "arm";
-static const int NUM_WAYPOINTS = 8;
 
 int main(int argc, char **argv)
 {
@@ -36,13 +35,14 @@ int main(int argc, char **argv)
     // Attach object to end effector.
     scene->attachObject(*fetch->getScratchState(), "Can1");
     fetch->getScratchState() =
-        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentStateNonConst());
+        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentState());
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize(GROUP + "_chain", "torso_lift_link", "gripper_link");
-    planner->options.num_waypoints = NUM_WAYPOINTS;
-    planner->options.joint_state_safety_margin_coeffs = 20.0;
+    planner->initialize("torso_lift_link", "gripper_link");
+
+    // Set planner parameters.
+    planner->options.num_waypoints = 8;  // Select number of waypoints in trajectory.
 
     // Load request.
     const auto &request = std::make_shared<MotionRequestBuilder>(fetch);
@@ -57,8 +57,10 @@ int main(int argc, char **argv)
     RBX_INFO("Press Enter to try to plan with STATIONARY initialization");
     std::cin.ignore();
 
-    // Do motion planning.
+    // Initialize all waypoints at the start state. This is the default initialization.
     planner->setInitType(trajopt::InitInfo::Type::STATIONARY);
+
+    // Do motion planning.
     auto res = planner->plan(scene, request->getRequest());
     if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         rviz->updateTrajectory(res);
@@ -69,8 +71,10 @@ int main(int argc, char **argv)
     RBX_INFO("Press Enter to try to plan with JOINT_INTERPOLATED initialization");
     std::cin.ignore();
 
-    // Do motion planning.
+    // Initialize using a straight-line between start and goal in C-Space.
     planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
+
+    // Do motion planning.
     res = planner->plan(scene, request->getRequest());
     if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         rviz->updateTrajectory(res);

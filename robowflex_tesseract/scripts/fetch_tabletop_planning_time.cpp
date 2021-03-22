@@ -35,14 +35,16 @@ int main(int argc, char **argv)
     // Attach object to end effector.
     scene->attachObject(*fetch->getScratchState(), "Can1");
     fetch->getScratchState() =
-        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentStateNonConst());
+        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentState());
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize(GROUP + "_chain", "torso_lift_link", "gripper_link");
-    planner->options.num_waypoints = 8;
-    planner->options.joint_state_safety_margin_coeffs = 20.0;
-    planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
+    planner->initialize("torso_lift_link", "gripper_link");
+
+    // Set planner parameters.
+    planner->options.num_waypoints = 8;  // Select number of waypoints in trajectory.
+    planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);  // Initialize using a straight-line
+                                                                        // between start and goal in C-Space.
 
     // Load request.
     const auto &request = std::make_shared<MotionRequestBuilder>(fetch);
@@ -57,8 +59,10 @@ int main(int argc, char **argv)
     RBX_INFO("Press Enter to run the planner and returning its first solution");
     std::cin.ignore();
 
-    // Do motion planning. By default, TrajOpt will run only once and will return that solution, regardless of
-    // its feasibility.
+    // Run the planner just once.
+    planner->options.return_first_sol = true;
+
+    // Do motion planning.
     auto res = planner->plan(scene, request->getRequest());
     if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         rviz->updateTrajectory(res);
@@ -70,7 +74,16 @@ int main(int argc, char **argv)
              "feasible solution");
     std::cin.ignore();
 
+    // Run the planner potentially more than once and make it return when it finds a feasible solution or when
+    // it runs out of time. Each time the planner runs, it starts with a perturbed version of the initial
+    // trajectory.
     planner->options.return_first_sol = false;
+    planner->options.return_after_timeout = false;
+
+    // The time budget is taken from the planning request.
+    request->getRequest().allowed_planning_time = 3.0;
+
+    // Do motion planning.
     res = planner->plan(scene, request->getRequest());
     if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         rviz->updateTrajectory(res);
@@ -81,7 +94,14 @@ int main(int argc, char **argv)
     RBX_INFO("Press Enter to run the planner for the whole time budget");
     std::cin.ignore();
 
+    // Run the planner for the whole time budget.
+    planner->options.return_first_sol = false;
     planner->options.return_after_timeout = true;
+
+    // The time budget is taken from the planning request.
+    request->getRequest().allowed_planning_time = 3.0;
+
+    // Do motion planning.
     res = planner->plan(scene, request->getRequest());
     if (res.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         rviz->updateTrajectory(res);

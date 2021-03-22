@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize(GROUP + "_chain", "torso_lift_link", "gripper_link");
+    planner->initialize("torso_lift_link", "gripper_link");
     planner->options.num_waypoints = 3;
 
     // Create a motion planning request with a pose goal.

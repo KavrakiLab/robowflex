@@ -26,8 +26,7 @@ TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_n
 {
 }
 
-bool TrajOptPlanner::initialize(const std::string &manip, const std::string &base_link,
-                                const std::string &tip_link)
+bool TrajOptPlanner::initialize(const std::string &manip)
 {
     // Save manipulator name.
     manip_ = manip;
@@ -35,52 +34,68 @@ bool TrajOptPlanner::initialize(const std::string &manip, const std::string &bas
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
 
-    // If base_link and tip_link are provided, create a tmp srdf with manip to initialize env
-    if ((base_link != "") and (tip_link != ""))
+    if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
     {
-        if (!robot_->getModelConst()->hasLinkModel(base_link))
-        {
-            RBX_ERROR("%s does not exist in robot description", base_link);
-            return false;
-        }
-        if (!robot_->getModelConst()->hasLinkModel(tip_link))
-        {
-            RBX_ERROR("%s does not exist in robot description", tip_link);
-            return false;
-        }
-
-        if (options.verbose)
-            RBX_INFO("Adding manipulator %s from %s to %s", manip, base_link, tip_link);
-
-        TiXmlDocument srdf_doc;
-        srdf_doc.Parse(robot_->getSRDFString().c_str());
-
-        auto *group_element = new TiXmlElement("group");
-        group_element->SetAttribute("name", manip.c_str());
-        srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
-
-        auto *chain_element = new TiXmlElement("chain");
-        chain_element->SetAttribute("base_link", base_link.c_str());
-        chain_element->SetAttribute("tip_link", tip_link.c_str());
-        group_element->LinkEndChild(chain_element);
-
-        srdf::ModelSharedPtr srdf;
-        srdf.reset(new srdf::Model());
-        srdf->initXml(*(robot_->getURDF()), &srdf_doc);
-
-        if (!env_->init(robot_->getURDF(), srdf))
-        {
-            RBX_ERROR("Error loading robot %s", robot_->getName());
-            return false;
-        }
+        RBX_ERROR("Error loading robot %s", robot_->getName());
+        return false;
     }
-    else
+
+    // Check if manipulator was correctly loaded.
+    if (!env_->hasManipulator(manip_))
     {
-        if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
-        {
-            RBX_ERROR("Error loading robot %s", robot_->getName());
-            return false;
-        }
+        RBX_ERROR("No manipulator found in KDL environment");
+        return false;
+    }
+
+    // Initialize trajectory.
+    trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+
+    return true;
+}
+
+bool TrajOptPlanner::initialize(const std::string &base_link, const std::string &tip_link)
+{
+    // Save manipulator name.
+    manip_ = "manipulator";
+
+    // Start KDL environment with the robot information.
+    env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
+
+    if (!robot_->getModelConst()->hasLinkModel(base_link))
+    {
+        RBX_ERROR("%s does not exist in robot description", base_link);
+        return false;
+    }
+
+    if (!robot_->getModelConst()->hasLinkModel(tip_link))
+    {
+        RBX_ERROR("%s does not exist in robot description", tip_link);
+        return false;
+    }
+
+    if (options.verbose)
+        RBX_INFO("Adding manipulator %s from %s to %s", manip_, base_link, tip_link);
+
+    TiXmlDocument srdf_doc;
+    srdf_doc.Parse(robot_->getSRDFString().c_str());
+
+    auto *group_element = new TiXmlElement("group");
+    group_element->SetAttribute("name", manip_.c_str());
+    srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
+
+    auto *chain_element = new TiXmlElement("chain");
+    chain_element->SetAttribute("base_link", base_link.c_str());
+    chain_element->SetAttribute("tip_link", tip_link.c_str());
+    group_element->LinkEndChild(chain_element);
+
+    srdf::ModelSharedPtr srdf;
+    srdf.reset(new srdf::Model());
+    srdf->initXml(*(robot_->getURDF()), &srdf_doc);
+
+    if (!env_->init(robot_->getURDF(), srdf))
+    {
+        RBX_ERROR("Error loading robot %s", robot_->getName());
+        return false;
     }
 
     // Check if manipulator was correctly loaded.
@@ -158,9 +173,7 @@ double TrajOptPlanner::getPlanningTime() const
 void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
 {
     if (!env_->hasManipulator(manip_))
-    {
         throw Exception(1, "There is no loaded manipulator!");
-    }
     else
     {
         const auto &joint_names = env_->getManipulator(manip_)->getJointNames();
@@ -168,9 +181,7 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
         {
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
             if (it == joint_names.end())
-            {
                 throw Exception(1, "One of the joints to be fixed does not exist");
-            }
             else
             {
                 int index = std::distance(joint_names.begin(), it);
@@ -413,7 +424,7 @@ void TrajOptPlanner::setWriteFile(bool file_write_cb, const std::string &file_pa
         stream_ptr_->open(file_path_, std::ofstream::out | std::ofstream::trunc);
 }
 
-void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> &pci) const
+void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     pci->basic_info.convex_solver = options.backend_optimizer;
     pci->kin = env_->getManipulator(manip_);
@@ -443,7 +454,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
     pci->cost_infos.push_back(jv);
 }
 
-void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionInfo> &pci) const
+void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     auto collision = std::make_shared<CollisionTermInfo>();
     collision->name = "collision_cost";
@@ -458,14 +469,14 @@ void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionIn
 }
 
 void TrajOptPlanner::addStartState(const MotionRequestBuilderPtr &request,
-                                   std::shared_ptr<ProblemConstructionInfo> &pci)
+                                   std::shared_ptr<ProblemConstructionInfo> pci)
 {
     // Extract start state from request.
     addStartState(request->getStartConfiguration(), pci);
 }
 
 void TrajOptPlanner::addStartState(const robot_state::RobotStatePtr &start_state,
-                                   std::shared_ptr<ProblemConstructionInfo> &pci)
+                                   std::shared_ptr<ProblemConstructionInfo> pci)
 {
     // Extract start state values.
     std::vector<double> values(start_state->getVariablePositions(),
@@ -477,7 +488,7 @@ void TrajOptPlanner::addStartState(const robot_state::RobotStatePtr &start_state
 }
 
 void TrajOptPlanner::addStartState(const std::unordered_map<std::string, double> &start_state,
-                                   std::shared_ptr<ProblemConstructionInfo> &pci)
+                                   std::shared_ptr<ProblemConstructionInfo> pci)
 {
     // Set the start_state into the Tesseract environment.
     env_->setState(start_state);
@@ -485,7 +496,7 @@ void TrajOptPlanner::addStartState(const std::unordered_map<std::string, double>
 }
 
 void TrajOptPlanner::addStartPose(const RobotPose &start_pose, const std::string &link,
-                                  std::shared_ptr<ProblemConstructionInfo> &pci) const
+                                  std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     Eigen::Quaterniond rotation(start_pose.linear());
     auto pose_constraint = std::make_shared<CartPoseTermInfo>();
@@ -501,14 +512,14 @@ void TrajOptPlanner::addStartPose(const RobotPose &start_pose, const std::string
 }
 
 void TrajOptPlanner::addGoalState(const MotionRequestBuilderPtr &request,
-                                  std::shared_ptr<ProblemConstructionInfo> &pci) const
+                                  std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     // Extract goal_state from request.
     addGoalState(request->getGoalConfiguration(), pci);
 }
 
 void TrajOptPlanner::addGoalState(const robot_state::RobotStatePtr &goal_state,
-                                  std::shared_ptr<ProblemConstructionInfo> &pci) const
+                                  std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     const auto &manip_joint_names = env_->getManipulator(manip_)->getJointNames();
 
@@ -521,7 +532,7 @@ void TrajOptPlanner::addGoalState(const robot_state::RobotStatePtr &goal_state,
 }
 
 void TrajOptPlanner::addGoalState(const std::vector<double> goal_state,
-                                  std::shared_ptr<ProblemConstructionInfo> &pci) const
+                                  std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     auto joint_pos_constraint = std::make_shared<JointPosTermInfo>();
     joint_pos_constraint->term_type = TT_CNT;
@@ -538,7 +549,7 @@ void TrajOptPlanner::addGoalState(const std::vector<double> goal_state,
 }
 
 void TrajOptPlanner::addGoalPose(const RobotPose &goal_pose, const std::string &link,
-                                 std::shared_ptr<ProblemConstructionInfo> &pci) const
+                                 std::shared_ptr<ProblemConstructionInfo> pci) const
 {
     Eigen::Quaterniond rotation(goal_pose.linear());
     auto pose_constraint = std::make_shared<CartPoseTermInfo>();
@@ -596,6 +607,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
                                                             (Eigen::MatrixXd::Random(rows, cols) * 0.5 +
                                                              Eigen::MatrixXd::Constant(rows, cols, 0.5)));
         }
+
         opt.initialize(trajToDblVec(init_trajectory));
 
         // Optimize.
@@ -678,7 +690,6 @@ sco::BasicTrustRegionSQPParameters TrajOptPlanner::getTrustRegionSQPParameters()
     params.cnt_tolerance = options.cnt_tolerance;
     params.max_merit_coeff_increases = options.max_merit_coeff_increases;
     params.merit_coeff_increase_ratio = options.merit_coeff_increase_ratio;
-    params.max_time = options.max_time;
     params.merit_error_coeff = options.merit_error_coeff;
     params.trust_box_size = options.trust_box_size;
 

@@ -35,14 +35,16 @@ int main(int argc, char **argv)
     // Attach object to end effector.
     scene->attachObject(*fetch->getScratchState(), "Can1");
     fetch->getScratchState() =
-        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentStateNonConst());
+        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentState());
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize(GROUP + "_chain", "torso_lift_link", "gripper_link");
-    planner->options.num_waypoints = 8;
-    planner->options.joint_state_safety_margin_coeffs = 20.0;
-    planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);
+    planner->initialize("torso_lift_link", "gripper_link");
+
+    // Set planner parameters.
+    planner->options.num_waypoints = 8;  // Select number of waypoints in trajectory
+    planner->setInitType(trajopt::InitInfo::Type::JOINT_INTERPOLATED);  // Initialize using a straight-line
+                                                                        // between start and goal in C-space.
 
     // Load request.
     const auto &request = std::make_shared<MotionRequestBuilder>(fetch);

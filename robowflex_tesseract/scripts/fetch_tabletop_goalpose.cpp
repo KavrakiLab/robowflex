@@ -37,12 +37,14 @@ int main(int argc, char **argv)
     // Attach object to end effector.
     scene->attachObject(*fetch->getScratchState(), "Can1");
     fetch->getScratchState() =
-        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentStateNonConst());
+        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentState());
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize(GROUP + "_chain", "torso_lift_link", "gripper_link");
-    planner->options.num_waypoints = 10;
+    planner->initialize("torso_lift_link", "gripper_link");
+
+    // Set planner parameters.
+    planner->options.num_waypoints = 8;  // Select number of waypoints in trajectory.
 
     // Load request.
     const auto &request = std::make_shared<MotionRequestBuilder>(fetch);
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
     RBX_INFO("Press Enter to continue");
     std::cin.ignore();
 
-    // Do motion planning.
+    // Do motion planning using a goal pose for the end effector.
     auto result = planner->plan(scene, start_state, goal_ee_pose, ee);
     if (result.first)
         rviz->updateTrajectory(planner->getTrajectory());
