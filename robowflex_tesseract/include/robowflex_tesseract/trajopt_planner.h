@@ -136,7 +136,7 @@ namespace robowflex
          *  STATIONARY
          *  JOINT_INTERPOLATED
          *  The user can also provide their own trajectory using setInitialTrajectory(). In
-         *  such case, there is no need to call setInitType(). 
+         *  such case, there is no need to call setInitType().
          *  \param[in] init_type Type of initial trajectory to be used.
          */
         void setInitType(const trajopt::InitInfo::Type &init_type);
