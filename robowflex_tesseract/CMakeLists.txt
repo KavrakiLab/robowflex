@@ -17,7 +17,7 @@ list(APPEND CATKIN_DEPS
   tesseract_ros
   )
  
-find_package(catkin REQUIRED COMPONENTS ${CATKIN_DEPS})
+find_package(catkin QUIET COMPONENTS ${CATKIN_DEPS})
 
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
@@ -26,25 +26,29 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-include_directories(SYSTEM 
-${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS})
+if (tesseract_planning_DIR)
+  include_directories(SYSTEM 
+  ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS})
 
-link_directories(${catkin_LIBRARY_DIRS})
+  link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(${LIBRARY_NAME}
-  src/conversions.cpp
-  src/trajopt_planner.cpp
-  )
+  add_library(${LIBRARY_NAME}
+    src/conversions.cpp
+    src/trajopt_planner.cpp
+    )
 
-set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES})
+  set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+  target_link_libraries(${LIBRARY_NAME} ${catkin_LIBRARIES})
 
-add_script(fetch_tabletop_goalpose)
-add_script(fetch_tabletop_goalstate)
-add_script(fetch_tabletop_inits)
-add_script(fetch_tabletop_planning_time)
-add_script(fetch_trajopt)
+  add_script(fetch_tabletop_goalpose)
+  add_script(fetch_tabletop_goalstate)
+  add_script(fetch_tabletop_inits)
+  add_script(fetch_tabletop_planning_time)
+  add_script(fetch_trajopt)
 
-install_scripts()
-install_tests()
-install_library()
+  install_scripts()
+  install_tests()
+  install_library()
+else()
+  message("`tesseract_planning` not found, not compiling robowflex_tesseract library or executables.")
+endif()
