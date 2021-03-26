@@ -979,7 +979,7 @@ const std::vector<TSRPtr> &TSRSet::getTSRs() const
     return tsrs_;
 }
 
-const TSRPtr TSRSet::getTSR(const unsigned index) 
+const TSRPtr& TSRSet::getTSR(const std::size_t index) 
 {
     return tsrs_[index];
 }

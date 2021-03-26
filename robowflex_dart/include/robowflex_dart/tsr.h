@@ -833,9 +833,10 @@ namespace robowflex
 
 
             /** \brief Gets a specific TSR within a TSR set.
+             *  \param[in] index Index of TSR to access.
              *  \return The TSR cooresponding to index in this set.
              */
-            const TSRPtr getTSR(const unsigned index);
+            const TSRPtr& getTSR(const std::size_t index);
 
             /** \brief Get the numerical tolerance for solving.
              *  \return The tolerance.
