@@ -11,6 +11,15 @@
 
 using namespace robowflex;
 
+/** \file
+ *  A helper script to visualize all the robots available in robowflex_resources, see
+ * https://github.com/KavrakiLab/robowflex_resources. You should run RViz and have a PlanningScene
+ * visualization display enabled set to look at /robowflex/robot_description. Enable/Disable the PlanningScene
+ * display after running the script with a robot to see it displayed.
+ *
+ * Currently, the robots available are the Fetch, UR5, Panda, Baxter, and YuMi. See output for details.
+ */
+
 // Fetch robot
 const std::string fetch[4] = {
     "package://robowflex_resources/fetch/urdf/fetch.urdf.xacro",     // urdf
