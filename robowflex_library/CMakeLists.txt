@@ -128,6 +128,7 @@ add_script(fetch_benchmark)
 add_script(fetch_visualization)
 add_script(wam7_test)
 add_script(wam7_benchmark)
+add_script(resources_visualization)
 add_script(plugin_io)
 
 ##
