@@ -22,7 +22,7 @@ using namespace robowflex;
 
 // Fetch robot
 const std::string fetch[4] = {
-    "package://robowflex_resources/fetch/urdf/fetch.urdf.xacro",     // urdf
+    "package://robowflex_resources/fetch/robots/fetch.urdf",         // urdf
     "package://robowflex_resources/fetch/config/fetch.srdf",         // srdf
     "package://robowflex_resources/fetch/config/joint_limits.yaml",  // joint limits
     "package://robowflex_resources/fetch/config/kinematics.yaml"     // kinematics
@@ -66,13 +66,16 @@ int main(int argc, char **argv)
     ROS ros(argc, argv);
 
     if (argc != 2)
-        RBX_FATAL("Specify robot to load. Can be {baxter, ur5, panda, fetch, yumi}.");
+        RBX_FATAL("Specify robot to load as an argument "
+                  "(e.g., `rosrun robowflex_library resources_visualization <robot>`). "
+                  "Can be {baxter, ur5, panda, fetch, yumi}.");
 
     const auto name = std::string(argv[1]);
 
-    // Create a Baxter robot, specifying all necessary files.
-    auto robot = std::make_shared<Robot>(name);
+    // Create an empty robot.
+    const auto &robot = std::make_shared<Robot>(name);
 
+    // Initialize robot from argument.
     if (name == "fetch")
         robot->initialize(fetch[0], fetch[1], fetch[2], fetch[3]);
     else if (name == "ur5")
