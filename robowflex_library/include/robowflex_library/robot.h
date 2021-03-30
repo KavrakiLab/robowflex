@@ -114,16 +114,16 @@ namespace robowflex
          *  All files are loaded under the robot's namespace.
          *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
          *  \param[in] srdf_file Location of the robot's SRDF (XML or .xacro file).
-         *  \param[in] limits_file Location of the joint limit information (a YAML file).
-         *  \param[in] kinematics_file Location of the kinematics plugin information (a YAML file).
+         *  \param[in] limits_file Location of the joint limit information (a YAML file). Optional.
+         *  \param[in] kinematics_file Location of the kinematics plugin information (a YAML file). Optional.
          *  \return True on success, false on failure.
          */
         bool initialize(const std::string &urdf_file, const std::string &srdf_file,
-                        const std::string &limits_file, const std::string &kinematics_file);
+                        const std::string &limits_file = "", const std::string &kinematics_file = "");
 
-        /** \brief Initializes a robot from a yaml config which includes the kinematic description (urdf)
-         * and optionally includes the semantic description (srdf), joint limits (joint_limitis), ik plugins
-         * (kinematics) and a default state. All files are loaded under the robot's namespace.
+        /** \brief Initializes a robot from a YAML config which includes URDF (urdf) and optional the SRDF
+         * (srdf), joint limits (joint_limits), IK plugins (kinematics) and a default state (robot_state).
+         * All files are loaded under the robot's namespace. The names of the YAML keys are in parenthesis.
          * \param[in] config_file Location of the yaml config file.
          * \return True on success, false on failure.
          */
