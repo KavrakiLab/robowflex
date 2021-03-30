@@ -121,6 +121,14 @@ namespace robowflex
         bool initialize(const std::string &urdf_file, const std::string &srdf_file,
                         const std::string &limits_file, const std::string &kinematics_file);
 
+        /** \brief Initializes a robot from a yaml config which includes the kinematic description (urdf)
+         * and optionally includes the semantic description (srdf), joint limits (joint_limitis), ik plugins
+         * (kinematics) and a default state. All files are loaded under the robot's namespace.
+         * \param[in] config_file Location of the yaml config file.
+         * \return True on success, false on failure.
+         */
+        bool initializeFromYAML(const std::string &config_file);
+
         /** \brief Loads a YAML file into the robot's namespace under \a name.
          *  \param[in] name Name to load file under.
          *  \param[in] file File to load.

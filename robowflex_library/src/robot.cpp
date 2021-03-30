@@ -9,10 +9,10 @@
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -106,6 +106,84 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
     }
 
     loadRobotModel();
+    return true;
+}
+
+bool Robot::initializeFromYAML(const std::string &config_file)
+{
+    if (loader_)
+    {
+        RBX_ERROR("Already initialized!");
+        return false;
+    }
+    auto &yaml = IO::loadFileToYAML(config_file);
+    if (!yaml.first)
+    {
+        RBX_ERROR("Failed to load YAML file `%s`.", config_file.c_str());
+        return false;
+    }
+
+    auto &node = yaml.second;
+    if (IO::isNode(node["urdf"]))
+    {
+        if (not loadURDFFile(node["urdf"].as<std::string>()))
+        {
+            RBX_ERROR("Failed to load URDF!");
+            return false;
+        }
+    }
+    else
+    {
+        RBX_ERROR("No urdf entry!");
+        return false;
+    }
+
+    if (IO::isNode(node["srdf"]))
+    {
+        if (not loadURDFFile(node["srdf"].as<std::string>()))
+        {
+            RBX_ERROR("Failed to load SRDF!");
+            return false;
+        }
+    }
+    else
+    {
+        RBX_WARN("No srdf provided!");
+    }
+
+    if (IO::isNode(node["limits"]))
+    {
+        if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, node["limits"].as<std::string>(),
+                             limits_function_))
+        {
+            RBX_ERROR("Failed to load joit limits!");
+            return false;
+        }
+    }
+    else
+        RBX_WARN("No joint limits provided!");
+
+    if (IO::isNode(node["kinematics"]))
+    {
+        if (not initializeKinematics(node["kinematics"].as<std::string>()))
+        {
+            RBX_ERROR("Failed to load kinematics!");
+            return false;
+        }
+    }
+    else
+        RBX_WARN("No kinematics provided!");
+
+    loadRobotModel();
+
+    if (IO::isNode(node["robot_state"]))
+    {
+        const auto &robot_state = IO::robotStateFromNode(node["robot_state"]);
+        setState(robot_state);
+    }
+    else
+        RBX_WARN("No default state provided!");
+
     return true;
 }
 
