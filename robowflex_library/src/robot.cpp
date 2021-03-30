@@ -170,7 +170,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
             return false;
         }
 
-        kinematics_file = node["kinematics"].as<std::string>()
+        kinematics_file = node["kinematics"].as<std::string>();
     }
     else
         RBX_WARN("No kinematics plugins provided!");
@@ -184,6 +184,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
 
     // Set default state if provided in file.
     if (r)
+    {
         if (IO::isNode(node["robot_state"]))
         {
             const auto &robot_state = IO::robotStateFromNode(node["robot_state"]);
@@ -191,6 +192,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
         }
         else
             RBX_WARN("No default state provided!");
+    }
 
     return r;
 }
