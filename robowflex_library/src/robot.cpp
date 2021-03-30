@@ -229,12 +229,8 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
     }
 
-    if (not loadURDFFile(urdf_file) or not loadSRDFFile(srdf_file))
-        return false;
-
-    loadRobotModel();
-
-    return true;
+    // Call other initializer with empty joint_limits & kinematics.
+    return initialize(urdf_file, srdf_file, "", "");
 }
 
 bool Robot::initializeKinematics(const std::string &kinematics_file)
