@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     IO::RVIZHelper rviz(robot);
 
     RBX_INFO("Press enter to exit.");
-    std::cin.get();
+    std::cin.ignore();
 
     return 0;
 }
