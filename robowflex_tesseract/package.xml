@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_tesseract</name>
-  <version>0.1.0</version>
+  <version>1.1.0</version>
   <description>Robowflex: ROS Industrial Tesseract Interface</description>
 
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="bryce.steven.willey@gmail.com">Bryce Willey</author>
-  <author email="carlosq@rice.edu">Carlos Quintero</author>
+  <author email="carlosq@rice.edu">Carlos Quintero Pena</author>
 
   <license>BSD</license>
+  <url type="bugtracker">https://github.com/KavrakiLab/robowflex/issues</url>
+  <url type="repository">https://github.com/KavrakiLab/robowflex</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>ompl</depend>
   <depend>robowflex_library</depend>
-  <depend>moveit_planners_ompl</depend>
   <depend>tesseract_planning</depend>
   <depend>tesseract_ros</depend>
 </package>

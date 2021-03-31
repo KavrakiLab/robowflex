@@ -14,6 +14,7 @@ namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
+    ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(Planner);
     /** \endcond */
 
@@ -94,7 +95,35 @@ namespace robowflex
         /** \brief Set the start configuration from a robot state.
          *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
          */
+        void setStartConfiguration(const robot_state::RobotState &state);
+
+        /** \brief Set the start configuration from a robot state.
+         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+         */
         void setStartConfiguration(const robot_state::RobotStatePtr &state);
+
+        /** \brief Use the current scene state for the starting configuration.
+         *  \param[in] scene Scene to use state from.
+         */
+        void useSceneStateAsStart(const SceneConstPtr &scene);
+
+        /** \brief Attach an object to the current request start state. Uses \a object from \a scene, and
+         *  modifies the underlying scene state. This uses `attachObject()` on the scene, so note that the
+         *  attached object will have to be re-added to the scene.
+         *  \param[in] scene Scene to use objects from. Will be modified.
+         *  \param[in] object Object to attach.
+         *  \return True on success, false on failure.
+         */
+        bool attachObjectToStart(ScenePtr scene, const std::string &object);
+
+        /** \brief Attach an object to the current request start state. Uses \a object from \a scene, but does
+         *  not modify the underlying scene. Be aware that attached objects can collide with themselves if not
+         *  removed from the provided scene.
+         *  \param[in] scene Scene to use objects from.
+         *  \param[in] object Object to attach.
+         *  \return True on success, false on failure.
+         */
+        bool attachObjectToStartConst(const SceneConstPtr &scene, const std::string &object);
 
         /** \} */
 

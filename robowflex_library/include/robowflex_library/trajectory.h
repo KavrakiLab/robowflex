@@ -135,8 +135,20 @@ namespace robowflex
          * States are inserted uniformly (more states on longer segments). Changes are performed only if a
          * path has less than count states.
          * \param[in] count number of states to insert.
-         * */
+         */
         void interpolate(unsigned int count);
+
+        /** \brief Converts a trajectory into a vector of position vectors. The values are in the same order
+         * as reported by getJointNames(), which is consistent within MoveIt.
+         * \return The trajectory in vector form.
+         */
+        std::vector<std::vector<double>> vectorize() const;
+
+        /** \brief  Get the names of the variables that make up this trajectory, in the same order as in
+         * MoveIt JointModelGroup.
+         * \return A vector of joint names in order.
+         */
+        std::vector<std::string> getJointNames() const;
 
         /** \} */
 

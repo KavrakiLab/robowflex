@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>robowflex_dart</name>
-  <version>0.1.0</version>
+  <version>1.1.0</version>
   <description>Robowflex: DART Planning Tools</description>
 
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
 
   <license>BSD</license>
+  <url type="bugtracker">https://github.com/KavrakiLab/robowflex/issues</url>
+  <url type="repository">https://github.com/KavrakiLab/robowflex</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 

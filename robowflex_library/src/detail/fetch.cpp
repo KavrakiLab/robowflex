@@ -8,13 +8,21 @@
 
 using namespace robowflex;
 
-const std::string FetchRobot::URDF{"package://fetch_description/robots/fetch.urdf"};
-const std::string FetchRobot::SRDF{"package://fetch_moveit_config/config/fetch.srdf"};
-const std::string FetchRobot::LIMITS{"package://fetch_moveit_config/config/joint_limits.yaml"};
-const std::string FetchRobot::KINEMATICS{"package://fetch_moveit_config/config/kinematics.yaml"};
-
+const std::string FetchRobot::DEFAULT_URDF{"package://fetch_description/robots/fetch.urdf"};
+const std::string FetchRobot::DEFAULT_SRDF{"package://fetch_moveit_config/config/fetch.srdf"};
+const std::string FetchRobot::DEFAULT_LIMITS{"package://fetch_moveit_config/config/joint_limits.yaml"};
+const std::string FetchRobot::DEFAULT_KINEMATICS{"package://fetch_moveit_config/config/kinematics.yaml"};
 const std::string  //
-    OMPL::FetchOMPLPipelinePlanner::CONFIG{"package://fetch_moveit_config/config/ompl_planning.yaml"};
+    OMPL::FetchOMPLPipelinePlanner::DEFAULT_CONFIG{"package://fetch_moveit_config/config/ompl_planning.yaml"};
+
+const std::string FetchRobot::RESOURCE_URDF{"package://robowflex_resources/fetch/robots/fetch.urdf"};
+const std::string FetchRobot::RESOURCE_SRDF{"package://robowflex_resources/fetch/config/fetch.srdf"};
+const std::string FetchRobot::RESOURCE_LIMITS{"package://robowflex_resources/fetch/config/joint_limits.yaml"};
+const std::string  //
+    FetchRobot::RESOURCE_KINEMATICS{"package://robowflex_resources/fetch/config/kinematics.yaml"};
+const std::string  //
+    OMPL::FetchOMPLPipelinePlanner::RESOURCE_CONFIG{"package://robowflex_resources/fetch/config/"
+                                                    "ompl_planning.yaml"};
 
 FetchRobot::FetchRobot() : Robot("fetch")
 {
@@ -27,7 +35,20 @@ bool FetchRobot::initialize(bool addVirtual)
 
     setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
-    bool success = Robot::initialize(URDF, SRDF, LIMITS, KINEMATICS);
+    bool success = false;
+
+    // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
+    if (IO::resolvePackage(RESOURCE_URDF).empty() or IO::resolvePackage(RESOURCE_SRDF).empty())
+    {
+        RBX_INFO("Initializing Fetch with `fetch_{description, moveit_config}`");
+        success = Robot::initialize(DEFAULT_URDF, DEFAULT_SRDF, DEFAULT_LIMITS, DEFAULT_KINEMATICS);
+    }
+    else
+    {
+        RBX_INFO("Initializing Fetch with `robowflex_resources`");
+        success = Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS, RESOURCE_KINEMATICS);
+    }
+
     loadKinematics("arm");
     loadKinematics("arm_with_torso");
 
@@ -130,9 +151,11 @@ OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, 
 {
 }
 
-bool OMPL::FetchOMPLPipelinePlanner::initialize(const Settings &settings, const std::string &config_file,
-                                                const std::string &plugin,
+bool OMPL::FetchOMPLPipelinePlanner::initialize(const Settings &settings,
                                                 const std::vector<std::string> &adapters)
 {
-    return OMPLPipelinePlanner::initialize(config_file, settings, plugin, adapters);
+    if (IO::resolvePackage(RESOURCE_CONFIG).empty())
+        return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+    else
+        return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }
