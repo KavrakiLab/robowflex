@@ -9,10 +9,10 @@
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -93,20 +93,108 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
     }
 
-    if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_))
-    {
-        RBX_ERROR("Failed to load joint limits!");
-        return false;
-    }
+    if (not limits_file.empty())
+        if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_))
+        {
+            RBX_ERROR("Failed to load joint limits!");
+            return false;
+        }
 
-    if (not initializeKinematics(kinematics_file))
-    {
-        RBX_ERROR("Failed to load kinematics!");
-        return false;
-    }
+    if (not kinematics_file.empty())
+        if (not initializeKinematics(kinematics_file))
+        {
+            RBX_ERROR("Failed to load kinematics!");
+            return false;
+        }
 
     loadRobotModel();
     return true;
+}
+
+bool Robot::initializeFromYAML(const std::string &config_file)
+{
+    if (loader_)
+    {
+        RBX_ERROR("Already initialized!");
+        return false;
+    }
+
+    const auto &yaml = IO::loadFileToYAML(config_file);
+    if (not yaml.first)
+    {
+        RBX_ERROR("Failed to load YAML file `%s`.", config_file);
+        return false;
+    }
+
+    const auto &node = yaml.second;
+
+    // URDF
+    std::string urdf_file;
+    if (IO::isNode(node["urdf"]))
+        urdf_file = node["urdf"].as<std::string>();
+    else
+    {
+        RBX_ERROR("No URDF entry in YAML file `%s`!", config_file);
+        return false;
+    }
+
+    // SRDF
+    std::string srdf_file;
+    if (IO::isNode(node["srdf"]))
+        srdf_file = node["srdf"].as<std::string>();
+    else
+        RBX_WARN("No SRDF entry in YAML!");
+
+    // Joint limits
+    std::string limits_file;
+    if (IO::isNode(node["limits"]))
+    {
+        if (srdf_file.empty())
+        {
+            RBX_ERROR("Cannot provide joint limits without SRDF in YAML file `%s`!", config_file);
+            return false;
+        }
+
+        limits_file = node["limits"].as<std::string>();
+    }
+    else
+        RBX_WARN("No joint limits provided!");
+
+    // Kinematics plugins
+    std::string kinematics_file;
+    if (IO::isNode(node["kinematics"]))
+    {
+        if (srdf_file.empty())
+        {
+            RBX_ERROR("Cannot provide kinematics without SRDF in YAML file `%s`!", config_file);
+            return false;
+        }
+
+        kinematics_file = node["kinematics"].as<std::string>();
+    }
+    else
+        RBX_WARN("No kinematics plugins provided!");
+
+    // Initialize robot
+    bool r;
+    if (srdf_file.empty())
+        r = initialize(urdf_file);
+    else
+        r = initialize(urdf_file, srdf_file, limits_file, kinematics_file);
+
+    // Set default state if provided in file.
+    if (r)
+    {
+        if (IO::isNode(node["robot_state"]))
+        {
+            const auto &robot_state = IO::robotStateFromNode(node["robot_state"]);
+            setState(robot_state);
+        }
+        else
+            RBX_WARN("No default state provided!");
+    }
+
+    return r;
 }
 
 bool Robot::initialize(const std::string &urdf_file)
@@ -141,12 +229,8 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
         return false;
     }
 
-    if (not loadURDFFile(urdf_file) or not loadSRDFFile(srdf_file))
-        return false;
-
-    loadRobotModel();
-
-    return true;
+    // Call other initializer with empty joint_limits & kinematics.
+    return initialize(urdf_file, srdf_file, "", "");
 }
 
 bool Robot::initializeKinematics(const std::string &kinematics_file)
