@@ -113,6 +113,12 @@ namespace robowflex
             /** \name Markers
              *  \{ */
 
+            /** \brief Add a marker message (under the name "name") to the scene.
+             *  \param[in] marker A marker message.
+             *  \param[in] name Name of marker.
+             */
+            void addMarker(const visualization_msgs::Marker &marker, const std::string &name = "");
+
             /** \brief Add a spherical marker (under the name "name") to the scene.
              *  \param[in] x The x coordinate of the sphere.
              *  \param[in] y The y coordinate of the sphere.
