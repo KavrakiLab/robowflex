@@ -12,12 +12,12 @@
 
 #include <moveit/robot_state/conversions.h>
 
+#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/random.h>
 #include <robowflex_library/robot.h>
@@ -193,7 +193,7 @@ void IO::RVIZHelper::addArrowMarker(const std::string &name, const std::string &
 
     marker.type = visualization_msgs::Marker::ARROW;
 
-    markers_.emplace(name, marker);
+    addMarker(marker, name);
 }
 
 void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &text,
@@ -206,7 +206,7 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.text = text;
 
-    markers_.emplace(name, marker);
+    addMarker(marker, name);
 }
 
 void IO::RVIZHelper::addTransformMarker(const std::string &name, const std::string &base_frame,
@@ -273,7 +273,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
 
     fillMarker(marker, base_frame, pose, color, scale);
 
-    markers_.emplace(name, marker);
+    addMarker(marker, name);
 }
 
 void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
@@ -379,7 +379,7 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
 
 void IO::RVIZHelper::addMarker(const visualization_msgs::Marker &marker, const std::string &name)
 {
-    markers_.emplace(name, marker);
+    addMarker(marker, name);
 }
 
 void IO::RVIZHelper::addMarker(double x, double y, double z, const std::string &name)
@@ -396,7 +396,7 @@ void IO::RVIZHelper::addMarker(double x, double y, double z, const std::string &
 
     marker.type = visualization_msgs::Marker::SPHERE;
 
-    markers_.emplace(name, marker);
+    addMarker(marker, name);
 }
 
 void IO::RVIZHelper::addMarker(const Eigen::Vector3d &point, const std::string &name)
