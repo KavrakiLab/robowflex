@@ -91,7 +91,7 @@ namespace robowflex
         /** \brief Get a const reference to the trajectory.
          *  \return The trajectory.
          */
-        const robot_trajectory::RobotTrajectoryPtr &getTajectoryConst() const;
+        const robot_trajectory::RobotTrajectoryPtr &getTrajectoryConst() const;
 
         /** \brief Get a reference to the trajectory.
          *  \return The trajectory.

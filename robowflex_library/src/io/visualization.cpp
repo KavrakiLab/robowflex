@@ -61,7 +61,7 @@ void IO::RVIZHelper::updateTrajectory(const planning_interface::MotionPlanRespon
 
 void IO::RVIZHelper::updateTrajectory(const Trajectory &trajectory)
 {
-    updateTrajectory(trajectory.getTajectoryConst());
+    updateTrajectory(trajectory.getTrajectoryConst());
 }
 
 void IO::RVIZHelper::updateTrajectory(const robot_trajectory::RobotTrajectoryPtr &trajectory)
@@ -379,7 +379,7 @@ void IO::RVIZHelper::removeMarker(const std::string &name)
 
 void IO::RVIZHelper::addMarker(const visualization_msgs::Marker &marker, const std::string &name)
 {
-    addMarker(marker, name);
+    markers_.emplace(name, marker);
 }
 
 void IO::RVIZHelper::addMarker(double x, double y, double z, const std::string &name)

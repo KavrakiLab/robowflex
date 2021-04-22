@@ -60,7 +60,7 @@ bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, co
     return true;
 }
 
-const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTajectoryConst() const
+const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTrajectoryConst() const
 {
     return trajectory_;
 }
