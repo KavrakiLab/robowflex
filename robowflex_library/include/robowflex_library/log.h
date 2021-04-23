@@ -91,7 +91,7 @@ namespace robowflex
  * \param[in] fmt Format string (see boost::format specification)
  * \param[in] ... Format arguments.
  */
-#define RBX_FATAL(fmt, ...) ROS_FATAL(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
+#define RBX_FATAL(fmt, ...) ROS_FATAL_STREAM(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
 
 /**
  * \def RBX_ERROR
@@ -99,7 +99,7 @@ namespace robowflex
  * \param[in] fmt Format string (see boost::format specification)
  * \param[in] ... Format arguments.
  */
-#define RBX_ERROR(fmt, ...) ROS_ERROR(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
+#define RBX_ERROR(fmt, ...) ROS_ERROR_STREAM(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
 
 /**
  * \def RBX_WARN
@@ -107,7 +107,7 @@ namespace robowflex
  * \param[in] fmt Format string (see boost::format specification)
  * \param[in] ... Format arguments.
  */
-#define RBX_WARN(fmt, ...) ROS_WARN(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
+#define RBX_WARN(fmt, ...) ROS_WARN_STREAM(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
 
 /**
  * \def RBX_INFO
@@ -115,7 +115,7 @@ namespace robowflex
  * \param[in] fmt Format string (see boost::format specification)
  * \param[in] ... Format arguments.
  */
-#define RBX_INFO(fmt, ...) ROS_INFO(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
+#define RBX_INFO(fmt, ...) ROS_INFO_STREAM(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
 
 /**
  * \def RBX_DEBUG
@@ -123,6 +123,6 @@ namespace robowflex
  * \param[in] fmt Format string (see boost::format specification)
  * \param[in] ... Format arguments.
  */
-#define RBX_DEBUG(fmt, ...) ROS_DEBUG(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
+#define RBX_DEBUG(fmt, ...) ROS_DEBUG_STREAM(robowflex::log::format(fmt, ##__VA_ARGS__).c_str())
 
 #endif
