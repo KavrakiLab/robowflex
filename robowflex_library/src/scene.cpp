@@ -224,6 +224,19 @@ RobotPose Scene::getObjectPose(const std::string &name) const
     return RobotPose::Identity();
 }
 
+bool Scene::moveAllObjectsGlobal(const RobotPose &transform)
+{
+    bool r = true;
+    for (const auto &obj : getCollisionObjects())
+    {
+        r &= moveObjectGlobal(obj, transform);
+        if (not r)
+            return r;
+    }
+
+    return r;
+}
+
 bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
 {
     incrementVersion();
