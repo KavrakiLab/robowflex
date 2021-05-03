@@ -56,8 +56,9 @@ namespace robowflex
      *
      *  Additionally, post-processing function hooks are provided if modifications need to be done to any of
      * the necessary files. This enables the addition of extra joints, semantic information, joint limit
-     * overloading, etc. as needed. See FetchRobot for an example use of adding a new virtual joint to the
-     * SRDF.
+     * overloading, etc. as needed. These functions are called after the robot is initially loaded, so it is
+     * possible to access robot model information in these functions. For example, see
+     * setSRDFPostProcessAddPlanarJoint().
      */
     class Robot
     {
