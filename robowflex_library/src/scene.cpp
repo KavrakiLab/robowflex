@@ -447,7 +447,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
     req.acm = &acm;
 
-#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1,1,0)
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     scene_->getCollisionEnv()->distanceRobot(req, res, *state);
 #else
     scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
@@ -462,8 +462,8 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC and \
-    ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1,1,0)
+#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC and                                             \
+    ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     // Early terminate if they are the same
     if (one == two)
         return 0.;
