@@ -15,33 +15,33 @@
 /// ROS Version Checking
 ///
 
-/** \brief Tests if the ROS version is Indigo or higher. */
+/** \def Tests if the ROS version is Indigo or higher. */
 #define ROBOWFLEX_AT_LEAST_INDIGO ROS_VERSION_MINIMUM(1, 11, 0)
 
-/** \brief Tests if the ROS version is Kinetic or higher. */
+/** \def Tests if the ROS version is Kinetic or higher. */
 #define ROBOWFLEX_AT_LEAST_KINETIC ROS_VERSION_MINIMUM(1, 12, 0)
 
-/** \brief Tests if the ROS version is Lunar or higher. */
+/** \def Tests if the ROS version is Lunar or higher. */
 #define ROBOWFLEX_AT_LEAST_LUNAR ROS_VERSION_MINIMUM(1, 13, 0)
 
-/** \brief Tests if the ROS version is Melodic or higher. */
+/** \def Tests if the ROS version is Melodic or higher. */
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
-/** \brief Tests if the ROS version is Melodic or higher. */
+/** \def Tests if the ROS version is Melodic or higher. */
 #define ROBOWFLEX_AT_LEAST_NOETIC ROS_VERSION_MINIMUM(1, 15, 0)
 
-/** \brief Tests if the ROS version is not further than Melodic */
+/** \def Tests if the ROS version is not further than Melodic */
 #define ROBOWFLEX_AT_MOST_MELODIC                                                                            \
     ROS_VERSION_GE(1, 15, 0, ROS_VERSION_MAJOR, ROS_VERSION_MINOR, ROS_VERSION_PATCH)
 
-/** \brief Tests if boost is at least version 1.64 */
+/** \def Tests if boost is at least version 1.64 */
 #define IS_BOOST_164 (BOOST_VERSION >= 106400u)
 
-/** \brief Tests if boost is at least version 1.58 */
+/** \def Tests if boost is at least version 1.58 */
 #define IS_BOOST_158 (BOOST_VERSION >= 105800u)
 
 #if ROBOWFLEX_AT_LEAST_KINETIC
-/** \brief Sets flow style for YAML nodes. */
+/** \def Sets flow style for YAML nodes. */
 #define ROBOWFLEX_YAML_FLOW(n) n.SetStyle(YAML::EmitterStyle::Flow);
 #else
 #define ROBOWFLEX_YAML_FLOW(n)
@@ -51,34 +51,31 @@
 /// MoveIt Version Checking
 ///
 
-/** \brief Phrase MoveIt version as integer. */
+/** \def Phrase MoveIt version as integer. */
 #define ROBOWFLEX_MOVEIT_VERSION_COMPUTE(major, minor, patch)                                                \
     ((major * 100000u) + (minor * 1000u) + (patch * 1u))
 #define ROBOWFLEX_MOVEIT_VERSION                                                                             \
     ROBOWFLEX_MOVEIT_VERSION_COMPUTE(MOVEIT_VERSION_MAJOR, MOVEIT_VERSION_MINOR, MOVEIT_VERSION_PATCH)
 
-/** \brief Tests if this MoveIt version is Melodic or higher. */
-#define ROBOWFLEX_MOVEIT_ISOMETRY (ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(0, 10, 6))
-
 ///
 /// Compiler Warning Helpers
 ///
 
-/** \brief Stringify helper macro. */
+/** \def Stringify helper macro. */
 #define ROBOWFLEX_PRAGMA_HELPER0(x) #x
-/** \brief Pragma generator helper macro. */
+/** \def Pragma generator helper macro. */
 #define ROBOWFLEX_PRAGMA_HELPER1(x, y) ROBOWFLEX_PRAGMA_HELPER0(x diagnostic ignored y)
 
-/** \brief Push a pragma to disable a compiler warning for GCC. */
+/** \def Push a pragma to disable a compiler warning for GCC. */
 #define ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(warning)
 
-/** \brief Pop a compiler warning for GCC. */
+/** \def Pop a compiler warning for GCC. */
 #define ROBOWFLEX_POP_GCC
 
-/** \brief Push a pragma to disable a compiler warning for clang. */
+/** \def Push a pragma to disable a compiler warning for clang. */
 #define ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING(warning)
 
-/** \brief Pop a compiler warning for clang. */
+/** \def Pop a compiler warning for clang. */
 #define ROBOWFLEX_POP_CLANG
 
 /** \cond IGNORE */
