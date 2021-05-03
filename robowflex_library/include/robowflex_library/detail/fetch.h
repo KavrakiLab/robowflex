@@ -36,12 +36,6 @@ namespace robowflex
          */
         bool initialize(bool addVirtual = true);
 
-        /** \brief Inserts a virtual joint "base_joint" into the Fetch's SRDF.
-         *  \param[in] doc srdf description to be processed.
-         *  \return True on success.
-         */
-        bool addVirtualJointSRDF(tinyxml2::XMLDocument &doc);
-
         /** \brief Inserts the caster links if they don't exist.
          *  \param[in] doc urdf description to be processed.
          *  \return True on success.

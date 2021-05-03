@@ -54,7 +54,7 @@ Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 
 bool Robot::loadURDFFile(const std::string &urdf_file)
 {
-    std::string urdf = loadXMLFile(ROBOT_DESCRIPTION, urdf_file, urdf_function_);
+    std::string urdf = loadXMLFile(ROBOT_DESCRIPTION, urdf_file);
     if (urdf.empty())
         return false;
 
@@ -64,7 +64,7 @@ bool Robot::loadURDFFile(const std::string &urdf_file)
 
 bool Robot::loadSRDFFile(const std::string &srdf_file)
 {
-    std::string srdf = loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file, srdf_function_);
+    std::string srdf = loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file);
     if (srdf.empty())
         return false;
 
@@ -107,7 +107,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
             return false;
         }
 
-    loadRobotModel();
+    initializeInternal();
     return true;
 }
 
@@ -216,7 +216,7 @@ bool Robot::initialize(const std::string &urdf_file)
 
     srdf_ = srdf;
 
-    loadRobotModel();
+    initializeInternal();
 
     return true;
 }
@@ -312,13 +312,6 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
 
 std::string Robot::loadXMLFile(const std::string &name, const std::string &file)
 {
-    PostProcessXMLFunction function;
-    return loadXMLFile(name, file, function);
-}
-
-std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
-                               const PostProcessXMLFunction &function)
-{
     std::string string = IO::loadXMLToString(file);
     if (string.empty())
     {
@@ -326,15 +319,21 @@ std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
         return "";
     }
 
+    handler_.setParam(name, string);
+    return string;
+}
+
+void Robot::updateXMLString(std::string &string, const PostProcessXMLFunction &function)
+{
     if (function)
     {
         tinyxml2::XMLDocument doc;
         doc.Parse(string.c_str());
 
-        if (!function(doc))
+        if (not function(doc))
         {
-            RBX_ERROR("Failed to process XML file `%s`.", file);
-            return "";
+            RBX_ERROR("Failed to process XML string `%s`.", string);
+            return;
         }
 
         tinyxml2::XMLPrinter printer;
@@ -342,15 +341,32 @@ std::string Robot::loadXMLFile(const std::string &name, const std::string &file,
 
         string = std::string(printer.CStr());
     }
-
-    handler_.setParam(name, string);
-    return string;
 }
 
-void Robot::loadRobotModel(bool namespaced)
+void Robot::initializeInternal(bool namespaced)
 {
     const std::string &description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
 
+    loadRobotModel(description);
+    if (urdf_function_)
+        updateXMLString(urdf_, urdf_function_);
+
+    if (srdf_function_)
+        updateXMLString(srdf_, srdf_function_);
+
+    // If either function was called, reload robot.
+    if (urdf_function_ or srdf_function_)
+    {
+        RBX_INFO("Reloading model after URDF/SRDF post-process function...");
+        loadRobotModel(description);
+    }
+
+    scratch_.reset(new robot_state::RobotState(model_));
+    scratch_->setToDefaultValues();
+}
+
+void Robot::loadRobotModel(const std::string &description)
+{
     robot_model_loader::RobotModelLoader::Options options(description);
     options.load_kinematics_solvers_ = false;
     options.urdf_string_ = urdf_;
@@ -360,8 +376,6 @@ void Robot::loadRobotModel(bool namespaced)
     kinematics_.reset(new kinematics_plugin_loader::KinematicsPluginLoader(description));
 
     model_ = loader_->getModel();
-    scratch_.reset(new robot_state::RobotState(model_));
-    scratch_->setToDefaultValues();
 }
 
 bool Robot::loadKinematics(const std::string &name)
@@ -413,6 +427,36 @@ bool Robot::loadKinematics(const std::string &name)
     model_->setKinematicsAllocators(imap_);
 
     return true;
+}
+
+void Robot::setSRDFPostProcessAddPlanarJoint(const std::string &name)
+{
+    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
+        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+        virtual_joint->SetAttribute("name", name.c_str());
+        virtual_joint->SetAttribute("type", "planar");
+        virtual_joint->SetAttribute("parent_frame", "world");
+        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+
+        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+        return true;
+    });
+}
+
+void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
+{
+    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
+        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+        virtual_joint->SetAttribute("name", name.c_str());
+        virtual_joint->SetAttribute("type", "floating");
+        virtual_joint->SetAttribute("parent_frame", "world");
+        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+
+        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+        return true;
+    });
 }
 
 const std::string &Robot::getModelName() const
@@ -985,5 +1029,5 @@ bool Robot::dumpToScene(const std::string &filename) const
 
 ParamRobot::ParamRobot(const std::string &name) : Robot(name)
 {
-    loadRobotModel(false);
+    initializeInternal(false);
 }
