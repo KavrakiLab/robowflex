@@ -16,6 +16,8 @@ RUN apt-get update && \
 
 # Setup Catkin Workspace
 RUN mkdir -p ws/src
+WORKDIR /ws/src
+RUN git clone --depth 1 https://github.com/KavrakiLab/robowflex_resources
 WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     catkin build --limit-status-rate 0.001 --no-notify
@@ -26,13 +28,13 @@ ADD ./CMakeModules CMakeModules
 
 # Main Library
 ADD ./robowflex_library robowflex_library
-RUN catkin build robowflex_library --start-with robowflex_library --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_library --no-deps --limit-status-rate 0.001 --no-notify
 
 # OMPL Module
 ADD ./robowflex_ompl robowflex_ompl
-RUN catkin build robowflex_ompl --start-with robowflex_ompl --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_ompl --no-deps --limit-status-rate 0.001 --no-notify
 
 # Movegroup Module
 ADD ./robowflex_movegroup robowflex_movegroup
-RUN catkin build robowflex_movegroup --start-with robowflex_movegroup --limit-status-rate 0.001 --no-notify
+RUN catkin build robowflex_movegroup  --no-deps --limit-status-rate 0.001 --no-notify
 WORKDIR /
