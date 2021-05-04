@@ -1,10 +1,12 @@
 # Adds a test (in a source file under the `tests` directory) to the list of
 # executables to compile. Adds the name to the list `TESTS`.
-macro(add_test test_name)
-  list(APPEND TESTS ${test_name})
-  add_executable(${test_name} tests/${test_name}.cpp)
-  target_link_libraries(${test_name} ${LIBRARY_NAME} ${catkin_LIBRARIES})
-endmacro(add_test)
+macro(add_test_script test_name)
+  if(CATKIN_ENABLE_TESTING)
+    list(APPEND TESTS test_${test_name})
+    catkin_add_gtest(test_${test_name} test/${test_name}.cpp)
+    target_link_libraries(test_${test_name} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+  endif()
+endmacro(add_test_script)
 
 # Install tests added via `add_test` to the install directory.
 macro(install_tests)

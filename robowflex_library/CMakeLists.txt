@@ -132,6 +132,12 @@ add_script(resources_visualization)
 add_script(plugin_io)
 
 ##
+## Tests
+##
+
+add_test_script(scene)
+
+##
 ## Installation of programs, library, headers, and YAML used by scripts
 ##
 
