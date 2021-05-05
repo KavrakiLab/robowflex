@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-add-repository ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
     apt-get install -y \
-      build-essential g++-4.9 pkg-config python-catkin-tools cmake \
+      build-essential g++-4.9 pkg-config python-catkin-tools cmake git \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
       ros-${ROS_DISTRO}-moveit && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 && \

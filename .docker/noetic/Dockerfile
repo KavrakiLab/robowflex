@@ -7,7 +7,7 @@ RUN apt-get update && \
     apt-add-repository ppa:dartsim/ppa && \
     apt-get update && \
     apt-get install -y \
-      build-essential wget pkg-config python3-catkin-tools python3-osrf-pycommon cmake \
+      build-essential wget pkg-config python3-catkin-tools python3-osrf-pycommon cmake git \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
       ros-${ROS_DISTRO}-moveit \
       libdart6-all-dev

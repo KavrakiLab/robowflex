@@ -4,7 +4,7 @@ MAINTAINER Zachary Kingston zak@rice.edu
 # Download Dependencies
 RUN apt-get update && \
     apt-get install -y \
-      build-essential pkg-config python-catkin-tools cmake \
+      build-essential pkg-config python-catkin-tools cmake git \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
       ros-${ROS_DISTRO}-moveit
 

@@ -8,7 +8,7 @@ ENV MOVEIT_BRANCH="master"
 # Download Dependencies
 RUN apt-get update && \
     apt-get install -y \
-      build-essential wget pkg-config python-catkin-tools python-wstool cmake \
+      build-essential wget pkg-config python-catkin-tools python-wstool cmake git \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev
 
 # Setup Catkin Workspace
