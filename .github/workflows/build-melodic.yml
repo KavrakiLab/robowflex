@@ -17,5 +17,8 @@ jobs:
     - name: Compile Docker Container
       run: ./.docker/melodic/build-melodic.sh
 
+    - name: Run Tests
+      run: source ./.ci/run-tests.sh; check-docker-tests melodic
+
     - name: Clean Docker
       run: sudo ./.ci/clean-docker.sh
