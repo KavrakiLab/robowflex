@@ -48,7 +48,7 @@ TEST(Scene, detatchObject)
     auto new_pose = scene->getObjectPose("cylinder");
     auto diff = desired_pose - new_pose.translation();
 
-    ASSERT_NEAR(diff.norm(), 0., 0.001);
+    ASSERT_NEAR(diff.norm(), 0., 0.005);
 }
 
 int main(int argc, char **argv)
