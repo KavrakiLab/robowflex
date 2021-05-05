@@ -17,5 +17,8 @@ jobs:
     - name: Compile Docker Container
       run: ./.docker/noetic/build-noetic.sh
 
+    - name: Run Tests
+      run: source ./.ci/run-tests.sh; check-docker-tests noetic
+
     - name: Clean Docker
       run: sudo ./.ci/clean-docker.sh

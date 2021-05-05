@@ -343,6 +343,20 @@ namespace robowflex
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
+         *  Pose of query is specified by a \a pose, at which there is a small ball of \a radius and XYZ Euler
+         *  angle tolerances from \a tolerances.
+         *  \param[in] group Group to set.
+         *  \param[in] pose Desired pose of end-effector.
+         *  \param[in] radius Radius tolerance around position.
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIK(const std::string &group, const RobotPose &pose,
+                       double radius = constants::ik_tolerance,
+                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+
+        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
+         *  retains its initial value.
          *  Position of query is specified by a \a pose, at which there is a small ball of \a radius, and
          *  orientation is set by \a orientation with XYZ Euler angle tolerances from \a tolerances.
          *  \param[in] group Group to set.

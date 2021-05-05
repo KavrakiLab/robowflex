@@ -17,5 +17,8 @@ jobs:
     - name: Compile Docker Container
       run: ./.docker/kinetic/build-kinetic.sh
 
+    - name: Run Tests
+      run: source ./.ci/run-tests.sh; check-docker-tests kinetic
+
     - name: Clean Docker
       run: sudo ./.ci/clean-docker.sh

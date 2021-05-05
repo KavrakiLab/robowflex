@@ -389,7 +389,7 @@ bool Scene::detachObject(const std::string &name)
         return false;
     }
 
-    world->addToObject(name, body->getShapes(), body->getFixedTransforms());
+    world->addToObject(name, body->getShapes(), body->getGlobalCollisionBodyTransforms());
 
     if (!robot.clearAttachedBody(name))
     {

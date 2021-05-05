@@ -7,13 +7,15 @@ RUN apt-get update && \
     apt-add-repository ppa:dartsim/ppa && \
     apt-get update && \
     apt-get install -y \
-      build-essential wget pkg-config python-catkin-tools cmake \
+      build-essential wget pkg-config python-catkin-tools cmake git \
       libboost-all-dev libeigen3-dev libtinyxml2-dev libyaml-cpp-dev libhdf5-dev \
       ros-${ROS_DISTRO}-moveit \
       libdart6-all-dev
 
 # Setup Catkin Workspace
 RUN mkdir -p ws/src
+WORKDIR /ws/src
+RUN git clone --depth 1 https://github.com/KavrakiLab/robowflex_resources
 WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     catkin build --limit-status-rate 0.001 --no-notify

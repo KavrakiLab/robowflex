@@ -17,5 +17,8 @@ jobs:
     - name: Compile Docker Container
       run: ./.docker/indigo/build-indigo.sh
 
+    - name: Run Tests
+      run: source ./.ci/run-tests.sh; check-docker-tests indigo
+
     - name: Clean Docker
       run: sudo ./.ci/clean-docker.sh
