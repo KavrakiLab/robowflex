@@ -10,8 +10,6 @@
 #include <robowflex_library/tf.h>
 #include <robowflex_library/log.h>
 
-#include <robowflex_library/io/visualization.h>
-
 using namespace robowflex;
 
 TEST(Scene, detatchObject)
@@ -19,8 +17,6 @@ TEST(Scene, detatchObject)
     // Create the default UR5 robot.
     auto ur5 = std::make_shared<UR5Robot>();
     ur5->initialize();
-
-    IO::RVIZHelper rviz(ur5);
 
     // Create an empty scene and add a cylinder to it
     auto scene = std::make_shared<Scene>(ur5);
@@ -35,33 +31,23 @@ TEST(Scene, detatchObject)
         Geometry::makeCylinder(0.025, 0.1),  //
         TF::createPoseQ(cylinder_position, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
 
-    rviz.updateScene(scene);
-    sleep(2);
-
     // Set start configuration to the robot scratch state and attach the cylinder to it
     ur5->setGroupState("manipulator", {0.0677, -0.8235, 0.9860, -0.1624, 0.0678, 0.0});
     scene->attachObject(*ur5->getScratchState(), "cylinder");
-
-    rviz.updateScene(scene);
-    sleep(2);
 
     // Use IK to shift robot arm over by desired amount.
     RobotPose goal_pose = ur5->getLinkTF("ee_link");
     goal_pose.translate(shift);
 
-    if (not ur5->setFromIK("manipulator", goal_pose))
-        RBX_ERROR("IK failed!");
+    ASSERT_TRUE(ur5->setFromIK("manipulator", goal_pose));
 
     scene->getCurrentState().setVariablePositions(ur5->getScratchState()->getVariablePositions());
     scene->detachObject("cylinder");
-
-    rviz.updateScene(scene);
 
     // Get new position for the cylinder and compare to its theoretical value.
     auto new_pose = scene->getObjectPose("cylinder");
     auto diff = desired_pose - new_pose.translation();
 
-    RBX_WARN("%1% %2% %3% %4%", diff[0], diff[1], diff[2], diff.norm());
     ASSERT_NEAR(diff.norm(), 0., 0.001);
 }
 
