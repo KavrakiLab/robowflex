@@ -14,6 +14,8 @@ RUN apt-get update && \
 
 # Setup Catkin Workspace
 RUN mkdir -p ws/src
+WORKDIR /ws/src
+RUN git clone --depth 1 https://github.com/KavrakiLab/robowflex_resources
 WORKDIR /ws
 RUN catkin config --extend /opt/ros/$ROS_DISTRO --cmake-args -DCMAKE_BUILD_TYPE=Release && \
     catkin build --limit-status-rate 0.001 --no-notify
