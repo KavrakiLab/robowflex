@@ -146,13 +146,11 @@ namespace robowflex
         bool loadYAMLFile(const std::string &name, const std::string &file,
                           const PostProcessYAMLFunction &function);
 
-        /** \brief Loads an XML or .xacro file into the robot's namespace under \a name, with a post-process
-         *  function.
-         *  \param[in] name Name to load file under.
+        /** \brief Loads an XML or .xacro file into a string.
          *  \param[in] file File to load.
          *  \return XML string upon success, empty string on failure.
          */
-        std::string loadXMLFile(const std::string &name, const std::string &file);
+        std::string loadXMLFile(const std::string &file);
 
         /** \brief Sets a post processing function for loading the URDF.
          *  \param[in] function The function to use.

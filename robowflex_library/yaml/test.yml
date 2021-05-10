@@ -20,7 +20,7 @@ world:
           orientation: [0, 0, 0, 1]
     - id: mesh
       meshes:
-        - resource: "package://ur_description/meshes/sensors/kinect.dae"
+        - resource: "package://robowflex_resources/objects/kinect.dae"
           dimensions: [1, 1, 1]
       mesh_poses:
         - position: [-1, 1, 1]

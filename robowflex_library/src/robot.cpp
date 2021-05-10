@@ -54,7 +54,7 @@ Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 
 bool Robot::loadURDFFile(const std::string &urdf_file)
 {
-    std::string urdf = loadXMLFile(ROBOT_DESCRIPTION, urdf_file);
+    std::string urdf = loadXMLFile(urdf_file);
     if (urdf.empty())
         return false;
 
@@ -64,7 +64,7 @@ bool Robot::loadURDFFile(const std::string &urdf_file)
 
 bool Robot::loadSRDFFile(const std::string &srdf_file)
 {
-    std::string srdf = loadXMLFile(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_file);
+    std::string srdf = loadXMLFile(srdf_file);
     if (srdf.empty())
         return false;
 
@@ -310,7 +310,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
     return true;
 }
 
-std::string Robot::loadXMLFile(const std::string &name, const std::string &file)
+std::string Robot::loadXMLFile(const std::string &file)
 {
     std::string string = IO::loadXMLToString(file);
     if (string.empty())
@@ -319,7 +319,6 @@ std::string Robot::loadXMLFile(const std::string &name, const std::string &file)
         return "";
     }
 
-    handler_.setParam(name, string);
     return string;
 }
 
@@ -360,6 +359,10 @@ void Robot::initializeInternal(bool namespaced)
         RBX_INFO("Reloading model after URDF/SRDF post-process function...");
         loadRobotModel(description);
     }
+
+    // set strings on parameter server
+    handler_.setParam(ROBOT_DESCRIPTION, urdf_);
+    handler_.setParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_);
 
     scratch_.reset(new robot_state::RobotState(model_));
     scratch_->setToDefaultValues();

@@ -1,8 +1,0 @@
-world:
-  collision_objects:
-    - id: mesh
-      meshes:
-        - resource: "package://r2_gazebo/models/iss/meshes/US_Lab_Empty_Rack_noHandrail.dae"
-      mesh_poses:
-        - position: [0, 0, -0.05]
-          orientation: [0, 0, 0, 1]
