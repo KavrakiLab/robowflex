@@ -13,7 +13,7 @@ world:
   collision_objects:
     - id: table_right
       meshes:
-        - resource: "package://vicon_object_server_objects/meshes/cafe_table.dae"
+        - resource: "package://robowflex_resources/objects/cafe_table.dae"
           dimensions: [0.025, 0.025, 0.025]
       mesh_poses:
         - position: [0.3, 0.8, -0.08]

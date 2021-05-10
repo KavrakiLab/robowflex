@@ -31,7 +31,7 @@ FetchRobot::FetchRobot() : Robot("fetch")
 bool FetchRobot::initialize(bool addVirtual)
 {
     if (addVirtual)
-        setSRDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addVirtualJointSRDF(doc); });
+        setSRDFPostProcessAddPlanarJoint("base_joint");
 
     setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
@@ -55,19 +55,6 @@ bool FetchRobot::initialize(bool addVirtual)
     FetchRobot::openGripper();
 
     return success;
-}
-
-bool FetchRobot::addVirtualJointSRDF(tinyxml2::XMLDocument &doc)
-{
-    tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
-    virtual_joint->SetAttribute("name", "base_joint");
-    virtual_joint->SetAttribute("type", "planar");
-    virtual_joint->SetAttribute("parent_frame", "world");
-    virtual_joint->SetAttribute("child_link", "base_link");
-
-    doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
-
-    return true;
 }
 
 bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)

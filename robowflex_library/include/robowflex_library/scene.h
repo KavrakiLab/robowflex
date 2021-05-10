@@ -158,6 +158,12 @@ namespace robowflex
          */
         RobotPose getObjectPose(const std::string &name) const;
 
+        /** \brief Move all objects according to a transform specified in world frame.
+         *  \param[in] transform The transform to move objects in world frame.
+         *  \return True on success.
+         */
+        bool moveAllObjectsGlobal(const RobotPose &transform);
+
         /** \brief Move all shapes in an object according to the given transform specified in world frame.
          *  \param[in] name Name of the object to move.
          *  \param[in] transform The transform to move the object in world frame.

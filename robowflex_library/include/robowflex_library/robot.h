@@ -56,8 +56,9 @@ namespace robowflex
      *
      *  Additionally, post-processing function hooks are provided if modifications need to be done to any of
      * the necessary files. This enables the addition of extra joints, semantic information, joint limit
-     * overloading, etc. as needed. See FetchRobot for an example use of adding a new virtual joint to the
-     * SRDF.
+     * overloading, etc. as needed. These functions are called after the robot is initially loaded, so it is
+     * possible to access robot model information in these functions. For example, see
+     * setSRDFPostProcessAddPlanarJoint().
      */
     class Robot
     {
@@ -145,22 +146,11 @@ namespace robowflex
         bool loadYAMLFile(const std::string &name, const std::string &file,
                           const PostProcessYAMLFunction &function);
 
-        /** \brief Loads an XML or .xacro file into the robot's namespace under \a name, with a post-process
-         *  function.
-         *  \param[in] name Name to load file under.
+        /** \brief Loads an XML or .xacro file into a string.
          *  \param[in] file File to load.
          *  \return XML string upon success, empty string on failure.
          */
-        std::string loadXMLFile(const std::string &name, const std::string &file);
-
-        /** \brief Loads an XML or .xacro file into the robot's namespace under \a name.
-         * \param[in] name Name to load file under.
-         * \param[in] file File to load.
-         * \param[in] function Optional post processing function.
-         *  \return XML string upon success, empty string on failure.
-         */
-        std::string loadXMLFile(const std::string &name, const std::string &file,
-                                const PostProcessXMLFunction &function);
+        std::string loadXMLFile(const std::string &file);
 
         /** \brief Sets a post processing function for loading the URDF.
          *  \param[in] function The function to use.
@@ -188,6 +178,20 @@ namespace robowflex
          *  \param[in] function The function to use.
          */
         void setKinematicsPostProcessFunction(const PostProcessYAMLFunction &function);
+
+        /** \brief Adds a planar virtual joint through the SRDF to the loaded robot with name \a name. This
+         * joint will have three degrees of freedom: <name>/x, <name>/y, and <name>/theta. Will apply this
+         * joint between the world and the root frame.
+         *  \param[in] name Name for new joint.
+         */
+        void setSRDFPostProcessAddPlanarJoint(const std::string &name);
+
+        /** \brief Adds a planar virtual joint through the SRDF to the loaded robot with name \a name. This
+         * joint will have three degrees of freedom: <name>/x, <name>/y, and <name>/theta. Will apply this
+         * joint between the world and the root frame.
+         *  \param[in] name Name for new joint.
+         */
+        void setSRDFPostProcessAddFloatingJoint(const std::string &name);
 
         /** \brief Loads the kinematics plugin for a joint group. No kinematics are loaded by default.
          *  \param[in] group Joint group name to load.
@@ -460,9 +464,23 @@ namespace robowflex
          */
         bool loadSRDFFile(const std::string &srdf_file);
 
-        /** \brief Loads a robot model from the loaded information on the parameter server.
+        /** \brief Initializes and loads the robot. Calls post-processing functions and creates scratch state.
+         *  \param[in] namespaced Whether or not the parameter server description is under the handler
+         * namespace.
          */
-        void loadRobotModel(bool namespaced = true);
+        void initializeInternal(bool namespaced = true);
+
+        /** \brief Loads a robot model from the loaded information on the parameter server.
+         *  \param[in] description Robot description on parameter server.
+         */
+        void loadRobotModel(const std::string &description);
+
+        /** \brief Updates a loaded XML string based on an XML post-process function. Called after initial,
+         * unmodified robot is loaded.
+         *  \param[in,out] string Input XML string.
+         *  \param[in] function XML processing function.
+         */
+        void updateXMLString(std::string &string, const PostProcessXMLFunction &function);
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
