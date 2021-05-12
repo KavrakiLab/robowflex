@@ -4,14 +4,6 @@ Here are docker containers for compiling Robowflex, for use locally or within CI
 Each container comes with a `build-*.sh` script that runs the `docker build` command.
 The current list of containers are:
 
-## robowflex/indigo
-Builds the Robowflex code on ROS Indigo, Ubuntu 14.04.
-Requires installation of a modern `g++` for C++ 11 support.
-Builds:
-- `robowflex_library`
-- `robowflex_ompl`
-- `robowflex_movegroup`
-
 ## robowflex/kinetic
 Builds the Robowflex code on ROS Kinetic, Ubuntu 16.04.
 Builds:
@@ -28,7 +20,7 @@ Builds:
 - `robowflex_movegroup`
 - `robowflex_dart`
 
-## robowflex/melodic
+## robowflex/noetic
 Builds the Robowflex code on ROS Noetic, Ubuntu 20.04.
 Also builds the DART module, which is built with OMPL from source (1.5.0).
 Builds:

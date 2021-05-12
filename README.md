@@ -12,14 +12,13 @@ Thus, the project has spun out and become a toolbox for motion planning using re
 The high-level goals of the project are as follows:
 - Provide an easy to use interface to complex robotics libraries by brushing cruft and idiosyncrasies under the rug.
 - Provide access to all underlying capabilities of the libraries so users are not hampered by Robowflex in any way.
-- Remain untied as possible to the greater ROS system, and support all distros from Indigo onward.
+- Remain untied as possible to the greater ROS system, and support all distros from Kinetic onward.
 
 ## Build Status
 | Workflow      | Status                                                                                                                                                                              |
 |---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Documentation | ![Documentation](https://github.com/KavrakiLab/robowflex/workflows/Documentation/badge.svg)                                                                                         |
 | Linting       | ![Linting](https://github.com/KavrakiLab/robowflex/workflows/Linting/badge.svg)                                                                                                     |
-| Indigo        | ![Build Indigo](https://github.com/KavrakiLab/robowflex/workflows/Build%20Indigo/badge.svg)                                                                                         |
 | Kinetic       | ![Build Kinetic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Kinetic/badge.svg)                                                                                       |
 | Melodic       | ![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)                                                                                       |
 | Noetic        | [![Build Noetic](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml/badge.svg)](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml) |
@@ -62,7 +61,7 @@ Additionally, this module has [manifold-constrained motion planning](http://ompl
 
 # Installation Instructions
 
-Robowflex is supported on many ROS platforms, from Indigo on Ubuntu 14.04 to Melodic on 18.04.
+Robowflex is supported on many ROS platforms, from Kinetic on Ubuntu 14.04 to Melodic on 18.04.
 Here are some bare-bones installation instructions to get up and running on a new Ubuntu 18.04 machine without ROS already installed.
 This will only enable the core modules to be built, as some modules require special packages to be installed.
 
