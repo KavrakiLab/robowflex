@@ -73,58 +73,6 @@ int main(int argc, char **argv)
 
         window.run();
     }
-    else
-    {
-        darts::IO::addPackage("r2_description",  //
-                              "/home/zak/old_ros/melodic/r2/src/r2_description/");
-        darts::IO::addPackage("r2_moveit_config",  //
-                              "/home/zak/old_ros/melodic/r2/src/r2_moveit_config/");
-
-        auto world = std::make_shared<darts::World>();
-
-        auto r2 = darts::loadMoveItRobot("r2",                                       //
-                                         "package://r2_description/urdf/r2c6.urdf",  //
-                                         "package://r2_moveit_config/config/r2.srdf");
-
-        world->addRobot(r2);
-
-        moveit_msgs::MotionPlanRequest message;
-        IO::fromYAMLFile(message, "package://robowflex_library/yaml/r2_plan_waist.yml");
-
-        darts::PlanBuilder builder(world);
-        builder.getStartFromMessage("r2", message);
-
-        darts::Window window(world);
-
-        darts::TSR::Specification waist_spec;
-        waist_spec.setFrame("r2", "r2/waist_center");
-        waist_spec.setPoseFromWorld(world);
-        auto ew1 = std::make_shared<darts::TSREditWidget>("Waist", waist_spec);
-        window.addWidget(ew1);
-
-        darts::TSR::Specification lleg_spec;
-        lleg_spec.setTarget("r2", "r2/left_leg/gripper/tip");
-        lleg_spec.setPoseFromWorld(world);
-        auto ew2 = std::make_shared<darts::TSREditWidget>("LLeg", lleg_spec);
-        window.addWidget(ew2);
-
-        darts::TSR::Specification rleg_spec;
-        rleg_spec.setTarget("r2", "r2/right_leg/gripper/tip");
-        rleg_spec.setPoseFromWorld(world);
-        auto ew3 = std::make_shared<darts::TSREditWidget>("RLeg", rleg_spec);
-        window.addWidget(ew3);
-
-        auto tsrs = std::make_shared<darts::TSRSet>(world, ew1->getTSR());
-        tsrs->addTSR(ew2->getTSR(), false, 0.5);
-        tsrs->addTSR(ew3->getTSR(), false, 0.5);
-        tsrs->useGroup("legsandtorso");
-        tsrs->setStep(0.1);
-
-        auto sw = std::make_shared<darts::TSRSolveWidget>(tsrs);
-        window.addWidget(sw);
-
-        window.run();
-    }
 
     return 0;
 }
