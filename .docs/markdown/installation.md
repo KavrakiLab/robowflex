@@ -1,6 +1,7 @@
 # Installation Instructions
 
-Robowflex is supported on many ROS platforms, from Indigo on Ubuntu 14.04 to Melodic on 18.04.
+Robowflex is supported on many ROS platforms, from Kinetic on Ubuntu 16.04 to Noetic on 20.04.
+
 Here are some bare-bones installation instructions to get up and running on a new Ubuntu 18.04 machine without ROS already installed.
 This will only enable the core modules to be built, as some modules require special packages to be installed.
 

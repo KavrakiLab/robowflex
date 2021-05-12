@@ -10,7 +10,7 @@ Thus, the project has spun out and become a toolbox for motion planning using re
 The high-level goals of the project are as follows:
 1. Provide an easy to use interface to complex robotics libraries by brushing the cruft and idiosyncrasies under the rug.
 2. Provide access to all underlying capabilities of the libraries so users are not hampered by Robowflex in any way.
-3. Remain untied as possible to the greater ROS system, and support all distros from Indigo onward.
+3. Remain untied as possible to the greater ROS system, and support all distros from Kinetic onward.
 
 This document provides a high-level overview of the design and API of the `robowflex_library`, as well as some of the auxiliary components.
 Unless otherwise noted, the class or method will be in `robowflex_library`.
@@ -70,7 +70,8 @@ Additionally, there are a few implementations of robowflex::Robot for some commo
 
 ## Compatibility
 
-Robowflex strives to maintain compatibility with all commonly used ROS distributions, from Indigo to Melodic.
+Robowflex strives to maintain compatibility with all commonly used ROS distributions, from Kinetic to Noetic.
+Indigo support was dropped due to lack of ROS Docker support.
 To this end, there are many adapters and internal constructs so that users can run Robowflex in any of these environments without modification.
 However, there are some things to note about how various internal APIs have changed and how this affects behavior:
 - robowflex::ROS will attempt to spin up an instance of `rosmaster` if one is not already running only on Melodic onward, due to a dependency of how this is implemented on Boost 1.64.
