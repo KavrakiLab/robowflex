@@ -630,7 +630,7 @@ bool Robot::IKQuery::sampleInRegion(RobotPose &pose, std::size_t index) const
 
 std::size_t Robot::IKQuery::numTargets() const
 {
-    return tips.size();
+    return regions.size();
 }
 
 moveit::core::GroupStateValidityCallbackFn Robot::IKQuery::getGSVCF() const
@@ -658,9 +658,8 @@ moveit::core::GroupStateValidityCallbackFn Robot::IKQuery::getGSVCF() const
 
 bool Robot::setFromIK(const IKQuery &query)
 {
+    const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const std::size_t n = query.numTargets();
-
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const auto &gsvcf = query.getGSVCF();
 
     RobotPoseVector targets(n);
@@ -675,9 +674,9 @@ bool Robot::setFromIK(const IKQuery &query)
 
         bool success = false;
         if (n > 1)  // multi-target
-            scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf);
+            success = scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf);
         else
-            scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf);
+            success = scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf);
 
         if (success)
         {

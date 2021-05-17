@@ -130,6 +130,7 @@ add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(resources_visualization)
 add_script(plugin_io)
+add_script(ur5_ik)
 
 ##
 ## Tests

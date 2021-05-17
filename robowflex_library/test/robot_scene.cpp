@@ -12,15 +12,26 @@
 
 using namespace robowflex;
 
-TEST(Robot, setFromIK)
+namespace
 {
-}
+    UR5RobotPtr getUR5Robot()
+    {
+        static UR5RobotPtr ur5;
+
+        // Create the default UR5 robot.
+        if (not ur5)
+        {
+            ur5 = std::make_shared<UR5Robot>();
+            ur5->initialize();
+        }
+
+        return ur5;
+    }
+}  // namespace
 
 TEST(Scene, detatchObject)
 {
-    // Create the default UR5 robot.
-    auto ur5 = std::make_shared<UR5Robot>();
-    ur5->initialize();
+    auto ur5 = getUR5Robot();
 
     // Create an empty scene and add a cylinder to it
     auto scene = std::make_shared<Scene>(ur5);
