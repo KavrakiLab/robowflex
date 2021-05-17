@@ -340,111 +340,83 @@ namespace robowflex
         /** \name Inverse Kinematics
             \{ */
 
-        /** \brief Set the number of attempts for IK.
-         *  \param[in] attempts Number of attempts.
-         */
-        void setIKAttempts(unsigned int attempts);
+        struct IKQuery
+        {
+            std::size_t attempts{constants::ik_attempts};
+            double timeout{0.};
+
+            std::string group;                             ///< Target joint group to do IK for.
+            std::vector<std::string> tips;                 ///< List of end-effectors.
+            std::vector<GeometryConstPtr> regions;         ///< Regions to sample target positions from.
+            RobotPoseVector region_poses;                  ///< Poses of regions.
+            std::vector<Eigen::Quaterniond> orientations;  ///< Target orientations.
+            EigenSTL::vector_Vector3d tolerances;          ///< XYZ Euler orientation tolerances.
+            ScenePtr scene;  ///< If provided, use this scene for collision checking.
+            bool verbose;    ///< Verbose output of collision checking.
+
+            /**
+             *  \param[in] group Group to set.
+             *  \param[in] pose Desired pose of end-effector.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const RobotPose &pose, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /**
+             *  \param[in] group Group to set.
+             *  \param[in] position Position to achieve.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const Eigen::Vector3d &position,
+                    const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /**
+             *  \param[in] group Group to set.
+             *  \param[in] region Region of points for position.
+             *  \param[in] pose Pose of the \a region.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             *  \return True on success, false on failure.
+             */
+            IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                    const Eigen::Quaterniond &orientation,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
+                    const ScenePtr &scene = nullptr, bool verbose = false);
+
+            /**
+             *  \param[in] group Group to set.
+             *  \param[in] poses Desired poses of end-effector tips.
+             *  \param[in] tips End-effector tips to target.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             *  \return True on success, false on failure.
+             */
+            IKQuery(const std::string &group, const RobotPoseVector &poses,
+                    const std::vector<std::string> &tips, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
+                    const ScenePtr &scene = nullptr, bool verbose = false);
+
+            bool sampleInRegion(RobotPose &pose, std::size_t index = 0) const;
+            std::size_t numTargets() const;
+
+            /** \brief Get the group state validity callback function used by collision-aware IK.
+             *  \param[in] scene Scene to collision check against.
+             *  \param[in] verbose If true, output collision checking information on failure.
+             *  \return If scene is not null, the GSVCF. Otherwise, an empty function.
+             */
+            moveit::core::GroupStateValidityCallbackFn getGSVCF() const;
+        };
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
-         *  Pose of query is specified by a \a pose, at which there is a small ball of \a radius and XYZ Euler
-         *  angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] pose Desired pose of end-effector.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] query Query for inverse kinematics. See Robot::IKQuery documentation for more.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const std::string &group, const RobotPose &pose,
-                       double radius = constants::ik_tolerance,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
-
-        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
-         *  retains its initial value.
-         *  Position of query is specified by a \a pose, at which there is a small ball of \a radius, and
-         *  orientation is set by \a orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] position Position to achieve.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
-         */
-        bool setFromIK(const std::string &group, const Eigen::Vector3d &position,
-                       const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
-
-        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
-         *  retains its initial value.
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
-         */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
-                       const Eigen::Quaterniond &orientation,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
-
-        /** \brief Sets a group of the scratch state from an IK query. Attempts to find a configuration that
-         * is collision-free with the scene and the robot itself. If the IK query fails the scratch state
-         *  retains its initial value.
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] scene Scene to do collision checking with.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
-         *  \return True on success, false on failure.
-         */
-        bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                     const GeometryConstPtr &region, const RobotPose &pose,
-                                     const Eigen::Quaterniond &orientation,
-                                     const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
-                                     bool verbose = false);
-
-        /** \brief Sets multiple end-effectors of a group of the scratch state from an IK query. If the IK
-         *  query fails the scratch state retains its initial value. Note: only certain kinematics plugins
-         *  support multi-target queries.
-         *  The poses of the query are specified by \a poses, at which there is a small ball of \a radius and
-         *  XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] poses Desired poses of end-effector tips.
-         *  \param[in] tips End-effector tips to target.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
-         */
-        bool setMultipleFromIK(const std::string &group, const RobotPoseVector &poses,
-                               const std::vector<std::string> &tips, double radius = constants::ik_tolerance,
-                               const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
-
-        /** \brief Sets multiple end-effectors of a group of the scratch state from an IK query. If the IK
-         *  query fails the scratch state retains its initial value. Note: only certain kinematics plugins
-         *  support multi-target queries.
-         *  The poses of the query are specified by \a poses, at which there is a small ball of \a radius and
-         *  XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] scene Scene to do collision checking with.
-         *  \param[in] group Group to set.
-         *  \param[in] poses Desired poses of end-effector tips.
-         *  \param[in] tips End-effector tips to target.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
-         *  \return True on success, false on failure.
-         */
-        bool setMultipleFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                             const RobotPoseVector &poses,
-                                             const std::vector<std::string> &tips,
-                                             double radius = constants::ik_tolerance,
-                                             const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
-                                             bool verbose = false);
+        bool setFromIK(const IKQuery &query);
 
         /** \} */
 
@@ -524,18 +496,6 @@ namespace robowflex
 
         /** \} */
 
-        /** \name Helper Methods
-            \{ */
-
-        /** \brief Get the group state validity callback function used by collision-aware IK.
-         *  \param[in] scene Scene to collision check against.
-         *  \param[in] verbose If true, output collision checking information on failure.
-         *  \return If scene is not null, the GSVCF. Otherwise, an empty function.
-         */
-        moveit::core::GroupStateValidityCallbackFn getGSVCF(const ScenePtr &scene, bool verbose) const;
-
-        /** \} */
-
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
@@ -553,8 +513,6 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
-
-        unsigned int ik_attempts_{constants::ik_attempts};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */

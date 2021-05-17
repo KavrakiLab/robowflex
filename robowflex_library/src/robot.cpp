@@ -25,25 +25,6 @@ const std::string Robot::ROBOT_SEMANTIC = "_semantic";
 const std::string Robot::ROBOT_PLANNING = "_planning";
 const std::string Robot::ROBOT_KINEMATICS = "_kinematics";
 
-namespace
-{
-    std::pair<bool, RobotPose> sampleInVolume(const GeometryConstPtr &geometry, const RobotPose &pose,
-                                              const Eigen::Quaterniond &orientation,
-                                              const Eigen::Vector3d &tolerances)
-    {
-        auto point = geometry->sample();
-
-        RobotPose sampled_pose = pose;
-        if (point.first)
-        {
-            sampled_pose.translate(point.second);
-            sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
-        }
-
-        return std::make_pair(point.first, sampled_pose);
-    }
-}  // namespace
-
 Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
@@ -575,117 +556,92 @@ bool Robot::hasJoint(const std::string &joint) const
     return (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
 }
 
-void Robot::setIKAttempts(unsigned int attempts)
+Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
+                        const Eigen::Vector3d &tolerance)
+  : IKQuery(group,                                //
+            pose.translation(),                   //
+            Eigen::Quaterniond{pose.rotation()},  //
+            radius,                               //
+            tolerance)
 {
-    ik_attempts_ = attempts;
 }
 
-bool Robot::setFromIK(const std::string &group, const RobotPose &pose, double radius,
-                      const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group,                                                //
+                        const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
+                        double radius, const Eigen::Vector3d &tolerance)
+  : IKQuery(group,                         //
+            Geometry::makeSphere(radius),  //
+            TF::createPoseXYZ(position),   //
+            orientation,                   //
+            tolerance)
 {
-    return setFromIK(group, pose.translation(), Eigen::Quaterniond{pose.rotation()}, radius, tolerances);
 }
 
-bool Robot::setFromIK(const std::string &group,                                                //
-                      const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
-                      double radius, const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance,
+                        const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
 {
-    return setFromIK(group,                                                      //
-                     Geometry::makeSphere(radius), TF::createPoseXYZ(position),  //
-                     orientation, tolerances);
+    regions.emplace_back(region);
+    region_poses.emplace_back(pose);
+    orientations.emplace_back(orientation);
+    tolerances.emplace_back(tolerance);
 }
 
-bool Robot::setFromIK(const std::string &group,                               //
-                      const GeometryConstPtr &region, const RobotPose &pose,  //
-                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
+                        const std::vector<std::string> &tips, double radius, const Eigen::Vector3d &tolerance,
+                        const ScenePtr &scene, bool verbose)
+  : group(group), tips(tips), scene(scene), verbose(scene and verbose)
 {
-    return setFromIKCollisionAware(nullptr, group, region, pose, orientation, tolerances, false);
-}
+    if (poses.size() != tips.size())
+        throw std::runtime_error("Invalid multi-target IKE query. poses != tips.");
 
-bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                    const GeometryConstPtr &region, const RobotPose &pose,
-                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
-                                    bool verbose)
-{
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-    const auto &gsvcf = getGSVCF(scene, verbose);
+    std::size_t n = poses.size();
 
-    for (unsigned int i = 0; i < ik_attempts_; ++i)
+    regions.resize(n);
+    region_poses.resize(n);
+    orientations.resize(n);
+    tolerances.resize(n);
+
+    for (std::size_t i = 0; i < n; ++i)
     {
-        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-        if (not sampled.first)
-            continue;
-
-        if (scratch_->setFromIK(jmg, sampled.second, 1, 0., gsvcf))
-        {
-            scratch_->update();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Robot::setMultipleFromIK(const std::string &group, const RobotPoseVector &poses,
-                              const std::vector<std::string> &tips, double radius,
-                              const Eigen::Vector3d &tolerances)
-{
-    return setMultipleFromIKCollisionAware(nullptr, group, poses, tips, radius, tolerances, false);
-}
-
-bool Robot::setMultipleFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                            const RobotPoseVector &poses,
-                                            const std::vector<std::string> &tips, double radius,
-                                            const Eigen::Vector3d &tolerances, bool verbose)
-{
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-    const auto &gsvcf = getGSVCF(scene, verbose);
-
-    // Extract base position and orientation for each desired pose
-    RobotPoseVector positions(poses.size());
-    std::vector<Eigen::Quaterniond> orientations(poses.size());
-
-    for (unsigned int i = 0; i < poses.size(); ++i)
-    {
-        positions[i] = TF::createPoseXYZ(poses[i].translation());
+        regions[i] = Geometry::makeSphere(radius);
+        region_poses[i] = TF::createPoseXYZ(poses[i].translation());
         orientations[i] = Eigen::Quaterniond{poses[i].rotation()};
+        tolerances[i] = tolerance;
     }
+}
 
-    const auto region = Geometry::makeSphere(radius);
-    RobotPoseVector sampled(poses.size());
+bool Robot::IKQuery::sampleInRegion(RobotPose &pose, std::size_t index) const
+{
+    const auto &point = regions[index]->sample();
 
-    for (unsigned int i = 0; i < ik_attempts_; ++i)
+    if (point.first)
     {
-        bool success = true;
-        for (unsigned int i = 0; i < poses.size(); ++i)
-        {
-            auto sample = sampleInVolume(region, positions[i], orientations[i], tolerances);
-            success &= sample.first;
-            sampled[i] = sample.second;
-        }
+        pose = region_poses[index];
+        pose.translate(point.second);
+        pose.rotate(TF::sampleOrientation(orientations[index], tolerances[index]));
 
-        if (not success)
-            continue;
-
-        if (scratch_->setFromIK(jmg, sampled, tips, 0., gsvcf))
-        {
-            scratch_->update();
-            return true;
-        }
+        return true;
     }
 
     return false;
 }
 
-moveit::core::GroupStateValidityCallbackFn Robot::getGSVCF(const ScenePtr &scene, bool verbose) const
+std::size_t Robot::IKQuery::numTargets() const
+{
+    return tips.size();
+}
+
+moveit::core::GroupStateValidityCallbackFn Robot::IKQuery::getGSVCF() const
 {
     if (not scene)
         return {};
 
-    const auto &gsvcf =                                             //
-        [scene, verbose](robot_state::RobotState *state,            //
-                         const moveit::core::JointModelGroup *jmg,  //
-                         const double *values)                      //
+    const auto &gsvcf =                                //
+        [&](robot_state::RobotState *state,            //
+            const moveit::core::JointModelGroup *jmg,  //
+            const double *values)                      //
     {
         state->setJointGroupPositions(jmg, values);
         state->updateCollisionBodyTransforms();
@@ -698,6 +654,39 @@ moveit::core::GroupStateValidityCallbackFn Robot::getGSVCF(const ScenePtr &scene
     };
 
     return gsvcf;
+}
+
+bool Robot::setFromIK(const IKQuery &query)
+{
+    const std::size_t n = query.numTargets();
+
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
+    const auto &gsvcf = query.getGSVCF();
+
+    RobotPoseVector targets(n);
+    for (std::size_t i = 0; i < query.attempts; ++i)
+    {
+        bool sampled = true;
+        for (std::size_t j = 0; j < n and sampled; ++j)
+            sampled &= query.sampleInRegion(targets[j], j);
+
+        if (not sampled)
+            continue;
+
+        bool success = false;
+        if (n > 1)
+            scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf);
+        else
+            scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf);
+
+        if (success)
+        {
+            scratch_->update();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 const RobotPose &Robot::getLinkTF(const std::string &name) const
