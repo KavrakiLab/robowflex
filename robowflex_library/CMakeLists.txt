@@ -135,7 +135,7 @@ add_script(plugin_io)
 ## Tests
 ##
 
-add_test_script(scene)
+add_test_script(robot_scene)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

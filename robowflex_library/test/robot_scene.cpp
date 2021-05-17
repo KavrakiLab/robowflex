@@ -12,6 +12,10 @@
 
 using namespace robowflex;
 
+TEST(Robot, setFromIK)
+{
+}
+
 TEST(Scene, detatchObject)
 {
     // Create the default UR5 robot.
@@ -39,7 +43,7 @@ TEST(Scene, detatchObject)
     RobotPose goal_pose = ur5->getLinkTF("ee_link");
     goal_pose.translate(shift);
 
-    ASSERT_TRUE(ur5->setFromIK("manipulator", goal_pose));
+    ASSERT_TRUE(ur5->setFromIK(Robot::IKQuery("manipulator", goal_pose)));
 
     scene->getCurrentState().setVariablePositions(ur5->getScratchState()->getVariablePositions());
     scene->detachObject("cylinder");

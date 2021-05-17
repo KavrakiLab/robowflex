@@ -674,7 +674,7 @@ bool Robot::setFromIK(const IKQuery &query)
             continue;
 
         bool success = false;
-        if (n > 1)
+        if (n > 1)  // multi-target
             scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf);
         else
             scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf);

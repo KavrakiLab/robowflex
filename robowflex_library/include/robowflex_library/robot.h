@@ -342,8 +342,8 @@ namespace robowflex
 
         struct IKQuery
         {
-            std::size_t attempts{constants::ik_attempts};
-            double timeout{0.};
+            std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
+            double timeout{0.};                            ///< Timeout for each query.
 
             std::string group;                             ///< Target joint group to do IK for.
             std::vector<std::string> tips;                 ///< List of end-effectors.
@@ -404,8 +404,6 @@ namespace robowflex
             std::size_t numTargets() const;
 
             /** \brief Get the group state validity callback function used by collision-aware IK.
-             *  \param[in] scene Scene to collision check against.
-             *  \param[in] verbose If true, output collision checking information on failure.
              *  \return If scene is not null, the GSVCF. Otherwise, an empty function.
              */
             moveit::core::GroupStateValidityCallbackFn getGSVCF() const;
