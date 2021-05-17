@@ -2,7 +2,7 @@
 
 Robowflex Tesseract allows easy integration between Robowflexs' robots/scenes and [tesseract](https://github.com/ros-industrial-consortium/tesseract) planners. In particular, the [trajOpt](https://github.com/ros-industrial-consortium/trajopt_ros) planner can be used for high-level motion planning using a `robowflex::scene` and a `planning_interface::MotionPlanRequest` as other planners.
 
-## Panning pipeline
+## Planning pipeline
 The TrajOptPlanner class supports the standard planning pipeline from Robowflex, i.e., given a `robowflex::scene` and a `planning_interface::MotionPlanRequest`, first create a planner, initialize it, set the planner's parameters and plan. The result is given as a `planning_interface::MotionPlanResponse`.
 
 Some of these steps have unique features or alternative uses in the TrajOptPlanner class compared to other Robowflex planners:
