@@ -354,7 +354,7 @@ namespace robowflex
             ScenePtr scene;  ///< If provided, use this scene for collision checking.
             bool verbose;    ///< Verbose output of collision checking.
 
-            /**
+            /** Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
              *  \param[in] pose Desired pose of end-effector.
              *  \param[in] radius Radius tolerance around position.
@@ -363,7 +363,7 @@ namespace robowflex
             IKQuery(const std::string &group, const RobotPose &pose, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /**
+            /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
              *  \param[in] group Group to set.
              *  \param[in] position Position to achieve.
              *  \param[in] orientation Mean orientation.
@@ -374,7 +374,8 @@ namespace robowflex
                     const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /**
+            /** Constructor. Initialize an  IK query to reach somewhere in the provided \a region (at a \a
+             *  pose) and \a orientation.
              *  \param[in] group Group to set.
              *  \param[in] region Region of points for position.
              *  \param[in] pose Pose of the \a region.
@@ -387,20 +388,41 @@ namespace robowflex
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
 
-            /**
+            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach their
+             *  desired \a poses.
              *  \param[in] group Group to set.
              *  \param[in] poses Desired poses of end-effector tips.
-             *  \param[in] tips End-effector tips to target.
+             *  \param[in] input_tips End-effector tips to target.
              *  \param[in] radius Radius tolerance around position.
              *  \param[in] tolerances Tolerance about \a orientation.
              *  \return True on success, false on failure.
              */
             IKQuery(const std::string &group, const RobotPoseVector &poses,
-                    const std::vector<std::string> &tips, double radius = constants::ik_tolerance,
+                    const std::vector<std::string> &input_tips, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
 
+            /** \brief Add a request for a \a tip.
+             *  \param[in] tip Tip for the request.
+             *  \param[in] region Region of points for position.
+             *  \param[in] pose Pose of the \a region.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            void addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
+                            const Eigen::Quaterniond &orientation,
+                            const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /** \brief Sample a desired end-effector pose for the \a index -th region.
+             *  \param[out] pose The sampled pose.
+             *  \param[in] index The index of the region. Should be less than numTargets().
+             *  \return True on success, false on failure.
+             */
             bool sampleInRegion(RobotPose &pose, std::size_t index = 0) const;
+
+            /** \brief Get the number of IK targets in this query.
+             *  \return The number of IK targets.
+             */
             std::size_t numTargets() const;
 
             /** \brief Get the group state validity callback function used by collision-aware IK.

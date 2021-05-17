@@ -582,34 +582,33 @@ Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region
                         const ScenePtr &scene, bool verbose)
   : group(group), scene(scene), verbose(scene and verbose)
 {
-    regions.emplace_back(region);
-    region_poses.emplace_back(pose);
-    orientations.emplace_back(orientation);
-    tolerances.emplace_back(tolerance);
+    addRequest("", region, pose, orientation, tolerance);
 }
 
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
-                        const std::vector<std::string> &tips, double radius, const Eigen::Vector3d &tolerance,
-                        const ScenePtr &scene, bool verbose)
-  : group(group), tips(tips), scene(scene), verbose(scene and verbose)
+                        const std::vector<std::string> &input_tips, double radius,
+                        const Eigen::Vector3d &tolerance, const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
 {
-    if (poses.size() != tips.size())
+    if (poses.size() != input_tips.size())
         throw std::runtime_error("Invalid multi-target IKE query. poses != tips.");
 
-    std::size_t n = poses.size();
+    for (std::size_t i = 0; i < poses.size(); ++i)
+        addRequest(input_tips[i],                              //
+                   Geometry::makeSphere(radius),               //
+                   TF::createPoseXYZ(poses[i].translation()),  //
+                   Eigen::Quaterniond{poses[i].rotation()},    //
+                   tolerance);
+}
 
-    regions.resize(n);
-    region_poses.resize(n);
-    orientations.resize(n);
-    tolerances.resize(n);
-
-    for (std::size_t i = 0; i < n; ++i)
-    {
-        regions[i] = Geometry::makeSphere(radius);
-        region_poses[i] = TF::createPoseXYZ(poses[i].translation());
-        orientations[i] = Eigen::Quaterniond{poses[i].rotation()};
-        tolerances[i] = tolerance;
-    }
+void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
+                                const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance)
+{
+    tips.emplace_back(tip);
+    regions.emplace_back(region);
+    region_poses.emplace_back(pose);
+    oreintations.emplace_back(orientation);
+    tolerances.emplace_back(tolerance);
 }
 
 bool Robot::IKQuery::sampleInRegion(RobotPose &pose, std::size_t index) const
