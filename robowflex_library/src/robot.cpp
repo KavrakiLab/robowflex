@@ -607,7 +607,7 @@ void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &
     tips.emplace_back(tip);
     regions.emplace_back(region);
     region_poses.emplace_back(pose);
-    oreintations.emplace_back(orientation);
+    orientations.emplace_back(orientation);
     tolerances.emplace_back(tolerance);
 }
 
