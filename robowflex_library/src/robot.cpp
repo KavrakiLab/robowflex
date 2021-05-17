@@ -27,24 +27,20 @@ const std::string Robot::ROBOT_KINEMATICS = "_kinematics";
 
 namespace
 {
-    std::pair<bool, geometry_msgs::Pose> sampleInVolume(const GeometryConstPtr &geometry,
-                                                        const RobotPose &pose,
-                                                        const Eigen::Quaterniond &orientation,
-                                                        const Eigen::Vector3d &tolerances)
+    std::pair<bool, RobotPose> sampleInVolume(const GeometryConstPtr &geometry, const RobotPose &pose,
+                                              const Eigen::Quaterniond &orientation,
+                                              const Eigen::Vector3d &tolerances)
     {
-        geometry_msgs::Pose msg;
-
         auto point = geometry->sample();
+
+        RobotPose sampled_pose = pose;
         if (point.first)
         {
-            RobotPose sampled_pose = pose;
             sampled_pose.translate(point.second);
             sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
-
-            msg = TF::poseEigenToMsg(sampled_pose);
         }
 
-        return std::make_pair(point.first, msg);
+        return std::make_pair(point.first, sampled_pose);
     }
 }  // namespace
 
@@ -603,22 +599,7 @@ bool Robot::setFromIK(const std::string &group,                               //
                       const GeometryConstPtr &region, const RobotPose &pose,  //
                       const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
 {
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-
-    for (unsigned int i = 0; i < ik_attempts_; ++i)
-    {
-        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-        if (!sampled.first)
-            continue;
-
-        if (scratch_->setFromIK(jmg, sampled.second, 1, 0.))
-        {
-            scratch_->update();
-            return true;
-        }
-    }
-
-    return false;
+    return setFromIKCollisionAware(nullptr, group, region, pose, orientation, tolerances, false);
 }
 
 bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
@@ -627,26 +608,12 @@ bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &gr
                                     bool verbose)
 {
     robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
-
-    const auto &gsvcf =                                               //
-        [&scene, &verbose](robot_state::RobotState *state,            //
-                           const moveit::core::JointModelGroup *jmg,  //
-                           const double *values)                      //
-    {
-        state->setJointGroupPositions(jmg, values);
-        state->updateCollisionBodyTransforms();
-
-        collision_detection::CollisionRequest request;
-        request.verbose = verbose;
-
-        auto result = scene->checkCollision(*state, request);
-        return !result.collision;
-    };
+    const auto &gsvcf = getGSVCF(scene, verbose);
 
     for (unsigned int i = 0; i < ik_attempts_; ++i)
     {
         auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-        if (!sampled.first)
+        if (not sampled.first)
             continue;
 
         if (scratch_->setFromIK(jmg, sampled.second, 1, 0., gsvcf))
@@ -657,6 +624,80 @@ bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &gr
     }
 
     return false;
+}
+
+bool Robot::setMultipleFromIK(const std::string &group, const RobotPoseVector &poses,
+                              const std::vector<std::string> &tips, double radius,
+                              const Eigen::Vector3d &tolerances)
+{
+    return setMultipleFromIKCollisionAware(nullptr, group, poses, tips, radius, tolerances, false);
+}
+
+bool Robot::setMultipleFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                            const RobotPoseVector &poses,
+                                            const std::vector<std::string> &tips, double radius,
+                                            const Eigen::Vector3d &tolerances, bool verbose)
+{
+    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+    const auto &gsvcf = getGSVCF(scene, verbose);
+
+    // Extract base position and orientation for each desired pose
+    RobotPoseVector positions(poses.size());
+    std::vector<Eigen::Quaterniond> orientations(poses.size());
+
+    for (unsigned int i = 0; i < poses.size(); ++i)
+    {
+        positions[i] = TF::createPoseXYZ(poses[i].translation());
+        orientations[i] = Eigen::Quaterniond{poses[i].rotation()};
+    }
+
+    const auto region = Geometry::makeSphere(radius);
+    RobotPoseVector sampled(poses.size());
+
+    for (unsigned int i = 0; i < ik_attempts_; ++i)
+    {
+        bool success = true;
+        for (unsigned int i = 0; i < poses.size(); ++i)
+        {
+            auto sample = sampleInVolume(region, positions[i], orientations[i], tolerances);
+            success &= sample.first;
+            sampled[i] = sample.second;
+        }
+
+        if (not success)
+            continue;
+
+        if (scratch_->setFromIK(jmg, sampled, tips, 0., gsvcf))
+        {
+            scratch_->update();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+moveit::core::GroupStateValidityCallbackFn Robot::getGSVCF(const ScenePtr &scene, bool verbose) const
+{
+    if (not scene)
+        return {};
+
+    const auto &gsvcf =                                             //
+        [scene, verbose](robot_state::RobotState *state,            //
+                         const moveit::core::JointModelGroup *jmg,  //
+                         const double *values)                      //
+    {
+        state->setJointGroupPositions(jmg, values);
+        state->updateCollisionBodyTransforms();
+
+        collision_detection::CollisionRequest request;
+        request.verbose = verbose;
+
+        auto result = scene->checkCollision(*state, request);
+        return not result.collision;
+    };
+
+    return gsvcf;
 }
 
 const RobotPose &Robot::getLinkTF(const std::string &name) const

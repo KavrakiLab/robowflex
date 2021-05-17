@@ -409,6 +409,43 @@ namespace robowflex
                                      const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
                                      bool verbose = false);
 
+        /** \brief Sets multiple end-effectors of a group of the scratch state from an IK query. If the IK
+         *  query fails the scratch state retains its initial value. Note: only certain kinematics plugins
+         *  support multi-target queries.
+         *  The poses of the query are specified by \a poses, at which there is a small ball of \a radius and
+         *  XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] group Group to set.
+         *  \param[in] poses Desired poses of end-effector tips.
+         *  \param[in] tips End-effector tips to target.
+         *  \param[in] radius Radius tolerance around position.
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \return True on success, false on failure.
+         */
+        bool setMultipleFromIK(const std::string &group, const RobotPoseVector &poses,
+                               const std::vector<std::string> &tips, double radius = constants::ik_tolerance,
+                               const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+
+        /** \brief Sets multiple end-effectors of a group of the scratch state from an IK query. If the IK
+         *  query fails the scratch state retains its initial value. Note: only certain kinematics plugins
+         *  support multi-target queries.
+         *  The poses of the query are specified by \a poses, at which there is a small ball of \a radius and
+         *  XYZ Euler angle tolerances from \a tolerances.
+         *  \param[in] scene Scene to do collision checking with.
+         *  \param[in] group Group to set.
+         *  \param[in] poses Desired poses of end-effector tips.
+         *  \param[in] tips End-effector tips to target.
+         *  \param[in] radius Radius tolerance around position.
+         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
+         *  \return True on success, false on failure.
+         */
+        bool setMultipleFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
+                                             const RobotPoseVector &poses,
+                                             const std::vector<std::string> &tips,
+                                             double radius = constants::ik_tolerance,
+                                             const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
+                                             bool verbose = false);
+
         /** \} */
 
         /** \name IO
@@ -452,6 +489,9 @@ namespace robowflex
         /** \} */
 
     protected:
+        /** \name Protected Initialization
+            \{ */
+
         /** \brief Loads the URDF file.
          *  \param[in] urdf_file The URDF file name.
          *  \return True on success, false on failure.
@@ -481,6 +521,20 @@ namespace robowflex
          *  \param[in] function XML processing function.
          */
         void updateXMLString(std::string &string, const PostProcessXMLFunction &function);
+
+        /** \} */
+
+        /** \name Helper Methods
+            \{ */
+
+        /** \brief Get the group state validity callback function used by collision-aware IK.
+         *  \param[in] scene Scene to collision check against.
+         *  \param[in] verbose If true, output collision checking information on failure.
+         *  \return If scene is not null, the GSVCF. Otherwise, an empty function.
+         */
+        moveit::core::GroupStateValidityCallbackFn getGSVCF(const ScenePtr &scene, bool verbose) const;
+
+        /** \} */
 
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
