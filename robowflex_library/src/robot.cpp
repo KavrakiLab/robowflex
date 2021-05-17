@@ -672,10 +672,18 @@ bool Robot::setFromIK(const IKQuery &query)
             continue;
 
         bool success = false;
+
+#if ROBOWFLEX_AT_LEAST_MELODIC
         if (n > 1)  // multi-target
             success = scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf);
         else
             success = scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf);
+#else
+        if (n > 1)  // multi-target
+            success = scratch_->setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf);
+        else
+            success = scratch_->setFromIK(jmg, targets[0], 1, query.timeout, gsvcf);
+#endif
 
         if (success)
         {
