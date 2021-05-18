@@ -465,7 +465,7 @@ namespace robowflex
          *  \param[out] state Robot state to set from IK.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const IKQuery &query, robot_state::RobotState &state);
+        bool setFromIK(const IKQuery &query, robot_state::RobotState &state) const;
 
         /** \} */
 

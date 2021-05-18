@@ -660,7 +660,7 @@ bool Robot::setFromIK(const IKQuery &query)
     return setFromIK(query, *scratch_);
 }
 
-bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state)
+bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
 {
     const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const std::size_t n = query.numTargets();
@@ -685,26 +685,26 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state)
         // Multi-tip IK. Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
         if (n > 1)
-            success = scratch_->setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, options);
         // Single-tip IK.
         else
-            success = scratch_->setFromIK(jmg, targets[0], query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets[0], query.timeout, gsvcf, options);
 
 #else  // attempts was a prior field that was deprecated in melodic
         if (n > 1)
-            success = scratch_->setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, options);
         else
-            success = scratch_->setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, options);
 #endif
 
         if (success)
         {
-            scratch_->update();
+            state.update();
             return true;
         }
 
         if (query.random_restart)
-            scratch_->setToRandomPositions(jmg);
+            state.setToRandomPositions(jmg);
     }
 
     return false;
