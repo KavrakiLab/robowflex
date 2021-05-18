@@ -340,10 +340,19 @@ namespace robowflex
         /** \name Inverse Kinematics
             \{ */
 
+        /** \brief Robot IK Query options.
+         *  IK queries in Robowflex consist of:
+         *   a) A position specified by some geometric region (a robowflex::Geometry) at a pose.
+         *   b) An orientation specified by some base orientation with allowable deviations specified by
+         *      tolerances on the XYZ Euler axes.
+         *  It is recommended to use the provided constructors to specify a query, or to use the addRequest()
+         *  function. Multiple target tips can be specified, but note that not all kinematics solvers support
+         *  multi-tip IK. Additionally, a robowflex::Scene can be specified to do collision-aware IK.
+         */
         struct IKQuery
         {
-            std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
-            double timeout{0.};                            ///< Timeout for each query.
+            /** \name Query Targets
+                \{ */
 
             std::string group;                             ///< Target joint group to do IK for.
             std::vector<std::string> tips;                 ///< List of end-effectors.
@@ -351,8 +360,20 @@ namespace robowflex
             RobotPoseVector region_poses;                  ///< Poses of regions.
             std::vector<Eigen::Quaterniond> orientations;  ///< Target orientations.
             EigenSTL::vector_Vector3d tolerances;          ///< XYZ Euler orientation tolerances.
-            ScenePtr scene;  ///< If provided, use this scene for collision checking.
-            bool verbose;    ///< Verbose output of collision checking.
+
+            /** \} */
+
+            /** \name Additional Solver Options
+                \{ */
+
+            ScenePtr scene;                     ///< If provided, use this scene for collision checking.
+            bool verbose{false};                ///< Verbose output of collision checking.
+            bool random_restart{true};          ///< Randomly reset joint states.
+            bool approximate_solutions{false};  ///< Return approximate solutions.
+            std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
+            double timeout{0.};                            ///< Timeout for each query.
+
+            /** \} */
 
             /** Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
@@ -437,6 +458,14 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool setFromIK(const IKQuery &query);
+
+        /** \brief Sets a group a robot state from an IK query. If the IK query fails the scratch state
+         *  retains its initial value.
+         *  \param[in] query Query for inverse kinematics. See Robot::IKQuery documentation for more.
+         *  \param[out] state Robot state to set from IK.
+         *  \return True on success, false on failure.
+         */
+        bool setFromIK(const IKQuery &query, RobotState &state);
 
         /** \} */
 
