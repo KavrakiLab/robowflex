@@ -351,6 +351,8 @@ namespace robowflex
          */
         struct IKQuery
         {
+            ROBOWFLEX_EIGEN;
+
             /** \name Query Targets
                 \{ */
 
