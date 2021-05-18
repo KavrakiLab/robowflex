@@ -660,7 +660,7 @@ bool Robot::setFromIK(const IKQuery &query)
     return setFromIK(query, *scratch_);
 }
 
-bool Robot::setFromIK(const IKQuery &query, RobotState &state)
+bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state)
 {
     const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const std::size_t n = query.numTargets();
