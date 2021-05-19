@@ -368,14 +368,19 @@ namespace robowflex
             /** \name Additional Solver Options
                 \{ */
 
-            ScenePtr scene;                     ///< If provided, use this scene for collision checking.
-            bool verbose{false};                ///< Verbose output of collision checking.
-            bool random_restart{true};          ///< Randomly reset joint states.
-            bool approximate_solutions{false};  ///< Return approximate solutions.
+            ScenePtr scene;             ///< If provided, use this scene for collision checking.
+            bool verbose{false};        ///< Verbose output of collision checking.
+            bool random_restart{true};  ///< Randomly reset joint states.
+            kinematics::KinematicsQueryOptions options;    ///< Other query options.
             std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
             double timeout{0.};                            ///< Timeout for each query.
 
             /** \} */
+
+            /** Constructor. Empty for fine control.
+             *  \param[in] group Group to set.
+             */
+            IKQuery(const std::string &group);
 
             /** Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
@@ -436,22 +441,11 @@ namespace robowflex
                             const Eigen::Quaterniond &orientation,
                             const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /** \brief Sample a desired end-effector pose for the \a index -th region.
-             *  \param[out] pose The sampled pose.
-             *  \param[in] index The index of the region. Should be less than numTargets().
+            /** \brief Sample desired end-effector pose for each region.
+             *  \param[out] poses The sampled poses.
              *  \return True on success, false on failure.
              */
-            bool sampleInRegion(RobotPose &pose, std::size_t index = 0) const;
-
-            /** \brief Get the number of IK targets in this query.
-             *  \return The number of IK targets.
-             */
-            std::size_t numTargets() const;
-
-            /** \brief Get the group state validity callback function used by collision-aware IK.
-             *  \return If scene is not null, the GSVCF. Otherwise, an empty function.
-             */
-            moveit::core::GroupStateValidityCallbackFn getGSVCF() const;
+            bool sampleRegions(RobotPoseVector &poses) const;
         };
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state

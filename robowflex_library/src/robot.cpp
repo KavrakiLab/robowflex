@@ -556,6 +556,14 @@ bool Robot::hasJoint(const std::string &joint) const
     return (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
 }
 
+//
+// IKQuery
+//
+
+Robot::IKQuery::IKQuery(const std::string &group) : group(group)
+{
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
                         const Eigen::Vector3d &tolerance)
   : IKQuery(group,                                //
@@ -611,48 +619,24 @@ void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &
     tolerances.emplace_back(tolerance);
 }
 
-bool Robot::IKQuery::sampleInRegion(RobotPose &pose, std::size_t index) const
+bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
 {
-    const auto &point = regions[index]->sample();
+    const std::size_t n = regions.size();
+    poses.resize(n);
 
-    if (point.first)
+    bool sampled = true;
+    for (std::size_t j = 0; j < n and sampled; ++j)
     {
-        pose = region_poses[index];
-        pose.translate(point.second);
-        pose.rotate(TF::sampleOrientation(orientations[index], tolerances[index]));
-
-        return true;
+        const auto &point = regions[j]->sample();
+        if ((sampled &= point.first))
+        {
+            poses[j] = region_poses[j];
+            poses[j].translate(point.second);
+            poses[j].rotate(TF::sampleOrientation(orientations[j], tolerances[j]));
+        }
     }
 
-    return false;
-}
-
-std::size_t Robot::IKQuery::numTargets() const
-{
-    return regions.size();
-}
-
-moveit::core::GroupStateValidityCallbackFn Robot::IKQuery::getGSVCF() const
-{
-    if (not scene)
-        return {};
-
-    const auto &gsvcf =                                //
-        [&](robot_state::RobotState *state,            //
-            const moveit::core::JointModelGroup *jmg,  //
-            const double *values)                      //
-    {
-        state->setJointGroupPositions(jmg, values);
-        state->updateCollisionBodyTransforms();
-
-        collision_detection::CollisionRequest request;
-        request.verbose = verbose;
-
-        auto result = scene->checkCollision(*state, request);
-        return not result.collision;
-    };
-
-    return gsvcf;
+    return sampled;
 }
 
 bool Robot::setFromIK(const IKQuery &query)
@@ -663,51 +647,39 @@ bool Robot::setFromIK(const IKQuery &query)
 bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
 {
     const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
-    const std::size_t n = query.numTargets();
-    const auto &gsvcf = query.getGSVCF();
+    const auto &gsvcf =
+        (query.scene) ? query.scene->getGSVCF(query.verbose) : moveit::core::GroupStateValidityCallbackFn{};
 
-    kinematics::KinematicsQueryOptions options;
-    options.return_approximate_solution = query.approximate_solutions;
-
-    RobotPoseVector targets(n);
-    for (std::size_t i = 0; i < query.attempts; ++i)
+    bool success = false;
+    RobotPoseVector targets;
+    for (std::size_t i = 0; i < query.attempts and not success; ++i)
     {
-        bool sampled = true;
-        for (std::size_t j = 0; j < n and sampled; ++j)
-            sampled &= query.sampleInRegion(targets[j], j);
-
-        if (not sampled)
-            continue;
-
-        bool success = false;
+        query.sampleRegions(targets);
 
 #if ROBOWFLEX_AT_LEAST_MELODIC
         // Multi-tip IK. Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
-        if (n > 1)
-            success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, options);
+        if (targets.size() > 1)
+            success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, query.options);
         // Single-tip IK.
         else
-            success = state.setFromIK(jmg, targets[0], query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets[0], query.timeout, gsvcf, query.options);
 
 #else  // attempts was a prior field that was deprecated in melodic
-        if (n > 1)
-            success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, options);
+        if (targets.size() > 1)
+            success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, query.options);
         else
-            success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, options);
+            success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, query.options);
 #endif
 
-        if (success)
-        {
-            state.update();
-            return true;
-        }
-
-        if (query.random_restart)
+        if (not success and query.random_restart)
             state.setToRandomPositions(jmg);
     }
 
-    return false;
+    if (success)
+        state.update();
+
+    return success;
 }
 
 const RobotPose &Robot::getLinkTF(const std::string &name) const

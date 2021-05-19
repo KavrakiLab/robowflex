@@ -273,6 +273,13 @@ namespace robowflex
          */
         double distanceBetweenObjects(const std::string &one, const std::string &two) const;
 
+        /** \brief Get the group state validity callback function that uses this scene.
+         *  \param[in] verbose If true, will have verbose collision output.
+         *  \return The group state validity function. This function will return true if there is no
+         * collision, and false otherwise.
+         */
+        moveit::core::GroupStateValidityCallbackFn getGSVCF(bool verbose) const;
+
         /** \} */
 
         /** \name IO
