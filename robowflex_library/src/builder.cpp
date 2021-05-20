@@ -233,6 +233,11 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
+void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
+{
+    // TODO
+}
+
 void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
                                        const RobotPose &pose, double tolerance)
 {

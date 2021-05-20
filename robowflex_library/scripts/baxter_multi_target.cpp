@@ -54,8 +54,7 @@ int main(int argc, char **argv)
     RBX_INFO("Target IK poses are visualized. Press enter to continue...");
     std::cin.ignore();
 
-    const auto &query = Robot::IKQuery(BOTH_ARMS, {goal_pose_left, goal_pose_right}, {LEFT_EE, RIGHT_EE});
-
+    Robot::IKQuery query(BOTH_ARMS, {goal_pose_left, goal_pose_right}, {LEFT_EE, RIGHT_EE});
     if (not baxter->setFromIK(query))
     {
         RBX_ERROR("IK query failed!");

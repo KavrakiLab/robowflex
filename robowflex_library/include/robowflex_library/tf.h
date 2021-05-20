@@ -94,6 +94,12 @@ namespace robowflex
         RobotPose createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
                               const Eigen::Quaterniond &rotation);
 
+        /** \brief Get the rotational component of a robot pose.
+         *  \param[in] pose The pose to get the rotation from.
+         *  \return The rotational component of the pose.
+         */
+        Eigen::Quaterniond getPoseRotation(const RobotPose &pose);
+
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.
          *  \return \a msg as an Eigen::Vector3d.

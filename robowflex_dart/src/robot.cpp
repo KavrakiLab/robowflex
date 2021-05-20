@@ -501,7 +501,7 @@ void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
             auto tf = joint->getRelativeTransform();
             geometry_msgs::Transform tfmsg;
             tfmsg.translation = TF::vectorEigenToMsg(tf.translation());
-            tfmsg.rotation = TF::quaternionEigenToMsg(Eigen::Quaterniond(tf.linear()));
+            tfmsg.rotation = TF::quaternionEigenToMsg(TF::getPoseRotation(tf));
 
             msg.multi_dof_joint_state.transforms.push_back(tfmsg);
         }

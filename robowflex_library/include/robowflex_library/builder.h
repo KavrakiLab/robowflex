@@ -9,11 +9,11 @@
 #include <robowflex_library/adapter.h>
 #include <robowflex_library/id.h>
 #include <robowflex_library/geometry.h>
+#include <robowflex_library/robot.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
-    ROBOWFLEX_CLASS_FORWARD(Robot);
     ROBOWFLEX_CLASS_FORWARD(Scene);
     ROBOWFLEX_CLASS_FORWARD(Planner);
     /** \endcond */
@@ -140,6 +140,11 @@ namespace robowflex
          *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
          */
         void setGoalConfiguration(const robot_state::RobotStatePtr &state);
+
+        /** \brief Set the goal pose from an IK query.
+         *  \param[in] query IK query to construct goal from.
+         */
+        void setGoalFromIKQuery(const Robot::IKQuery &query);
 
         /** \brief Set a goal pose for the end-effector \a ee_name.
          *  Generates a sphere with radius \a tolerance as well as  orientation tolerances of \a tolerance

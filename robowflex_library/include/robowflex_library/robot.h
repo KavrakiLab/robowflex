@@ -382,6 +382,45 @@ namespace robowflex
              */
             IKQuery(const std::string &group);
 
+            /** \name Directional Offset Constructors
+                \{ */
+
+            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] direction Vector direction of end-effector motion. Will be used as unit vector.
+             *  \param[in] distance Distance to travel in that direction.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const Eigen::Vector3d &direction, double distance);
+
+            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] position_offset Position offset to apply from current tip position.
+             *  \param[in] rotation_offset Rotational offset to apply from current tip position.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const Eigen::Vector3d &position_offset,
+                    const Eigen::Quaterniond &rotation_offset = Eigen::Quaterniond::Identity());
+
+            /** Constructor. Initialize an IK query based on an offset from an initial robot state. Only for
+             *  single-tip systems.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] offset Offset to apply from current tip position.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const RobotPose &offset);
+
+            /** \} */
+
+            /** \name Single Target Constructors
+                \{ */
+
             /** Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
              *  \param[in] pose Desired pose of end-effector.
@@ -402,7 +441,7 @@ namespace robowflex
                     const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /** Constructor. Initialize an  IK query to reach somewhere in the provided \a region (at a \a
+            /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
              *  pose) and \a orientation.
              *  \param[in] group Group to set.
              *  \param[in] region Region of points for position.
@@ -416,19 +455,23 @@ namespace robowflex
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
 
-            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach their
-             *  desired \a poses.
-             *  \param[in] group Group to set.
-             *  \param[in] poses Desired poses of end-effector tips.
-             *  \param[in] input_tips End-effector tips to target.
-             *  \param[in] radius Radius tolerance around position.
-             *  \param[in] tolerances Tolerance about \a orientation.
+            /** \} */
+
+            /** \name Multiple Target Constructors
+                \{ */
+
+            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
+             * their desired \a poses. \param[in] group Group to set. \param[in] poses Desired poses of
+             * end-effector tips. \param[in] input_tips End-effector tips to target. \param[in] radius
+             * Radius tolerance around position. \param[in] tolerances Tolerance about \a orientation.
              *  \return True on success, false on failure.
              */
             IKQuery(const std::string &group, const RobotPoseVector &poses,
                     const std::vector<std::string> &input_tips, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
+
+            /** \} */
 
             /** \brief Add a request for a \a tip.
              *  \param[in] tip Tip for the request.

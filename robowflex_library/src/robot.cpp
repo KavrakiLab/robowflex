@@ -564,6 +564,26 @@ Robot::IKQuery::IKQuery(const std::string &group) : group(group)
 {
 }
 
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const Eigen::Vector3d &direction,
+                        double distance)
+  : IKQuery(group, tip, start, distance * direction.normalized())
+{
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const Eigen::Vector3d &position_offset,
+                        const Eigen::Quaterniond &rotation_offset)
+  : IKQuery(group, tip, start, TF::createPoseQ(position_offset, rotation_offset))
+{
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const RobotPose &offset)
+  : IKQuery(group, start.getGlobalLinkTransform(tip) * offset)
+{
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
                         const Eigen::Vector3d &tolerance)
   : IKQuery(group,                                //
