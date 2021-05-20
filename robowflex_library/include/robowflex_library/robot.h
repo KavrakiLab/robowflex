@@ -244,33 +244,6 @@ namespace robowflex
          */
         const std::string &getSRDFString() const;
 
-        /** \brief Get a const reference to the scratch robot state.
-         *  \return The scratch robot state.
-         */
-        const robot_model::RobotStatePtr &getScratchStateConst() const;
-
-        /** \brief Get a reference to the scratch robot state.
-         *  \return The scratch robot state.
-         */
-        robot_model::RobotStatePtr &getScratchState();
-
-        /** \brief Allocate a new robot state.
-         *  \return The new robot state.
-         */
-        robot_model::RobotStatePtr allocState() const;
-
-        /** \brief Get the tip frames for the IK solver for a given joint model group \a group.
-         *  \param[in] group The group to get the tip frames for.
-         *  \return The list of tip frames. Will return an empty list on error.
-         */
-        std::vector<std::string> getSolverTipFrames(const std::string &group) const;
-
-        /** \brief Get the base frame for the IK solver given a joint model group \a group.
-         *  \param[in] group The group to get the base frame for.
-         *  \return The base frame. Will return an empty string on error.
-         */
-        std::string getSolverBaseFrame(const std::string &group) const;
-
         /** \brief Get the underlying IO handler used for this robot.
          *  \return A reference to the IO handler.
          */
@@ -285,6 +258,21 @@ namespace robowflex
 
         /** \name Robot State Operations
             \{ */
+
+        /** \brief Get a const reference to the scratch robot state.
+         *  \return The scratch robot state.
+         */
+        const robot_model::RobotStatePtr &getScratchStateConst() const;
+
+        /** \brief Get a reference to the scratch robot state.
+         *  \return The scratch robot state.
+         */
+        robot_model::RobotStatePtr &getScratchState();
+
+        /** \brief Allocate a new robot state.
+         *  \return The new robot state.
+         */
+        robot_model::RobotStatePtr allocState() const;
 
         /** \brief Sets the scratch state from a vector of joint positions (all must be specified)
          *  \param[in] positions Joint positions to set.
@@ -518,6 +506,18 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool setFromIK(const IKQuery &query, robot_state::RobotState &state) const;
+
+        /** \brief Get the tip frames for the IK solver for a given joint model group \a group.
+         *  \param[in] group The group to get the tip frames for.
+         *  \return The list of tip frames. Will return an empty list on error.
+         */
+        std::vector<std::string> getSolverTipFrames(const std::string &group) const;
+
+        /** \brief Get the base frame for the IK solver given a joint model group \a group.
+         *  \param[in] group The group to get the base frame for.
+         *  \return The base frame. Will return an empty string on error.
+         */
+        std::string getSolverBaseFrame(const std::string &group) const;
 
         /** \} */
 
