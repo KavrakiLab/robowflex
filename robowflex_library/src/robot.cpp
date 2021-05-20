@@ -754,7 +754,6 @@ std::string Robot::getSolverBaseFrame(const std::string &group) const
     return "";
 }
 
-
 namespace
 {
     YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry, bool resolve = true)
