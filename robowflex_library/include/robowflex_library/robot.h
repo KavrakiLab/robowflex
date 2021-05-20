@@ -460,7 +460,6 @@ namespace robowflex
              *  \param[in] pose Pose of the \a region.
              *  \param[in] orientation Mean orientation.
              *  \param[in] tolerances Tolerance about \a orientation.
-             *  \return True on success, false on failure.
              */
             IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
                     const Eigen::Quaterniond &orientation,
@@ -473,10 +472,12 @@ namespace robowflex
                 \{ */
 
             /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
-             * their desired \a poses. \param[in] group Group to set. \param[in] poses Desired poses of
-             * end-effector tips. \param[in] input_tips End-effector tips to target. \param[in] radius
-             * Radius tolerance around position. \param[in] tolerances Tolerance about \a orientation.
-             *  \return True on success, false on failure.
+             *  their desired \a poses.
+             *  \param[in] group Group to set.
+             *  \param[in] poses Desired poses of end-effector tips.
+             *  \param[in] input_tips End-effector tips to target.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
              */
             IKQuery(const std::string &group, const RobotPoseVector &poses,
                     const std::vector<std::string> &input_tips, double radius = constants::ik_tolerance,
