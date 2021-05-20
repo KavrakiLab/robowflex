@@ -734,6 +734,27 @@ robot_model::RobotStatePtr Robot::allocState() const
     return state;
 }
 
+std::vector<std::string> Robot::getSolverTipFrames(const std::string &group) const
+{
+    const auto &jmg = model_->getJointModelGroup(group);
+    const auto &solver = jmg->getSolverInstance();
+    if (solver)
+        return solver->getTipFrames();
+
+    return {};
+}
+
+std::string Robot::getSolverBaseFrame(const std::string &group) const
+{
+    const auto &jmg = model_->getJointModelGroup(group);
+    const auto &solver = jmg->getSolverInstance();
+    if (solver)
+        return solver->getBaseFrame();
+
+    return "";
+}
+
+
 namespace
 {
     YAML::Node addLinkGeometry(const urdf::GeometrySharedPtr &geometry, bool resolve = true)

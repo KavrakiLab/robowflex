@@ -259,6 +259,18 @@ namespace robowflex
          */
         robot_model::RobotStatePtr allocState() const;
 
+        /** \brief Get the tip frames for the IK solver for a given joint model group \a group.
+         *  \param[in] group The group to get the tip frames for.
+         *  \return The list of tip frames. Will return an empty list on error.
+         */
+        std::vector<std::string> getSolverTipFrames(const std::string &group) const;
+
+        /** \brief Get the base frame for the IK solver given a joint model group \a group.
+         *  \param[in] group The group to get the base frame for.
+         *  \return The base frame. Will return an empty string on error.
+         */
+        std::string getSolverBaseFrame(const std::string &group) const;
+
         /** \brief Get the underlying IO handler used for this robot.
          *  \return A reference to the IO handler.
          */
