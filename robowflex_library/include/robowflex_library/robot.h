@@ -499,7 +499,7 @@ namespace robowflex
          */
         bool setFromIK(const IKQuery &query);
 
-        /** \brief Sets a group a robot state from an IK query. If the IK query fails the scratch state
+        /** \brief Sets a robot state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
          *  \param[in] query Query for inverse kinematics. See Robot::IKQuery documentation for more.
          *  \param[out] state Robot state to set from IK.
