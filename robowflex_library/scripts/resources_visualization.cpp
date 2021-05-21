@@ -38,10 +38,10 @@ const std::string ur5[4] = {
 
 // Franka Emika Panda robot with hand
 const std::string panda[4] = {
-    "package://robowflex_resources/panda/urdf/panda_arm_hand.urdf.xacro",    // urdf
-    "package://robowflex_resources/panda/config/panda_arm_hand.srdf.xacro",  // srdf
-    "package://robowflex_resources/panda/config/joint_limits.yaml",          // joint limits
-    "package://robowflex_resources/panda/config/kinematics.yaml"             // kinematics
+    "package://robowflex_resources/panda/urdf/panda_arm_hand.urdf.xacro",     // urdf
+    "package://robowflex_resources/panda/config/panda_arm_hand.srdf.xacro",   // srdf
+    "package://robowflex_resources/panda/config/joint_limits.yaml",           // joint limits
+    "package://robowflex_resources/panda/config/kinematics.yaml"              // kinematics
 };
 
 // Rethink Robotics Baxter
