@@ -244,21 +244,6 @@ namespace robowflex
          */
         const std::string &getSRDFString() const;
 
-        /** \brief Get a const reference to the scratch robot state.
-         *  \return The scratch robot state.
-         */
-        const robot_model::RobotStatePtr &getScratchStateConst() const;
-
-        /** \brief Get a reference to the scratch robot state.
-         *  \return The scratch robot state.
-         */
-        robot_model::RobotStatePtr &getScratchState();
-
-        /** \brief Allocate a new robot state.
-         *  \return The new robot state.
-         */
-        robot_model::RobotStatePtr allocState() const;
-
         /** \brief Get the underlying IO handler used for this robot.
          *  \return A reference to the IO handler.
          */
@@ -273,6 +258,21 @@ namespace robowflex
 
         /** \name Robot State Operations
             \{ */
+
+        /** \brief Get a const reference to the scratch robot state.
+         *  \return The scratch robot state.
+         */
+        const robot_model::RobotStatePtr &getScratchStateConst() const;
+
+        /** \brief Get a reference to the scratch robot state.
+         *  \return The scratch robot state.
+         */
+        robot_model::RobotStatePtr &getScratchState();
+
+        /** \brief Allocate a new robot state.
+         *  \return The new robot state.
+         */
+        robot_model::RobotStatePtr allocState() const;
 
         /** \brief Sets the scratch state from a vector of joint positions (all must be specified)
          *  \param[in] positions Joint positions to set.
@@ -340,74 +340,184 @@ namespace robowflex
         /** \name Inverse Kinematics
             \{ */
 
-        /** \brief Set the number of attempts for IK.
-         *  \param[in] attempts Number of attempts.
+        /** \brief Robot IK Query options.
+         *  IK queries in Robowflex consist of:
+         *   a) A position specified by some geometric region (a robowflex::Geometry) at a pose.
+         *   b) An orientation specified by some base orientation with allowable deviations specified by
+         *      tolerances on the XYZ Euler axes.
+         *  It is recommended to use the provided constructors to specify a query, or to use the addRequest()
+         *  function. Multiple target tips can be specified, but note that not all kinematics solvers support
+         *  multi-tip IK. Additionally, a robowflex::Scene can be specified to do collision-aware IK.
          */
-        void setIKAttempts(unsigned int attempts);
+        struct IKQuery
+        {
+            ROBOWFLEX_EIGEN;
+
+            /** \name Query Targets
+                \{ */
+
+            std::string group;                             ///< Target joint group to do IK for.
+            std::vector<std::string> tips;                 ///< List of end-effectors.
+            std::vector<GeometryConstPtr> regions;         ///< Regions to sample target positions from.
+            RobotPoseVector region_poses;                  ///< Poses of regions.
+            std::vector<Eigen::Quaterniond> orientations;  ///< Target orientations.
+            EigenSTL::vector_Vector3d tolerances;          ///< XYZ Euler orientation tolerances.
+
+            /** \} */
+
+            /** \name Additional Solver Options
+                \{ */
+
+            ScenePtr scene;             ///< If provided, use this scene for collision checking.
+            bool verbose{false};        ///< Verbose output of collision checking.
+            bool random_restart{true};  ///< Randomly reset joint states.
+            kinematics::KinematicsQueryOptions options;    ///< Other query options.
+            std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
+            double timeout{0.};                            ///< Timeout for each query.
+
+            /** \} */
+
+            /** Constructor. Empty for fine control.
+             *  \param[in] group Group to set.
+             */
+            IKQuery(const std::string &group);
+
+            /** \name Directional Offset Constructors
+                \{ */
+
+            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] direction Vector direction of end-effector motion. Will be used as unit vector.
+             *  \param[in] distance Distance to travel in that direction.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const Eigen::Vector3d &direction, double distance);
+
+            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] position_offset Position offset to apply from current tip position.
+             *  \param[in] rotation_offset Rotational offset to apply from current tip position.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const Eigen::Vector3d &position_offset,
+                    const Eigen::Quaterniond &rotation_offset = Eigen::Quaterniond::Identity());
+
+            /** Constructor. Initialize an IK query based on an offset from an initial robot state. Only for
+             *  single-tip systems.
+             *  \param[in] group Group to set.
+             *  \param[in] tip Tip frame to apply offset to.
+             *  \param[in] start Initial robot state to compute offset for.
+             *  \param[in] offset Offset to apply from current tip position.
+             */
+            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+                    const RobotPose &offset);
+
+            /** \} */
+
+            /** \name Single Target Constructors
+                \{ */
+
+            /** Constructor. Initialize a basic IK query to reach the desired \a pose.
+             *  \param[in] group Group to set.
+             *  \param[in] pose Desired pose of end-effector.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const RobotPose &pose, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
+             *  \param[in] group Group to set.
+             *  \param[in] position Position to achieve.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const Eigen::Vector3d &position,
+                    const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
+             *  pose) and \a orientation.
+             *  \param[in] group Group to set.
+             *  \param[in] region Region of points for position.
+             *  \param[in] pose Pose of the \a region.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                    const Eigen::Quaterniond &orientation,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
+                    const ScenePtr &scene = nullptr, bool verbose = false);
+
+            /** \} */
+
+            /** \name Multiple Target Constructors
+                \{ */
+
+            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
+             *  their desired \a poses.
+             *  \param[in] group Group to set.
+             *  \param[in] poses Desired poses of end-effector tips.
+             *  \param[in] input_tips End-effector tips to target.
+             *  \param[in] radius Radius tolerance around position.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            IKQuery(const std::string &group, const RobotPoseVector &poses,
+                    const std::vector<std::string> &input_tips, double radius = constants::ik_tolerance,
+                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
+                    const ScenePtr &scene = nullptr, bool verbose = false);
+
+            /** \} */
+
+            /** \brief Add a request for a \a tip.
+             *  \param[in] tip Tip for the request.
+             *  \param[in] region Region of points for position.
+             *  \param[in] pose Pose of the \a region.
+             *  \param[in] orientation Mean orientation.
+             *  \param[in] tolerances Tolerance about \a orientation.
+             */
+            void addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
+                            const Eigen::Quaterniond &orientation,
+                            const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+
+            /** \brief Sample desired end-effector pose for each region.
+             *  \param[out] poses The sampled poses.
+             *  \return True on success, false on failure.
+             */
+            bool sampleRegions(RobotPoseVector &poses) const;
+        };
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
-         *  Pose of query is specified by a \a pose, at which there is a small ball of \a radius and XYZ Euler
-         *  angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] pose Desired pose of end-effector.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] query Query for inverse kinematics. See Robot::IKQuery documentation for more.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const std::string &group, const RobotPose &pose,
-                       double radius = constants::ik_tolerance,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+        bool setFromIK(const IKQuery &query);
 
-        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
+        /** \brief Sets a robot state from an IK query. If the IK query fails the scratch state
          *  retains its initial value.
-         *  Position of query is specified by a \a pose, at which there is a small ball of \a radius, and
-         *  orientation is set by \a orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] position Position to achieve.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] radius Radius tolerance around position.
-         *  \param[in] tolerances Tolerance about \a orientation.
+         *  \param[in] query Query for inverse kinematics. See Robot::IKQuery documentation for more.
+         *  \param[out] state Robot state to set from IK.
          *  \return True on success, false on failure.
          */
-        bool setFromIK(const std::string &group, const Eigen::Vector3d &position,
-                       const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+        bool setFromIK(const IKQuery &query, robot_state::RobotState &state) const;
 
-        /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
-         *  retains its initial value.
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \return True on success, false on failure.
+        /** \brief Get the tip frames for the IK solver for a given joint model group \a group.
+         *  \param[in] group The group to get the tip frames for.
+         *  \return The list of tip frames. Will return an empty list on error.
          */
-        bool setFromIK(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
-                       const Eigen::Quaterniond &orientation,
-                       const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance);
+        std::vector<std::string> getSolverTipFrames(const std::string &group) const;
 
-        /** \brief Sets a group of the scratch state from an IK query. Attempts to find a configuration that
-         * is collision-free with the scene and the robot itself. If the IK query fails the scratch state
-         *  retains its initial value.
-         *  Position of query is specified by a geometry \a region at a \a pose, and orientation is set by \a
-         *  orientation with XYZ Euler angle tolerances from \a tolerances.
-         *  \param[in] scene Scene to do collision checking with.
-         *  \param[in] group Group to set.
-         *  \param[in] region Region of points for position.
-         *  \param[in] pose Pose of the \a region.
-         *  \param[in] orientation Mean orientation.
-         *  \param[in] tolerances Tolerance about \a orientation.
-         *  \param[in] verbose Verbosity if true prints where collision was detected, false by default.
-         *  \return True on success, false on failure.
+        /** \brief Get the base frame for the IK solver given a joint model group \a group.
+         *  \param[in] group The group to get the base frame for.
+         *  \return The base frame. Will return an empty string on error.
          */
-        bool setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                     const GeometryConstPtr &region, const RobotPose &pose,
-                                     const Eigen::Quaterniond &orientation,
-                                     const Eigen::Vector3d &tolerances = constants::ik_rot_tolerance,
-                                     bool verbose = false);
+        std::string getSolverBaseFrame(const std::string &group) const;
 
         /** \} */
 
@@ -452,6 +562,9 @@ namespace robowflex
         /** \} */
 
     protected:
+        /** \name Protected Initialization
+            \{ */
+
         /** \brief Loads the URDF file.
          *  \param[in] urdf_file The URDF file name.
          *  \return True on success, false on failure.
@@ -482,6 +595,8 @@ namespace robowflex
          */
         void updateXMLString(std::string &string, const PostProcessXMLFunction &function);
 
+        /** \} */
+
         const std::string name_;  ///< Robot name.
         IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
 
@@ -499,8 +614,6 @@ namespace robowflex
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
         robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
-
-        unsigned int ik_attempts_{constants::ik_attempts};  ///< Number of attempts at IK.
     };
 
     /** \cond IGNORE */

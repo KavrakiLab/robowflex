@@ -130,12 +130,14 @@ add_script(wam7_test)
 add_script(wam7_benchmark)
 add_script(resources_visualization)
 add_script(plugin_io)
+add_script(ur5_ik)
+add_script(baxter_multi_target)
 
 ##
 ## Tests
 ##
 
-add_test_script(scene)
+add_test_script(robot_scene)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

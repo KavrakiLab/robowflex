@@ -25,29 +25,6 @@ const std::string Robot::ROBOT_SEMANTIC = "_semantic";
 const std::string Robot::ROBOT_PLANNING = "_planning";
 const std::string Robot::ROBOT_KINEMATICS = "_kinematics";
 
-namespace
-{
-    std::pair<bool, geometry_msgs::Pose> sampleInVolume(const GeometryConstPtr &geometry,
-                                                        const RobotPose &pose,
-                                                        const Eigen::Quaterniond &orientation,
-                                                        const Eigen::Vector3d &tolerances)
-    {
-        geometry_msgs::Pose msg;
-
-        auto point = geometry->sample();
-        if (point.first)
-        {
-            RobotPose sampled_pose = pose;
-            sampled_pose.translate(point.second);
-            sampled_pose.rotate(TF::sampleOrientation(orientation, tolerances));
-
-            msg = TF::poseEigenToMsg(sampled_pose);
-        }
-
-        return std::make_pair(point.first, msg);
-    }
-}  // namespace
-
 Robot::Robot(const std::string &name) : name_(name), handler_(name_)
 {
 }
@@ -579,84 +556,150 @@ bool Robot::hasJoint(const std::string &joint) const
     return (std::find(joint_names.begin(), joint_names.end(), joint) != joint_names.end());
 }
 
-void Robot::setIKAttempts(unsigned int attempts)
+//
+// IKQuery
+//
+
+Robot::IKQuery::IKQuery(const std::string &group) : group(group)
 {
-    ik_attempts_ = attempts;
 }
 
-bool Robot::setFromIK(const std::string &group, const RobotPose &pose, double radius,
-                      const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const Eigen::Vector3d &direction,
+                        double distance)
+  : IKQuery(group, tip, start, distance * direction.normalized())
 {
-    return setFromIK(group, pose.translation(), Eigen::Quaterniond{pose.rotation()}, radius, tolerances);
 }
 
-bool Robot::setFromIK(const std::string &group,                                                //
-                      const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
-                      double radius, const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const Eigen::Vector3d &position_offset,
+                        const Eigen::Quaterniond &rotation_offset)
+  : IKQuery(group, tip, start, TF::createPoseQ(position_offset, rotation_offset))
 {
-    return setFromIK(group,                                                      //
-                     Geometry::makeSphere(radius), TF::createPoseXYZ(position),  //
-                     orientation, tolerances);
 }
 
-bool Robot::setFromIK(const std::string &group,                               //
-                      const GeometryConstPtr &region, const RobotPose &pose,  //
-                      const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances)
+Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
+                        const robot_state::RobotState &start, const RobotPose &offset)
+  : IKQuery(group, start.getGlobalLinkTransform(tip) * offset)
 {
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+}
 
-    for (unsigned int i = 0; i < ik_attempts_; ++i)
+Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
+                        const Eigen::Vector3d &tolerance)
+  : IKQuery(group,                                //
+            pose.translation(),                   //
+            Eigen::Quaterniond{pose.rotation()},  //
+            radius,                               //
+            tolerance)
+{
+}
+
+Robot::IKQuery::IKQuery(const std::string &group,                                                //
+                        const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
+                        double radius, const Eigen::Vector3d &tolerance)
+  : IKQuery(group,                         //
+            Geometry::makeSphere(radius),  //
+            TF::createPoseXYZ(position),   //
+            orientation,                   //
+            tolerance)
+{
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+                        const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance,
+                        const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
+{
+    addRequest("", region, pose, orientation, tolerance);
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
+                        const std::vector<std::string> &input_tips, double radius,
+                        const Eigen::Vector3d &tolerance, const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
+{
+    if (poses.size() != input_tips.size())
+        throw std::runtime_error("Invalid multi-target IK query. poses != tips.");
+
+    for (std::size_t i = 0; i < poses.size(); ++i)
+        addRequest(input_tips[i],                              //
+                   Geometry::makeSphere(radius),               //
+                   TF::createPoseXYZ(poses[i].translation()),  //
+                   Eigen::Quaterniond{poses[i].rotation()},    //
+                   tolerance);
+}
+
+void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
+                                const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance)
+{
+    tips.emplace_back(tip);
+    regions.emplace_back(region);
+    region_poses.emplace_back(pose);
+    orientations.emplace_back(orientation);
+    tolerances.emplace_back(tolerance);
+}
+
+bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
+{
+    const std::size_t n = regions.size();
+    poses.resize(n);
+
+    bool sampled = true;
+    for (std::size_t j = 0; j < n and sampled; ++j)
     {
-        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-        if (!sampled.first)
-            continue;
-
-        if (scratch_->setFromIK(jmg, sampled.second, 1, 0.))
+        const auto &point = regions[j]->sample();
+        if ((sampled &= point.first))
         {
-            scratch_->update();
-            return true;
+            poses[j] = region_poses[j];
+            poses[j].translate(point.second);
+            poses[j].rotate(TF::sampleOrientation(orientations[j], tolerances[j]));
         }
     }
 
-    return false;
+    return sampled;
 }
 
-bool Robot::setFromIKCollisionAware(const ScenePtr &scene, const std::string &group,
-                                    const GeometryConstPtr &region, const RobotPose &pose,
-                                    const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
-                                    bool verbose)
+bool Robot::setFromIK(const IKQuery &query)
 {
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(group);
+    return setFromIK(query, *scratch_);
+}
 
-    const auto &gsvcf =                                               //
-        [&scene, &verbose](robot_state::RobotState *state,            //
-                           const moveit::core::JointModelGroup *jmg,  //
-                           const double *values)                      //
+bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
+{
+    const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
+    const auto &gsvcf =
+        (query.scene) ? query.scene->getGSVCF(query.verbose) : moveit::core::GroupStateValidityCallbackFn{};
+
+    bool success = false;
+    RobotPoseVector targets;
+    for (std::size_t i = 0; i < query.attempts and not success; ++i)
     {
-        state->setJointGroupPositions(jmg, values);
-        state->updateCollisionBodyTransforms();
+        query.sampleRegions(targets);
 
-        collision_detection::CollisionRequest request;
-        request.verbose = verbose;
+#if ROBOWFLEX_AT_LEAST_MELODIC
+        // Multi-tip IK. Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
+        // solver doesn't support multi-tip queries.
+        if (targets.size() > 1)
+            success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, query.options);
+        // Single-tip IK.
+        else
+            success = state.setFromIK(jmg, targets[0], query.timeout, gsvcf, query.options);
 
-        auto result = scene->checkCollision(*state, request);
-        return !result.collision;
-    };
+#else  // attempts was a prior field that was deprecated in melodic
+        if (targets.size() > 1)
+            success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, query.options);
+        else
+            success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, query.options);
+#endif
 
-    for (unsigned int i = 0; i < ik_attempts_; ++i)
-    {
-        auto sampled = sampleInVolume(region, pose, orientation, tolerances);
-        if (!sampled.first)
-            continue;
-
-        if (scratch_->setFromIK(jmg, sampled.second, 1, 0., gsvcf))
-        {
-            scratch_->update();
-            return true;
-        }
+        if (not success and query.random_restart)
+            state.setToRandomPositions(jmg);
     }
 
-    return false;
+    if (success)
+        state.update();
+
+    return success;
 }
 
 const RobotPose &Robot::getLinkTF(const std::string &name) const
@@ -689,6 +732,26 @@ robot_model::RobotStatePtr Robot::allocState() const
     state->setToDefaultValues();
 
     return state;
+}
+
+std::vector<std::string> Robot::getSolverTipFrames(const std::string &group) const
+{
+    const auto &jmg = model_->getJointModelGroup(group);
+    const auto &solver = jmg->getSolverInstance();
+    if (solver)
+        return solver->getTipFrames();
+
+    return {};
+}
+
+std::string Robot::getSolverBaseFrame(const std::string &group) const
+{
+    const auto &jmg = model_->getJointModelGroup(group);
+    const auto &solver = jmg->getSolverInstance();
+    if (solver)
+        return solver->getBaseFrame();
+
+    return "";
 }
 
 namespace

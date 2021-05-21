@@ -315,7 +315,7 @@ Eigen::Vector3d TSR::Specification::getPosition() const
 
 Eigen::Quaterniond TSR::Specification::getRotation() const
 {
-    return Eigen::Quaterniond(pose.linear());
+    return TF::getPoseRotation(pose);
 }
 
 Eigen::Vector3d TSR::Specification::getEulerRotation() const

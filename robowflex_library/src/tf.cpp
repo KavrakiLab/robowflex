@@ -66,6 +66,11 @@ RobotPose TF::createPoseQ(const Eigen::Ref<const Eigen::Vector3d> &translation,
     return pose;
 }
 
+Eigen::Quaterniond TF::getPoseRotation(const RobotPose &pose)
+{
+    return Eigen::Quaterniond(pose.rotation());
+}
+
 Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3 &msg)
 {
     Eigen::Vector3d vector;
@@ -101,7 +106,7 @@ geometry_msgs::Pose TF::poseEigenToMsg(const RobotPose &pose)
     msg.position.y = t.y();
     msg.position.z = t.z();
 
-    const auto &r = Eigen::Quaterniond(pose.rotation());
+    const auto &r = getPoseRotation(pose);
     msg.orientation = quaternionEigenToMsg(r);
 
     return msg;
@@ -248,7 +253,7 @@ geometry_msgs::TransformStamped TF::transformEigenToMsg(const std::string &sourc
     msg.transform.translation.y = t.y();
     msg.transform.translation.z = t.z();
 
-    const auto &r = Eigen::Quaterniond(tf.rotation());
+    const auto &r = TF::getPoseRotation(tf);
     msg.transform.rotation = quaternionEigenToMsg(r);
 
     return msg;

@@ -12,11 +12,26 @@
 
 using namespace robowflex;
 
+namespace
+{
+    UR5RobotPtr getUR5Robot()
+    {
+        static UR5RobotPtr ur5;
+
+        // Create the default UR5 robot.
+        if (not ur5)
+        {
+            ur5 = std::make_shared<UR5Robot>();
+            ur5->initialize();
+        }
+
+        return ur5;
+    }
+}  // namespace
+
 TEST(Scene, detatchObject)
 {
-    // Create the default UR5 robot.
-    auto ur5 = std::make_shared<UR5Robot>();
-    ur5->initialize();
+    auto ur5 = getUR5Robot();
 
     // Create an empty scene and add a cylinder to it
     auto scene = std::make_shared<Scene>(ur5);
@@ -39,7 +54,7 @@ TEST(Scene, detatchObject)
     RobotPose goal_pose = ur5->getLinkTF("ee_link");
     goal_pose.translate(shift);
 
-    ASSERT_TRUE(ur5->setFromIK("manipulator", goal_pose));
+    ASSERT_TRUE(ur5->setFromIK(Robot::IKQuery("manipulator", goal_pose)));
 
     scene->getCurrentState().setVariablePositions(ur5->getScratchState()->getVariablePositions());
     scene->detachObject("cylinder");

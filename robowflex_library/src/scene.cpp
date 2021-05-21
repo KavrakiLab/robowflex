@@ -516,6 +516,23 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 #endif
 }
 
+moveit::core::GroupStateValidityCallbackFn Scene::getGSVCF(bool verbose) const
+{
+    return [this, verbose](robot_state::RobotState *state,            //
+                           const moveit::core::JointModelGroup *jmg,  //
+                           const double *values)                      //
+    {
+        state->setJointGroupPositions(jmg, values);
+        state->updateCollisionBodyTransforms();
+
+        collision_detection::CollisionRequest request;
+        request.verbose = verbose;
+
+        auto result = this->checkCollision(*state, request);
+        return not result.collision;
+    };
+}
+
 bool Scene::toYAMLFile(const std::string &file) const
 {
     moveit_msgs::PlanningScene msg;

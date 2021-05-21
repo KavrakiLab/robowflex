@@ -233,6 +233,50 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
 }
 
+void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
+{
+    if (not jmg_)
+    {
+        RBX_ERROR("No planning group set!");
+        throw std::runtime_error("No planning group set!");
+    }
+
+    if (group_name_ != query.group)
+    {
+        RBX_ERROR("Planning group in IK query `%1%` not the same as request `%2%`", query.group, group_name_);
+        throw std::runtime_error("Mismatched query groups!");
+    }
+
+    if (query.regions.size() > 1)
+    {
+        RBX_ERROR("Cannot set goal request from IK query with multiple targets!");
+        throw std::runtime_error("Tried to set goal from multi-target request!");
+    }
+
+    std::string tip_to_use = query.tips[0];
+    if (tip_to_use.empty())
+    {
+        const auto &tips = robot_->getSolverTipFrames(group_name_);
+        if (tips.empty() or tips.size() > 1)
+        {
+            RBX_ERROR("Unable to find tip frame for request.");
+            throw std::runtime_error("Unable to find tip frame for request.");
+        }
+
+        tip_to_use = tips[0];
+    }
+
+    const std::string &base = robot_->getSolverBaseFrame(group_name_);
+    if (base.empty())
+    {
+        RBX_ERROR("Failed to get base frame for request.");
+        throw std::runtime_error("Unable to find base frame for request.");
+    }
+
+    setGoalRegion(tip_to_use, base, query.region_poses[0], query.regions[0], query.orientations[0],
+                  query.tolerances[0]);
+}
+
 void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
                                        const RobotPose &pose, double tolerance)
 {
