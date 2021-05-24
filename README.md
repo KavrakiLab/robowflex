@@ -1,6 +1,19 @@
 # Robowflex 💪🤖
 Making MoveIt Easy.
 Documentation for this project can be read online at [GitHub pages](https://kavrakilab.github.io/robowflex/).
+If you use Robowflex, please use the following citation for the [associated paper](https://arxiv.org/pdf/2103.12826.pdf):
+```bibtex
+@article{Kingston2021,
+ archiveprefix = {arXiv},
+ author = {Zachary Kingston and Lydia E. Kavraki},
+ eprint = {2103.12826},
+ journal = {IEEE Robotics and Automation Letters},
+ note = {Under Review},
+ primaryclass = {cs.RO},
+ title = {Robowflex: Robot Motion Planning with MoveIt Made Easy},
+ year = {2021}
+}
+```
 
 ## What is Robowflex?
 
