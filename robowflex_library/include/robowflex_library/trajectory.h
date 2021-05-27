@@ -188,7 +188,7 @@ namespace robowflex
 
         /** \} */
 
-    private:
+    protected:
         robot_trajectory::RobotTrajectoryPtr trajectory_;
     };
 }  // namespace robowflex

@@ -33,3 +33,17 @@ ompl::geometric::PathGeometric OMPL::OMPLTrajectory::toOMPLPath(const ompl::geom
 
     return path;
 }
+
+void OMPL::OMPLTrajectory::fromOMPLPath(const robot_state::RobotState &reference_state,
+                                        const ompl::geometric::PathGeometric &path)
+{
+    const auto &mbss = std::dynamic_pointer_cast<ompl_interface::ModelBasedStateSpace>(
+        path.getSpaceInformation()->getStateSpace());
+
+    moveit::core::RobotState ks = reference_state;
+    for (std::size_t i = 0; i < path.getStateCount(); ++i)
+    {
+        mbss->copyToRobotState(ks, path.getState(i));
+        trajectory_->addSuffixWayPoint(ks, 0.0);
+    }
+}

@@ -53,6 +53,13 @@ namespace robowflex
              *  \return The Geometric Path equivalent of the trajectory.
              */
             ompl::geometric::PathGeometric toOMPLPath(const ompl::geometric::SimpleSetupPtr &ss);
+
+            /** \brief Sets the trajectory from an OMPL Path and a reference state.
+             *  \param[in] reference_state A full state that contains the values for all the joints.
+             *  \param[in] path The geometric ompl path to conver.
+             */
+            void fromOMPLPath(const robot_state::RobotState &reference_state,
+                              const ompl::geometric::PathGeometric &path);
         };
     }  // namespace OMPL
 }  // namespace robowflex
