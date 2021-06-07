@@ -373,7 +373,6 @@ bool Robot::loadKinematics(const std::string &group_name)
     }
 
     const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
-
     // if no subgroups exist use the given group name.
     auto group_names = subgroups.empty() ? std::vector<std::string>{group_name} : subgroups;
 
@@ -394,7 +393,6 @@ bool Robot::loadKinematics(const std::string &group_name)
             std::string error_msg;
             if (solver->supportsGroup(jmg, &error_msg))
                 imap_[name] = allocator;
-
             else
             {
                 RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
