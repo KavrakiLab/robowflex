@@ -372,9 +372,16 @@ bool Robot::loadKinematics(const std::string &group_name)
         return false;
     }
 
+    if (!model_->hasJointModelGroup(group_name))
+    {
+        RBX_WARN("No JMG defined for `%s`!", group_name);
+        return false;
+    }
+
     const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
     // if no subgroups exist use the given group name.
     auto group_names = subgroups.empty() ? std::vector<std::string>{group_name} : subgroups;
+    auto timeout = kinematics_->getIKTimeout();
 
     for (const auto &name : group_names)
     {
@@ -407,10 +414,9 @@ bool Robot::loadKinematics(const std::string &group_name)
         }
 
         RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+        model_->getJointModelGroup(group_name)->setDefaultIKTimeout(timeout[group_name]);
     }
 
-    auto timeout = kinematics_->getIKTimeout();
-    model_->getJointModelGroup(group_name)->setDefaultIKTimeout(timeout[group_name]);
     model_->setKinematicsAllocators(imap_);
 
     return true;

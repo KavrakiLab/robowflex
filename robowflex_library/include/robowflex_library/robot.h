@@ -194,7 +194,7 @@ namespace robowflex
         void setSRDFPostProcessAddFloatingJoint(const std::string &name);
 
         /** \brief Loads the kinematics plugin for a joint group or its subgroups. No kinematics are loaded by
-         * default.
+         *  default.
          * \param[in] group Joint group name to load.
          * \return True on success, false on failure.
          */
