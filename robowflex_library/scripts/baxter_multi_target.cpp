@@ -18,8 +18,6 @@ using namespace robowflex;
  */
 
 static const std::string BOTH_ARMS = "both_arms";
-static const std::string LEFT_ARM = "left_arm";
-static const std::string RIGHT_ARM = "right_arm";
 static const std::string LEFT_EE = "left_gripper_base";
 static const std::string RIGHT_EE = "right_gripper_base";
 
@@ -31,8 +29,7 @@ int main(int argc, char **argv)
     // Create a Baxter robot.
     auto baxter = std::make_shared<Robot>("baxter");
     baxter->initializeFromYAML("package://robowflex_resources/baxter.yml");
-    baxter->loadKinematics(LEFT_ARM);
-    baxter->loadKinematics(RIGHT_ARM);
+    baxter->loadKinematics(BOTH_ARMS);
 
     // Visualize the Baxter robot
     IO::RVIZHelper rviz(baxter);

@@ -358,9 +358,9 @@ void Robot::loadRobotModel(const std::string &description)
     model_ = loader_->getModel();
 }
 
-bool Robot::loadKinematics(const std::string &name)
+bool Robot::loadKinematics(const std::string &group_name)
 {
-    if (imap_.find(name) != imap_.end())
+    if (imap_.find(group_name) != imap_.end())
         return true;
 
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
@@ -372,38 +372,47 @@ bool Robot::loadKinematics(const std::string &name)
         return false;
     }
 
-    if (!model_->hasJointModelGroup(name) || std::find(groups.begin(), groups.end(), name) == groups.end())
+    const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
+
+    // if no subgroups exist use the given group name.
+    auto group_names = subgroups.empty() ? std::vector<std::string>{group_name} : subgroups;
+
+    for (const auto &name : group_names)
     {
-        RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
-        return false;
-    }
-
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
-    kinematics::KinematicsBasePtr solver = allocator(jmg);
-
-    if (solver)
-    {
-        std::string error_msg;
-        if (solver->supportsGroup(jmg, &error_msg))
-            imap_[name] = allocator;
-
-        else
+        if (!model_->hasJointModelGroup(name) ||
+            std::find(groups.begin(), groups.end(), name) == groups.end())
         {
-            RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
-                      typeid(*solver).name(), name, error_msg);
+            RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
             return false;
         }
-    }
-    else
-    {
-        RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
-        return false;
-    }
 
-    RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+        robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
+        kinematics::KinematicsBasePtr solver = allocator(jmg);
+
+        if (solver)
+        {
+            std::string error_msg;
+            if (solver->supportsGroup(jmg, &error_msg))
+                imap_[name] = allocator;
+
+            else
+            {
+                RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
+                          typeid(*solver).name(), name, error_msg);
+                return false;
+            }
+        }
+        else
+        {
+            RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
+            return false;
+        }
+
+        RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+    }
 
     auto timeout = kinematics_->getIKTimeout();
-    jmg->setDefaultIKTimeout(timeout[name]);
+    model_->getJointModelGroup(group_name)->setDefaultIKTimeout(timeout[group_name]);
     model_->setKinematicsAllocators(imap_);
 
     return true;
