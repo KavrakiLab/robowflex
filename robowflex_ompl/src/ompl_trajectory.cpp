@@ -40,6 +40,12 @@ void OMPL::OMPLTrajectory::fromOMPLPath(const robot_state::RobotState &reference
     const auto &mbss = std::dynamic_pointer_cast<ompl_interface::ModelBasedStateSpace>(
         path.getSpaceInformation()->getStateSpace());
 
+    if (not mbss)
+    {
+        ROS_ERROR("Failed to extract StateSpace from provided OMPL path!");
+        return;
+    }
+
     moveit::core::RobotState ks = reference_state;
     for (std::size_t i = 0; i < path.getStateCount(); ++i)
     {

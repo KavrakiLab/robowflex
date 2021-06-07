@@ -56,7 +56,7 @@ namespace robowflex
 
             /** \brief Sets the trajectory from an OMPL Path and a reference state.
              *  \param[in] reference_state A full state that contains the values for all the joints.
-             *  \param[in] path The geometric ompl path to conver.
+             *  \param[in] path The geometric ompl path to convert.
              */
             void fromOMPLPath(const robot_state::RobotState &reference_state,
                               const ompl::geometric::PathGeometric &path);
