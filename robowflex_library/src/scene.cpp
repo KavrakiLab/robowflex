@@ -9,6 +9,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
 #include <pluginlib/class_loader.h>
@@ -468,7 +469,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     return res.minimum_distance.distance;
 
 #else
-    throw Exception(1,"Not Implemented");
+    throw Exception(1, "Not Implemented");
 
 #endif
 }
@@ -511,7 +512,7 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
     return res.minimum_distance.distance;
 
 #else
-    throw Exception(1,"Not Implemented");
+    throw Exception(1, "Not Implemented");
 
 #endif
 }
