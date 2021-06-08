@@ -132,7 +132,6 @@ namespace
                && c.visibility_constraints.empty();
     }
 
-
     static std::string compressHex(const std::vector<int8_t> &v)
     {
         std::vector<char> compress;
