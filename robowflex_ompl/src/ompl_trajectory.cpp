@@ -3,6 +3,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
+#include <robowflex_library/util.h>
 
 #include <moveit/ompl_interface/parameterization/model_based_state_space.h>
 #include <robowflex_ompl/ompl_trajectory.h>
@@ -41,10 +42,7 @@ void OMPL::OMPLTrajectory::fromOMPLPath(const robot_state::RobotState &reference
         path.getSpaceInformation()->getStateSpace());
 
     if (not mbss)
-    {
-        ROS_ERROR("Failed to extract StateSpace from provided OMPL path!");
-        return;
-    }
+        throw Exception(1, "Failed to extract StateSpace from provided OMPL path!");
 
     moveit::core::RobotState ks = reference_state;
     for (std::size_t i = 0; i < path.getStateCount(); ++i)

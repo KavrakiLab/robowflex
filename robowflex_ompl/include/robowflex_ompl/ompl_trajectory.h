@@ -32,7 +32,7 @@ namespace robowflex
         /** \class robowflex::OMPL::OMPLTrajectoryConstPtr
             \brief A const shared pointer wrapper for robowflex::OMPL::OMPLTrajectory. */
 
-        /** \brief OMPLTrajectory provides ompl path utilities to the Trajectory class.
+        /** \brief OMPLTrajectory provides OMPL path utilities to the Trajectory class.
          */
         class OMPLTrajectory : public Trajectory
         {
@@ -56,7 +56,7 @@ namespace robowflex
 
             /** \brief Sets the trajectory from an OMPL Path and a reference state.
              *  \param[in] reference_state A full state that contains the values for all the joints.
-             *  \param[in] path The geometric ompl path to convert.
+             *  \param[in] path The geometric OMPL path to convert.
              */
             void fromOMPLPath(const robot_state::RobotState &reference_state,
                               const ompl::geometric::PathGeometric &path);
