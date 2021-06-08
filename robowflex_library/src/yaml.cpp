@@ -5,6 +5,11 @@
 #include <algorithm>
 #include <string>
 
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/algorithm/hex.hpp>
+
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -125,6 +130,42 @@ namespace
                && c.position_constraints.empty()     //
                && c.orientation_constraints.empty()  //
                && c.visibility_constraints.empty();
+    }
+
+    static std::string compressHex(const std::vector<int8_t> &v)
+    {
+        std::vector<char> compress;
+        {
+            boost::iostreams::filtering_ostream fos;
+            fos.push(boost::iostreams::zlib_compressor());
+            fos.push(boost::iostreams::back_inserter(compress));
+
+            for (const auto &i : v)
+                fos << i;
+        }
+
+        std::string result;
+        boost::algorithm::hex(compress.begin(), compress.end(), std::back_inserter(result));
+
+        return result;
+    }
+
+    static std::vector<int8_t> decompressHex(const std::string &hex)
+    {
+        std::vector<int8_t> unhexed;
+        boost::algorithm::unhex(hex, std::back_inserter(unhexed));
+
+        std::vector<char> decompress;
+        {
+            boost::iostreams::filtering_ostream fos;
+            fos.push(boost::iostreams::zlib_decompressor());
+            fos.push(boost::iostreams::back_inserter(decompress));
+
+            for (const auto &i : unhexed)
+                fos << i;
+        }
+
+        return std::vector<int8_t>(decompress.begin(), decompress.end());
     }
 }  // namespace
 
@@ -1089,9 +1130,7 @@ namespace YAML
         node["binary"] = boolToString(rhs.binary);
         node["id"] = rhs.id;
         node["resolution"] = rhs.resolution;
-        for (const auto &d : rhs.data)
-            node["data"].push_back(static_cast<int>(d));
-        ROBOWFLEX_YAML_FLOW(node["data"]);
+        node["data"] = compressHex(rhs.data);
 
         return node;
     }
@@ -1116,8 +1155,17 @@ namespace YAML
 
         if (IO::isNode(node["data"]))
         {
-            auto temp = node["data"].as<std::vector<int>>();
-            rhs.data = std::vector<int8_t>(temp.begin(), temp.end());
+            // Load old octomap formats / direct YAML output
+            if (node["data"].IsSequence())
+            {
+                auto temp = node["data"].as<std::vector<int>>();
+                rhs.data = std::vector<int8_t>(temp.begin(), temp.end());
+            }
+            else
+            {
+                auto temp = node["data"].as<std::string>();
+                rhs.data = decompressHex(temp);
+            }
         }
 
         return true;
