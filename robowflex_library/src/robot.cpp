@@ -17,6 +17,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -632,7 +633,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
   : group(group), scene(scene), verbose(scene and verbose)
 {
     if (poses.size() != input_tips.size())
-        throw std::runtime_error("Invalid multi-target IK query. poses != tips.");
+        throw Exception(1, "Invalid multi-target IK query. poses != tips.");
 
     for (std::size_t i = 0; i < poses.size(); ++i)
         addRequest(input_tips[i],                              //

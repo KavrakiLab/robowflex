@@ -11,6 +11,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/yaml.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -145,7 +146,7 @@ void Trajectory::interpolate(unsigned int count)
     return;
 
 #endif
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1, "Not Implemented");
 }
 
 std::vector<std::vector<double>> Trajectory::vectorize() const
