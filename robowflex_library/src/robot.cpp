@@ -414,7 +414,7 @@ bool Robot::loadKinematics(const std::string &group_name)
         }
 
         RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
-        model_->getJointModelGroup(group_name)->setDefaultIKTimeout(timeout[group_name]);
+        jmg->setDefaultIKTimeout(timeout[name]);
     }
 
     model_->setKinematicsAllocators(imap_);
