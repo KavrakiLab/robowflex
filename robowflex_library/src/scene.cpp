@@ -468,7 +468,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     return res.minimum_distance.distance;
 
 #else
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1,"Not Implemented");
 
 #endif
 }
@@ -511,7 +511,7 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
     return res.minimum_distance.distance;
 
 #else
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1,"Not Implemented");
 
 #endif
 }

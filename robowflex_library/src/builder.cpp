@@ -15,6 +15,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -78,7 +79,7 @@ void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)
     if (rname != pname)
     {
         RBX_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname, pname);
-        throw std::runtime_error("Invalid planner!");
+        throw Exception(1, "Invalid planner!");
     }
 
     planner_ = planner;
@@ -98,7 +99,7 @@ void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
     else
     {
         RBX_ERROR("Joint group `%s` does not exist in robot!", group_name);
-        throw std::runtime_error("Invalid joint group name!");
+        throw Exception(1, "Invalid joint group name!");
     }
 }
 
@@ -159,7 +160,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     if (not jmg_)
     {
         RBX_ERROR("No planning group set!");
-        throw std::runtime_error("No planning group set!");
+        throw Exception(1, "No planning group set!");
     }
 
     incrementVersion();
@@ -209,7 +210,7 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
     if (not jmg_)
     {
         RBX_ERROR("No planning group set!");
-        throw std::runtime_error("No planning group set!");
+        throw Exception(1, "No planning group set!");
     }
 
     incrementVersion();
@@ -226,7 +227,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
     if (not jmg_)
     {
         RBX_ERROR("No planning group set!");
-        throw std::runtime_error("No planning group set!");
+        throw Exception(1, "No planning group set!");
     }
 
     incrementVersion();
@@ -238,19 +239,19 @@ void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
     if (not jmg_)
     {
         RBX_ERROR("No planning group set!");
-        throw std::runtime_error("No planning group set!");
+        throw Exception(1, "No planning group set!");
     }
 
     if (group_name_ != query.group)
     {
         RBX_ERROR("Planning group in IK query `%1%` not the same as request `%2%`", query.group, group_name_);
-        throw std::runtime_error("Mismatched query groups!");
+        throw Exception(1, "Mismatched query groups!");
     }
 
     if (query.regions.size() > 1)
     {
         RBX_ERROR("Cannot set goal request from IK query with multiple targets!");
-        throw std::runtime_error("Tried to set goal from multi-target request!");
+        throw Exception(1, "Tried to set goal from multi-target request!");
     }
 
     std::string tip_to_use = query.tips[0];
@@ -260,7 +261,7 @@ void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
         if (tips.empty() or tips.size() > 1)
         {
             RBX_ERROR("Unable to find tip frame for request.");
-            throw std::runtime_error("Unable to find tip frame for request.");
+            throw Exception(1, "Unable to find tip frame for request.");
         }
 
         tip_to_use = tips[0];
@@ -270,7 +271,7 @@ void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
     if (base.empty())
     {
         RBX_ERROR("Failed to get base frame for request.");
-        throw std::runtime_error("Unable to find base frame for request.");
+        throw Exception(1, "Unable to find base frame for request.");
     }
 
     setGoalRegion(tip_to_use, base, query.region_poses[0], query.regions[0], query.orientations[0],
