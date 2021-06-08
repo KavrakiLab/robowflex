@@ -369,28 +369,28 @@ bool Robot::loadKinematics(const std::string &group_name)
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
-        RBX_WARN("No kinematics plugins defined. Fill and load kinematics.yaml!");
+        RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
         return false;
     }
 
     if (!model_->hasJointModelGroup(group_name))
     {
-        RBX_WARN("No JMG defined for `%s`!", group_name);
+        RBX_ERROR("No JMG defined for `%s`!", group_name);
         return false;
     }
 
     const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
-    // if no subgroups exist use the given group name.
-    auto group_names = subgroups.empty() ? std::vector<std::string>{group_name} : subgroups;
+    std::vector<std::string> load_names(subgroups);
+    load_names.push_back(group_name);
     auto timeout = kinematics_->getIKTimeout();
 
-    for (const auto &name : group_names)
+    for (const auto &name : load_names)
     {
         if (!model_->hasJointModelGroup(name) ||
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
             RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
-            return false;
+            continue;
         }
 
         robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
