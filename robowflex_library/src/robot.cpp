@@ -361,6 +361,9 @@ void Robot::loadRobotModel(const std::string &description)
 
 bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 {
+    // Needs to be called first to read the groups defined in the SRDF from the ROS params.
+    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
+
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
@@ -387,7 +390,6 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
     if (std::find(groups.begin(), groups.end(), group_name) != groups.end())
         load_names.emplace_back(group_name);
 
-    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
     auto timeout = kinematics_->getIKTimeout();
 
     for (const auto &name : load_names)
