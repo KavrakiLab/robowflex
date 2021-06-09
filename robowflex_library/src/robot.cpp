@@ -359,13 +359,8 @@ void Robot::loadRobotModel(const std::string &description)
     model_ = loader_->getModel();
 }
 
-bool Robot::loadKinematics(const std::string &group_name)
+bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 {
-    if (imap_.find(group_name) != imap_.end())
-        return true;
-
-    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
-
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
@@ -379,16 +374,28 @@ bool Robot::loadKinematics(const std::string &group_name)
         return false;
     }
 
-    const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
-    std::vector<std::string> load_names(subgroups);
+    std::vector<std::string> load_names;
 
+    // If requested, also attempt to load the kinematics solvers for subgroups.
+    if (load_subgroups)
+    {
+        const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
+        load_names.insert(subgroups.begin(), subgroups.end());
+    }
+
+    // Check if this group also has an associated kinematics solver to load.
     if (std::find(groups.begin(), groups.end(), group_name) != groups.end())
-        load_names.push_back(group_name);
+        load_names.emplace_back(group_name);
 
-    auto timeout = kinematics_->getIKTimeout();
+    robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
+    const auto &timeout = kinematics_->getIKTimeout();
 
     for (const auto &name : load_names)
     {
+        // Check if kinematics have already been loaded for this group.
+        if (imap_.find(name) != imap_.end())
+            continue;
+
         if (!model_->hasJointModelGroup(name) ||
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
@@ -422,7 +429,6 @@ bool Robot::loadKinematics(const std::string &group_name)
     }
 
     model_->setKinematicsAllocators(imap_);
-
     return true;
 }
 
