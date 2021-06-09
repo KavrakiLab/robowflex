@@ -381,7 +381,10 @@ bool Robot::loadKinematics(const std::string &group_name)
 
     const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
     std::vector<std::string> load_names(subgroups);
-    load_names.push_back(group_name);
+
+    if (std::find(groups.begin(), groups.end(), group_name) != groups.end())
+        load_names.push_back(group_name);
+
     auto timeout = kinematics_->getIKTimeout();
 
     for (const auto &name : load_names)
@@ -389,8 +392,8 @@ bool Robot::loadKinematics(const std::string &group_name)
         if (!model_->hasJointModelGroup(name) ||
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
-            RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
-            continue;
+            RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
+            return false;
         }
 
         robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
