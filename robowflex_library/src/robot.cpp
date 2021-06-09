@@ -359,37 +359,49 @@ void Robot::loadRobotModel(const std::string &description)
     model_ = loader_->getModel();
 }
 
-bool Robot::loadKinematics(const std::string &group_name)
+bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 {
-    if (imap_.find(group_name) != imap_.end())
-        return true;
-
+    // Needs to be called first to read the groups defined in the SRDF from the ROS params.
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
-        RBX_WARN("No kinematics plugins defined. Fill and load kinematics.yaml!");
+        RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
         return false;
     }
 
     if (!model_->hasJointModelGroup(group_name))
     {
-        RBX_WARN("No JMG defined for `%s`!", group_name);
+        RBX_ERROR("No JMG defined for `%s`!", group_name);
         return false;
     }
 
-    const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
-    // if no subgroups exist use the given group name.
-    auto group_names = subgroups.empty() ? std::vector<std::string>{group_name} : subgroups;
+    std::vector<std::string> load_names;
+
+    // If requested, also attempt to load the kinematics solvers for subgroups.
+    if (load_subgroups)
+    {
+        const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
+        load_names.insert(load_names.end(), subgroups.begin(), subgroups.end());
+    }
+
+    // Check if this group also has an associated kinematics solver to load.
+    if (std::find(groups.begin(), groups.end(), group_name) != groups.end())
+        load_names.emplace_back(group_name);
+
     auto timeout = kinematics_->getIKTimeout();
 
-    for (const auto &name : group_names)
+    for (const auto &name : load_names)
     {
+        // Check if kinematics have already been loaded for this group.
+        if (imap_.find(name) != imap_.end())
+            continue;
+
         if (!model_->hasJointModelGroup(name) ||
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
-            RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
+            RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
             return false;
         }
 
@@ -419,7 +431,6 @@ bool Robot::loadKinematics(const std::string &group_name)
     }
 
     model_->setKinematicsAllocators(imap_);
-
     return true;
 }
 

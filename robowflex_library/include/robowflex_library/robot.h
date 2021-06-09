@@ -193,12 +193,13 @@ namespace robowflex
          */
         void setSRDFPostProcessAddFloatingJoint(const std::string &name);
 
-        /** \brief Loads the kinematics plugin for a joint group or its subgroups. No kinematics are loaded by
-         * default.
+        /** \brief Loads the kinematics plugin for a joint group and its subgroups. No kinematics are loaded
+         * by default.
          *  \param[in] group Joint group name to load.
+         *  \param[in] load_subgroups Load kinematic solvers for subgroups of the requested group.
          *  \return True on success, false on failure.
          */
-        bool loadKinematics(const std::string &group);
+        bool loadKinematics(const std::string &group, bool load_subgroups = true);
 
         /** \} */
 
