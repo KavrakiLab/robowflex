@@ -46,17 +46,16 @@ namespace
 
     boost::filesystem::path expandSymlinks(const boost::filesystem::path &in)
     {
+        // Check if the path has a symlink before expansion to avoid error.
         boost::filesystem::path out;
         for (const auto &p : in)
         {
             auto tmp = out / p;
             if (boost::filesystem::is_symlink(tmp))
-                out = boost::filesystem::read_symlink(tmp);
-            else
-                out /= p;
+                return boost::filesystem::canonical(in);
         }
 
-        return out;
+        return in;
     }
 
     boost::filesystem::path expandPath(const boost::filesystem::path &in)
