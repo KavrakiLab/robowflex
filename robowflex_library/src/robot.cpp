@@ -380,7 +380,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
     if (load_subgroups)
     {
         const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
-        load_names.insert(subgroups.begin(), subgroups.end());
+        load_names.insert(load_names.end(), subgroups.begin(), subgroups.end());
     }
 
     // Check if this group also has an associated kinematics solver to load.
@@ -388,7 +388,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
         load_names.emplace_back(group_name);
 
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
-    const auto &timeout = kinematics_->getIKTimeout();
+    auto timeout = kinematics_->getIKTimeout();
 
     for (const auto &name : load_names)
     {
