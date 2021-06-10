@@ -609,6 +609,23 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
 {
 }
 
+Robot::IKQuery::IKQuery(const std::string &group,  //
+                        const RobotPose &offset,   //
+                        const ScenePtr &scene,     //
+                        const std::string &object)
+  : IKQuery(group, [](const ScenePtr &scene, const std::string &object, const RobotPose &offset) {
+      if (not scene->hasObject(object))
+          throw Exception(1, log::format("Object `%1%` not in scene!", object));
+
+      const auto model = scene->getSceneConst()->getRobotModel();
+      const auto rpose = scene->getCurrentStateConst().getGlobalLinkTransform(model->getRootLinkName());
+      const auto opose = scene->getObjectPose(object);
+
+      return rpose * opose * offset;
+  }(scene, object, offset))
+{
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
                         const Eigen::Vector3d &tolerance)
   : IKQuery(group,                                //
@@ -654,6 +671,22 @@ Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
                    tolerance);
 }
 
+Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string> &input_tips,
+                        const std::vector<GeometryConstPtr> &regions, const RobotPoseVector &poses,
+                        const std::vector<Eigen::Quaterniond> &orientations,
+                        const EigenSTL::vector_Vector3d &tolerances, const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
+{
+    if (poses.size() != input_tips.size()       //
+        or poses.size() != regions.size()       //
+        or poses.size() != orientations.size()  //
+        or poses.size() != tolerances.size())
+        throw Exception(1, "Invalid multi-target IK query. Vectors are of different length.");
+
+    for (std::size_t i = 0; i < poses.size(); ++i)
+        addRequest(input_tips[i], regions[i], poses[i], orientations[i], tolerances[i]);
+}
+
 void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
                                 const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance)
 {
@@ -664,6 +697,25 @@ void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &
     tolerances.emplace_back(tolerance);
 }
 
+void Robot::IKQuery::setScene(const ScenePtr &scene_in, bool verbose_in)
+{
+    scene = scene_in;
+    verbose = verbose_in;
+}
+
+bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const
+{
+    const auto &point = regions[index]->sample();
+    if (point.first)
+    {
+        pose = region_poses[index];
+        pose.translate(point.second);
+        pose.rotate(TF::sampleOrientation(orientations[index], tolerances[index]));
+    }
+
+    return point.first;
+}
+
 bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
 {
     const std::size_t n = regions.size();
@@ -671,15 +723,7 @@ bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
 
     bool sampled = true;
     for (std::size_t j = 0; j < n and sampled; ++j)
-    {
-        const auto &point = regions[j]->sample();
-        if ((sampled &= point.first))
-        {
-            poses[j] = region_poses[j];
-            poses[j].translate(point.second);
-            poses[j].rotate(TF::sampleOrientation(orientations[j], tolerances[j]));
-        }
-    }
+        sampled &= sampleRegion(poses[j], j);
 
     return sampled;
 }
