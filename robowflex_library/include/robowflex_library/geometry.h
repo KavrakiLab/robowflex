@@ -70,6 +70,12 @@ namespace robowflex
          */
         static GeometryPtr makeBox(double x, double y, double z);
 
+        /** \brief Create a box.
+         *  \param[in] dimensions The XYZ dimensions of the box.
+         *  \return The created box.
+         */
+        static GeometryPtr makeBox(const Eigen::Vector3d &dimensions);
+
         /** \brief Create a cylinder.
          *  \param[in] radius The radius of the cylinder.
          *  \param[in] length The length of the cylinder.

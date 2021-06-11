@@ -394,8 +394,11 @@ namespace robowflex
              *  \param[in] direction Vector direction of end-effector motion. Will be used as unit vector.
              *  \param[in] distance Distance to travel in that direction.
              */
-            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
-                    const Eigen::Vector3d &direction, double distance);
+            IKQuery(const std::string &group,              //
+                    const std::string &tip,                //
+                    const robot_state::RobotState &start,  //
+                    const Eigen::Vector3d &direction,      //
+                    double distance);
 
             /** Constructor. Initialize an IK query based on offsets from an initial robot state.
              *  \param[in] group Group to set.
@@ -404,8 +407,10 @@ namespace robowflex
              *  \param[in] position_offset Position offset to apply from current tip position.
              *  \param[in] rotation_offset Rotational offset to apply from current tip position.
              */
-            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
-                    const Eigen::Vector3d &position_offset,
+            IKQuery(const std::string &group,                //
+                    const std::string &tip,                  //
+                    const robot_state::RobotState &start,    //
+                    const Eigen::Vector3d &position_offset,  //
                     const Eigen::Quaterniond &rotation_offset = Eigen::Quaterniond::Identity());
 
             /** Constructor. Initialize an IK query based on an offset from an initial robot state. Only for
@@ -415,7 +420,9 @@ namespace robowflex
              *  \param[in] start Initial robot state to compute offset for.
              *  \param[in] offset Offset to apply from current tip position.
              */
-            IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
+            IKQuery(const std::string &group,              //
+                    const std::string &tip,                //
+                    const robot_state::RobotState &start,  //
                     const RobotPose &offset);
 
             /** \} */
@@ -429,8 +436,10 @@ namespace robowflex
              *  \param[in] radius Radius tolerance around position.
              *  \param[in] tolerances Tolerance about \a orientation.
              */
-            IKQuery(const std::string &group, const RobotPose &pose, double radius = constants::ik_tolerance,
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+            IKQuery(const std::string &group,                 //
+                    const RobotPose &pose,                    //
+                    double radius = constants::ik_tolerance,  //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
              *  \param[in] group Group to set.
@@ -439,9 +448,11 @@ namespace robowflex
              *  \param[in] radius Radius tolerance around position.
              *  \param[in] tolerances Tolerance about \a orientation.
              */
-            IKQuery(const std::string &group, const Eigen::Vector3d &position,
-                    const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+            IKQuery(const std::string &group,                 //
+                    const Eigen::Vector3d &position,          //
+                    const Eigen::Quaterniond &orientation,    //
+                    double radius = constants::ik_tolerance,  //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
              *  pose) and \a orientation.
@@ -450,11 +461,29 @@ namespace robowflex
              *  \param[in] pose Pose of the \a region.
              *  \param[in] orientation Mean orientation.
              *  \param[in] tolerances Tolerance about \a orientation.
+             *  \param[in] scene Optional scene to do collision checking against.
+             *  \param[in] verbose If true, will give verbose collision checking output.
              */
-            IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
-                    const Eigen::Quaterniond &orientation,
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
-                    const ScenePtr &scene = nullptr, bool verbose = false);
+            IKQuery(const std::string &group,                                        //
+                    const GeometryConstPtr &region,                                  //
+                    const RobotPose &pose,                                           //
+                    const Eigen::Quaterniond &orientation,                           //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance,  //
+                    const ScenePtr &scene = nullptr,                                 //
+                    bool verbose = false);
+
+            /** Constructor. Initialize a basic IK query to grasp an object.
+             *  \param[in] group Group to set.
+             *  \param[in] offset Offset of end-effector from object frame.
+             *  \param[in] scene Scene that object is in.
+             *  \param[in] object Name of object to grasp.
+             *  \param[in] tolerances Position tolerances on the XYZ axes for the grasp.
+             */
+            IKQuery(const std::string &group,   //
+                    const RobotPose &offset,    //
+                    const ScenePtr &scene,      //
+                    const std::string &object,  //
+                    const Eigen::Vector3d &tolerances = constants::ik_vec_tolerance);
 
             /** \} */
 
@@ -468,13 +497,41 @@ namespace robowflex
              *  \param[in] input_tips End-effector tips to target.
              *  \param[in] radius Radius tolerance around position.
              *  \param[in] tolerances Tolerance about \a orientation.
+             *  \param[in] scene Optional scene to do collision checking against.
+             *  \param[in] verbose If true, will give verbose collision checking output.
              */
-            IKQuery(const std::string &group, const RobotPoseVector &poses,
-                    const std::vector<std::string> &input_tips, double radius = constants::ik_tolerance,
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
-                    const ScenePtr &scene = nullptr, bool verbose = false);
+            IKQuery(const std::string &group,                                        //
+                    const RobotPoseVector &poses,                                    //
+                    const std::vector<std::string> &input_tips,                      //
+                    double radius = constants::ik_tolerance,                         //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance,  //
+                    const ScenePtr &scene = nullptr,                                 //
+                    bool verbose = false);
+
+            /** Constructor. Initialize a multi-target IK query so that each of the \a tips reach somewhere in
+             * the provided \a region (at a \a pose) and \a orientation.
+             *  \param[in] group Group to set.
+             *  \param[in] input_tips End-effector tips to target.
+             *  \param[in] regions Region of points for position for each tip.
+             *  \param[in] poses Pose of the \a region for each tip.
+             *  \param[in] orientations Mean orientation for each tip.
+             *  \param[in] tolerances Tolerance about \a orientation for each tip.
+             *  \param[in] scene Optional scene to do collision checking against.
+             *  \param[in] verbose If true, will give verbose collision checking output.
+             */
+            IKQuery(const std::string &group,                             //
+                    const std::vector<std::string> &input_tips,           //
+                    const std::vector<GeometryConstPtr> &regions,         //
+                    const RobotPoseVector &poses,                         //
+                    const std::vector<Eigen::Quaterniond> &orientations,  //
+                    const EigenSTL::vector_Vector3d &tolerances,          //
+                    const ScenePtr &scene = nullptr,                      //
+                    bool verbose = false);
 
             /** \} */
+
+            /** \name Other Setters
+                \{ */
 
             /** \brief Add a request for a \a tip.
              *  \param[in] tip Tip for the request.
@@ -485,13 +542,33 @@ namespace robowflex
              */
             void addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
                             const Eigen::Quaterniond &orientation,
-                            const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+                            const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
+
+            /** \brief Set a scene to use for collision checking for this IK request.
+             *  \param[in] scene Scene to check collision against.
+             *  \param[in] verbose If true, will output verbose collision checking output.
+             */
+            void setScene(const ScenePtr &scene, bool verbose = false);
+
+            /** \} */
+
+            /** \name Sampling
+                \{ */
+
+            /** \brief Sample desired end-effector pose for region at \a index.
+             *  \param[out] pose The sampled pose.
+             *  \param[in] index The index of the region to sample.
+             *  \return True on success, false on failure.
+             */
+            bool sampleRegion(RobotPose &pose, std::size_t index) const;
 
             /** \brief Sample desired end-effector pose for each region.
              *  \param[out] poses The sampled poses.
              *  \return True on success, false on failure.
              */
             bool sampleRegions(RobotPoseVector &poses) const;
+
+            /** \} */
         };
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
