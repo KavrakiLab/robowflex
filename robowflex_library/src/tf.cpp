@@ -297,3 +297,8 @@ double TF::toRadians(double v)
 
     return -(360. - v) * constants::pi / 180.;
 }
+
+bool TF::isVecZero(const Eigen::Ref<const Eigen::VectorXd> &v, double tolerance)
+{
+    return v.norm() < tolerance;
+}

@@ -638,6 +638,35 @@ Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region
     addRequest("", region, pose, orientation, tolerance);
 }
 
+Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
+                        const moveit_msgs::OrientationConstraint &oc)
+{
+    if (pc.link_name != oc.link_name)
+        throw Exception(
+            1, log::format("Link name mismatch in constraints, `%1%` != `%2%`", pc.link_name, oc.link_name));
+
+    if (not TF::isVecZero(TF::vectorMsgToEigen(pc.target_point_offset)))
+        throw Exception(1, "target_point_offset in position constraint not supported.");
+
+    const auto &cr = pc.constraint_region;
+
+    if (not cr.meshes.empty())
+        throw Exception(1, "Cannot specify mesh regions!");
+
+    if (cr.primitives.size() > 1)
+        throw Exception(1, "Cannot specify more than one primitive!");
+
+    const auto &region = Geometry::makeSolidPrimitive(cr.primitives[0]);
+    const auto &pose = TF::poseMsgToEigen(cr.primitive_poses[0]);
+
+    const auto &rotation = TF::quaternionMsgToEigen(oc.orientation);
+    Eigen::Vector3d tolerance{oc.absolute_x_axis_tolerance,  //
+                              oc.absolute_y_axis_tolerance,  //
+                              oc.absolute_z_axis_tolerance};
+
+    addRequest(pc.link_name, region, pose, rotation, tolerance);
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
                         const std::vector<std::string> &input_tips, double radius,
                         const Eigen::Vector3d &tolerance, const ScenePtr &scene, bool verbose)

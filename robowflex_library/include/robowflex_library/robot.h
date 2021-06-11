@@ -14,6 +14,9 @@
 #include <srdfdom/model.h>
 #include <tinyxml2.h>
 
+#include <moveit_msgs/PositionConstraint.h>
+#include <moveit_msgs/OrientationConstraint.h>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
@@ -457,8 +460,13 @@ namespace robowflex
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
 
-            /** \brief Constructor.*/
-            IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
+            /** \brief Constructor. Initialize an IK query from MoveIt message constraints.
+             *  \param[in] group Group to set.
+             *  \param[in] pc Position constraint.
+             *  \param[in] oc Orientation constraint.
+             */
+            IKQuery(const std::string &group,                   //
+                    const moveit_msgs::PositionConstraint &pc,  //
                     const moveit_msgs::OrientationConstraint &oc);
 
             /** \} */

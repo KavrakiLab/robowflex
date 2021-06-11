@@ -253,6 +253,13 @@ namespace robowflex
          */
         double toRadians(double v);
 
+        /** \brief Checks if a vector is close to zero.
+         *  \param[in] v Vector to check.
+         *  \param[in] tolerance Tolerance of what is considered zero.
+         *  \return Whether the vector's norm is below the tolerance threshold.
+         */
+        bool isVecZero(const Eigen::Ref<const Eigen::VectorXd> &v, double tolerance = constants::eps);
+
     }  // namespace TF
 }  // namespace robowflex
 
