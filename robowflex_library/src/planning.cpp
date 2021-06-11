@@ -164,9 +164,11 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
     const auto &model = robot_->getModelConst();
     const auto &jmg = model->getJointModelGroup(request.group);
     const auto &lm = model->getLinkModel(tip);
-    const auto &gsvcf = request.scene->getGSVCF(false);
 
-    auto state = start;
+    moveit::core::GroupStateValidityCallbackFn gsvcf;
+    if (request.scene)
+       request.scene->getGSVCF(false);
+
     std::vector<robot_state::RobotStatePtr> traj;
 
     double time = 0;
@@ -179,20 +181,26 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
          and ((request.timeout > 0.) ? time < request.timeout : true);  //
          ++i)
     {
+        auto state = start;
+
         RobotPose pose;
         request.sampleRegion(pose, 0);
 
         double percentage =
             state.computeCartesianPath(jmg, traj, lm, pose, true, max_step_, jump_threshold_, gsvcf);
 
+        RBX_INFO("PER %1%", percentage);
+
         // Check if successful, output is percent of path computed.
-        success = (percentage - 1.) < constants::eps;
+        success = std::fabs(percentage - 1.) < constants::eps;
         time = (ros::WallTime::now() - start_time).toSec();
     }
 
     Trajectory output(robot_, request.group);
     for (const auto &state : traj)
         output.addSuffixWaypoint(*state);
+
+    output.computeTimeParameterization();
 
     response.trajectory_ = output.getTrajectory();
     response.planning_time_ = time;

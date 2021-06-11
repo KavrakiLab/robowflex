@@ -120,8 +120,9 @@ namespace robowflex
 
         /** \brief Add a waypoint at the end of the trajectory.
          *  \param[in] state State to add at end of trajectory.
+         *  \param[in] dt Time to this waypoint from previous.
          */
-        void addSuffixWaypoint(const robot_state::RobotState &state);
+        void addSuffixWaypoint(const robot_state::RobotState &state, double dt = 1.);
 
         /** \} */
 

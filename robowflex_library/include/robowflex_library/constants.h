@@ -28,7 +28,7 @@ namespace robowflex
         static const unsigned int ik_attempts = 50;
         static const Eigen::Vector3d ik_vec_tolerance = {ik_tolerance, ik_tolerance, ik_tolerance};
         static const double cartesian_step_size = 0.01;
-        static const double cartesian_jump_tolerance = 0.01;
+        static const double cartesian_jump_tolerance = 0.;
 
     }  // namespace constants
 }  // namespace robowflex
