@@ -83,6 +83,51 @@ std::vector<std::string> PoolPlanner::getPlannerConfigs() const
 }
 
 ///
+/// SimpleCartesianPlanner
+///
+
+SimpleCartesianPlanner::SimpleCartesianPlanner(const RobotPtr &robot, const std::string &name)
+  : Planner(robot, name)
+{
+}
+
+planning_interface::MotionPlanResponse
+SimpleCartesianPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+{
+    planning_interface::MotionPlanResponse response;
+
+    if (request.goal_constraints.size() > 1)
+    {
+        RBX_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
+        response.error_code_ = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return response;
+    }
+
+    const auto &goal = request.goal_constraints[0];
+    if (not goal.joint_constraints.empty() or not goal.visibility_constraints.empty())
+    {
+        RBX_ERROR("SimpleCartesianPlanner only supports pose goals!");
+        response.error_code_ = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return response;
+    }
+
+    if (goal.position_constraints.size() != 1 and goal.orientation_constraints.size() != 1)
+    {
+        RBX_ERROR("SimpleCartesianPlanner requires single position and orientation constraint!");
+        response.error_code_ = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return response;
+    }
+
+    const auto &pc = goal.position_constraints[0];
+    const auto &oc = goal.orientation_constraints[0];
+
+
+    Robot::IKQuery query();
+
+    return respose;
+}
+
+///
 /// PipelinePlanner
 ///
 
