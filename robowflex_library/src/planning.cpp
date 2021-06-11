@@ -167,7 +167,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
 
     moveit::core::GroupStateValidityCallbackFn gsvcf;
     if (request.scene)
-       request.scene->getGSVCF(false);
+        request.scene->getGSVCF(false);
 
     std::vector<robot_state::RobotStatePtr> traj;
 
@@ -188,8 +188,6 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
 
         double percentage =
             state.computeCartesianPath(jmg, traj, lm, pose, true, max_step_, jump_threshold_, gsvcf);
-
-        RBX_INFO("PER %1%", percentage);
 
         // Check if successful, output is percent of path computed.
         success = std::fabs(percentage - 1.) < constants::eps;
