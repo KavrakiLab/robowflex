@@ -17,6 +17,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/constants.h>
 
 namespace robowflex
 {
