@@ -479,10 +479,10 @@ namespace robowflex
              *  \param[in] object Name of object to grasp.
              *  \param[in] tolerances Position tolerances on the XYZ axes for the grasp.
              */
-            IKQuery(const std::string &group,  //
-                    const RobotPose &offset,   //
-                    const ScenePtr &scene,     //
-                    const std::string &object, //
+            IKQuery(const std::string &group,   //
+                    const RobotPose &offset,    //
+                    const ScenePtr &scene,      //
+                    const std::string &object,  //
                     const Eigen::Vector3d &tolerances = constants::ik_vec_tolerance);
 
             /** \} */
