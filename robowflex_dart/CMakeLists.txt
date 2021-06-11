@@ -11,7 +11,7 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(DART #REQUIRED
+find_package(DART 6 REQUIRED
   COMPONENTS utils utils-urdf gui-osg
   OPTIONAL_COMPONENTS
   CONFIG
