@@ -6,6 +6,7 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 
 #include <robowflex_library/class_forward.h>
+#include <robowflex_library/constants.h>
 #include <robowflex_library/pool.h>
 #include <robowflex_library/io/handler.h>
 #include <robowflex_library/scene.h>
@@ -198,6 +199,20 @@ namespace robowflex
          */
         planning_interface::MotionPlanResponse
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
+
+        /** \brief Set the maximum step size allowed by the planner between output waypoints.
+         *  \param[in] step The new step size.
+         */
+        void setMaxStep(double step);
+
+        /** \brief Set the maximum difference in joint configurations allowed by the planner between output waypoints.
+         *  \param[in] threshold The new threshold.
+         */
+        void setJumpThreshold(double threshold);
+
+    private:
+        double max_step_{constants::cartesian_step_size};
+        double jump_threshold_{constants::cartesian_jump_tolerance};
     };
 
     /** \cond IGNORE */

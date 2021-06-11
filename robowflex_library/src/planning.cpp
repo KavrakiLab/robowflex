@@ -1,10 +1,13 @@
 /* Author: Zachary Kingston */
 
+#include <moveit/robot_state/conversions.h>
+
 #include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
 
 using namespace robowflex;
 
@@ -118,12 +121,61 @@ SimpleCartesianPlanner::plan(const SceneConstPtr &scene, const planning_interfac
         return response;
     }
 
+    // Get sampleable region through IK Query
     const auto &pc = goal.position_constraints[0];
     const auto &oc = goal.orientation_constraints[0];
-
     Robot::IKQuery query(request.group_name, pc, oc);
 
+    // Get JMG and link model
+    const auto &model = robot_->getModelConst();
+    const auto &jmg = model->getJointModelGroup(request.group_name);
+    const auto &lm = model->getLinkModel(pc.link_name);
+
+    // Get starting state
+    auto state = robot_->allocState();
+    moveit::core::robotStateMsgToRobotState(request.start_state, *state);
+
+    const auto &gsvcf = scene->getGSVCF(false);
+
+    std::vector<robot_state::RobotStatePtr> traj;
+
+    bool success = false;
+    double time = 0;
+    ros::WallTime start = ros::WallTime::now();
+    for (int i = 0;                             //
+         not success                            //
+         and i < request.num_planning_attempts  //
+         and time < request.allowed_planning_time;
+         ++i)
+    {
+        RobotPose pose;
+        query.sampleRegion(pose, 0);
+
+        double percentage =
+            state->computeCartesianPath(jmg, traj, lm, pose, true, max_step_, jump_threshold_, gsvcf);
+
+        // Check if successful, output is percent of path computed.
+        success = (percentage - 1.) < constants::eps;
+        time = (ros::WallTime::now() - start).toSec();
+    }
+
+    Trajectory output(robot_, request.group_name);
+    for (const auto &state : traj)
+        output.addSuffixWaypoint(*state);
+
+    response.trajectory_ = output.getTrajectory();
+    response.planning_time_ = time;
     return response;
+}
+
+void SimpleCartesianPlanner::setMaxStep(double step)
+{
+    max_step_ = step;
+}
+
+void SimpleCartesianPlanner::setJumpThreshold(double threshold)
+{
+    jump_threshold_ = threshold;
 }
 
 ///
