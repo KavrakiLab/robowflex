@@ -373,7 +373,7 @@ namespace robowflex
             /** \name Additional Solver Options
                 \{ */
 
-            ScenePtr scene;             ///< If provided, use this scene for collision checking.
+            SceneConstPtr scene;        ///< If provided, use this scene for collision checking.
             bool verbose{false};        ///< Verbose output of collision checking.
             bool random_restart{true};  ///< Randomly reset joint states.
             kinematics::KinematicsQueryOptions options;    ///< Other query options.
@@ -565,7 +565,7 @@ namespace robowflex
 
             /** \} */
 
-            /** \name Sampling
+            /** \name Sampling Region
                 \{ */
 
             /** \brief Sample desired end-effector pose for region at \a index.
