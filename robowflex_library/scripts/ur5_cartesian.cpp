@@ -40,21 +40,23 @@ int main(int argc, char **argv)
     // Create a Cartesian planner for the UR5.
     auto cartesian_planner = std::make_shared<SimpleCartesianPlanner>(ur5, "cartesian");
 
-    EigenSTL::vector_Vector3d directions;
-    directions.emplace_back(Eigen::Vector3d{0.0, -0.3, 0.0});
-    directions.emplace_back(Eigen::Vector3d{0.0, 0.0, -0.2});
-    directions.emplace_back(Eigen::Vector3d{0.0, 0.3, 0.0});
-    directions.emplace_back(Eigen::Vector3d{0.0, 0.0, 0.2});
+    EigenSTL::vector_Vector3d directions = {
+        {0.0, -0.3, 0.0}, {0.0, 0.0, -0.2}, {0.0, 0.3, 0.0},  {0.0, 0.0, 0.2},  // Move in an YZ rectangle
+        {0.2, 0.0, 0.0},  {0.0, -0.3, 0.0}, {-0.2, 0.0, 0.0}, {0.0, 0.3, 0.0},  // Move in an XY rectangle
+        {0.4, -0.3, 0.2}, {-0.4, 0.3, -0.2}                                     // Diagonal move
+    };
 
     for (const auto &direction : directions)
     {
-        RBX_INFO("Moving end-effector in direction [%1%, %2%, %3%]", direction[0], direction[1], direction[2]);
+        RBX_INFO("Moving end-effector in direction [%1%, %2%, %3%]",  //
+                 direction[0], direction[1], direction[2]);
 
         // Visualize the scene.
         scene->getCurrentState() = *ur5->getScratchState();
         rviz.updateScene(scene);
 
         // Create the IK Query, and then set the scene for collision checking.
+        // Uses directional offset IKQuery constructor.
         Robot::IKQuery query("manipulator", "ee_link", *ur5->getScratchState(), direction);
         query.scene = scene;
 
@@ -66,9 +68,8 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        Trajectory trajectory(response.trajectory_);
-
         // Publish the trajectory to a topic to display in RViz
+        Trajectory trajectory(response.trajectory_);
         rviz.updateTrajectory(trajectory);
 
         // Set the scratch state to the end of the computed trajectory.
