@@ -609,21 +609,18 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
 {
 }
 
-Robot::IKQuery::IKQuery(const std::string &group,  //
-                        const RobotPose &offset,   //
-                        const ScenePtr &scene,     //
-                        const std::string &object)
-  : IKQuery(group, [](const ScenePtr &scene, const std::string &object, const RobotPose &offset) {
-      if (not scene->hasObject(object))
-          throw Exception(1, log::format("Object `%1%` not in scene!", object));
-
-      const auto model = scene->getSceneConst()->getRobotModel();
-      const auto rpose = scene->getCurrentStateConst().getGlobalLinkTransform(model->getRootLinkName());
-      const auto opose = scene->getObjectPose(object);
-
-      return rpose * opose * offset;
-  }(scene, object, offset))
+Robot::IKQuery::IKQuery(const std::string &group,   //
+                        const RobotPose &offset,    //
+                        const ScenePtr &scene,      //
+                        const std::string &object,  //
+                        const Eigen::Vector3d &tolerances)
+  : group(group)
 {
+    const auto &pose = scene->getObjectGraspPose(object, offset);
+    addRequest("",                                     //
+               Geometry::makeBox(tolerances),          //
+               TF::createPoseXYZ(pose.translation()),  //
+               Eigen::Quaterniond(pose.rotation()));
 }
 
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,

@@ -50,6 +50,11 @@ GeometryPtr Geometry::makeBox(double x, double y, double z)
     return std::make_shared<Geometry>(ShapeType::BOX, Eigen::Vector3d(x, y, z));
 }
 
+GeometryPtr Geometry::makeBox(const Eigen::Vector3d &dimensions)
+{
+    return makeBox(dimensions[0], dimensions[1], dimensions[2]);
+}
+
 GeometryPtr Geometry::makeCylinder(double radius, double length)
 {
     return std::make_shared<Geometry>(ShapeType::CYLINDER, Eigen::Vector3d(radius, length, 0));

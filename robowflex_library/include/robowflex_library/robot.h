@@ -439,7 +439,7 @@ namespace robowflex
             IKQuery(const std::string &group,                 //
                     const RobotPose &pose,                    //
                     double radius = constants::ik_tolerance,  //
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
              *  \param[in] group Group to set.
@@ -452,7 +452,7 @@ namespace robowflex
                     const Eigen::Vector3d &position,          //
                     const Eigen::Quaterniond &orientation,    //
                     double radius = constants::ik_tolerance,  //
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
              *  pose) and \a orientation.
@@ -468,7 +468,7 @@ namespace robowflex
                     const GeometryConstPtr &region,                                  //
                     const RobotPose &pose,                                           //
                     const Eigen::Quaterniond &orientation,                           //
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,  //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance,  //
                     const ScenePtr &scene = nullptr,                                 //
                     bool verbose = false);
 
@@ -477,11 +477,13 @@ namespace robowflex
              *  \param[in] offset Offset of end-effector from object frame.
              *  \param[in] scene Scene that object is in.
              *  \param[in] object Name of object to grasp.
+             *  \param[in] tolerances Position tolerances on the XYZ axes for the grasp.
              */
             IKQuery(const std::string &group,  //
                     const RobotPose &offset,   //
                     const ScenePtr &scene,     //
-                    const std::string &object);
+                    const std::string &object, //
+                    const Eigen::Vector3d &tolerances = constants::ik_vec_tolerance);
 
             /** \} */
 
@@ -502,7 +504,7 @@ namespace robowflex
                     const RobotPoseVector &poses,                                    //
                     const std::vector<std::string> &input_tips,                      //
                     double radius = constants::ik_tolerance,                         //
-                    const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,  //
+                    const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance,  //
                     const ScenePtr &scene = nullptr,                                 //
                     bool verbose = false);
 
@@ -540,7 +542,7 @@ namespace robowflex
              */
             void addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
                             const Eigen::Quaterniond &orientation,
-                            const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
+                            const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** \brief Set a scene to use for collision checking for this IK request.
              *  \param[in] scene Scene to check collision against.

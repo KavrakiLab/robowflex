@@ -158,6 +158,13 @@ namespace robowflex
          */
         RobotPose getObjectPose(const std::string &name) const;
 
+        /** \brief Get a pose in the global frame relative to a collision object for grasping.
+         *  \param[in] name Name of object to get pose for.
+         *  \param[in] offset The offset of the grasp.
+         *  \return Pose of the grasp offset from the object.
+         */
+        RobotPose getObjectGraspPose(const std::string &name, const RobotPose &offset) const;
+
         /** \brief Move all objects according to a transform specified in world frame.
          *  \param[in] transform The transform to move objects in world frame.
          *  \return True on success.
