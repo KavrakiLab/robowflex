@@ -173,10 +173,10 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
     bool success = false;
     ros::WallTime start_time = ros::WallTime::now();
 
-    for (std::size_t i = 0;        //
-         not success               //
-         and i < request.attempts  //
-         and time < request.timeout;
+    for (std::size_t i = 0;                                             //
+         not success                                                    //
+         and ((request.attempts) ? i < request.attempts : true)         //
+         and ((request.timeout > 0.) ? time < request.timeout : true);  //
          ++i)
     {
         RobotPose pose;
@@ -196,6 +196,12 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
 
     response.trajectory_ = output.getTrajectory();
     response.planning_time_ = time;
+
+    if (success)
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    else
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+
     return response;
 }
 
@@ -207,6 +213,11 @@ void SimpleCartesianPlanner::setMaxStep(double step)
 void SimpleCartesianPlanner::setJumpThreshold(double threshold)
 {
     jump_threshold_ = threshold;
+}
+
+std::vector<std::string> SimpleCartesianPlanner::getPlannerConfigs() const
+{
+    return std::vector<std::string>{"cartesian"};
 }
 
 ///

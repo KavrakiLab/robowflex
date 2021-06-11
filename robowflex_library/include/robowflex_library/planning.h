@@ -219,6 +219,8 @@ namespace robowflex
          */
         void setJumpThreshold(double threshold);
 
+        std::vector<std::string> getPlannerConfigs() const override;
+
     private:
         double max_step_{constants::cartesian_step_size};
         double jump_threshold_{constants::cartesian_jump_tolerance};
