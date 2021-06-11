@@ -379,7 +379,7 @@ namespace robowflex
 
             /** \} */
 
-            /** Constructor. Empty for fine control.
+            /** \brief Constructor. Empty for fine control.
              *  \param[in] group Group to set.
              */
             IKQuery(const std::string &group);
@@ -387,7 +387,7 @@ namespace robowflex
             /** \name Directional Offset Constructors
                 \{ */
 
-            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+            /** \brief Constructor. Initialize an IK query based on offsets from an initial robot state.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -397,7 +397,7 @@ namespace robowflex
             IKQuery(const std::string &group, const std::string &tip, const robot_state::RobotState &start,
                     const Eigen::Vector3d &direction, double distance);
 
-            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+            /** \brief Constructor. Initialize an IK query based on offsets from an initial robot state.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -408,8 +408,8 @@ namespace robowflex
                     const Eigen::Vector3d &position_offset,
                     const Eigen::Quaterniond &rotation_offset = Eigen::Quaterniond::Identity());
 
-            /** Constructor. Initialize an IK query based on an offset from an initial robot state. Only for
-             *  single-tip systems.
+            /** \brief Constructor. Initialize an IK query based on an offset from an initial robot state.
+             * Only for single-tip systems.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -423,7 +423,7 @@ namespace robowflex
             /** \name Single Target Constructors
                 \{ */
 
-            /** Constructor. Initialize a basic IK query to reach the desired \a pose.
+            /** \brief Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
              *  \param[in] pose Desired pose of end-effector.
              *  \param[in] radius Radius tolerance around position.
@@ -432,7 +432,8 @@ namespace robowflex
             IKQuery(const std::string &group, const RobotPose &pose, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
+            /** \brief Constructor. Initialize a basic IK query to reach the desired \a position and \a
+             * orientation.
              *  \param[in] group Group to set.
              *  \param[in] position Position to achieve.
              *  \param[in] orientation Mean orientation.
@@ -443,8 +444,8 @@ namespace robowflex
                     const Eigen::Quaterniond &orientation, double radius = constants::ik_tolerance,
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance);
 
-            /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
-             *  pose) and \a orientation.
+            /** \brief Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a
+             * \a pose) and \a orientation.
              *  \param[in] group Group to set.
              *  \param[in] region Region of points for position.
              *  \param[in] pose Pose of the \a region.
@@ -456,12 +457,16 @@ namespace robowflex
                     const Eigen::Vector3d &tolerance = constants::ik_rot_tolerance,
                     const ScenePtr &scene = nullptr, bool verbose = false);
 
+            /** \brief Constructor.*/
+            IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
+                    const moveit_msgs::OrientationConstraint &oc);
+
             /** \} */
 
             /** \name Multiple Target Constructors
                 \{ */
 
-            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
+            /** \brief Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
              *  their desired \a poses.
              *  \param[in] group Group to set.
              *  \param[in] poses Desired poses of end-effector tips.
