@@ -167,7 +167,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
 
     moveit::core::GroupStateValidityCallbackFn gsvcf;
     if (request.scene)
-        request.scene->getGSVCF(false);
+        gsvcf = request.scene->getGSVCF(false);
 
     std::vector<robot_state::RobotStatePtr> traj;
 

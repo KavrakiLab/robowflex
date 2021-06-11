@@ -7,6 +7,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_library/trajectory.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/tf.h>
@@ -35,32 +36,51 @@ int main(int argc, char **argv)
     std::cin.get();
 
     auto scene = std::make_shared<Scene>(ur5);
-    scene->getCurrentState() = *ur5->getScratchState();
-
-    // Visualize the scene.
-    rviz.updateScene(scene);
 
     // Create a Cartesian planner for the UR5.
     auto cartesian_planner = std::make_shared<SimpleCartesianPlanner>(ur5, "cartesian");
 
-    // Use IK to shift robot arm over by desired amount.
-    RobotPose goal_pose = ur5->getLinkTF("ee_link");
-    goal_pose.translate(Eigen::Vector3d{0.0, -0.3, 0.0});
+    EigenSTL::vector_Vector3d directions;
+    directions.emplace_back(Eigen::Vector3d{0.0, -0.3, 0.0});
+    directions.emplace_back(Eigen::Vector3d{0.0, 0.0, -0.2});
+    directions.emplace_back(Eigen::Vector3d{0.0, 0.3, 0.0});
+    directions.emplace_back(Eigen::Vector3d{0.0, 0.0, 0.2});
 
-    // Create the IK Query, and then set the scene for collision checking.
-    Robot::IKQuery query("manipulator", goal_pose);
-    query.scene = scene;
-
-    // Plan for a straight interpolation of the end-effector to the query.
-    auto response = cartesian_planner->plan(*ur5->getScratchState(), query);
-    if (response.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+    for (const auto &direction : directions)
     {
-        RBX_ERROR("Planning failed!");
-        return 1;
+        RBX_INFO("Moving end-effector in direction [%1%, %2%, %3%]", direction[0], direction[1], direction[2]);
+
+        // Visualize the scene.
+        scene->getCurrentState() = *ur5->getScratchState();
+        rviz.updateScene(scene);
+
+        // Create the IK Query, and then set the scene for collision checking.
+        Robot::IKQuery query("manipulator", "ee_link", *ur5->getScratchState(), direction);
+        query.scene = scene;
+
+        // Plan for a straight interpolation of the end-effector to the query.
+        auto response = cartesian_planner->plan(*ur5->getScratchState(), query);
+        if (response.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        {
+            RBX_ERROR("Planning failed!");
+            return 1;
+        }
+
+        Trajectory trajectory(response.trajectory_);
+
+        // Publish the trajectory to a topic to display in RViz
+        rviz.updateTrajectory(trajectory);
+
+        // Set the scratch state to the end of the computed trajectory.
+        ur5->setState(trajectory.getFinalPositions());
+
+        RBX_INFO("Press enter to continue to next direction.");
+        std::cin.get();
     }
 
-    // Publish the trajectory to a topic to display in RViz
-    rviz.updateTrajectory(response);
+    // Visualize the final pose.
+    scene->getCurrentState() = *ur5->getScratchState();
+    rviz.updateScene(scene);
 
     RBX_INFO("Press enter to exit.");
     std::cin.get();
