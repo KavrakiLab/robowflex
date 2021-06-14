@@ -210,20 +210,27 @@ namespace robowflex
         plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request) override;
 
         /** \brief Set the maximum step size allowed by the planner between output waypoints.
-         *  \param[in] step The new step size.
+         *  \param[in] position The new step size for the position of the end-effector.
+         *  \param[in] rotation The new step size for the rotation of the end-effector.
          */
-        void setMaxStep(double step);
+        void setMaxStep(double position, double rotation);
 
         /** \brief Set the maximum difference in joint configurations allowed by the planner between output
-         * waypoints. \param[in] threshold The new threshold.
+         * waypoints.
+         *  \param[in] prismatic The new threshold for movement of prismatic joints.
+         *  \param[in] revolute The new threshold for movement of revolute joints.
          */
-        void setJumpThreshold(double threshold);
+        void setJumpThreshold(double prismatic, double revolute);
 
         std::vector<std::string> getPlannerConfigs() const override;
 
     private:
-        double max_step_{constants::cartesian_step_size};
-        double jump_threshold_{constants::cartesian_jump_tolerance};
+        double max_step_pos_{constants::cart_pos_step_size};  ///< Max EE step size for position in meters.
+        double max_step_rot_{constants::cart_rot_step_size};  ///< Max EE step size for rotation in radians.
+        double jump_threshold_pri_{constants::cart_pos_jump_tol};  ///< Max jump for prismatic joints in
+                                                                   ///< meters.
+        double jump_threshold_rev_{constants::cart_rot_jump_tol};  ///< Max jump for revolute joints in
+                                                                   ///< radians.
     };
 
     /** \cond IGNORE */

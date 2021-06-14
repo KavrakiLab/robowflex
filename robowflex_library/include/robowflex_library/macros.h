@@ -27,7 +27,7 @@
 /** \def Tests if the ROS version is Melodic or higher. */
 #define ROBOWFLEX_AT_LEAST_MELODIC ROS_VERSION_MINIMUM(1, 14, 0)
 
-/** \def Tests if the ROS version is Melodic or higher. */
+/** \def Tests if the ROS version is Noetic or higher. */
 #define ROBOWFLEX_AT_LEAST_NOETIC ROS_VERSION_MINIMUM(1, 15, 0)
 
 /** \def Tests if the ROS version is not further than Melodic */

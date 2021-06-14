@@ -2,12 +2,17 @@
 
 #include <moveit/robot_state/conversions.h>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
+
+#if ROBOWFLEX_AT_LEAST_NOETIC
+#include <moveit/robot_state/cartesian_interpolator.h>
+#endif
 
 using namespace robowflex;
 
@@ -171,6 +176,9 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
 
     std::vector<robot_state::RobotStatePtr> traj;
 
+    moveit::core::MaxEEFStep step(max_step_pos_, max_step_rot_);
+    moveit::core::JumpThreshold jump(jump_threshold_rev_, jump_threshold_pri_);
+
     double time = 0;
     bool success = false;
     ros::WallTime start_time = ros::WallTime::now();
@@ -186,8 +194,15 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
         RobotPose pose;
         request.sampleRegion(pose, 0);
 
-        double percentage =
-            state.computeCartesianPath(jmg, traj, lm, pose, true, max_step_, jump_threshold_, gsvcf);
+#if ROBOWFLEX_AT_LEAST_NOETIC
+        double percentage =                                             //
+            moveit::core::CartesianInterpolator::computeCartesianPath(  //
+                &state, jmg, traj, lm, pose, true, step, jump, gsvcf);
+#else
+        double percentage =              //
+            state.computeCartesianPath(  //
+                jmg, traj, lm, pose, true, step, jump, gsvcf);
+#endif
 
         // Check if successful, output is percent of path computed.
         success = std::fabs(percentage - 1.) < constants::eps;
@@ -211,14 +226,16 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
     return response;
 }
 
-void SimpleCartesianPlanner::setMaxStep(double step)
+void SimpleCartesianPlanner::setMaxStep(double position, double rotation)
 {
-    max_step_ = step;
+    max_step_pos_ = position;
+    max_step_rot_ = rotation;
 }
 
-void SimpleCartesianPlanner::setJumpThreshold(double threshold)
+void SimpleCartesianPlanner::setJumpThreshold(double prismatic, double revolute)
 {
-    jump_threshold_ = threshold;
+    jump_threshold_pri_ = prismatic;
+    jump_threshold_rev_ = revolute;
 }
 
 std::vector<std::string> SimpleCartesianPlanner::getPlannerConfigs() const
