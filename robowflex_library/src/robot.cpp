@@ -514,6 +514,14 @@ robot_model::RobotStatePtr &Robot::getScratchState()
     return scratch_;
 }
 
+robot_model::RobotStatePtr Robot::cloneScratchState() const
+{
+    auto state = allocState();
+    *state = *scratch_;
+
+    return state;
+}
+
 const IO::Handler &Robot::getHandlerConst() const
 {
     return handler_;

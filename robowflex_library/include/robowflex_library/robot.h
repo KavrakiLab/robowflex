@@ -274,6 +274,11 @@ namespace robowflex
          */
         robot_model::RobotStatePtr &getScratchState();
 
+        /** \brief Allocate a new robot state that is a clone of the current scratch state.
+         *  \return The new robot state.
+         */
+        robot_model::RobotStatePtr cloneScratchState() const;
+
         /** \brief Allocate a new robot state.
          *  \return The new robot state.
          */
