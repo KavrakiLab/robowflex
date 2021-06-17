@@ -6,6 +6,7 @@
 #include <moveit/collision_detection/collision_common.h>
 #include <moveit/version.h>
 
+#include <robowflex_library/util.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
@@ -49,32 +50,91 @@ namespace
 
 std::string robowflex::toMetricString(const PlannerMetric &metric)
 {
-    return boost::apply_visitor(toString(), metric);
+    return boost::apply_visitor(toMetricStringVisitor(), metric);
 }
 
 ///
 /// Profiler
 ///
 
-bool Profiler::profilePlan(const Planner &planner,                                //
+std::vector<std::pair<double, double>>
+Profiler::Result::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop)
+{
+    std::vector<std::pair<double, double>> ret;
+    for (const auto &point : progress)
+    {
+        const auto &time = point.find(xprop)->second;
+        double timed = boost::lexical_cast<double>(time);
+
+        const auto &value = point.find(yprop)->second;
+        double valued = boost::lexical_cast<double>(value);
+
+        if (std::isfinite(timed) and std::isfinite(valued))
+            ret.emplace_back(timed, valued);
+    }
+
+    return ret;
+}
+
+Profiler::ProgressThreadInfo::ProgressThreadInfo(double rate) : rate(rate)
+{
+}
+
+void Profiler::ProgressThreadInfo::notify()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    solved = true;
+}
+
+bool Profiler::profilePlan(const PlannerPtr &planner,                             //
                            const SceneConstPtr &scene,                            //
                            const planning_interface::MotionPlanRequest &request,  //
                            const Options &options,                                //
                            Result &result)
 {
+    ProgressThreadInfo progress_info(options.progress_update_rate);  ///< Planner progress thread options
+    std::shared_ptr<std::thread> progress_thread;
+
     result.start = IO::getDate();
+
+    // Setup planner progress property thread
+    const auto &pp = planner->getProgressProperties(scene, request);
+
+    if (options.progress and not pp.empty())
+    {
+        // Get names of progress properties
+        for (const auto &property : pp)
+            result.property_names.emplace_back(property.first);
+        result.property_names.emplace_back("time REAL");
+
+        progress_thread.reset(new std::thread([&] { captureProgress(progress_info, pp, result.progress); }));
+    }
+
+    // Plan
     result.response = planner->plan(scene, request);
 
+    // Notify planner progress thread
+    progress_info.notify();
+    if (progress_thread)
+        progress_thread->join();
+
+    // Compute metrics and fill out results
     result.finish = IO::getDate();
     result.time = IO::getSeconds(result.start, result.finish);
     result.success = result.response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
+
+    if (result.success)
+        result.trajectory = std::make_shared<Trajectory>(*result.response.trajectory_);
+
+    computeBuiltinMetrics(options.metrics, scene, result);
+    computeCallbackMetrics(planner, scene, request, result);
 
     return result.success;
 }
 
 void Profiler::addMetricCallback(const std::string &name, const ComputeMetricCallback &metric)
 {
-    callbacks_.emplace_back(name, metric);
+    callbacks_.emplace(name, metric);
 }
 
 void Profiler::removeMetricCallback(const std::string &name)
@@ -86,9 +146,36 @@ void Profiler::removeMetricCallback(const std::string &name)
         throw Exception(1, "Attempted to remove non-existent metric!");
 }
 
+void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run)
+{
+    if (options & Metrics::WAYPOINTS)
+        run.metrics["waypoints"] = run.success ? int(run.trajectory->getNumWaypoints()) : int(0);
+
+    if (options & Metrics::LENGTH)
+        run.metrics["length"] = run.success ? run.trajectory->getLength() : 0.0;
+
+    if (options & Metrics::CORRECT)
+        run.metrics["correct"] = run.success ? run.trajectory->isCollisionFree(scene) : false;
+
+    if (options & Metrics::CLEARANCE)
+        run.metrics["clearance"] = run.success ? std::get<0>(run.trajectory->getClearance(scene)) : 0.0;
+
+    if (options & Metrics::SMOOTHNESS)
+        run.metrics["smoothness"] = run.success ? run.trajectory->getSmoothness() : 0.0;
+}
+
+void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                             //
+                                      const SceneConstPtr &scene,                            //
+                                      const planning_interface::MotionPlanRequest &request,  //
+                                      Result &run)
+{
+    for (const auto &callback : callbacks_)
+        run.metrics[callback.first] = callback.second(planner, scene, request, run);
+}
+
 void Profiler::captureProgress(ProgressThreadInfo &info,
                                const std::map<std::string, Planner::ProgressProperty> &properties,  //
-                               std::vector<std::map<std::string, std::string>> &progress);
+                               std::vector<std::map<std::string, std::string>> &progress)
 {
     auto start = IO::getDate();
     while (true)
@@ -105,8 +192,8 @@ void Profiler::captureProgress(ProgressThreadInfo &info,
             data["time REAL"] = std::to_string(time);
 
             // Compute properties
-            for (const auto &[name, property] : properties)
-                data[name] = property();
+            for (const auto &property : properties)
+                data[property.first] = property.second();
 
             progress.emplace_back(data);
         }

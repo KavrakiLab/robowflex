@@ -4,6 +4,7 @@
 #include <cstdlib>  // for std::getenv
 #include <memory>   // for std::shared_ptr
 #include <regex>    // for std::regex
+#include <thread>
 
 #include <boost/lexical_cast.hpp>
 

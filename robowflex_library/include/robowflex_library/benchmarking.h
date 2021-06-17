@@ -25,6 +25,7 @@ namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Scene);
+    ROBOWFLEX_CLASS_FORWARD(Trajectory);
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     /** \endcond */
 
@@ -46,6 +47,7 @@ namespace robowflex
 
     class Profiler
     {
+    public:
         struct Result
         {
             double time;                      ///< Time that planning took in seconds.
@@ -54,10 +56,15 @@ namespace robowflex
 
             bool success;  ///< Was the plan successful?
 
+            std::vector<std::string> property_names;                   ///< Planner progress value names.
             std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
             std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
 
-            planning_interface::MotionPlanResponse response;  ///< Planner response;
+            planning_interface::MotionPlanResponse response;  ///< Planner response.
+            TrajectoryPtr trajectory;                         ///< The resulting trajectory.
+
+            std::vector<std::pair<double, double>> getProgressPropertiesAsPoints(const std::string &xprop,
+                                                                                 const std::string &yprop);
         };
 
         /** \brief Type for callback function to add additional metrics
@@ -68,7 +75,7 @@ namespace robowflex
          *  \return The value of this metric. Will be stored in run data under associated name.
          */
         using ComputeMetricCallback =
-            std::function<PlannerMetric(const Planner &planner,                                //
+            std::function<PlannerMetric(const PlannerPtr &planner,                             //
                                         const SceneConstPtr &scene,                            //
                                         const planning_interface::MotionPlanRequest &request,  //
                                         const Result &run)>;
@@ -78,11 +85,10 @@ namespace robowflex
         enum Metrics
         {
             WAYPOINTS = 1 << 0,   ///< Number of waypoints in path.
-            PATH = 1 << 1,        ///< The entire path.
-            CORRECT = 1 << 2,     ///< Is the path correct (no collisions?).
-            LENGTH = 1 << 3,      ///< Length of the path.
-            CLEARANCE = 1 << 4,   ///< Clearance of path from obstacles.
-            SMOOTHNESS = 1 << 5,  ///< Smoothness of path.
+            CORRECT = 1 << 1,     ///< Is the path correct (no collisions?).
+            LENGTH = 1 << 2,      ///< Length of the path.
+            CLEARANCE = 1 << 3,   ///< Clearance of path from obstacles.
+            SMOOTHNESS = 1 << 4,  ///< Smoothness of path.
         };
 
         struct Options
@@ -92,7 +98,7 @@ namespace robowflex
             double progress_update_rate{0.1};
         };
 
-        bool profilePlan(const Planner &planner,                                //
+        bool profilePlan(const PlannerPtr &planner,                             //
                          const SceneConstPtr &scene,                            //
                          const planning_interface::MotionPlanRequest &request,  //
                          const Options &options,                                //
@@ -102,11 +108,21 @@ namespace robowflex
         void removeMetricCallback(const std::string &name);
 
     private:
+        void computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run);
+
+        void computeCallbackMetrics(const PlannerPtr &planner,                             //
+                                    const SceneConstPtr &scene,                            //
+                                    const planning_interface::MotionPlanRequest &request,  //
+                                    Result &run);
+
         struct ProgressThreadInfo
         {
+            ProgressThreadInfo(double rate);
+            void notify();
+
+            double rate;         ///< Update rate.
             bool solved{false};  ///< Is the problem solved?
             std::mutex mutex;    ///< Lock used for progress property computation.
-            double rate;         ///< Update rate.
         };
 
         /** \brief Capture planner progress.
