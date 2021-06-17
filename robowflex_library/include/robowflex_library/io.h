@@ -111,6 +111,18 @@ namespace robowflex
          */
         boost::posix_time::ptime getDate();
 
+        /** \brief Get a duration in seconds from two times.
+         *  \param[in] start The start time.
+         *  \param[in] finish The finish time.
+         *  \return The time in seconds.
+         */
+        double getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish);
+
+        /** \brief Put the current thread to sleep for a desired amount of seconds.
+         *  \param[in] seconds Seconds to sleep for.
+         */
+        void threadSleep(double seconds);
+
         /** \brief Separates a \a string into casted tokens, based upon \a separators.
          *  \tparam The type of element to cast strings into.
          *  \param[in] string String to tokenize.

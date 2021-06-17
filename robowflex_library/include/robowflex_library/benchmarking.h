@@ -28,6 +28,96 @@ namespace robowflex
     ROBOWFLEX_CLASS_FORWARD(MotionRequestBuilder);
     /** \endcond */
 
+    /** \brief Variant type of possible values a run metric could be.
+     */
+    using PlannerMetric = boost::variant<bool, double, int>;
+
+    std::string toMetricString(const PlannerMetric &metric);
+
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(Profiler);
+    /** \endcond */
+
+    /** \class robowflex::ProfilerPtr
+        \brief A shared pointer wrapper for robowflex::Profiler. */
+
+    /** \class robowflex::ProfilerConstPtr
+        \brief A const shared pointer wrapper for robowflex::Profiler. */
+
+    class Profiler
+    {
+        struct Result
+        {
+            double time;                      ///< Time that planning took in seconds.
+            boost::posix_time::ptime start;   ///< Query start time.
+            boost::posix_time::ptime finish;  ///< Query end time.
+
+            bool success;  ///< Was the plan successful?
+
+            std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
+            std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
+
+            planning_interface::MotionPlanResponse response;  ///< Planner response;
+        };
+
+        /** \brief Type for callback function to add additional metrics
+         *  \param[in] planner The planner being profiled.
+         *  \param[in] scene The scene used for planning.
+         *  \param[in] request The planning request.
+         *  \param[in] run The results of the planning run, including prior computed metrics.
+         *  \return The value of this metric. Will be stored in run data under associated name.
+         */
+        using ComputeMetricCallback =
+            std::function<PlannerMetric(const Planner &planner,                                //
+                                        const SceneConstPtr &scene,                            //
+                                        const planning_interface::MotionPlanRequest &request,  //
+                                        const Result &run)>;
+
+        /** \brief Bitmask options to select what metrics to compute for each run.
+         */
+        enum Metrics
+        {
+            WAYPOINTS = 1 << 0,   ///< Number of waypoints in path.
+            PATH = 1 << 1,        ///< The entire path.
+            CORRECT = 1 << 2,     ///< Is the path correct (no collisions?).
+            LENGTH = 1 << 3,      ///< Length of the path.
+            CLEARANCE = 1 << 4,   ///< Clearance of path from obstacles.
+            SMOOTHNESS = 1 << 5,  ///< Smoothness of path.
+        };
+
+        struct Options
+        {
+            uint32_t metrics{~0};
+            bool progress{true};
+            double progress_update_rate{0.1};
+        };
+
+        bool profilePlan(const Planner &planner,                                //
+                         const SceneConstPtr &scene,                            //
+                         const planning_interface::MotionPlanRequest &request,  //
+                         const Options &options,                                //
+                         Result &result);
+
+        void addMetricCallback(const std::string &name, const ComputeMetricCallback &metric);
+        void removeMetricCallback(const std::string &name);
+
+    private:
+        struct ProgressThreadInfo
+        {
+            bool solved{false};  ///< Is the problem solved?
+            std::mutex mutex;    ///< Lock used for progress property computation.
+            double rate;         ///< Update rate.
+        };
+
+        /** \brief Capture planner progress.
+         */
+        void captureProgress(ProgressThreadInfo &info,
+                             const std::map<std::string, Planner::ProgressProperty> &properties,  //
+                             std::vector<std::map<std::string, std::string>> &progress);
+
+        std::map<std::string, ComputeMetricCallback> callbacks_;  ///< Custom user callback metrics.
+    };
+
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Benchmarker);
     /** \endcond */

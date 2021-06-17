@@ -18,6 +18,105 @@
 using namespace robowflex;
 
 ///
+/// PlannerMetric
+///
+
+namespace
+{
+    class toMetricStringVisitor : public boost::static_visitor<std::string>
+    {
+    public:
+        std::string operator()(int value) const
+        {
+            return std::to_string(boost::get<int>(value));
+        }
+
+        std::string operator()(double value) const
+        {
+            double v = boost::get<double>(value);
+
+            // [Bad Pun] No NaNs, Infs, or buts about it.
+            return boost::lexical_cast<std::string>(  //
+                (std::isfinite(v)) ? v : std::numeric_limits<double>::max());
+        }
+
+        std::string operator()(bool value) const
+        {
+            return boost::lexical_cast<std::string>(boost::get<bool>(value));
+        }
+    };
+}  // namespace
+
+std::string robowflex::toMetricString(const PlannerMetric &metric)
+{
+    return boost::apply_visitor(toString(), metric);
+}
+
+///
+/// Profiler
+///
+
+bool Profiler::profilePlan(const Planner &planner,                                //
+                           const SceneConstPtr &scene,                            //
+                           const planning_interface::MotionPlanRequest &request,  //
+                           const Options &options,                                //
+                           Result &result)
+{
+    result.start = IO::getDate();
+    result.response = planner->plan(scene, request);
+
+    result.finish = IO::getDate();
+    result.time = IO::getSeconds(result.start, result.finish);
+    result.success = result.response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS;
+
+    return result.success;
+}
+
+void Profiler::addMetricCallback(const std::string &name, const ComputeMetricCallback &metric)
+{
+    callbacks_.emplace_back(name, metric);
+}
+
+void Profiler::removeMetricCallback(const std::string &name)
+{
+    auto it = callbacks_.find(name);
+    if (it != callbacks_.end())
+        callbacks_.erase(it);
+    else
+        throw Exception(1, "Attempted to remove non-existent metric!");
+}
+
+void Profiler::captureProgress(ProgressThreadInfo &info,
+                               const std::map<std::string, Planner::ProgressProperty> &properties,  //
+                               std::vector<std::map<std::string, std::string>> &progress);
+{
+    auto start = IO::getDate();
+    while (true)
+    {
+        {
+            std::unique_lock<std::mutex> lock(info.mutex);
+            if (info.solved)
+                return;
+
+            std::map<std::string, std::string> data;
+
+            // Add time stamp
+            double time = IO::getSeconds(start, IO::getDate());
+            data["time REAL"] = std::to_string(time);
+
+            // Compute properties
+            for (const auto &[name, property] : properties)
+                data[name] = property();
+
+            progress.emplace_back(data);
+        }
+
+        // Sleep until the next update
+        IO::threadSleep(info.rate);
+    }
+}
+
+///
 /// Benchmarker::Options
 ///
 
