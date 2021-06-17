@@ -59,7 +59,7 @@ sudo apt-get install \
 
 Then, add DART to your local catkin workspace:
 ```sh
-git clone git://github.com/dartsim/dart.git
+git clone -b v6.10.0 git://github.com/dartsim/dart.git
 ```
 
 ## OMPL Installation
