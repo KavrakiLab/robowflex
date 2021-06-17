@@ -58,6 +58,9 @@ namespace robowflex
          */
         Trajectory(const robot_trajectory::RobotTrajectoryPtr trajectory);
 
+        /** \name IO
+            \{ */
+
         /** \brief Set the trajectory to be the same as a message.
          *  \param[in] reference_state A full state that contains the values for all the joints
          *  \param[in] msg Message used to set the trajectory
@@ -85,6 +88,8 @@ namespace robowflex
          */
         bool fromYAMLFile(const robot_state::RobotState &reference_state, const std::string &filename);
 
+        /** \} */
+
         /** \name Getters and Setters
             \{ */
 
@@ -107,6 +112,17 @@ namespace robowflex
          *  \return The numbers of waypoints of the trajectory.
          */
         std::size_t getNumWaypoints() const;
+
+        /** \} */
+
+        /** \name Adding and Modifying States
+            \{ */
+
+        /** \brief Add a waypoint at the end of the trajectory.
+         *  \param[in] state State to add at end of trajectory.
+         *  \param[in] dt Time to this waypoint from previous.
+         */
+        void addSuffixWaypoint(const robot_state::RobotState &state, double dt = 1.);
 
         /** \} */
 

@@ -61,6 +61,11 @@ bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, co
     return true;
 }
 
+void Trajectory::addSuffixWaypoint(const robot_state::RobotState &state, double dt)
+{
+    trajectory_->addSuffixWayPoint(state, dt);
+}
+
 const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTrajectoryConst() const
 {
     return trajectory_;

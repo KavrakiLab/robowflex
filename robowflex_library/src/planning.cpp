@@ -1,10 +1,18 @@
 /* Author: Zachary Kingston */
 
+#include <moveit/robot_state/conversions.h>
+
+#include <robowflex_library/macros.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
+
+#if ROBOWFLEX_AT_LEAST_NOETIC
+#include <moveit/robot_state/cartesian_interpolator.h>
+#endif
 
 using namespace robowflex;
 
@@ -80,6 +88,159 @@ planning_interface::MotionPlanResponse PoolPlanner::plan(const SceneConstPtr &sc
 std::vector<std::string> PoolPlanner::getPlannerConfigs() const
 {
     return planners_.front()->getPlannerConfigs();
+}
+
+///
+/// SimpleCartesianPlanner
+///
+
+SimpleCartesianPlanner::SimpleCartesianPlanner(const RobotPtr &robot, const std::string &name)
+  : Planner(robot, name)
+{
+}
+
+planning_interface::MotionPlanResponse
+SimpleCartesianPlanner::plan(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
+{
+    planning_interface::MotionPlanResponse temp;
+    if (request.goal_constraints.size() > 1)
+    {
+        RBX_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
+        temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return temp;
+    }
+
+    const auto &goal = request.goal_constraints[0];
+    if (not goal.joint_constraints.empty() or not goal.visibility_constraints.empty())
+    {
+        RBX_ERROR("SimpleCartesianPlanner only supports pose goals!");
+        temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return temp;
+    }
+
+    if (goal.position_constraints.size() != 1 and goal.orientation_constraints.size() != 1)
+    {
+        RBX_ERROR("SimpleCartesianPlanner requires single position and orientation constraint!");
+        temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return temp;
+    }
+
+    // Get sampleable region through IK Query
+    const auto &pc = goal.position_constraints[0];
+    const auto &oc = goal.orientation_constraints[0];
+    Robot::IKQuery query(request.group_name, pc, oc);
+    query.attempts = request.num_planning_attempts;
+    query.timeout = request.allowed_planning_time;
+    query.scene = scene;
+
+    // Get starting state
+    auto state = robot_->allocState();
+    moveit::core::robotStateMsgToRobotState(request.start_state, *state);
+
+    return plan(*state, query);
+}
+
+planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_state::RobotState &start,
+                                                                    const Robot::IKQuery &request)
+{
+    planning_interface::MotionPlanResponse response;
+    if (request.tips.size() > 1)
+    {
+        RBX_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+        return response;
+    }
+
+    std::string tip = request.tips[0];
+    if (tip.empty())
+    {
+        const auto &tips = robot_->getSolverTipFrames(request.group);
+        if (tips.size() == 1)
+            tip = tips[0];
+        else
+        {
+            RBX_ERROR("Request needs tip frame name!");
+            response.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
+            return response;
+        }
+    }
+
+    // Get JMG, link model, and GSVCF
+    const auto &model = robot_->getModelConst();
+    const auto &jmg = model->getJointModelGroup(request.group);
+    const auto &lm = model->getLinkModel(tip);
+
+    moveit::core::GroupStateValidityCallbackFn gsvcf;
+    if (request.scene)
+        gsvcf = request.scene->getGSVCF(false);
+
+    std::vector<robot_state::RobotStatePtr> traj;
+
+    moveit::core::MaxEEFStep step(max_step_pos_, max_step_rot_);
+    moveit::core::JumpThreshold jump(jump_threshold_rev_, jump_threshold_pri_);
+
+    double time = 0;
+    bool success = false;
+    ros::WallTime start_time = ros::WallTime::now();
+
+    for (std::size_t i = 0;                                             //
+         not success                                                    //
+         and ((request.attempts) ? i < request.attempts : true)         //
+         and ((request.timeout > 0.) ? time < request.timeout : true);  //
+         ++i)
+    {
+        auto state = start;
+
+        RobotPose pose;
+        request.sampleRegion(pose, 0);
+
+#if ROBOWFLEX_AT_LEAST_NOETIC
+        double percentage =                                             //
+            moveit::core::CartesianInterpolator::computeCartesianPath(  //
+                &state, jmg, traj, lm, pose, true, step, jump, gsvcf);
+#else
+        double percentage =              //
+            state.computeCartesianPath(  //
+                jmg, traj, lm, pose, true, step, jump, gsvcf);
+#endif
+
+        // Check if successful, output is percent of path computed.
+        success = std::fabs(percentage - 1.) < constants::eps;
+        time = (ros::WallTime::now() - start_time).toSec();
+    }
+
+    Trajectory output(robot_, request.group);
+    for (const auto &state : traj)
+        output.addSuffixWaypoint(*state);
+
+    output.computeTimeParameterization();
+
+    response.trajectory_ = output.getTrajectory();
+    response.planning_time_ = time;
+
+    if (success)
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+    else
+        response.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
+
+    return response;
+}
+
+void SimpleCartesianPlanner::setMaxStep(double position, double rotation)
+{
+    max_step_pos_ = position;
+    max_step_rot_ = rotation;
+}
+
+void SimpleCartesianPlanner::setJumpThreshold(double prismatic, double revolute)
+{
+    jump_threshold_pri_ = prismatic;
+    jump_threshold_rev_ = revolute;
+}
+
+std::vector<std::string> SimpleCartesianPlanner::getPlannerConfigs() const
+{
+    return std::vector<std::string>{"cartesian"};
 }
 
 ///
