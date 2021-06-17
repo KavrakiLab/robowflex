@@ -45,6 +45,9 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             {
                 obj.visual.meshes.emplace_back(mesh);
                 obj.collision.meshes.emplace_back(mesh);
+                std_msgs::Int32 cot;
+                cot.data = tesseract::CollisionObjectType::ConvexHull;
+                obj.collision.mesh_collision_object_types.emplace_back(cot);
             }
 
             for (const shape_msgs::Plane &plane : collision_object.planes)
@@ -84,16 +87,36 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
             env->attachBody(attached_body_info);
         }
 
+        // Add octomap information.
+        if (scene_msg.world.octomap.octomap.data.size() > 0)
+        {
+            const std::string &name = "octomap";
+            tesseract_msgs::AttachableObject obj;
+            obj.name = name;
+            obj.operation = tesseract_msgs::AttachableObject::ADD;
+            obj.collision.octomaps.emplace_back(scene_msg.world.octomap.octomap);
+            obj.collision.octomap_poses.emplace_back(scene_msg.world.octomap.origin);
+            std_msgs::Int32 cot;
+            cot.data = tesseract::CollisionObjectType::UseShapeType;
+            obj.collision.octomap_collision_object_types.emplace_back(cot);
+
+            auto ao = std::make_shared<tesseract::AttachableObject>();
+            tesseract::tesseract_ros::attachableObjectMsgToAttachableObject(ao, obj);
+            env->addAttachableObject(ao);
+
+            tesseract::AttachedBodyInfo attached_body_info;
+            attached_body_info.object_name = name;
+            attached_body_info.parent_link_name = scene_msg.world.octomap.header.frame_id;
+            attached_body_info.transform = Eigen::Isometry3d::Identity();
+            env->attachBody(attached_body_info);
+        }
+
         return true;
     }
 
     RBX_ERROR("Tesseract environment not initialized");
 
     return false;
-    // TODO: fixed_frame_transforms?
-    // TODO: actually use LinkPadding and LinkScales.
-    // TODO: octomap
-    // TODO: object_colors: should go somewhere in visual geometry colors.
 }
 
 bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr &state,
@@ -102,8 +125,10 @@ bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr
     moveit_msgs::RobotState state_msg;
     moveit::core::robotStateToRobotStateMsg(*state, state_msg);
 
-    std_msgs::Int32 cot;
-    cot.data = tesseract::CollisionObjectType::UseShapeType;
+    std_msgs::Int32 cotp;
+    cotp.data = tesseract::CollisionObjectType::UseShapeType;
+    std_msgs::Int32 cotm;
+    cotm.data = tesseract::CollisionObjectType::ConvexHull;
 
     for (const auto &co : state_msg.attached_collision_objects)
     {
@@ -125,9 +150,12 @@ bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr
         obj.collision.primitive_poses = co.object.primitive_poses;
         obj.collision.primitive_collision_object_types.resize(co.object.primitives.size());
         std::fill(obj.collision.primitive_collision_object_types.begin(),
-                  obj.collision.primitive_collision_object_types.end(), cot);
+                  obj.collision.primitive_collision_object_types.end(), cotp);
         obj.collision.meshes = co.object.meshes;
         obj.collision.mesh_poses = co.object.mesh_poses;
+        obj.collision.mesh_collision_object_types.resize(co.object.meshes.size());
+        std::fill(obj.collision.mesh_collision_object_types.begin(),
+                  obj.collision.mesh_collision_object_types.end(), cotm);
         obj.collision.planes = co.object.planes;
         obj.collision.plane_poses = co.object.plane_poses;
 
