@@ -18,6 +18,7 @@ using namespace robowflex;
  * A basic script that demonstrates using the plan profiler with the Fetch robot.
  * The plan profiler is a tool to instrument a single planning run and extract relevant progress properties or
  * metrics. For larger scale planner testing, check out the benchmarking tools.
+ * This uses IO::GNUPlotHelper, which helps with live visualization of data.
  */
 
 static const std::string GROUP = "arm_with_torso";
@@ -29,10 +30,11 @@ int main(int argc, char **argv)
 
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
-    fetch->initialize();
+    fetch->initialize(false);
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
+    scene->fromYAMLFile("package://robowflex_library/yaml/fetch_box/scene0001.yaml");
 
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch);
@@ -40,12 +42,9 @@ int main(int argc, char **argv)
 
     // Create a motion planning request with a pose goal.
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
-    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    request->setStartConfiguration(fetch->getScratchState());
-
-    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    request->setGoalConfiguration(fetch->getScratchState());
-
+    request->fromYAMLFile("package://robowflex_library/yaml/fetch_box/request0001.yaml");
+    request->setAllowedPlanningTime(30.0);
+    request->setNumPlanningAttempts(1);
     request->setConfig("RRTstar");
 
     Profiler profiler;
@@ -53,21 +52,31 @@ int main(int argc, char **argv)
     Profiler::Options options;
     options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::SMOOTHNESS;
 
-    Profiler::Result result;
+    // Example of using plotting with the GNUPlot helper
+    IO::GNUPlotHelper gp;
 
-    if (profiler.profilePlan(planner, scene, request->getRequest(), options, result))
+    IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
+    tso.title = "RRT* Best Cost";
+
+    // 5 iterations of profiling the same problem
+    for (std::size_t i = 0; i < 5; ++i)
     {
-        IO::GNUPlotHelper gp;
+        Profiler::Result result;
+        bool success = profiler.profilePlan(planner, scene, request->getRequest(), options, result);
 
-        IO::GNUPlotHelper::TimeSeriesOptions tso;
-        tso.title = "RRT* Best Cost";
-        tso.points.emplace("Best Cost", result.getProgressPropertiesAsPoints("time REAL", "best cost REAL"));
+        // Extract cost progress property for plotting.
+        if (success)
+        {
+            tso.points.emplace(log::format("Cost %1%", i),  //
+                               result.getProgressPropertiesAsPoints("time REAL", "best cost REAL"));
 
-        gp.timeseries(tso);
-
-        RBX_INFO("Press Enter to Exit...");
-        std::cin.ignore();
+            // Plot all progress collected so far.
+            gp.timeseries(tso);
+        }
     }
+
+    RBX_INFO("Press Enter to Exit...");
+    std::cin.ignore();
 
     return 0;
 }

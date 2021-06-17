@@ -178,6 +178,8 @@ void Profiler::captureProgress(ProgressThreadInfo &info,
                                std::vector<std::map<std::string, std::string>> &progress)
 {
     auto start = IO::getDate();
+    IO::threadSleep(info.rate);
+
     while (true)
     {
         {
