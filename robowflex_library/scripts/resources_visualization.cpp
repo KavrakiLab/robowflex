@@ -31,7 +31,7 @@ const std::string fetch[4] = {
 // UR5 with Robotiq 85 Gripper on a table
 const std::string ur5[4] = {
     "package://robowflex_resources/ur/robots/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
-    "package://robowflex_resources/ur/config/ur5/ur5_robotiq85.srdf",                // srdf
+    "package://robowflex_resources/ur/config/ur5/ur5_robotiq85_table.srdf.xacro",    // srdf
     "package://robowflex_resources/ur/config/ur5/joint_limits.yaml",                 // joint limits
     "package://robowflex_resources/ur/config/ur5/kinematics.yaml"                    // kinematics
 };
