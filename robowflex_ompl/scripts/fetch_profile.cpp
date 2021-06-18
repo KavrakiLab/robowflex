@@ -48,11 +48,8 @@ Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const 
 
         // Plot all progress collected so far.
         const auto &points = result.getProgressPropertiesAsPoints("time REAL", field);
-        if (not points.empty())
-        {
-            tso.points.emplace(field, points);
-            plotter.timeseries(tso);
-        }
+        tso.points.emplace(field, points);
+        plotter.timeseries(tso);
     };
 }
 
@@ -239,6 +236,8 @@ int main(int argc, char **argv)
     request->setAllowedPlanningTime(TIME);
     request->setNumPlanningAttempts(1);
     request->setConfig(planner_name);
+
+    scene->getCurrentState() = *request->getStartConfiguration();
 
     // Create the profiler. We will add some progress callbacks to plot progress properties while the planner
     // solves the problem.
