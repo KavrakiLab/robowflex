@@ -40,6 +40,70 @@ namespace robowflex
     std::string toMetricString(const PlannerMetric &metric);
 
     /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(PlanData);
+    /** \endcond */
+
+    /** \class robowflex::PlanDataPtr
+        \brief A shared pointer wrapper for robowflex::PlanData. */
+
+    /** \class robowflex::PlanDataConstPtr
+        \brief A const shared pointer wrapper for robowflex::PlanData. */
+
+    /** \brief Detailed statistics and metrics computed from profiling a planner's motion planning.
+     */
+    class PlanData
+    {
+    public:
+        SceneConstPtr scene;                            ///< Scene used for the query.
+        PlannerConstPtr planner;                        ///< Planner used for the query.
+        planning_interface::MotionPlanRequest request;  ///< Request used for the query.
+
+        double time;                      ///< Time that planning took in seconds.
+        boost::posix_time::ptime start;   ///< Query start time.
+        boost::posix_time::ptime finish;  ///< Query end time.
+
+        bool success;  ///< Was the plan successful?
+
+        std::vector<std::string> property_names;                   ///< Planner progress value names.
+        std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
+        std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
+
+        planning_interface::MotionPlanResponse response;  ///< Planner response.
+        TrajectoryPtr trajectory;                         ///< The resulting trajectory.
+
+        /** \brief Retrieves the time series data of a planner progress property for a given X-,Y- pair of
+         * progress properties. Will ignore a point if either value is non-finite.
+         *  \param[in] xprop The property for the first coordinate.
+         *  \param[in] yprop The property for the second coordinate.
+         *  \return A vector of the points.
+         */
+        std::vector<std::pair<double, double>> getProgressPropertiesAsPoints(const std::string &xprop,
+                                                                             const std::string &yprop) const;
+    };
+
+    /** \cond IGNORE */
+    ROBOWFLEX_CLASS_FORWARD(PlanDataSet);
+    /** \endcond */
+
+    /** \class robowflex::PlanDataSetPtr
+        \brief A shared pointer wrapper for robowflex::PlanDataSet. */
+
+    /** \class robowflex::PlanDataSetConstPtr
+        \brief A const shared pointer wrapper for robowflex::PlanDataSet. */
+
+    class PlanDataSet
+    {
+    public:
+        std::string name;  ///< Name of this dataset.
+
+        double time;                      ///< Total computation time for entire dataset.
+        boost::posix_time::ptime start;   ///< Start time of dataset computation.
+        boost::posix_time::ptime finish;  ///< End time for dataset computation.
+
+        std::vector<PlanData> data;  ///< Statistics for each run in this dataset.
+    };
+
+    /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Profiler);
     /** \endcond */
 
@@ -73,33 +137,6 @@ namespace robowflex
             double progress_update_rate{0.1};   ///< Update rate for progress callbacks.
         };
 
-        /** \brief Result of planner profiling.
-         */
-        struct Result
-        {
-            double time;                      ///< Time that planning took in seconds.
-            boost::posix_time::ptime start;   ///< Query start time.
-            boost::posix_time::ptime finish;  ///< Query end time.
-
-            bool success;  ///< Was the plan successful?
-
-            std::vector<std::string> property_names;                   ///< Planner progress value names.
-            std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
-            std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
-
-            planning_interface::MotionPlanResponse response;  ///< Planner response.
-            TrajectoryPtr trajectory;                         ///< The resulting trajectory.
-
-            /** \brief Retrieves the time series data of a planner progress property for a given X-,Y- pair of
-             * progress properties. Will ignore a point if either value is non-finite.
-             *  \param[in] xprop The property for the first coordinate.
-             *  \param[in] yprop The property for the second coordinate.
-             *  \return A vector of the points.
-             */
-            std::vector<std::pair<double, double>>
-            getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const;
-        };
-
         /** \brief Type for callback function that returns a metric over the results of a planning query.
          *  \param[in] planner The planner being profiled.
          *  \param[in] scene The scene used for planning.
@@ -111,7 +148,7 @@ namespace robowflex
             std::function<PlannerMetric(const PlannerPtr &planner,                             //
                                         const SceneConstPtr &scene,                            //
                                         const planning_interface::MotionPlanRequest &request,  //
-                                        const Result &run)>;
+                                        const PlanData &run)>;
 
         /** \brief Allocator function that returns a planner progress property function for the
          * current planning request.
@@ -134,7 +171,7 @@ namespace robowflex
         using ProgressCallback = std::function<void(const PlannerPtr &planner,                             //
                                                     const SceneConstPtr &scene,                            //
                                                     const planning_interface::MotionPlanRequest &request,  //
-                                                    const Result &result)>;
+                                                    const PlanData &result)>;
 
         /** \brief Allocator function that returns a progress property callback function for the
          * current planning request.
@@ -160,7 +197,7 @@ namespace robowflex
                          const SceneConstPtr &scene,                            //
                          const planning_interface::MotionPlanRequest &request,  //
                          const Options &options,                                //
-                         Result &result);
+                         PlanData &result);
 
         /** \brief Add a callback function to compute a metric at the end of planning.
          *  \param[in] name Name of the metric.
@@ -190,7 +227,7 @@ namespace robowflex
          *  \param[in] scene Scene used for planning and metric computation.
          *  \param[out] run Metric results.
          */
-        void computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run);
+        void computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, PlanData &run);
 
         /** \brief Compute the custom user callback metrics.
          *  \param[in] planner Planner used.
@@ -201,7 +238,7 @@ namespace robowflex
         void computeCallbackMetrics(const PlannerPtr &planner,                             //
                                     const SceneConstPtr &scene,                            //
                                     const planning_interface::MotionPlanRequest &request,  //
-                                    Result &run);
+                                    PlanData &run);
 
         std::map<std::string, ComputeMetricCallback> callbacks_;            ///< User callback metrics.
         std::map<std::string, ProgressPropertyAllocator> prog_allocators_;  ///< User progress properties.

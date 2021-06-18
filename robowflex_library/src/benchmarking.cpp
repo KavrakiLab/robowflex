@@ -3,9 +3,6 @@
 #include <boost/lexical_cast.hpp>
 #include <utility>
 
-#include <moveit/collision_detection/collision_common.h>
-#include <moveit/version.h>
-
 #include <robowflex_library/util.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
@@ -54,11 +51,11 @@ std::string robowflex::toMetricString(const PlannerMetric &metric)
 }
 
 ///
-/// Profiler
+/// PlanData
 ///
 
 std::vector<std::pair<double, double>>
-Profiler::Result::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const
+PlanData::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const
 {
     std::vector<std::pair<double, double>> ret;
     for (const auto &point : progress)
@@ -84,15 +81,23 @@ Profiler::Result::getProgressPropertiesAsPoints(const std::string &xprop, const 
     return ret;
 }
 
+///
+/// Profiler
+///
+
 bool Profiler::profilePlan(const PlannerPtr &planner,                             //
                            const SceneConstPtr &scene,                            //
                            const planning_interface::MotionPlanRequest &request,  //
                            const Options &options,                                //
-                           Result &result)
+                           PlanData &result)
 {
     bool complete = false;
     std::mutex mutex;
     std::shared_ptr<std::thread> progress_thread;
+
+    result.scene = scene;
+    result.planner = planner;
+    result.request = request;
 
     result.start = IO::getDate();
 
@@ -204,7 +209,7 @@ void Profiler::addProgressCallbackAllocator(const ProgressCallbackAllocator &all
     prog_callback_allocators_.emplace_back(allocator);
 }
 
-void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run)
+void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, PlanData &run)
 {
     if (options & Metrics::WAYPOINTS)
         run.metrics["waypoints"] = run.success ? int(run.trajectory->getNumWaypoints()) : int(0);
@@ -225,7 +230,7 @@ void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scen
 void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                             //
                                       const SceneConstPtr &scene,                            //
                                       const planning_interface::MotionPlanRequest &request,  //
-                                      Result &run)
+                                      PlanData &run)
 {
     for (const auto &callback : callbacks_)
         run.metrics[callback.first] = callback.second(planner, scene, request, run);

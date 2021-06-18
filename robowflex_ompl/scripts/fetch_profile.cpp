@@ -38,7 +38,7 @@ Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const 
     return [&, field](const PlannerPtr &planner,                             //
                       const SceneConstPtr &scene,                            //
                       const planning_interface::MotionPlanRequest &request,  //
-                      const Profiler::Result &result) {
+                      const PlanData &result) {
         IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
         tso.instance = field;
         tso.title = "Live Profiling";
@@ -91,7 +91,7 @@ Profiler::ProgressCallbackAllocator getRVIZGraphVisualizationAllocator(IO::RVIZH
         return [rviz, op](const PlannerPtr &planner,                             //
                           const SceneConstPtr &scene,                            //
                           const planning_interface::MotionPlanRequest &request,  //
-                          const Profiler::Result &result) {
+                          const PlanData &result) {
             const auto &robot = planner->getRobot();
             const auto &ss = op->getSpaceInformation()->getStateSpace();
 
@@ -156,7 +156,7 @@ Profiler::ComputeMetricCallback getGoalDistanceCallback()
     return [](const PlannerPtr &planner,                             //
               const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
-              const Profiler::Result &run) -> PlannerMetric {
+              const PlanData &run) -> PlannerMetric {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
 
         const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();
@@ -282,7 +282,7 @@ int main(int argc, char **argv)
     // 5 iterations of profiling the same problem
     for (std::size_t i = 0; i < 5; ++i)
     {
-        Profiler::Result result;
+        PlanData result;
         if (profiler.profilePlan(planner, scene, request->getRequest(), options, result))
         {
             if (gnuplot)
