@@ -22,6 +22,30 @@ using namespace robowflex;
  */
 
 static const std::string GROUP = "arm_with_torso";
+static const double TIME = 60.0;
+
+Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const std::string &field)
+{
+    return [&, field](const PlannerPtr &planner,                             //
+                      const SceneConstPtr &scene,                            //
+                      const planning_interface::MotionPlanRequest &request,  //
+                      const Profiler::Result &result) {
+        IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
+        tso.instance = field;
+        tso.title = "Live Profiling";
+        tso.x.label = "Time (s)";
+        tso.x.min = 0.;
+        tso.x.max = TIME;
+
+        // Plot all progress collected so far.
+        const auto &points = result.getProgressPropertiesAsPoints("time REAL", field);
+        if (not points.empty())
+        {
+            tso.points.emplace(field, points);
+            plotter.timeseries(tso);
+        }
+    };
+}
 
 int main(int argc, char **argv)
 {
@@ -32,42 +56,48 @@ int main(int argc, char **argv)
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize(false);
 
-    // Create an empty scene.
-    auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library/yaml/fetch_box/scene0001.yaml");
-
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch);
     planner->initialize("package://robowflex_resources/fetch/config/ompl_planning.yaml");
 
-    // Create a motion planning request with a pose goal.
+    // Load an example problem of reaching into a box.
+    auto scene = std::make_shared<Scene>(fetch);
+    scene->fromYAMLFile("package://robowflex_library/yaml/fetch_box/scene0001.yaml");
+
+    // Load the motion planning request and configure for profiling.
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
     request->fromYAMLFile("package://robowflex_library/yaml/fetch_box/request0001.yaml");
-    request->setAllowedPlanningTime(30.0);
+    request->setAllowedPlanningTime(TIME);
     request->setNumPlanningAttempts(1);
     request->setConfig("RRTstar");
 
+    // Create the profiler. We will add some progress callbacks to plot progress properties while the planner
+    // solves the problem.
     Profiler profiler;
+
+    // Example of using plotting with the GNUPlot helper.
+    IO::GNUPlotHelper gp;
+
+    // Plotting options for time series data to display after planning is complete.
+    IO::GNUPlotHelper::TimeSeriesOptions tso;
+    tso.title = "RRT* Best Cost";
+    tso.x.min = 0.;
+    tso.x.max = TIME;
+
+    // Add progress callbacks to plot progress data live while planning.
+    profiler.addProgressCallback("plot cost", getGNUPlotCallback(gp, "best cost REAL"));
+    profiler.addProgressCallback("plot iter", getGNUPlotCallback(gp, "iterations INTEGER"));
 
     Profiler::Options options;
     options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::SMOOTHNESS;
-
-    // Example of using plotting with the GNUPlot helper
-    IO::GNUPlotHelper gp;
-
-    IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
-    tso.title = "RRT* Best Cost";
 
     // 5 iterations of profiling the same problem
     for (std::size_t i = 0; i < 5; ++i)
     {
         Profiler::Result result;
-        bool success = profiler.profilePlan(planner, scene, request->getRequest(), options, result);
-
-        // Extract cost progress property for plotting.
-        if (success)
+        if (profiler.profilePlan(planner, scene, request->getRequest(), options, result))
         {
-            tso.points.emplace(log::format("Cost %1%", i),  //
+            tso.points.emplace(log::format("Trial %1%", i + 1),  //
                                result.getProgressPropertiesAsPoints("time REAL", "best cost REAL"));
 
             // Plot all progress collected so far.

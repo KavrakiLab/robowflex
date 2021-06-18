@@ -58,32 +58,30 @@ std::string robowflex::toMetricString(const PlannerMetric &metric)
 ///
 
 std::vector<std::pair<double, double>>
-Profiler::Result::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop)
+Profiler::Result::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const
 {
     std::vector<std::pair<double, double>> ret;
     for (const auto &point : progress)
     {
-        const auto &time = point.find(xprop)->second;
-        double timed = boost::lexical_cast<double>(time);
+        auto xit = point.find(xprop);
+        if (xit == point.end())
+            break;
 
-        const auto &value = point.find(yprop)->second;
-        double valued = boost::lexical_cast<double>(value);
+        const auto &xval = xit->second;
+        double xvald = boost::lexical_cast<double>(xval);
 
-        if (std::isfinite(timed) and std::isfinite(valued))
-            ret.emplace_back(timed, valued);
+        const auto &yit = point.find(yprop);
+        if (yit == point.end())
+            break;
+
+        const auto &yval = yit->second;
+        double yvald = boost::lexical_cast<double>(yval);
+
+        if (std::isfinite(xvald) and std::isfinite(yvald))
+            ret.emplace_back(xvald, yvald);
     }
 
     return ret;
-}
-
-Profiler::ProgressThreadInfo::ProgressThreadInfo(double rate) : rate(rate)
-{
-}
-
-void Profiler::ProgressThreadInfo::notify()
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    solved = true;
 }
 
 bool Profiler::profilePlan(const PlannerPtr &planner,                             //
@@ -92,31 +90,69 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
                            const Options &options,                                //
                            Result &result)
 {
-    ProgressThreadInfo progress_info(options.progress_update_rate);  ///< Planner progress thread options
+    bool complete = false;
+    std::mutex mutex;
     std::shared_ptr<std::thread> progress_thread;
 
     result.start = IO::getDate();
 
     // Setup planner progress property thread
+    std::map<std::string, Planner::ProgressProperty> prog_props;
     const auto &pp = planner->getProgressProperties(scene, request);
+    prog_props.insert(pp.begin(), pp.end());
 
-    if (options.progress and not pp.empty())
+    // Add custom progress properties
+    for (const auto &allocator : prog_allocators_)
+        prog_props.emplace(allocator.first, allocator.second(planner, scene, request));
+
+    if (options.progress and not prog_props.empty())
     {
         // Get names of progress properties
-        for (const auto &property : pp)
+        for (const auto &property : prog_props)
             result.property_names.emplace_back(property.first);
         result.property_names.emplace_back("time REAL");
 
-        progress_thread.reset(new std::thread([&] { captureProgress(progress_info, pp, result.progress); }));
+        progress_thread.reset(new std::thread([&] {
+            auto start = IO::getDate();
+            IO::threadSleep(options.progress_update_rate);
+
+            while (true)
+            {
+                {
+                    std::unique_lock<std::mutex> lock(mutex);
+                    if (complete)
+                        return;
+
+                    std::map<std::string, std::string> data;
+
+                    // Add time stamp
+                    double time = IO::getSeconds(start, IO::getDate());
+                    data["time REAL"] = std::to_string(time);
+
+                    // Compute properties
+                    for (const auto &property : prog_props)
+                        data[property.first] = property.second();
+
+                    result.progress.emplace_back(data);
+
+                    for (const auto &callback : prog_callbacks_)
+                        callback.second(planner, scene, request, result);
+                }
+
+                // Sleep until the next update
+                IO::threadSleep(options.progress_update_rate);
+            }
+        }));
     }
 
     // Plan
     result.response = planner->plan(scene, request);
 
     // Notify planner progress thread
-    progress_info.notify();
-    if (progress_thread)
-        progress_thread->join();
+    {
+        std::unique_lock<std::mutex> lock(mutex);
+        complete = true;
+    }
 
     // Compute metrics and fill out results
     result.finish = IO::getDate();
@@ -128,6 +164,9 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
 
     computeBuiltinMetrics(options.metrics, scene, result);
     computeCallbackMetrics(planner, scene, request, result);
+
+    if (progress_thread)
+        progress_thread->join();
 
     return result.success;
 }
@@ -144,6 +183,34 @@ void Profiler::removeMetricCallback(const std::string &name)
         callbacks_.erase(it);
     else
         throw Exception(1, "Attempted to remove non-existent metric!");
+}
+
+void Profiler::addProgressAllocator(const std::string &name, const ProgressPropertyAllocator &allocator)
+{
+    prog_allocators_.emplace(name, allocator);
+}
+
+void Profiler::removeProgressAllocator(const std::string &name)
+{
+    auto it = prog_allocators_.find(name);
+    if (it != prog_allocators_.end())
+        prog_allocators_.erase(it);
+    else
+        throw Exception(1, "Attempted to remove non-existent progress allocator!");
+}
+
+void Profiler::addProgressCallback(const std::string &name, const ProgressCallback &callback)
+{
+    prog_callbacks_.emplace(name, callback);
+}
+
+void Profiler::removeProgressCallback(const std::string &name)
+{
+    auto it = prog_callbacks_.find(name);
+    if (it != prog_callbacks_.end())
+        prog_callbacks_.erase(it);
+    else
+        throw Exception(1, "Attempted to remove non-existent progress callback!");
 }
 
 void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run)
@@ -171,38 +238,6 @@ void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                
 {
     for (const auto &callback : callbacks_)
         run.metrics[callback.first] = callback.second(planner, scene, request, run);
-}
-
-void Profiler::captureProgress(ProgressThreadInfo &info,
-                               const std::map<std::string, Planner::ProgressProperty> &properties,  //
-                               std::vector<std::map<std::string, std::string>> &progress)
-{
-    auto start = IO::getDate();
-    IO::threadSleep(info.rate);
-
-    while (true)
-    {
-        {
-            std::unique_lock<std::mutex> lock(info.mutex);
-            if (info.solved)
-                return;
-
-            std::map<std::string, std::string> data;
-
-            // Add time stamp
-            double time = IO::getSeconds(start, IO::getDate());
-            data["time REAL"] = std::to_string(time);
-
-            // Compute properties
-            for (const auto &property : properties)
-                data[property.first] = property.second();
-
-            progress.emplace_back(data);
-        }
-
-        // Sleep until the next update
-        IO::threadSleep(info.rate);
-    }
 }
 
 ///

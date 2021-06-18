@@ -11,14 +11,14 @@ using namespace robowflex::IO;
 namespace bp = boost::process;
 #endif
 
-GNUPlotHelper::GNUPlotHelper()
+GNUPlotHelper::Instance::Instance()
 {
     auto path = bp::search_path("gnuplot");
     if (path.empty())
         throw Exception(1, "GNUPlot not found, please install!");
 
 #if IS_BOOST_164
-    gnuplot_ = bp::child(bp::search_path("gnuplot"), "-persist",  //
+    gnuplot_ = bp::child(bp::search_path("gnuplot"), //"-persist",  //
                          bp::std_err > error_,                    //
                          // bp::std_out > output_,                //
                          bp::std_in < input_);
@@ -27,77 +27,84 @@ GNUPlotHelper::GNUPlotHelper()
 #endif
 }
 
-void GNUPlotHelper::write(const std::string &line)
+void GNUPlotHelper::Instance::write(const std::string &line)
 {
 #if IS_BOOST_164
     input_ << line;
-
-    if (debug_)
-        std::cout << line;
 #endif
 }
 
-void GNUPlotHelper::writeline(const std::string &line)
+void GNUPlotHelper::Instance::writeline(const std::string &line)
 {
     write(line);
     flush();
 }
 
-void GNUPlotHelper::flush()
+void GNUPlotHelper::Instance::flush()
 {
 #if IS_BOOST_164
     input_ << std::endl;
-
-    if (debug_)
-        std::cout << std::endl;
 #endif
 }
 
 void GNUPlotHelper::configurePlot(const PlottingOptions &options)
 {
-    writeline(log::format("set term %1% %2%", options.mode, options.window));
-    writeline(log::format("set title \"%1%\"", options.title));
-    writeline(log::format("set xlabel \"%1%\"", options.xlabel));
-    writeline(log::format("set ylabel \"%1%\"", options.ylabel));
+    auto in = getInstance(options.instance);
 
-    if (std::isfinite(options.ymax))
-        writeline(log::format("set yrange [:%1%]", options.ymax));
+    in->writeline(log::format("set term %1% noraise", options.mode));
+    in->writeline(log::format("set title \"%1%\"", options.title));
 
-    if (std::isfinite(options.ymin))
-        writeline(log::format("set yrange [%1%:]", options.ymin));
+    in->writeline(log::format("set xlabel \"%1%\"", options.x.label));
+    if (std::isfinite(options.x.max))
+        in->writeline(log::format("set xrange [:%1%]", options.x.max));
+
+    if (std::isfinite(options.x.min))
+        in->writeline(log::format("set xrange [%1%:]", options.x.min));
+
+    in->writeline(log::format("set ylabel \"%1%\"", options.y.label));
+    if (std::isfinite(options.y.max))
+        in->writeline(log::format("set yrange [:%1%]", options.y.max));
+
+    if (std::isfinite(options.y.min))
+        in->writeline(log::format("set yrange [%1%:]", options.y.min));
 }
 
 void GNUPlotHelper::timeseries(const TimeSeriesOptions &options)
 {
     configurePlot(options);
+    auto in = getInstance(options.instance);
 
-    writeline("set datafile separator \",\"");
-    write("plot ");
+    in->writeline("set datafile separator \",\"");
+    in->write("plot ");
 
     auto n = options.points.size();
-    auto it = options.points.begin();
 
-    for (std::size_t i = 0; i < n; ++i)
+    auto it1 = options.points.begin();
+    for (std::size_t i = 0; i < n; ++i, ++it1)
     {
-        auto file = createTempDataFile(it->second);
-        write(log::format("\"%1%\" using 1:2 with lines lw 2 title \"%2%\"", file, it->first));
+        in->write(log::format("'%1%' using 1:2 with lines lw 2 title \"%2%\"",  //
+                              (i == 0) ? "-" : "",                              //
+                              it1->first));
         if (i != n - 1)
-            write(", ");
-
-        it++;
+            in->write(", ");
     }
 
-    flush();
+    in->flush();
+
+    auto it2 = options.points.begin();
+    for (std::size_t i = 0; i < n; ++i, ++it2)
+    {
+        for (const auto &point : it2->second)
+            in->writeline(log::format("%1%,%2%", point.first, point.second));
+
+        in->writeline("e");
+    }
 }
 
-std::string GNUPlotHelper::createTempDataFile(const std::vector<std::pair<double, double>> &points)
+std::shared_ptr<GNUPlotHelper::Instance> GNUPlotHelper::getInstance(const std::string &name)
 {
-    std::ofstream out;
-    auto ret = createTempFile(out);
+    if (instances_.find(name) == instances_.end())
+        instances_.emplace(name, std::make_shared<Instance>());
 
-    for (const auto &point : points)
-        out << point.first << "," << point.second << std::endl;
-
-    out.close();
-    return ret;
+    return instances_.find(name)->second;
 }

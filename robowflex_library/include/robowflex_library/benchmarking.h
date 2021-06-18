@@ -48,38 +48,6 @@ namespace robowflex
     class Profiler
     {
     public:
-        struct Result
-        {
-            double time;                      ///< Time that planning took in seconds.
-            boost::posix_time::ptime start;   ///< Query start time.
-            boost::posix_time::ptime finish;  ///< Query end time.
-
-            bool success;  ///< Was the plan successful?
-
-            std::vector<std::string> property_names;                   ///< Planner progress value names.
-            std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
-            std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
-
-            planning_interface::MotionPlanResponse response;  ///< Planner response.
-            TrajectoryPtr trajectory;                         ///< The resulting trajectory.
-
-            std::vector<std::pair<double, double>> getProgressPropertiesAsPoints(const std::string &xprop,
-                                                                                 const std::string &yprop);
-        };
-
-        /** \brief Type for callback function to add additional metrics
-         *  \param[in] planner The planner being profiled.
-         *  \param[in] scene The scene used for planning.
-         *  \param[in] request The planning request.
-         *  \param[in] run The results of the planning run, including prior computed metrics.
-         *  \return The value of this metric. Will be stored in run data under associated name.
-         */
-        using ComputeMetricCallback =
-            std::function<PlannerMetric(const PlannerPtr &planner,                             //
-                                        const SceneConstPtr &scene,                            //
-                                        const planning_interface::MotionPlanRequest &request,  //
-                                        const Result &run)>;
-
         /** \brief Bitmask options to select what metrics to compute for each run.
          */
         enum Metrics
@@ -98,6 +66,61 @@ namespace robowflex
             double progress_update_rate{0.1};
         };
 
+        struct Result
+        {
+            double time;                      ///< Time that planning took in seconds.
+            boost::posix_time::ptime start;   ///< Query start time.
+            boost::posix_time::ptime finish;  ///< Query end time.
+
+            bool success;  ///< Was the plan successful?
+
+            std::vector<std::string> property_names;                   ///< Planner progress value names.
+            std::vector<std::map<std::string, std::string>> progress;  ///< Planner progress data.
+            std::map<std::string, PlannerMetric> metrics;              ///< Map of metric name to value.
+
+            planning_interface::MotionPlanResponse response;  ///< Planner response.
+            TrajectoryPtr trajectory;                         ///< The resulting trajectory.
+
+            std::vector<std::pair<double, double>>
+            getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const;
+        };
+
+        /** \brief Type for callback function that returns a metric over the results of a planning query.
+         *  \param[in] planner The planner being profiled.
+         *  \param[in] scene The scene used for planning.
+         *  \param[in] request The planning request.
+         *  \param[in] run The results of the planning run, including prior computed metrics.
+         *  \return The value of this metric. Will be stored in run data under associated name.
+         */
+        using ComputeMetricCallback =                                                          //
+            std::function<PlannerMetric(const PlannerPtr &planner,                             //
+                                        const SceneConstPtr &scene,                            //
+                                        const planning_interface::MotionPlanRequest &request,  //
+                                        const Result &run)>;
+
+        /** \brief Allocator function that returns a planner progress property callback function for the
+         * current planning request.
+         *  \param[in] planner The planner being profiled.
+         *  \param[in] scene The scene used for planning.
+         *  \param[in] request The planning request.
+         *  \return A planner progress property function.
+         */
+        using ProgressPropertyAllocator =                                        //
+            std::function<Planner::ProgressProperty(const PlannerPtr &planner,   //
+                                                    const SceneConstPtr &scene,  //
+                                                    const planning_interface::MotionPlanRequest &request)>;
+
+        /** \brief Type for callback function that is called in the planner progress property loop.
+         *  \param[in] planner The planner being profiled.
+         *  \param[in] scene The scene used for planning.
+         *  \param[in] request The planning request.
+         *  \param[in] run The results of the planning run, including prior computed metrics.
+         */
+        using ProgressCallback = std::function<void(const PlannerPtr &planner,                             //
+                                                    const SceneConstPtr &scene,                            //
+                                                    const planning_interface::MotionPlanRequest &request,  //
+                                                    const Result &result)>;
+
         bool profilePlan(const PlannerPtr &planner,                             //
                          const SceneConstPtr &scene,                            //
                          const planning_interface::MotionPlanRequest &request,  //
@@ -107,6 +130,12 @@ namespace robowflex
         void addMetricCallback(const std::string &name, const ComputeMetricCallback &metric);
         void removeMetricCallback(const std::string &name);
 
+        void addProgressAllocator(const std::string &name, const ProgressPropertyAllocator &allocator);
+        void removeProgressAllocator(const std::string &name);
+
+        void addProgressCallback(const std::string &name, const ProgressCallback &callback);
+        void removeProgressCallback(const std::string &name);
+
     private:
         void computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run);
 
@@ -115,23 +144,9 @@ namespace robowflex
                                     const planning_interface::MotionPlanRequest &request,  //
                                     Result &run);
 
-        struct ProgressThreadInfo
-        {
-            ProgressThreadInfo(double rate);
-            void notify();
-
-            double rate;         ///< Update rate.
-            bool solved{false};  ///< Is the problem solved?
-            std::mutex mutex;    ///< Lock used for progress property computation.
-        };
-
-        /** \brief Capture planner progress.
-         */
-        void captureProgress(ProgressThreadInfo &info,
-                             const std::map<std::string, Planner::ProgressProperty> &properties,  //
-                             std::vector<std::map<std::string, std::string>> &progress);
-
-        std::map<std::string, ComputeMetricCallback> callbacks_;  ///< Custom user callback metrics.
+        std::map<std::string, ComputeMetricCallback> callbacks_;            ///< Custom callback metrics.
+        std::map<std::string, ProgressPropertyAllocator> prog_allocators_;  ///< Custom progress properties.
+        std::map<std::string, ProgressCallback> prog_callbacks_;  ///< Custom progress callback functions.
     };
 
     /** \cond IGNORE */
