@@ -59,13 +59,17 @@ namespace robowflex
             SMOOTHNESS = 1 << 4,  ///< Smoothness of path.
         };
 
+        /** \brief Options for profiling.
+         */
         struct Options
         {
-            uint32_t metrics{~0};
-            bool progress{true};
-            double progress_update_rate{0.1};
+            uint32_t metrics{~0};  ///< Bitmask of which metrics to compute after planning.
+            bool progress{true};   ///< If true, captures planner progress properties (if they exist).
+            double progress_update_rate{0.1};  ///< Update rate for progress callbacks.
         };
 
+        /** \brief Result of planner profiling.
+         */
         struct Result
         {
             double time;                      ///< Time that planning took in seconds.
@@ -81,6 +85,12 @@ namespace robowflex
             planning_interface::MotionPlanResponse response;  ///< Planner response.
             TrajectoryPtr trajectory;                         ///< The resulting trajectory.
 
+            /** \brief Retrieves the time series data of a planner progress property for a given X-,Y- pair of
+             * progress properties. Will ignore a point if either value is non-finite.
+             *  \param[in] xprop The property for the first coordinate.
+             *  \param[in] yprop The property for the second coordinate.
+             *  \return A vector of the points.
+             */
             std::vector<std::pair<double, double>>
             getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const;
         };
@@ -121,24 +131,51 @@ namespace robowflex
                                                     const planning_interface::MotionPlanRequest &request,  //
                                                     const Result &result)>;
 
+        /** \brief Profiling a single plan using a \a planner.
+         *  \param[in] planner Planner to profile.
+         *  \param[in] scene Scene to plan in.
+         *  \param[in] request Planning request to profile.
+         *  \param[in] options The options for profiling.
+         *  \param[out] result The results of profiling.
+         *  \return True if planning succeeded, false on failure.
+         */
         bool profilePlan(const PlannerPtr &planner,                             //
                          const SceneConstPtr &scene,                            //
                          const planning_interface::MotionPlanRequest &request,  //
                          const Options &options,                                //
                          Result &result);
 
+        /** \brief Add a callback function to compute a metric at the end of planning.
+         *  \param[in] name Name of the metric.
+         *  \param[in] metric Function to use for callback.
+         */
         void addMetricCallback(const std::string &name, const ComputeMetricCallback &metric);
-        void removeMetricCallback(const std::string &name);
 
+        /** \brief Add a function that allocates a function that returns a planner progress property function.
+         *  \param[in] name Name of the planner progress property.
+         *  \param[in] allocator Allocator function.
+         */
         void addProgressAllocator(const std::string &name, const ProgressPropertyAllocator &allocator);
-        void removeProgressAllocator(const std::string &name);
 
-        void addProgressCallback(const std::string &name, const ProgressCallback &callback);
-        void removeProgressCallback(const std::string &name);
+        /** \brief Add a function that is called in the planner progress property loop.
+         *  \param[in] callback Callback function to add.
+         */
+        void addProgressCallback(const ProgressCallback &callback);
 
     private:
+        /** \brief Compute the built-in metrics according to the provided bitmask \a options.
+         *  \param[in] options Bitmask of which built-in metrics to compute.
+         *  \param[in] scene Scene used for planning and metric computation.
+         *  \param[out] run Metric results.
+         */
         void computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run);
 
+        /** \brief Compute the custom user callback metrics.
+         *  \param[in] planner Planner used.
+         *  \param[in] scene Scene used for planning.
+         *  \param[in] request Planning request.
+         *  \param[out] run Metric results.
+         */
         void computeCallbackMetrics(const PlannerPtr &planner,                             //
                                     const SceneConstPtr &scene,                            //
                                     const planning_interface::MotionPlanRequest &request,  //
@@ -146,7 +183,7 @@ namespace robowflex
 
         std::map<std::string, ComputeMetricCallback> callbacks_;            ///< Custom callback metrics.
         std::map<std::string, ProgressPropertyAllocator> prog_allocators_;  ///< Custom progress properties.
-        std::map<std::string, ProgressCallback> prog_callbacks_;  ///< Custom progress callback functions.
+        std::vector<ProgressCallback> prog_callbacks_;  ///< Custom progress callback functions.
     };
 
     /** \cond IGNORE */

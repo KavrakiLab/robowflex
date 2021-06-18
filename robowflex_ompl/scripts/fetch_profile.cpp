@@ -18,12 +18,15 @@ using namespace robowflex;
  * A basic script that demonstrates using the plan profiler with the Fetch robot.
  * The plan profiler is a tool to instrument a single planning run and extract relevant progress properties or
  * metrics. For larger scale planner testing, check out the benchmarking tools.
- * This uses IO::GNUPlotHelper, which helps with live visualization of data.
+ * This uses IO::GNUPlotHelper, which helps with live visualization of data. Make sure GNUPlot is installed.
  */
 
 static const std::string GROUP = "arm_with_torso";
 static const double TIME = 60.0;
 
+/** \brief Creates a progress callback function to plot the progress property \a field live using
+ * GNUPlot.
+ */
 Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const std::string &field)
 {
     return [&, field](const PlannerPtr &planner,                             //
@@ -44,6 +47,28 @@ Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const 
             tso.points.emplace(field, points);
             plotter.timeseries(tso);
         }
+    };
+}
+
+Profiler::ComputeMetricCallback getGoalDistanceCallback()
+{
+    return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
+              const planning_interface::MotionPlanRequest &request,  //
+              const Profiler::Result &run) -> PlannerMetric {
+        const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
+
+        const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();
+        double distance = pdef->getSolutionDifference();
+
+        if (distance == -1)
+        {
+            const auto &start = pdef->getStartState(0);
+            const auto &goal = std::dynamic_pointer_cast<ompl::base::GoalRegion>(pdef->getGoal());
+            distance = goal->distanceGoal(start);
+        }
+
+        return distance;
     };
 }
 
@@ -85,9 +110,13 @@ int main(int argc, char **argv)
     tso.x.max = TIME;
 
     // Add progress callbacks to plot progress data live while planning.
-    profiler.addProgressCallback("plot cost", getGNUPlotCallback(gp, "best cost REAL"));
-    profiler.addProgressCallback("plot iter", getGNUPlotCallback(gp, "iterations INTEGER"));
+    profiler.addProgressCallback(getGNUPlotCallback(gp, "best cost REAL"));
+    profiler.addProgressCallback(getGNUPlotCallback(gp, "iterations INTEGER"));
 
+    // Add a custom metric
+    profiler.addMetricCallback("goal_distance", getGoalDistanceCallback());
+
+    // Profiler options.
     Profiler::Options options;
     options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::SMOOTHNESS;
 

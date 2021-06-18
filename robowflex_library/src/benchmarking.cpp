@@ -105,28 +105,34 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
     for (const auto &allocator : prog_allocators_)
         prog_props.emplace(allocator.first, allocator.second(planner, scene, request));
 
-    if (options.progress and not prog_props.empty())
+    const bool have_prog = not prog_props.empty();
+    if (options.progress  //
+        and (have_prog or not prog_callbacks_.empty()))
     {
         // Get names of progress properties
-        for (const auto &property : prog_props)
-            result.property_names.emplace_back(property.first);
-        result.property_names.emplace_back("time REAL");
+        if (have_prog)
+        {
+            for (const auto &property : prog_props)
+                result.property_names.emplace_back(property.first);
+            result.property_names.emplace_back("time REAL");
+        }
 
         progress_thread.reset(new std::thread([&] {
-            auto start = IO::getDate();
-            IO::threadSleep(options.progress_update_rate);
-
             while (true)
             {
-                {
-                    std::unique_lock<std::mutex> lock(mutex);
-                    if (complete)
-                        return;
+                // Sleep until the next update
+                IO::threadSleep(options.progress_update_rate);
 
+                std::unique_lock<std::mutex> lock(mutex);
+                if (complete)
+                    return;
+
+                if (have_prog)
+                {
                     std::map<std::string, std::string> data;
 
                     // Add time stamp
-                    double time = IO::getSeconds(start, IO::getDate());
+                    double time = IO::getSeconds(result.start, IO::getDate());
                     data["time REAL"] = std::to_string(time);
 
                     // Compute properties
@@ -134,13 +140,10 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
                         data[property.first] = property.second();
 
                     result.progress.emplace_back(data);
-
-                    for (const auto &callback : prog_callbacks_)
-                        callback.second(planner, scene, request, result);
                 }
 
-                // Sleep until the next update
-                IO::threadSleep(options.progress_update_rate);
+                for (const auto &callback : prog_callbacks_)
+                    callback(planner, scene, request, result);
             }
         }));
     }
@@ -176,41 +179,14 @@ void Profiler::addMetricCallback(const std::string &name, const ComputeMetricCal
     callbacks_.emplace(name, metric);
 }
 
-void Profiler::removeMetricCallback(const std::string &name)
-{
-    auto it = callbacks_.find(name);
-    if (it != callbacks_.end())
-        callbacks_.erase(it);
-    else
-        throw Exception(1, "Attempted to remove non-existent metric!");
-}
-
 void Profiler::addProgressAllocator(const std::string &name, const ProgressPropertyAllocator &allocator)
 {
     prog_allocators_.emplace(name, allocator);
 }
 
-void Profiler::removeProgressAllocator(const std::string &name)
+void Profiler::addProgressCallback(const ProgressCallback &callback)
 {
-    auto it = prog_allocators_.find(name);
-    if (it != prog_allocators_.end())
-        prog_allocators_.erase(it);
-    else
-        throw Exception(1, "Attempted to remove non-existent progress allocator!");
-}
-
-void Profiler::addProgressCallback(const std::string &name, const ProgressCallback &callback)
-{
-    prog_callbacks_.emplace(name, callback);
-}
-
-void Profiler::removeProgressCallback(const std::string &name)
-{
-    auto it = prog_callbacks_.find(name);
-    if (it != prog_callbacks_.end())
-        prog_callbacks_.erase(it);
-    else
-        throw Exception(1, "Attempted to remove non-existent progress callback!");
+    prog_callbacks_.emplace_back(callback);
 }
 
 void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run)
