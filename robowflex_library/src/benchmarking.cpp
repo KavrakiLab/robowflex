@@ -105,9 +105,16 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
     for (const auto &allocator : prog_allocators_)
         prog_props.emplace(allocator.first, allocator.second(planner, scene, request));
 
+    // Setup progress callbacks
+    std::vector<ProgressCallback> prog_call;
+    prog_call.insert(prog_call.end(), prog_callbacks_.begin(), prog_callbacks_.end());
+
+    for (const auto &allocator : prog_callback_allocators_)
+        prog_call.emplace_back(allocator(planner, scene, request));
+
     const bool have_prog = not prog_props.empty();
     if (options.progress  //
-        and (have_prog or not prog_callbacks_.empty()))
+        and (have_prog or not prog_call.empty()))
     {
         // Get names of progress properties
         if (have_prog)
@@ -118,13 +125,14 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
         }
 
         progress_thread.reset(new std::thread([&] {
+            bool at_least_once = options.progress_at_least_once;
             while (true)
             {
                 // Sleep until the next update
                 IO::threadSleep(options.progress_update_rate);
 
                 std::unique_lock<std::mutex> lock(mutex);
-                if (complete)
+                if (not at_least_once and complete)
                     return;
 
                 if (have_prog)
@@ -142,8 +150,10 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
                     result.progress.emplace_back(data);
                 }
 
-                for (const auto &callback : prog_callbacks_)
+                for (const auto &callback : prog_call)
                     callback(planner, scene, request, result);
+
+                at_least_once = false;
             }
         }));
     }
@@ -187,6 +197,11 @@ void Profiler::addProgressAllocator(const std::string &name, const ProgressPrope
 void Profiler::addProgressCallback(const ProgressCallback &callback)
 {
     prog_callbacks_.emplace_back(callback);
+}
+
+void Profiler::addProgressCallbackAllocator(const ProgressCallbackAllocator &allocator)
+{
+    prog_callback_allocators_.emplace_back(allocator);
 }
 
 void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, Result &run)

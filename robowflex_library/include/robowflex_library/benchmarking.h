@@ -65,7 +65,8 @@ namespace robowflex
         {
             uint32_t metrics{~0};  ///< Bitmask of which metrics to compute after planning.
             bool progress{true};   ///< If true, captures planner progress properties (if they exist).
-            double progress_update_rate{0.1};  ///< Update rate for progress callbacks.
+            bool progress_at_least_once{true};  ///< If true, will always run the progress loop at least once.
+            double progress_update_rate{0.1};   ///< Update rate for progress callbacks.
         };
 
         /** \brief Result of planner profiling.
@@ -108,7 +109,7 @@ namespace robowflex
                                         const planning_interface::MotionPlanRequest &request,  //
                                         const Result &run)>;
 
-        /** \brief Allocator function that returns a planner progress property callback function for the
+        /** \brief Allocator function that returns a planner progress property function for the
          * current planning request.
          *  \param[in] planner The planner being profiled.
          *  \param[in] scene The scene used for planning.
@@ -130,6 +131,18 @@ namespace robowflex
                                                     const SceneConstPtr &scene,                            //
                                                     const planning_interface::MotionPlanRequest &request,  //
                                                     const Result &result)>;
+
+        /** \brief Allocator function that returns a progress property callback function for the
+         * current planning request.
+         *  \param[in] planner The planner being profiled.
+         *  \param[in] scene The scene used for planning.
+         *  \param[in] request The planning request.
+         *  \return A progress callback function.
+         */
+        using ProgressCallbackAllocator =                               //
+            std::function<ProgressCallback(const PlannerPtr &planner,   //
+                                           const SceneConstPtr &scene,  //
+                                           const planning_interface::MotionPlanRequest &request)>;
 
         /** \brief Profiling a single plan using a \a planner.
          *  \param[in] planner Planner to profile.
@@ -162,6 +175,11 @@ namespace robowflex
          */
         void addProgressCallback(const ProgressCallback &callback);
 
+        /** \brief Add a function that is called in the planner progress property loop.
+         *  \param[in] callback Callback function to add.
+         */
+        void addProgressCallbackAllocator(const ProgressCallbackAllocator &allocator);
+
     private:
         /** \brief Compute the built-in metrics according to the provided bitmask \a options.
          *  \param[in] options Bitmask of which built-in metrics to compute.
@@ -181,9 +199,11 @@ namespace robowflex
                                     const planning_interface::MotionPlanRequest &request,  //
                                     Result &run);
 
-        std::map<std::string, ComputeMetricCallback> callbacks_;            ///< Custom callback metrics.
-        std::map<std::string, ProgressPropertyAllocator> prog_allocators_;  ///< Custom progress properties.
-        std::vector<ProgressCallback> prog_callbacks_;  ///< Custom progress callback functions.
+        std::map<std::string, ComputeMetricCallback> callbacks_;            ///< User callback metrics.
+        std::map<std::string, ProgressPropertyAllocator> prog_allocators_;  ///< User progress properties.
+        std::vector<ProgressCallback> prog_callbacks_;  ///< User progress callback functions.
+        std::vector<ProgressCallbackAllocator> prog_callback_allocators_;  ///< User progress callback
+                                                                           ///< function allocators.
     };
 
     /** \cond IGNORE */
