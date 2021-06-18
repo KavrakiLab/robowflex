@@ -33,6 +33,10 @@ namespace robowflex
      */
     using PlannerMetric = boost::variant<bool, double, int>;
 
+    /** \brief Convert a planner metric into a string.
+     *  \param[in] metric The metric to convert.
+     *  \return The metric as a string.
+     */
     std::string toMetricString(const PlannerMetric &metric);
 
     /** \cond IGNORE */
