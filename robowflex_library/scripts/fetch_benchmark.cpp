@@ -63,8 +63,8 @@ int main(int argc, char **argv)
     experiment.addQuery("rrt", scene, planner, request_2);
 
     auto request_3 = request_1->clone();
-    request_3->setConfig("RRTstar");
-    experiment.addQuery("rrtstar", scene, planner, request_3);
+    request_3->setConfig("PRM");
+    experiment.addQuery("prm", scene, planner, request_3);
 
     auto dataset = experiment.benchmark(4);
 

@@ -15,6 +15,44 @@ using namespace robowflex;
 
 static const std::string GROUP = "arm_with_torso";
 
+Profiler::ComputeMetricCallback getNumVerticesCallback()
+{
+    return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
+              const planning_interface::MotionPlanRequest &request,  //
+              const PlanData &run) -> PlannerMetric {
+        const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
+        const auto &op = ompl_planner->getLastSimpleSetup()->getPlanner();
+
+        ompl::base::PlannerData pd(op->getSpaceInformation());
+        op->getPlannerData(pd);
+
+        return (int)pd.numVertices();
+    };
+}
+
+Profiler::ComputeMetricCallback getGoalDistanceCallback()
+{
+    return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
+              const planning_interface::MotionPlanRequest &request,  //
+              const PlanData &run) -> PlannerMetric {
+        const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
+
+        const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();
+        double distance = pdef->getSolutionDifference();
+
+        if (distance == -1)
+        {
+            const auto &start = pdef->getStartState(0);
+            const auto &goal = std::dynamic_pointer_cast<ompl::base::GoalRegion>(pdef->getGoal());
+            distance = goal->distanceGoal(start);
+        }
+
+        return distance;
+    };
+}
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -41,35 +79,24 @@ int main(int argc, char **argv)
 
     request->setConfig("RRTstar");
 
-    Benchmarker benchmark;
-    benchmark.addBenchmarkingRequest("joint", scene, planner, request);
+    Profiler::Options options;
+    options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::SMOOTHNESS;
+    Experiment experiment("unfurl",  // Name of experiment
+                          options,   // Options for internal profiler
+                          10.0,      // Timeout allowed for ALL queries
+                          5);        // Number of trials
 
-    // Install a custom metric computation function.
-    benchmark.setMetricCallbackFnAllocator([&](const Benchmarker::BenchmarkRequest &request) {
-        return [&](planning_interface::MotionPlanResponse &run, Benchmarker::Results::Run &metrics) {
-            const auto &planner =
-                std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(std::get<1>(request));
+    auto &profiler = experiment.getProfiler();
+    profiler.addMetricCallback("goal_distance", getGoalDistanceCallback());
+    profiler.addMetricCallback("num_vertices", getNumVerticesCallback());
 
-            if (not planner)
-                RBX_FATAL("Unexpected planner!");
+    experiment.addQuery("rrtstar", scene, planner, request);
 
-            const auto &ss = planner->getLastSimpleSetup();
+    auto dataset = experiment.benchmark(1);
 
-            ompl::base::PlannerData pd(ss->getSpaceInformation());
-            ss->getPlannerData(pd);
-
-            metrics.metrics["goal_distance"] = ss->getProblemDefinition()->getSolutionDifference();
-            metrics.metrics["num_vertices"] = (int)pd.numVertices();
-        };
-    });
-
-    Benchmarker::Options options;
-    options.runs = 5;
-    options.options =
-        Benchmarker::WAYPOINTS | Benchmarker::CORRECT | Benchmarker::LENGTH | Benchmarker::SMOOTHNESS;
-
-    // Output results to an OMPL benchmarking file.
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_fetch_test/")}, options);
+    OMPLPlanDataSetOutputter output("robowflex_fetch_ompl");
+    output.dump(*dataset);
 
     return 0;
+
 }
