@@ -74,12 +74,12 @@ int main(int argc, char **argv)
         }
 
         // Add request
-        experiment.addQuery(log::format("scene%1$04d", i), scene, planner, request);
+        experiment.addQuery("vicon", scene, planner, request);
     }
 
     auto dataset = experiment.benchmark(4);
 
-    OMPLPlanDataSetOutputter output("robowflex_fetch_scenes");
+    OMPLPlanDataSetOutputter output("robowflex");
     output.dump(*dataset);
 
     return 0;

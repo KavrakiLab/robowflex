@@ -10,6 +10,8 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
+#include <robowflex_library/io/gnuplot.h>
+
 using namespace robowflex;
 
 /* \file fetch_benchmark.cpp
@@ -18,6 +20,7 @@ using namespace robowflex;
  * https://ompl.kavrakilab.org/benchmark.html for more information on the
  * benchmark data format and how to use. http://plannerarena.org/ can be used to
  * visualize results.
+ * Note: This script requires GNUPlot for live visualization of timing data.
  */
 
 static const std::string GROUP = "arm_with_torso";
@@ -44,27 +47,41 @@ int main(int argc, char **argv)
     Experiment experiment("unfurl",  // Name of experiment
                           options,   // Options for internal profiler
                           5.0,       // Timeout allowed for ALL queries
-                          50);       // Number of trials
+                          100);      // Number of trials
 
     // Create a motion planning request with a pose goal.
-    auto request_1 = std::make_shared<MotionRequestBuilder>(planner, GROUP);
+    auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
     fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    request_1->setStartConfiguration(fetch->getScratchState());
+    request->setStartConfiguration(fetch->getScratchState());
 
     fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    request_1->setGoalConfiguration(fetch->getScratchState());
+    request->setGoalConfiguration(fetch->getScratchState());
 
-    // Setup three planners for benchmarking
-    request_1->setConfig("RRTConnect");
-    experiment.addQuery("rrtconnect", scene, planner, request_1);
+    request->setConfig("RRTConnect");
+    experiment.addQuery("rrtconnect", scene, planner, request->getRequest());
 
-    auto request_2 = request_1->clone();
-    request_2->setConfig("RRT");
-    experiment.addQuery("rrt", scene, planner, request_2);
+    request->setConfig("RRT");
+    experiment.addQuery("rrt", scene, planner, request->getRequest());
 
-    auto request_3 = request_1->clone();
-    request_3->setConfig("PRM");
-    experiment.addQuery("prm", scene, planner, request_3);
+    request->setConfig("PRM");
+    experiment.addQuery("prm", scene, planner, request->getRequest());
+
+    request->setConfig("KPIECE");
+    experiment.addQuery("kpiece", scene, planner, request->getRequest());
+
+    request->setConfig("BKPIECE");
+    experiment.addQuery("bkpiece", scene, planner, request->getRequest());
+
+    request->setConfig("LBKPIECE");
+    experiment.addQuery("lbkpiece", scene, planner, request->getRequest());
+
+    request->setConfig("EST");
+    experiment.addQuery("est", scene, planner, request->getRequest());
+
+    // Use the post-query callback to visualize the data live.
+    IO::GNUPlotPlanDataSetOutputter plot("time");
+    experiment.setPostQueryCallback(
+        [&](PlanDataSetPtr dataset, const PlanningQuery &) { plot.dump(*dataset); });
 
     auto dataset = experiment.benchmark(4);
 

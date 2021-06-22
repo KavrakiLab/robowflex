@@ -92,11 +92,12 @@ int main(int argc, char **argv)
 
     experiment.addQuery("rrtstar", scene, planner, request);
 
+    // Note: Only 1 thread can be used when profiling the OMPL planners, as planning contexts under the hood
+    // are reused between queries.
     auto dataset = experiment.benchmark(1);
 
     OMPLPlanDataSetOutputter output("robowflex_fetch_ompl");
     output.dump(*dataset);
 
     return 0;
-
 }

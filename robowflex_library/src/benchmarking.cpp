@@ -44,6 +44,11 @@ namespace
         {
             return boost::lexical_cast<std::string>(boost::get<bool>(value));
         }
+
+        std::string operator()(std::string value) const
+        {
+            return boost::get<std::string>(value);
+        }
     };
 }  // namespace
 
@@ -216,15 +221,15 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
     if (result.success)
         result.trajectory = std::make_shared<Trajectory>(*result.response.trajectory_);
 
+    result.hostname = IO::getHostname();
+    result.process_id = IO::getProcessID();
+    result.thread_id = IO::getThreadID();
+
     computeBuiltinMetrics(options.metrics, scene, result);
     computeCallbackMetrics(planner, scene, request, result);
 
     if (progress_thread)
         progress_thread->join();
-
-    result.hostname = IO::getHostname();
-    result.process_id = IO::getProcessID();
-    result.thread_id = IO::getThreadID();
 
     return result.success;
 }
@@ -265,6 +270,12 @@ void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scen
 
     if (options & Metrics::SMOOTHNESS)
         run.metrics["smoothness"] = run.success ? run.trajectory->getSmoothness() : 0.0;
+
+    run.metrics["planner_name"] = run.query.planner->getName();
+    run.metrics["robot_name"] = run.query.planner->getRobot()->getName();
+    run.metrics["hostname"] = run.hostname;
+    run.metrics["thread_id"] = (int)run.thread_id;
+    run.metrics["process_id"] = (int)run.process_id;
 }
 
 void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                             //
@@ -291,9 +302,7 @@ void Experiment::addQuery(const std::string &planner_name,  //
                           const PlannerPtr &planner,        //
                           const planning_interface::MotionPlanRequest &request)
 {
-    queries_.emplace(std::piecewise_construct,             //
-                     std::forward_as_tuple(planner_name),  //
-                     std::forward_as_tuple(planner_name, scene, planner, request));
+    queries_.emplace_back(planner_name, scene, planner, request);
 }
 
 void Experiment::addQuery(const std::string &planner_name,  //
@@ -312,21 +321,6 @@ void Experiment::addQuery(const std::string &planner_name,  //
     addQuery(planner_name, scene, planner, *request);
 }
 
-const std::string &Experiment::getName() const
-{
-    return name_;
-}
-
-double Experiment::getAllowedTime() const
-{
-    return allowed_time_;
-}
-
-std::size_t Experiment::getNumTrials() const
-{
-    return trials_;
-}
-
 Profiler::Options &Experiment::getOptions()
 {
     return options_;
@@ -342,7 +336,7 @@ const Profiler &Experiment::getProfilerConst() const
     return profiler_;
 }
 
-const std::map<std::string, PlanningQuery> &Experiment::getQueries() const
+const std::vector<PlanningQuery> &Experiment::getQueries() const
 {
     return queries_;
 }
@@ -350,11 +344,6 @@ const std::map<std::string, PlanningQuery> &Experiment::getQueries() const
 void Experiment::enableMultipleRequests()
 {
     enforce_single_thread_ = false;
-}
-
-void Experiment::disableMultipleRequests()
-{
-    enforce_single_thread_ = true;
 }
 
 void Experiment::setPreRunCallback(const PreRunCallback &callback)
@@ -379,33 +368,45 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
     dataset->name = name_;
     dataset->start = IO::getDate();
     dataset->allowed_time = allowed_time_;
+    dataset->trials = trials_;
     dataset->enforced_single_thread = enforce_single_thread_;
+    dataset->run_till_timeout = timeout_;
     dataset->threads = n_threads;
     dataset->queries = queries_;
-
-    std::size_t completed_queries = 0;
 
     struct ThreadInfo
     {
         ThreadInfo() = default;
-        ThreadInfo(const PlanningQuery *query, std::size_t trial) : query(query), trial(trial)
+        ThreadInfo(const PlanningQuery *query, std::size_t trial, std::size_t index)
+          : query(query), trial(trial), index(index)
         {
         }
 
         const PlanningQuery *query;
         std::size_t trial;
+        std::size_t index;
     };
 
     std::queue<ThreadInfo> todo;
     std::mutex mutex;
 
-    for (const auto &query : queries_)
-        for (std::size_t j = 0; j < trials_; ++j)
-            todo.emplace(&query.second, j);
+    for (std::size_t i = 0; i < queries_.size(); ++i)
+    {
+        const auto &query = queries_[i];
 
-    std::size_t total_queries = todo.size();
+        // Check if this name is unique, if so, add it to dataset list.
+        const auto &it = std::find(dataset->query_names.begin(), dataset->query_names.end(), query.name);
+        if (it == dataset->query_names.end())
+            dataset->query_names.emplace_back(query.name);
+
+        for (std::size_t j = 0; j < trials_; ++j)
+            todo.emplace(&query, j, i);
+    }
 
     std::vector<std::shared_ptr<std::thread>> threads;
+    std::size_t completed_queries = 0;
+    std::size_t total_queries = todo.size();
+
     for (std::size_t i = 0; i < n_threads; ++i)
         threads.emplace_back(std::make_shared<std::thread>([&]() {
             std::size_t id = IO::getThreadID();
@@ -422,8 +423,8 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     todo.pop();
                 }
 
-                RBX_INFO("[Thread %1%] Running Query `%2%` Trial [%3%/%4%]",  //
-                         id, info.query->name, info.trial, trials_);
+                RBX_INFO("[Thread %1%] Running Query `%2%` Idx:%3% Trial [%4%/%5%]",  //
+                         id, info.query->name, info.index, info.trial, trials_);
 
                 double time_remaining = allowed_time_;
                 std::size_t timeout_trial = 0;
@@ -447,11 +448,17 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                                           options_,             //
                                           *data);
 
+                    // Add experiment specific metrics
+                    data->metrics.emplace("query_trial", (int)info.trial);
+                    data->metrics.emplace("query_index", (int)info.index);
+                    data->metrics.emplace("query_timeout_trial", (int)timeout_trial);
+                    data->metrics.emplace("query_start", IO::getSeconds(dataset->start, data->start));
+                    data->metrics.emplace("query_finish", IO::getSeconds(dataset->start, data->finish));
+
+                    data->query.name = log::format("%1%:%2%:%3%", info.query->name, info.trial, info.index);
+
                     if (timeout_)
-                        data->query.name =
-                            log::format("%1%:%2%:%3%", info.query->name, info.trial, timeout_trial);
-                    else
-                        data->query.name = log::format("%1%:%2%", info.query->name, info.trial);
+                        data->query.name = data->query.name + log::format(":%4%", timeout_trial);
 
                     if (post_callback_)
                         post_callback_(*data, *info.query);
@@ -470,16 +477,18 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     {
                         time_remaining -= data->time;
                         RBX_INFO(
-                            "[Thread %1%] Running Query `%2%` till timeout, %3% seconds remaining...",  //
-                            id, info.query->name, time_remaining);
+                            "[Thread %1%] Running `%2%` Idx:%3% till timeout, %4% seconds remaining...",  //
+                            id, info.query->name, info.index, time_remaining);
                         timeout_trial++;
                     }
                     else
                         time_remaining = 0;
                 }
 
-                RBX_INFO("[Thread %1%] Completed Query `%2%` Trial [%3%/%4%] Total: [%5%/%6%]", id,
-                         info.query->name, info.trial, trials_, completed_queries, total_queries);
+                RBX_INFO("[Thread %1%] Completed Query `%2%` Idx:%3% Trial [%4%/%5%] Total: [%6%/%7%]",  //
+                         id, info.query->name, info.index,                                               //
+                         info.trial, trials_,                                                            //
+                         completed_queries, total_queries);
             }
         }));
 
@@ -607,16 +616,14 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
     out << "0 enum types" << std::endl;
 
     // num_planners
-    out << results.queries.size() << " planners" << std::endl;
+    out << results.query_names.size() << " planners" << std::endl;
 
     // planners_data -> planner_data
-    for (const auto &pair : results.queries)
+    for (const auto &name : results.query_names)
     {
-        const auto &name = pair.first;
-        const auto &query = pair.second;
         const auto &runs = results.data.find(name)->second;
 
-        out << query.name << std::endl;  // planner_name
+        out << name << std::endl;  // planner_name
         out << "0 common properties" << std::endl;
 
         out << (runs[0]->metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
@@ -642,6 +649,11 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
                 const std::string operator()(bool /* dummy */) const
                 {
                     return "BOOLEAN";
+                }
+
+                const std::string operator()(std::string /* dummy */) const
+                {
+                    return "VARCHAR(128)";
                 }
             };
 

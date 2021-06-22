@@ -5,6 +5,7 @@
 
 #include <robowflex_library/macros.h>
 #include <robowflex_library/constants.h>
+#include <robowflex_library/benchmarking.h>
 
 #if IS_BOOST_164
 #include <boost/process.hpp>
@@ -21,6 +22,7 @@ namespace robowflex
         public:
             using Point = std::pair<double, double>;
             using Series = std::vector<Point>;
+            using Values = std::vector<double>;
 
             GNUPlotHelper() = default;
 
@@ -65,6 +67,20 @@ namespace robowflex
              */
             void timeseries(const TimeSeriesOptions &options);
 
+            /** \brief Box plotting options.
+             */
+            struct BoxPlotOptions : PlottingOptions
+            {
+                bool outliers{true};
+                bool sorted{true};
+                std::map<std::string, Values> values;  ///< Map of names to data.
+            };
+
+            /** \brief Plot box data.
+             *  \param[in] options Plotting options.
+             */
+            void boxplot(const BoxPlotOptions &options);
+
             /** \} */
 
         private:
@@ -89,6 +105,8 @@ namespace robowflex
                 Instance(Instance const &) = delete;
                 void operator=(Instance const &) = delete;
 
+                bool debug_{false};
+
 #if IS_BOOST_164
                 boost::process::opstream input_;
                 // boost::process::ipstream output_;
@@ -97,8 +115,35 @@ namespace robowflex
 #endif
             };
 
+            /** \brief Get the named GNUPlot instance.
+             *  \param[in] name Name of instance.
+             *  \return The instance.
+             */
             std::shared_ptr<Instance> getInstance(const std::string &name);
-            std::map<std::string, std::shared_ptr<Instance>> instances_;
+            std::map<std::string, std::shared_ptr<Instance>> instances_;  ///< Map of open GNUPlot instances
+        };
+
+        /** \brief Helper class to plot a real metric as a box plot using GNUPlot from benchmarking data.
+         */
+        class GNUPlotPlanDataSetOutputter : public PlanDataSetOutputter
+        {
+        public:
+            /** \brief Constructor.
+             */
+            GNUPlotPlanDataSetOutputter(const std::string &metric);
+
+            /** \brief Destructor.
+             */
+            ~GNUPlotPlanDataSetOutputter() override;
+
+            /** \brief Visualize results.
+             *  \param[in] results Results to visualize.
+             */
+            void dump(const PlanDataSet &results) override;
+
+        private:
+            const std::string metric_;
+            GNUPlotHelper helper_;
         };
     }  // namespace IO
 }  // namespace robowflex
