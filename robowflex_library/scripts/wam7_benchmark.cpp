@@ -44,19 +44,20 @@ int main(int argc, char **argv)
     request->setStartConfiguration({0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
     request->setGoalConfiguration({0.0, 1.89, 0.0, -0.3, 1.3, 0.0, 0.2});
 
-    // Setup a benchmarking request for the motion plan requests.
-    Benchmarker benchmark;
-    benchmark.addBenchmarkingRequest("test", scene, planner, request);
+    Profiler::Options options;
+    options.progress_update_rate = 0.1;
+    options.metrics = Profiler::LENGTH;
 
-    // Set benchmarking options to only compute and store paths and path length.
-    Benchmarker::Options options(10,                                                                     //
-                                 Benchmarker::MetricOptions::PATH | Benchmarker::MetricOptions::LENGTH,  //
-                                 0.1);
+    Experiment experiment("wam7_demo", options, 5.0, 10);
+    experiment.addQuery("ompl", scene, planner, request);
 
-    // Benchmark and output to JSON and a rosbag of trajectories.
-    benchmark.benchmark({std::make_shared<JSONBenchmarkOutputter>("test_log.json"),  //
-                         std::make_shared<TrajectoryBenchmarkOutputter>("test_log.bag")},
-                        options);
+    auto dataset = experiment.benchmark(4);
+
+    JSONPlanDataSetOutputter json_output("test_log.json");
+    json_output.dump(*dataset);
+
+    TrajectoryPlanDataSetOutputter traj_output("test_log.bag");
+    traj_output.dump(*dataset);
 
     return 0;
 }

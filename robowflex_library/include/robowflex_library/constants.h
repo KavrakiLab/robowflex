@@ -28,6 +28,10 @@ namespace robowflex
         static const unsigned int ik_attempts = 50;
         static const Eigen::Vector3d ik_vec_tolerance = {ik_tolerance, ik_tolerance, ik_tolerance};
 
+        // planning
+        static const double default_workspace_bound = 1.0;
+        static const double default_allowed_planning_time = 5.0;
+
     }  // namespace constants
 }  // namespace robowflex
 

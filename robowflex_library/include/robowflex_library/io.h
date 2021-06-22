@@ -106,6 +106,16 @@ namespace robowflex
          */
         const std::string getHostname();
 
+        /** \brief Get the process ID of this process.
+         *  \return The process ID.
+         */
+        std::size_t getProcessID();
+
+        /** \brief Get the thread ID of the current thread.
+         *  \return The thread ID.
+         */
+        std::size_t getThreadID();
+
         /** \brief Get the current time (up to milliseconds)
          *  \return The time.
          */

@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston, Bryce Willey */
 
+#include <queue>
+
 #include <boost/lexical_cast.hpp>
 #include <utility>
 
@@ -51,11 +53,23 @@ std::string robowflex::toMetricString(const PlannerMetric &metric)
 }
 
 ///
+/// PlanningQuery
+///
+
+PlanningQuery::PlanningQuery(const std::string &name,     //
+                             const SceneConstPtr &scene,  //
+                             const PlannerPtr &planner,   //
+                             const planning_interface::MotionPlanRequest &request)
+  : name(name), scene(scene), planner(planner), request(request)
+{
+}
+
+///
 /// PlanData
 ///
 
-std::vector<std::pair<double, double>>
-PlanData::getProgressPropertiesAsPoints(const std::string &xprop, const std::string &yprop) const
+std::vector<std::pair<double, double>> PlanData::getProgressPropertiesAsPoints(const std::string &xprop,
+                                                                               const std::string &yprop) const
 {
     std::vector<std::pair<double, double>> ret;
     for (const auto &point : progress)
@@ -82,6 +96,28 @@ PlanData::getProgressPropertiesAsPoints(const std::string &xprop, const std::str
 }
 
 ///
+/// PlanDataSet
+///
+
+void PlanDataSet::addDataPoint(const std::string &query_name, const PlanDataPtr &run)
+{
+    auto it = data.find(query_name);
+    if (it == data.end())
+        data.emplace(query_name, std::vector<PlanDataPtr>{run});
+    else
+        it->second.emplace_back(run);
+}
+
+std::vector<PlanDataPtr> PlanDataSet::getFlatData() const
+{
+    std::vector<PlanDataPtr> r;
+    for (const auto &query : data)
+        r.insert(r.end(), query.second.begin(), query.second.end());
+
+    return r;
+}
+
+///
 /// Profiler
 ///
 
@@ -89,15 +125,15 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
                            const SceneConstPtr &scene,                            //
                            const planning_interface::MotionPlanRequest &request,  //
                            const Options &options,                                //
-                           PlanData &result)
+                           PlanData &result) const
 {
     bool complete = false;
     std::mutex mutex;
     std::shared_ptr<std::thread> progress_thread;
 
-    result.scene = scene;
-    result.planner = planner;
-    result.request = request;
+    result.query.scene = scene;
+    result.query.planner = planner;
+    result.query.request = request;
 
     result.start = IO::getDate();
 
@@ -186,6 +222,10 @@ bool Profiler::profilePlan(const PlannerPtr &planner,                           
     if (progress_thread)
         progress_thread->join();
 
+    result.hostname = IO::getHostname();
+    result.process_id = IO::getProcessID();
+    result.thread_id = IO::getThreadID();
+
     return result.success;
 }
 
@@ -209,7 +249,7 @@ void Profiler::addProgressCallbackAllocator(const ProgressCallbackAllocator &all
     prog_callback_allocators_.emplace_back(allocator);
 }
 
-void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, PlanData &run)
+void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scene, PlanData &run) const
 {
     if (options & Metrics::WAYPOINTS)
         run.metrics["waypoints"] = run.success ? int(run.trajectory->getNumWaypoints()) : int(0);
@@ -230,246 +270,243 @@ void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scen
 void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                             //
                                       const SceneConstPtr &scene,                            //
                                       const planning_interface::MotionPlanRequest &request,  //
-                                      PlanData &run)
+                                      PlanData &run) const
 {
     for (const auto &callback : callbacks_)
         run.metrics[callback.first] = callback.second(planner, scene, request, run);
 }
 
 ///
-/// Benchmarker::Options
+/// Experiment
 ///
 
-Benchmarker::Options::Options(unsigned int runs, uint32_t options, double progress)
-  : runs(runs), options(options), progress_update_rate(progress)
+Experiment::Experiment(const std::string &name, const Profiler::Options &options,  //
+                       double allowed_time, std::size_t trials, bool timeout)
+  : name_(name), allowed_time_(allowed_time), trials_(trials), timeout_(timeout), options_(options)
 {
 }
 
-///
-/// Benchmarker::Results::Run::toString
-///
-
-const std::string Benchmarker::Results::Run::toString::operator()(int value) const
+void Experiment::addQuery(const std::string &planner_name,  //
+                          const SceneConstPtr &scene,       //
+                          const PlannerPtr &planner,        //
+                          const planning_interface::MotionPlanRequest &request)
 {
-    return std::to_string(boost::get<int>(value));
+    queries_.emplace(std::piecewise_construct,             //
+                     std::forward_as_tuple(planner_name),  //
+                     std::forward_as_tuple(planner_name, scene, planner, request));
 }
 
-const std::string Benchmarker::Results::Run::toString::operator()(double value) const
+void Experiment::addQuery(const std::string &planner_name,  //
+                          const SceneConstPtr &scene,       //
+                          const PlannerPtr &planner,        //
+                          const MotionRequestBuilder &request)
 {
-    double v = boost::get<double>(value);
-    return boost::lexical_cast<std::string>((std::isfinite(v)) ? v : std::numeric_limits<double>::max());
+    addQuery(planner_name, scene, planner, request.getRequestConst());
 }
 
-const std::string Benchmarker::Results::Run::toString::operator()(bool value) const
+void Experiment::addQuery(const std::string &planner_name,  //
+                          const SceneConstPtr &scene,       //
+                          const PlannerPtr &planner,        //
+                          const MotionRequestBuilderPtr &request)
 {
-    return boost::lexical_cast<std::string>(boost::get<bool>(value));
+    addQuery(planner_name, scene, planner, *request);
 }
 
-///
-/// Benchmarker::Results::Run
-///
-
-Benchmarker::Results::Run::Run(int num, double time, bool success) : num(num), time(time), success(success)
+const std::string &Experiment::getName() const
 {
+    return name_;
 }
 
-///
-/// Benchmarker::Results
-///
-
-Benchmarker::Results::Results(const std::string &name, const SceneConstPtr &scene,
-                              const PlannerConstPtr &planner, const MotionRequestBuilderConstPtr &builder,
-                              const Options &options, ComputeMetricCallbackFn fn)
-  : name(name)
-  , scene(scene)
-  , planner(planner)
-  , builder(builder)
-  , options(options)
-  , metric_callback(std::move(fn))
+double Experiment::getAllowedTime() const
 {
-    start = IO::getDate();
+    return allowed_time_;
 }
 
-Benchmarker::Results::Run &Benchmarker::Results::addRun(int num, double time,
-                                                        planning_interface::MotionPlanResponse &run)
+std::size_t Experiment::getNumTrials() const
 {
-    Run metrics(num, time, run.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS);
-    computeMetric(run, metrics);
-
-    runs.emplace_back(metrics);
-    return runs.back();
+    return trials_;
 }
 
-void Benchmarker::Results::computeMetric(planning_interface::MotionPlanResponse &run, Run &metrics)
+Profiler::Options &Experiment::getOptions()
 {
-    TrajectoryPtr traj;
-    if (metrics.success)
-        traj = std::make_shared<Trajectory>(*run.trajectory_);
-
-    if (options.options & MetricOptions::WAYPOINTS)
-        metrics.metrics["waypoints"] = metrics.success ? int(traj->getNumWaypoints()) : int(0);
-
-    if (options.options & MetricOptions::PATH && metrics.success)
-        metrics.path = traj->getMessage();
-
-    if (options.options & MetricOptions::LENGTH)
-        metrics.metrics["length"] = metrics.success ? traj->getLength() : 0.0;
-
-    if (options.options & MetricOptions::CORRECT)
-        metrics.metrics["correct"] = metrics.success ? traj->isCollisionFree(scene) : false;
-
-    if (options.options & MetricOptions::CLEARANCE)
-        metrics.metrics["clearance"] = metrics.success ? std::get<0>(traj->getClearance(scene)) : 0.0;
-
-    if (options.options & MetricOptions::SMOOTHNESS)
-        metrics.metrics["smoothness"] = metrics.success ? traj->getSmoothness() : 0.0;
-
-    if (metric_callback)
-        metric_callback(run, metrics);
+    return options_;
 }
 
-///
-/// Benchmarker
-///
-
-void Benchmarker::addBenchmarkingRequest(const std::string &name, const ScenePtr &scene,
-                                         const PlannerPtr &planner, const MotionRequestBuilderPtr &request)
+Profiler &Experiment::getProfiler()
 {
-    requests_.emplace(std::piecewise_construct,     //
-                      std::forward_as_tuple(name),  //
-                      std::forward_as_tuple(scene, planner, request));
+    return profiler_;
 }
 
-void Benchmarker::captureProgress(const std::map<std::string, Planner::ProgressProperty> &properties,
-                                  std::vector<std::map<std::string, std::string>> &progress, double rate)
+const Profiler &Experiment::getProfilerConst() const
 {
-    ros::WallTime start = ros::WallTime::now();
-    while (true)
+    return profiler_;
+}
+
+const std::map<std::string, PlanningQuery> &Experiment::getQueries() const
+{
+    return queries_;
+}
+
+void Experiment::enableMultipleRequests()
+{
+    enforce_single_thread_ = false;
+}
+
+void Experiment::disableMultipleRequests()
+{
+    enforce_single_thread_ = true;
+}
+
+void Experiment::setPreRunCallback(const PreRunCallback &callback)
+{
+    pre_callback_ = callback;
+}
+
+void Experiment::setPostRunCallback(const PostRunCallback &callback)
+{
+    post_callback_ = callback;
+}
+
+void Experiment::setPostQueryCallback(const PostQueryCallback &callback)
+{
+    complete_callback_ = callback;
+}
+
+PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
+{
+    // Setup dataset to return
+    auto dataset = std::make_shared<PlanDataSet>();
+    dataset->name = name_;
+    dataset->start = IO::getDate();
+    dataset->allowed_time = allowed_time_;
+    dataset->enforced_single_thread = enforce_single_thread_;
+    dataset->threads = n_threads;
+    dataset->queries = queries_;
+
+    std::size_t completed_queries = 0;
+
+    struct ThreadInfo
     {
+        ThreadInfo() = default;
+        ThreadInfo(const PlanningQuery *query, std::size_t trial) : query(query), trial(trial)
         {
-            std::unique_lock<std::mutex> lock(solved_mutex_);
-            if (solved_)
-                return;
-
-            std::map<std::string, std::string> data;
-            double time = (ros::WallTime::now() - start).toSec();
-
-            data["time REAL"] = std::to_string(time);
-            for (const auto &property : properties)
-                data[property.first] = property.second();
-
-            progress.emplace_back(data);
         }
 
-        // Sleep until the next update
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(rate * 1000)));
-    }
-}
+        const PlanningQuery *query;
+        std::size_t trial;
+    };
 
-void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, const Options &options)
-{
-    unsigned int count = 0;                                      // Completed queries.
-    const unsigned int total = requests_.size() * options.runs;  // Total number of benchmarking queries.
-    std::shared_ptr<std::thread> thread;                         // Thread for querying progress properties.
+    std::queue<ThreadInfo> todo;
+    std::mutex mutex;
 
-    for (const auto &request : requests_)
-    {
-        // Extract all benchmarking request information
-        const auto &name = request.first;
-        auto &scene = std::get<0>(request.second);
-        auto &planner = std::get<1>(request.second);
-        const auto &builder = std::get<2>(request.second);
-        const auto &msg = builder->getRequest();
-        Results::ComputeMetricCallbackFn metric_callback;
+    for (const auto &query : queries_)
+        for (std::size_t j = 0; j < trials_; ++j)
+            todo.emplace(&query.second, j);
 
-        if (metric_callback_allocator_)
-            metric_callback = metric_callback_allocator_(request.second);
+    std::size_t total_queries = todo.size();
 
-        // Execute pre-run step.
-        planner->preRun(scene, msg);
-
-        Results results(name, scene, planner, builder, options, metric_callback);
-
-        // Get all progress property names.
-        const auto &pp = planner->getProgressProperties(scene, msg);
-        if (not pp.empty())
-        {
-            for (const auto &property : pp)
-                results.properties.emplace_back(property.first);
-            results.properties.emplace_back("time REAL");
-        }
-
-        for (unsigned int j = 0; j < options.runs || options.runs == 0; ++j)
-        {
-            ros::WallTime start = ros::WallTime::now();
-            solved_ = false;
-
-            // Capture planner progress.
-            const auto &pp = planner->getProgressProperties(scene, msg);
-
-            std::vector<std::map<std::string, std::string>> progress;
-            if (not pp.empty())
+    std::vector<std::shared_ptr<std::thread>> threads;
+    for (std::size_t i = 0; i < n_threads; ++i)
+        threads.emplace_back(std::make_shared<std::thread>([&]() {
+            std::size_t id = IO::getThreadID();
+            while (true)
             {
-                thread.reset(
-                    new std::thread([&] { captureProgress(pp, progress, options.progress_update_rate); }));
+                ThreadInfo info;
+
+                {
+                    std::unique_lock<std::mutex> lock(mutex);
+                    if (todo.empty())  // All done, exit.
+                        return;
+
+                    info = todo.front();
+                    todo.pop();
+                }
+
+                RBX_INFO("[Thread %1%] Running Query `%2%` Trial [%3%/%4%]",  //
+                         id, info.query->name, info.trial, trials_);
+
+                double time_remaining = allowed_time_;
+                std::size_t timeout_trial = 0;
+                while (time_remaining > 0.)
+                {
+                    if (pre_callback_)
+                        pre_callback_(*info.query);
+
+                    // Copy
+                    planning_interface::MotionPlanRequest request = info.query->request;
+                    request.allowed_planning_time = time_remaining;
+
+                    if (enforce_single_thread_)
+                        request.num_planning_attempts = 1;
+
+                    // Profile query
+                    auto data = std::make_shared<PlanData>();
+                    profiler_.profilePlan(info.query->planner,  //
+                                          info.query->scene,    //
+                                          request,              //
+                                          options_,             //
+                                          *data);
+
+                    if (timeout_)
+                        data->query.name =
+                            log::format("%1%:%2%:%3%", info.query->name, info.trial, timeout_trial);
+                    else
+                        data->query.name = log::format("%1%:%2%", info.query->name, info.trial);
+
+                    if (post_callback_)
+                        post_callback_(*data, *info.query);
+
+                    {
+                        std::unique_lock<std::mutex> lock(mutex);
+
+                        dataset->addDataPoint(info.query->name, data);
+                        completed_queries++;
+
+                        if (complete_callback_)
+                            complete_callback_(dataset, *info.query);
+                    }
+
+                    if (timeout_)
+                    {
+                        time_remaining -= data->time;
+                        RBX_INFO(
+                            "[Thread %1%] Running Query `%2%` till timeout, %3% seconds remaining...",  //
+                            id, info.query->name, time_remaining);
+                        timeout_trial++;
+                    }
+                    else
+                        time_remaining = 0;
+                }
+
+                RBX_INFO("[Thread %1%] Completed Query `%2%` Trial [%3%/%4%] Total: [%5%/%6%]", id,
+                         info.query->name, info.trial, trials_, completed_queries, total_queries);
             }
+        }));
 
-            // Run planning.
-            planning_interface::MotionPlanResponse response = planner->plan(scene, msg);
-            double time = (ros::WallTime::now() - start).toSec();
+    for (const auto &thread : threads)
+        thread->join();
 
-            // Notify progress thread.
-            {
-                std::unique_lock<std::mutex> lock(solved_mutex_);
-                solved_ = true;
-            }
+    dataset->finish = IO::getDate();
+    dataset->time = IO::getSeconds(dataset->start, dataset->finish);
 
-            if (thread)
-                thread->join();
-
-            // Collate results.
-            auto &run = results.addRun(j, time, response);
-            run.progress = progress;
-
-            // If runs == 0, run until time runs out.
-            if (options.runs == 0)
-            {
-                double time_remaining = msg.allowed_planning_time - time;
-                if (time_remaining < 0.)
-                    break;
-                builder->setAllowedPlanningTime(time_remaining);
-            }
-
-            RBX_INFO("BENCHMARKING: [ %u / %u ] Completed", ++count, total);
-        }
-
-        results.finish = IO::getDate();
-
-        for (const BenchmarkOutputterPtr &output : outputs)
-            output->dumpResult(results);
-    }
-}
-
-void Benchmarker::setMetricCallbackFnAllocator(MetricCallbackFnAllocator metric_alloc)
-{
-    metric_callback_allocator_ = std::move(metric_alloc);
+    return dataset;
 }
 
 ///
-/// JSONBenchmarkOutputter
+/// JSONPlanDataSetOutputter
 ///
 
-JSONBenchmarkOutputter::JSONBenchmarkOutputter(const std::string &file) : file_(file)
+JSONPlanDataSetOutputter::JSONPlanDataSetOutputter(const std::string &file) : file_(file)
 {
 }
 
-JSONBenchmarkOutputter::~JSONBenchmarkOutputter()
+JSONPlanDataSetOutputter::~JSONPlanDataSetOutputter()
 {
     outfile_ << "}" << std::endl;
     outfile_.close();
 }
 
-void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
+void JSONPlanDataSetOutputter::dump(const PlanDataSet &results)
 {
     if (not is_init_)
     {
@@ -484,23 +521,24 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 
     outfile_ << "\"" << results.name << "\":[";
 
-    for (size_t i = 0; i < results.runs.size(); i++)
+    const auto &data = results.getFlatData();
+
+    for (size_t i = 0; i < data.size(); i++)
     {
-        const Benchmarker::Results::Run &run = results.runs[i];
+        const auto &run = data[i];
         outfile_ << "{";
 
-        outfile_ << "\"name\": \"run_" << run.num << "\",";
-        outfile_ << "\"time\":" << run.time << ",";
-        outfile_ << "\"success\":" << run.success;
+        outfile_ << "\"name\": \"run_" << run->query.name << "\",";
+        outfile_ << "\"time\":" << run->time << ",";
+        outfile_ << "\"success\":" << run->success;
 
-        for (const auto &metric : run.metrics)
-            outfile_ << ",\"" << metric.first
-                     << "\":" << boost::apply_visitor(Benchmarker::Results::Run::toString(), metric.second);
+        for (const auto &metric : run->metrics)
+            outfile_ << ",\"" << metric.first << "\":" << toMetricString(metric.second);
 
         outfile_ << "}";
 
         // Write the command between each run.
-        if (i != results.runs.size() - 1)
+        if (i != data.size() - 1)
             outfile_ << "," << std::endl;
     }
 
@@ -508,166 +546,151 @@ void JSONBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
 }
 
 ///
-/// TrajectoryBenchmarkOutputter
+/// TrajectoryPlanDataSetOutputter
 ///
 
-TrajectoryBenchmarkOutputter::TrajectoryBenchmarkOutputter(const std::string &file) : file_(file), bag_(file_)
+TrajectoryPlanDataSetOutputter::TrajectoryPlanDataSetOutputter(const std::string &file)
+  : file_(file), bag_(file_)
 {
 }
 
-void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
+void TrajectoryPlanDataSetOutputter::dump(const PlanDataSet &results)
 {
-    if (!(results.options.options & Benchmarker::MetricOptions::PATH))
-    {
-        RBX_WARN("These results did not save the path according to the options. Skipping.");
-        return;
-    }
     const std::string &name = results.name;
 
-    for (Benchmarker::Results::Run run : results.runs)
-        bag_.addMessage(name, run.path);
+    for (const auto &data : results.getFlatData())
+        if (data->trajectory)
+            bag_.addMessage(name, data->trajectory->getMessage());
 }
 
 ///
-/// OMPLBenchmarkOutputter
+/// OMPLPlanDataSetOutputter
 ///
 
-OMPLBenchmarkOutputter::OMPLBenchmarkOutputter(const std::string &prefix, bool dumpScene)
-  : prefix_(prefix), dumpScene_(dumpScene)
+OMPLPlanDataSetOutputter::OMPLPlanDataSetOutputter(const std::string &prefix) : prefix_(prefix)
 {
 }
 
-OMPLBenchmarkOutputter::~OMPLBenchmarkOutputter()
+OMPLPlanDataSetOutputter::~OMPLPlanDataSetOutputter()
 {
-    IO::runCommand("ompl_benchmark_statistics.py " + prefix_ + "*.log");
 }
 
-void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
+void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
 {
     std::ofstream out;
-    IO::createFile(out, prefix_ + results.name + ".log");
+    IO::createFile(out, log::format("%1%_%2%.log", prefix_, results.name));
 
     out << "MoveIt! version " << MOVEIT_VERSION << std::endl;  // version
     out << "Experiment " << results.name << std::endl;         // experiment
     out << "Running on " << IO::getHostname() << std::endl;    // hostname
-    out << "Starting at " << IO::getDate() << std::endl;       // date
-
-    // setup
-    const auto &request = results.builder->getRequestConst();
-
-    moveit_msgs::PlanningScene scene_msg;
-    results.scene->getSceneConst()->getPlanningSceneMsg(scene_msg);
-
-    YAML::Node yaml;
-    yaml["scene"] = IO::toNode(scene_msg);
-    yaml["request"] = IO::toNode(request);
-
-    YAML::Emitter yaml_out;
-    yaml_out << yaml;
+    out << "Starting at " << results.start << std::endl;       // date
 
     out << "<<<|" << std::endl;
-    if (dumpScene_)
-        out << yaml_out.c_str() << std::endl;
     out << "|>>>" << std::endl;
 
     // random seed (fake)
     out << "0 is the random seed" << std::endl;
 
     // time limit
-    out << request.allowed_planning_time << " seconds per run" << std::endl;
+    out << results.allowed_time << " seconds per run" << std::endl;
 
     // memory limit
     out << "-1 MB per run" << std::endl;
 
     // num_runs
-    out << results.runs.size() << " runs per planner" << std::endl;
+    // out << results.data.size() << " runs per planner" << std::endl;
 
     // total_time
-
-    auto duration = results.finish - results.start;
-    double total = (double)duration.total_milliseconds() / 1000.;
-    out << total << " seconds spent to collect the data" << std::endl;
+    out << results.time << " seconds spent to collect the data" << std::endl;
 
     // num_enums / enums
     out << "0 enum types" << std::endl;
 
     // num_planners
-    out << "1 planners" << std::endl;
+    out << results.queries.size() << " planners" << std::endl;
 
     // planners_data -> planner_data
-    out << request.planner_id << std::endl;  // planner_name
-    out << "0 common properties" << std::endl;
-
-    out << (results.runs[0].metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
-    out << "time REAL" << std::endl;
-    out << "success BOOLEAN" << std::endl;
-
-    std::vector<std::reference_wrapper<const std::string>> keys;
-    for (const auto &metric : results.runs[0].metrics)
+    for (const auto &pair : results.queries)
     {
-        class ToString : public boost::static_visitor<const std::string>
+        const auto &name = pair.first;
+        const auto &query = pair.second;
+        const auto &runs = results.data.find(name)->second;
+
+        out << query.name << std::endl;  // planner_name
+        out << "0 common properties" << std::endl;
+
+        out << (runs[0]->metrics.size() + 2) << " properties for each run" << std::endl;  // run_properties
+        out << "time REAL" << std::endl;
+        out << "success BOOLEAN" << std::endl;
+
+        std::vector<std::reference_wrapper<const std::string>> keys;
+        for (const auto &metric : runs[0]->metrics)
         {
-        public:
-            const std::string operator()(int /* dummy */) const
+            class ToString : public boost::static_visitor<const std::string>
             {
-                return "INT";
-            }
-
-            const std::string operator()(double /* dummy */) const
-            {
-                return "REAL";
-            }
-
-            const std::string operator()(bool /* dummy */) const
-            {
-                return "BOOLEAN";
-            }
-        };
-
-        const auto &name = metric.first;
-        keys.emplace_back(name);
-
-        out << name << " " << boost::apply_visitor(ToString(), metric.second) << std::endl;
-    }
-
-    out << results.runs.size() << " runs" << std::endl;
-
-    for (const auto &run : results.runs)
-    {
-        out << run.time << "; "  //
-            << run.success << "; ";
-
-        for (const auto &key : keys)
-            out << boost::apply_visitor(Benchmarker::Results::Run::toString(), run.metrics.find(key)->second)
-                << "; ";
-
-        out << std::endl;
-    }
-
-    if (not results.properties.empty())
-    {
-        out << results.properties.size() << " progress properties for each run" << std::endl;
-        for (const auto &name : results.properties)
-            out << name << std::endl;
-
-        out << results.runs.size() << " runs" << std::endl;
-        for (const auto &run : results.runs)
-        {
-            for (const auto &point : run.progress)
-            {
-                for (const auto &name : results.properties)
+            public:
+                const std::string operator()(int /* dummy */) const
                 {
-                    auto it = point.find(name);
-                    out << it->second << ",";
+                    return "INT";
                 }
 
-                out << ";";
-            }
+                const std::string operator()(double /* dummy */) const
+                {
+                    return "REAL";
+                }
+
+                const std::string operator()(bool /* dummy */) const
+                {
+                    return "BOOLEAN";
+                }
+            };
+
+            const auto &name = metric.first;
+            keys.emplace_back(name);
+
+            out << name << " " << boost::apply_visitor(ToString(), metric.second) << std::endl;
+        }
+
+        out << runs.size() << " runs" << std::endl;
+
+        for (const auto &run : runs)
+        {
+            out << run->time << "; "  //
+                << run->success << "; ";
+
+            for (const auto &key : keys)
+                out << toMetricString(run->metrics.find(key)->second) << "; ";
 
             out << std::endl;
         }
+
+        const auto &progress_names = runs[0]->property_names;
+        if (not progress_names.empty())
+        {
+            out << progress_names.size() << " progress properties for each run" << std::endl;
+            for (const auto &name : progress_names)
+                out << name << std::endl;
+
+            out << runs.size() << " runs" << std::endl;
+            for (const auto &run : runs)
+            {
+                for (const auto &point : run->progress)
+                {
+                    for (const auto &name : progress_names)
+                    {
+                        auto it = point.find(name);
+                        out << it->second << ",";
+                    }
+
+                    out << ";";
+                }
+
+                out << std::endl;
+            }
+        }
+
+        out << "." << std::endl;
     }
 
-    out << "." << std::endl;
     out.close();
 }

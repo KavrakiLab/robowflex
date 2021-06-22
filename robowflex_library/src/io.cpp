@@ -16,6 +16,8 @@
 
 #include <boost/asio/ip/host_name.hpp>  // for hostname
 
+#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
+
 #include <ros/package.h>  // for package resolving
 
 #include <robowflex_library/log.h>
@@ -322,6 +324,16 @@ const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::str
 const std::string IO::getHostname()
 {
     return boost::asio::ip::host_name();
+}
+
+std::size_t IO::getProcessID()
+{
+    return boost::interprocess::ipcdetail::get_current_process_id();
+}
+
+std::size_t IO::getThreadID()
+{
+    return boost::interprocess::ipcdetail::get_current_thread_id();
 }
 
 boost::posix_time::ptime IO::getDate()
