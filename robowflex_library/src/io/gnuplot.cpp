@@ -13,11 +13,11 @@ namespace bp = boost::process;
 
 GNUPlotHelper::Instance::Instance()
 {
+#if IS_BOOST_164
     auto path = bp::search_path("gnuplot");
     if (path.empty())
         throw Exception(1, "GNUPlot not found, please install!");
 
-#if IS_BOOST_164
     gnuplot_ = bp::child(bp::search_path("gnuplot"),  //"-persist",  //
                          bp::std_err > error_,        //
                          // bp::std_out > output_,                //
