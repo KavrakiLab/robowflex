@@ -1,9 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/detail/ur5.h>
-#include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 

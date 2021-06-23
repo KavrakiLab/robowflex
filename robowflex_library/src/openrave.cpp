@@ -8,12 +8,10 @@
 #include <ros/console.h>
 
 #include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Vector3.h>
-
-#include <geometric_shapes/shape_operations.h>
 
 #include <moveit_msgs/CollisionObject.h>
+
+#include <geometric_shapes/shape_operations.h>
 
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>

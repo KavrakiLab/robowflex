@@ -1,7 +1,5 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#include <random>
-
 #include <boost/range/combine.hpp>
 
 #include <moveit_msgs/DisplayRobotState.h>

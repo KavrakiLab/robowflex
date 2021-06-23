@@ -3,8 +3,6 @@
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
-#include <moveit_msgs/MoveItErrorCodes.h>
-
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>

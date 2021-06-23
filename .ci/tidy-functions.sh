@@ -22,10 +22,9 @@ function check-tidy()
     rm -rf .build-tmp
 }
 
-# Use include-what-you-use
-function fix-iwyu()
+# Use include-what-you-use to find missing / unnecessary includes
+function get-iwyu()
 {
-    iwyu_tool.py -p .build-tmp 2> /tmp/iwyu.out
-    fix_includes.py < /tmp/iwyu.out
+    iwyu_tool.py -p .build-tmp | tee -a iwyu.out
     rm -rf .build-tmp
 }

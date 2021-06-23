@@ -3,7 +3,6 @@
 #include <boost/lexical_cast.hpp>
 #include <utility>
 
-#include <moveit/collision_detection/collision_common.h>
 #include <moveit/version.h>
 
 #include <robowflex_library/benchmarking.h>

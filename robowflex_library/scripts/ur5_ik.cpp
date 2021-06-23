@@ -1,13 +1,8 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/benchmarking.h>
-#include <robowflex_library/builder.h>
 #include <robowflex_library/detail/ur5.h>
-#include <robowflex_library/geometry.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/tf.h>
 #include <robowflex_library/util.h>
 
 using namespace robowflex;

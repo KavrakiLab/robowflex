@@ -5,8 +5,6 @@
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/log.h>
-#include <robowflex_library/planning.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
