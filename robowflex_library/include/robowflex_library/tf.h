@@ -17,6 +17,7 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
+#include <robowflex_library/constants.h>
 
 namespace robowflex
 {
@@ -156,6 +157,8 @@ namespace robowflex
                                                               const RobotPose &pose,
                                                               const GeometryConstPtr &geometry);
 
+        Eigen::Vector3d samplePositionConstraint(const moveit_msgs::PositionConstraint &pc);
+
         /** \brief Get an orientation constraint message.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The frame of pose and orientation.
@@ -250,6 +253,13 @@ namespace robowflex
          *  \return The angle in radians.
          */
         double toRadians(double v);
+
+        /** \brief Checks if a vector is close to zero.
+         *  \param[in] v Vector to check.
+         *  \param[in] tolerance Tolerance of what is considered zero.
+         *  \return Whether the vector's norm is below the tolerance threshold.
+         */
+        bool isVecZero(const Eigen::Ref<const Eigen::VectorXd> &v, double tolerance = constants::eps);
 
     }  // namespace TF
 }  // namespace robowflex

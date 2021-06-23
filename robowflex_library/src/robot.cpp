@@ -17,6 +17,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -358,54 +359,78 @@ void Robot::loadRobotModel(const std::string &description)
     model_ = loader_->getModel();
 }
 
-bool Robot::loadKinematics(const std::string &name)
+bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 {
-    if (imap_.find(name) != imap_.end())
-        return true;
-
+    // Needs to be called first to read the groups defined in the SRDF from the ROS params.
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
-        RBX_WARN("No kinematics plugins defined. Fill and load kinematics.yaml!");
+        RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
         return false;
     }
 
-    if (!model_->hasJointModelGroup(name) || std::find(groups.begin(), groups.end(), name) == groups.end())
+    if (!model_->hasJointModelGroup(group_name))
     {
-        RBX_WARN("No JMG or Kinematics defined for `%s`!", name);
+        RBX_ERROR("No JMG defined for `%s`!", group_name);
         return false;
     }
 
-    robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
-    kinematics::KinematicsBasePtr solver = allocator(jmg);
+    std::vector<std::string> load_names;
 
-    if (solver)
+    // If requested, also attempt to load the kinematics solvers for subgroups.
+    if (load_subgroups)
     {
-        std::string error_msg;
-        if (solver->supportsGroup(jmg, &error_msg))
-            imap_[name] = allocator;
-
-        else
-        {
-            RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
-                      typeid(*solver).name(), name, error_msg);
-            return false;
-        }
-    }
-    else
-    {
-        RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
-        return false;
+        const auto &subgroups = model_->getJointModelGroup(group_name)->getSubgroupNames();
+        load_names.insert(load_names.end(), subgroups.begin(), subgroups.end());
     }
 
-    RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+    // Check if this group also has an associated kinematics solver to load.
+    if (std::find(groups.begin(), groups.end(), group_name) != groups.end())
+        load_names.emplace_back(group_name);
 
     auto timeout = kinematics_->getIKTimeout();
-    jmg->setDefaultIKTimeout(timeout[name]);
-    model_->setKinematicsAllocators(imap_);
 
+    for (const auto &name : load_names)
+    {
+        // Check if kinematics have already been loaded for this group.
+        if (imap_.find(name) != imap_.end())
+            continue;
+
+        if (!model_->hasJointModelGroup(name) ||
+            std::find(groups.begin(), groups.end(), name) == groups.end())
+        {
+            RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
+            return false;
+        }
+
+        robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
+        kinematics::KinematicsBasePtr solver = allocator(jmg);
+
+        if (solver)
+        {
+            std::string error_msg;
+            if (solver->supportsGroup(jmg, &error_msg))
+                imap_[name] = allocator;
+            else
+            {
+                RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
+                          typeid(*solver).name(), name, error_msg);
+                return false;
+            }
+        }
+        else
+        {
+            RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
+            return false;
+        }
+
+        RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+        jmg->setDefaultIKTimeout(timeout[name]);
+    }
+
+    model_->setKinematicsAllocators(imap_);
     return true;
 }
 
@@ -487,6 +512,14 @@ const robot_model::RobotStatePtr &Robot::getScratchStateConst() const
 robot_model::RobotStatePtr &Robot::getScratchState()
 {
     return scratch_;
+}
+
+robot_model::RobotStatePtr Robot::cloneScratchState() const
+{
+    auto state = allocState();
+    *state = *scratch_;
+
+    return state;
 }
 
 const IO::Handler &Robot::getHandlerConst() const
@@ -584,6 +617,20 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::string &tip,
 {
 }
 
+Robot::IKQuery::IKQuery(const std::string &group,   //
+                        const RobotPose &offset,    //
+                        const ScenePtr &scene,      //
+                        const std::string &object,  //
+                        const Eigen::Vector3d &tolerances)
+  : group(group)
+{
+    const auto &pose = scene->getObjectGraspPose(object, offset);
+    addRequest("",                                     //
+               Geometry::makeBox(tolerances),          //
+               TF::createPoseXYZ(pose.translation()),  //
+               Eigen::Quaterniond(pose.rotation()));
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPose &pose, double radius,
                         const Eigen::Vector3d &tolerance)
   : IKQuery(group,                                //
@@ -613,13 +660,42 @@ Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region
     addRequest("", region, pose, orientation, tolerance);
 }
 
+Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
+                        const moveit_msgs::OrientationConstraint &oc)
+{
+    if (pc.link_name != oc.link_name)
+        throw Exception(
+            1, log::format("Link name mismatch in constraints, `%1%` != `%2%`", pc.link_name, oc.link_name));
+
+    if (not TF::isVecZero(TF::vectorMsgToEigen(pc.target_point_offset)))
+        throw Exception(1, "target_point_offset in position constraint not supported.");
+
+    const auto &cr = pc.constraint_region;
+
+    if (not cr.meshes.empty())
+        throw Exception(1, "Cannot specify mesh regions!");
+
+    if (cr.primitives.size() > 1)
+        throw Exception(1, "Cannot specify more than one primitive!");
+
+    const auto &region = Geometry::makeSolidPrimitive(cr.primitives[0]);
+    const auto &pose = TF::poseMsgToEigen(cr.primitive_poses[0]);
+
+    const auto &rotation = TF::quaternionMsgToEigen(oc.orientation);
+    Eigen::Vector3d tolerance{oc.absolute_x_axis_tolerance,  //
+                              oc.absolute_y_axis_tolerance,  //
+                              oc.absolute_z_axis_tolerance};
+
+    addRequest(pc.link_name, region, pose, rotation, tolerance);
+}
+
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
                         const std::vector<std::string> &input_tips, double radius,
                         const Eigen::Vector3d &tolerance, const ScenePtr &scene, bool verbose)
   : group(group), scene(scene), verbose(scene and verbose)
 {
     if (poses.size() != input_tips.size())
-        throw std::runtime_error("Invalid multi-target IK query. poses != tips.");
+        throw Exception(1, "Invalid multi-target IK query. poses != tips.");
 
     for (std::size_t i = 0; i < poses.size(); ++i)
         addRequest(input_tips[i],                              //
@@ -627,6 +703,22 @@ Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
                    TF::createPoseXYZ(poses[i].translation()),  //
                    Eigen::Quaterniond{poses[i].rotation()},    //
                    tolerance);
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string> &input_tips,
+                        const std::vector<GeometryConstPtr> &regions, const RobotPoseVector &poses,
+                        const std::vector<Eigen::Quaterniond> &orientations,
+                        const EigenSTL::vector_Vector3d &tolerances, const ScenePtr &scene, bool verbose)
+  : group(group), scene(scene), verbose(scene and verbose)
+{
+    if (poses.size() != input_tips.size()       //
+        or poses.size() != regions.size()       //
+        or poses.size() != orientations.size()  //
+        or poses.size() != tolerances.size())
+        throw Exception(1, "Invalid multi-target IK query. Vectors are of different length.");
+
+    for (std::size_t i = 0; i < poses.size(); ++i)
+        addRequest(input_tips[i], regions[i], poses[i], orientations[i], tolerances[i]);
 }
 
 void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
@@ -639,6 +731,25 @@ void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &
     tolerances.emplace_back(tolerance);
 }
 
+void Robot::IKQuery::setScene(const ScenePtr &scene_in, bool verbose_in)
+{
+    scene = scene_in;
+    verbose = verbose_in;
+}
+
+bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const
+{
+    const auto &point = regions[index]->sample();
+    if (point.first)
+    {
+        pose = region_poses[index];
+        pose.translate(point.second);
+        pose.rotate(TF::sampleOrientation(orientations[index], tolerances[index]));
+    }
+
+    return point.first;
+}
+
 bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
 {
     const std::size_t n = regions.size();
@@ -646,15 +757,7 @@ bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
 
     bool sampled = true;
     for (std::size_t j = 0; j < n and sampled; ++j)
-    {
-        const auto &point = regions[j]->sample();
-        if ((sampled &= point.first))
-        {
-            poses[j] = region_poses[j];
-            poses[j].translate(point.second);
-            poses[j].rotate(TF::sampleOrientation(orientations[j], tolerances[j]));
-        }
-    }
+        sampled &= sampleRegion(poses[j], j);
 
     return sampled;
 }

@@ -9,6 +9,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
+#include <robowflex_library/util.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
 #include <pluginlib/class_loader.h>
@@ -222,6 +223,18 @@ RobotPose Scene::getObjectPose(const std::string &name) const
         return obj->shape_poses_[0];
 
     return RobotPose::Identity();
+}
+
+RobotPose Scene::getObjectGraspPose(const std::string &name, const RobotPose &offset) const
+{
+    if (not hasObject(name))
+        throw Exception(1, log::format("Object `%1%` not in scene!", name));
+
+    const auto model = getSceneConst()->getRobotModel();
+    const auto rpose = getCurrentStateConst().getGlobalLinkTransform(model->getRootLinkName());
+    const auto opose = getObjectPose(name);
+
+    return rpose * opose * offset;
 }
 
 bool Scene::moveAllObjectsGlobal(const RobotPose &transform)
@@ -468,7 +481,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     return res.minimum_distance.distance;
 
 #else
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1, "Not Implemented");
 
 #endif
 }
@@ -511,7 +524,7 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
     return res.minimum_distance.distance;
 
 #else
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1, "Not Implemented");
 
 #endif
 }

@@ -3,6 +3,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
+#include <robowflex_library/util.h>
 
 #include <moveit/ompl_interface/parameterization/model_based_state_space.h>
 #include <robowflex_ompl/ompl_trajectory.h>
@@ -32,4 +33,21 @@ ompl::geometric::PathGeometric OMPL::OMPLTrajectory::toOMPLPath(const ompl::geom
     path.append(tstate);
 
     return path;
+}
+
+void OMPL::OMPLTrajectory::fromOMPLPath(const robot_state::RobotState &reference_state,
+                                        const ompl::geometric::PathGeometric &path)
+{
+    const auto &mbss = std::dynamic_pointer_cast<ompl_interface::ModelBasedStateSpace>(
+        path.getSpaceInformation()->getStateSpace());
+
+    if (not mbss)
+        throw Exception(1, "Failed to extract StateSpace from provided OMPL path!");
+
+    moveit::core::RobotState ks = reference_state;
+    for (std::size_t i = 0; i < path.getStateCount(); ++i)
+    {
+        mbss->copyToRobotState(ks, path.getState(i));
+        trajectory_->addSuffixWayPoint(ks, 0.0);
+    }
 }

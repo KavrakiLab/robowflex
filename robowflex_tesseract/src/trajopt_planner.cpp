@@ -230,7 +230,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->update(true);
 
     // If planner runs until timeout, use the allowed_planning_time from the request.
-    if (options.return_after_timeout)
+    if (!options.return_first_sol)
         options.max_planning_time = request.allowed_planning_time;
 
     // Plan.
@@ -653,7 +653,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
 
         if (options.return_first_sol or
             (options.return_after_timeout and (total_time >= options.max_planning_time)) or
-            (!options.return_after_timeout and planner_result.second))
+            (!options.return_after_timeout and
+             (planner_result.second or (total_time >= options.max_planning_time))))
             break;
     }
 

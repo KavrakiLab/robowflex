@@ -11,6 +11,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/yaml.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
@@ -58,6 +59,11 @@ bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, co
 
     useMessage(reference_state, msg);
     return true;
+}
+
+void Trajectory::addSuffixWaypoint(const robot_state::RobotState &state, double dt)
+{
+    trajectory_->addSuffixWayPoint(state, dt);
 }
 
 const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTrajectoryConst() const
@@ -145,7 +151,7 @@ void Trajectory::interpolate(unsigned int count)
     return;
 
 #endif
-    throw std::runtime_error("Not Implemented");
+    throw Exception(1, "Not Implemented");
 }
 
 std::vector<std::vector<double>> Trajectory::vectorize() const
