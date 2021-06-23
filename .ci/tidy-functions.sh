@@ -5,7 +5,7 @@ function generate-compile-commands()
 {
     mkdir .build-tmp
     pushd .build-tmp
-    CC="clang" CXX="clang++" cmake ../$1/. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake ../$1/. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     commands=`realpath compile_commands.json`
     popd
 }
