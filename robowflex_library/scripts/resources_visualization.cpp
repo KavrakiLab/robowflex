@@ -56,6 +56,14 @@ const std::string YUMI[4] = {
     "package://robowflex_resources/yumi/config/kinematics.yaml"     // kinematics
 };
 
+// KUKA Robot with mounted Shadowhand Gripper
+const std::string SHADOWHAND[4] = {
+    "package://robowflex_resources/shadowhand/urdf/kuka_shadowhand.urdf",    // urdf
+    "package://robowflex_resources/shadowhand/config/kuka_shadowhand.srdf",  // srdf
+    "package://robowflex_resources/shadowhand/config/joint_limits.yaml",     // joint limits
+    "package://robowflex_resources/shadowhand/config/kinematics.yaml"        // kinematics
+};
+
 int main(int argc, char **argv)
 {
     // Startup ROS
@@ -82,12 +90,15 @@ int main(int argc, char **argv)
         robot->initialize(BAXTER[0], BAXTER[1], BAXTER[2], BAXTER[3]);
     else if (name == "yumi")
         robot->initialize(YUMI[0], YUMI[1], YUMI[2], YUMI[3]);
+    else if (name == "shadowhand")
+        robot->initialize(SHADOWHAND[0], SHADOWHAND[1], SHADOWHAND[2], SHADOWHAND[3]);
     else
-        RBX_FATAL("Unknown robot. Can be {baxter, ur5, panda, fetch, yumi}.");
+        RBX_FATAL("Unknown robot. Can be {baxter, ur5, panda, fetch, yumi, shadowhand}.");
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(robot);
 
+    std::cin.get();
     RBX_INFO("Press enter to exit.");
     std::cin.ignore();
 
