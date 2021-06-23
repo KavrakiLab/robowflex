@@ -25,6 +25,8 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     settings.setParam(handler_);
 
     interface_->simplifySolutions(settings.simplify_solutions);
+    hybridize_ = settings.hybridize_solutions;
+    interpolate_ = settings.interpolate_solutions;
 
     auto &pcm = interface_->getPlanningContextManager();
     pcm.setMaximumSolutionSegmentLength(settings.maximum_waypoint_distance);
@@ -111,6 +113,11 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
         ss_ = nullptr;
         return;
     }
+
+#if ROBOWFLEX_AT_LEAST_MELODIC
+    context_->setInterpolation(interpolate_);
+    context_->setHybridize(hybridize_);
+#endif
 
     ss_ = context_->getOMPLSimpleSetup();
 

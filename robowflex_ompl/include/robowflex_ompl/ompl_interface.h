@@ -91,6 +91,8 @@ namespace robowflex
 
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
+            bool hybridize_;    ///< Whether or not planner should hybridize solutions.
+            bool interpolate_;  ///< Whether or not planner should interpolate solutions.
 
             mutable const Scene *last_scene_{nullptr};  ///< The pointer to the last scene requested.
             mutable const planning_interface::MotionPlanRequest *last_request_{nullptr};  ///< Last request.

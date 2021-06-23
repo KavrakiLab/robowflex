@@ -312,6 +312,8 @@ namespace robowflex
             int max_state_sampling_attempts;        ///< Maximum number of attempts to sample a new state.
             int minimum_waypoint_count;             ///< Minimum number of waypoints in output path.
             bool simplify_solutions;                ///< Whether or not planner should simplify solutions.
+            bool hybridize_solutions;               ///< Whether or not planner should hybridize solutions.
+            bool interpolate_solutions;             ///< Whether or not planner should interpolate solutions.
             bool use_constraints_approximations;    ///< Absolute silliness.
             bool display_random_valid_states;       ///< N/A, defunct.
             std::string link_for_exploration_tree;  ///< N/A, defunct.

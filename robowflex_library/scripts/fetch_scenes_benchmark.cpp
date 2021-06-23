@@ -63,7 +63,12 @@ int main(int argc, char **argv)
 
         // Create the default planner for the Fetch.
         auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-        planner->initialize();
+
+        // Disable simplification
+        auto settings = OMPL::Settings();
+        settings.simplify_solutions = false;
+
+        planner->initialize(settings);
 
         // Create an empty motion planning request.
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
