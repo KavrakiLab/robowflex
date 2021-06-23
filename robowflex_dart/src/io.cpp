@@ -41,7 +41,7 @@ bool IO::loadURDF(Robot &robot, const std::string &urdf)
 
     skeleton->setSelfCollisionCheck(true);
 
-    for (auto joint : skeleton->getJoints())
+    for (auto *joint : skeleton->getJoints())
         joint->setPositionLimitEnforced(true);
 
     robot.setSkeleton(skeleton);

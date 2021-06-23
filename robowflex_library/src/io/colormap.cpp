@@ -1,9 +1,7 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <cmath>
-#include <robowflex_library/constants.h>
 #include <robowflex_library/io/colormap.h>
-#include <robowflex_library/tf.h>
 
 // From http://www.kennethmoreland.com/color-advice/ and
 // https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html

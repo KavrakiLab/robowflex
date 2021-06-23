@@ -272,7 +272,7 @@ int main(int /*argc*/, char ** /*argv*/)
         {
             if (touch())
             {
-                auto cube = scene->getFrame("box");
+                auto *cube = scene->getFrame("box");
                 fetch1->reparentFreeFrame(cube, "wrist_roll_link");
                 if (lift())
                 {
