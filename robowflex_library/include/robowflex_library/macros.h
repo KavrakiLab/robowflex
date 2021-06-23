@@ -12,6 +12,13 @@
 /** \file */
 
 ///
+/// Other Macros
+///
+
+/** \def Checks if a include file exists. */
+#define ROBOWFLEX_INCLUDE_EXISTS(file) __has_include(file)
+
+///
 /// ROS Version Checking
 ///
 
