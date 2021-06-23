@@ -563,6 +563,7 @@ bool Scene::fromYAMLFile(const std::string &file)
         return false;
 
     fixCollisionObjectFrame(msg);
+
     // Add robot_state if loaded scene does not contain one.
     if (msg.robot_state.joint_state.position.empty())
         moveit::core::robotStateToRobotStateMsg(scene_->getCurrentState(), msg.robot_state);

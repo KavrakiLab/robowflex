@@ -114,8 +114,11 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
         return;
     }
 
+#if ROBOWFLEX_AT_LEAST_MELODIC
     context_->setInterpolation(interpolate_);
     context_->setHybridize(hybridize_);
+#endif
+
     ss_ = context_->getOMPLSimpleSetup();
 
     last_scene_ = next_scene;
