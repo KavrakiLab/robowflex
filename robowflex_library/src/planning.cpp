@@ -10,7 +10,10 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 
-#if ROBOWFLEX_AT_LEAST_NOETIC
+#define ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR                                                                 \
+    ROBOWFLEX_INCLUDE_EXISTS("moveit/robot_state/cartesian_interpolator.h")
+
+#if ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR
 #include <moveit/robot_state/cartesian_interpolator.h>
 #endif
 
@@ -194,7 +197,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
         RobotPose pose;
         request.sampleRegion(pose, 0);
 
-#if ROBOWFLEX_AT_LEAST_NOETIC
+#if ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR
         double percentage =                                             //
             moveit::core::CartesianInterpolator::computeCartesianPath(  //
                 &state, jmg, traj, lm, pose, true, step, jump, gsvcf);
