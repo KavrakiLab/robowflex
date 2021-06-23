@@ -12,6 +12,7 @@
 #include <robowflex_library/util.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
+#include <moveit/robot_state/conversions.h>
 #include <pluginlib/class_loader.h>
 
 namespace robowflex
@@ -562,6 +563,10 @@ bool Scene::fromYAMLFile(const std::string &file)
         return false;
 
     fixCollisionObjectFrame(msg);
+
+    // Add robot_state if loaded scene does not contain one.
+    if (msg.robot_state.joint_state.position.empty())
+        moveit::core::robotStateToRobotStateMsg(scene_->getCurrentState(), msg.robot_state);
 
     auto acm(getACM());
     useMessage(msg);
