@@ -79,7 +79,7 @@ Window::Window(const WorldPtr &world)
     node_ = this;
     viewer_.addWorldNode(node_);
     viewer_.setUpViewInWindow(0, 0, 1080, 720);
-    auto cm = viewer_.getCameraManipulator();
+    auto *cm = viewer_.getCameraManipulator();
     cm->setHomePosition(                //
         ::osg::Vec3(5.00, 5.00, 2.00),  //
         ::osg::Vec3(0.00, 0.00, 0.00),  //
@@ -119,11 +119,11 @@ Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptio
 
     for (std::size_t i = 0; i < 3; ++i)
     {
-        auto lt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::LINEAR, i);
+        auto *lt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::LINEAR, i);
         lt->setEnabled(options.linear[i]);
-        auto rt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::ANGULAR, i);
+        auto *rt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::ANGULAR, i);
         rt->setEnabled(options.rotation[i]);
-        auto pt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::PLANAR, i);
+        auto *pt = r.target->getTool(dart::gui::osg::InteractiveTool::Type::PLANAR, i);
         pt->setEnabled(options.planar[i]);
     }
 
@@ -134,7 +134,7 @@ Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptio
     r.signal = r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
         if (entity)
         {
-            auto cast = dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity);
+            const auto *cast = dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity);
             if (cast and callback)
                 callback(cast);
         }
@@ -146,7 +146,7 @@ Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptio
 Window::DnDReturn Window::enableNodeDragNDrop(dart::dynamics::BodyNode *node, const DnDCallback &callback)
 {
     DnDReturn r;
-    auto dnd = viewer_.enableDragAndDrop(node, true, true);
+    auto *dnd = viewer_.enableDragAndDrop(node, true, true);
     r.dnd = dnd;
 
     r.signal = node->onTransformUpdated.connect([dnd, callback](const dart::dynamics::Entity *entity) {
@@ -634,7 +634,7 @@ void TSREditWidget::updateShape()
         Eigen::Vector3d abs = getVolume();
 
         shape_->setShape(makeBox(abs));
-        auto va = shape_->getVisualAspect(true);
+        auto *va = shape_->getVisualAspect(true);
         va->setColor(dart::Color::Gray(volume_alpha_));
         va->setShadowed(false);
         va->setHidden(not show_volume_);
@@ -647,7 +647,7 @@ void TSREditWidget::updateShape()
     {
         rbounds_[i]->setShape(makeArcsegment(spec_.orientation.lower[i], spec_.orientation.upper[i],
                                              inner_radius, inner_radius + rotation_width_));
-        auto va = rbounds_[i]->getVisualAspect(true);
+        auto *va = rbounds_[i]->getVisualAspect(true);
         va->setShadowed(false);
         va->setHidden(not show_bounds_);
 

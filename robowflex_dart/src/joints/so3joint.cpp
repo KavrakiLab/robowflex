@@ -96,8 +96,8 @@ void SO3Joint::sampleNear(Eigen::Ref<Eigen::VectorXd> a,                  //
 
 void SO3Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
-    auto joint = getJoint(world);
-    auto j = static_cast<dart::dynamics::FreeJoint *>(joint);
+    auto *joint = getJoint(world);
+    auto *j = static_cast<dart::dynamics::FreeJoint *>(joint);
 
     Eigen::Isometry3d tf;
     tf.translation() = j->getPositions();
@@ -108,7 +108,7 @@ void SO3Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::Vecto
 
 void SO3Joint::getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const
 {
-    auto joint = getJoint(world);
+    auto *joint = getJoint(world);
 
     Eigen::Isometry3d tf = joint->getRelativeTransform();
     Eigen::Quaterniond q(tf.linear());

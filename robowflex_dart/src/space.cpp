@@ -24,7 +24,7 @@ StateSpace::StateSampler::StateSampler(const StateSpace *space)
 
 void StateSpace::StateSampler::sampleUniform(ompl::base::State *state)
 {
-    auto as = state->as<StateType>();
+    auto *as = state->as<StateType>();
 
     for (const auto &joint : joints_)
         joint->sample(joint->getSpaceVars(as->data));
@@ -33,8 +33,8 @@ void StateSpace::StateSampler::sampleUniform(ompl::base::State *state)
 void StateSpace::StateSampler::sampleUniformNear(ompl::base::State *state, const ompl::base::State *near,
                                                  double distance)
 {
-    auto as = state->as<StateType>();
-    auto an = near->as<StateType>();
+    auto *as = state->as<StateType>();
+    const auto *an = near->as<StateType>();
 
     for (const auto &joint : joints_)
         joint->sampleNear(joint->getSpaceVars(as->data), joint->getSpaceVarsConst(an->data), distance);
@@ -74,7 +74,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
     auto joints = robot->getGroupJoints(group);
 
     groups_.emplace_back(name, group, cyclic);
-    for (auto joint : joints)
+    for (auto *joint : joints)
     {
         if (jointset_.find(joint) != jointset_.end())
         {
@@ -87,7 +87,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
         const auto &type = joint->getType();
         if (type == "RevoluteJoint")
         {
-            auto revolute = static_cast<dart::dynamics::RevoluteJoint *>(joint);
+            auto *revolute = static_cast<dart::dynamics::RevoluteJoint *>(joint);
 
             if (revolute->isCyclic(0))
             {
@@ -105,21 +105,21 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
             }
             else
             {
-                auto dof = joint->getDof(0);
+                auto *dof = joint->getDof(0);
                 auto limits = dof->getPositionLimits();
                 joints_.emplace_back(std::make_shared<RnJoint>(this, revolute, limits.first, limits.second));
             }
         }
         else if (type == "PrismaticJoint")
         {
-            auto prismatic = static_cast<dart::dynamics::PrismaticJoint *>(joint);
-            auto dof = joint->getDof(0);
+            auto *prismatic = static_cast<dart::dynamics::PrismaticJoint *>(joint);
+            auto *dof = joint->getDof(0);
             auto limits = dof->getPositionLimits();
             joints_.emplace_back(std::make_shared<RnJoint>(this, prismatic, limits.first, limits.second));
         }
         else if (type == "FreeJoint")
         {
-            auto free = static_cast<dart::dynamics::FreeJoint *>(joint);
+            auto *free = static_cast<dart::dynamics::FreeJoint *>(joint);
 
             if (cyclic)
             {
@@ -187,7 +187,7 @@ void StateSpace::setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::Vec
 
 void StateSpace::getWorldState(WorldPtr world, ompl::base::State *state) const
 {
-    auto as = state->as<StateType>();
+    auto *as = state->as<StateType>();
     getWorldState(std::move(world), as->data);
 }
 
@@ -259,7 +259,7 @@ void StateSpace::interpolate(const ompl::base::State *from, const ompl::base::St
 {
     const auto &af = from->as<StateType>();
     const auto &at = to->as<StateType>();
-    auto as = state->as<StateType>();
+    auto *as = state->as<StateType>();
 
     for (const auto &joint : joints_)
     {
@@ -283,7 +283,7 @@ ompl::base::State *StateSpace::allocState() const
 
 void StateSpace::freeState(ompl::base::State *state) const
 {
-    auto as = state->as<StateType>();
+    auto *as = state->as<StateType>();
     delete as;
 }
 

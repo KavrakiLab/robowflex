@@ -5,12 +5,12 @@
 #include <memory>   // for std::shared_ptr
 #include <regex>    // for std::regex
 
-#include <boost/lexical_cast.hpp>
+#include <boost/asio/ip/host_name.hpp>     // for hostname
 #include <boost/filesystem.hpp>            // for filesystem paths
+#include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>             // for UUID generation
 #include <boost/uuid/uuid_generators.hpp>  // for UUID generation
 #include <boost/uuid/uuid_io.hpp>          // for UUID generation
-#include <boost/asio/ip/host_name.hpp>     // for hostname
 #include <ros/package.h>                   // for package resolving
 
 #include <robowflex_library/io.h>

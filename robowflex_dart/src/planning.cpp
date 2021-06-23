@@ -430,7 +430,7 @@ void PlanBuilder::sampleStartConfiguration()
 {
     if (space)
     {
-        auto state = sampleState();
+        auto *state = sampleState();
         setStartConfiguration(toState(state)->data);
         space->freeState(state);
     }
@@ -480,7 +480,7 @@ std::shared_ptr<ompl::base::GoalStates> PlanBuilder::sampleGoalConfiguration()
 {
     if (space)
     {
-        auto state = sampleState();
+        auto *state = sampleState();
         auto goal = getGoalConfiguration(toState(state)->data);
         space->freeState(state);
 
@@ -555,7 +555,7 @@ ompl::base::State *PlanBuilder::sampleState() const
     if (space)
     {
         auto sampler = space->allocStateSampler();
-        auto state = space->allocState();
+        auto *state = space->allocState();
 
         bool valid = false;
         bool constrained = false;

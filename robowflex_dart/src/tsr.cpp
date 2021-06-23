@@ -574,7 +574,7 @@ robowflex::RobotPose TSR::getTransformToFrame() const
 {
     const auto &sim = world_->getSim();
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
-    auto bnd = bskl->getBodyNode(spec_.base.frame);
+    auto *bnd = bskl->getBodyNode(spec_.base.frame);
 
     if (not tnd_)
         throw std::runtime_error("Target body node is not initialized");
@@ -854,7 +854,7 @@ void TSR::initialize()
 
     if (spec_.base.frame != magic::ROOT_FRAME)
     {
-        auto bnd = bskl->getBodyNode(spec_.base.frame);
+        auto *bnd = bskl->getBodyNode(spec_.base.frame);
         frame_ = frame_->clone(bnd);
     }
 

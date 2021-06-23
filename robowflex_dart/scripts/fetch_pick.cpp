@@ -188,7 +188,7 @@ int main(int argc, char **argv)
         plan_to_grasp();
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-        auto cube = scene_dart->getFrame("Cube3");
+        auto *cube = scene_dart->getFrame("Cube3");
         fetch_dart->reparentFreeFrame(cube, "wrist_roll_link");
 
         plan_to_place();
