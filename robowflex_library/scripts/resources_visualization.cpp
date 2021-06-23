@@ -98,7 +98,6 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(robot);
 
-    std::cin.get();
     RBX_INFO("Press enter to exit.");
     std::cin.ignore();
 
