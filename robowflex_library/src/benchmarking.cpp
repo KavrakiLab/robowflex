@@ -304,7 +304,7 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
     }
     const std::string &name = results.name;
 
-    for (const Benchmarker::Results::Run& run : results.runs)
+    for (const Benchmarker::Results::Run &run : results.runs)
         bag_.addMessage(name, run.path);
 }
 

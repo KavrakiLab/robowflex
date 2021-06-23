@@ -67,5 +67,5 @@ bool OMPL::UR5OMPLPipelinePlanner::initialize(const Settings &settings,
 {
     if (IO::resolvePackage(RESOURCE_CONFIG).empty())
         return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
-            return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+    return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }
