@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     if (argc != 2)
         RBX_FATAL("Specify robot to load as an argument "
                   "(e.g., `rosrun robowflex_library resources_visualization <robot>`). "
-                  "Can be {baxter, ur5, panda, fetch, yumi}.");
+                  "Can be {baxter, ur5, panda, fetch, yumi, shadowhand}.");
 
     const auto name = std::string(argv[1]);
 
