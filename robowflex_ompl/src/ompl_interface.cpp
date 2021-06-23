@@ -1,7 +1,7 @@
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -97,8 +97,8 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
 void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
                                                 const planning_interface::MotionPlanRequest &request) const
 {
-    auto *next_scene = scene.get();
-    auto *next_request = std::addressof(request);
+    const auto &next_scene = scene.get();
+    const auto &next_request = std::addressof(request);
 
     if (last_scene_ == next_scene and last_request_ == next_request and ss_)
     {

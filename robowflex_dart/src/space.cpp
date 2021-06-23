@@ -2,8 +2,8 @@
 
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
+#include <robowflex_library/log.h>
 
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/world.h>

@@ -17,10 +17,10 @@
 
 #include <ros/package.h>  // for package resolving
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 

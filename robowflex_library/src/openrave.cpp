@@ -15,10 +15,10 @@
 
 #include <moveit_msgs/CollisionObject.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/tf.h>
 

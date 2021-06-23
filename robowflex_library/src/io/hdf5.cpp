@@ -235,7 +235,7 @@ const std::vector<std::vector<std::string>> IO::HDF5File::getKeys() const
 }
 
 template <typename T>
-const std::vector<std::string> IO::HDF5File::listObjects(const T &location) const
+std::vector<std::string> IO::HDF5File::listObjects(const T &location) const
 {
     std::vector<std::string> names;
     for (hsize_t i = 0; i < location.getNumObjs(); ++i)
@@ -244,8 +244,8 @@ const std::vector<std::string> IO::HDF5File::listObjects(const T &location) cons
     return names;
 }
 
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &) const;
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &) const;
+template std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &) const;
+template std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &) const;
 
 template <typename T>
 void IO::HDF5File::loadData(Node &node, const T &location, const std::string &name)

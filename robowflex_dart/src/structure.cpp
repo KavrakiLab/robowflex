@@ -9,9 +9,9 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/WeldJoint.hpp>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/scene.h>
 
 #include <robowflex_dart/acm.h>
@@ -535,6 +535,6 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
 
 void robowflex::darts::setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color)
 {
-    for (auto &shape : node->getShapeNodes())
+    for (const auto &shape : node->getShapeNodes())
         shape->getVisualAspect()->setColor(color);
 }

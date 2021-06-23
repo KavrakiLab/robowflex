@@ -583,7 +583,7 @@ void PlanBuilder::setStateValidityChecker()
     {
         // ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
         ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-            auto as = toStateConst(state);
+            const auto &as = toStateConst(state);
 
             world->lock();
             rspace->setWorldState(world, as);
@@ -597,7 +597,7 @@ void PlanBuilder::setStateValidityChecker()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = fromUnconstrainedStateConst(state);
+        const auto &as = fromUnconstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);
@@ -610,7 +610,7 @@ ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCConstrained()
 {
     return [&](const ompl::base::State *state) -> bool {
-        auto as = fromConstrainedStateConst(state);
+        const auto &as = fromConstrainedStateConst(state);
 
         world->lock();
         rspace->setWorldState(world, as);

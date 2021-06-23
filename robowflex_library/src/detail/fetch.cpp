@@ -2,9 +2,9 @@
 
 #include <cmath>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 
 using namespace robowflex;
 
@@ -59,7 +59,7 @@ bool FetchRobot::initialize(bool addVirtual)
 
 bool FetchRobot::addCastersURDF(tinyxml2::XMLDocument &doc)
 {
-    for (const auto name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
+    for (const auto &name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
     {
         auto link_name = std::string(name) + "_link";
         if (not isLinkURDF(doc, link_name))
@@ -143,6 +143,5 @@ bool OMPL::FetchOMPLPipelinePlanner::initialize(const Settings &settings,
 {
     if (IO::resolvePackage(RESOURCE_CONFIG).empty())
         return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
-    else
-        return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+            return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }

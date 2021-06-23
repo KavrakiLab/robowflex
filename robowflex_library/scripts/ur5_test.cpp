@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     simple_planner->initialize(settings);
 
     // Run a motion plan for each planner.
-    for (auto &planner : {default_planner, simple_planner})
+    for (const auto &planner : {default_planner, simple_planner})
     {
         // Create a motion planning request with a pose goal.
         MotionRequestBuilder request(planner, "manipulator");

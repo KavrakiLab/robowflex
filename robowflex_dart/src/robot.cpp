@@ -6,8 +6,8 @@
 #include <dart/dynamics/DegreeOfFreedom.hpp>
 #include <dart/dynamics/Joint.hpp>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
 

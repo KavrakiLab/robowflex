@@ -2,9 +2,9 @@
 
 #include <moveit/robot_state/conversions.h>
 
-#include <robowflex_library/macros.h>
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -274,7 +274,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
     if (config_file.empty())
         return false;
 
-    auto &config = IO::loadFileToYAML(config_file);
+    const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
         RBX_ERROR("Failed to load planner configs.");
@@ -283,7 +283,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
 
     handler.loadYAMLtoROS(config.second);
 
-    auto &planner_configs = config.second["planner_configs"];
+    const auto &planner_configs = config.second["planner_configs"];
     if (planner_configs)
     {
         for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
@@ -388,7 +388,7 @@ bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
     if (config_file.empty())
         return false;
 
-    auto &config = IO::loadFileToYAML(config_file);
+    const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
         RBX_ERROR("Failed to load planner configs.");
