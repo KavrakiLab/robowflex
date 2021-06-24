@@ -27,7 +27,7 @@ Joint::Joint(StateSpace *space,         //
   , startIndex_(startIndex)
   , numDof_(numDof)
 {
-    auto joint = getJoint(space_->getWorld());
+    auto *joint = getJoint(space_->getWorld());
     for (unsigned int i = 0; i < numDof_; ++i)
     {
         unsigned int j = startIndex_ + i;
@@ -39,7 +39,7 @@ Joint::Joint(StateSpace *space,         //
             throw std::runtime_error("Invalid joint");
         }
 
-        auto dof = joint->getDof(i);
+        auto *dof = joint->getDof(i);
         indices_.emplace_back(dof->getIndexInSkeleton());
     }
 }
@@ -83,13 +83,13 @@ std::size_t Joint::getSkeletonIndex() const
 
 void Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
 {
-    auto joint = getJoint(std::move(world));
+    auto *joint = getJoint(std::move(world));
     joint->getSkeleton()->setPositions(indices_, a);
 }
 
 void Joint::getJointState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> a) const
 {
-    auto joint = getJoint(std::move(world));
+    auto *joint = getJoint(std::move(world));
     a = joint->getSkeleton()->getPositions(indices_);
 }
 

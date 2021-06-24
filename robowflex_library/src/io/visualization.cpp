@@ -1,7 +1,5 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#include <random>
-
 #include <boost/range/combine.hpp>
 
 #include <moveit_msgs/DisplayRobotState.h>
@@ -13,12 +11,12 @@
 #include <moveit/robot_state/conversions.h>
 
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/io/visualization.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/random.h>
 #include <robowflex_library/robot.h>

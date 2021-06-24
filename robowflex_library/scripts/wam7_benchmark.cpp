@@ -1,3 +1,5 @@
+/** \author Bryce Willey */
+
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>

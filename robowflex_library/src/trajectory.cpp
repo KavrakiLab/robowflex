@@ -4,14 +4,14 @@
 
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/yaml.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/yaml.h>
 
 using namespace robowflex;
 
@@ -59,6 +59,11 @@ bool Trajectory::fromYAMLFile(const robot_state::RobotState &reference_state, co
 
     useMessage(reference_state, msg);
     return true;
+}
+
+void Trajectory::addSuffixWaypoint(const robot_state::RobotState &state, double dt)
+{
+    trajectory_->addSuffixWayPoint(state, dt);
 }
 
 const robot_trajectory::RobotTrajectoryPtr &Trajectory::getTrajectoryConst() const

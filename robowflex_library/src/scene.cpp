@@ -1,9 +1,9 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
@@ -12,6 +12,7 @@
 #include <robowflex_library/util.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
+#include <moveit/robot_state/conversions.h>
 #include <pluginlib/class_loader.h>
 
 namespace robowflex
@@ -180,7 +181,7 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
 {
     incrementVersion();
 
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
     {
         if (!world->moveShapeInObject(name, geometry->getShape(), pose))
@@ -194,13 +195,13 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
 
 std::vector<std::string> Scene::getCollisionObjects() const
 {
-    auto &world = scene_->getWorld();
+    const auto &world = scene_->getWorld();
     return world->getObjectIds();
 }
 
 GeometryPtr Scene::getObjectGeometry(const std::string &name) const
 {
-    auto &world = scene_->getWorld();
+    const auto &world = scene_->getWorld();
 
     const auto &obj = world->getObject(name);
     if (obj)
@@ -217,7 +218,7 @@ void Scene::removeCollisionObject(const std::string &name)
 
 RobotPose Scene::getObjectPose(const std::string &name) const
 {
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
         return obj->shape_poses_[0];
@@ -256,7 +257,7 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
 
     bool success = false;
 #if ROBOWFLEX_AT_LEAST_KINETIC
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     success = world->moveObject(name, transform);
 #endif
     if (not success)
@@ -332,7 +333,7 @@ bool Scene::attachObject(const std::string &name, const std::string &ee_link,
 {
     incrementVersion();
 
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
         RBX_ERROR("World does not have object `%s`", name);
@@ -363,7 +364,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 {
     incrementVersion();
 
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
         RBX_ERROR("World does not have object `%s`", name);
@@ -406,8 +407,8 @@ bool Scene::detachObject(const std::string &name)
     incrementVersion();
 
     auto &robot = scene_->getCurrentStateNonConst();
-    auto &world = scene_->getWorldNonConst();
-    auto body = robot.getAttachedBody(name);
+    const auto &world = scene_->getWorldNonConst();
+    const auto &body = robot.getAttachedBody(name);
 
     if (!body)
     {
@@ -562,6 +563,10 @@ bool Scene::fromYAMLFile(const std::string &file)
         return false;
 
     fixCollisionObjectFrame(msg);
+
+    // Add robot_state if loaded scene does not contain one.
+    if (msg.robot_state.joint_state.position.empty())
+        moveit::core::robotStateToRobotStateMsg(scene_->getCurrentState(), msg.robot_state);
 
     auto acm(getACM());
     useMessage(msg);

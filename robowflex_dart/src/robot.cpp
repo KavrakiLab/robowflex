@@ -6,8 +6,8 @@
 #include <dart/dynamics/DegreeOfFreedom.hpp>
 #include <dart/dynamics/Joint.hpp>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
 
@@ -221,7 +221,7 @@ bool Robot::loadSRDF(const std::string &srdf)
                 RBX_ERROR("Couldn't find %s for virtual joint!", parent);
         }
 
-        auto cnode = skeleton_->getBodyNode(child);
+        auto *cnode = skeleton_->getBodyNode(child);
         if (cnode)
         {
             if (type == "floating")
@@ -468,8 +468,8 @@ void Robot::setStateFromMoveItMsg(const moveit_msgs::RobotState &msg)
 
     for (std::size_t i = 0; i < msg.multi_dof_joint_state.joint_names.size(); ++i)
     {
-        auto joint = skeleton_->getJoint(msg.multi_dof_joint_state.joint_names[i]);
-        auto j = static_cast<dart::dynamics::FreeJoint *>(joint);
+        auto *joint = skeleton_->getJoint(msg.multi_dof_joint_state.joint_names[i]);
+        auto *j = static_cast<dart::dynamics::FreeJoint *>(joint);
 
         auto tfmsg = msg.multi_dof_joint_state.transforms[i];
 
@@ -487,13 +487,13 @@ void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
 
     for (std::size_t i = 0; i < skeleton_->getNumJoints(); ++i)
     {
-        auto joint = skeleton_->getJoint(i);
+        auto *joint = skeleton_->getJoint(i);
 
         // ignore fixed joints
         if (joint->getNumDofs() == 0)
             continue;
 
-        auto j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
+        auto *j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
         if (j)
         {
             msg.multi_dof_joint_state.joint_names.push_back(joint->getName());

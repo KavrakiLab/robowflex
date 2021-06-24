@@ -98,7 +98,7 @@ int main(int /*argc*/, char ** /*argv*/)
 
     // Pick / Place Button
     bool picked = false;
-    auto cube = scene->getFrame("box");
+    auto *cube = scene->getFrame("box");
     window.getWidget()->addButton("Pick/Place", [&] {
         if (not picked)
             fetch1->reparentFreeFrame(cube, "wrist_roll_link");

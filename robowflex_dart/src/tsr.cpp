@@ -5,8 +5,8 @@
 #include <dart/dynamics/InverseKinematics.hpp>
 #include <dart/dynamics/SimpleFrame.hpp>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/tf.h>
 
 #include <robowflex_dart/robot.h>
@@ -574,7 +574,7 @@ robowflex::RobotPose TSR::getTransformToFrame() const
 {
     const auto &sim = world_->getSim();
     const auto &bskl = sim->getSkeleton(spec_.base.structure);
-    auto bnd = bskl->getBodyNode(spec_.base.frame);
+    auto *bnd = bskl->getBodyNode(spec_.base.frame);
 
     if (not tnd_)
         throw std::runtime_error("Target body node is not initialized");
@@ -854,7 +854,7 @@ void TSR::initialize()
 
     if (spec_.base.frame != magic::ROOT_FRAME)
     {
-        auto bnd = bskl->getBodyNode(spec_.base.frame);
+        auto *bnd = bskl->getBodyNode(spec_.base.frame);
         frame_ = frame_->clone(bnd);
     }
 
@@ -1031,7 +1031,7 @@ void TSRSet::getErrorWorld(Eigen::Ref<Eigen::VectorXd> error) const
     std::size_t i = 0;
     for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
-        auto &tsr = tsrs_[j];
+        const auto &tsr = tsrs_[j];
         tsr->getErrorWorld(error.segment(i, tsr->getDimension()));
         error.segment(i, tsr->getDimension()) *= weights_[j];
 
@@ -1068,7 +1068,7 @@ void TSRSet::getJacobianWorldState(const Eigen::Ref<const Eigen::VectorXd> &worl
     std::size_t n = world.size();
     for (std::size_t j = 0; j < tsrs_.size(); ++j)
     {
-        auto &tsr = tsrs_[j];
+        const auto &tsr = tsrs_[j];
         tsr->getJacobianWorldState(world, jacobian.block(i, 0, tsr->getDimension(), n));
         jacobian.block(i, 0, tsr->getDimension(), n) *= weights_[j];
 

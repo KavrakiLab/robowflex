@@ -6,9 +6,8 @@
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/util.h>
 
 using namespace robowflex;
 
