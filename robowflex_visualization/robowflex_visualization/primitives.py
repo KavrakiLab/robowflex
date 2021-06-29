@@ -72,21 +72,24 @@ def add_mesh(mesh):
 
     top = None
     for name in imported_names:
-        bpy.ops.object.select_all(action = 'DESELECT')
+        rv.utils.deselect_all()
         i_obj = bpy.data.objects[name]
+
+        # If an object comes with extra cameras or lamps, delete those.
+        if 'Camera' in name or 'Lamp' in name:
+            i_obj.select_set(True)
+            bpy.ops.object.delete()
+            continue
 
         if not i_obj.parent:
             top = i_obj
 
-        # If an object comes with extra cameras or lamps, delete those.
-        if 'Camera' in name or 'Lamp' in name:
-            i_obj.select = True
-            bpy.ops.object.delete()
-            continue
+        rv.utils.clear_alpha(i_obj)
 
         if "materials" in i_obj.data:
             if not i_obj.data.materials:
                 rv.utils.set_color(i_obj, mesh)
+
 
         obj_list.append(i_obj)
 
