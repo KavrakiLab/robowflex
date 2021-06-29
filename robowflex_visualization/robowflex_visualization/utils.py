@@ -184,8 +184,8 @@ def create_object_parent(parent, child):
     set_active(child)
     child.select_set(True)
 
-    constraint = None
-    if not get_object_parent(parent, child):
+    constraint = get_object_parent(parent, child)
+    if not constraint:
         try:
             bpy.ops.object.constraint_add(type='CHILD_OF')
             constraint = bpy.context.object.constraints["Child Of"]

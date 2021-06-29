@@ -17,10 +17,19 @@ class Scene:
     #
     def __init__(self, name, scene_file):
         self.name = name
-        self.collection = rv.utils.make_collection(name)
-
         self.shapes = {}
-        self.load_scene(scene_file)
+
+        self.collection = rv.utils.get_collection(name)
+
+        if not self.collection:
+            # Create scene
+            self.collection = rv.utils.make_collection(name)
+            self.load_scene(scene_file)
+
+        else:
+            # Populate based on existing scene
+            for item in self.collection.objects:
+                self.shapes[item.name] = item
 
     ## @brief Loads a YAML moveit_msgs::PlanningScene into Blender.
     #

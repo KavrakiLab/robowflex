@@ -10,7 +10,6 @@ importlib.reload(rv.utils)
 
 # Load a Fetch robot.
 fetch = rv.robot.Robot("Fetch", "package://fetch_description/robots/fetch.urdf")
-fetch.prettify()    # Make it look nice.
 
 # Open the Gripper
 fetch.set_joint("l_gripper_finger_joint", 0.05)
@@ -35,8 +34,8 @@ cube = scene.get_object("Cube3")
 fetch.attach_object("wrist_roll_link", cube, frame)
 
 # Close the Gripper
-fetch.set_joint("l_gripper_finger_joint", 0.06)
-fetch.set_joint("r_gripper_finger_joint", 0.06)
+fetch.set_joint("l_gripper_finger_joint", 0.04)
+fetch.set_joint("r_gripper_finger_joint", 0.04)
 fetch.add_keyframe("l_gripper_finger_joint", frame + 30)
 fetch.add_keyframe("r_gripper_finger_joint", frame + 30)
 
