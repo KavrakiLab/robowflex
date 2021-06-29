@@ -33,7 +33,7 @@ class Robot:
     #  @param urdf URDF package resource URI to load.
     #  @param make_pretty Calls prettify functions after load.
     #
-    def __init__(self, name, urdf, make_pretty=True):
+    def __init__(self, name, urdf, make_pretty = True):
         self.name = name
 
         self.collection = rv.utils.get_collection(name)
@@ -53,7 +53,7 @@ class Robot:
     #  @param urdf URDF package resource URI to load.
     #  @param load Load the actual COLLADA mesh, not just URDF info.
     #
-    def load_urdf(self, urdf, load=True):
+    def load_urdf(self, urdf, load = True):
         self.urdf = resolved = rv.utils.resolve_path(urdf)
         output = os.path.join("/tmp", os.path.basename(resolved) + ".dae")
 
@@ -70,7 +70,7 @@ class Robot:
                 ])
 
             # Import and move into new collection.
-            bpy.ops.wm.collada_import(filepath=output)
+            bpy.ops.wm.collada_import(filepath = output)
             rv.utils.move_selected_to_collection(self.name)
             rv.utils.deselect_all()
 
@@ -103,18 +103,18 @@ class Robot:
 
         return None
 
-    ## @brief Set the value of a joint in the URDF.
+    ## @brief Set the value of a 1-DoF joint in the URDF.
     #
-    #  Currently limited to 1-DoF joints (e.g., prismatic, continuous, or
-    #  revolute). Works by finding the child link of the joint and setting its
-    #  relative transformation in Blender according to the axis of movement.
-    #
-    #  TODO: Handle multi-dof joints
+    #  Works by finding the child link of the joint and setting its relative
+    #  transformation in Blender according to the axis of movement. Basically
+    #  reimplementing forward kinematics.
     #
     #  @param joint_name Name of the joint to set in the robot.
     #  @param value Value of joint to set.
+    #  @param interpolate If true, will attempt to make quaternions compatible
+    #                     with current pose.
     #
-    def set_joint(self, joint_name, value, interpolate=True):
+    def set_joint(self, joint_name, value, interpolate = True):
         joint_xml = self.get_joint_xml(joint_name)
         parent_xml = self.get_link_xml(joint_xml.parent)
         link_xml = self.get_link_xml(joint_xml.child)
@@ -152,7 +152,21 @@ class Robot:
         if interpolate:
             link.rotation_quaternion.make_compatible(prior)
 
-    def set_joint_tf(self, joint_name, tf, interpolate=True):
+    ## @brief Set the value of a 6-DoF joint in the URDF.
+    #
+    #  Assumes input transform is of the form:
+    #  {
+    #    'translation' : [x, y, z],
+    #    'rotation' : [x, y, z, w]
+    #  }
+    #
+    #  @param joint_name Name of the joint to set in the robot.
+    #  @param tf YAML of the transform.
+    #  @param interpolate If true, will attempt to make quaternions compatible
+    #                     with current pose.
+    #
+    def set_joint_tf(self, joint_name, tf, interpolate = True):
+        # Check for "virtual_joint", which isn't in the URDF
         if joint_name == "virtual_joint":
             root = self.get_root().name
             link_xml = self.get_link_xml(root)
@@ -191,8 +205,8 @@ class Robot:
             link_xml = self.get_link_xml(joint_xml.child)
             link = self.get_link(joint_xml.child)
 
-        link.keyframe_insert(data_path="location", frame=frame)
-        link.keyframe_insert(data_path="rotation_quaternion", frame=frame)
+        link.keyframe_insert(data_path = "location", frame = frame)
+        link.keyframe_insert(data_path = "rotation_quaternion", frame = frame)
 
     ## @brief Adds keyframes to animate a moveit_msgs::RobotTrajectoryMsg.
     #
@@ -204,10 +218,10 @@ class Robot:
     #
     def animate_path(self,
                      path_file,
-                     fps=60.,
-                     start=30,
-                     reverse=False,
-                     interpolate=False):
+                     fps = 60.,
+                     start = 30,
+                     reverse = False,
+                     interpolate = False):
         path = rv.utils.read_YAML_data(path_file)
 
         trajectory = path["joint_trajectory"]
@@ -220,6 +234,7 @@ class Robot:
         last_time = float(trajectory["points"][-1]["time_from_start"])
         last_frame = start
 
+        # Add keyframe at start
         for name in names:
             self.add_keyframe(name, start)
 
@@ -246,6 +261,9 @@ class Robot:
 
         return last_frame
 
+    ## @brief Sets the robot's state from a file with a moveit_msgs::RobotState
+    #
+    #  @param state_file File containing the state.
     def set_state(self, state_file):
         state = rv.utils.read_YAML_data(state_file)
         joint_state = state["joint_state"]
