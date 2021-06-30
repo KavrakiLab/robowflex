@@ -343,7 +343,8 @@ class Robot:
     def clear_animation_data(self):
         for link_xml in self.robot.links:
             link = self.get_link(link_xml.name)
-            link.animation_data_clear()
+            if link:
+                link.animation_data_clear()
 
     ## @brief Get the root link of this robot
     def get_root(self):
