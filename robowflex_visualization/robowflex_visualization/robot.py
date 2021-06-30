@@ -4,6 +4,8 @@
 import bpy
 import os
 import subprocess
+import math
+import mathutils
 from urdf_parser_py import urdf as URDF
 
 import robowflex_visualization as rv
@@ -29,34 +31,48 @@ class Robot:
     #
     #  @param name Name of Blender collection to put Robot geometry in.
     #  @param urdf URDF package resource URI to load.
+    #  @param make_pretty Calls prettify functions after load.
     #
-    def __init__(self, name, urdf):
+    def __init__(self, name, urdf, make_pretty = True):
         self.name = name
-        self.collection = rv.utils.make_collection(name)
 
-        self.load_urdf(urdf)
+        self.collection = rv.utils.get_collection(name)
+        if not self.collection:
+            self.collection = rv.utils.make_collection(name)
+            self.load_urdf(urdf)
+            if make_pretty:
+                self.prettify()
+
+        else:
+            self.load_urdf(urdf, False)
+
+        self.clear_animation_data()
 
     ## @brief Loads the URDF as a COLLADA mesh, as well as loading the XML.
     #
     #  @param urdf URDF package resource URI to load.
+    #  @param load Load the actual COLLADA mesh, not just URDF info.
     #
-    def load_urdf(self, urdf):
+    def load_urdf(self, urdf, load = True):
         self.urdf = resolved = rv.utils.resolve_path(urdf)
         output = os.path.join("/tmp", os.path.basename(resolved) + ".dae")
-
-        # Don't regenerate URDF COLLADA if it already exists.
-        if not os.path.exists(output):
-            subprocess.check_output(
-                ["rosrun", "collada_urdf", "urdf_to_collada", resolved, output])
-
-        # Import and move into new collection.
-        bpy.ops.wm.collada_import(filepath = output)
-        rv.utils.move_selected_to_collection(self.name)
-        rv.utils.deselect_all()
 
         # Read in the URDF XML.
         self.xml = open(self.urdf, 'r').read()
         self.robot = URDF.Robot.from_xml_string(self.xml)
+
+        if load:
+            # Don't regenerate URDF COLLADA if it already exists.
+            if not os.path.exists(output):
+                subprocess.check_output([
+                    "rosrun", "collada_urdf", "urdf_to_collada", resolved,
+                    output
+                ])
+
+            # Import and move into new collection.
+            bpy.ops.wm.collada_import(filepath = output)
+            rv.utils.move_selected_to_collection(self.name)
+            rv.utils.deselect_all()
 
     ## @brief Gets a Blender object corresponding to a link on the robot.
     #
@@ -87,35 +103,87 @@ class Robot:
 
         return None
 
-    ## @brief Set the value of a joint in the URDF.
+    ## @brief Set the value of a 1-DoF joint in the URDF.
     #
-    #  Currently limited to 1-DoF joints (e.g., prismatic, continuous, or
-    #  revolute). Works by finding the child link of the joint and setting its
-    #  relative transformation in Blender according to the axis of movement.
-    #
-    #  TODO: Handle multi-dof joints
+    #  Works by finding the child link of the joint and setting its relative
+    #  transformation in Blender according to the axis of movement. Basically
+    #  reimplementing forward kinematics.
     #
     #  @param joint_name Name of the joint to set in the robot.
     #  @param value Value of joint to set.
+    #  @param interpolate If true, will attempt to make quaternions compatible
+    #                     with current pose.
     #
-    def set_joint(self, joint_name, value):
+    def set_joint(self, joint_name, value, interpolate = True):
         joint_xml = self.get_joint_xml(joint_name)
+        parent_xml = self.get_link_xml(joint_xml.parent)
         link_xml = self.get_link_xml(joint_xml.child)
         link = self.get_link(joint_xml.child)
 
-        # Assuming Axis is one value...
-        # TODO: Handle arbitrary axis
-        if (joint_xml.type == "prismatic"):
-            link.location = [
-                joint_xml.origin.xyz[i] + joint_xml.axis[i] * value
-                for i in range(3)
-            ]
+        link.rotation_mode = "QUATERNION"
+
+        parent_l = mathutils.Matrix.Identity(4)
+        if parent_xml.visual:
+            parent_l = rv.utils.get_tf_origin_xml(parent_xml.visual)
+            parent_l = parent_l.inverted()
+
+        origin_l = mathutils.Matrix.Identity(4)
+        if link_xml.visual:
+            origin_l = rv.utils.get_tf_origin_xml(link_xml.visual)
+
+        origin_j = rv.utils.get_tf_origin_xml(joint_xml)
+
+        if joint_xml.type == "prismatic":
+            rm = mathutils.Matrix.Translation(
+                mathutils.Vector(joint_xml.axis) * value)
 
         else:
-            link.rotation_euler = [
-                joint_xml.origin.rpy[i] + joint_xml.axis[i] * value
-                for i in range(3)
-            ]
+            rotation = mathutils.Quaternion(joint_xml.axis, value)
+            rm = rotation.to_matrix()
+            rm.resize_4x4()
+
+        output = parent_l @ origin_j @ rm @ origin_l
+
+        prior = link.rotation_quaternion.copy()
+
+        link.location = output.to_translation()
+        link.rotation_quaternion = output.to_quaternion()
+
+        if interpolate:
+            link.rotation_quaternion.make_compatible(prior)
+
+    ## @brief Set the value of a 6-DoF joint in the URDF.
+    #
+    #  Assumes input transform is of the form:
+    #  {
+    #    'translation' : [x, y, z],
+    #    'rotation' : [x, y, z, w]
+    #  }
+    #
+    #  @param joint_name Name of the joint to set in the robot.
+    #  @param tf YAML of the transform.
+    #  @param interpolate If true, will attempt to make quaternions compatible
+    #                     with current pose.
+    #
+    def set_joint_tf(self, joint_name, tf, interpolate = True):
+        # Check for "virtual_joint", which isn't in the URDF
+        if joint_name == "virtual_joint":
+            root = self.get_root().name
+            link_xml = self.get_link_xml(root)
+            link = self.get_link(root)
+        else:
+            joint_xml = self.get_joint_xml(joint_name)
+            link_xml = self.get_link_xml(joint_xml.child)
+            link = self.get_link(joint_xml.child)
+
+        link.rotation_mode = "QUATERNION"
+        link.location = tf['translation']
+
+        q = mathutils.Quaternion([tf['rotation'][3]] + tf['rotation'][:3])
+        if interpolate:
+            q.make_compatible(link.rotation_quaternion)
+
+        link.rotation_quaternion = q
 
     ## @brief Adds a keyframe to a joint in the URDF at a frame in the
     #  animation timeline.
@@ -128,13 +196,17 @@ class Robot:
     #  @param frame Frame to add keyframe at.
     #
     def add_keyframe(self, joint_name, frame):
-        joint_xml = self.get_joint_xml(joint_name)
-        link = self.get_link(joint_xml.child)
-
-        if (joint_xml.type == "prismatic"):
-            link.keyframe_insert(data_path = "location", frame = frame)
+        if joint_name == "virtual_joint":
+            root = self.get_root().name
+            link_xml = self.get_link_xml(root)
+            link = self.get_link(root)
         else:
-            link.keyframe_insert(data_path = "rotation_euler", frame = frame)
+            joint_xml = self.get_joint_xml(joint_name)
+            link_xml = self.get_link_xml(joint_xml.child)
+            link = self.get_link(joint_xml.child)
+
+        link.keyframe_insert(data_path = "location", frame = frame)
+        link.keyframe_insert(data_path = "rotation_quaternion", frame = frame)
 
     ## @brief Adds keyframes to animate a moveit_msgs::RobotTrajectoryMsg.
     #
@@ -142,17 +214,33 @@ class Robot:
     #  @param fps Frames-per-second to animate the path at.
     #  @param start Frame to begin the animation at.
     #  @param reverse If true, load path from end-to-start rather than start-to-end.
+    #  @param interpolate If true, interpolates quaternion from previous state.
     #
-    def animate_path(self, path_file, fps = 60., start = 30, reverse = False):
+    def animate_path(self,
+                     path_file,
+                     fps = 60.,
+                     start = 30,
+                     reverse = False,
+                     interpolate = False):
         path = rv.utils.read_YAML_data(path_file)
 
         trajectory = path["joint_trajectory"]
         names = trajectory["joint_names"]
 
+        if "multi_dof_joint_trajectory" in path:
+            mdof_trajectory = path["multi_dof_joint_trajectory"]
+            mdof_names = mdof_trajectory["joint_names"]
+
         last_time = float(trajectory["points"][-1]["time_from_start"])
         last_frame = start
 
-        for point in trajectory["points"]:
+        # Add keyframe at start
+        for name in names:
+            self.add_keyframe(name, start)
+
+        for i in range(len(trajectory["points"])):
+            point = trajectory["points"][i]
+
             time = float(point["time_from_start"])
             if reverse:
                 time = last_time - time
@@ -162,10 +250,29 @@ class Robot:
                 last_frame = frame
 
             for value, name in zip(point["positions"], names):
-                self.set_joint(name, value)
+                self.set_joint(name, value, interpolate or i > 0)
                 self.add_keyframe(name, frame)
 
+            if "multi_dof_joint_trajectory" in path:
+                mdof_point = mdof_trajectory["points"][i]
+                for tf, name in zip(mdof_point["transforms"], mdof_names):
+                    self.set_joint_tf(name, tf, interpolate or i > 0)
+                    self.add_keyframe(name, frame)
+
         return last_frame
+
+    ## @brief Sets the robot's state from a file with a moveit_msgs::RobotState
+    #
+    #  @param state_file File containing the state.
+    def set_state(self, state_file):
+        state = rv.utils.read_YAML_data(state_file)
+        joint_state = state["joint_state"]
+
+        names = joint_state["name"]
+        position = joint_state["position"]
+
+        for name, value in zip(names, position):
+            self.set_joint(name, value)
 
     ## @brief Attaches an object to a link of the robot.
     #
@@ -219,10 +326,8 @@ class Robot:
             geometry = visual.geometry
 
             # Only replace geometry if COLLADA
-            if geometry.filename and ".dae" in geometry.filename:
-                mesh = rv.primitives.add_mesh({
-                    "resource": geometry.filename
-                })
+            if hasattr(geometry, 'filename') and ".dae" in geometry.filename:
+                mesh = rv.primitives.add_mesh({"resource": geometry.filename})
 
                 rv.utils.deselect_all()
                 mesh.select_set(True)
@@ -234,5 +339,19 @@ class Robot:
 
         rv.utils.remove_collection(name)
 
+    ## @brief Clear all animation data for this robot.
+    def clear_animation_data(self):
+        for link_xml in self.robot.links:
+            link = self.get_link(link_xml.name)
+            link.animation_data_clear()
 
+    ## @brief Get the root link of this robot
+    def get_root(self):
+        children = []
+        for joint in self.robot.joints:
+            xml = self.get_joint_xml(joint.name)
+            children.append(xml.child)
 
+        for link in self.robot.links:
+            if link.name not in children:
+                return link
