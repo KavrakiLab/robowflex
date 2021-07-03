@@ -6,9 +6,9 @@
 #include <moveit_msgs/GetPlanningScene.h>
 #include <std_srvs/Empty.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/yaml.h>
 

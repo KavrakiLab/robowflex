@@ -2,15 +2,18 @@
 
 #include <moveit/robot_state/conversions.h>
 
-#include <robowflex_library/macros.h>
-#include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
+#include <robowflex_library/macros.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 
-#if ROBOWFLEX_AT_LEAST_NOETIC
+#define ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR                                                                 \
+    ROBOWFLEX_INCLUDE_EXISTS("moveit/robot_state/cartesian_interpolator.h")
+
+#if ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR
 #include <moveit/robot_state/cartesian_interpolator.h>
 #endif
 
@@ -194,7 +197,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
         RobotPose pose;
         request.sampleRegion(pose, 0);
 
-#if ROBOWFLEX_AT_LEAST_NOETIC
+#if ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR
         double percentage =                                             //
             moveit::core::CartesianInterpolator::computeCartesianPath(  //
                 &state, jmg, traj, lm, pose, true, step, jump, gsvcf);
@@ -271,7 +274,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
     if (config_file.empty())
         return false;
 
-    auto &config = IO::loadFileToYAML(config_file);
+    const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
         RBX_ERROR("Failed to load planner configs.");
@@ -280,7 +283,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
 
     handler.loadYAMLtoROS(config.second);
 
-    auto &planner_configs = config.second["planner_configs"];
+    const auto &planner_configs = config.second["planner_configs"];
     if (planner_configs)
     {
         for (YAML::const_iterator it = planner_configs.begin(); it != planner_configs.end(); ++it)
@@ -302,6 +305,8 @@ OMPL::Settings::Settings()
   , max_state_sampling_attempts(4)
   , minimum_waypoint_count(10)
   , simplify_solutions(true)
+  , hybridize_solutions(true)
+  , interpolate_solutions(true)
   , use_constraints_approximations(false)
   , display_random_valid_states(false)
   , link_for_exploration_tree("")
@@ -383,7 +388,7 @@ bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
     if (config_file.empty())
         return false;
 
-    auto &config = IO::loadFileToYAML(config_file);
+    const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
         RBX_ERROR("Failed to load planner configs.");

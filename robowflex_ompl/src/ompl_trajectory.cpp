@@ -22,7 +22,7 @@ OMPL::OMPLTrajectory::OMPLTrajectory(robot_trajectory::RobotTrajectory &trajecto
 ompl::geometric::PathGeometric OMPL::OMPLTrajectory::toOMPLPath(const ompl::geometric::SimpleSetupPtr &ss)
 {
     auto path = ompl::geometric::PathGeometric(ss->getSpaceInformation());
-    auto tstate = ss->getSpaceInformation()->allocState();
+    auto *tstate = ss->getSpaceInformation()->allocState();
     auto traj_msg = getMessage();
 
     // transform to Path geometric

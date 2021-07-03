@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/detail/ur5.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 
 using namespace robowflex;
 
@@ -67,6 +67,5 @@ bool OMPL::UR5OMPLPipelinePlanner::initialize(const Settings &settings,
 {
     if (IO::resolvePackage(RESOURCE_CONFIG).empty())
         return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
-    else
-        return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+    return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }

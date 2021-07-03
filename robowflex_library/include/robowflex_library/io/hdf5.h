@@ -119,7 +119,7 @@ namespace robowflex
              *  \tparam T A HDF5 object.
              */
             template <typename T>
-            const std::vector<std::string> listObjects(const T &location) const;
+            std::vector<std::string> listObjects(const T &location) const;
 
             /** \brief Loads the data in the object \a name at the HDF5 location. Recursive.
              *  \param[in] node The node to add data to.

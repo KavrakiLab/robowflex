@@ -9,9 +9,9 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/WeldJoint.hpp>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/scene.h>
 
 #include <robowflex_dart/acm.h>
@@ -170,7 +170,7 @@ void Structure::createShapeNode(dart::dynamics::BodyNode *body, const dart::dyna
     body->setInertia(inertia);
     body->setRestitutionCoeff(magic::DEFAULT_RESTITUTION);
 
-    auto joint = body->getParentJoint();
+    auto *joint = body->getParentJoint();
     if (joint)
         for (std::size_t i = 0; i < joint->getNumDofs(); ++i)
             joint->getDof(i)->setDampingCoefficient(magic::DEFAULT_DAMPING);
@@ -258,7 +258,7 @@ void Structure::setJoint(const std::string &name, double value)
 
 void Structure::setJoint(const std::string &name, const Eigen::Ref<const Eigen::VectorXd> &value)
 {
-    auto joint = skeleton_->getJoint(name);
+    auto *joint = skeleton_->getJoint(name);
     joint->setPositions(value);
 }
 
@@ -282,7 +282,7 @@ dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 
 void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::string &parent)
 {
-    auto frame = getFrame(parent);
+    auto *frame = getFrame(parent);
 
     RobotPose tf;
     if (frame)
@@ -292,14 +292,14 @@ void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::st
 
     dart::dynamics::FreeJoint::Properties joint;
     joint.mName = child->getName();
-    auto jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
+    auto *jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
 
     setJointParentTransform(joint.mName, tf);
 }
 
 void Structure::setJointParentTransform(const std::string &name, const RobotPose &tf)
 {
-    auto joint = skeleton_->getJoint(name);
+    auto *joint = skeleton_->getJoint(name);
     if (joint == nullptr)
         RBX_ERROR("Cannot find joint named %s to set TF!", name);
 
@@ -419,7 +419,7 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
     const double interval = high - low;
     const double step = interval / resolution;
 
-    aiMesh *mesh = new aiMesh;
+    auto *mesh = new aiMesh;
     mesh->mMaterialIndex = (unsigned int)(-1);
 
     // number of segments, *2 for inner & outer, *2 for front & back
@@ -516,12 +516,12 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
         bface->mIndices[3] = ibv;
     }
 
-    aiNode *node = new aiNode;
+    auto *node = new aiNode;
     node->mNumMeshes = 1;
     node->mMeshes = new unsigned int[1];
     node->mMeshes[0] = 0;
 
-    aiScene *scene = new aiScene;
+    auto *scene = new aiScene;
     scene->mNumMeshes = 1;
     scene->mMeshes = new aiMesh *[1];
     scene->mMeshes[0] = mesh;
@@ -535,6 +535,6 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
 
 void robowflex::darts::setColor(dart::dynamics::BodyNode *node, const Eigen::Vector4d &color)
 {
-    for (auto &shape : node->getShapeNodes())
+    for (const auto &shape : node->getShapeNodes())
         shape->getVisualAspect()->setColor(color);
 }

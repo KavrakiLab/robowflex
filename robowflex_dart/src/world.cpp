@@ -40,7 +40,7 @@ World::World(const std::string &name)
 {
     world_->setGravity(Eigen::Vector3d(0, 0, -9.81));
 
-    auto solver = world_->getConstraintSolver();
+    auto *solver = world_->getConstraintSolver();
 
     auto &opt = solver->getCollisionOption();
     opt.collisionFilter = filter_;
@@ -297,7 +297,7 @@ void World::clearIKModules()
         auto skel = world_->getSkeleton(i);
         skel->clearIK();
 
-        for (auto bn : skel->getBodyNodes())
+        for (auto *bn : skel->getBodyNodes())
             bn->clearIK();
     }
 }

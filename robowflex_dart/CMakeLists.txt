@@ -11,13 +11,14 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-find_package(DART 6 REQUIRED
+find_package(DART 6 QUIET
   COMPONENTS utils utils-urdf gui-osg
   OPTIONAL_COMPONENTS
-  CONFIG
-  )
+  CONFIG)
+
 
 if (DART_LIBRARIES)
+
   find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
   include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${Boost_LIBRARIES})

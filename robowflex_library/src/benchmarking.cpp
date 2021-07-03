@@ -3,14 +3,13 @@
 #include <boost/lexical_cast.hpp>
 #include <utility>
 
-#include <moveit/collision_detection/collision_common.h>
 #include <moveit/version.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
@@ -157,8 +156,8 @@ void Benchmarker::benchmark(const std::vector<BenchmarkOutputterPtr> &outputs, c
     {
         // Extract all benchmarking request information
         const auto &name = request.first;
-        auto &scene = std::get<0>(request.second);
-        auto &planner = std::get<1>(request.second);
+        const auto &scene = std::get<0>(request.second);
+        const auto &planner = std::get<1>(request.second);
         const auto &builder = std::get<2>(request.second);
         const auto &msg = builder->getRequest();
         Results::ComputeMetricCallbackFn metric_callback;
@@ -305,7 +304,7 @@ void TrajectoryBenchmarkOutputter::dumpResult(const Benchmarker::Results &result
     }
     const std::string &name = results.name;
 
-    for (Benchmarker::Results::Run run : results.runs)
+    for (const Benchmarker::Results::Run &run : results.runs)
         bag_.addMessage(name, run.path);
 }
 
@@ -389,17 +388,17 @@ void OMPLBenchmarkOutputter::dumpResult(const Benchmarker::Results &results)
         class ToString : public boost::static_visitor<const std::string>
         {
         public:
-            const std::string operator()(int /* dummy */) const
+            std::string operator()(int /* dummy */) const
             {
                 return "INT";
             }
 
-            const std::string operator()(double /* dummy */) const
+            std::string operator()(double /* dummy */) const
             {
                 return "REAL";
             }
 
-            const std::string operator()(bool /* dummy */) const
+            std::string operator()(bool /* dummy */) const
             {
                 return "BOOLEAN";
             }

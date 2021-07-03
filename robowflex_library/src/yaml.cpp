@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <string>
 
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/algorithm/hex.hpp>
+#include <boost/iostreams/device/back_inserter.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
@@ -20,7 +20,7 @@ using namespace robowflex;
 
 namespace
 {
-    static const std::string boolToString(bool b)
+    static std::string boolToString(bool b)
     {
         return b ? "true" : "false";
     }
@@ -80,7 +80,7 @@ namespace
         }
     }
 
-    static const std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
+    static std::string primitiveTypeToString(const shape_msgs::SolidPrimitive &shape)
     {
         switch (shape.type)
         {
@@ -1036,7 +1036,7 @@ namespace YAML
             ROBOWFLEX_YAML_FLOW(node["default_entry_names"]);
 
             std::vector<std::string> default_entry_values;
-            for (auto &b : rhs.default_entry_values)
+            for (const auto &b : rhs.default_entry_values)
                 default_entry_values.emplace_back(boolToString(b));
 
             node["default_entry_values"] = default_entry_values;
@@ -1074,7 +1074,7 @@ namespace YAML
     {
         Node node;
         std::vector<std::string> enabled;
-        for (auto &b : rhs.enabled)
+        for (const auto &b : rhs.enabled)
             enabled.emplace_back(boolToString(b));
 
         node = enabled;

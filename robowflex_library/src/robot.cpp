@@ -3,9 +3,6 @@
 #include <deque>
 #include <numeric>
 
-#include <urdf_parser/urdf_parser.h>
-
-#include <moveit/collision_detection/collision_common.h>
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
 
@@ -229,7 +226,7 @@ void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
 
 bool Robot::isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name)
 {
-    auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
+    auto *node = doc.FirstChildElement("robot")->FirstChildElement("link");
     while (node != nullptr)
     {
         if (node->Attribute("name", name.c_str()))
@@ -264,7 +261,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
 bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
                          const PostProcessYAMLFunction &function)
 {
-    auto &yaml = IO::loadFileToYAML(file);
+    const auto &yaml = IO::loadFileToYAML(file);
     if (!yaml.first)
     {
         RBX_ERROR("Failed to load YAML file `%s`.", file);
@@ -662,6 +659,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region
 
 Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
                         const moveit_msgs::OrientationConstraint &oc)
+  : group(group)
 {
     if (pc.link_name != oc.link_name)
         throw Exception(
