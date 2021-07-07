@@ -58,10 +58,10 @@ const std::string YUMI[4] = {
 
 // KUKA Robot with mounted Shadowhand Gripper
 const std::string SHADOWHAND[4] = {
-    "package://robowflex_resources/shadowhand/urdf/kuka_shadowhand.urdf",    // urdf
-    "package://robowflex_resources/shadowhand/config/kuka_shadowhand.srdf",  // srdf
-    "package://robowflex_resources/shadowhand/config/joint_limits.yaml",     // joint limits
-    "package://robowflex_resources/shadowhand/config/kinematics.yaml"        // kinematics
+    "package://robowflex_resources/shadowhand/urdf/shadowhand.urdf",      // urdf
+    "package://robowflex_resources/shadowhand/config/shadowhand.srdf",    // srdf
+    "package://robowflex_resources/shadowhand/config/joint_limits.yaml",  // joint limits
+    "package://robowflex_resources/shadowhand/config/kinematics.yaml"     // kinematics
 };
 
 int main(int argc, char **argv)
