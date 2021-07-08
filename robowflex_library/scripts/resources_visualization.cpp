@@ -27,7 +27,7 @@ const std::string FETCH[4] = {
 // UR5 with Robotiq 85 Gripper on a table
 const std::string UR5[4] = {
     "package://robowflex_resources/ur/robots/ur5_robotiq_robot_limited.urdf.xacro",  // urdf
-    "package://robowflex_resources/ur/config/ur5/ur5_robotiq85.srdf",                // srdf
+    "package://robowflex_resources/ur/config/ur5/ur5_robotiq85_table.srdf.xacro",    // srdf
     "package://robowflex_resources/ur/config/ur5/joint_limits.yaml",                 // joint limits
     "package://robowflex_resources/ur/config/ur5/kinematics.yaml"                    // kinematics
 };
@@ -58,10 +58,10 @@ const std::string YUMI[4] = {
 
 // KUKA Robot with mounted Shadowhand Gripper
 const std::string SHADOWHAND[4] = {
-    "package://robowflex_resources/shadowhand/urdf/kuka_shadowhand.urdf",    // urdf
-    "package://robowflex_resources/shadowhand/config/kuka_shadowhand.srdf",  // srdf
-    "package://robowflex_resources/shadowhand/config/joint_limits.yaml",     // joint limits
-    "package://robowflex_resources/shadowhand/config/kinematics.yaml"        // kinematics
+    "package://robowflex_resources/shadowhand/urdf/shadowhand.urdf",      // urdf
+    "package://robowflex_resources/shadowhand/config/shadowhand.srdf",    // srdf
+    "package://robowflex_resources/shadowhand/config/joint_limits.yaml",  // joint limits
+    "package://robowflex_resources/shadowhand/config/kinematics.yaml"     // kinematics
 };
 
 int main(int argc, char **argv)
