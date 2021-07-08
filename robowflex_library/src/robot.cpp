@@ -548,6 +548,12 @@ void Robot::setState(const std::vector<std::string> &variable_names,
     scratch_->update();
 }
 
+void Robot::setState(const sensor_msgs::JointState &state)
+{
+    scratch_->setVariableValues(state);
+    scratch_->update();
+}
+
 void Robot::setState(const moveit_msgs::RobotState &state)
 {
     moveit::core::robotStateMsgToRobotState(state, *scratch_);

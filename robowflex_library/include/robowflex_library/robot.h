@@ -301,6 +301,11 @@ namespace robowflex
         void setState(const std::vector<std::string> &variable_names,
                       const std::vector<double> &variable_position);
 
+        /** \brief Sets the scratch state from a joint state message.
+         *  \param[in] state The state to set.
+         */
+        void setState(const sensor_msgs::JointState &state);
+
         /** \brief Sets the scratch state from a robot state message.
          *  \param[in] state The state to set.
          */

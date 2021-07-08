@@ -24,7 +24,7 @@ namespace robowflex
         static const double two_pi = boost::math::constants::two_pi<double>();
 
         // tolerances
-        static const double ik_tolerance = 0.001;
+        static const double ik_tolerance = eps;
         static const unsigned int ik_attempts = 50;
         static const Eigen::Vector3d ik_vec_tolerance = {ik_tolerance, ik_tolerance, ik_tolerance};
         static const double cart_rot_step_size = 0.01;
