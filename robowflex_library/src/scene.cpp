@@ -420,7 +420,6 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC
     if (not hasObject(object))
     {
         RBX_ERROR("World does not have object `%s`", object);
@@ -457,17 +456,11 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
 #endif
     return res.minimum_distance.distance;
-
-#else
-    throw Exception(1, "Not Implemented");
-
-#endif
 }
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC and                                             \
-    ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
+#if ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     // Early terminate if they are the same
     if (one == two)
         return 0.;
