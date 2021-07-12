@@ -53,12 +53,11 @@ TEST(Scene, detatchObject)
     RobotPose goal_pose = ur5->getLinkTF("ee_link");
     goal_pose.translate(shift);
 
-    ASSERT_TRUE(ur5->setFromIK(Robot::IKQuery("manipulator", goal_pose)));
-
-    scene->getCurrentState().setVariablePositions(ur5->getScratchState()->getVariablePositions());
-    scene->detachObject("cylinder");
+    bool success = ur5->setFromIK(Robot::IKQuery("manipulator", goal_pose));
+    ASSERT_TRUE(success);
 
     // Get new position for the cylinder and compare to its theoretical value.
+    scene->detachObject(*ur5->getScratchState(), "cylinder");
     auto new_pose = scene->getObjectPose("cylinder");
     auto diff = desired_pose - new_pose.translation();
 
