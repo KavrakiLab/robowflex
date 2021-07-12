@@ -246,6 +246,13 @@ namespace robowflex
          */
         bool detachObject(const std::string &name);
 
+        /** \brief Detach an object \a name from the robot state.
+         *  \param[in] state State to detatch the object from.
+         *  \param[in] name Name of collision to detach.
+         *  \return True on success, false on failure.
+         */
+        bool detachObject(robot_state::RobotState &state, const std::string &name);
+
         /** \} */
 
         /** \name Checking Collisions
