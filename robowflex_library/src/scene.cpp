@@ -404,7 +404,6 @@ bool Scene::detachObject(robot_state::RobotState &state, const std::string &name
     return true;
 }
 
-
 collision_detection::CollisionResult Scene::checkCollision(
     const robot_state::RobotState &state, const collision_detection::CollisionRequest &request) const
 {
