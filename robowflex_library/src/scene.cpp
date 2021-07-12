@@ -359,15 +359,13 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
     RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 
@@ -379,11 +377,15 @@ bool Scene::hasObject(const std::string &name) const
 
 bool Scene::detachObject(const std::string &name)
 {
+    return detachObject(getCurrentState(), name);
+}
+
+bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
+{
     incrementVersion();
 
-    auto &robot = scene_->getCurrentStateNonConst();
     const auto &world = scene_->getWorldNonConst();
-    const auto &body = robot.getAttachedBody(name);
+    const auto &body = state.getAttachedBody(name);
 
     if (!body)
     {
@@ -393,7 +395,7 @@ bool Scene::detachObject(const std::string &name)
 
     world->addToObject(name, body->getShapes(), body->getGlobalCollisionBodyTransforms());
 
-    if (!robot.clearAttachedBody(name))
+    if (not state.clearAttachedBody(name))
     {
         RBX_ERROR("Could not detach object `%s`", name);
         return false;
@@ -401,6 +403,7 @@ bool Scene::detachObject(const std::string &name)
 
     return true;
 }
+
 
 collision_detection::CollisionResult Scene::checkCollision(
     const robot_state::RobotState &state, const collision_detection::CollisionRequest &request) const
