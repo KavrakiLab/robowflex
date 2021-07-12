@@ -331,32 +331,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
-    incrementVersion();
-
-    const auto &world = scene_->getWorldNonConst();
-    if (!world->hasObject(name))
-    {
-        RBX_ERROR("World does not have object `%s`", name);
-        return false;
-    }
-
-    const auto &obj = world->getObject(name);
-
-    if (!obj)
-    {
-        RBX_ERROR("Could not get object `%s`", name);
-        return false;
-    }
-
-    if (!world->removeObject(name))
-    {
-        RBX_ERROR("Could not remove object `%s`", name);
-        return false;
-    }
-
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
-    return true;
+    return attachObject(getCurrentState(), name, ee_link, touch_links);
 }
 
 bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
