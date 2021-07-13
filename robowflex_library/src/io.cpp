@@ -83,7 +83,7 @@ namespace
     }
 }  // namespace
 
-const std::string IO::resolvePackage(const std::string &path)
+std::string IO::resolvePackage(const std::string &path)
 {
     if (path.empty())
         return "";
@@ -132,7 +132,7 @@ std::set<std::string> IO::findPackageURIs(const std::string &string)
     return packages;
 }
 
-const std::string IO::resolvePath(const std::string &path)
+std::string IO::resolvePath(const std::string &path)
 {
     boost::filesystem::path file = resolvePackage(path);
 
@@ -145,13 +145,21 @@ const std::string IO::resolvePath(const std::string &path)
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
 }
 
-const std::string IO::resolveParent(const std::string &path)
+std::string IO::resolveParent(const std::string &path)
 {
     boost::filesystem::path file = resolvePackage(path);
     return file.parent_path().string();
 }
 
-const std::string IO::loadFileToString(const std::string &path)
+std::string IO::makeFilepath(const std::string &directory, const std::string &filename)
+{
+    boost::filesystem::path dirpath = resolveParent(resolvePackage(directory));
+    dirpath /= filename;
+
+    return dirpath.string();
+}
+
+std::string IO::loadFileToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
@@ -168,7 +176,7 @@ const std::string IO::loadFileToString(const std::string &path)
     return std::string(bytes.data(), size);
 }
 
-const std::string IO::runCommand(const std::string &cmd)
+std::string IO::runCommand(const std::string &cmd)
 {
     std::array<char, 128> buffer;
     std::string result;
@@ -188,7 +196,7 @@ const std::string IO::runCommand(const std::string &cmd)
     return result;
 }
 
-const std::string IO::loadXacroToString(const std::string &path)
+std::string IO::loadXacroToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
@@ -205,7 +213,7 @@ const std::string IO::loadXacroToString(const std::string &path)
     return runCommand(cmd);
 }
 
-const std::string IO::loadXMLToString(const std::string &path)
+std::string IO::loadXMLToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
     if (full_path.empty())
@@ -217,7 +225,7 @@ const std::string IO::loadXMLToString(const std::string &path)
     return loadFileToString(full_path);
 }
 
-const std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
+std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
 {
     YAML::Node file;
     const std::string full_path = resolvePath(path);
@@ -295,7 +303,7 @@ void IO::deleteFile(const std::string &file)
     boost::filesystem::remove(path);
 }
 
-const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &directory)
+std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &directory)
 {
     std::vector<std::string> contents;
 
@@ -314,7 +322,7 @@ const std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::str
     return std::make_pair(true, contents);
 }
 
-const std::string IO::getHostname()
+std::string IO::getHostname()
 {
     return boost::asio::ip::host_name();
 }
