@@ -153,7 +153,7 @@ std::string IO::resolveParent(const std::string &path)
 
 std::string IO::makeFilepath(const std::string &directory, const std::string &filename)
 {
-    boost::filesystem::path dirpath = resolveParent(resolvePackage(directory));
+    boost::filesystem::path dirpath = resolveParent(directory);
     dirpath /= filename;
 
     return dirpath.string();
