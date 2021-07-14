@@ -7,6 +7,7 @@
 
 #include <moveit/version.h>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
@@ -31,6 +32,11 @@ namespace
         std::string operator()(int value) const
         {
             return std::to_string(boost::get<int>(value));
+        }
+
+        std::string operator()(std::size_t value) const
+        {
+            return std::to_string(boost::get<std::size_t>(value));
         }
 
         std::string operator()(double value) const
@@ -273,11 +279,17 @@ void Profiler::computeBuiltinMetrics(uint32_t options, const SceneConstPtr &scen
     if (options & Metrics::SMOOTHNESS)
         run.metrics["smoothness"] = run.success ? run.trajectory->getSmoothness() : 0.0;
 
-    run.metrics["planner_name"] = run.query.planner->getName();
-    run.metrics["robot_name"] = run.query.planner->getRobot()->getName();
-    run.metrics["hostname"] = run.hostname;
-    run.metrics["thread_id"] = (int)run.thread_id;
-    run.metrics["process_id"] = (int)run.process_id;
+    run.metrics["robowflex_planner_name"] = run.query.planner->getName();
+    run.metrics["robowflex_robot_name"] = run.query.planner->getRobot()->getName();
+
+    run.metrics["request_planner_type"] = std::string(ROBOWFLEX_DEMANGLE(typeid(*run.query.planner).name()));
+    run.metrics["request_planner_id"] = run.query.request.planner_id;
+    run.metrics["request_group_name"] = run.query.request.group_name;
+    run.metrics["request_num_planning_attempts"] = run.query.request.num_planning_attempts;
+
+    run.metrics["machine_hostname"] = run.hostname;
+    run.metrics["machine_thread_id"] = run.thread_id;
+    run.metrics["machine_process_id"] = run.process_id;
 }
 
 void Profiler::computeCallbackMetrics(const PlannerPtr &planner,                             //
@@ -464,8 +476,8 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     data->metrics.emplace("query_trial", (int)info.trial);
                     data->metrics.emplace("query_index", (int)info.index);
                     data->metrics.emplace("query_timeout_trial", (int)timeout_trial);
-                    data->metrics.emplace("query_start", IO::getSeconds(dataset->start, data->start));
-                    data->metrics.emplace("query_finish", IO::getSeconds(dataset->start, data->finish));
+                    data->metrics.emplace("query_start_time", IO::getSeconds(dataset->start, data->start));
+                    data->metrics.emplace("query_finish_time", IO::getSeconds(dataset->start, data->finish));
 
                     data->query.name = log::format("%1%:%2%:%3%", info.query->name, info.trial, info.index);
 
@@ -651,6 +663,11 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
                 std::string operator()(int /* dummy */) const
                 {
                     return "INT";
+                }
+
+                std::string operator()(std::size_t /* dummy */) const
+                {
+                    return "BIGINT";
                 }
 
                 std::string operator()(double /* dummy */) const

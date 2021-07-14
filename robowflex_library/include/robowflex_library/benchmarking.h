@@ -30,7 +30,7 @@ namespace robowflex
 
     /** \brief Variant type of possible values a run metric could be.
      */
-    using PlannerMetric = boost::variant<bool, double, int, std::string>;
+    using PlannerMetric = boost::variant<bool, double, int, std::size_t, std::string>;
 
     /** \brief Convert a planner metric into a string.
      *  \param[in] metric The metric to convert.

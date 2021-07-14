@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
-    planner->initialize("package://fetch_moveit_config/config/ompl_planning.yaml");
+    planner->initialize("package://robowflex_resources/fetch/config/ompl_planning.yaml");
 
     // Create a motion planning request with a pose goal.
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
