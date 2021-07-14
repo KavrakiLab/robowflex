@@ -348,6 +348,11 @@ void Experiment::enableMultipleRequests()
     enforce_single_thread_ = false;
 }
 
+void Experiment::overridePlanningTime()
+{
+    override_planning_time_ = false;
+}
+
 void Experiment::setPreRunCallback(const PreRunCallback &callback)
 {
     pre_callback_ = callback;
@@ -425,22 +430,27 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     todo.pop();
                 }
 
-                RBX_INFO("[Thread %1%] Running Query `%2%` Idx:%3% Trial [%4%/%5%]",  //
-                         id, info.query->name, info.index, info.trial, trials_);
+                RBX_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
+                         id, info.query->name, info.index, info.trial + 1, trials_);
 
-                double time_remaining = allowed_time_;
+                // If override, use global time. Else use query time.
+                double time_remaining =
+                    (override_planning_time_) ? allowed_time_ : info.query->request.allowed_planning_time;
+
                 std::size_t timeout_trial = 0;
                 while (time_remaining > 0.)
                 {
-                    if (pre_callback_)
-                        pre_callback_(*info.query);
-
-                    // Copy
                     planning_interface::MotionPlanRequest request = info.query->request;
                     request.allowed_planning_time = time_remaining;
 
                     if (enforce_single_thread_)
                         request.num_planning_attempts = 1;
+
+                    // Call pre-run callbacks
+                    if (pre_callback_)
+                        pre_callback_(*info.query);
+
+                    info.query->planner->preRun(info.query->scene, request);
 
                     // Profile query
                     auto data = std::make_shared<PlanData>();
@@ -478,8 +488,8 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     if (timeout_)
                     {
                         time_remaining -= data->time;
-                        RBX_INFO(
-                            "[Thread %1%] Running `%2%` Idx:%3% till timeout, %4% seconds remaining...",  //
+                        RBX_INFO(                                                                           //
+                            "[Thread %1%] Running Query %3% `%2%` till timeout, %4% seconds remaining...",  //
                             id, info.query->name, info.index, time_remaining);
                         timeout_trial++;
                     }
@@ -487,9 +497,9 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                         time_remaining = 0;
                 }
 
-                RBX_INFO("[Thread %1%] Completed Query `%2%` Idx:%3% Trial [%4%/%5%] Total: [%6%/%7%]",  //
-                         id, info.query->name, info.index,                                               //
-                         info.trial, trials_,                                                            //
+                RBX_INFO("[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
+                         id, info.query->name, info.index,                                           //
+                         info.trial + 1, trials_,                                                    //
                          completed_queries, total_queries);
             }
         }));

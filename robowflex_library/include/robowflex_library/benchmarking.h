@@ -429,6 +429,11 @@ namespace robowflex
          */
         void enableMultipleRequests();
 
+        /** \brief If called, instead of using global allotted planning time (provided in the constructor),
+         * the benchmark will use the requested planning time in the planning request of the query.
+         */
+        void overridePlanningTime();
+
         /** \} */
 
         /** \name Callback Functions
@@ -470,7 +475,7 @@ namespace robowflex
 
         /** \brief Run benchmarking on this experiment.
          *  Note that, for some planners, multiple threads cannot be used without polluting the dataset, due
-         * to reuse of underlying datastructures between queries, e.g., the robowflex_ompl planner.
+         *  to reuse of underlying datastructures between queries, e.g., the robowflex_ompl planner.
          *  \param[in] n_threads Number of threads to use for benchmarking.
          *  \return The computed dataset.
          */
@@ -482,8 +487,10 @@ namespace robowflex
         std::size_t trials_;      ///< Number of trials to run each query for.
         bool timeout_;  ///< If true, will re-run planners on queries until total time taken has exceeded the
                         ///< allotted time.
-        bool enforce_single_thread_{true};  ///< If true, will request each planner to only use a single
-                                            ///< thread.
+        bool enforce_single_thread_{true};   ///< If true, will request each planner to only use a single
+                                             ///< thread.
+        bool override_planning_time_{true};  ///< If true, will override request planning time with global
+                                             ///< allowed time.
 
         Profiler::Options options_;           ///< Options for profiler.
         Profiler profiler_;                   ///< Profiler to use for extracting data.
