@@ -81,22 +81,24 @@ namespace robowflex
                         const planning_interface::MotionPlanRequest &request) override;
 
         private:
-            /** \brief Returns the simple setup used for this motion planning request.
+            /** \brief Refreshes the internal planning context.
              *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
              *  \param[in] request The motion planning request to solve.
-             *  \return The simple setup used by the planner.
+             *  \param[in] force If true, forces a refresh of the context.
              */
-            void refreshContext(const SceneConstPtr &scene,
-                                const planning_interface::MotionPlanRequest &request) const;
+            void refreshContext(const SceneConstPtr &scene,                            //
+                                const planning_interface::MotionPlanRequest &request,  //
+                                bool force = false) const;
 
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
             bool interpolate_;  ///< Whether or not planner should interpolate solutions.
 
-            mutable const Scene *last_scene_{nullptr};  ///< The pointer to the last scene requested.
-            mutable const planning_interface::MotionPlanRequest *last_request_{nullptr};  ///< Last request.
-            mutable ompl_interface::ModelBasedPlanningContextPtr context_;                ///< Last context.
+            mutable ID::Key last_scene_id_{ID::getNullKey()};  ///< ID of last scene.
+            mutable std::string last_request_hash_;            ///< Hash of last request.
+
+            mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
         };

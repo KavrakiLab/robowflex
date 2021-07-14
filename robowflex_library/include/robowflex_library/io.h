@@ -9,6 +9,8 @@
 
 #include <boost/date_time.hpp>  // for date operations
 
+#include <ros/message_traits.h>  // for message operations
+
 #include <yaml-cpp/yaml.h>  // for YAML parsing
 
 namespace robowflex
@@ -161,6 +163,7 @@ namespace robowflex
          *  \param[in] msg Message to dump.
          *  \param[in] file File to dump message to.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)
@@ -175,6 +178,7 @@ namespace robowflex
          *  \param[out] msg Message to load into.
          *  \param[in] file File to load message from.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool YAMLFileToMessage(T &msg, const std::string &file)
@@ -184,6 +188,17 @@ namespace robowflex
                 msg = result.second.as<T>();
 
             return result.first;
+        }
+
+        /** \brief Compute MD5 hash of message.
+         *  \param[in] msg Message to hash.
+         *  \tparam T Type of the message.
+         *  \return The hash of the message.
+         */
+        template <typename T>
+        std::string getMessageMD5(T &msg)
+        {
+            return ros::message_traits::md5sum<T>(msg);
         }
     }  // namespace IO
 }  // namespace robowflex

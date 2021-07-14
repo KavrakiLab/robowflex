@@ -27,7 +27,7 @@ namespace robowflex
     public:
         /** \brief A snapshot of the state of an ID. Can be compared against another ID.
          */
-        using Key = std::pair<const std::string, const std::size_t>;
+        using Key = std::pair<std::string, std::size_t>;
 
         /** \brief Get a null key for initialization.
          *  \return The null key.
@@ -116,6 +116,13 @@ namespace robowflex
      *  \return True if \a a and \a b are the same, false otherwise.
      */
     bool compareIDs(const IDConstPtr &a, const ID::Key &b);
+
+    /** \brief Compare an ID object to a key.
+     *  \param[in] a Key to compare.
+     *  \param[in] b Key to compare against.
+     *  \return True if \a a and \a b are the same, false otherwise.
+     */
+    bool compareIDs(const ID::Key &a, const ID::Key &b);
 }  // namespace robowflex
 
 #endif
