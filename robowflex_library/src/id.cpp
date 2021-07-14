@@ -73,3 +73,8 @@ bool robowflex::compareIDs(const IDConstPtr &a, const ID::Key &b)
 {
     return compareIDs(*a, b);
 }
+
+bool robowflex::compareIDs(const ID::Key &a, const ID::Key &b)
+{
+    return a == b;
+}

@@ -65,8 +65,9 @@ void MotionRequestBuilder::initialize()
 {
     setConfig(DEFAULT_CONFIG);
 
-    setWorkspaceBounds(Eigen::Vector3d::Constant(-1), Eigen::Vector3d::Constant(1));
-    request_.allowed_planning_time = 5.0;
+    setWorkspaceBounds(Eigen::Vector3d::Constant(-constants::default_workspace_bound),
+                       Eigen::Vector3d::Constant(constants::default_workspace_bound));
+    request_.allowed_planning_time = constants::default_allowed_planning_time;
 }
 
 void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)

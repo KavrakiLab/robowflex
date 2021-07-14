@@ -32,6 +32,10 @@ namespace robowflex
         static const double cart_rot_jump_tol = 0.25;
         static const double cart_pos_jump_tol = 0.25;
 
+        // planning
+        static const double default_workspace_bound = 1.0;
+        static const double default_allowed_planning_time = 5.0;
+
     }  // namespace constants
 }  // namespace robowflex
 

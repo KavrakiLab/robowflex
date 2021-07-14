@@ -4,9 +4,11 @@
 #include <cstdlib>  // for std::getenv
 #include <memory>   // for std::shared_ptr
 #include <regex>    // for std::regex
+#include <thread>
 
-#include <boost/asio/ip/host_name.hpp>  // for hostname
-#include <boost/filesystem.hpp>         // for filesystem paths
+#include <boost/asio/ip/host_name.hpp>                        // for hostname
+#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
+#include <boost/filesystem.hpp>                               // for filesystem paths
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>             // for UUID generation
 #include <boost/uuid/uuid_generators.hpp>  // for UUID generation
@@ -327,9 +329,30 @@ std::string IO::getHostname()
     return boost::asio::ip::host_name();
 }
 
+std::size_t IO::getProcessID()
+{
+    return boost::interprocess::ipcdetail::get_current_process_id();
+}
+
+std::size_t IO::getThreadID()
+{
+    return boost::interprocess::ipcdetail::get_current_thread_id();
+}
+
 boost::posix_time::ptime IO::getDate()
 {
     return boost::posix_time::microsec_clock::local_time();
+}
+
+double IO::getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish)
+{
+    auto duration = finish - start;
+    return duration.total_microseconds() / 1000000.;
+}
+
+void IO::threadSleep(double seconds)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(seconds * 1000)));
 }
 
 template <typename T>

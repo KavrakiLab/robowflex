@@ -9,6 +9,8 @@
 
 #include <boost/date_time.hpp>  // for date operations
 
+#include <ros/message_traits.h>  // for message operations
+
 #include <yaml-cpp/yaml.h>  // for YAML parsing
 
 namespace robowflex
@@ -114,10 +116,32 @@ namespace robowflex
          */
         std::string getHostname();
 
+        /** \brief Get the process ID of this process.
+         *  \return The process ID.
+         */
+        std::size_t getProcessID();
+
+        /** \brief Get the thread ID of the current thread.
+         *  \return The thread ID.
+         */
+        std::size_t getThreadID();
+
         /** \brief Get the current time (up to milliseconds)
          *  \return The time.
          */
         boost::posix_time::ptime getDate();
+
+        /** \brief Get a duration in seconds from two times.
+         *  \param[in] start The start time.
+         *  \param[in] finish The finish time.
+         *  \return The time in seconds.
+         */
+        double getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish);
+
+        /** \brief Put the current thread to sleep for a desired amount of seconds.
+         *  \param[in] seconds Seconds to sleep for.
+         */
+        void threadSleep(double seconds);
 
         /** \brief Separates a \a string into casted tokens, based upon \a separators.
          *  \tparam The type of element to cast strings into.
@@ -139,6 +163,7 @@ namespace robowflex
          *  \param[in] msg Message to dump.
          *  \param[in] file File to dump message to.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)
@@ -153,6 +178,7 @@ namespace robowflex
          *  \param[out] msg Message to load into.
          *  \param[in] file File to load message from.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool YAMLFileToMessage(T &msg, const std::string &file)
@@ -162,6 +188,17 @@ namespace robowflex
                 msg = result.second.as<T>();
 
             return result.first;
+        }
+
+        /** \brief Compute MD5 hash of message.
+         *  \param[in] msg Message to hash.
+         *  \tparam T Type of the message.
+         *  \return The hash of the message.
+         */
+        template <typename T>
+        std::string getMessageMD5(T &msg)
+        {
+            return ros::message_traits::md5sum<T>(msg);
         }
     }  // namespace IO
 }  // namespace robowflex

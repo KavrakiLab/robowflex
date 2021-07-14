@@ -77,6 +77,7 @@ list(APPEND SOURCES
   src/io/colormap.cpp
   src/io/broadcaster.cpp
   src/io/hdf5.cpp
+  src/io/gnuplot.cpp
   src/pool.cpp
   src/tf.cpp
   src/random.cpp

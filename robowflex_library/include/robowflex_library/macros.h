@@ -102,4 +102,16 @@
 #endif
 /** \endcond */
 
+///
+/// Type information helpers
+///
+
+#if IS_BOOST_158
+#include <boost/core/demangle.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::core::demangle(x)
+#else
+#include <boost/exception/detail/type_info.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::units::detail::demangle(x)
+#endif
+
 #endif

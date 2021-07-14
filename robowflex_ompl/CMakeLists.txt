@@ -43,6 +43,7 @@ if (moveit_planners_ompl_DIR)
   add_script(fetch_ompl_interface)
   add_script(fetch_ompl_benchmark)
   add_script(fetch_ompl_scenes_benchmark)
+  add_script(fetch_profile)
 
   install_scripts()
   install_library()
