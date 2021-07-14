@@ -152,7 +152,7 @@ namespace robowflex
         /** \name Experiment Parameters
             \{ */
 
-        double allowed_time;          ///< Allowed time for all queries.
+        double allowed_time;          ///< Allowed planning time used per query.
         std::size_t trials;           ///< Requested trials for each query.
         bool enforced_single_thread;  ///< If true, all planners were asked to run in single-threaded mode.
         bool run_till_timeout;  ///< If true, planners were run to solve the problem as many times as possible
@@ -354,7 +354,7 @@ namespace robowflex
         /** \brief Constructor.
          *  \param[in] name Name of this experiment.
          *  \param[in] options Options for the internal profiler.
-         *  \param[in] allowed_time Time allotted to all queries for benchmarking.
+         *  \param[in] allowed_time Total planning time allowed for each query.
          *  \param[in] trials Number of trials to run each query for.
          *  \param[in] timeout If true, will re-run each query until the total time taken has exceeded the
          * allotted time.
