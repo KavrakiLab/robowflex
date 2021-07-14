@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
-    planner->initialize("package://fetch_moveit_config/config/ompl_planning.yaml");
+    planner->initialize("package://robowflex_resources/fetch/config/ompl_planning.yaml");
 
     // Sets the Fetch's base pose.
     fetch->setBasePose(1, 1, 0.5);
