@@ -459,10 +459,10 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                         request.num_planning_attempts = 1;
 
                     // Call pre-run callbacks
+                    info.query->planner->preRun(info.query->scene, request);
+
                     if (pre_callback_)
                         pre_callback_(*info.query);
-
-                    info.query->planner->preRun(info.query->scene, request);
 
                     // Profile query
                     auto data = std::make_shared<PlanData>();

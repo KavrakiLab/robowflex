@@ -71,6 +71,15 @@ namespace robowflex
              */
             ompl::geometric::SimpleSetupPtr getLastSimpleSetup() const;
 
+            /** \brief Refreshes the internal planning context.
+             *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
+             *  \param[in] request The motion planning request to solve.
+             *  \param[in] force If true, forces a refresh of the context.
+             */
+            void refreshContext(const SceneConstPtr &scene,                            //
+                                const planning_interface::MotionPlanRequest &request,  //
+                                bool force = false) const;
+
             std::map<std::string, Planner::ProgressProperty>
             getProgressProperties(const SceneConstPtr &scene,
                                   const planning_interface::MotionPlanRequest &request) const override;
@@ -81,15 +90,6 @@ namespace robowflex
                         const planning_interface::MotionPlanRequest &request) override;
 
         private:
-            /** \brief Refreshes the internal planning context.
-             *  \param[in] scene A planning scene for the same \a robot_ to compute the plan in.
-             *  \param[in] request The motion planning request to solve.
-             *  \param[in] force If true, forces a refresh of the context.
-             */
-            void refreshContext(const SceneConstPtr &scene,                            //
-                                const planning_interface::MotionPlanRequest &request,  //
-                                bool force = false) const;
-
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
