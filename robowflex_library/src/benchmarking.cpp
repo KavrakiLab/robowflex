@@ -5,12 +5,14 @@
 #include <boost/lexical_cast.hpp>
 #include <utility>
 
+#include <moveit/version.h>
+
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
@@ -636,17 +638,17 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
             class ToString : public boost::static_visitor<const std::string>
             {
             public:
-                const std::string operator()(int /* dummy */) const
+                std::string operator()(int /* dummy */) const
                 {
                     return "INT";
                 }
 
-                const std::string operator()(double /* dummy */) const
+                std::string operator()(double /* dummy */) const
                 {
                     return "REAL";
                 }
 
-                const std::string operator()(bool /* dummy */) const
+                std::string operator()(bool /* dummy */) const
                 {
                     return "BOOLEAN";
                 }

@@ -1,13 +1,11 @@
 /* Author: Constantinos Chamzas */
 
 // Robowflex
-#include <robowflex_library/log.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
-#include <robowflex_library/geometry.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
-#include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
@@ -63,7 +61,12 @@ int main(int argc, char **argv)
 
         // Create the default planner for the Fetch.
         auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch);
-        planner->initialize();
+
+        // Disable simplification
+        auto settings = OMPL::Settings();
+        settings.simplify_solutions = false;
+
+        planner->initialize(settings);
 
         // Create an empty motion planning request.
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);

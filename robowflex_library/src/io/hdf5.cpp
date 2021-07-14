@@ -21,7 +21,7 @@ IO::HDF5Data::HDF5Data(const T &location, const std::string &name)
   , type_(dataset_.getTypeClass())
   , rank_(space_.getSimpleExtentNdims())
   , dims_([&] {
-      hsize_t *dims = new hsize_t[rank_];
+      auto *dims = new hsize_t[rank_];
       space_.getSimpleExtentDims(dims);
       return dims;
   }())
@@ -235,7 +235,7 @@ const std::vector<std::vector<std::string>> IO::HDF5File::getKeys() const
 }
 
 template <typename T>
-const std::vector<std::string> IO::HDF5File::listObjects(const T &location) const
+std::vector<std::string> IO::HDF5File::listObjects(const T &location) const
 {
     std::vector<std::string> names;
     for (hsize_t i = 0; i < location.getNumObjs(); ++i)
@@ -244,13 +244,13 @@ const std::vector<std::string> IO::HDF5File::listObjects(const T &location) cons
     return names;
 }
 
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &) const;
-template const std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &) const;
+template std::vector<std::string> IO::HDF5File::listObjects(const H5::H5File &) const;
+template std::vector<std::string> IO::HDF5File::listObjects(const H5::Group &) const;
 
 template <typename T>
 void IO::HDF5File::loadData(Node &node, const T &location, const std::string &name)
 {
-    NodeMap &map = boost::get<NodeMap>(node);
+    auto &map = boost::get<NodeMap>(node);
 
 #if ROBOWFLEX_AT_LEAST_KINETIC
     H5O_type_t type = location.childObjType(name);

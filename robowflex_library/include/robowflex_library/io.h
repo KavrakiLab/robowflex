@@ -27,7 +27,7 @@ namespace robowflex
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.
          */
-        const std::string resolvePackage(const std::string &path);
+        std::string resolvePackage(const std::string &path);
 
         /** \brief Finds all package URIs within a string.
          *  \param[in] string String to search.
@@ -39,43 +39,51 @@ namespace robowflex
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.
          */
-        const std::string resolvePath(const std::string &path);
+        std::string resolvePath(const std::string &path);
 
         /** \brief Resolves `package://` URLs to get the directory this path is in.
          *  \param[in] path Path to get the parent of.
          *  \return The directory that this path is contained in, or "" on failure.
          */
-        const std::string resolveParent(const std::string &path);
+        std::string resolveParent(const std::string &path);
+
+        /** \brief Concatenates two elements of a path, a directory and a filename.
+         *  \param[in] directory Path to use as directory. If there are other elements at the end of the
+         *                       directory path, they will be removed.
+         *  \param[in] filename Filename to add.
+         *  \return The canonical path for this path.
+         */
+        std::string makeFilepath(const std::string &directory, const std::string &filename);
 
         /** \brief Loads an XML or .xacro file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist or .xacro is malformed).
          */
-        const std::string loadXMLToString(const std::string &path);
+        std::string loadXMLToString(const std::string &path);
 
         /** \brief Loads a .xacro file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist or .xacro is malformed).
          */
-        const std::string loadXacroToString(const std::string &path);
+        std::string loadXacroToString(const std::string &path);
 
         /** \brief Loads a file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist).
          */
-        const std::string loadFileToString(const std::string &path);
+        std::string loadFileToString(const std::string &path);
 
         /** \brief Runs a command \a cmd and returns stdout as a string.
          *  \param[in] cmd Command to run.
          *  \return Contents of stdout from \a cmd, or "" on failure.
          */
-        const std::string runCommand(const std::string &cmd);
+        std::string runCommand(const std::string &cmd);
 
         /** \brief Loads a file to a YAML node.
          *  \param[in] path File to load.
          *  \return A pair, where the first is true on success false on failure, and second is the YAML node.
          */
-        const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
+        std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
         /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
@@ -99,12 +107,12 @@ namespace robowflex
          *  \return A pair of a bool and a vector of strings of filenames of the directories contents. The
          * first element will be true on success, false on failure. These filenames are absolute paths.
          */
-        const std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
+        std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
 
         /** \brief Get the hostname of the system.
          *  \return String of the hostname.
          */
-        const std::string getHostname();
+        std::string getHostname();
 
         /** \brief Get the process ID of this process.
          *  \return The process ID.

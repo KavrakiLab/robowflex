@@ -1,9 +1,9 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/robot.h>
@@ -12,6 +12,7 @@
 #include <robowflex_library/util.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
+#include <moveit/robot_state/conversions.h>
 #include <pluginlib/class_loader.h>
 
 namespace robowflex
@@ -180,7 +181,7 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
 {
     incrementVersion();
 
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
     {
         if (!world->moveShapeInObject(name, geometry->getShape(), pose))
@@ -194,13 +195,13 @@ void Scene::updateCollisionObject(const std::string &name, const GeometryConstPt
 
 std::vector<std::string> Scene::getCollisionObjects() const
 {
-    auto &world = scene_->getWorld();
+    const auto &world = scene_->getWorld();
     return world->getObjectIds();
 }
 
 GeometryPtr Scene::getObjectGeometry(const std::string &name) const
 {
-    auto &world = scene_->getWorld();
+    const auto &world = scene_->getWorld();
 
     const auto &obj = world->getObject(name);
     if (obj)
@@ -217,7 +218,7 @@ void Scene::removeCollisionObject(const std::string &name)
 
 RobotPose Scene::getObjectPose(const std::string &name) const
 {
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
         return obj->shape_poses_[0];
@@ -256,7 +257,7 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
 
     bool success = false;
 #if ROBOWFLEX_AT_LEAST_KINETIC
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     success = world->moveObject(name, transform);
 #endif
     if (not success)
@@ -330,32 +331,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
-    incrementVersion();
-
-    auto &world = scene_->getWorldNonConst();
-    if (!world->hasObject(name))
-    {
-        RBX_ERROR("World does not have object `%s`", name);
-        return false;
-    }
-
-    const auto &obj = world->getObject(name);
-
-    if (!obj)
-    {
-        RBX_ERROR("Could not get object `%s`", name);
-        return false;
-    }
-
-    if (!world->removeObject(name))
-    {
-        RBX_ERROR("Could not remove object `%s`", name);
-        return false;
-    }
-
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
-    return true;
+    return attachObject(getCurrentState(), name, ee_link, touch_links);
 }
 
 bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
@@ -363,7 +339,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 {
     incrementVersion();
 
-    auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorldNonConst();
     if (!world->hasObject(name))
     {
         RBX_ERROR("World does not have object `%s`", name);
@@ -383,15 +359,13 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
     RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 
@@ -403,11 +377,15 @@ bool Scene::hasObject(const std::string &name) const
 
 bool Scene::detachObject(const std::string &name)
 {
+    return detachObject(getCurrentState(), name);
+}
+
+bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
+{
     incrementVersion();
 
-    auto &robot = scene_->getCurrentStateNonConst();
-    auto &world = scene_->getWorldNonConst();
-    auto body = robot.getAttachedBody(name);
+    const auto &world = scene_->getWorldNonConst();
+    const auto &body = state.getAttachedBody(name);
 
     if (!body)
     {
@@ -417,7 +395,7 @@ bool Scene::detachObject(const std::string &name)
 
     world->addToObject(name, body->getShapes(), body->getGlobalCollisionBodyTransforms());
 
-    if (!robot.clearAttachedBody(name))
+    if (not state.clearAttachedBody(name))
     {
         RBX_ERROR("Could not detach object `%s`", name);
         return false;
@@ -442,7 +420,6 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC
     if (not hasObject(object))
     {
         RBX_ERROR("World does not have object `%s`", object);
@@ -479,17 +456,11 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
 #endif
     return res.minimum_distance.distance;
-
-#else
-    throw Exception(1, "Not Implemented");
-
-#endif
 }
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC and                                             \
-    ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
+#if ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     // Early terminate if they are the same
     if (one == two)
         return 0.;
@@ -562,6 +533,10 @@ bool Scene::fromYAMLFile(const std::string &file)
         return false;
 
     fixCollisionObjectFrame(msg);
+
+    // Add robot_state if loaded scene does not contain one.
+    if (msg.robot_state.joint_state.position.empty())
+        moveit::core::robotStateToRobotStateMsg(scene_->getCurrentState(), msg.robot_state);
 
     auto acm(getACM());
     useMessage(msg);

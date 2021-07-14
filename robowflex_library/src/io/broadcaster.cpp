@@ -2,8 +2,8 @@
 
 #include <sensor_msgs/JointState.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io/broadcaster.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/tf.h>
 

@@ -14,6 +14,9 @@
 #include <srdfdom/model.h>
 #include <tinyxml2.h>
 
+#include <moveit_msgs/PositionConstraint.h>
+#include <moveit_msgs/OrientationConstraint.h>
+
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
@@ -271,6 +274,11 @@ namespace robowflex
          */
         robot_model::RobotStatePtr &getScratchState();
 
+        /** \brief Allocate a new robot state that is a clone of the current scratch state.
+         *  \return The new robot state.
+         */
+        robot_model::RobotStatePtr cloneScratchState() const;
+
         /** \brief Allocate a new robot state.
          *  \return The new robot state.
          */
@@ -370,7 +378,7 @@ namespace robowflex
             /** \name Additional Solver Options
                 \{ */
 
-            ScenePtr scene;             ///< If provided, use this scene for collision checking.
+            SceneConstPtr scene;        ///< If provided, use this scene for collision checking.
             bool verbose{false};        ///< Verbose output of collision checking.
             bool random_restart{true};  ///< Randomly reset joint states.
             kinematics::KinematicsQueryOptions options;    ///< Other query options.
@@ -379,7 +387,7 @@ namespace robowflex
 
             /** \} */
 
-            /** Constructor. Empty for fine control.
+            /** \brief Constructor. Empty for fine control.
              *  \param[in] group Group to set.
              */
             IKQuery(const std::string &group);
@@ -387,7 +395,7 @@ namespace robowflex
             /** \name Directional Offset Constructors
                 \{ */
 
-            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+            /** \brief Constructor. Initialize an IK query based on offsets from an initial robot state.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -400,7 +408,7 @@ namespace robowflex
                     const Eigen::Vector3d &direction,      //
                     double distance);
 
-            /** Constructor. Initialize an IK query based on offsets from an initial robot state.
+            /** \brief Constructor. Initialize an IK query based on offsets from an initial robot state.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -413,8 +421,8 @@ namespace robowflex
                     const Eigen::Vector3d &position_offset,  //
                     const Eigen::Quaterniond &rotation_offset = Eigen::Quaterniond::Identity());
 
-            /** Constructor. Initialize an IK query based on an offset from an initial robot state. Only for
-             *  single-tip systems.
+            /** \brief Constructor. Initialize an IK query based on an offset from an initial robot state.
+             * Only for single-tip systems.
              *  \param[in] group Group to set.
              *  \param[in] tip Tip frame to apply offset to.
              *  \param[in] start Initial robot state to compute offset for.
@@ -430,7 +438,7 @@ namespace robowflex
             /** \name Single Target Constructors
                 \{ */
 
-            /** Constructor. Initialize a basic IK query to reach the desired \a pose.
+            /** \brief Constructor. Initialize a basic IK query to reach the desired \a pose.
              *  \param[in] group Group to set.
              *  \param[in] pose Desired pose of end-effector.
              *  \param[in] radius Radius tolerance around position.
@@ -441,7 +449,8 @@ namespace robowflex
                     double radius = constants::ik_tolerance,  //
                     const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
-            /** Constructor. Initialize a basic IK query to reach the desired \a position and \a orientation.
+            /** \brief Constructor. Initialize a basic IK query to reach the desired \a position and \a
+             * orientation.
              *  \param[in] group Group to set.
              *  \param[in] position Position to achieve.
              *  \param[in] orientation Mean orientation.
@@ -454,8 +463,8 @@ namespace robowflex
                     double radius = constants::ik_tolerance,  //
                     const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
-            /** Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a \a
-             *  pose) and \a orientation.
+            /** \brief Constructor. Initialize an IK query to reach somewhere in the provided \a region (at a
+             * \a pose) and \a orientation.
              *  \param[in] group Group to set.
              *  \param[in] region Region of points for position.
              *  \param[in] pose Pose of the \a region.
@@ -485,12 +494,21 @@ namespace robowflex
                     const std::string &object,  //
                     const Eigen::Vector3d &tolerances = constants::ik_vec_tolerance);
 
+            /** \brief Constructor. Initialize an IK query from MoveIt message constraints.
+             *  \param[in] group Group to set.
+             *  \param[in] pc Position constraint.
+             *  \param[in] oc Orientation constraint.
+             */
+            IKQuery(const std::string &group,                   //
+                    const moveit_msgs::PositionConstraint &pc,  //
+                    const moveit_msgs::OrientationConstraint &oc);
+
             /** \} */
 
             /** \name Multiple Target Constructors
                 \{ */
 
-            /** Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
+            /** \brief Constructor. Initialize a basic multi-target IK query so that each of the \a tips reach
              *  their desired \a poses.
              *  \param[in] group Group to set.
              *  \param[in] poses Desired poses of end-effector tips.
@@ -552,7 +570,7 @@ namespace robowflex
 
             /** \} */
 
-            /** \name Sampling
+            /** \name Sampling Region
                 \{ */
 
             /** \brief Sample desired end-effector pose for region at \a index.

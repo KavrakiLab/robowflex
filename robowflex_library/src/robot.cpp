@@ -3,9 +3,6 @@
 #include <deque>
 #include <numeric>
 
-#include <urdf_parser/urdf_parser.h>
-
-#include <moveit/collision_detection/collision_common.h>
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
 
@@ -229,7 +226,7 @@ void Robot::setURDFPostProcessFunction(const PostProcessXMLFunction &function)
 
 bool Robot::isLinkURDF(tinyxml2::XMLDocument &doc, const std::string &name)
 {
-    auto node = doc.FirstChildElement("robot")->FirstChildElement("link");
+    auto *node = doc.FirstChildElement("robot")->FirstChildElement("link");
     while (node != nullptr)
     {
         if (node->Attribute("name", name.c_str()))
@@ -264,7 +261,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file)
 bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
                          const PostProcessYAMLFunction &function)
 {
-    auto &yaml = IO::loadFileToYAML(file);
+    const auto &yaml = IO::loadFileToYAML(file);
     if (!yaml.first)
     {
         RBX_ERROR("Failed to load YAML file `%s`.", file);
@@ -514,6 +511,14 @@ robot_model::RobotStatePtr &Robot::getScratchState()
     return scratch_;
 }
 
+robot_model::RobotStatePtr Robot::cloneScratchState() const
+{
+    auto state = allocState();
+    *state = *scratch_;
+
+    return state;
+}
+
 const IO::Handler &Robot::getHandlerConst() const
 {
     return handler_;
@@ -650,6 +655,36 @@ Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region
   : group(group), scene(scene), verbose(scene and verbose)
 {
     addRequest("", region, pose, orientation, tolerance);
+}
+
+Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionConstraint &pc,
+                        const moveit_msgs::OrientationConstraint &oc)
+  : group(group)
+{
+    if (pc.link_name != oc.link_name)
+        throw Exception(
+            1, log::format("Link name mismatch in constraints, `%1%` != `%2%`", pc.link_name, oc.link_name));
+
+    if (not TF::isVecZero(TF::vectorMsgToEigen(pc.target_point_offset)))
+        throw Exception(1, "target_point_offset in position constraint not supported.");
+
+    const auto &cr = pc.constraint_region;
+
+    if (not cr.meshes.empty())
+        throw Exception(1, "Cannot specify mesh regions!");
+
+    if (cr.primitives.size() > 1)
+        throw Exception(1, "Cannot specify more than one primitive!");
+
+    const auto &region = Geometry::makeSolidPrimitive(cr.primitives[0]);
+    const auto &pose = TF::poseMsgToEigen(cr.primitive_poses[0]);
+
+    const auto &rotation = TF::quaternionMsgToEigen(oc.orientation);
+    Eigen::Vector3d tolerance{oc.absolute_x_axis_tolerance,  //
+                              oc.absolute_y_axis_tolerance,  //
+                              oc.absolute_z_axis_tolerance};
+
+    addRequest(pc.link_name, region, pose, rotation, tolerance);
 }
 
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,

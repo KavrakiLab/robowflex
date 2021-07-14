@@ -1,7 +1,8 @@
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/io/handler.h>
+#include <robowflex_library/macros.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -25,6 +26,8 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     settings.setParam(handler_);
 
     interface_->simplifySolutions(settings.simplify_solutions);
+    hybridize_ = settings.hybridize_solutions;
+    interpolate_ = settings.interpolate_solutions;
 
     auto &pcm = interface_->getPlanningContextManager();
     pcm.setMaximumSolutionSegmentLength(settings.maximum_waypoint_distance);
@@ -95,8 +98,8 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
 void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
                                                 const planning_interface::MotionPlanRequest &request) const
 {
-    auto *next_scene = scene.get();
-    auto *next_request = std::addressof(request);
+    const auto &next_scene = scene.get();
+    const auto &next_request = std::addressof(request);
 
     if (last_scene_ == next_scene and last_request_ == next_request and ss_)
     {
@@ -111,6 +114,11 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
         ss_ = nullptr;
         return;
     }
+
+#if ROBOWFLEX_AT_LEAST_MELODIC
+    context_->setInterpolation(interpolate_);
+    context_->setHybridize(hybridize_);
+#endif
 
     ss_ = context_->getOMPLSimpleSetup();
 

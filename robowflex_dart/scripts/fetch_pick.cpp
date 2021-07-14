@@ -4,9 +4,9 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
         plan_to_grasp();
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-        auto cube = scene_dart->getFrame("Cube3");
+        auto *cube = scene_dart->getFrame("Cube3");
         fetch_dart->reparentFreeFrame(cube, "wrist_roll_link");
 
         plan_to_place();
