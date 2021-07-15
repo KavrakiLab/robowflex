@@ -331,32 +331,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
 bool Scene::attachObject(const std::string &name, const std::string &ee_link,
                          const std::vector<std::string> &touch_links)
 {
-    incrementVersion();
-
-    const auto &world = scene_->getWorldNonConst();
-    if (!world->hasObject(name))
-    {
-        RBX_ERROR("World does not have object `%s`", name);
-        return false;
-    }
-
-    const auto &obj = world->getObject(name);
-
-    if (!obj)
-    {
-        RBX_ERROR("Could not get object `%s`", name);
-        return false;
-    }
-
-    if (!world->removeObject(name))
-    {
-        RBX_ERROR("Could not remove object `%s`", name);
-        return false;
-    }
-
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, obj->shape_poses_, touch_links, ee_link);
-    return true;
+    return attachObject(getCurrentState(), name, ee_link, touch_links);
 }
 
 bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
@@ -384,15 +359,13 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    scene_->setCurrentState(state);
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
     RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    auto &scene_state = getCurrentState();
-    scene_state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
     return true;
 }
 
@@ -404,11 +377,15 @@ bool Scene::hasObject(const std::string &name) const
 
 bool Scene::detachObject(const std::string &name)
 {
+    return detachObject(getCurrentState(), name);
+}
+
+bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
+{
     incrementVersion();
 
-    auto &robot = scene_->getCurrentStateNonConst();
     const auto &world = scene_->getWorldNonConst();
-    const auto &body = robot.getAttachedBody(name);
+    const auto &body = state.getAttachedBody(name);
 
     if (!body)
     {
@@ -418,7 +395,7 @@ bool Scene::detachObject(const std::string &name)
 
     world->addToObject(name, body->getShapes(), body->getGlobalCollisionBodyTransforms());
 
-    if (!robot.clearAttachedBody(name))
+    if (not state.clearAttachedBody(name))
     {
         RBX_ERROR("Could not detach object `%s`", name);
         return false;
@@ -443,7 +420,6 @@ double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
 
 double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC
     if (not hasObject(object))
     {
         RBX_ERROR("World does not have object `%s`", object);
@@ -480,17 +456,11 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
 #endif
     return res.minimum_distance.distance;
-
-#else
-    throw Exception(1, "Not Implemented");
-
-#endif
 }
 
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_AT_LEAST_KINETIC and ROBOWFLEX_AT_MOST_MELODIC and                                             \
-    ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
+#if ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     // Early terminate if they are the same
     if (one == two)
         return 0.;

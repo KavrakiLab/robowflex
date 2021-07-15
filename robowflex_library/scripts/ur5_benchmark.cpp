@@ -51,13 +51,19 @@ int main(int argc, char **argv)
                                 orn, {0.01, 0.01, 0.01}           // orientation
     );
 
-    // Setup a benchmarking request for the joint and pose motion plan requests.
-    Benchmarker benchmark;
-    benchmark.addBenchmarkingRequest("joint", scene, planner, joint_request);
-    benchmark.addBenchmarkingRequest("pose", scene, planner, pose_request);
+    Profiler::Options options;
+    Experiment experiment("ur5_demo",  // Name of experiment
+                          options,     // Options for internal profiler
+                          5.0,         // Timeout allowed for ALL queries
+                          50);         // Number of trials
 
-    // Output results to an OMPL benchmarking file.
-    benchmark.benchmark({std::make_shared<OMPLBenchmarkOutputter>("robowflex_ur5_benchmark/")});
+    experiment.addQuery("joint", scene, planner, joint_request);
+    experiment.addQuery("pose", scene, planner, pose_request);
+
+    auto dataset = experiment.benchmark(4);
+
+    OMPLPlanDataSetOutputter output("robowflex_ur5_demo");
+    output.dump(*dataset);
 
     return 0;
 }

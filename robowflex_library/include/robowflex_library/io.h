@@ -9,6 +9,8 @@
 
 #include <boost/date_time.hpp>  // for date operations
 
+#include <ros/message_traits.h>  // for message operations
+
 #include <yaml-cpp/yaml.h>  // for YAML parsing
 
 namespace robowflex
@@ -27,7 +29,7 @@ namespace robowflex
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.
          */
-        const std::string resolvePackage(const std::string &path);
+        std::string resolvePackage(const std::string &path);
 
         /** \brief Finds all package URIs within a string.
          *  \param[in] string String to search.
@@ -39,43 +41,51 @@ namespace robowflex
          *  \param[in] path Path to resolve.
          *  \return The canonical path, or "" on failure.
          */
-        const std::string resolvePath(const std::string &path);
+        std::string resolvePath(const std::string &path);
 
         /** \brief Resolves `package://` URLs to get the directory this path is in.
          *  \param[in] path Path to get the parent of.
          *  \return The directory that this path is contained in, or "" on failure.
          */
-        const std::string resolveParent(const std::string &path);
+        std::string resolveParent(const std::string &path);
+
+        /** \brief Concatenates two elements of a path, a directory and a filename.
+         *  \param[in] directory Path to use as directory. If there are other elements at the end of the
+         *                       directory path, they will be removed.
+         *  \param[in] filename Filename to add.
+         *  \return The canonical path for this path.
+         */
+        std::string makeFilepath(const std::string &directory, const std::string &filename);
 
         /** \brief Loads an XML or .xacro file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist or .xacro is malformed).
          */
-        const std::string loadXMLToString(const std::string &path);
+        std::string loadXMLToString(const std::string &path);
 
         /** \brief Loads a .xacro file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist or .xacro is malformed).
          */
-        const std::string loadXacroToString(const std::string &path);
+        std::string loadXacroToString(const std::string &path);
 
         /** \brief Loads a file to a string.
          *  \param[in] path File to load.
          *  \return The loaded file, or "" on failure (file does not exist).
          */
-        const std::string loadFileToString(const std::string &path);
+        std::string loadFileToString(const std::string &path);
 
         /** \brief Runs a command \a cmd and returns stdout as a string.
          *  \param[in] cmd Command to run.
          *  \return Contents of stdout from \a cmd, or "" on failure.
          */
-        const std::string runCommand(const std::string &cmd);
+        std::string runCommand(const std::string &cmd);
 
         /** \brief Loads a file to a YAML node.
          *  \param[in] path File to load.
          *  \return A pair, where the first is true on success false on failure, and second is the YAML node.
          */
-        const std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
+        std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
         /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
@@ -99,17 +109,39 @@ namespace robowflex
          *  \return A pair of a bool and a vector of strings of filenames of the directories contents. The
          * first element will be true on success, false on failure. These filenames are absolute paths.
          */
-        const std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
+        std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
 
         /** \brief Get the hostname of the system.
          *  \return String of the hostname.
          */
-        const std::string getHostname();
+        std::string getHostname();
+
+        /** \brief Get the process ID of this process.
+         *  \return The process ID.
+         */
+        std::size_t getProcessID();
+
+        /** \brief Get the thread ID of the current thread.
+         *  \return The thread ID.
+         */
+        std::size_t getThreadID();
 
         /** \brief Get the current time (up to milliseconds)
          *  \return The time.
          */
         boost::posix_time::ptime getDate();
+
+        /** \brief Get a duration in seconds from two times.
+         *  \param[in] start The start time.
+         *  \param[in] finish The finish time.
+         *  \return The time in seconds.
+         */
+        double getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish);
+
+        /** \brief Put the current thread to sleep for a desired amount of seconds.
+         *  \param[in] seconds Seconds to sleep for.
+         */
+        void threadSleep(double seconds);
 
         /** \brief Separates a \a string into casted tokens, based upon \a separators.
          *  \tparam The type of element to cast strings into.
@@ -131,6 +163,7 @@ namespace robowflex
          *  \param[in] msg Message to dump.
          *  \param[in] file File to dump message to.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool messageToYAMLFile(T &msg, const std::string &file)
@@ -145,6 +178,7 @@ namespace robowflex
          *  \param[out] msg Message to load into.
          *  \param[in] file File to load message from.
          *  \tparam T Type of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
         bool YAMLFileToMessage(T &msg, const std::string &file)
@@ -154,6 +188,17 @@ namespace robowflex
                 msg = result.second.as<T>();
 
             return result.first;
+        }
+
+        /** \brief Compute MD5 hash of message.
+         *  \param[in] msg Message to hash.
+         *  \tparam T Type of the message.
+         *  \return The hash of the message.
+         */
+        template <typename T>
+        std::string getMessageMD5(T &msg)
+        {
+            return ros::message_traits::md5sum<T>(msg);
         }
     }  // namespace IO
 }  // namespace robowflex
