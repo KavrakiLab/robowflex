@@ -12,53 +12,57 @@
 using namespace robowflex;
 
 /* \file shadowhand_ik.cpp
+ * Example of multi-target IK using BioIK for the shadowhand. This script also uses some of the more advanced
+ * features of Robot::IKQuery and setFromIK() that allow for approximate solutions and higher thresholds on IK
+ * solution tolerance.
+ * This script also visualizes the query and result using RViz. See
+ * https://kavrakilab.github.io/robowflex/rviz.html for RViz visualization.
  */
 
-// const std::vector<std::string> tips = {"ffdistal", "mfdistal", "rfdistal", "lfdistal", "thdistal",
-// "wrist"};
+// Tip links of each of the shadowhand's fingers (from forefinger to thumb).
 const std::vector<std::string> tips = {"fftip", "mftip", "rftip", "lftip", "thtip"};
-// const std::vector<std::string> tips = {"ffdistal", "mfdistal", "rfdistal", "lfdistal", "thdistal"};
-// const std::vector<std::string> tips = {"ffdistal", "thdistal", "wrist"};
-// const std::vector<std::string> tips = {"fftip", "thtip"};
 
 int main(int argc, char **argv)
 {
     // Startup ROS
     ROS ros(argc, argv);
 
-    // Create a Shadowhand robot.
+    // Create a Shadowhand robot and initialize.
     auto shadowhand = std::make_shared<Robot>("shadowhand");
     shadowhand->initializeFromYAML("package://robowflex_resources/shadowhand.yml");
     shadowhand->loadKinematics("all_fingers", false);
-
     shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint"}, {0.6, 0.6});
 
-    auto scene = std::make_shared<Scene>(shadowhand);
-
+    // Save initial state.
     auto start = *shadowhand->getScratchState();
 
-    // Visualize the Shadowhand robot
+    // Visualize the Shadowhand robot.
     IO::RVIZHelper rviz(shadowhand);
 
+    // Set the shadowhand to a default grasp and save that state.
     shadowhand->setStateFromYAMLFile("package://robowflex_resources/shadowhand/poses/grasp.yml");
     auto grasp = *shadowhand->getScratchState();
 
+    // Visualize desired grasp state.
     rviz.visualizeCurrentState();
     RBX_INFO("Desired Grasp Displayed, Press Enter to Continue...");
     std::cin.ignore();
 
+    // Extract poses of the tip links.
     RobotPoseVector poses;
     for (const auto &tip : tips)
     {
         auto pose = shadowhand->getLinkTF(tip);
         poses.emplace_back(pose);
 
+        // Create a marker at each tip frame.
         rviz.addTransformMarker(tip + "_goal", "map", pose, 0.3);
     }
 
-    // Reset
+    // Reset state to the initial start state.
     *shadowhand->getScratchState() = start;
 
+    // Visualize starting state and goal markers.
     rviz.visualizeCurrentState();
     rviz.updateMarkers();
     RBX_INFO("Initial State and Goal Displayed, Press Enter to Continue...");
@@ -68,14 +72,13 @@ int main(int argc, char **argv)
     Robot::IKQuery query("all_fingers", poses, tips);
     query.timeout = 0.1;
     query.attempts = 10;
-    query.options.return_approximate_solution = true;
 
     query.scene = scene;
-    query.validate = true;
-    query.valid_distance = 0.01;
 
-    query.addDistanceMetric();
-    query.addCenteringMetric();
+    // Need approximate solutions as multi-target BioIK will only return approximate solutions.
+    query.options.return_approximate_solution = true;
+    query.validate = true;  // Need external validation to verify approximate solutions are within tolerance.
+    query.valid_distance = 0.01;  // Tuned distance threshold that is appropriate for query.
 
     if (not shadowhand->setFromIK(query))
         RBX_ERROR("IK query failed!");
