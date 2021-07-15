@@ -16,11 +16,13 @@
 
 #include <moveit_msgs/PositionConstraint.h>
 #include <moveit_msgs/OrientationConstraint.h>
+#include <moveit_msgs/Constraints.h>
 
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit/robot_model_loader/robot_model_loader.h>
+#include <moveit/kinematic_constraints/kinematic_constraint.h>
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
@@ -368,6 +370,15 @@ namespace robowflex
         {
             ROBOWFLEX_EIGEN;
 
+            /** \brief Metric for evaluating states within an IK query.
+             *  \param[in] state Resulting state from query.
+             *  \param[in] result Result of evaluating validity of constraint.
+             *  \return Value of the state.
+             */
+            using Metric =
+                std::function<double(const robot_state::RobotState &state,
+                                     const kinematic_constraints::ConstraintEvaluationResult &result)>;
+
             /** \name Query Targets
                 \{ */
 
@@ -389,6 +400,16 @@ namespace robowflex
             kinematics::KinematicsQueryOptions options;    ///< Other query options.
             std::size_t attempts{constants::ik_attempts};  ///< IK attempts (samples within regions).
             double timeout{0.};                            ///< Timeout for each query.
+
+            bool validate{false};       ///< If true, double check if result is valid and use this rather than
+                                        ///< validity reported by the solver.
+            double valid_distance{0.};  ///< If positive and validate = true, will return success if result is
+                                        ///< within distance of kinematic constraint set.
+
+            std::vector<Metric> metrics;  ///< Metrics used to evaluate configurations. If metrics are added,
+                                          ///< solver will use all allotted resources to search for the best
+                                          ///< configuration. If there are multiple metrics, metric values
+                                          ///< will be added together.
 
             /** \} */
 
@@ -573,6 +594,20 @@ namespace robowflex
              */
             void setScene(const ScenePtr &scene, bool verbose = false);
 
+            /** \brief Add a metric to this IK query.
+             *  \param[in] metric_function Metric to add to query.
+             */
+            void addMetric(const Metric &metric_function);
+
+            /** \brief Add a metric to the query to evaluate distance to constraint.
+             */
+            void addDistanceMetric();
+
+            /** \brief Add a metric to the query to evaluate how "centered" the joints of the robot are (from
+             * their 0 position).
+             */
+            void addCenteringMetric();
+
             /** \} */
 
             /** \name Sampling Region
@@ -592,6 +627,24 @@ namespace robowflex
             bool sampleRegions(RobotPoseVector &poses) const;
 
             /** \} */
+
+            /** \name Other Functions
+                \{ */
+
+            /** \brief Get this IK query as a constraint message.
+             *  \param[in] base_frame Base frame of the IK solver used. Can be obtained with
+             *                        Robot::getSolverBaseFrame().
+             *  \param[out] msg Message to fill.
+             */
+            void getMessage(const std::string &base_frame, moveit_msgs::Constraints &msg) const;
+
+            /** \brief Get this IK query as a kinematic constraint set.
+             *  \param[in] robot Robot this IK query is for.
+             *  \return The IK query as a set of kinematic constraints.
+             */
+            kinematic_constraints::KinematicConstraintSetPtr getAsConstraints(const Robot &robot) const;
+
+            /** \} */
         };
 
         /** \brief Sets a group of the scratch state from an IK query. If the IK query fails the scratch state
@@ -608,6 +661,20 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool setFromIK(const IKQuery &query, robot_state::RobotState &state) const;
+
+        /** \brief Validates that a state satisfies an IK query's request poses.
+         *  \param[in] query The query to validate.
+         *  \param[in] state The state to validate against the query.
+         *  \return True if the query is satisfied, false otherwise.
+         */
+        bool validateIKQuery(const IKQuery &query, const robot_state::RobotState &state) const;
+
+        /** \brief Returns the distance of the state to satisfying the IK query.
+         *  \param[in] query The query to check.
+         *  \param[in] state The state to check against the query.
+         *  \return The distance of the state to satisfaction of the query.
+         */
+        double distanceToIKQuery(const IKQuery &query, const robot_state::RobotState &state) const;
 
         /** \brief Get the tip frames for the IK solver for a given joint model group \a group.
          *  \param[in] group The group to get the tip frames for.

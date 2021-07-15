@@ -741,6 +741,29 @@ void Robot::IKQuery::setScene(const ScenePtr &scene_in, bool verbose_in)
     verbose = verbose_in;
 }
 
+void Robot::IKQuery::addMetric(const Metric &metric_function)
+{
+    metrics.emplace_back(metric_function);
+}
+
+void Robot::IKQuery::addDistanceMetric()
+{
+    addMetric(
+        [](const robot_state::RobotState &state,
+           const kinematic_constraints::ConstraintEvaluationResult &result) { return result.distance; });
+}
+
+void Robot::IKQuery::addCenteringMetric()
+{
+    addMetric([&](const robot_state::RobotState &state,
+                  const kinematic_constraints::ConstraintEvaluationResult &result) {
+        const auto &jmg = state.getJointModelGroup(group);
+        const auto &min = state.getMinDistanceToPositionBounds(jmg);
+        double extent = min.second->getMaximumExtent() / 2.;
+        return (extent - min.first) / extent;
+    });
+}
+
 bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const
 {
     const auto &point = regions[index]->sample();
@@ -766,6 +789,37 @@ bool Robot::IKQuery::sampleRegions(RobotPoseVector &poses) const
     return sampled;
 }
 
+void Robot::IKQuery::getMessage(const std::string &base_frame, moveit_msgs::Constraints &msg) const
+{
+    const std::size_t n = regions.size();
+
+    msg.name = "IKQuery";
+
+    for (std::size_t i = 0; i < n; ++i)
+    {
+        auto pos = TF::getPositionConstraint(tips[i], base_frame, region_poses[i], regions[i]);
+        auto orn = TF::getOrientationConstraint(tips[i], base_frame, orientations[i], tolerances[i]);
+        pos.weight = 1. / n;
+        orn.weight = 1. / n / 2.;
+
+        msg.position_constraints.emplace_back(pos);
+        msg.orientation_constraints.emplace_back(orn);
+    }
+}
+
+kinematic_constraints::KinematicConstraintSetPtr Robot::IKQuery::getAsConstraints(const Robot &robot) const
+{
+    moveit_msgs::Constraints msg;
+    getMessage(robot.getSolverBaseFrame(group), msg);
+
+    auto constraints = std::make_shared<kinematic_constraints::KinematicConstraintSet>(robot.getModelConst());
+    moveit::core::Transforms none(robot.getModelConst()->getModelFrame());
+
+    constraints->add(msg, none);
+
+    return constraints;
+}
+
 bool Robot::setFromIK(const IKQuery &query)
 {
     return setFromIK(query, *scratch_);
@@ -777,10 +831,19 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
     const auto &gsvcf =
         (query.scene) ? query.scene->getGSVCF(query.verbose) : moveit::core::GroupStateValidityCallbackFn{};
 
+    bool evaluate = not query.metrics.empty() or query.validate;
+    kinematic_constraints::ConstraintEvaluationResult result;
+    const auto &constraints = (evaluate) ? query.getAsConstraints(*this) : nullptr;
+
+    // Best state if evaluating metrics.
+    auto best = (query.metrics.empty()) ? nullptr : std::make_shared<robot_state::RobotState>(state);
+    double best_value = constants::inf;
+
     bool success = false;
     RobotPoseVector targets;
     for (std::size_t i = 0; i < query.attempts and not success; ++i)
     {
+        // Sample new target poses from regions.
         query.sampleRegions(targets);
 
 #if ROBOWFLEX_AT_LEAST_MELODIC
@@ -799,14 +862,65 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
             success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, query.options);
 #endif
 
-        if (not success and query.random_restart)
+        if (evaluate)
+        {
+            state.update();
+            result = constraints->decide(state, query.verbose);
+        }
+
+        // Externally validate result
+        if (query.validate)
+        {
+            if (query.verbose)
+                RBX_INFO("Constraint Distance: %1%", result.distance);
+
+            success =
+                (query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied;
+        }
+
+        // If success, evaluate state for metrics.
+        if (success and not query.metrics.empty())
+        {
+            double v = 0.;
+            for (const auto &metric : query.metrics)
+                v += metric(state, result);
+
+            if (v < best_value)
+            {
+                best_value = v;
+                *best = state;
+            }
+
+            success = false;
+        }
+
+        if (query.random_restart and not success)
             state.setToRandomPositions(jmg);
     }
 
-    if (success)
-        state.update();
+    // If evaluating metric, copy best state.
+    if (std::isfinite(best_value))
+    {
+        state = *best;
+        success = true;
+    }
 
+    state.update();
     return success;
+}
+
+bool Robot::validateIKQuery(const IKQuery &query, const robot_state::RobotState &state) const
+{
+    const auto &constraints = query.getAsConstraints(*this);
+    const auto &result = constraints->decide(state, query.verbose);
+    return (query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied;
+}
+
+double Robot::distanceToIKQuery(const IKQuery &query, const robot_state::RobotState &state) const
+{
+    const auto &constraints = query.getAsConstraints(*this);
+    const auto &result = constraints->decide(state, query.verbose);
+    return result.distance;
 }
 
 const RobotPose &Robot::getLinkTF(const std::string &name) const

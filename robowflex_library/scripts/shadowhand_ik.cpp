@@ -14,7 +14,8 @@ using namespace robowflex;
 /* \file shadowhand_ik.cpp
  */
 
-// const std::vector<std::string> tips = {"ffdistal", "mfdistal", "rfdistal", "lfdistal", "thdistal", "wrist"};
+// const std::vector<std::string> tips = {"ffdistal", "mfdistal", "rfdistal", "lfdistal", "thdistal",
+// "wrist"};
 const std::vector<std::string> tips = {"fftip", "mftip", "rftip", "lftip", "thtip"};
 // const std::vector<std::string> tips = {"ffdistal", "mfdistal", "rfdistal", "lfdistal", "thdistal"};
 // const std::vector<std::string> tips = {"ffdistal", "thdistal", "wrist"};
@@ -30,7 +31,7 @@ int main(int argc, char **argv)
     shadowhand->initializeFromYAML("package://robowflex_resources/shadowhand.yml");
     shadowhand->loadKinematics("all_fingers", false);
 
-    shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint"}, {0.3, 0.3});
+    shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint"}, {0.6, 0.6});
 
     auto scene = std::make_shared<Scene>(shadowhand);
 
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
     {
         auto pose = shadowhand->getLinkTF(tip);
         poses.emplace_back(pose);
+
         rviz.addTransformMarker(tip + "_goal", "map", pose, 0.3);
     }
 
@@ -62,33 +64,26 @@ int main(int argc, char **argv)
     RBX_INFO("Initial State and Goal Displayed, Press Enter to Continue...");
     std::cin.ignore();
 
+    // Configure query for shadowhand
     Robot::IKQuery query("all_fingers", poses, tips);
+    query.timeout = 0.1;
+    query.attempts = 10;
     query.options.return_approximate_solution = true;
-    // query.scene = scene;
-    // query.verbose = true;
+
+    query.scene = scene;
+    query.validate = true;
+    query.valid_distance = 0.01;
+
+    query.addDistanceMetric();
+    query.addCenteringMetric();
 
     if (not shadowhand->setFromIK(query))
-    {
         RBX_ERROR("IK query failed!");
-    }
-
-    auto result = scene->checkCollision(*shadowhand->getScratchState());
-    result.print();
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
     RBX_INFO("Solution to IK is visualized. Press enter to exit...");
     std::cin.ignore();
-
-    // ros::NodeHandle handle("/");
-    // auto sub = handle.subscribe<sensor_msgs::JointState>("/robowflex/joint_states", 1,
-    //                                                      [&](const sensor_msgs::JointState::ConstPtr &msg)
-    //                                                      {
-    //                                                          RBX_INFO("Message Recieved!");
-    //                                                          shadowhand->setState(*msg);
-    //                                                          rviz.visualizeCurrentState();
-    //                                                      });
-    // ros.wait();
 
     rviz.removeAllMarkers();
     rviz.updateMarkers();
