@@ -33,6 +33,8 @@ int main(int argc, char **argv)
     shadowhand->loadKinematics("all_fingers", false);
     shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint"}, {0.6, 0.6});
 
+    auto scene = std::make_shared<Scene>(shadowhand);
+
     // Save initial state.
     auto start = *shadowhand->getScratchState();
 
