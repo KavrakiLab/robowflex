@@ -899,10 +899,10 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
             if (query.verbose)
                 RBX_INFO("Constraint Distance: %1%", result.distance);
 
-            bool collision = (query.scene) ? not query.scene->checkCollision(state).collision : true;
+            bool no_collision = (query.scene) ? not query.scene->checkCollision(state).collision : true;
 
-            success =          //
-                collision and  //
+            success =             //
+                no_collision and  //
                 ((query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied);
         }
 

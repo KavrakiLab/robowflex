@@ -37,6 +37,8 @@ int main(int argc, char **argv)
     auto scene = std::make_shared<Scene>(shadowhand);
     scene->updateCollisionObject("rod_1", Geometry::makeCylinder(0.1, 2),
                                  TF::createPoseXYZ(0, 0, 0.5, constants::pi / 2, 0, 0));
+    scene->updateCollisionObject("rod_2", Geometry::makeCylinder(0.1, 2),
+                                 TF::createPoseXYZ(-0.2, 0.2, 0.5, 0, 0, 0));
 
     // Save initial state.
     auto start = *shadowhand->getScratchState();
