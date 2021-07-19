@@ -453,7 +453,7 @@ double Scene::distanceToObject(const robot_state::RobotState &state, const std::
 #if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     scene_->getCollisionEnv()->distanceRobot(req, res, state);
 #else
-    scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
+    scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), state);
 #endif
     return res.minimum_distance.distance;
 }
