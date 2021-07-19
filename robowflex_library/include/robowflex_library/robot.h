@@ -372,11 +372,12 @@ namespace robowflex
 
             /** \brief Metric for evaluating states within an IK query.
              *  \param[in] state Resulting state from query.
+             *  \param[in] scene Input scene for query, if available. Nullptr otherwise.
              *  \param[in] result Result of evaluating validity of constraint.
              *  \return Value of the state.
              */
             using Metric =
-                std::function<double(const robot_state::RobotState &state,
+                std::function<double(const robot_state::RobotState &state, const SceneConstPtr &scene,
                                      const kinematic_constraints::ConstraintEvaluationResult &result)>;
 
             /** \name Query Targets
@@ -600,13 +601,20 @@ namespace robowflex
             void addMetric(const Metric &metric_function);
 
             /** \brief Add a metric to the query to evaluate distance to constraint.
+             *  \param[in] weight Multiplicative weight to metric value.
              */
-            void addDistanceMetric();
+            void addDistanceMetric(double weight = 1.);
 
             /** \brief Add a metric to the query to evaluate how "centered" the joints of the robot are (from
              * their 0 position).
+             *  \param[in] weight Multiplicative weight to metric value.
              */
-            void addCenteringMetric();
+            void addCenteringMetric(double weight = 1.);
+
+            /** \brief Add a metric to the query to evaluate clearance from provided scene.
+             *  \param[in] weight Multiplicative weight to metric value.
+             */
+            void addClearanceMetric(double weight = 1.);
 
             /** \} */
 
@@ -643,6 +651,14 @@ namespace robowflex
              *  \return The IK query as a set of kinematic constraints.
              */
             kinematic_constraints::KinematicConstraintSetPtr getAsConstraints(const Robot &robot) const;
+
+            /** \brief Get the value of the metrics assigned to this query for a given state and result.
+             *  \param[in] state The state to evaluate.
+             *  \param[in] result The result of evaluating this state against the kinematic constraint set.
+             *  \return The value of the metric functions, summed.
+             */
+            double getMetricValue(const robot_state::RobotState &state,
+                                  const kinematic_constraints::ConstraintEvaluationResult &result) const;
 
             /** \} */
         };

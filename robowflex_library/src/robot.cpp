@@ -658,7 +658,7 @@ Robot::IKQuery::IKQuery(const std::string &group,                               
 Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance,
                         const ScenePtr &scene, bool verbose)
-  : group(group), scene(scene), verbose(scene and verbose)
+  : group(group), scene(scene), verbose(verbose)
 {
     addRequest("", region, pose, orientation, tolerance);
 }
@@ -696,7 +696,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionCon
 Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
                         const std::vector<std::string> &input_tips, double radius,
                         const Eigen::Vector3d &tolerance, const ScenePtr &scene, bool verbose)
-  : group(group), scene(scene), verbose(scene and verbose)
+  : group(group), scene(scene), verbose(verbose)
 {
     if (poses.size() != input_tips.size())
         throw Exception(1, "Invalid multi-target IK query. poses != tips.");
@@ -713,7 +713,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string>
                         const std::vector<GeometryConstPtr> &regions, const RobotPoseVector &poses,
                         const std::vector<Eigen::Quaterniond> &orientations,
                         const EigenSTL::vector_Vector3d &tolerances, const ScenePtr &scene, bool verbose)
-  : group(group), scene(scene), verbose(scene and verbose)
+  : group(group), scene(scene), verbose(verbose)
 {
     if (poses.size() != input_tips.size()       //
         or poses.size() != regions.size()       //
@@ -746,21 +746,36 @@ void Robot::IKQuery::addMetric(const Metric &metric_function)
     metrics.emplace_back(metric_function);
 }
 
-void Robot::IKQuery::addDistanceMetric()
+void Robot::IKQuery::addDistanceMetric(double weight)
 {
-    addMetric(
-        [](const robot_state::RobotState &state,
-           const kinematic_constraints::ConstraintEvaluationResult &result) { return result.distance; });
+    addMetric([weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                       const kinematic_constraints::ConstraintEvaluationResult &result) {
+        return weight * result.distance;
+    });
 }
 
-void Robot::IKQuery::addCenteringMetric()
+void Robot::IKQuery::addCenteringMetric(double weight)
 {
-    addMetric([&](const robot_state::RobotState &state,
-                  const kinematic_constraints::ConstraintEvaluationResult &result) {
+    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                          const kinematic_constraints::ConstraintEvaluationResult &result) {
         const auto &jmg = state.getJointModelGroup(group);
         const auto &min = state.getMinDistanceToPositionBounds(jmg);
         double extent = min.second->getMaximumExtent() / 2.;
-        return (extent - min.first) / extent;
+        return weight * (extent - min.first) / extent;
+    });
+}
+
+void Robot::IKQuery::addClearanceMetric(double weight)
+{
+    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                          const kinematic_constraints::ConstraintEvaluationResult &result) {
+        if (scene)
+        {
+            double v = scene->distanceToCollision(state);
+            return weight * v;
+        }
+
+        return 0.;
     });
 }
 
@@ -820,6 +835,16 @@ kinematic_constraints::KinematicConstraintSetPtr Robot::IKQuery::getAsConstraint
     return constraints;
 }
 
+double Robot::IKQuery::getMetricValue(const robot_state::RobotState &state,
+                                      const kinematic_constraints::ConstraintEvaluationResult &result) const
+{
+    double v = 0.;
+    for (const auto &metric : metrics)
+        v += metric(state, scene, result);
+
+    return v;
+}
+
 bool Robot::setFromIK(const IKQuery &query)
 {
     return setFromIK(query, *scratch_);
@@ -874,19 +899,26 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
             if (query.verbose)
                 RBX_INFO("Constraint Distance: %1%", result.distance);
 
-            success =
-                (query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied;
+            bool collision = (query.scene) ? not query.scene->checkCollision(state).collision : true;
+
+            success =          //
+                collision and  //
+                ((query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied);
         }
 
         // If success, evaluate state for metrics.
         if (success and not query.metrics.empty())
         {
-            double v = 0.;
-            for (const auto &metric : query.metrics)
-                v += metric(state, result);
+            double v = query.getMetricValue(state, result);
+
+            if (query.verbose)
+                RBX_INFO("State Metric Value: %1%", v);
 
             if (v < best_value)
             {
+                if (query.verbose)
+                    RBX_INFO("State is current best!");
+
                 best_value = v;
                 *best = state;
             }

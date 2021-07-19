@@ -214,7 +214,7 @@ std::tuple<double, double, double> Trajectory::getClearance(const SceneConstPtr 
     for (std::size_t k = 0; k < trajectory_->getWayPointCount(); ++k)
     {
         const auto &s = trajectory_->getWayPointPtr(k);
-        double clearance = scene->distanceToCollision(s);
+        double clearance = scene->distanceToCollision(*s);
         if (clearance > 0.0)
         {
             average += clearance;

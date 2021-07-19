@@ -413,12 +413,12 @@ collision_detection::CollisionResult Scene::checkCollision(
     return result;
 }
 
-double Scene::distanceToCollision(const robot_state::RobotStatePtr &state) const
+double Scene::distanceToCollision(const robot_state::RobotState &state) const
 {
-    return scene_->distanceToCollision(*state);
+    return scene_->distanceToCollision(state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const
+double Scene::distanceToObject(const robot_state::RobotState &state, const std::string &object) const
 {
     if (not hasObject(object))
     {
@@ -429,7 +429,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     collision_detection::DistanceRequest req;
     collision_detection::DistanceResult res;
 
-    const auto &links = state->getRobotModel()->getLinkModelNames();
+    const auto &links = state.getRobotModel()->getLinkModelNames();
     const auto &objs = getCollisionObjects();
 
     collision_detection::AllowedCollisionMatrix acm;
@@ -451,7 +451,7 @@ double Scene::distanceToObject(const robot_state::RobotStatePtr &state, const st
     req.acm = &acm;
 
 #if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
-    scene_->getCollisionEnv()->distanceRobot(req, res, *state);
+    scene_->getCollisionEnv()->distanceRobot(req, res, state);
 #else
     scene_->getCollisionWorld()->distanceRobot(req, res, *scene_->getCollisionRobot(), *state);
 #endif

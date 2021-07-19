@@ -5,6 +5,7 @@
 // Robowflex
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/log.h>
+#include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
@@ -31,15 +32,18 @@ int main(int argc, char **argv)
     auto shadowhand = std::make_shared<Robot>("shadowhand");
     shadowhand->initializeFromYAML("package://robowflex_resources/shadowhand.yml");
     shadowhand->loadKinematics("all_fingers", false);
-    shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint"}, {0.6, 0.6});
+    shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint", "kuka_arm_5_joint"}, {1, 2, 1});
 
     auto scene = std::make_shared<Scene>(shadowhand);
+    scene->updateCollisionObject("rod_1", Geometry::makeCylinder(0.1, 2),
+                                 TF::createPoseXYZ(0, 0, 0.5, constants::pi / 2, 0, 0));
 
     // Save initial state.
     auto start = *shadowhand->getScratchState();
 
     // Visualize the Shadowhand robot.
     IO::RVIZHelper rviz(shadowhand);
+    rviz.updateScene(scene);
 
     // Set the shadowhand to a default grasp and save that state.
     shadowhand->setStateFromYAMLFile("package://robowflex_resources/shadowhand/poses/grasp.yml");
@@ -72,15 +76,20 @@ int main(int argc, char **argv)
 
     // Configure query for shadowhand
     Robot::IKQuery query("all_fingers", poses, tips);
-    query.timeout = 0.1;
-    query.attempts = 10;
-
     query.scene = scene;
+    query.verbose = true;
+
+    query.timeout = 0.05;
+    query.attempts = 20;
 
     // Need approximate solutions as multi-target BioIK will only return approximate solutions.
     query.options.return_approximate_solution = true;
     query.validate = true;  // Need external validation to verify approximate solutions are within tolerance.
     query.valid_distance = 0.01;  // Tuned distance threshold that is appropriate for query.
+
+    query.addDistanceMetric();
+    query.addCenteringMetric(0.01);
+    query.addClearanceMetric(0.01);
 
     if (not shadowhand->setFromIK(query))
         RBX_ERROR("IK query failed!");
