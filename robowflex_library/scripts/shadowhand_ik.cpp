@@ -81,7 +81,7 @@ int main(int argc, char **argv)
     // Configure query for shadowhand
     Robot::IKQuery query("all_fingers", poses, tips);
     query.scene = scene;
-    query.verbose = true;
+    query.verbose = true;  // If verbose is true, debugging output for constraints and collisions is output.
 
     query.timeout = 0.05;
     query.attempts = 50;
@@ -91,9 +91,11 @@ int main(int argc, char **argv)
     query.validate = true;  // Need external validation to verify approximate solutions are within tolerance.
     query.valid_distance = 0.01;  // Tuned distance threshold that is appropriate for query.
 
-    query.addDistanceMetric();
-    query.addCenteringMetric(0.01);
-    query.addClearanceMetric(0.01);
+    // By adding metrics to the IKQuery, every attempt is used to find the best configuration (according to
+    // the sum of the metrics). A weighting factor is added to balance the metrics.
+    query.addDistanceMetric();       // Distance to IKQuery
+    query.addCenteringMetric(0.01);  // Distance of joints from their center
+    query.addClearanceMetric(0.01);  // Distance of robot to collision
 
     if (not shadowhand->setFromIK(query))
         RBX_ERROR("IK query failed!");
