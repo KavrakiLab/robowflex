@@ -196,18 +196,6 @@ bool Robot::initialize(const std::string &urdf_file)
     return true;
 }
 
-bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_file)
-{
-    if (loader_)
-    {
-        RBX_ERROR("Already initialized!");
-        return false;
-    }
-
-    // Call other initializer with empty joint_limits & kinematics.
-    return initialize(urdf_file, srdf_file, "", "");
-}
-
 bool Robot::initializeKinematics(const std::string &kinematics_file)
 {
     if (kinematics_)

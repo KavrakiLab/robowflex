@@ -102,14 +102,6 @@ namespace robowflex
          */
         bool initialize(const std::string &urdf_file);
 
-        /** \brief Initializes a robot from a kinematic and semantic description.
-         *  All files are loaded under the robot's namespace.
-         *  \param[in] urdf_file Location of the robot's URDF (XML or .xacro file).
-         *  \param[in] srdf_file Location of the robot's SRDF (XML or .xacro file).
-         *  \return True on success, false on failure.
-         */
-        bool initialize(const std::string &urdf_file, const std::string &srdf_file);
-
         /** \brief Initialize a robot with a kinematics description.
          *  \param[in] kinematics_file Location of the kinematics plugin information (a YAML file).
          *  \return True on success, false on failure.
