@@ -39,7 +39,9 @@ namespace robowflex
      *
      *  The Scene class is a wrapper around _MoveIt!_'s planning_scene::PlanningScene, providing access to set
      * and manipulate collision objects, attach and detach objects to the robot, and so on. There are also
-     * utilities to load and save planning scenes from YAML files (toYAMLFile() and fromYAMLFile()).
+     * utilities to load and save planning scenes from YAML files (toYAMLFile() and fromYAMLFile()). Note this
+     * class creates a copy of Robot, so the attached collision objects information are not synchronized to
+     * the original Robot instance.
      */
     class Scene : public ID
     {
