@@ -216,8 +216,8 @@ namespace robowflex
         bool attachObject(const std::string &name);
 
         /** \brief Attach the named collision object \a name to the default end-effector of the given robot \a
-         *  state. Only works if there is one end-effector in the system. Uses all end-effector links as allowed
-         *  touch links.
+         *  state. Only works if there is one end-effector in the system. Uses all end-effector links as
+         *  allowed touch links.
          *  \param[in] name Name of collision to attach.
          *  \param[in] state State of robot the object will be attached to
          *  \return True on success, false on failure.
