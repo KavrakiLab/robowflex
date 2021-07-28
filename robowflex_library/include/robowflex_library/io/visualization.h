@@ -177,6 +177,15 @@ namespace robowflex
                                const std::string &base_frame, const RobotPose &pose, double height,
                                const Eigen::Vector4d &color = color::WHITE);
 
+            /** \brief Add a set of lines as markers.
+             *  \param[in] name Name of the marker.
+             *  \param[in] points Pair-wise list of points to add as lines. (eg., 0-1, 2-3, ...)
+             *  \param[in] colors List of colors for each point.
+             *  \param[in] scale Scale of the marker.
+             */
+            void addLineMarker(const std::string &name, const std::vector<Eigen::Vector3d> &points,
+                               const std::vector<Eigen::Vector4d> &colors, double scale);
+
             /** \brief Adds the current goal of the motion request builder as a
              * set of markers in the marker array.
              *  \param[in] name Name of the marker(s).

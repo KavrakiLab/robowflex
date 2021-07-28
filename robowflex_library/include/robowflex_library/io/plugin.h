@@ -12,14 +12,6 @@
 #include <robowflex_library/log.h>
 #include <robowflex_library/macros.h>
 
-#if IS_BOOST_158
-#include <boost/core/demangle.hpp>
-#define ROBOWFLEX_DEMANGLE(x) boost::core::demangle(x)
-#else
-#include <boost/exception/detail/type_info.hpp>
-#define ROBOWFLEX_DEMANGLE(x) boost::units::detail::demangle(x)
-#endif
-
 #include <pluginlib/class_loader.hpp>
 
 namespace robowflex

@@ -1,14 +1,13 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/detail/ur5.h>
+#include <robowflex_library/io/visualization.h>
+#include <robowflex_library/log.h>
+#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/trajectory.h>
-#include <robowflex_library/io/visualization.h>
 #include <robowflex_library/util.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/log.h>
 
 using namespace robowflex;
 

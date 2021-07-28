@@ -71,6 +71,26 @@ Eigen::Quaterniond TF::getPoseRotation(const RobotPose &pose)
     return Eigen::Quaterniond(pose.rotation());
 }
 
+Eigen::Vector3d TF::pointMsgToEigen(const geometry_msgs::Point &msg)
+{
+    Eigen::Vector3d vector;
+    vector[0] = msg.x;
+    vector[1] = msg.y;
+    vector[2] = msg.z;
+
+    return vector;
+}
+
+geometry_msgs::Point TF::pointEigenToMsg(const Eigen::Vector3d &vector)
+{
+    geometry_msgs::Point msg;
+    msg.x = vector[0];
+    msg.y = vector[1];
+    msg.z = vector[2];
+
+    return msg;
+}
+
 Eigen::Vector3d TF::vectorMsgToEigen(const geometry_msgs::Vector3 &msg)
 {
     Eigen::Vector3d vector;

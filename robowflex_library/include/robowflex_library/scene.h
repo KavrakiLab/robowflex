@@ -40,6 +40,10 @@ namespace robowflex
      *  The Scene class is a wrapper around _MoveIt!_'s planning_scene::PlanningScene, providing access to set
      * and manipulate collision objects, attach and detach objects to the robot, and so on. There are also
      * utilities to load and save planning scenes from YAML files (toYAMLFile() and fromYAMLFile()).
+     *  Note that this class has *its own* robot state, separate from the one in the provided Robot. For
+     * example, using attachObject() without providing your own state will attach the object to this internal
+     * state. Information between this state and the Robot's scratch state are not synchronized, you must do
+     * this manually.
      */
     class Scene : public ID
     {
@@ -212,8 +216,8 @@ namespace robowflex
         bool attachObject(const std::string &name);
 
         /** \brief Attach the named collision object \a name to the default end-effector of the given robot \a
-         * state Only works if there is one end-effector in the system. Uses all end-effector links as allowed
-         *  touch links.
+         *  state. Only works if there is one end-effector in the system. Uses all end-effector links as
+         *  allowed touch links.
          *  \param[in] name Name of collision to attach.
          *  \param[in] state State of robot the object will be attached to
          *  \return True on success, false on failure.
@@ -230,7 +234,7 @@ namespace robowflex
                           const std::vector<std::string> &touch_links);
 
         /** \brief Attach the named collision object \a name to the link \a ee_link of the given robot \a
-         * state
+         *  state
          *  \param[in] state State of the robot to attach.
          *  \param[in] name Name of object to attach.
          *  \param[in] ee_link Link to attach object to.
@@ -245,6 +249,13 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool detachObject(const std::string &name);
+
+        /** \brief Detach an object \a name from the robot state.
+         *  \param[in] state State to detatch the object from.
+         *  \param[in] name Name of collision to detach.
+         *  \return True on success, false on failure.
+         */
+        bool detachObject(robot_state::RobotState &state, const std::string &name);
 
         /** \} */
 
@@ -264,14 +275,14 @@ namespace robowflex
          *  \param[in] state State to get distance to collision for.
          *  \return The distance of the state to collision.
          */
-        double distanceToCollision(const robot_state::RobotStatePtr &state) const;
+        double distanceToCollision(const robot_state::RobotState &state) const;
 
         /** \brief Get the distance to collision to a specific object.
          *  \param[in] state State of the robot.
          *  \param[in] object Object to check against.
          *  \return The distance to collision to the object. On error, returns NaN.
          */
-        double distanceToObject(const robot_state::RobotStatePtr &state, const std::string &object) const;
+        double distanceToObject(const robot_state::RobotState &state, const std::string &object) const;
 
         /** \brief Get the distance to collision between two collision objects in the scene.
          *  \param[in] one One of the objects to check.

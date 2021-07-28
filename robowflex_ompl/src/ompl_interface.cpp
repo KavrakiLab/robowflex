@@ -1,7 +1,8 @@
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
+#include <robowflex_library/macros.h>
 #include <robowflex_library/log.h>
-#include <robowflex_library/io/handler.h>
+#include <robowflex_library/io.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -25,6 +26,8 @@ bool OMPL::OMPLInterfacePlanner::initialize(const std::string &config_file, cons
     settings.setParam(handler_);
 
     interface_->simplifySolutions(settings.simplify_solutions);
+    hybridize_ = settings.hybridize_solutions;
+    interpolate_ = settings.interpolate_solutions;
 
     auto &pcm = interface_->getPlanningContextManager();
     pcm.setMaximumSolutionSegmentLength(settings.maximum_waypoint_distance);
@@ -50,7 +53,7 @@ ompl_interface::ModelBasedPlanningContextPtr OMPL::OMPLInterfacePlanner::getPlan
 void OMPL::OMPLInterfacePlanner::preRun(const SceneConstPtr &scene,
                                         const planning_interface::MotionPlanRequest &request)
 {
-    refreshContext(scene, request);
+    refreshContext(scene, request, true);
 }
 
 planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
@@ -93,12 +96,16 @@ std::map<std::string, Planner::ProgressProperty> OMPL::OMPLInterfacePlanner::get
 }
 
 void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
-                                                const planning_interface::MotionPlanRequest &request) const
+                                                const planning_interface::MotionPlanRequest &request,
+                                                bool force) const
 {
-    auto *next_scene = scene.get();
-    auto *next_request = std::addressof(request);
+    const auto &scene_id = scene->getKey();
+    const auto &request_hash = IO::getMessageMD5(request);
 
-    if (last_scene_ == next_scene and last_request_ == next_request and ss_)
+    bool same_scene = compareIDs(scene_id, last_scene_id_);
+    bool same_request = request_hash == last_request_hash_;
+
+    if (not force and ss_ and same_scene and same_request)
     {
         RBX_INFO("Reusing Cached Context!");
         return;
@@ -112,10 +119,15 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
         return;
     }
 
+#if ROBOWFLEX_AT_LEAST_MELODIC
+    context_->setInterpolation(interpolate_);
+    context_->setHybridize(hybridize_);
+#endif
+
     ss_ = context_->getOMPLSimpleSetup();
 
-    last_scene_ = next_scene;
-    last_request_ = next_request;
+    last_scene_id_ = scene_id;
+    last_request_hash_ = request_hash;
 
     RBX_INFO("Refreshed Context!");
 }

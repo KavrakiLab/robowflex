@@ -4,14 +4,14 @@
 
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/yaml.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/yaml.h>
 
 using namespace robowflex;
 
@@ -214,7 +214,7 @@ std::tuple<double, double, double> Trajectory::getClearance(const SceneConstPtr 
     for (std::size_t k = 0; k < trajectory_->getWayPointCount(); ++k)
     {
         const auto &s = trajectory_->getWayPointPtr(k);
-        double clearance = scene->distanceToCollision(s);
+        double clearance = scene->distanceToCollision(*s);
         if (clearance > 0.0)
         {
             average += clearance;

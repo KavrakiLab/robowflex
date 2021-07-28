@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/log.h>
 #include <robowflex_library/detail/ur5.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 
 using namespace robowflex;
 
@@ -22,7 +22,7 @@ const std::string  //
 const std::string  //
     UR5Robot::RESOURCE_URDF{"package://robowflex_resources/ur/robots/ur5_robotiq_robot_limited.urdf.xacro"};
 const std::string  //
-    UR5Robot::RESOURCE_SRDF{"package://robowflex_resources/ur/config/ur5/ur5_robotiq85.srdf"};
+    UR5Robot::RESOURCE_SRDF{"package://robowflex_resources/ur/config/ur5/ur5_robotiq85.srdf.xacro"};
 const std::string  //
     UR5Robot::RESOURCE_LIMITS{"package://robowflex_resources/ur/config/ur5/joint_limits.yaml"};
 const std::string  //
@@ -67,6 +67,5 @@ bool OMPL::UR5OMPLPipelinePlanner::initialize(const Settings &settings,
 {
     if (IO::resolvePackage(RESOURCE_CONFIG).empty())
         return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
-    else
-        return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+    return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }

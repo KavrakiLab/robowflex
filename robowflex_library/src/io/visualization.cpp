@@ -1,7 +1,5 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#include <random>
-
 #include <boost/range/combine.hpp>
 
 #include <moveit_msgs/DisplayRobotState.h>
@@ -12,12 +10,13 @@
 
 #include <moveit/robot_state/conversions.h>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/util.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/io/visualization.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/random.h>
 #include <robowflex_library/robot.h>
@@ -205,6 +204,36 @@ void IO::RVIZHelper::addTextMarker(const std::string &name, const std::string &t
 
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.text = text;
+
+    addMarker(marker, name);
+}
+
+void IO::RVIZHelper::addLineMarker(const std::string &name, const std::vector<Eigen::Vector3d> &points,
+                                   const std::vector<Eigen::Vector4d> &colors, double scale)
+{
+    visualization_msgs::Marker marker;
+
+    fillMarker(marker,                 //
+               "map",                  //
+               RobotPose::Identity(),  //
+               getRandomColor(),       //
+               Eigen::Vector3d{scale, 1, 1});
+
+    marker.type = visualization_msgs::Marker::LINE_LIST;
+
+    if (points.size() != colors.size())
+        throw Exception(1, "Mismatch between points and colors sizes!");
+
+    for (std::size_t i = 0; i < points.size(); ++i)
+    {
+        marker.points.emplace_back(TF::pointEigenToMsg(points[i]));
+        std_msgs::ColorRGBA mcolor;
+        mcolor.r = colors[i][0];
+        mcolor.g = colors[i][1];
+        mcolor.b = colors[i][2];
+        mcolor.a = colors[i][3];
+        marker.colors.emplace_back(mcolor);
+    }
 
     addMarker(marker, name);
 }

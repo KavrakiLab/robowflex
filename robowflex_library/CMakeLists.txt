@@ -77,6 +77,7 @@ list(APPEND SOURCES
   src/io/colormap.cpp
   src/io/broadcaster.cpp
   src/io/hdf5.cpp
+  src/io/gnuplot.cpp
   src/pool.cpp
   src/tf.cpp
   src/random.cpp
@@ -134,6 +135,7 @@ add_script(wam7_benchmark)
 add_script(resources_visualization)
 add_script(plugin_io)
 add_script(baxter_multi_target)
+add_script(shadowhand_ik)
 
 ##
 ## Tests

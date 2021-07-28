@@ -101,6 +101,18 @@ namespace robowflex
          */
         Eigen::Quaterniond getPoseRotation(const RobotPose &pose);
 
+        /** \brief Converts a point message to an Eigen::Vector3d.
+         *  \param[in] msg Message to convert.
+         *  \return \a msg as an Eigen::Vector3d.
+         */
+        Eigen::Vector3d pointMsgToEigen(const geometry_msgs::Point &msg);
+
+        /** \brief Converts an Eigen::Vector3d to a point message.
+         *  \param[in] vector Vector to convert.
+         *  \return \a vector as a point message.
+         */
+        geometry_msgs::Point pointEigenToMsg(const Eigen::Vector3d &vector);
+
         /** \brief Converts a vector message to an Eigen::Vector3d.
          *  \param[in] msg Message to convert.
          *  \return \a msg as an Eigen::Vector3d.

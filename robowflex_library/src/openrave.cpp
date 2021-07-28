@@ -8,17 +8,15 @@
 #include <ros/console.h>
 
 #include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Vector3.h>
-
-#include <geometric_shapes/shape_operations.h>
 
 #include <moveit_msgs/CollisionObject.h>
 
-#include <robowflex_library/log.h>
+#include <geometric_shapes/shape_operations.h>
+
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/tf.h>
 
@@ -94,8 +92,8 @@ namespace
             return false;
         }
 
-        auto trans_elem = getFirstChild(elem, "Translation");
-        auto rot_elem = getFirstChild(elem, "Rotation");
+        auto *trans_elem = getFirstChild(elem, "Translation");
+        auto *rot_elem = getFirstChild(elem, "Rotation");
         RobotPose this_tf = TFfromXML(trans_elem, rot_elem, nullptr);
 
         const char *filename = elem->Attribute("file");
@@ -226,14 +224,14 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
         return false;
     }
 
-    auto env = getFirstChild(&doc, "Environment");
-    auto robot = getFirstChild(env, "Robot");
+    auto *env = getFirstChild(&doc, "Environment");
+    auto *robot = getFirstChild(env, "Robot");
     if (robot)
         load_struct.robot_offset =
             load_struct.robot_offset * TFfromXML(getFirstChild(robot, "Translation"),  //
                                                  getFirstChild(robot, "RotationAxis"), nullptr);
 
-    auto elem = getFirstChild(env);
+    auto *elem = getFirstChild(env);
     if (not elem)
     {
         RBX_ERROR("There is no/an empty environment element in this openrave scene.");

@@ -3,14 +3,12 @@
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
-#include <moveit_msgs/MoveItErrorCodes.h>
-
-#include <robowflex_library/log.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -67,8 +65,9 @@ void MotionRequestBuilder::initialize()
 {
     setConfig(DEFAULT_CONFIG);
 
-    setWorkspaceBounds(Eigen::Vector3d::Constant(-1), Eigen::Vector3d::Constant(1));
-    request_.allowed_planning_time = 5.0;
+    setWorkspaceBounds(Eigen::Vector3d::Constant(-constants::default_workspace_bound),
+                       Eigen::Vector3d::Constant(constants::default_workspace_bound));
+    request_.allowed_planning_time = constants::default_allowed_planning_time;
 }
 
 void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)

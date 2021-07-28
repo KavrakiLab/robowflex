@@ -12,6 +12,13 @@
 /** \file */
 
 ///
+/// Other Macros
+///
+
+/** \def Checks if a include file exists. */
+#define ROBOWFLEX_INCLUDE_EXISTS(file) __has_include(file)
+
+///
 /// ROS Version Checking
 ///
 
@@ -94,5 +101,17 @@
 #define ROBOWFLEX_POP_GCC _Pragma("GCC diagnostic pop")
 #endif
 /** \endcond */
+
+///
+/// Type information helpers
+///
+
+#if IS_BOOST_158
+#include <boost/core/demangle.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::core::demangle(x)
+#else
+#include <boost/exception/detail/type_info.hpp>
+#define ROBOWFLEX_DEMANGLE(x) boost::units::detail::demangle(x)
+#endif
 
 #endif

@@ -15,7 +15,7 @@ All code for this library is within the `robowflex_visualization` folder.
 
 ## Usage
 
-1. Dump a trajectory to a YAML file via the `robowflex::path::toYAMLFile()` function.
+1. Dump a trajectory to a YAML file via the `robowflex::Trajectory::toYAMLFile()` function.
 An example of this can be found in `robowflex_library/scripts/fetch_test.cpp`:
 ```cpp
 ...
@@ -23,7 +23,8 @@ An example of this can be found in `robowflex_library/scripts/fetch_test.cpp`:
 planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
 
 // Output path to a file for visualization.
-path::toYAMLFile("fetch_path.yml", *res.trajectory_);
+robowflex::Trajectory trajectory(res.trajectory_);
+trajectory.toYAMLFile("fetch_path.yml");
 ...
 ```
 

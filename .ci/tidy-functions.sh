@@ -21,3 +21,10 @@ function check-tidy()
 	  run-clang-tidy -header-filter=".*" -quiet -p .build-tmp
     rm -rf .build-tmp
 }
+
+# Use include-what-you-use to find missing / unnecessary includes
+function get-iwyu()
+{
+    iwyu_tool.py -p .build-tmp | tee -a iwyu.out
+    rm -rf .build-tmp
+}

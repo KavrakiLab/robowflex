@@ -17,10 +17,19 @@ class Scene:
     #
     def __init__(self, name, scene_file):
         self.name = name
-        self.collection = rv.utils.make_collection(name)
-
         self.shapes = {}
-        self.load_scene(scene_file)
+
+        self.collection = rv.utils.get_collection(name)
+
+        if not self.collection:
+            # Create scene
+            self.collection = rv.utils.make_collection(name)
+            self.load_scene(scene_file)
+
+        else:
+            # Populate based on existing scene
+            for item in self.collection.objects:
+                self.shapes[item.name] = item
 
     ## @brief Loads a YAML moveit_msgs::PlanningScene into Blender.
     #
@@ -30,12 +39,12 @@ class Scene:
         self.filepath = resolved = rv.utils.resolve_path(scene_file)
         self.yaml = rv.utils.read_YAML_data(scene_file)
 
-        if self.yaml["world"] and self.yaml["world"]["collision_objects"]:
+        if "world" in self.yaml and self.yaml["world"]["collision_objects"]:
             for co in self.yaml["world"]["collision_objects"]:
                 self.add_collision_object(co)
 
-        if self.yaml["robot_state"]:
-            if "attached_collision_objects" in self.yaml["robot_state"].keys(): 
+        if "robot_state" in self.yaml:
+            if "attached_collision_objects" in self.yaml["robot_state"].keys():
                for cao in self.yaml["robot_state"]["attached_collision_objects"]:
                    self.add_collision_object(cao["object"])
 
