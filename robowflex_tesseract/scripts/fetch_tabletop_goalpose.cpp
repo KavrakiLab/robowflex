@@ -42,8 +42,8 @@ int main(int argc, char **argv)
     planner->initialize("torso_lift_link", "gripper_link");
 
     // Set planner parameters.
-    planner->options.num_waypoints = 10;  // Select number of waypoints in trajectory.
-    planner->options.joint_vel_coeffs = 20.0; // Set weights for velocity costs.
+    planner->options.num_waypoints = 10;       // Select number of waypoints in trajectory.
+    planner->options.joint_vel_coeffs = 20.0;  // Set weights for velocity costs.
 
     // Load request.
     const auto &request = std::make_shared<MotionRequestBuilder>(fetch);
