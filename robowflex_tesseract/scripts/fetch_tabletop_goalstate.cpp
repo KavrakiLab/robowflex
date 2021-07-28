@@ -34,9 +34,7 @@ int main(int argc, char **argv)
 
     // Attach object to end effector.
     scene->attachObject(*fetch->getScratchState(), "Can1");
-    fetch->getScratchState() =
-        std::make_shared<robot_state::RobotState>(scene->getScene()->getCurrentState());
-
+    
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
     planner->initialize("torso_lift_link", "gripper_link");

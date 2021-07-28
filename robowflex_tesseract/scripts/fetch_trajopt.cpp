@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
-
+    
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
     planner->initialize("torso_lift_link", "gripper_link");
