@@ -45,6 +45,7 @@ if (tesseract_planning_DIR)
   add_script(fetch_tabletop_inits)
   add_script(fetch_tabletop_planning_time)
   add_script(fetch_trajopt)
+  add_script(ur5_custom_planning)
 
   install_scripts()
   install_tests()
