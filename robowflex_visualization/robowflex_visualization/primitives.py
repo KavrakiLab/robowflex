@@ -90,13 +90,12 @@ def add_mesh(mesh):
             if not i_obj.data.materials:
                 rv.utils.set_color(i_obj, mesh)
 
-
         obj_list.append(i_obj)
 
     if 'dimensions' in mesh and top:
         top.scale = mesh['dimensions']
 
-    return top
+    return obj_list, top
 
 
 SHAPE_MAP = {
@@ -115,6 +114,8 @@ def add_shape(shape):
     '''Add a shape_msgs::SolidPrimitive to the scene.
     '''
     if 'resource' in shape:
-        return add_mesh(shape)
+        meshes, top = add_mesh(shape)
+        return top
+
     else:
         return SHAPE_MAP[shape['type']](shape)
