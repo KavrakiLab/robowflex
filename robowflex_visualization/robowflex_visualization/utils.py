@@ -401,7 +401,14 @@ def clear_alpha(obj):
 
 
 def get_tf_origin_xml(xml):
-    rot = mathutils.Euler(xml.origin.rpy, 'XYZ').to_matrix()
+    xyz = [0, 0, 0]
+    rpy = [0, 0, 0]
+
+    if xml.origin:
+        rpy = xml.origin.rpy
+        xyz = xml.origin.xyz
+
+    rot = mathutils.Euler(rpy, 'XYZ').to_matrix()
     rot.resize_4x4()
-    pos = mathutils.Matrix.Translation(xml.origin.xyz)
+    pos = mathutils.Matrix.Translation(xyz)
     return pos @ rot
