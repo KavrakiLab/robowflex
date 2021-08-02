@@ -1,7 +1,6 @@
 /* Author: Juan D. Hernandez */
 
 #include <robowflex_library/log.h>
-#include <robowflex_library/detail/cob4.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/broadcaster.h>
@@ -31,16 +30,12 @@ int main(int argc, char **argv)
     ROS ros(argc, argv);
 
     // Create the default Care-O-Bot4 robot.
-    auto cob4 = std::make_shared<Cob4Robot>();
-    cob4->initialize();
-
-    // Alternatively:
-    //    auto cob4 = std::make_shared<Robot>("cob4");
-    //    cob4->initialize("package://robowflex_resources/cob/robots/cob4-8.urdf.xacro",  // urdf
-    //                     "package://robowflex_resources/cob/config/cob4-8.srdf",        // srdf
-    //                     "package://robowflex_resources/cob/config/joint_limits.yaml",  // joint limits
-    //                     "package://robowflex_resources/cob/config/kinematics.yaml"     // kinematics
-    //    );
+    auto cob4 = std::make_shared<Robot>("cob4");
+    cob4->initialize("package://robowflex_resources/cob/robots/cob4-8.urdf.xacro",  // urdf
+                     "package://robowflex_resources/cob/config/cob4-8.srdf",        // srdf
+                     "package://robowflex_resources/cob/config/joint_limits.yaml",  // joint limits
+                     "package://robowflex_resources/cob/config/kinematics.yaml"     // kinematics
+    );
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(cob4);
@@ -55,8 +50,8 @@ int main(int argc, char **argv)
     cob4->loadKinematics(LEFT_ARM);
 
     // Fold the arms.
-    cob4->setGroupState(RIGHT_ARM, {2.69, 1.70, -0.91, 1.50, -2.14, -2.35, 1.06});
-    cob4->setGroupState(LEFT_ARM, {-1.14, -1.50, 0.34, -1.50, 0.43, -1.56, -1.20});
+    cob4->setGroupState(RIGHT_ARM, {2.69, 1.70, -0.91, 1.50, -2.14, -2.35, 1.06});   // Stow
+    cob4->setGroupState(LEFT_ARM, {-1.14, -1.50, 0.34, -1.50, 0.43, -1.56, -1.20});  // Stow
 
     // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(cob4);
@@ -74,16 +69,13 @@ int main(int argc, char **argv)
     planner->initialize("package://robowflex_resources/cob/config/ompl_planning.yaml",  // planner config
                         settings);
 
-    // Sets the Cob4's base pose.
-    cob4->pointHead({0.6, -0.26, 0.95});
-
     // Create a motion planning request with a joint position goal for the right arm.
     MotionRequestBuilder request_right_arm(planner, RIGHT_ARM);
     request_right_arm.setStartConfiguration(cob4->getScratchState());
 
     // Create a motion planning request with a pose goal for the right arm.
     RobotPose goal_pose_right = RobotPose::Identity();
-    goal_pose_right.translate(Eigen::Vector3d{0.6, -0.26, 0.95});
+    goal_pose_right.translate(Eigen::Vector3d{0.6, -0.25, 1.05});
     goal_pose_right.rotate(Eigen::Quaterniond{0.0, 1.0, 0.0, 0.0});
     request_right_arm.setGoalPose(RIGHT_EE, "base_link", goal_pose_right);
 
@@ -114,16 +106,13 @@ int main(int argc, char **argv)
 
     RBX_INFO("Press enter to continue with the left arm.");
 
-    // Sets the Cob4's base pose.
-    cob4->pointHead({0.4, 0.26, 0.79});
-
     // Create a motion planning request with a joint position goal for the right arm.
     MotionRequestBuilder request_left_arm(planner, LEFT_ARM);
     request_left_arm.setStartConfiguration(cob4->getScratchState());
 
     // Create a motion planning request with a pose goal for the left arm.
     RobotPose goal_pose_left = RobotPose::Identity();
-    goal_pose_left.translate(Eigen::Vector3d{0.38, 0.26, 0.76});
+    goal_pose_left.translate(Eigen::Vector3d{0.6, 0.25, 1.05});
     goal_pose_left.rotate(Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0});
     request_left_arm.setGoalPose(LEFT_EE, "base_link", goal_pose_left);
 

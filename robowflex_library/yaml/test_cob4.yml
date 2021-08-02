@@ -7,7 +7,7 @@ robot_state:
 fixed_frame_transforms:
   - child_frame_id: world
     transform:
-      translation: [0, 0, 0]   
+      translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
 world:
   collision_objects:
@@ -21,21 +21,21 @@ world:
     - id: Cube1
       primitives:
         - type: box
-          dimensions: [0.07, 0.07, 0.08]
+          dimensions: [0.07, 0.07, 0.07]
       primitive_poses:
         - position: [0.6, -0.25, 0.72]
           orientation: [0, 0, 0, 1]      
     - id: Cube2
       primitives:
         - type: box
-          dimensions: [0.07, 0.07, 0.08]
+          dimensions: [0.07, 0.07, 0.07]
       primitive_poses:
         - position: [0.6, 0.0, 0.72]
           orientation: [0, 0, 0, 1]
     - id: Cube3
       primitives:
         - type: box
-          dimensions: [0.07, 0.07, 0.08]
+          dimensions: [0.07, 0.07, 0.07]
       primitive_poses:
         - position: [0.6, 0.25, 0.72]
           orientation: [0, 0, 0, 1]
