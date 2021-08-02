@@ -85,6 +85,7 @@ list(APPEND SOURCES
   src/trajectory.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp
+  src/detail/cob4.cpp
   )
 
 list(APPEND INCLUDES
