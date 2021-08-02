@@ -30,7 +30,7 @@ namespace robowflex
          */
         Cob4Robot();
 
-        /** \brief Initialize the robot with arm and arm_with_torso kinematics.
+        /** \brief Initialize the robot with arm_left and arm_right kinematics.
          *  \param[in] addVirtual flag to add virtual joint.
          *  \return True on success, false on failure.
          */
