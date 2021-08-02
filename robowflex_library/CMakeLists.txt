@@ -136,6 +136,7 @@ add_script(resources_visualization)
 add_script(plugin_io)
 add_script(baxter_multi_target)
 add_script(shadowhand_ik)
+add_script(cob4_visualization)
 
 ##
 ## Tests
