@@ -30,10 +30,11 @@ namespace robowflex
          */
         Cob4Robot();
 
-        /** \brief Initialize the robot with arm_left and arm_right kinematics.
+        /** \brief Initialize the robot with arm and arm_with_torso kinematics.
+         *  \param[in] addVirtual flag to add virtual joint.
          *  \return True on success, false on failure.
          */
-        bool initialize();
+        bool initialize(bool addVirtual = true);
 
         /** \brief Inserts the caster links if they don't exist.
          *  \param[in] doc urdf description to be processed.
@@ -47,11 +48,6 @@ namespace robowflex
          *  \param[in] theta The angle.
          */
         void setBasePose(double x, double y, double theta);
-
-        /** \brief Points the Cob4's head to a point in the world frame.
-         *  \param[in] point The point to look at.
-         */
-        void pointHead(const Eigen::Vector3d &point);
 
         /** \brief Opens the Cob4's grippers.
          */

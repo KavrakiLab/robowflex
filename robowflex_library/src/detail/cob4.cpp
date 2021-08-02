@@ -33,8 +33,11 @@ Cob4Robot::Cob4Robot() : Robot("cob4")
 {
 }
 
-bool Cob4Robot::initialize()
+bool Cob4Robot::initialize(bool addVirtual)
 {
+    if (addVirtual)
+        setSRDFPostProcessAddPlanarJoint("base_joint");
+
     setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
     bool success = false;
@@ -88,18 +91,6 @@ bool Cob4Robot::addCastersURDF(tinyxml2::XMLDocument &doc)
     }
 
     return true;
-}
-
-void Cob4Robot::pointHead(const Eigen::Vector3d &point)
-{
-    const RobotPose point_pose = RobotPose(Eigen::Translation3d(point));
-    const RobotPose point_pan = getLinkTF("head_3_link").inverse() * point_pose;
-
-    const double pan = atan2(point_pan.translation().y(), point_pan.translation().x());
-
-    const std::map<std::string, double> angles = {{"head_1_joint", pan}};
-
-    Robot::setState(angles);
 }
 
 void Cob4Robot::openGrippers()
