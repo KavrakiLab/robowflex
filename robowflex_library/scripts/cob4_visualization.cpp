@@ -74,6 +74,9 @@ int main(int argc, char **argv)
     planner->initialize("package://robowflex_resources/cob/config/ompl_planning.yaml",  // planner config
                         settings);
 
+    // Sets the Cob4's base pose.
+    cob4->pointHead({0.6, -0.26, 0.95});
+
     // Create a motion planning request with a joint position goal for the right arm.
     MotionRequestBuilder request_right_arm(planner, RIGHT_ARM);
     request_right_arm.setStartConfiguration(cob4->getScratchState());
@@ -111,13 +114,16 @@ int main(int argc, char **argv)
 
     RBX_INFO("Press enter to continue with the left arm.");
 
+    // Sets the Cob4's base pose.
+    cob4->pointHead({0.4, 0.26, 0.79});
+
     // Create a motion planning request with a joint position goal for the right arm.
     MotionRequestBuilder request_left_arm(planner, LEFT_ARM);
     request_left_arm.setStartConfiguration(cob4->getScratchState());
 
     // Create a motion planning request with a pose goal for the left arm.
     RobotPose goal_pose_left = RobotPose::Identity();
-    goal_pose_left.translate(Eigen::Vector3d{0.4, 0.26, 0.79});
+    goal_pose_left.translate(Eigen::Vector3d{0.38, 0.26, 0.76});
     goal_pose_left.rotate(Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0});
     request_left_arm.setGoalPose(LEFT_EE, "base_link", goal_pose_left);
 
