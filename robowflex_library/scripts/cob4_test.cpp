@@ -29,9 +29,16 @@ int main(int argc, char **argv)
     // Startup ROS
     ROS ros(argc, argv);
 
-    // Create the default Care-O-Bot4 robot.
-    auto cob4 = std::make_shared<Cob4Robot>();
-    cob4->initialize();
+    // Create the Care-O-Bot4 robot.
+    auto cob4 = std::make_shared<Robot>("cob4");
+    cob4->initialize("package://robowflex_resources/cob/robots/cob4-8.urdf.xacro",  // urdf
+                     "package://robowflex_resources/cob/config/cob4-8.srdf",        // srdf
+                     "package://robowflex_resources/cob/config/joint_limits.yaml",  // joint limits
+                     "package://robowflex_resources/cob/config/kinematics.yaml"     // kinematics
+    );
+    // Alternatively:
+    //    auto cob4 = std::make_shared<Cob4Robot>();
+    //    cob4->initialize();
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(cob4);
@@ -45,8 +52,12 @@ int main(int argc, char **argv)
     cob4->setGroupState(LEFT_ARM, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
 
     // Create the default planner for the COB4.
-    auto planner = std::make_shared<OMPL::Cob4OMPLPipelinePlanner>(cob4);
-    planner->initialize();
+    auto planner = std::make_shared<OMPL::OMPLPipelinePlanner>(cob4);
+    // Path simplification disabled.
+    OMPL::Settings settings;
+    //    settings.simplify_solutions = false;
+    planner->initialize("package://robowflex_resources/cob/config/ompl_planning.yaml",  // planner config
+                        settings);
 
     // Create a motion planning request with a joint position goal for the right arm.
     MotionRequestBuilder request_right_arm(planner, RIGHT_ARM);
