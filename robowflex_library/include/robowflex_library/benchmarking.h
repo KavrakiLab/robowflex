@@ -218,7 +218,7 @@ namespace robowflex
          */
         struct Options
         {
-            uint32_t metrics{~0};  ///< Bitmask of which metrics to compute after planning.
+            uint32_t metrics{0xffffffff};  ///< Bitmask of which metrics to compute after planning.
             bool progress{true};   ///< If true, captures planner progress properties (if they exist).
             bool progress_at_least_once{true};  ///< If true, will always run the progress loop at least once.
             double progress_update_rate{0.1};   ///< Update rate for progress callbacks.
