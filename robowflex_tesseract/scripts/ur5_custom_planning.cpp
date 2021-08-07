@@ -16,77 +16,73 @@
  * This customized trajopt planner has end-effector pose constraints at specific timesteps of the trajectory.
  */
 
-namespace robowflex
-{
-    class CustomTrajOptPlanner : public TrajOptPlanner
-    {
-    public:
-        struct CartCnt
-        {
-            RobotPose pose;
-            int timestep;
-            std::string link;
-            double pos_coeffs;
-            double rot_coeffs;
-        };
-
-        CustomTrajOptPlanner(const RobotPtr &robot, const std::string &group_name)
-          : TrajOptPlanner(robot, group_name, "custom_trajopt")
-        {
-        }
-
-        PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state)
-        {
-            // This is required by any TrajOptPlanner::plan() method.
-            ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
-
-            // Transform robowflex scene to tesseract environment.
-            hypercube::sceneToTesseractEnv(scene, env_);
-
-            // Fill in the problem construction info and initialization.
-            auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
-            problemConstructionInfo(pci);
-
-            // Add velocity cost.
-            addVelocityCost(pci);
-
-            // Add start state.
-            addStartState(start_state, pci);
-
-            // Add cartesian terms in constraints_.
-            addCartTerms(pci);
-
-            return solve(scene, pci);
-        }
-
-        std::vector<CartCnt> constraints_{};
-
-    private:
-        void addCartTerms(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
-        {
-            for (const auto &term : constraints_)
-            {
-                Eigen::Quaterniond rotation(term.pose.linear());
-                auto pose_constraint = std::make_shared<trajopt::CartPoseTermInfo>();
-                pose_constraint->term_type = trajopt::TT_CNT;
-                pose_constraint->link = term.link;
-                pose_constraint->timestep = term.timestep;
-                pose_constraint->xyz = term.pose.translation();
-                pose_constraint->wxyz =
-                    Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
-                pose_constraint->pos_coeffs = Eigen::Vector3d::Constant(term.pos_coeffs);
-                pose_constraint->rot_coeffs = Eigen::Vector3d::Constant(term.rot_coeffs);
-                pose_constraint->name = "pose_cnt_link_" + term.link + std::to_string(term.timestep);
-
-                pci->cnt_infos.push_back(pose_constraint);
-            }
-        }
-    };
-}  // namespace robowflex
-
 using namespace robowflex;
-
 static const std::string GROUP = "manipulator";
+
+class CustomTrajOptPlanner : public TrajOptPlanner
+{
+public:
+    struct CartCnt
+    {
+        RobotPose pose;
+        int timestep;
+        std::string link;
+        double pos_coeffs;
+        double rot_coeffs;
+    };
+
+    CustomTrajOptPlanner(const RobotPtr &robot, const std::string &group_name)
+        : TrajOptPlanner(robot, group_name, "custom_trajopt")
+    {
+    }
+
+    PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state)
+    {
+        // This is required by any TrajOptPlanner::plan() method.
+        ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
+
+        // Transform robowflex scene to tesseract environment.
+        hypercube::sceneToTesseractEnv(scene, env_);
+
+        // Fill in the problem construction info and initialization.
+        auto pci = std::make_shared<trajopt::ProblemConstructionInfo>(env_);
+        problemConstructionInfo(pci);
+
+        // Add velocity cost.
+        addVelocityCost(pci);
+
+        // Add start state.
+        addStartState(start_state, pci);
+
+        // Add cartesian terms in constraints_.
+        addCartTerms(pci);
+
+        return solve(scene, pci);
+    }
+
+    std::vector<CartCnt> constraints_{};
+
+private:
+    void addCartTerms(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
+    {
+        for (const auto &term : constraints_)
+        {
+            Eigen::Quaterniond rotation(term.pose.linear());
+            auto pose_constraint = std::make_shared<trajopt::CartPoseTermInfo>();
+            pose_constraint->term_type = trajopt::TT_CNT;
+            pose_constraint->link = term.link;
+            pose_constraint->timestep = term.timestep;
+            pose_constraint->xyz = term.pose.translation();
+            pose_constraint->wxyz =
+                Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
+            pose_constraint->pos_coeffs = Eigen::Vector3d::Constant(term.pos_coeffs);
+            pose_constraint->rot_coeffs = Eigen::Vector3d::Constant(term.rot_coeffs);
+            pose_constraint->name = "pose_cnt_link_" + term.link + std::to_string(term.timestep);
+
+            pci->cnt_infos.push_back(pose_constraint);
+        }
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -121,6 +117,7 @@ int main(int argc, char **argv)
     EigenSTL::vector_Vector3d directions = {
         {0.0, -0.3, 0.0}, {0.0, 0.0, -0.2}, {0.0, 0.3, 0.0}, {0.0, 0.0, 0.2}};
 
+    // Define a Cartesian constraint for each location.
     for (size_t i = 0; i < directions.size(); ++i)
     {
         CustomTrajOptPlanner::CartCnt term;
@@ -130,6 +127,7 @@ int main(int argc, char **argv)
         term.link = ee;
         term.pos_coeffs = 1.0;
         term.rot_coeffs = 1.0;
+        
         planner->constraints_.push_back(term);
     }
 

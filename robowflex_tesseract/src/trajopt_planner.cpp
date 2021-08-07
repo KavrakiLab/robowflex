@@ -421,9 +421,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
 TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
                                                    const robot_state::RobotStatePtr &start_state)
 {
-    RBX_ERROR("You need to implement virtual method TrajOptPlanner::plan() in your derived class");
-
-    return PlannerResult(false, false);
+    throw Exception(1, "You need to implement virtual method TrajOptPlanner::plan() in your derived class");
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
