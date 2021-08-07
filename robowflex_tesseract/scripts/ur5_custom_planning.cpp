@@ -32,7 +32,7 @@ public:
     };
 
     CustomTrajOptPlanner(const RobotPtr &robot, const std::string &group_name)
-        : TrajOptPlanner(robot, group_name, "custom_trajopt")
+      : TrajOptPlanner(robot, group_name, "custom_trajopt")
     {
     }
 
@@ -73,8 +73,7 @@ private:
             pose_constraint->link = term.link;
             pose_constraint->timestep = term.timestep;
             pose_constraint->xyz = term.pose.translation();
-            pose_constraint->wxyz =
-                Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
+            pose_constraint->wxyz = Eigen::Vector4d(rotation.w(), rotation.x(), rotation.y(), rotation.z());
             pose_constraint->pos_coeffs = Eigen::Vector3d::Constant(term.pos_coeffs);
             pose_constraint->rot_coeffs = Eigen::Vector3d::Constant(term.rot_coeffs);
             pose_constraint->name = "pose_cnt_link_" + term.link + std::to_string(term.timestep);
@@ -127,7 +126,7 @@ int main(int argc, char **argv)
         term.link = ee;
         term.pos_coeffs = 1.0;
         term.rot_coeffs = 1.0;
-        
+
         planner->constraints_.push_back(term);
     }
 
