@@ -54,23 +54,37 @@ class Robot:
     #  @param load Load the actual COLLADA mesh, not just URDF info.
     #
     def load_urdf(self, urdf, load = True):
-        self.urdf = resolved = rv.utils.resolve_path(urdf)
-        output = os.path.join("/tmp", os.path.basename(resolved) + ".dae")
+        self.urdf_path = rv.utils.resolve_path(urdf)
+        xml_output = os.path.join("/tmp",
+                                  os.path.basename(self.urdf_path) + ".xml")
+        dae_output = os.path.join("/tmp",
+                                  os.path.basename(self.urdf_path) + ".dae")
 
-        # Read in the URDF XML.
-        self.xml = open(self.urdf, 'r').read()
-        self.robot = URDF.Robot.from_xml_string(self.xml)
+        subprocess.check_output([
+            "rosrun",
+            "xacro",
+            "xacro",
+            self.urdf_path,
+            "-o",
+            xml_output,
+        ])
+
+        self.urdf_xml = open(xml_output, 'r').read()
+        self.robot = URDF.Robot.from_xml_string(self.urdf_xml)
 
         if load:
             # Don't regenerate URDF COLLADA if it already exists.
-            if not os.path.exists(output):
+            if not os.path.exists(dae_output):
                 subprocess.check_output([
-                    "rosrun", "collada_urdf", "urdf_to_collada", resolved,
-                    output
+                    "rosrun",
+                    "collada_urdf",
+                    "urdf_to_collada",
+                    xml_output,
+                    dae_output,
                 ])
 
             # Import and move into new collection.
-            bpy.ops.wm.collada_import(filepath = output)
+            bpy.ops.wm.collada_import(filepath = dae_output)
             rv.utils.move_selected_to_collection(self.name)
             rv.utils.deselect_all()
 
@@ -327,15 +341,19 @@ class Robot:
 
             # Only replace geometry if COLLADA
             if hasattr(geometry, 'filename') and ".dae" in geometry.filename:
-                mesh = rv.primitives.add_mesh({"resource": geometry.filename})
+                meshes, top = rv.primitives.add_mesh(
+                    {"resource": geometry.filename})
 
                 rv.utils.deselect_all()
-                mesh.select_set(True)
+                bpy.context.view_layer.objects.active = meshes[0]
+                for mesh in meshes:
+                    mesh.select_set(True)
+                bpy.ops.object.join()
                 rv.utils.move_selected_to_collection(name)
                 rv.utils.deselect_all()
 
                 old = self.get_link(link_name)
-                old.data = mesh.data
+                old.data = meshes[0].data
 
         rv.utils.remove_collection(name)
 
