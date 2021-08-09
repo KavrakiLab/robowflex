@@ -260,6 +260,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
 
+        // Add velocity cost.
+        addVelocityCost(pci);
+
         // Add start state.
         addStartState(start_state, pci);
 
@@ -308,6 +311,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
 
+        // Add velocity cost.
+        addVelocityCost(pci);
+
         // Add start state
         addStartState(start_state, pci);
 
@@ -348,6 +354,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
+
+        // Add velocity cost.
+        addVelocityCost(pci);
 
         // Add start state
         addStartState(start_state, pci);
@@ -391,6 +400,9 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
 
+        // Add velocity cost.
+        addVelocityCost(pci);
+
         // Add start_pose for start_link.
         addStartPose(start_pose, start_link, pci);
 
@@ -404,6 +416,12 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     }
 
     return PlannerResult(false, false);
+}
+
+TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
+                                                   const robot_state::RobotStatePtr &start_state)
+{
+    throw Exception(1, "You need to implement virtual method TrajOptPlanner::plan() in your derived class");
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
@@ -442,7 +460,10 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
 
     if (options.verbose)
         RBX_INFO("TrajOpt initialization: %d", init_type_);
+}
 
+void TrajOptPlanner::addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
+{
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<JointVelTermInfo>();
     jv->targets = std::vector<double>(pci->kin->numJoints(), 0.0);
