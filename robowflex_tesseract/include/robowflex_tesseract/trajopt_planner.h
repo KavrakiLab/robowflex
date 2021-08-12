@@ -235,6 +235,13 @@ namespace robowflex
                            const std::string &start_link, const RobotPose &goal_pose,
                            const std::string &goal_link);
 
+        /** \brief Plan a motion using custom terms specified by the user.
+         *  \param[in] scene A planning scene to compute the plan in.
+         *  \param[in] start_state Start state for the robot.
+         *  \return Planner result with convergence and collision status.
+         */
+        virtual PlannerResult plan(const SceneConstPtr &scene, const robot_state::RobotStatePtr &start_state);
+
         /** \brief Get planner configurations offered by this planner.
          *  Any of the configurations returned can be set as the planner for a motion planning
          *  query sent to plan().
@@ -254,11 +261,16 @@ namespace robowflex
 
         /** \} */
 
-    private:
+    protected:
         /** \brief Create a TrajOpt problem construction info object with default values.
          *  \param[out] pci Pointer to problem construction info initialized.
          */
         void problemConstructionInfo(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const;
+
+        /** \brief Add velocity cost to the trajectory optimization.
+         *  \param[out] pci Pointer to problem construction info with velocity cost added.
+         */
+        void addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const;
 
         /** \brief Add collision avoidance cost to the trajectory optimization for all waypoints.
          *  \param[out] pci Pointer to problem construction info with collision avoidance added.
