@@ -322,9 +322,12 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
 
             // Get global transform of position constraint
             RobotPose pose;
-            if (base_frame == robot_->getModelConst()->getModelFrame()) {
+            if (base_frame == robot_->getModelConst()->getModelFrame())
+            {
                 pose.setIdentity();
-            } else {
+            }
+            else
+            {
                 pose = robot_->getLinkTF(pg.header.frame_id);
             }
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
