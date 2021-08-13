@@ -89,6 +89,10 @@ namespace robowflex
             void preRun(const SceneConstPtr &scene,
                         const planning_interface::MotionPlanRequest &request) override;
 
+            /** \brief Access the OMPLInterface directly, to customize the planning process.
+             */
+            ompl_interface::OMPLInterface &getInterface() const;
+
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
