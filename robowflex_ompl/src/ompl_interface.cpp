@@ -141,3 +141,12 @@ std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
 {
     return configs_;
 }
+
+ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
+{
+    if (!interface_)
+    {
+        RBX_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
+    }
+    return *interface_;
+}
