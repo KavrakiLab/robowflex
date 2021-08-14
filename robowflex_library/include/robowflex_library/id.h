@@ -4,6 +4,7 @@
 #define ROBOWFLEX_ID_
 
 #include <atomic>
+#include <string>
 
 #include <robowflex_library/class_forward.h>
 
