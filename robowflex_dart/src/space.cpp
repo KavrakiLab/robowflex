@@ -154,7 +154,7 @@ void StateSpace::addGroupFromJoints(const std::string &group_name,
                 {
                     low[i] =
                         std::max({free->getPositionLowerLimit(3 + i), world_->getWorkspaceLowConst()[i]});
-                    high[i =
+                    high[i] =
                         std::min({free->getPositionUpperLimit(3 + i), world_->getWorkspaceHighConst()[i]});
                 }
 
