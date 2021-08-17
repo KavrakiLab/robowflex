@@ -305,9 +305,9 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
     addMarker(marker, name);
 }
 
-void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
+void IO::RVIZHelper::addGoalMarker(const std::string &name, const moveit_msgs::MotionPlanRequest &request)
 {
-    const auto &goals = request.getRequestConst().goal_constraints;
+    const auto &goals = request.goal_constraints;
 
     // Iterate over each goal (an "or"-ing together of different constraints)
     for (const auto &goal : goals)
@@ -321,7 +321,15 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
             const auto &base_frame = pg.header.frame_id;
 
             // Get global transform of position constraint
-            RobotPose pose = robot_->getLinkTF(pg.header.frame_id);
+            RobotPose pose;
+            if (base_frame == robot_->getModelConst()->getModelFrame())
+            {
+                pose.setIdentity();
+            }
+            else
+            {
+                pose = robot_->getLinkTF(pg.header.frame_id);
+            }
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
 
             // Iterate over all position primitives and their poses
@@ -351,7 +359,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                     // Arrow display frame.
                     RobotPose qframe = RobotPose::Identity();
                     qframe.translate(frame.translation());  // Place arrows at the origin
-                                                            // of the position volume
+                    // of the position volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
 
@@ -390,6 +398,11 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
             // }
         }
     }
+}
+
+void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
+{
+    addGoalMarker(name, request.getRequestConst());
 }
 
 void IO::RVIZHelper::removeAllMarkers()

@@ -20,18 +20,22 @@ If the user can not or do not want to modify the robot's srdf, an overloaded ver
 - **Plan**: In addition to the standard plan() method from robowflex::Planner, TrajOptPlanner offers additional planning interfaces. One that stands out receives the scene, the start state and a goal pose for a given link. This interface allows the user to perform planning without a full goal state specification (i.e., no need to perform IK queries). Instead, it creates cartesian pose constraints on the last waypoint of the trajectory for the given link (e.g., the end effector). 
 All the additional versions of the plan() method return a PlannerResult structure with information about the planner convergence status. In particular, PlannerResult is a pair of booleans. The first field specifies whether the optimization algorithm converged or not. The second field specifies whether the resulting trajectory is collision-free or not. Note that it is possible that the optimization converges to a trajectory that is in collision (i.e., PlannerResult->first = true, PlannerResult->second = false) because the collision avoidance terms can be defined as costs instead of constraints.
 
-# Scripts
+### Custom terms in TrajOpt
+The original implementation of [trajopt_ros](https://github.com/ros-industrial-consortium/trajopt_ros/tree/kinetic-devel) allows the user to incorporate custom terms to the trajectory optimization formulation. These custom terms are usually out of the scope of the standard motion planning problem but they might come handy for specific robotic tasks. The standard supported terms are usually joint/cartesian cost/constraints for positions, velocities and accelerations.
 
-5 different scripts (`scripts` directory) show how the planner can be used in different ways. Some of the scripts load the planning request and scene from yaml files (`scenes` folder) and require to run RVIZ to visualize the scene, states and output trajectory:
+`robowflex::TrajOptPlanner` exposes this feature by letting the user inherit from the planner class and implement their own `robowflex::TrajOptPlanner::plan()` method. Here, the user is responsible for adding all the required terms to construct the trajectory optimization problem. The method expects as arguments a `robowflex::Scene` and a `robot_state:RobotState` start state, as this is the minimum information required to create a trajectory optimization problem. Notice that a goal state can be defined using custom terms (e.g., position cartesian terms for the robot's end-effector). 
+
+## Scripts
+6 different scripts (`scripts` directory) show how the planner can be used in different ways. Some of the scripts load the planning request and scene from yaml files (`scenes` folder) and require to run RVIZ to visualize the scene, states and output trajectory:
 
 - fetch_trajopt.cpp: Shows the simplest setup for planning using an empty scene and given start and goal states.
-- fetch_tabletop_goalstate: Shows how to plan for a given scene, start and goal state.
+- fetch_tabletop_goalstate.cpp: Shows how to plan for a given scene, start and goal state.
 - fetch_tabletop_goalpose.cpp: Shows how to plan for a given scene, start state and goal pose for the end effector.
 - fetch_tabletop_inits.cpp: Shows how to plan for a given scene, start and goal state using different initial trajectories, namely stationary and joint_interpolated (straight-line).
-- fetch_tabletop_planning_time: Shows how to plan for a given scene, start and goal with different behaviors for the planner. The first behavior runs the planner just once and returns  right away. The second behavior allows the planner to run more than once and runs until a feasible solution (collision-free) is found or the time limit is reached. The final behavior forces the planner to take all the available time and returns the best found solution at the end. In the two latter cases, the planner is initialized with a perturbed version of the given initial trajectory every time is run.
+- fetch_tabletop_planning_time.cpp: Shows how to plan for a given scene, start and goal with different behaviors for the planner. The first behavior runs the planner just once and returns right away. The second behavior allows the planner to run more than once and runs until a feasible solution (collision-free) is found or the time limit is reached. The final behavior forces the planner to take all the available time and returns the best found solution at the end. In the two latter cases, the planner is initialized with a perturbed version of the given initial trajectory every time is run.
+- ur5_custom_planning.cpp: Shows how to build a custom planner by defining cartesian constraints for the robot's end-effector at multiple timesteps in the trajectory.
 
-# Installation Instructions
-
+## Installation Instructions
 Both Tesseract and TrajOpt can be added as catkin packages in your workspace. 
 Currently, Robowflex Tesseract uses the `kinetic-devel` branch of both [tesseract](https://github.com/ros-industrial-consortium/tesseract/tree/kinetic-devel) and [trajopt](https://github.com/ros-industrial-consortium/trajopt_ros/tree/kinetic-devel).
 The Tesseract module can be difficult to compile and integrate in a complex ROS workspace.

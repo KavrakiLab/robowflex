@@ -193,6 +193,13 @@ namespace robowflex
              */
             void addGoalMarker(const std::string &name, const MotionRequestBuilder &request);
 
+            /** \brief Adds the current goal of the motion plan request  as a
+             * set of markers in the marker array.
+             *  \param[in] name Name of the marker(s).
+             *  \param[in] request Request to add goal of as a marker.
+             */
+            void addGoalMarker(const std::string &name, const moveit_msgs::MotionPlanRequest &request);
+
             /** \brief Removes all markers that were added through addMarker().
              */
             void removeAllMarkers();
