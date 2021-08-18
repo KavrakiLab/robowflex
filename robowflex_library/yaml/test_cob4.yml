@@ -1,11 +1,6 @@
 name: (noname)
-robot_model_name: cob4
-robot_state:
-  joint_state: 
-    position: [0, 0, 0.05, 0, 0, 0, 1.32, 1.4, -0.2, 1.72, 0.0, 1.66, 0.0, 0.04, 0.04]    
-    name: [arm_left_1_joint, arm_left_2_joint, arm_left_3_joint, arm_left_4_joint, arm_left_5_joint, arm_left_6_joint, arm_left_7_joint, arm_right_1_joint, arm_right_2_joint, arm_right_3_joint, arm_right_4_joint, arm_right_5_joint, arm_right_6_joint, arm_right_7_joint, head_1_joint, head_2_joint, head_3_joint]
 fixed_frame_transforms:
-  - child_frame_id: world
+  - child_frame_id: base_footprint
     transform:
       translation: [0, 0, 0]   
       rotation: [0, 0, 0, 1]
