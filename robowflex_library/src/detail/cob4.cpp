@@ -35,8 +35,6 @@ Cob4Robot::Cob4Robot() : Robot("cob4")
 
 bool Cob4Robot::initialize()
 {
-    setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
-
     bool success = false;
 
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
@@ -57,37 +55,6 @@ bool Cob4Robot::initialize()
     Cob4Robot::openGrippers();
 
     return success;
-}
-
-bool Cob4Robot::addCastersURDF(tinyxml2::XMLDocument &doc)
-{
-    for (const auto name : {"bl_caster", "br_caster", "fl_caster", "fr_caster"})
-    {
-        auto link_name = std::string(name) + "_link";
-        if (not isLinkURDF(doc, link_name))
-        {
-            tinyxml2::XMLElement *caster_link = doc.NewElement("link");
-            caster_link->SetAttribute("name", link_name.c_str());
-            doc.FirstChildElement("robot")->InsertFirstChild(caster_link);
-
-            auto joint_name = std::string(name) + "_joint";
-            tinyxml2::XMLElement *caster_joint = doc.NewElement("joint");
-            caster_joint->SetAttribute("name", joint_name.c_str());
-            caster_joint->SetAttribute("type", "fixed");
-
-            tinyxml2::XMLElement *parent = doc.NewElement("parent");
-            parent->SetAttribute("link", "base_link");
-            caster_joint->InsertFirstChild(parent);
-
-            tinyxml2::XMLElement *child = doc.NewElement("child");
-            child->SetAttribute("link", link_name.c_str());
-            caster_joint->InsertFirstChild(child);
-
-            doc.FirstChildElement("robot")->InsertFirstChild(caster_joint);
-        }
-    }
-
-    return true;
 }
 
 void Cob4Robot::pointHead(const Eigen::Vector3d &point)
