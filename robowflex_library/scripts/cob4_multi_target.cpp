@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     cob4->loadKinematics(BOTH_ARMS);
 
     // Fold the arms.
-    cob4->setGroupState(RIGHT_ARM, {2.69, 1.70, -0.91, 1.50, -2.14, -2.35, 1.06});
-    cob4->setGroupState(LEFT_ARM, {-1.14, -1.50, 0.34, -1.50, 0.43, -1.56, -1.20});
+    cob4->setGroupState(BOTH_ARMS, {-1.14, -1.50, 0.34, -1.50, 0.43, -1.56, -1.20, 2.69, 1.70, -0.91, 1.50,
+                                    -2.14, -2.35, 1.06});
 
     // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(cob4);
@@ -96,8 +96,8 @@ int main(int argc, char **argv)
     rviz.updateTrajectory(res);
 
     // Visualize resulting state.
-    auto left_arm_trajectory = std::make_shared<Trajectory>(res.trajectory_);
-    cob4->setGroupState(LEFT_ARM, left_arm_trajectory->vectorize().back());
+    auto both_arms_trajectory = std::make_shared<Trajectory>(res.trajectory_);
+    cob4->setGroupState(BOTH_ARMS, both_arms_trajectory->vectorize().back());
 
     rviz.visualizeCurrentState();
 
