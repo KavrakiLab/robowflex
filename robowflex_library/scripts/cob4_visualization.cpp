@@ -9,6 +9,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
+#include <robowflex_library/trajectory.h>
 #include <robowflex_library/util.h>
 
 using namespace robowflex;
@@ -33,14 +34,6 @@ int main(int argc, char **argv)
     // Create the default Care-O-Bot4 robot.
     auto cob4 = std::make_shared<Cob4Robot>();
     cob4->initialize();
-
-    // Alternatively:
-    //    auto cob4 = std::make_shared<Robot>("cob4");
-    //    cob4->initialize("package://robowflex_resources/cob/robots/cob4-8.urdf.xacro",  // urdf
-    //                     "package://robowflex_resources/cob/config/cob4-8.srdf",        // srdf
-    //                     "package://robowflex_resources/cob/config/joint_limits.yaml",  // joint limits
-    //                     "package://robowflex_resources/cob/config/kinematics.yaml"     // kinematics
-    //    );
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(cob4);
@@ -67,12 +60,8 @@ int main(int argc, char **argv)
     rviz.updateScene(scene);
 
     // Create the default planner for the COB4.
-    auto planner = std::make_shared<OMPL::OMPLPipelinePlanner>(cob4);
-    // Path simplification disabled.
-    OMPL::Settings settings;
-    //    settings.simplify_solutions = false;
-    planner->initialize("package://robowflex_resources/cob/config/ompl_planning.yaml",  // planner config
-                        settings);
+    auto planner = std::make_shared<OMPL::Cob4OMPLPipelinePlanner>(cob4);
+    planner->initialize();
 
     // Sets the Cob4's base pose.
     cob4->pointHead({0.6, -0.26, 0.95});
@@ -82,9 +71,7 @@ int main(int argc, char **argv)
     request_right_arm.setStartConfiguration(cob4->getScratchState());
 
     // Create a motion planning request with a pose goal for the right arm.
-    RobotPose goal_pose_right = RobotPose::Identity();
-    goal_pose_right.translate(Eigen::Vector3d{0.6, -0.26, 0.95});
-    goal_pose_right.rotate(Eigen::Quaterniond{0.0, 1.0, 0.0, 0.0});
+    const auto &goal_pose_right = TF::createPoseQ(0.6, -0.26, 0.95, 1.0, 0.0, 0.0, 0.0);
     request_right_arm.setGoalPose(RIGHT_EE, "base_link", goal_pose_right);
 
     // Visualizing the target poses for the right arm.
@@ -105,10 +92,9 @@ int main(int argc, char **argv)
     rviz.updateTrajectory(res);
 
     // Visualize resulting state.
-    trajectory_msgs::JointTrajectoryPoint point;
-    res.trajectory_->getLastWayPoint().copyJointGroupPositions(
-        res.trajectory_->getLastWayPoint().getJointModelGroup(RIGHT_ARM), point.positions);
-    cob4->setGroupState(RIGHT_ARM, std::vector<double>(point.positions));
+    // Create a trajectory object for better manipulation.
+    auto right_arm_trajectory = std::make_shared<Trajectory>(res.trajectory_);
+    cob4->setGroupState(RIGHT_ARM, right_arm_trajectory->vectorize().back());
 
     rviz.visualizeCurrentState();
 
@@ -122,9 +108,7 @@ int main(int argc, char **argv)
     request_left_arm.setStartConfiguration(cob4->getScratchState());
 
     // Create a motion planning request with a pose goal for the left arm.
-    RobotPose goal_pose_left = RobotPose::Identity();
-    goal_pose_left.translate(Eigen::Vector3d{0.38, 0.26, 0.76});
-    goal_pose_left.rotate(Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0});
+    const auto &goal_pose_left = TF::createPoseQ(0.38, 0.26, 0.76, 0.0, 0.707, 0.0, 0.707);
     request_left_arm.setGoalPose(LEFT_EE, "base_link", goal_pose_left);
 
     // Visualizing the target poses for the left arm.
@@ -145,9 +129,8 @@ int main(int argc, char **argv)
     rviz.updateTrajectory(res);
 
     // Visualize resulting state.
-    res.trajectory_->getLastWayPoint().copyJointGroupPositions(
-        res.trajectory_->getLastWayPoint().getJointModelGroup(LEFT_ARM), point.positions);
-    cob4->setGroupState(LEFT_ARM, std::vector<double>(point.positions));
+    auto left_arm_trajectory = std::make_shared<Trajectory>(res.trajectory_);
+    cob4->setGroupState(LEFT_ARM, left_arm_trajectory->vectorize().back());
 
     rviz.visualizeCurrentState();
 

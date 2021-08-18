@@ -18,7 +18,7 @@ namespace robowflex
     /** \class robowflex::Cob4RobotConstPtr
         \brief A const shared pointer wrapper for robowflex::Cob4Robot. */
 
-    /** \brief Convenience class that describes the default setup for Cob4.
+    /** \brief Convenience class that describes the default setup for Care-O-Bot4.
      *  Will first attempt to load configuration and description from the robowflex_resources package.
      *  See https://github.com/KavrakiLab/robowflex_resources for this package.
      *  If this package is not available, then fetch_description / fetch_moveit_config packages will be used.
@@ -34,12 +34,6 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         bool initialize();
-
-        /** \brief Inserts the caster links if they don't exist.
-         *  \param[in] doc urdf description to be processed.
-         *  \return True on success.
-         */
-        bool addCastersURDF(tinyxml2::XMLDocument &doc);
 
         /** \brief Sets the base pose of the Cob4 robot (a virtual planar joint)
          *  \param[in] x The x position.
