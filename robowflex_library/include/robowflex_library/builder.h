@@ -137,9 +137,16 @@ namespace robowflex
         void setGoalConfiguration(const std::vector<double> &joints);
 
         /** \brief Set the goal configuration from a robot state.
-         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+         *  \param[in] state The robot state to set as a pointer. Usually from
+         * robowflex::Robot::getScratchState().
          */
         void setGoalConfiguration(const robot_state::RobotStatePtr &state);
+
+        /** \brief Set the goal configuration from a robot state.
+         *  \param[in] state The robot state to set as a reference. Usually from
+         * robowflex::Robot::getScratchState().
+         */
+        void setGoalConfiguration(const robot_state::RobotState &state);
 
         /** \brief Set the goal pose from an IK query.
          *  \param[in] query IK query to construct goal from.

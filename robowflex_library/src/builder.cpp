@@ -223,6 +223,11 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
 
 void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
 {
+    setGoalConfiguration(*state);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotState &state)
+{
     if (not jmg_)
     {
         RBX_ERROR("No planning group set!");
@@ -230,7 +235,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr
     }
 
     incrementVersion();
-    request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(*state, jmg_));
+    request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(state, jmg_));
 }
 
 void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
