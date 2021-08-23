@@ -291,6 +291,12 @@ namespace robowflex
         void setWorkspaceBounds(const Eigen::Ref<const Eigen::VectorXd> &min,
                                 const Eigen::Ref<const Eigen::VectorXd> &max);
 
+        /** \brief Swap the start and goal configurations.
+         * This is only possible when a single joint goal is specified, otherwise an error is raised.
+         *  \return True upon success, False otherwise.
+         */
+        bool swapStartWithGoal();
+
         /** \} */
 
         /** \name Getters
