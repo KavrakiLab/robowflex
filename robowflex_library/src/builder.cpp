@@ -154,6 +154,29 @@ void MotionRequestBuilder::setWorkspaceBounds(const Eigen::Ref<const Eigen::Vect
     setWorkspaceBounds(wp);
 }
 
+bool MotionRequestBuilder::swapStartWithGoal()
+{
+    if (request_.goal_constraints.size() != 1)
+    {
+        RBX_ERROR("Multiple goal constraints exist, cannot swap start with goal");
+        return false;
+    }
+
+    if (request_.goal_constraints[0].joint_constraints.empty())
+    {
+        RBX_ERROR("No joint goal is specified, cannot swap start with goal");
+        return false;
+    }
+
+    const auto &start = getStartConfiguration();
+    const auto &goal = getGoalConfiguration();
+    clearGoals();
+
+    setStartConfiguration(goal);
+    setGoalConfiguration(start);
+    return true;
+}
+
 void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &joints)
 {
     if (not jmg_)
