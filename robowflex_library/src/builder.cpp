@@ -204,7 +204,7 @@ bool MotionRequestBuilder::attachObjectToStartConst(const SceneConstPtr &scene, 
     return attachObjectToStart(copy, object);
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
+void MotionRequestBuilder::addGoalConfiguration(const std::vector<double> &joints)
 {
     if (not jmg_)
     {
@@ -218,15 +218,15 @@ void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joint
     state.reset(new robot_state::RobotState(robot_->getModelConst()));
     state->setJointGroupPositions(jmg_, joints);
 
-    setGoalConfiguration(state);
+    addGoalConfiguration(state);
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
+void MotionRequestBuilder::addGoalConfiguration(const robot_state::RobotStatePtr &state)
 {
-    setGoalConfiguration(*state);
+    addGoalConfiguration(*state);
 }
 
-void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotState &state)
+void MotionRequestBuilder::addGoalConfiguration(const robot_state::RobotState &state)
 {
     if (not jmg_)
     {
@@ -238,7 +238,7 @@ void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotState &s
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(state, jmg_));
 }
 
-void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
+void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
 {
     if (not jmg_)
     {
@@ -278,22 +278,22 @@ void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
         throw Exception(1, "Unable to find base frame for request.");
     }
 
-    setGoalRegion(tip_to_use, base, query.region_poses[0], query.regions[0], query.orientations[0],
+    addGoalRegion(tip_to_use, base, query.region_poses[0], query.regions[0], query.orientations[0],
                   query.tolerances[0]);
 }
 
-void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
+void MotionRequestBuilder::addGoalPose(const std::string &ee_name, const std::string &base_name,
                                        const RobotPose &pose, double tolerance)
 {
     auto copy = pose;
     Eigen::Quaterniond orientation(pose.rotation());
     copy.linear() = Eigen::Matrix3d::Identity();
-    setGoalRegion(ee_name, base_name,                     //
+    addGoalRegion(ee_name, base_name,                     //
                   copy, Geometry::makeSphere(tolerance),  //
                   orientation, {tolerance, tolerance, tolerance});
 }
 
-void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
+void MotionRequestBuilder::addGoalRegion(const std::string &ee_name, const std::string &base_name,
                                          const RobotPose &pose, const GeometryConstPtr &geometry,
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
@@ -321,7 +321,7 @@ void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const s
         RobotPose new_pose = pose * rotation * offset;
         Eigen::Quaterniond new_orientation(rotation * orientation);
 
-        setGoalRegion(ee_name, base_name, new_pose, geometry, new_orientation, tolerances);
+        addGoalRegion(ee_name, base_name, new_pose, geometry, new_orientation, tolerances);
     }
 }
 
@@ -340,6 +340,46 @@ void MotionRequestBuilder::addCylinderSideGrasp(const std::string &ee_name, cons
     addGoalRotaryTile(ee_name, base_name,                          //
                       pose, box, orientation, {0.01, 0.01, 0.01},  //
                       offset, Eigen::Vector3d::UnitZ(), n);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const std::vector<double> &joints)
+{
+    clearGoals();
+    addGoalConfiguration(joints);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotStatePtr &state)
+{
+    clearGoals();
+    addGoalConfiguration(state);
+}
+
+void MotionRequestBuilder::setGoalConfiguration(const robot_state::RobotState &state)
+{
+    clearGoals();
+    addGoalConfiguration(state);
+}
+
+void MotionRequestBuilder::setGoalFromIKQuery(const Robot::IKQuery &query)
+{
+    clearGoals();
+    addGoalFromIKQuery(query);
+}
+
+void MotionRequestBuilder::setGoalPose(const std::string &ee_name, const std::string &base_name,
+                                       const RobotPose &pose, double tolerance)
+{
+    clearGoals();
+    addGoalPose(ee_name, base_name, pose, tolerance);
+}
+
+void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::string &base_name,
+                                         const RobotPose &pose, const GeometryConstPtr &geometry,
+                                         const Eigen::Quaterniond &orientation,
+                                         const Eigen::Vector3d &tolerances)
+{
+    clearGoals();
+    addGoalRegion(ee_name, base_name, pose, geometry, orientation, tolerances);
 }
 
 void MotionRequestBuilder::clearGoals()
