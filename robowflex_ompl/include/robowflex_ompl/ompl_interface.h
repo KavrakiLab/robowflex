@@ -95,9 +95,11 @@ namespace robowflex
              */
             ompl_interface::OMPLInterface &getInterface() const;
 
-            /** \brief Set a callback, to be called right before a planning session for last-minute configuration or external bookkeeping.
+            /** \brief Set a callback, to be called right before a planning session for last-minute
+             * configuration or external bookkeeping.
              *
-             * refreshContext() will already have been called, so the SimpleSetup obtained by getLastSimpleSetup() will be the one used for planning.
+             * refreshContext() will already have been called, so the SimpleSetup obtained by
+             * getLastSimpleSetup() will be the one used for planning.
              */
             void setPreplanCallback(const std::function<void()> &preplanCallback);
 
@@ -115,7 +117,6 @@ namespace robowflex
                                                           ///< planning.
 
             std::function<void()> preplan_callback_;
-
         };
     }  // namespace OMPL
 }  // namespace robowflex

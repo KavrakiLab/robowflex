@@ -153,6 +153,7 @@ ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
     return *interface_;
 }
 
-void OMPL::OMPLInterfacePlanner::setPreplanCallback(const std::function<void()> &preplanCallback) {
+void OMPL::OMPLInterfacePlanner::setPreplanCallback(const std::function<void()> &preplanCallback)
+{
     preplan_callback_ = preplanCallback;
 }
