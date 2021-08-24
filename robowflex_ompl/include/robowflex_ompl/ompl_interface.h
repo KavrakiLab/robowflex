@@ -8,6 +8,8 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/planning.h>
 
+#include <functional>
+
 namespace robowflex
 {
     /** \cond IGNORE */
@@ -93,6 +95,12 @@ namespace robowflex
              */
             ompl_interface::OMPLInterface &getInterface() const;
 
+            /** \brief Set a callback, to be called right before a planning session for last-minute configuration or external bookkeeping.
+             *
+             * refreshContext() will already have been called, so the SimpleSetup obtained by getLastSimpleSetup() will be the one used for planning.
+             */
+            void setPreplanCallback(const std::function<void()> &preplanCallback);
+
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
@@ -105,6 +113,9 @@ namespace robowflex
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
+
+            std::function<void()> preplan_callback_;
+
         };
     }  // namespace OMPL
 }  // namespace robowflex

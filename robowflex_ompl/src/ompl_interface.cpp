@@ -66,6 +66,8 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     if (not ss_)
         return response;
 
+    preplan_callback_();
+
     context_->solve(response);
     return response;
 }
@@ -149,4 +151,8 @@ ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
         RBX_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
     }
     return *interface_;
+}
+
+void OMPL::OMPLInterfacePlanner::setPreplanCallback(const std::function<void()> &preplanCallback) {
+    preplan_callback_ = preplanCallback;
 }
