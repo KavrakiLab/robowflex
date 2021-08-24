@@ -116,7 +116,7 @@ namespace robowflex
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
 
-            std::function<void()> preplan_callback_;
+            std::function<void()> preplan_callback_ = {};
         };
     }  // namespace OMPL
 }  // namespace robowflex

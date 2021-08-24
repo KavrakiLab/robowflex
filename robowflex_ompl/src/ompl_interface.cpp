@@ -66,7 +66,8 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     if (not ss_)
         return response;
 
-    preplan_callback_();
+    if (preplan_callback_)
+        preplan_callback_();
 
     context_->solve(response);
     return response;
