@@ -95,13 +95,25 @@ namespace robowflex
              */
             ompl_interface::OMPLInterface &getInterface() const;
 
+            /**
+             * \brief Type for the callback function to be called right before planning takes place, when the
+             * planning context is available.
+             *
+             * \param[in] context The planning context, which contains the SimpleSetup that will be used for
+             * planning. \param[in] scene The planning scene being planned on. \param[in] request The request
+             * to plan a path for.
+             */
+            using PreplanCallback = const std::function<void(
+                const ompl_interface::ModelBasedPlanningContextPtr &context, const SceneConstPtr &scene,
+                const planning_interface::MotionPlanRequest &request)>;
+
             /** \brief Set a callback, to be called right before a planning session for last-minute
              * configuration or external bookkeeping.
              *
              * refreshContext() will already have been called, so the SimpleSetup obtained by
              * getLastSimpleSetup() will be the one used for planning.
              */
-            void setPreplanCallback(const std::function<void()> &preplanCallback);
+            void setPreplanCallback(const PreplanCallback &preplanCallback);
 
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
@@ -116,7 +128,7 @@ namespace robowflex
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
 
-            std::function<void()> preplan_callback_ = {};
+            PrePlanCallbackFunction preplan_callback_;
         };
     }  // namespace OMPL
 }  // namespace robowflex
