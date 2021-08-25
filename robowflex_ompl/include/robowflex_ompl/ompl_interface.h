@@ -99,9 +99,9 @@ namespace robowflex
              * \brief Type for the callback function to be called right before planning takes place, when the
              * planning context is available.
              *
-             * \param[in] context The planning context, which contains the SimpleSetup that will be used for
-             * planning. \param[in] scene The planning scene being planned on. \param[in] request The request
-             * to plan a path for.
+             * \param[in] context The planning context, contains SimpleSetup that will be used.
+             * \param[in] scene The planning scene being planned on.
+             * \param[in] request The request to plan a path for.
              */
             using PrePlanCallback = std::function<void(
                 const ompl_interface::ModelBasedPlanningContextPtr &context, const SceneConstPtr &scene,
@@ -128,7 +128,7 @@ namespace robowflex
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
 
-            PrePlanCallback pre_plan_callback_;
+            PrePlanCallback pre_plan_callback_;  ///< Callback to be called just before planning.
         };
     }  // namespace OMPL
 }  // namespace robowflex
