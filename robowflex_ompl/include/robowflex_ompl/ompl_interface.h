@@ -8,6 +8,8 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/planning.h>
 
+#include <functional>
+
 namespace robowflex
 {
     /** \cond IGNORE */
@@ -93,6 +95,26 @@ namespace robowflex
              */
             ompl_interface::OMPLInterface &getInterface() const;
 
+            /**
+             * \brief Type for the callback function to be called right before planning takes place, when the
+             * planning context is available.
+             *
+             * \param[in] context The planning context, contains SimpleSetup that will be used.
+             * \param[in] scene The planning scene being planned on.
+             * \param[in] request The request to plan a path for.
+             */
+            using PrePlanCallback = std::function<void(
+                const ompl_interface::ModelBasedPlanningContextPtr &context, const SceneConstPtr &scene,
+                const planning_interface::MotionPlanRequest &request)>;
+
+            /** \brief Set a callback, to be called right before a planning session for last-minute
+             * configuration or external bookkeeping.
+             *
+             * refreshContext() will already have been called, so the SimpleSetup obtained by
+             * getLastSimpleSetup() will be the one used for planning.
+             */
+            void setPrePlanCallback(const PrePlanCallback &prePlanCallback);
+
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
@@ -105,6 +127,8 @@ namespace robowflex
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
+
+            PrePlanCallback pre_plan_callback_;  ///< Callback to be called just before planning.
         };
     }  // namespace OMPL
 }  // namespace robowflex
