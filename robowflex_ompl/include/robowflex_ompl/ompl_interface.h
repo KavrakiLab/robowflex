@@ -103,7 +103,7 @@ namespace robowflex
              * planning. \param[in] scene The planning scene being planned on. \param[in] request The request
              * to plan a path for.
              */
-            using PreplanCallback = const std::function<void(
+            using PrePlanCallback = std::function<void(
                 const ompl_interface::ModelBasedPlanningContextPtr &context, const SceneConstPtr &scene,
                 const planning_interface::MotionPlanRequest &request)>;
 
@@ -113,7 +113,7 @@ namespace robowflex
              * refreshContext() will already have been called, so the SimpleSetup obtained by
              * getLastSimpleSetup() will be the one used for planning.
              */
-            void setPreplanCallback(const PreplanCallback &preplanCallback);
+            void setPrePlanCallback(const PrePlanCallback &prePlanCallback);
 
         private:
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
@@ -128,7 +128,7 @@ namespace robowflex
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
                                                           ///< planning.
 
-            PreplanCallback preplan_callback_;
+            PrePlanCallback pre_plan_callback_;
         };
     }  // namespace OMPL
 }  // namespace robowflex

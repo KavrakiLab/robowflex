@@ -66,8 +66,8 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     if (not ss_)
         return response;
 
-    if (preplan_callback_)
-        preplan_callback_(context_, scene, request);
+    if (pre_plan_callback_)
+        pre_plan_callback_(context_, scene, request);
 
     context_->solve(response);
     return response;
@@ -154,7 +154,7 @@ ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
     return *interface_;
 }
 
-void OMPL::OMPLInterfacePlanner::setPreplanCallback(const PreplanCallback &preplanCallback)
+void OMPL::OMPLInterfacePlanner::setPrePlanCallback(const PrePlanCallback &prePlanCallback)
 {
-    preplan_callback_ = preplanCallback;
+    pre_plan_callback_ = prePlanCallback;
 }
