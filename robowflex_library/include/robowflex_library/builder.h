@@ -178,13 +178,17 @@ namespace robowflex
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
-        /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a ee_name.
-         * The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly rotated
-         * about \a axis. The desired \a orientation is also rotated about the axis and set for each copy.
-         *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
-         *  \param[in] pose The pose of the frame to be rotated about.
-         *  \param[in] geometry The geometry describing the position constraint.
+        void addJointConstraintToGoal(int idx, const std::string &joint_name, float position,
+                                      const Eigen::Vector2d &tolerances);
+
+        void addJointConstraintToGoal(int idx, moveit_msgs::JointConstraintPtr joint_constraint);
+
+        /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a
+         * ee_name. The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly
+         * rotated about \a axis. The desired \a orientation is also rotated about the axis and set for
+         * each copy. \param[in] ee_name The name of the end-effector link. \param[in] base_name The name
+         * of the frame of reference of \a pose and \a orientation. \param[in] pose The pose of the frame
+         * to be rotated about. \param[in] geometry The geometry describing the position constraint.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          *  \param[in] offset Offset of the goal \a geometry from \a pose.

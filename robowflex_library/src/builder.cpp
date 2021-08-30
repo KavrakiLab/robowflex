@@ -332,6 +332,17 @@ void MotionRequestBuilder::addGoalRegion(const std::string &ee_name, const std::
     request_.goal_constraints.push_back(constraints);
 }
 
+void MotionRequestBuilder::addJointConstraintToGoal(int idx, const std::string &joint_name, float position,
+                                                    const Eigen::Vector2d &tolerances)
+{
+    addJointConstraintToGoal(idx, TF::getJointConstraint(joint_name, position, tolerances));
+}
+
+void MotionRequestBuilder::addJointConstraintToGoal(int idx, moveit_msgs::JointConstraintPtr joint_constraint)
+{
+    request_.goal_constraints[idx].joint_constraint.push_back(joint_constraint);
+}
+
 void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
                                              const RobotPose &pose, const GeometryConstPtr &geometry,
                                              const Eigen::Quaterniond &orientation,
