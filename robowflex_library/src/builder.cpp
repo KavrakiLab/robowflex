@@ -340,7 +340,7 @@ void MotionRequestBuilder::addJointConstraintToGoal(int idx, const std::string &
 
 void MotionRequestBuilder::addJointConstraintToGoal(int idx, moveit_msgs::JointConstraintPtr joint_constraint)
 {
-    request_.goal_constraints[idx].joint_constraint.push_back(joint_constraint);
+    request_.goal_constraints[idx].joint_constraints.push_back(joint_constraint);
 }
 
 void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
