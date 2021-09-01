@@ -338,9 +338,10 @@ void MotionRequestBuilder::addJointConstraintToGoal(int idx, const std::string &
     addJointConstraintToGoal(idx, TF::getJointConstraint(joint_name, position, tolerances));
 }
 
-void MotionRequestBuilder::addJointConstraintToGoal(int idx, moveit_msgs::JointConstraintPtr joint_constraint)
+void MotionRequestBuilder::addJointConstraintToGoal(int idx, moveit_msgs::JointConstraint joint_constraint)
 {
-    request_.goal_constraints[idx].joint_constraints.push_back(joint_constraint);
+    auto joint_constraints = request_.goal_constraints[idx].joint_constraints;
+    /* request_.goal_constraints.at(idx).joint_constraints.push_back(joint_constraint); */
 }
 
 void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,

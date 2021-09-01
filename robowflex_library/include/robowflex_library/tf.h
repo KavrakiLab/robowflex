@@ -14,6 +14,7 @@
 #include <moveit_msgs/BoundingVolume.h>
 #include <moveit_msgs/PositionConstraint.h>
 #include <moveit_msgs/OrientationConstraint.h>
+#include <moveit_msgs/JointConstraint.h>
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
@@ -205,6 +206,15 @@ namespace robowflex
          */
         Eigen::Quaterniond offsetOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &axis, double value);
+
+        /** \brief Get a joint constraint message.
+         *  \param[in] joint_name The name of the constrained joint.
+         *  \param[in] position The value in radians to constrain to.
+         *  \param[in] tolerances A vector of upper bound and lower bound offsets from position.
+         *  \return The joint constraint as a MoveIt message.
+         */
+        moveit_msgs::JointConstraint getJointConstraint(const std::string &joint_name, float position,
+                                                        const Eigen::Vector2d &tolerances);
 
         /** \brief Sample a position within the given \a bounds using a uniform distribution.
          *  \param[in] bounds The desired mean orientation.
