@@ -178,10 +178,10 @@ namespace robowflex
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
-        void addJointConstraintToGoal(int idx, const std::string &joint_name, float position,
+        void addJointConstraintToGoal(int goal_idx, const std::string &joint_name, float position,
                                       const Eigen::Vector2d &tolerances);
 
-        void addJointConstraintToGoal(int idx, moveit_msgs::JointConstraint joint_constraint);
+        void addJointConstraintToGoal(int goal_idx, moveit_msgs::JointConstraint joint_constraint);
 
         /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a
          * ee_name. The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly

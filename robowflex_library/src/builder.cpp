@@ -332,16 +332,17 @@ void MotionRequestBuilder::addGoalRegion(const std::string &ee_name, const std::
     request_.goal_constraints.push_back(constraints);
 }
 
-void MotionRequestBuilder::addJointConstraintToGoal(int idx, const std::string &joint_name, float position,
-                                                    const Eigen::Vector2d &tolerances)
+void MotionRequestBuilder::addJointConstraintToGoal(int goal_idx, const std::string &joint_name,
+                                                    float position, const Eigen::Vector2d &tolerances)
 {
-    addJointConstraintToGoal(idx, TF::getJointConstraint(joint_name, position, tolerances));
+    addJointConstraintToGoal(goal_idx, TF::getJointConstraint(joint_name, position, tolerances));
 }
 
-void MotionRequestBuilder::addJointConstraintToGoal(int idx, moveit_msgs::JointConstraint joint_constraint)
+void MotionRequestBuilder::addJointConstraintToGoal(int goal_idx,
+                                                    moveit_msgs::JointConstraint joint_constraint)
 {
-    auto joint_constraints = request_.goal_constraints[idx].joint_constraints;
-    /* request_.goal_constraints.at(idx).joint_constraints.push_back(joint_constraint); */
+    /* auto joint_constraints = request_.goal_constraints[goal_idx].joint_constraints; */
+    request_.goal_constraints.at(goal_idx).joint_constraints.push_back(joint_constraint);
 }
 
 void MotionRequestBuilder::addGoalRotaryTile(const std::string &ee_name, const std::string &base_name,
