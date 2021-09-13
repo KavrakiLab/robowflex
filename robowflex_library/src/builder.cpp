@@ -341,7 +341,6 @@ void MotionRequestBuilder::addJointConstraintToGoal(int goal_idx, const std::str
 void MotionRequestBuilder::addJointConstraintToGoal(int goal_idx,
                                                     moveit_msgs::JointConstraint joint_constraint)
 {
-    /* auto joint_constraints = request_.goal_constraints[goal_idx].joint_constraints; */
     request_.goal_constraints.at(goal_idx).joint_constraints.push_back(joint_constraint);
 }
 
