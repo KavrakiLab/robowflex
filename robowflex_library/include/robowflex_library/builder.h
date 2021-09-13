@@ -178,9 +178,23 @@ namespace robowflex
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
+        /** \brief Adds a joint constraint to a specific goal region.
+         *  Creates a joint constraint for \a joint_name at \a position between the bounds specified by \a
+         * tolerances and adds it to the goal region indexed by \a goal_idx from \a orientation and XYZ Euler
+         * angle tolerances \a tolerances.
+         * \param[in] goal_idx The index of the goal region to add this joint constraint to.
+         * \param[in] joint_name The string name of the joint to constrain.
+         * \param[in] position The joint value to constrain to.
+         * \param[in] tolerances A 2D vector of the upper bound and lower bound from \a position.
+         */
         void addJointConstraintToGoal(int goal_idx, const std::string &joint_name, float position,
                                       const Eigen::Vector2d &tolerances);
 
+        /** \brief Adds a MoveIt! joint constraint to a specific goal region.
+         * Adds a MoveIt! joint constraint to the goal region indexed by \a goal_idx.
+         * \param[in] goal_idx The index of the goal region to add this joint constraint to.
+         * \param[in] joint_constraint The MoveIt! joint constraint to add.
+         */
         void addJointConstraintToGoal(int goal_idx, moveit_msgs::JointConstraint joint_constraint);
 
         /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a
