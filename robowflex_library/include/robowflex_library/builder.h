@@ -310,8 +310,7 @@ namespace robowflex
                                        const RobotPose &pose, const GeometryConstPtr &geometry);
 
         /** \brief Set an orientation constraint on the path.
-         *  Sets the orientation constraint from \a orientation and XYZ Euler angle tolerances \a
-         *  tolerances.
+         *  Sets the orientation constraint from \a orientation and XYZ Euler angle tolerances \a tolerances.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The name of the frame of reference of \a orientation.
          *  \param[in] orientation The desired orientation.
@@ -329,10 +328,10 @@ namespace robowflex
         /** \brief Set the planning configuration to use for the motion planning request.
          *  Attempts to match \a requested_config with the planner configuration offered by \a planner_
          *  that is the shortest configuration that contains \a requested_config as a substring. For
-         * example, specifying `RRTConnect` will match `RRTConnectkConfigDefault`, and specifying `RRT`
-         * will match `RRTkConfigDefault` and not `RRTConnectkConfigDefault`. \param[in] requested_config
-         * The planner config to find and use. \return True if the \a requested_config is found, false
-         * otherwise.
+         *  example, specifying `RRTConnect` will match `RRTConnectkConfigDefault`, and specifying `RRT`
+         *  will match `RRTkConfigDefault` and not `RRTConnectkConfigDefault`.
+         *  \param[in] requested_config The planner config to find and use.
+         *  \return True if the \a requested_config is found, false otherwise.
          */
         bool setConfig(const std::string &requested_config);
 
