@@ -215,8 +215,8 @@ namespace robowflex
                                const RobotPose &offset, const Eigen::Vector3d &axis, unsigned int n);
 
         /** \brief Adds a set of regions to grasp a cylinder from the side. This function assumes the
-         * X-axis of the end-effector frame \a ee_name points "forward" for grasping. \param[in] ee_name
-         * The name of the end-effector link.
+         * X-axis of the end-effector frame \a ee_name points "forward" for grasping.
+         * \param[in] ee_name The name of the end-effector link.
          * \param[in] base_name The name of the frame of reference of \a pose.
          * \param[in] pose The pose of the frame to be rotated about.
          * \param[in] cylinder The cylinder to grasp.
