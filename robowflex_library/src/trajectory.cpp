@@ -238,9 +238,10 @@ double Trajectory::getSmoothness(const PathMetric &metric) const
 {
     double smoothness = 0.0;
 
-    auto distance = (metric) ? metric :
-                               [](const robot_state::RobotState &a, const robot_state::RobotState &b)
-    { return a.distance(b); };
+    auto distance =
+        (metric) ? metric : [](const robot_state::RobotState &a, const robot_state::RobotState &b) {
+            return a.distance(b);
+        };
 
     // compute smoothness
     if (trajectory_->getWayPointCount() > 2)
