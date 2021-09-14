@@ -127,6 +127,38 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     trajectory_pub_.publish(out);
 }
 
+void IO::RVIZHelper::updateTrajectories(const std::vector<TrajectoryPtr> &trajectories)
+{
+    moveit_msgs::DisplayTrajectory out;
+    out.model_id = robot_->getModelName();
+
+    bool set = false;
+    for (const auto &traj : trajectories)
+    {
+        if (!set)
+        {
+            moveit::core::robotStateToRobotStateMsg(traj->getTrajectory()->getFirstWayPoint(),
+                                                    out.trajectory_start);
+            set = true;
+        }
+
+        moveit_msgs::RobotTrajectory msg;
+        traj->getTrajectory()->getRobotTrajectoryMsg(msg);
+        out.trajectory.push_back(msg);
+    }
+
+    if (trajectory_pub_.getNumSubscribers() < 1)
+    {
+        RBX_INFO("Waiting for Trajectory subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (trajectory_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
+
+    trajectory_pub_.publish(out);
+}
+
 void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
 {
     if (state_pub_.getNumSubscribers() < 1)

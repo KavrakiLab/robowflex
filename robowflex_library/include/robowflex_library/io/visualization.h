@@ -75,6 +75,11 @@ namespace robowflex
              */
             void updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses);
 
+            /** \brief Updates the trajectory being visualized to a list of trajectories.
+             *  \param[in] responses Vector of robowflex trajectories to visualize.
+             */
+            void updateTrajectories(const std::vector<TrajectoryPtr> &trajectories);
+
             /** \} */
 
             /** \name States
