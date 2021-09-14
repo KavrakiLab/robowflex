@@ -169,6 +169,12 @@ std::vector<std::string> Trajectory::getJointNames() const
     return getMessage().joint_trajectory.joint_names;
 }
 
+Trajectory &Trajectory::append(const Trajectory &source, double dt, size_t start_index, size_t end_index)
+{
+    trajectory_->append(*source.getTrajectoryConst(), dt, start_index, end_index);
+    return *this;
+}
+
 double Trajectory::getLength(const PathMetric &metric) const
 {
     double length = 0.0;
@@ -232,10 +238,9 @@ double Trajectory::getSmoothness(const PathMetric &metric) const
 {
     double smoothness = 0.0;
 
-    auto distance =
-        (metric) ? metric : [](const robot_state::RobotState &a, const robot_state::RobotState &b) {
-            return a.distance(b);
-        };
+    auto distance = (metric) ? metric :
+                               [](const robot_state::RobotState &a, const robot_state::RobotState &b)
+    { return a.distance(b); };
 
     // compute smoothness
     if (trajectory_->getWayPointCount() > 2)
