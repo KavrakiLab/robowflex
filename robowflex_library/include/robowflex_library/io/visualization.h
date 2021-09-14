@@ -70,6 +70,8 @@ namespace robowflex
             void updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
                                   const moveit::core::RobotState &start);
 
+            void updateTrajectories(const std::vector<robot_trajectory::RobotTrajectoryPtr> &trajectories);
+
             /** \brief Updates the trajectory being visualized to a list of trajectories.
              *  \param[in] responses Planning responses to visualize.
              */
