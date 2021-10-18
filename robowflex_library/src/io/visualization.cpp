@@ -128,14 +128,10 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
 
     for (const auto &response : responses)
-    {
         if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-        {
             moveit_trajectories.push_back(response.trajectory_);
-        }
-    }
 
-    this->updateTrajectories(moveit_trajectories);
+    updateTrajectories(moveit_trajectories);
 }
 
 void IO::RVIZHelper::updateTrajectories(const std::vector<TrajectoryPtr> &trajectories)
@@ -143,11 +139,9 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<TrajectoryPtr> &trajec
     auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
 
     for (const auto &traj : trajectories)
-    {
         moveit_trajectories.push_back(traj->getTrajectory());
-    }
 
-    this->updateTrajectories(moveit_trajectories);
+    updateTrajectories(moveit_trajectories);
 }
 
 void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
