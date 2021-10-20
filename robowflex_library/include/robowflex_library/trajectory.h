@@ -166,6 +166,16 @@ namespace robowflex
          */
         std::vector<std::string> getJointNames() const;
 
+        /** \brief Adds a specified part of a trajectory to the end of the current trajectory. The default,
+         *  when \a start_index or \a end_index are ommitted, is to add the whole trajectory.
+         *  \param[in] source The trajectory containing the part to append to the end of current trajectory.
+         *  \param[in] dt Time step between last point in current traj and first point of append traj.
+         *  \param[in] start_index Index of first traj point of the part to append from the source traj.
+         *  \param[in] end_index Index of last traj point of the part to append from the source traj.
+         */
+        Trajectory &append(const Trajectory &source, double dt, size_t start_index = 0,
+                           size_t end_index = std::numeric_limits<std::size_t>::max());
+
         /** \} */
 
         /** \name Metrics
