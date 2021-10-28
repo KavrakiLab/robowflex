@@ -135,3 +135,7 @@ rosrun robowflex_library fetch_test
 ## Code Formatting
 All C++ code should be formatted with `clang-format`.
 Use the `format.sh` script to automatically format the code base.
+
+## Applications 
+External projects that make use of Robowflex:
+- Learning and Motion Planning Algorithms: https://github.com/KavrakiLab/pyre
