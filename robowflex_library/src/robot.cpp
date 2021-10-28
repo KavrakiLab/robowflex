@@ -1342,5 +1342,9 @@ bool Robot::dumpToScene(const std::string &filename) const
 
 ParamRobot::ParamRobot(const std::string &name) : Robot(name)
 {
+    // Retrieve values from parameter server.
+    handler_.getParam(ROBOT_DESCRIPTION, urdf_);
+    handler_.getParam(ROBOT_DESCRIPTION + ROBOT_SEMANTIC, srdf_);
+
     initializeInternal(false);
 }
