@@ -130,23 +130,30 @@ namespace robowflex
         /** \name Goals
             \{ */
 
-        /** \brief Set the goal configuration from a vector \a joints.
+        /** \brief Add a goal configuration from a vector \a joints.
          *  All joints are assumed to be specified and in the default order.
          *  \param[in] joints The values of the joints to set.
          */
-        void setGoalConfiguration(const std::vector<double> &joints);
+        void addGoalConfiguration(const std::vector<double> &joints);
 
-        /** \brief Set the goal configuration from a robot state.
-         *  \param[in] state The robot state to set. Usually from robowflex::Robot::getScratchState().
+        /** \brief Add a goal configuration from a robot state.
+         *  \param[in] state The robot state to set as pointer. Usually from
+         * robowflex::Robot::getScratchState().
          */
-        void setGoalConfiguration(const robot_state::RobotStatePtr &state);
+        void addGoalConfiguration(const robot_state::RobotStatePtr &state);
 
-        /** \brief Set the goal pose from an IK query.
+        /** \brief Add a goal configuration from a robot state.
+         *  \param[in] state The robot state to set ass reference. Usually from
+         * robowflex::Robot::getScratchState().
+         */
+        void addGoalConfiguration(const robot_state::RobotState &state);
+
+        /** \brief Add an IK query as a goal pose.
          *  \param[in] query IK query to construct goal from.
          */
-        void setGoalFromIKQuery(const Robot::IKQuery &query);
+        void addGoalFromIKQuery(const Robot::IKQuery &query);
 
-        /** \brief Set a goal pose for the end-effector \a ee_name.
+        /** \brief Add a goal pose for the end-effector \a ee_name.
          *  Generates a sphere with radius \a tolerance as well as  orientation tolerances of \a tolerance
          *  from \a pose.
          *  \param[in] ee_name The name of the end-effector link.
@@ -154,10 +161,10 @@ namespace robowflex
          *  \param[in] pose The pose of the end-effector in \a base_frame.
          *  \param[in] tolerance The tolerance to put on the pose.
          */
-        void setGoalPose(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
+        void addGoalPose(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
                          double tolerance = 0.001);
 
-        /** \brief Set a goal region for an end-effector \a ee_name.
+        /** \brief Add a goal region for an end-effector \a ee_name.
          *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
          *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
          *  \param[in] ee_name The name of the end-effector link.
@@ -167,7 +174,7 @@ namespace robowflex
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          */
-        void setGoalRegion(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
+        void addGoalRegion(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
@@ -202,6 +209,54 @@ namespace robowflex
         void addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
                                   const RobotPose &pose, const GeometryConstPtr &cylinder, double distance,
                                   double depth, unsigned int n);
+
+        /** \brief Set the goal configuration from a vector \a joints.
+         *  All joints are assumed to be specified and in the default order.
+         *  \param[in] joints The values of the joints to set.
+         */
+        void setGoalConfiguration(const std::vector<double> &joints);
+
+        /** \brief Set the goal configuration from a robot state.
+         *  \param[in] state The robot state to set as pointer. Usually from
+         * robowflex::Robot::getScratchState().
+         */
+        void setGoalConfiguration(const robot_state::RobotStatePtr &state);
+
+        /** \brief Set the goal configuration from a robot state.
+         *  \param[in] state The robot state to set as reference. Usually from
+         * robowflex::Robot::getScratchState().
+         */
+        void setGoalConfiguration(const robot_state::RobotState &state);
+
+        /** \brief Set the goal pose from an IK query.
+         *  \param[in] query IK query to construct goal from.
+         */
+        void setGoalFromIKQuery(const Robot::IKQuery &query);
+
+        /** \brief Set a goal pose for the end-effector \a ee_name.
+         *  Generates a sphere with radius \a tolerance as well as  orientation tolerances of \a tolerance
+         *  from \a pose.
+         *  \param[in] ee_name The name of the end-effector link.
+         *  \param[in] base_name The name of the frame of reference of \a pose.
+         *  \param[in] pose The pose of the end-effector in \a base_frame.
+         *  \param[in] tolerance The tolerance to put on the pose.
+         */
+        void setGoalPose(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
+                         double tolerance = 0.001);
+
+        /** \brief Set a goal region for an end-effector \a ee_name.
+         *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
+         *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
+         *  \param[in] ee_name The name of the end-effector link.
+         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
+         *  \param[in] pose The pose of \a geometry in \a base_frame.
+         *  \param[in] geometry The geometry describing the position constraint.
+         *  \param[in] orientation The desired orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         */
+        void setGoalRegion(const std::string &ee_name, const std::string &base_name, const RobotPose &pose,
+                           const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
+                           const Eigen::Vector3d &tolerances);
 
         /** \brief Clears all goals.
          */
@@ -283,6 +338,12 @@ namespace robowflex
          */
         void setWorkspaceBounds(const Eigen::Ref<const Eigen::VectorXd> &min,
                                 const Eigen::Ref<const Eigen::VectorXd> &max);
+
+        /** \brief Swap the start and goal configurations.
+         * This is only possible when a single joint goal is specified, otherwise an error is raised.
+         *  \return True upon success, False otherwise.
+         */
+        bool swapStartWithGoal();
 
         /** \} */
 

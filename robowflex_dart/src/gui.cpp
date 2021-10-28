@@ -795,14 +795,14 @@ void TSRSolveWidget::render()
             tsrs_->setMaxIterations(maxIter_);
             tsrs_->updateSolver();
         }
-        if (ImGui::SliderFloat("Step", &step_, 0.001, 1))
+        if (ImGui::SliderFloat("Step", &step_, 0.001f, 1.f))
             tsrs_->setStep(step_);
 
-        if (ImGui::SliderFloat("Limit", &limit_, 0.001, 1))
+        if (ImGui::SliderFloat("Limit", &limit_, 0.001f, 1.f))
             tsrs_->setLimit(limit_);
 
         ImGui::NextColumn();
-        if (ImGui::SliderFloat("Tol.", &tolerance_, 1e-5, max_tolerance_, "< %.5f", 3.))
+        if (ImGui::SliderFloat("Tol.", &tolerance_, 1e-5f, max_tolerance_, "< %.5f", 3.f))
         {
             tsrs_->setMaxIterations(tolerance_);
             tsrs_->updateSolver();
@@ -825,7 +825,7 @@ void TSRSolveWidget::render()
                 tsrs_->useQR();
         }
 
-        if (ImGui::SliderFloat("Damp.", &damping_, 1e-8, 1e-3, "< %.8f", 10.))
+        if (ImGui::SliderFloat("Damp.", &damping_, 1e-8f, 1e-3f, "< %.8f", 10.f))
             tsrs_->setDamping(damping_);
 
         ImGui::Columns(1);
