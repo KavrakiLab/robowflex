@@ -92,9 +92,20 @@ namespace robowflex
             /** \brief Add a group to be planned for.
              *  \param[in] name Name of the robot that has the group.
              *  \param[in] group Group to plan for.
-             *  \param[in] cyclic If >0, will flatten rotational groups (i.e., SO(2), SO(3)) into Rn spaces.
+             *  \param[in] cyclic If >0, will flatten rotational groups (i.e.,
+             *                    SO(2), SO(3)) into Rn spaces, where n is \a cyclic.
              */
             void addGroup(const std::string &name, const std::string &group, std::size_t cyclic = 0);
+
+            /** \brief Add a group to be planned for.
+             *  \param[in] group_name Name of the new group.
+             *  \param[in] joints Joints to add to this group.
+             *  \param[in] cyclic If >0, will flatten rotational groups (i.e.,
+             *                    SO(2), SO(3)) into Rn spaces, where n is \a cyclic.
+             */
+            void addGroupFromJoints(const std::string &group_name,
+                                    const std::vector<dart::dynamics::Joint *> &joints,
+                                    std::size_t cyclic = 0);
 
             /** \} */
 
@@ -105,13 +116,13 @@ namespace robowflex
              *  \param[out] world World to set state of.
              *  \param[in] state State to set world.
              */
-            void setWorldState(WorldPtr world, const ompl::base::State *state);
+            void setWorldState(WorldPtr world, const ompl::base::State *state) const;
 
             /** \brief Set the state of a world from a configuration
              *  \param[out] world World to set state of.
              *  \param[in] x Configuration to set world.
              */
-            void setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x);
+            void setWorldState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &x) const;
 
             /** \brief Get the state of a world in an OMPL state.
              *  \param[in] world World to get state of.
@@ -124,6 +135,22 @@ namespace robowflex
              *  \param[out] x Configuration to fill.
              */
             void getWorldState(WorldPtr world, Eigen::Ref<Eigen::VectorXd> x) const;
+
+            /** \brief Set the state of a world from a configuration of a group.
+             *  \param[out] world World to set state of.
+             *  \param[in] group_name Name of group to set.
+             *  \param[in] x Configuration to set.
+             */
+            void setWorldGroupState(WorldPtr world, const std::string &group_name,
+                                    const Eigen::Ref<const Eigen::VectorXd> &x) const;
+
+            /** \brief Get the group state of a world.
+             *  \param[in] world World to get state of.
+             *  \param[in] group_name Name of group to get.
+             *  \param[out] x Configuration to get.
+             */
+            void getWorldGroupState(WorldPtr world, const std::string &group_name,
+                                    Eigen::Ref<Eigen::VectorXd> x) const;
 
             /** \} */
 
@@ -171,6 +198,37 @@ namespace robowflex
              */
             const std::vector<JointPtr> &getJoints() const;
 
+            /** \brief From a full state, get only the state of a group.
+             *  \param[in] group The group to get the state for.
+             *  \param[in] state The state to get the group state from.
+             *  \param[out] v The group state to set.
+             */
+            void getGroupState(const std::string &group, const ompl::base::State *state,
+                               Eigen::Ref<Eigen::VectorXd> v) const;
+
+            /** \brief Set a (sub)group state in a full state.
+             *  \param[in] group The group to set the state for.
+             *  \param[out] state The state to set the group state in.
+             *  \param[in] v The group state to use.
+             */
+            void setGroupState(const std::string &group, ompl::base::State *state,
+                               const Eigen::Ref<const Eigen::VectorXd> &v) const;
+
+            /** \brief Get the dimension of joint variables for a subgroup.
+             *  \return The group's dimension.
+             */
+            std::size_t getGroupDimension(const std::string &group) const;
+
+            /** \brief Get the names of all groups managed by this space.
+             *  \return Names of all the groups.
+             */
+            std::vector<std::string> getGroups() const;
+
+            /** \brief Get the names of each of the dof controlled by a group.
+             *  \return The names of all the controlled dof for a group.
+             */
+            std::vector<std::string> getGroupDofNames(const std::string &group_name) const;
+
             /** \} */
 
             /** \name OMPL StateSpace Methods
@@ -193,11 +251,10 @@ namespace robowflex
             void setMetricSpace(bool metric);
 
         protected:
-            WorldPtr world_;  ///< World to use for planning.
+            void addJoint(const std::string &group_name, const JointPtr &joint);
+            void addJointToGroup(const std::string &group_name, const JointPtr &joint);
 
-            /** \brief Set of groups used in planning. Tuple of robot name, group, and cyclic count.
-             */
-            std::vector<std::tuple<std::string, std::string, std::size_t>> groups_;
+            WorldPtr world_;  ///< World to use for planning.
 
             std::set<dart::dynamics::Joint *> jointset_;  ///< Set of joints used in planning.
             std::vector<std::size_t> indices_;            ///< Vector of indices for planning.
@@ -207,6 +264,9 @@ namespace robowflex
             std::vector<JointPtr> joints_;  ///< Vector of all joints used in planning.
 
             ompl::RNG rng_;  ///< Random number generator.
+
+            std::map<std::string, std::vector<JointPtr>> group_joints_;  ///< Joints belonging to a group.
+            std::map<std::string, std::size_t> group_dimension_;         ///< Dimension of the group.
         };
     }  // namespace darts
 }  // namespace robowflex
