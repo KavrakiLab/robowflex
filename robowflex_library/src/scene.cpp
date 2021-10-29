@@ -21,51 +21,6 @@
 #include <boost/tti/has_member_function.hpp>
 BOOST_TTI_HAS_MEMBER_FUNCTION(getPose)
 
-// SFINAE to allocate moveit::core::AttachedBody used by Scene::attachObject()
-namespace
-{
-    // If pose is tracked by AttachedBody
-    // https://github.com/ros-planning/moveit/commit/d6a714d16320e6327c65c6f34c0e7addc1630a89#
-    // https://github.com/ros-planning/moveit/pull/2037
-    template <typename T>
-    T *attachObjectHelper(
-        const moveit::core::LinkModel *ee,                 //
-        const std::string &id,                             //
-        const std::vector<shapes::ShapeConstPtr> &shapes,  //
-        const EigenSTL::vector_Isometry3d &shape_poses,    //
-        const std::set<std::string> &touch_links,          //
-        typename std::enable_if<
-            has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
-    {
-        return new T(ee,                             //
-                     id,                             //
-                     Eigen::Isometry3d::Identity(),  //
-                     shapes,                         //
-                     shape_poses,                    //
-                     touch_links,                    //
-                     trajectory_msgs::JointTrajectory());
-    }
-
-    // If pose is NOT tracked by AttachedBody
-    template <typename T>
-    T *attachObjectHelper(
-        const moveit::core::LinkModel *ee,                 //
-        const std::string &id,                             //
-        const std::vector<shapes::ShapeConstPtr> &shapes,  //
-        const EigenSTL::vector_Isometry3d &shape_poses,    //
-        const std::set<std::string> &touch_links,          //
-        typename std::enable_if<
-            not has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
-    {
-        return new T(ee,           //
-                     id,           //
-                     shapes,       //
-                     shape_poses,  //
-                     touch_links,  //
-                     trajectory_msgs::JointTrajectory());
-    }
-}  // namespace
-
 namespace robowflex
 {
     /** \brief The actual plugin loader for collision plugins.
@@ -141,6 +96,51 @@ namespace robowflex
 }  // namespace robowflex
 
 using namespace robowflex;
+
+// SFINAE to allocate moveit::core::AttachedBody used by Scene::attachObject()
+namespace
+{
+    // If pose is tracked by AttachedBody
+    // https://github.com/ros-planning/moveit/commit/d6a714d16320e6327c65c6f34c0e7addc1630a89#
+    // https://github.com/ros-planning/moveit/pull/2037
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const RobotPoseVector &shape_poses,                //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,                             //
+                     id,                             //
+                     Eigen::Isometry3d::Identity(),  //
+                     shapes,                         //
+                     shape_poses,                    //
+                     touch_links,                    //
+                     trajectory_msgs::JointTrajectory());
+    }
+
+    // If pose is NOT tracked by AttachedBody
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const RobotPoseVector &shape_poses,                //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            not has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,           //
+                     id,           //
+                     shapes,       //
+                     shape_poses,  //
+                     touch_links,  //
+                     trajectory_msgs::JointTrajectory());
+    }
+}  // namespace
 
 Scene::Scene(const RobotConstPtr &robot)
   : loader_(new CollisionPluginLoader()), scene_(new planning_scene::PlanningScene(robot->getModelConst()))
