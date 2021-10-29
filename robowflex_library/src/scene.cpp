@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <type_traits>
+
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -14,6 +16,55 @@
 #include <moveit/collision_detection/collision_plugin.h>
 #include <moveit/robot_state/conversions.h>
 #include <pluginlib/class_loader.h>
+
+// Macro to check for function existence
+#include <boost/tti/has_member_function.hpp>
+BOOST_TTI_HAS_MEMBER_FUNCTION(getPose)
+
+// SFINAE to allocate moveit::core::AttachedBody used by Scene::attachObject()
+namespace
+{
+    // If pose is tracked by AttachedBody
+    // https://github.com/ros-planning/moveit/commit/d6a714d16320e6327c65c6f34c0e7addc1630a89#
+    // https://github.com/ros-planning/moveit/pull/2037
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const EigenSTL::vector_Isometry3d &shape_poses,    //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,                             //
+                     id,                             //
+                     Eigen::Isometry3d::Identity(),  //
+                     shapes,                         //
+                     shape_poses,                    //
+                     touch_links,                    //
+                     trajectory_msgs::JointTrajectory());
+    }
+
+    // If pose is NOT tracked by AttachedBody
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const EigenSTL::vector_Isometry3d &shape_poses,    //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            not has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,           //
+                     id,           //
+                     shapes,       //
+                     shape_poses,  //
+                     touch_links,  //
+                     trajectory_msgs::JointTrajectory());
+    }
+}  // namespace
 
 namespace robowflex
 {
@@ -365,7 +416,14 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    std::set<std::string> touch_links_set(touch_links.begin(), touch_links.end());
+    auto *body = attachObjectHelper<moveit::core::AttachedBody>(state.getLinkModel(ee_link),  //
+                                                                name,                         //
+                                                                obj->shapes_,                 //
+                                                                poses,                        //
+                                                                touch_links_set);
+    state.attachBody(body);
+
     return true;
 }
 
