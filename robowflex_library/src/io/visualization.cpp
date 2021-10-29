@@ -92,27 +92,23 @@ void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
     trajectory_pub_.publish(out);
 }
 
-void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses)
+void IO::RVIZHelper::updateTrajectories(const std::vector<robot_trajectory::RobotTrajectoryPtr> &trajectories)
 {
     moveit_msgs::DisplayTrajectory out;
     out.model_id = robot_->getModelName();
 
     bool set = false;
-    for (const auto &response : responses)
+    for (const auto &traj : trajectories)
     {
         if (!set)
         {
-            moveit::core::robotStateToRobotStateMsg(response.trajectory_->getFirstWayPoint(),
-                                                    out.trajectory_start);
+            moveit::core::robotStateToRobotStateMsg(traj->getFirstWayPoint(), out.trajectory_start);
             set = true;
         }
 
-        if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-        {
-            moveit_msgs::RobotTrajectory msg;
-            response.trajectory_->getRobotTrajectoryMsg(msg);
-            out.trajectory.push_back(msg);
-        }
+        moveit_msgs::RobotTrajectory msg;
+        traj->getRobotTrajectoryMsg(msg);
+        out.trajectory.push_back(msg);
     }
 
     if (trajectory_pub_.getNumSubscribers() < 1)
@@ -125,6 +121,27 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     }
 
     trajectory_pub_.publish(out);
+}
+
+void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses)
+{
+    auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
+
+    for (const auto &response : responses)
+        if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            moveit_trajectories.push_back(response.trajectory_);
+
+    updateTrajectories(moveit_trajectories);
+}
+
+void IO::RVIZHelper::updateTrajectories(const std::vector<TrajectoryPtr> &trajectories)
+{
+    auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
+
+    for (const auto &traj : trajectories)
+        moveit_trajectories.push_back(traj->getTrajectory());
+
+    updateTrajectories(moveit_trajectories);
 }
 
 void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
