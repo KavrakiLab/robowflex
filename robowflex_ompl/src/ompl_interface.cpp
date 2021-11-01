@@ -1,3 +1,8 @@
+/* Author: Zachary Kingston */
+
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
+
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
 #include <robowflex_library/macros.h>
@@ -129,6 +134,21 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 
     ss_ = context_->getOMPLSimpleSetup();
 
+    // Set desired default optimization objective
+    ompl::base::OptimizationObjectivePtr obj;
+    switch (objective_)
+    {
+        case MAX_MIN_CLEARANCE:
+            obj = std::make_shared<ompl::base::MaximizeMinClearanceObjective>(ss_->getSpaceInformation());
+            break;
+        case PATH_LENGTH:
+        default:
+            obj = std::make_shared<ompl::base::PathLengthOptimizationObjective>(ss_->getSpaceInformation());
+            break;
+    }
+
+    ss_->getProblemDefinition()->setOptimizationObjective(obj);
+
     last_scene_id_ = scene_id;
     last_request_hash_ = request_hash;
 
@@ -157,4 +177,24 @@ ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
 void OMPL::OMPLInterfacePlanner::setPrePlanCallback(const PrePlanCallback &prePlanCallback)
 {
     pre_plan_callback_ = prePlanCallback;
+}
+
+void OMPL::OMPLInterfacePlanner::setHybridize(bool hybridize)
+{
+    hybridize_ = hybridize;
+}
+
+void OMPL::OMPLInterfacePlanner::setInterpolate(bool interpolate)
+{
+    interpolate_ = interpolate;
+}
+
+void OMPL::OMPLInterfacePlanner::usePathLengthObjective()
+{
+    objective_ = PATH_LENGTH;
+}
+
+void OMPL::OMPLInterfacePlanner::useMaxMinClearanceObjective()
+{
+    objective_ = MAX_MIN_CLEARANCE;
 }

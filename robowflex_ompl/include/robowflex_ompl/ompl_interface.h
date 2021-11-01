@@ -115,7 +115,33 @@ namespace robowflex
              */
             void setPrePlanCallback(const PrePlanCallback &prePlanCallback);
 
+            /** \brief Sets whether or not the planner should hybridize solutions.
+             *  \param[in] hybridize If true, planner will hybridize solutions.
+             */
+            void setHybridize(bool hybridize);
+
+            /** \brief Sets whether or not the planner should interpolate solutions.
+             *  \param[in] interpolate If true, planner will interpolate solutions.
+             */
+            void setInterpolate(bool interpolate);
+
+            /** \brief Sets default optimization objective to minimize path length.
+             */
+            void usePathLengthObjective();
+
+            /** \brief Sets default optimization objective to maximize the minimum path clearance.
+             */
+            void useMaxMinClearanceObjective();
+
         private:
+            /** \brief Optimization objectives for planning. */
+            enum Objective
+            {
+                PATH_LENGTH,       ///< Minimize path length objective.
+                MAX_MIN_CLEARANCE  ///< Maximize minimum clearance objective.
+            };
+
+            Objective objective_{PATH_LENGTH};  ///< Optimization objective to use.
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
