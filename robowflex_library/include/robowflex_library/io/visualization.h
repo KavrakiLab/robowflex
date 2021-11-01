@@ -71,9 +71,19 @@ namespace robowflex
                                   const moveit::core::RobotState &start);
 
             /** \brief Updates the trajectory being visualized to a list of trajectories.
+             *  \param[in] trajectories Vector of MoveIt! robot trajectories to visualize.
+             */
+            void updateTrajectories(const std::vector<robot_trajectory::RobotTrajectoryPtr> &trajectories);
+
+            /** \brief Updates the trajectory being visualized to a list of trajectories.
              *  \param[in] responses Planning responses to visualize.
              */
             void updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses);
+
+            /** \brief Updates the trajectory being visualized to a list of trajectories.
+             *  \param[in] responses Vector of robowflex trajectories to visualize.
+             */
+            void updateTrajectories(const std::vector<TrajectoryPtr> &trajectories);
 
             /** \} */
 
