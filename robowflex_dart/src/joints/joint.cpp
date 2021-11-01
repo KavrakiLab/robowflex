@@ -41,6 +41,7 @@ Joint::Joint(StateSpace *space,         //
 
         auto *dof = joint->getDof(i);
         indices_.emplace_back(dof->getIndexInSkeleton());
+        dofs_.emplace_back(dof->getName());
     }
 }
 
@@ -76,9 +77,24 @@ const std::vector<std::size_t> &Joint::getIndices() const
     return indices_;
 }
 
+const std::vector<std::string> &Joint::getDofs() const
+{
+    return dofs_;
+}
+
 std::size_t Joint::getSkeletonIndex() const
 {
     return skelIndex_;
+}
+
+std::size_t Joint::getJointIndex() const
+{
+    return jointIndex_;
+}
+
+std::size_t Joint::getDimension() const
+{
+    return numDof_;
 }
 
 void Joint::setJointState(WorldPtr world, const Eigen::Ref<const Eigen::VectorXd> &a) const
