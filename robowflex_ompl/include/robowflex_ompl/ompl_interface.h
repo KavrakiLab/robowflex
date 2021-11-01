@@ -30,6 +30,15 @@ namespace robowflex
             \brief A const shared pointer wrapper for robowflex::OMPL::OMPLInterfacePlanner. */
 
         /** \brief A planner that directly uses \a MoveIt!'s OMPL planning interface.
+         *
+         * The underlying planning context used is created through
+         * refreshContext(). Any function that uses the context will call this
+         * function internally, using the provided scene and request. If the scene
+         * and request are the same as the previous call, the previous simple
+         * setup will be used in these functions. This is not supported on
+         * Kinetic. As a result, this planner can only be used in a single thread.
+         * This is to provide * access to the underlying OMPL representation so
+         * that it may be * modified by users through getLastSimpleSetup().
          */
         class OMPLInterfacePlanner : public Planner
         {
