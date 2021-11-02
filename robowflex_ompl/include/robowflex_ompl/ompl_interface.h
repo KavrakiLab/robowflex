@@ -130,8 +130,10 @@ namespace robowflex
             void usePathLengthObjective();
 
             /** \brief Sets default optimization objective to maximize the minimum path clearance.
+             *  \param[in] weight The weight of clearance versus path length in the objective function. 1
+             *                    means all clearance, 0 means all path length.
              */
-            void useMaxMinClearanceObjective();
+            void useMaxMinClearanceObjective(double weight = 0.5);
 
         private:
             /** \brief Optimization objectives for planning. */
@@ -141,7 +143,9 @@ namespace robowflex
                 MAX_MIN_CLEARANCE  ///< Maximize minimum clearance objective.
             };
 
+            double clearance_objective_weight_{0.5};      ///< Default weight to use in clearance objectives.
             Objective objective_{PATH_LENGTH};  ///< Optimization objective to use.
+
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
