@@ -130,8 +130,8 @@ namespace robowflex
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
             bool interpolate_;  ///< Whether or not planner should interpolate solutions.
 
-            mutable moveit_msgs::PlanningScene previous_scene_;        // Previous scene.
-            mutable moveit_msgs::MotionPlanRequest previous_request_;  // Previous request.
+            mutable ID::Key last_scene_id_{ID::getNullKey()};          ///< ID of last scene.
+            mutable moveit_msgs::MotionPlanRequest previous_request_;  ///< Previous request.
 
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for

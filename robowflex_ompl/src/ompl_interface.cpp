@@ -102,11 +102,11 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
                                                 const planning_interface::MotionPlanRequest &request,
                                                 bool force) const
 {
-    moveit_msgs::PlanningScene scene_msg = scene->getMessage();
+    const auto &scene_id = scene->getKey();
 
     // Comparison not implemented on Kinetic. User must force refresh manually.
 #if ROBOWFLEX_AT_LEAST_MELODIC
-    bool same_scene = scene_msg == previous_scene_;
+    bool same_scene = scene_id == last_scene_id_;
     bool same_request = request == previous_request_;
 #else
     bool same_scene = true;
@@ -134,7 +134,7 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 
     ss_ = context_->getOMPLSimpleSetup();
 
-    previous_scene_ = scene_msg;
+    last_scene_id_ = scene_id;
     previous_request_ = request;
 
     RBX_INFO("Refreshed Context!");
