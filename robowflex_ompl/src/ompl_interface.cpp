@@ -159,10 +159,14 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
             break;
     }
 
-    // Set optimization objective in problem definition and simplifier
+    // Set optimization objective in problem definition
     auto pdef = ss_->getProblemDefinition();
     pdef->setOptimizationObjective(obj);
-    ss_->getPathSimplifier() = std::make_shared<ompl::geometric::PathSimplifier>(si, pdef->getGoal(), obj);
+
+    // Set objective in path simplifier
+    if (use_objective_simplifier_)
+        ss_->getPathSimplifier() =
+            std::make_shared<ompl::geometric::PathSimplifier>(si, pdef->getGoal(), obj);
 
     last_scene_id_ = scene_id;
     last_request_hash_ = request_hash;
@@ -206,6 +210,11 @@ void OMPL::OMPLInterfacePlanner::setInterpolate(bool interpolate)
 void OMPL::OMPLInterfacePlanner::usePathLengthObjective()
 {
     objective_ = PATH_LENGTH;
+}
+
+void OMPL::OMPLInterfacePlanner::setObjectiveSimplifier(bool use_objective)
+{
+    use_objective_simplifier_ = use_objective;
 }
 
 void OMPL::OMPLInterfacePlanner::useMaxMinClearanceObjective(double weight)
