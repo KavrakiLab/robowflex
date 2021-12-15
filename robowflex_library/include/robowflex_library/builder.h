@@ -264,20 +264,18 @@ namespace robowflex
 
         using ConfigurationValidityCallback = std::function<bool(const robot_state::RobotState &)>;
 
-        /** \brief Generate a clone of this motion request but with precomputed goal configurations (from
+        /** \brief Override the goals of this motion request with precomputed goal configurations (from the
          * specified regions).
          *
-         *  That is, rather than a set of sampleable goal regions, the returned request
-         * will have \a n_samples goal configurations, all sampled from the goal regions a priori.
+         *  That is, rather than a set of sampleable goal regions, the request will have \a n_samples goal
+         * configurations, all sampled from the prior goal regions.
          *
          *  \param[in] n_samples Number of samples to precompute.
          *  \param[in] scene Scene to collision check against.
          *  \param[in] callback If provided, will only keep samples that are valid according to callback.
-         *  \return A cloned motion request but with the precomputed samples.
          */
-        MotionRequestBuilderPtr
-        precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
-                                     const ConfigurationValidityCallback &callback = {}) const;
+        void precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
+                                          const ConfigurationValidityCallback &callback = {}) const;
 
         /** \brief Clears all goals.
          */

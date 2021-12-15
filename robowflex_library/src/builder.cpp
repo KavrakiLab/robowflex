@@ -408,8 +408,8 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
     addGoalRegion(ee_name, base_name, pose, geometry, orientation, tolerances);
 }
 
-MotionRequestBuilderPtr MotionRequestBuilder::precomputeGoalConfigurations(
-    std::size_t n_samples, const ScenePtr &scene, const ConfigurationValidityCallback &callback) const
+void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
+                                                        const ConfigurationValidityCallback &callback) const
 {
     // Allocate samplers for each region
     std::vector<constraint_samplers::ConstraintSamplerPtr> samplers;
@@ -417,19 +417,19 @@ MotionRequestBuilderPtr MotionRequestBuilder::precomputeGoalConfigurations(
     {
         // Joint Constraints
         if (not goal.joint_constraints.empty())
-            samplers.emplace_back(std::make_shared<constraint_samplers::JointConstraintSampler>(scene->getSceneConst(), group_name_));
+            samplers.emplace_back(std::make_shared<constraint_samplers::JointConstraintSampler>(
+                scene->getSceneConst(), group_name_));
 
         // Pose Constraints
         else
-            samplers.emplace_back(std::make_shared<constraint_samplers::IKConstraintSampler>(scene->getSceneConst(), group_name_));
+            samplers.emplace_back(std::make_shared<constraint_samplers::IKConstraintSampler>(
+                scene->getSceneConst(), group_name_));
 
         samplers.back()->configure(goal);
         samplers.back()->setGroupStateValidityCallback(scene->getGSVCF(false));
     }
 
-    // Clone this request
-    auto cloned = clone();
-    cloned->clearGoals();
+    clearGoals();
 
     // Clone start
     robot_state::RobotState state = *robot_->getScratchStateConst();
@@ -441,7 +441,7 @@ MotionRequestBuilderPtr MotionRequestBuilder::precomputeGoalConfigurations(
         auto sampler = RNG::uniformSample(samplers);
         if (sampler->sample(state) and (not callback or callback(state)))
         {
-            cloned->addGoalConfiguration(state);
+            addGoalConfiguration(state);
             n--;
         }
     }
