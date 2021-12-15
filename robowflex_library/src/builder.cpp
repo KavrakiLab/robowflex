@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <moveit/constraint_samplers/constraint_sampler.h>
+#include <moveit/constraint_samplers/default_constraint_samplers.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
@@ -411,12 +412,19 @@ MotionRequestBuilderPtr MotionRequestBuilder::precomputeGoalConfigurations(
     std::size_t n_samples, const ScenePtr &scene, const ConfigurationValidityCallback &callback) const
 {
     // Allocate samplers for each region
-    std::vector<constraint_samplers::ConstraintSampler> samplers;
+    std::vector<constraint_samplers::ConstraintSamplerPtr> samplers;
     for (const auto &goal : request_.goal_constraints)
     {
-        samplers.emplace_back(goal);
-        if (scene)
-            samplers.back().setGroupStateValidityCallback(scene->getGSVCF());
+        // Joint Constraints
+        if (not goal.joint_constraints.empty())
+            samplers.emplace_back(std::make_shared<constraint_samplers::JointConstraintSampler>(scene->getSceneConst(), group_name_));
+
+        // Pose Constraints
+        else
+            samplers.emplace_back(std::make_shared<constraint_samplers::IKConstraintSampler>(scene->getSceneConst(), group_name_));
+
+        samplers.back()->configure(goal);
+        samplers.back()->setGroupStateValidityCallback(scene->getGSVCF(false));
     }
 
     // Clone this request
@@ -424,14 +432,14 @@ MotionRequestBuilderPtr MotionRequestBuilder::precomputeGoalConfigurations(
     cloned->clearGoals();
 
     // Clone start
-    robot_state::RobotState state = *robot_->getScratchState();
+    robot_state::RobotState state = *robot_->getScratchStateConst();
 
     // Sample n_samples to add to new request
     std::size_t n = n_samples;
     while (n)
     {
         auto sampler = RNG::uniformSample(samplers);
-        if (sampler.sample(state) and (not callback or callback(state)))
+        if (sampler->sample(state) and (not callback or callback(state)))
         {
             cloned->addGoalConfiguration(state);
             n--;

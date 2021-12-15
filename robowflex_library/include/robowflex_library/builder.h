@@ -271,12 +271,12 @@ namespace robowflex
          * will have \a n_samples goal configurations, all sampled from the goal regions a priori.
          *
          *  \param[in] n_samples Number of samples to precompute.
-         *  \param[in] scene If provided, will collision check samples and only keep valid samples.
+         *  \param[in] scene Scene to collision check against.
          *  \param[in] callback If provided, will only keep samples that are valid according to callback.
          *  \return A cloned motion request but with the precomputed samples.
          */
         MotionRequestBuilderPtr
-        precomputeGoalConfigurations(std::size_t n_samples = 10, const ScenePtr &scene = nullptr,
+        precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
                                      const ConfigurationValidityCallback &callback = {}) const;
 
         /** \brief Clears all goals.
