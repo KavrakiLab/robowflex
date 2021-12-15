@@ -140,6 +140,10 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
     ompl::base::OptimizationObjectivePtr obj;
     switch (objective_)
     {
+        case CUSTOM:
+            obj = custom_objective_(si);
+            break;
+
         case MAX_MIN_CLEARANCE:
         {
             auto pl_obj = std::make_shared<ompl::base::PathLengthOptimizationObjective>(si);
@@ -224,4 +228,10 @@ void OMPL::OMPLInterfacePlanner::useMaxMinClearanceObjective(double weight)
 
     objective_ = MAX_MIN_CLEARANCE;
     clearance_objective_weight_ = weight;
+}
+
+void OMPL::OMPLInterfacePlanner::useCustomObjective(const OptimizationObjectiveAllocator &allocator)
+{
+    objective_ = CUSTOM;
+    custom_objective_ = allocator;
 }

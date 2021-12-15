@@ -135,6 +135,16 @@ namespace robowflex
              */
             void useMaxMinClearanceObjective(double weight = 0.5);
 
+            /** \brief Allocator function that allocates a new custom optimization objective.
+             */
+            using OptimizationObjectiveAllocator =
+                std::function<ompl::base::OptimizationObjectivePtr(const ompl::base::SpaceInformationPtr &)>;
+
+            /** \brief Use a custom objective function that is created from a provided allocator function.
+             *  \param[in] allocator Allocator function.
+             */
+            void useCustomObjective(const OptimizationObjectiveAllocator &allocator);
+
             /** \brief Sets whether to use the optimization objective for the path simplifier.
              *  \param[in] use_objective If true, planner will set simplification objective.
              */
@@ -144,13 +154,15 @@ namespace robowflex
             /** \brief Optimization objectives for planning. */
             enum Objective
             {
-                PATH_LENGTH,       ///< Minimize path length objective.
-                MAX_MIN_CLEARANCE  ///< Maximize minimum clearance objective.
+                PATH_LENGTH,        ///< Minimize path length objective.
+                MAX_MIN_CLEARANCE,  ///< Maximize minimum clearance objective.
+                CUSTOM              ///< Custom objective.
             };
 
             bool use_objective_simplifier_{false};    ///< Use the optimization objective for the simplifier.
             double clearance_objective_weight_{0.5};  ///< Default weight to use in clearance objectives.
             Objective objective_{PATH_LENGTH};        ///< Optimization objective to use.
+            OptimizationObjectiveAllocator custom_objective_;  ///< Custom objective allocator.
 
             std::unique_ptr<ompl_interface::OMPLInterface> interface_{nullptr};  ///< Planning interface.
             std::vector<std::string> configs_;                                   ///< Planning configurations.
