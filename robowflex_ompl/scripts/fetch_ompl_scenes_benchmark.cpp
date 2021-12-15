@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::CLEARANCE;
 
     Experiment experiment("fetch_scenes", options, 30.0, 10);
-    experiment.enableMultipleRequests(); // Enable multiple requests for hybridization
+    experiment.enableMultipleRequests();  // Enable multiple requests for hybridization
 
     const std::size_t start = 1;
     const std::size_t end = 3;
