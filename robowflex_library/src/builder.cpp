@@ -412,20 +412,11 @@ void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, c
                                                         const ConfigurationValidityCallback &callback)
 {
     // Allocate samplers for each region
+    constraint_samplers::ConstraintSamplerManager manager;
     std::vector<constraint_samplers::ConstraintSamplerPtr> samplers;
     for (const auto &goal : request_.goal_constraints)
     {
-        // Joint Constraints
-        if (not goal.joint_constraints.empty())
-            samplers.emplace_back(std::make_shared<constraint_samplers::JointConstraintSampler>(
-                scene->getSceneConst(), group_name_));
-
-        // Pose Constraints
-        else
-            samplers.emplace_back(std::make_shared<constraint_samplers::IKConstraintSampler>(
-                scene->getSceneConst(), group_name_));
-
-        samplers.back()->configure(goal);
+        samplers.emplace_back(manager.selectSampler(scene->getSceneConst(), group_name_, goal));
         samplers.back()->setGroupStateValidityCallback(scene->getGSVCF(false));
     }
 
