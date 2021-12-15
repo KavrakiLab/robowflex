@@ -1,6 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <moveit/constraint_samplers/constraint_sampler.h>
+#include <moveit/constraint_samplers/constraint_sampler_manager.h>
 #include <moveit/constraint_samplers/default_constraint_samplers.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
