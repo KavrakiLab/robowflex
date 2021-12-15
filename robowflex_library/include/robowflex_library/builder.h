@@ -275,7 +275,7 @@ namespace robowflex
          *  \param[in] callback If provided, will only keep samples that are valid according to callback.
          */
         void precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
-                                          const ConfigurationValidityCallback &callback = {}) const;
+                                          const ConfigurationValidityCallback &callback = {});
 
         /** \brief Clears all goals.
          */

@@ -409,7 +409,7 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 }
 
 void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
-                                                        const ConfigurationValidityCallback &callback) const
+                                                        const ConfigurationValidityCallback &callback)
 {
     // Allocate samplers for each region
     std::vector<constraint_samplers::ConstraintSamplerPtr> samplers;
@@ -445,8 +445,6 @@ void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, c
             n--;
         }
     }
-
-    return cloned;
 }
 
 void MotionRequestBuilder::clearGoals()
