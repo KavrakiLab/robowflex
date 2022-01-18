@@ -9,11 +9,12 @@
 using namespace robowflex;
 
 /* \file baxter_multi_target.cpp
- * A script that demonstrates the multi-target IK query functionality with a baxter robot.  The
- * robowflex_resouces package needs to  be available, see https://github.com/KavrakiLab/robowflex_resources.
- * You should run RViz and have a RobotState visualization display enabled set to look at
- * /robowflex/robot_description, and robowflex/state. Also a MarkerArray should be added to visualize the
- * target IK poses.
+ * A script that demonstrates the multi-target IK query functionality with a
+ * baxter robot.  The robowflex_resouces package needs to  be available, see
+ * https://github.com/KavrakiLab/robowflex_resources. You should run RViz and
+ * have a RobotState visualization display enabled set to look at
+ * /robowflex/robot_description, and robowflex/state. Also a MarkerArray should
+ * be added to visualize the target IK poses.
  */
 
 static const std::string BOTH_ARMS = "both_arms";
@@ -51,6 +52,7 @@ int main(int argc, char **argv)
     std::cin.ignore();
 
     Robot::IKQuery query(BOTH_ARMS, {goal_pose_left, goal_pose_right}, {LEFT_EE, RIGHT_EE});
+
     if (not baxter->setFromIK(query))
     {
         RBX_ERROR("IK query failed!");
@@ -59,6 +61,60 @@ int main(int argc, char **argv)
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
+
+    // Need approximate solutions as multi-target BioIK will only return
+    // approximate solutions.
+    query.options.return_approximate_solution = true;
+    query.validate = true;        // Need external validation to verify approximate
+                                  // solutions are within tolerance.
+    query.valid_distance = 0.05;  // Tuned distance threshold that is appropriate for query.
+                                  //    query.verbose = true;
+
+    if (not baxter->setFromIK(query))
+    {
+        RBX_ERROR("Approximate IK query failed!");
+        return 1;
+    }
+
+    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
+    std::cin.ignore();
+
+    // Visualize resulting state.
+    rviz.visualizeCurrentState();
+
+    query = Robot::IKQuery("left_arm", {goal_pose_left}, {LEFT_EE});
+    if (not baxter->setFromIK(query))
+    {
+        RBX_ERROR("Single IK query failed!");
+        return 1;
+    }
+
+    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
+    std::cin.ignore();
+
+    // Visualize resulting state.
+    rviz.visualizeCurrentState();
+
+    // Need approximate solutions as multi-target BioIK will only return
+    // approximate solutions.
+    query.options.return_approximate_solution = true;
+    query.validate = true;        // Need external validation to verify approximate
+                                  // solutions are within tolerance.
+    query.valid_distance = 0.05;  // Tuned distance threshold that is appropriate for query.
+                                  //    query.verbose = true;
+
+    if (not baxter->setFromIK(query))
+    {
+        RBX_ERROR("Single Approximate IK query failed!");
+        return 1;
+    }
+
+    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
+    std::cin.ignore();
+
+    // Visualize resulting state.
+    rviz.visualizeCurrentState();
+
     RBX_INFO("Solution to IK is visualized. Press enter to exit...");
     std::cin.ignore();
 
