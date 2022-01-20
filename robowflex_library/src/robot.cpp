@@ -813,10 +813,10 @@ void Robot::IKQuery::getMessage(const std::string &base_frame, moveit_msgs::Cons
 kinematic_constraints::KinematicConstraintSetPtr Robot::IKQuery::getAsConstraints(const Robot &robot) const
 {
     moveit_msgs::Constraints msg;
-    getMessage(robot.getSolverBaseFrame(group), msg);
+    getMessage(robot.getModelConst()->getRootLink()->getName(), msg);
 
     auto constraints = std::make_shared<kinematic_constraints::KinematicConstraintSet>(robot.getModelConst());
-    moveit::core::Transforms none(robot.getModelConst()->getModelFrame());
+    moveit::core::Transforms none(robot.getModelConst()->getRootLink()->getName());
 
     constraints->add(msg, none);
 
@@ -838,8 +838,14 @@ bool Robot::setFromIK(const IKQuery &query)
     return setFromIK(query, *scratch_);
 }
 
-bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
+bool Robot::setFromIK(const IKQuery &q, robot_state::RobotState &state) const
 {
+    // copy query for unconstness
+    IKQuery query(q);
+
+    if (query.tips[0].empty())
+        query.tips = getSolverTipFrames(query.group);
+
     const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const auto &gsvcf =
         (query.scene) ? query.scene->getGSVCF(query.verbose) : moveit::core::GroupStateValidityCallbackFn{};
@@ -860,19 +866,12 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
         query.sampleRegions(targets);
 
 #if ROBOWFLEX_AT_LEAST_MELODIC
-        // Multi-tip IK. Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
+        // Multi-tip IK: Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
-        if (targets.size() > 1)
-            success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, query.options);
-        // Single-tip IK.
-        else
-            success = state.setFromIK(jmg, targets[0], query.timeout, gsvcf, query.options);
-
-#else  // attempts was a prior field that was deprecated in melodic
-        if (targets.size() > 1)
-            success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, query.options);
-        else
-            success = state.setFromIK(jmg, targets[0], 1, query.timeout, gsvcf, query.options);
+        success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, query.options);
+#else
+        // attempts was a prior field that was deprecated in melodic
+        success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, query.options);
 #endif
 
         if (evaluate)

@@ -18,6 +18,7 @@ using namespace robowflex;
  */
 
 static const std::string BOTH_ARMS = "both_arms";
+static const std::string LEFT_ARM = "left_arm";
 static const std::string LEFT_EE = "left_gripper_base";
 static const std::string RIGHT_EE = "right_gripper_base";
 
@@ -62,46 +63,26 @@ int main(int argc, char **argv)
     // Visualize resulting state.
     rviz.visualizeCurrentState();
 
-    // Need approximate solutions as multi-target BioIK will only return
-    // approximate solutions.
-    query.options.return_approximate_solution = true;
-    query.validate = true;        // Need external validation to verify approximate
-                                  // solutions are within tolerance.
-    query.valid_distance = 0.05;  // Tuned distance threshold that is appropriate for query.
-                                  //    query.verbose = true;
-
-    if (not baxter->setFromIK(query))
-    {
-        RBX_ERROR("Approximate IK query failed!");
-        return 1;
-    }
-
     RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
     std::cin.ignore();
 
-    // Visualize resulting state.
-    rviz.visualizeCurrentState();
-
-    query = Robot::IKQuery("left_arm", {goal_pose_left}, {LEFT_EE});
+    query = Robot::IKQuery(LEFT_ARM, goal_pose_left);
     if (not baxter->setFromIK(query))
     {
         RBX_ERROR("Single IK query failed!");
         return 1;
     }
 
-    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
-    std::cin.ignore();
-
     // Visualize resulting state.
     rviz.visualizeCurrentState();
 
-    // Need approximate solutions as multi-target BioIK will only return
-    // approximate solutions.
-    query.options.return_approximate_solution = true;
-    query.validate = true;        // Need external validation to verify approximate
-                                  // solutions are within tolerance.
+    RBX_INFO("Robot left arm IK(ee:default) is visualized. Press enter to continue ...");
+    std::cin.ignore();
+
+    query = Robot::IKQuery(LEFT_ARM, {goal_pose_left}, {LEFT_EE});
+    query.options.return_approximate_solution = true;  // Enable approximate IK solutions.
+    query.validate = true;        // Use to verify approximate solutions are within tolerance.
     query.valid_distance = 0.05;  // Tuned distance threshold that is appropriate for query.
-                                  //    query.verbose = true;
 
     if (not baxter->setFromIK(query))
     {
@@ -109,13 +90,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
-    std::cin.ignore();
-
     // Visualize resulting state.
     rviz.visualizeCurrentState();
-
-    RBX_INFO("Solution to IK is visualized. Press enter to exit...");
+    RBX_INFO("Robot left arm IK(ee:left_gripper_base) is visualized. Press enter to exit...");
     std::cin.ignore();
 
     return 0;
