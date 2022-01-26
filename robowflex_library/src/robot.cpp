@@ -813,10 +813,11 @@ void Robot::IKQuery::getMessage(const std::string &base_frame, moveit_msgs::Cons
 kinematic_constraints::KinematicConstraintSetPtr Robot::IKQuery::getAsConstraints(const Robot &robot) const
 {
     moveit_msgs::Constraints msg;
-    getMessage(robot.getModelConst()->getRootLink()->getName(), msg);
+    const auto &root = robot.getModelConst()->getRootLink()->getName();
+    getMessage(root, msg);
 
     auto constraints = std::make_shared<kinematic_constraints::KinematicConstraintSet>(robot.getModelConst());
-    moveit::core::Transforms none(robot.getModelConst()->getRootLink()->getName());
+    moveit::core::Transforms none(root);
 
     constraints->add(msg, none);
 
@@ -838,13 +839,13 @@ bool Robot::setFromIK(const IKQuery &query)
     return setFromIK(query, *scratch_);
 }
 
-bool Robot::setFromIK(const IKQuery &q, robot_state::RobotState &state) const
+bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
 {
     // copy query for unconstness
-    IKQuery query(q);
+    std::vector<std::string> tips(query.tips);
 
-    if (query.tips[0].empty())
-        query.tips = getSolverTipFrames(query.group);
+    if (tips[0].empty())
+        tips = getSolverTipFrames(query.group);
 
     const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
     const auto &gsvcf =
@@ -868,10 +869,10 @@ bool Robot::setFromIK(const IKQuery &q, robot_state::RobotState &state) const
 #if ROBOWFLEX_AT_LEAST_MELODIC
         // Multi-tip IK: Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
-        success = state.setFromIK(jmg, targets, query.tips, query.timeout, gsvcf, query.options);
+        success = state.setFromIK(jmg, targets, tips, query.timeout, gsvcf, query.options);
 #else
         // attempts was a prior field that was deprecated in melodic
-        success = state.setFromIK(jmg, targets, query.tips, 1, query.timeout, gsvcf, query.options);
+        success = state.setFromIK(jmg, targets, tips, 1, query.timeout, gsvcf, query.options);
 #endif
 
         if (evaluate)
