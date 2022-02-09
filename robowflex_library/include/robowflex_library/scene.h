@@ -291,6 +291,20 @@ namespace robowflex
          */
         double distanceBetweenObjects(const std::string &one, const std::string &two) const;
 
+        /** \brief Get the distance to collision using an ACM.
+         *  \param[in] state State of the robot.
+         *  \param[in] one acm ACM to use for distance check.
+         *  \return The distance between all colliding entries in ACM. On error, returns NaN.
+         */
+        double distanceACM(const robot_state::RobotState &state,
+                           const collision_detection::AllowedCollisionMatrix &acm) const;
+
+        /** \brief Disables collision between all entries in the ACM (all robot links and objects in the
+         * scene)
+         *  \param[in,out] acm ACM to clear.
+         */
+        void clearACM(collision_detection::AllowedCollisionMatrix &acm) const;
+
         /** \brief Get the group state validity callback function that uses this scene.
          *  \param[in] verbose If true, will have verbose collision output.
          *  \return The group state validity function. This function will return true if there is no

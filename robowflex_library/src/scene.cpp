@@ -476,35 +476,11 @@ double Scene::distanceToCollision(const robot_state::RobotState &state) const
     return scene_->distanceToCollision(state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotState &state, const std::string &object) const
+double Scene::distanceACM(const robot_state::RobotState &state,
+                          const collision_detection::AllowedCollisionMatrix &acm) const
 {
-    if (not hasObject(object))
-    {
-        RBX_ERROR("World does not have object `%s`", object);
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-
     collision_detection::DistanceRequest req;
     collision_detection::DistanceResult res;
-
-    const auto &links = state.getRobotModel()->getLinkModelNames();
-    const auto &objs = getCollisionObjects();
-
-    collision_detection::AllowedCollisionMatrix acm;
-
-    // No self-collision distances
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = i + 1; j < links.size(); ++j)
-            acm.setEntry(links[i], links[j], true);
-
-    // Ignore all other objects
-    for (const auto &link : links)
-        for (const auto &obj : objs)
-            acm.setEntry(link, obj, true);
-
-    // Enable collision to the object of interest
-    for (const auto &link : links)
-        acm.setEntry(link, object, false);
 
     req.acm = &acm;
 
@@ -516,11 +492,43 @@ double Scene::distanceToObject(const robot_state::RobotState &state, const std::
     return res.minimum_distance.distance;
 }
 
+void Scene::clearACM(collision_detection::AllowedCollisionMatrix &acm) const
+{
+    const auto &links = getCurrentStateConst().getRobotModel()->getLinkModelNames();
+    const auto &objs = getCollisionObjects();
+
+    // No self-collision distances
+    for (unsigned int i = 0; i < links.size(); ++i)
+        for (unsigned int j = i + 1; j < links.size(); ++j)
+            acm.setEntry(links[i], links[j], true);
+
+    // Ignore all other objects
+    for (const auto &link : links)
+        for (const auto &obj : objs)
+            acm.setEntry(link, obj, true);
+}
+
+double Scene::distanceToObject(const robot_state::RobotState &state, const std::string &object) const
+{
+    if (not hasObject(object))
+    {
+        RBX_ERROR("World does not have object `%s`", object);
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    collision_detection::AllowedCollisionMatrix acm;
+    clearACM(acm);
+
+    // Enable collision to the object of interest
+    for (const auto &link : getCurrentStateConst().getRobotModel()->getLinkModelNames())
+        acm.setEntry(link, object, false);
+
+    return distanceACM(state, acm);
+}
+
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
-    // Early terminate if they are the same
-    if (one == two)
+    if (one == two)  // Early terminate if they are the same
         return 0.;
 
     if (not hasObject(one))
@@ -535,27 +543,11 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    const auto &cw = scene_->getCollisionWorld();
-
-    collision_detection::DistanceRequest req;
-    collision_detection::DistanceResult res;
-
-    const auto &objs = getCollisionObjects();
-
-    // Allow collisions between all other objects
-    collision_detection::AllowedCollisionMatrix acm(objs, true);
-    req.acm = &acm;
-
-    // But disable them for the two we care about
+    collision_detection::AllowedCollisionMatrix acm;
+    clearACM(acm);
     acm.setEntry(one, two, false);
 
-    cw->distanceWorld(req, res, *cw);
-    return res.minimum_distance.distance;
-
-#else
-    throw Exception(1, "Not Implemented");
-
-#endif
+    return distanceACM(getCurrentStateConst(), acm);
 }
 
 moveit::core::GroupStateValidityCallbackFn Scene::getGSVCF(bool verbose) const
