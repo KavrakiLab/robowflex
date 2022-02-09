@@ -411,11 +411,11 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return true;
     }
 
-    return  false;
+    return false;
 }
 
 bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
-                  const std::vector<std::string> &touch_links)
+                         const std::vector<std::string> &touch_links)
 {
     if (attachObjectToState(state, name, ee_link, touch_links))
     {
@@ -423,7 +423,7 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return true;
     }
 
-    return  false;
+    return false;
 }
 
 bool Scene::hasObject(const std::string &name) const
