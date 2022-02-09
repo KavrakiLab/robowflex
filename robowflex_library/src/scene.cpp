@@ -496,6 +496,11 @@ void Scene::clearACM(collision_detection::AllowedCollisionMatrix &acm) const
         for (unsigned int j = i + 1; j < links.size(); ++j)
             acm.setEntry(links[i], links[j], true);
 
+    // No obstacle collisions
+    for (unsigned int i = 0; i < objs.size(); ++i)
+        for (unsigned int j = i + 1; j < objs.size(); ++j)
+            acm.setEntry(objs[i], objs[j], true);
+
     // Ignore all other objects
     for (const auto &link : links)
         for (const auto &obj : objs)
