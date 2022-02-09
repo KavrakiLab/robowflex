@@ -349,22 +349,7 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
     return success;
 }
 
-bool Scene::attachObject(const std::string &name)
-{
-    const auto &robot = getCurrentState().getRobotModel();
-    const auto &ee = robot->getEndEffectors();
-
-    // One end-effector
-    if (ee.size() == 1)
-    {
-        const auto &links = ee[0]->getLinkModelNames();
-        return attachObject(name, links[0], links);
-    }
-
-    return false;
-}
-
-bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+bool Scene::attachObjectToState(robot_state::RobotState &state, const std::string &name) const
 {
     const auto &robot = state.getRobotModel();
     const auto &ee = robot->getEndEffectors();
@@ -373,24 +358,16 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     if (ee.size() == 1)
     {
         const auto &links = ee[0]->getLinkModelNames();
-        return attachObject(state, name, links[0], links);
+        return attachObjectToState(state, name, links[0], links);
     }
 
     return false;
 }
 
-bool Scene::attachObject(const std::string &name, const std::string &ee_link,
-                         const std::vector<std::string> &touch_links)
+bool Scene::attachObjectToState(robot_state::RobotState &state, const std::string &name,
+                                const std::string &ee_link, const std::vector<std::string> &touch_links) const
 {
-    return attachObject(getCurrentState(), name, ee_link, touch_links);
-}
-
-bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
-                         const std::vector<std::string> &touch_links)
-{
-    incrementVersion();
-
-    const auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorld();
     if (!world->hasObject(name))
     {
         RBX_ERROR("World does not have object `%s`", name);
@@ -401,12 +378,6 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     if (!obj)
     {
         RBX_ERROR("Could not get object `%s`", name);
-        return false;
-    }
-
-    if (!world->removeObject(name))
-    {
-        RBX_ERROR("Could not remove object `%s`", name);
         return false;
     }
 
@@ -427,15 +398,26 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     return true;
 }
 
+bool Scene::attachObject(const std::string &name)
+{
+    return attachObject(getCurrentState(), name);
+}
+
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+{
+    if (attachObjectToState(state, name))
+    {
+        removeCollisionObject(name);
+        return true;
+    }
+
+    return  false;
+}
+
 bool Scene::hasObject(const std::string &name) const
 {
     const auto &world = scene_->getWorld();
     return world->hasObject(name);
-}
-
-bool Scene::detachObject(const std::string &name)
-{
-    return detachObject(getCurrentState(), name);
 }
 
 bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
@@ -483,8 +465,6 @@ double Scene::distanceACM(const robot_state::RobotState &state,
     collision_detection::DistanceResult res;
 
     req.acm = &acm;
-    req.verbose = true;
-    req.type = collision_detection::DistanceRequestTypes::GLOBAL;
 
 #if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     scene_->getCollisionEnv()->distanceRobot(req, res, state);
@@ -545,11 +525,16 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
         return std::numeric_limits<double>::quiet_NaN();
     }
 
+    robot_state::RobotState copy = getCurrentStateConst();
+    attachObjectToState(copy, one);
+
     collision_detection::AllowedCollisionMatrix acm;
     clearACM(acm);
     acm.setEntry(one, two, false);
 
-    return distanceACM(getCurrentStateConst(), acm);
+    double d = distanceACM(copy, acm);
+
+    return d;
 }
 
 moveit::core::GroupStateValidityCallbackFn Scene::getGSVCF(bool verbose) const

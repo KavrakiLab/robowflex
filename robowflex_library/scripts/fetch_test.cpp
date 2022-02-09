@@ -46,39 +46,39 @@ int main(int argc, char **argv)
         Geometry::makeCylinder(0.025, 0.1),  //
         TF::createPoseQ(cylinder_position2, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
 
-    ROS_INFO("The distance betweeen the objects is: %f", scene->distanceBetweenObjects("cylinder1", "cylinder"
-                                                                                                    "2"));
+    ROS_INFO("The distance betweeen the objects is: %f",  //
+             scene->distanceBetweenObjects("cylinder1", "cylinder2"));
 
-    // Create the default planner for the Fetch.
-    auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-    planner->initialize();
+    // // Create the default planner for the Fetch.
+    // auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
+    // planner->initialize();
 
-    // Sets the Fetch's base pose.
-    fetch->setBasePose(1, 1, 0.5);
+    // // Sets the Fetch's base pose.
+    // fetch->setBasePose(1, 1, 0.5);
 
-    // Sets the Fetch's head pose to look at a point.
-    fetch->pointHead({2, 1, 1.5});
+    // // Sets the Fetch's head pose to look at a point.
+    // fetch->pointHead({2, 1, 1.5});
 
-    // Create a motion planning request with a pose goal.
-    MotionRequestBuilder request(planner, GROUP);
-    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    request.setStartConfiguration(fetch->getScratchState());
+    // // Create a motion planning request with a pose goal.
+    // MotionRequestBuilder request(planner, GROUP);
+    // fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
+    // request.setStartConfiguration(fetch->getScratchState());
 
-    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    request.setGoalConfiguration(fetch->getScratchState());
+    // fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
+    // request.setGoalConfiguration(fetch->getScratchState());
 
-    request.setConfig("RRTConnect");
+    // request.setConfig("RRTConnect");
 
-    // Do motion planning!
-    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
-    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-        return 1;
+    // // Do motion planning!
+    // planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
+    // if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+    //     return 1;
 
-    // Create a trajectory object for better manipulation.
-    auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
+    // // Create a trajectory object for better manipulation.
+    // auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
 
-    // Output path to a file for visualization.
-    trajectory->toYAMLFile("fetch_path.yml");
+    // // Output path to a file for visualization.
+    // trajectory->toYAMLFile("fetch_path.yml");
 
     return 0;
 }
