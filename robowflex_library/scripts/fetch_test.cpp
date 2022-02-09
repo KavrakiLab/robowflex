@@ -5,6 +5,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/util.h>
+#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -27,6 +28,26 @@ int main(int argc, char **argv)
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
+
+    const auto cylinder_position = Eigen::Vector3d{-0.270, 0.42, 1.1572};   // Initial cylinder position.
+    const auto cylinder_position2 = Eigen::Vector3d{-1.270, 1.42, 2.1572};  // Initial cylinder position.
+    const auto shift = Eigen::Vector3d{0.0, -0.3, 0.0};   // Desired offset movement of cylinder.
+    const auto desired_pose = cylinder_position + shift;  // Desired final position of cylinder.
+
+    // Add cylinder to scene.
+    scene->updateCollisionObject(
+        "cylinder1",                         //
+        Geometry::makeCylinder(0.025, 0.1),  //
+        TF::createPoseQ(cylinder_position, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
+
+    // Add another cylinder to the scene.
+    scene->updateCollisionObject(
+        "cylinder2",                         //
+        Geometry::makeCylinder(0.025, 0.1),  //
+        TF::createPoseQ(cylinder_position2, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
+
+    ROS_INFO("The distance betweeen the objects is: %f", scene->distanceBetweenObjects("cylinder1", "cylinder"
+                                                                                                    "2"));
 
     // Create the default planner for the Fetch.
     auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
