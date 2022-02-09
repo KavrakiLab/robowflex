@@ -483,6 +483,8 @@ double Scene::distanceACM(const robot_state::RobotState &state,
     collision_detection::DistanceResult res;
 
     req.acm = &acm;
+    req.verbose = true;
+    req.type = collision_detection::DistanceRequestTypes::GLOBAL;
 
 #if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
     scene_->getCollisionEnv()->distanceRobot(req, res, state);
