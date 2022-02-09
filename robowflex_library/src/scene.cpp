@@ -414,6 +414,18 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     return  false;
 }
 
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                  const std::vector<std::string> &touch_links)
+{
+    if (attachObjectToState(state, name, ee_link, touch_links))
+    {
+        removeCollisionObject(name);
+        return true;
+    }
+
+    return  false;
+}
+
 bool Scene::hasObject(const std::string &name) const
 {
     const auto &world = scene_->getWorld();
@@ -530,11 +542,10 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 
     collision_detection::AllowedCollisionMatrix acm;
     clearACM(acm);
+    acm.setEntry(one, one, true);
     acm.setEntry(one, two, false);
 
-    double d = distanceACM(copy, acm);
-
-    return d;
+    return distanceACM(copy, acm);
 }
 
 moveit::core::GroupStateValidityCallbackFn Scene::getGSVCF(bool verbose) const

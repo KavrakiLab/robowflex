@@ -239,6 +239,16 @@ namespace robowflex
          */
         bool attachObject(robot_state::RobotState &state, const std::string &name);
 
+        /** \brief Helper function that attaches object provided state and removes from scene.
+         *  \param[in] state State of the robot to attach to.
+         *  \param[in] name Name of object to attach to.
+         *  \param[in] ee_link Link to attach object to.
+         *  \param[in] touch_links Links the object is allowed to touch.
+         *  \return True on success, false on failure.
+         */
+        bool attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                          const std::vector<std::string> &touch_links);
+
         /** \brief Detach an object \a name from the robot state.
          *  \param[in] state State to detatch the object from.
          *  \param[in] name Name of collision to detach.
