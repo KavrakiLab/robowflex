@@ -5,7 +5,6 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/util.h>
-#include <robowflex_library/tf.h>
 
 using namespace robowflex;
 
@@ -29,56 +28,36 @@ int main(int argc, char **argv)
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(fetch);
 
-    const auto cylinder_position = Eigen::Vector3d{-0.270, 0.42, 1.1572};   // Initial cylinder position.
-    const auto cylinder_position2 = Eigen::Vector3d{-1.270, 1.42, 2.1572};  // Initial cylinder position.
-    const auto shift = Eigen::Vector3d{0.0, -0.3, 0.0};   // Desired offset movement of cylinder.
-    const auto desired_pose = cylinder_position + shift;  // Desired final position of cylinder.
+    // Create the default planner for the Fetch.
+    auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
+    planner->initialize();
 
-    // Add cylinder to scene.
-    scene->updateCollisionObject(
-        "cylinder1",                         //
-        Geometry::makeCylinder(0.025, 0.1),  //
-        TF::createPoseQ(cylinder_position, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
+    // Sets the Fetch's base pose.
+    fetch->setBasePose(1, 1, 0.5);
 
-    // Add another cylinder to the scene.
-    scene->updateCollisionObject(
-        "cylinder2",                         //
-        Geometry::makeCylinder(0.025, 0.1),  //
-        TF::createPoseQ(cylinder_position2, Eigen::Quaterniond{0.707, 0.0, 0.707, 0.0}));
+    // Sets the Fetch's head pose to look at a point.
+    fetch->pointHead({2, 1, 1.5});
 
-    ROS_INFO("The distance betweeen the objects is: %f",  //
-             scene->distanceBetweenObjects("cylinder1", "cylinder2"));
+    // Create a motion planning request with a pose goal.
+    MotionRequestBuilder request(planner, GROUP);
+    fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
+    request.setStartConfiguration(fetch->getScratchState());
 
-    // // Create the default planner for the Fetch.
-    // auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch, "default");
-    // planner->initialize();
+    fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
+    request.setGoalConfiguration(fetch->getScratchState());
 
-    // // Sets the Fetch's base pose.
-    // fetch->setBasePose(1, 1, 0.5);
+    request.setConfig("RRTConnect");
 
-    // // Sets the Fetch's head pose to look at a point.
-    // fetch->pointHead({2, 1, 1.5});
+    // Do motion planning!
+    planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
+    if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
+        return 1;
 
-    // // Create a motion planning request with a pose goal.
-    // MotionRequestBuilder request(planner, GROUP);
-    // fetch->setGroupState(GROUP, {0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0});  // Stow
-    // request.setStartConfiguration(fetch->getScratchState());
+    // Create a trajectory object for better manipulation.
+    auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
 
-    // fetch->setGroupState(GROUP, {0.265, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007});  // Unfurl
-    // request.setGoalConfiguration(fetch->getScratchState());
-
-    // request.setConfig("RRTConnect");
-
-    // // Do motion planning!
-    // planning_interface::MotionPlanResponse res = planner->plan(scene, request.getRequest());
-    // if (res.error_code_.val != moveit_msgs::MoveItErrorCodes::SUCCESS)
-    //     return 1;
-
-    // // Create a trajectory object for better manipulation.
-    // auto trajectory = std::make_shared<Trajectory>(res.trajectory_);
-
-    // // Output path to a file for visualization.
-    // trajectory->toYAMLFile("fetch_path.yml");
+    // Output path to a file for visualization.
+    trajectory->toYAMLFile("fetch_path.yml");
 
     return 0;
 }
