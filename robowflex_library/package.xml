@@ -19,6 +19,7 @@
   <depend>tinyxml2</depend>
   <depend>eigen</depend>
   <depend>hdf5</depend>
+  <depend>pybind11</depend>
 
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>

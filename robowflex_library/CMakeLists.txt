@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(robowflex_library)
 
 set(LIBRARY_NAME ${PROJECT_NAME})
@@ -20,6 +21,8 @@ find_library(YAML yaml-cpp REQUIRED)
 find_package(TinyXML2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
+# find_package(Python COMPONENTS Interpreter Development)
+find_package(pybind11 CONFIG)
 
 ##
 ## Catkin setup
@@ -111,6 +114,13 @@ link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
+
+##
+## Python bindings
+##
+if(${pybind11_FOUND})
+  pybind11_add_module(robowflex_library_python src/python_bindings.cpp)
+endif()
 
 ##
 ## Scripts
