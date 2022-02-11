@@ -361,9 +361,9 @@ namespace robowflex
 
             std::vector<std::string> getPlannerConfigs() const override;
 
+            static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
         protected:
             static const std::string DEFAULT_PLUGIN;                 ///< The default OMPL plugin.
-            static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
 
         private:
             std::vector<std::string> configs_;  ///< Planning configurations loaded from \a config_file in
