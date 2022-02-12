@@ -21,7 +21,6 @@ find_library(YAML yaml-cpp REQUIRED)
 find_package(TinyXML2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
-# find_package(Python COMPONENTS Interpreter Development)
 find_package(pybind11 CONFIG)
 
 ##
@@ -120,6 +119,7 @@ target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 ##
 if(${pybind11_FOUND})
   pybind11_add_module(robowflex_library_python src/python_bindings.cpp)
+  set_target_properties(robowflex_library_python PROPERTIES OUTPUT_NAME "robowflex")
 endif()
 
 ##
@@ -164,3 +164,11 @@ add_test_script(robot_scene)
 install_scripts()
 install_library()
 install_directory(yaml)
+if(${pybind11_FOUND})
+  # We do this here because it causes errors with this old version of CMake if we do it before
+  # finding pybind11
+  find_package(Python COMPONENTS Development)
+  install(TARGETS robowflex_library_python
+    COMPONENT python
+    LIBRARY DESTINATION "${Python_SITELIB}/robowflex")
+endif()
