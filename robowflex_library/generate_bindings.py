@@ -1,7 +1,8 @@
+import argparse
 import re
 from collections import defaultdict
+from itertools import repeat
 from pathlib import Path
-from sys import argv
 from typing import Dict, Iterable, List, Set, Tuple
 
 import clang.cindex
@@ -291,11 +292,32 @@ def print_tree(root: Cursor, depth: int = 0):
 
 
 if __name__ == '__main__':
-    compdb_path = Path(argv[1])
-    header_path = Path(argv[2])
-    module_name = argv[3]
-    index, translation_unit = load_data(compdb_path, header_path)
-    include_path = header_path.relative_to('include')
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('-m',
+                            '--module-name',
+                            help = 'The name of the output Python module',
+                            type = Path)
+    arg_parser.add_argument('-o',
+                            '--output-file',
+                            help = 'Output file path',
+                            type = Path)
+    arg_parser.add_argument(
+        '-c',
+        '--compilation-database',
+        help = 'Directory containing the project compile_commands.json',
+        type = Path)
+    arg_parser.add_argument('headers',
+                            metavar = 'HEADER',
+                            help = 'Header files to generate bindings for',
+                            nargs = '+',
+                            type = Path)
+    args = arg_parser.parse_args()
+    index, translation_unit = load_data(args.compilation_database,
+                                        args.headers[0])
+    for diagnostic in translation_unit.diagnostics:
+        print(diagnostic.format())
+
+    include_path = args.headers[0].relative_to('include')
 
     file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
                                      translation_unit.spelling)
@@ -312,4 +334,8 @@ if __name__ == '__main__':
         output.extend(bind_functions(node))
 
     output.append('}')
-    print(output)
+    with open(args.output_file, 'w') as output_file:
+        output_file.writelines([
+            line for pair in zip(output, repeat('\n', len(output)))
+            for line in pair
+        ])
