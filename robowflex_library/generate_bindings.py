@@ -321,9 +321,6 @@ if __name__ == '__main__':
 
     file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
                                      translation_unit.spelling)
-    for node in file_nodes:
-        print_tree(node)
-
     output = [
         r'#include <pybind11/pybind11.h', r'#include <pybind11/operators.h>',
         f'#include <{include_path}>', 'namespace py = pybind11',
