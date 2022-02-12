@@ -77,7 +77,7 @@ def generate_overloads(name: str,
         function_pointer_signature = generate_function_pointer_signature(
             ns_name, function_node, class_node)
         overloads.append(
-            f'.def("{name}, static_cast<{function_pointer_signature}>(&{ns_name}::{class_node.spelling + "::" if class_node else ""}{function_node.spelling}))'
+            f'.def("{name}", static_cast<{function_pointer_signature}>(&{ns_name}::{class_node.spelling + "::" if class_node else ""}{function_node.spelling}))'
         )
 
     return overloads
@@ -322,9 +322,9 @@ if __name__ == '__main__':
     file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
                                      translation_unit.spelling)
     output = [
-        r'#include <pybind11/pybind11.h', r'#include <pybind11/operators.h>',
-        f'#include <{include_path}>', 'namespace py = pybind11',
-        f'PYBIND11_MODULE({module_name}, m) {{'
+        r'#include <pybind11/pybind11.h>', r'#include <pybind11/operators.h>',
+        f'#include <{include_path}>', 'namespace py = pybind11;',
+        f'PYBIND11_MODULE({args.module_name}, m) {{'
     ]
     for node in file_nodes:
         output.extend(bind_classes(node))
