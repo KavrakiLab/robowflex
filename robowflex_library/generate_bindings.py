@@ -21,7 +21,10 @@ def load_data(compilation_database_file: Path,
     for command in commands:
         for argument in command.arguments:
             file_args.append(argument)
+
     file_args = file_args[2:-1]
+    # NOTE: Not sure why this needs to be manually included, but we don't find stddef otherwise
+    file_args.append('-I/usr/lib/clang/13.0.1/include')
     translation_unit = index.parse(cpp_file, file_args)
     return index, translation_unit
 
