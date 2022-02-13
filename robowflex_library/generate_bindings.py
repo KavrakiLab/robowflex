@@ -7,26 +7,31 @@ from typing import Dict, Iterable, List, Set, Tuple
 
 import clang.cindex
 from clang.cindex import (AccessSpecifier, Cursor, CursorKind, Index,
-                          TranslationUnit)
+                          TranslationUnit, Type)
 
 
 def load_data(compilation_database_file: Path,
-              cpp_file: Path) -> Tuple[Index, TranslationUnit]:
+              header_paths: List[Path]) -> Tuple[Index, List[TranslationUnit]]:
     # Parse the given input file
     index = clang.cindex.Index.create()
     comp_db = clang.cindex.CompilationDatabase.fromDirectory(
         compilation_database_file)
-    commands = comp_db.getCompileCommands(cpp_file)
-    file_args = []
-    for command in commands:
-        for argument in command.arguments:
-            file_args.append(argument)
+    translation_units = []
+    for header_path in header_paths:
+        commands = comp_db.getCompileCommands(header_path)
+        file_args = []
+        for command in commands:
+            for argument in command.arguments:
+                file_args.append(argument)
 
-    file_args = file_args[2:-1]
-    # NOTE: Not sure why this needs to be manually included, but we don't find stddef otherwise
-    file_args.append('-I/usr/lib/clang/13.0.1/include')
-    translation_unit = index.parse(cpp_file, file_args)
-    return index, translation_unit
+        file_args = file_args[2:-1]
+        # NOTE: Not sure why this needs to be manually included, but we don't find stddef otherwise
+        file_args.append('-I/usr/lib/clang/13.0.1/include')
+        translation_units.append(
+            index.parse(header_path,
+                        file_args,
+                        options = TranslationUnit.PARSE_SKIP_FUNCTION_BODIES))
+    return index, translation_units
 
 
 def get_nodes_from_file(nodes: Iterable[Cursor],
@@ -294,6 +299,24 @@ def print_tree(root: Cursor, depth: int = 0):
         print_tree(child, depth + 1)
 
 
+def generate_bindings(header_path: Path,
+                      translation_unit: TranslationUnit) -> List[str]:
+    bindings = []
+    for diagnostic in translation_unit.diagnostics:
+        print(diagnostic.format())
+
+    file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
+                                     translation_unit.spelling)
+    bindings.append(f'// Bindings for {header_path}')
+    for node in file_nodes:
+        bindings.extend(bind_classes(node))
+        bindings.extend(bind_functions(node))
+
+    bindings.append(f'// End bindings for {header_path}')
+
+    return bindings
+
+
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('-m',
@@ -315,25 +338,30 @@ if __name__ == '__main__':
                             nargs = '+',
                             type = Path)
     args = arg_parser.parse_args()
-    index, translation_unit = load_data(args.compilation_database,
-                                        args.headers[0])
-    for diagnostic in translation_unit.diagnostics:
-        print(diagnostic.format())
-
-    include_path = args.headers[0].relative_to('include')
-
-    file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
-                                     translation_unit.spelling)
-    output = [
-        r'#include <pybind11/pybind11.h>', r'#include <pybind11/operators.h>',
-        f'#include <{include_path}>', 'namespace py = pybind11;',
-        f'PYBIND11_MODULE({args.module_name}, m) {{'
+    prefix = [
+        r'#include <pybind11/pybind11.h>',
+        r'#include <pybind11/operators.h>',
     ]
-    for node in file_nodes:
-        output.extend(bind_classes(node))
-        output.extend(bind_functions(node))
 
-    output.append('}')
+    body = []
+
+    print('Parsing header files...')
+    index, translation_units = load_data(args.compilation_database,
+                                         args.headers)
+
+    print('Generating bindings...')
+    bodies = [
+        generate_bindings(header_path, translation_unit) for header_path,
+        translation_unit in zip(args.headers, translation_units)
+    ]
+
+    prefix.extend(f"#include <{header_path.relative_to('include')}>"
+                  for header_path in args.headers)
+    prefix.extend([
+        'namespace py = pybind11;', f'PYBIND11_MODULE({args.module_name}, m) {{'
+    ])
+    output = prefix + [line for body in bodies for line in body] + ['}']
+    print(f'Outputting bindings to {args.output_file}')
     with open(args.output_file, 'w') as output_file:
         output_file.writelines([
             line for pair in zip(output, repeat('\n', len(output)))
