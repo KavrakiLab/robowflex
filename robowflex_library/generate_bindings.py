@@ -237,7 +237,8 @@ def generate_class(class_node: Cursor,
 
     if nested_output:
         class_output[
-            1] = f'py::class_<{ns_name}::{class_node.spelling}> py_{class_node.spelling}(m, "{class_node.spelling}")'
+            1] = f'py::class_<{ns_name}::{class_node.spelling}> py_{class_node.spelling}(m, "{class_node.spelling}");'
+        class_output[2] = f'py_{class_node.spelling}{class_output[2]}'
 
     class_output.append(';')
     return class_output
