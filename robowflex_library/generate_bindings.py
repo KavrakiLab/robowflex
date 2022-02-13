@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Set, Tuple
 
 import clang.cindex
-from clang.cindex import (AccessSpecifier, Cursor, CursorKind, Index,
-                          TranslationUnit, Type)
+from clang.cindex import (AccessSpecifier, AvailabilityKind, Cursor, CursorKind,
+                          Index, TranslationUnit, Type)
 
 
 def load_data(compilation_database_file: Path,
@@ -160,9 +160,10 @@ def generate_constructors(class_node: Cursor) -> List[str]:
     for constructor_node in get_nodes_with_kind(
             class_node.get_children(),
         [CursorKind.CONSTRUCTOR]):    # type: ignore
-        constructors.append(
-            f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
-        )
+        if constructor_node.availability != AvailabilityKind.NOT_AVAILABLE:    # type: ignore
+            constructors.append(
+                f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
+            )
 
     return constructors
 
