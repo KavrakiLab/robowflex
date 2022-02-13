@@ -178,7 +178,9 @@ def generate_methods(class_node: Cursor, qualified_name: str) -> List[str]:
         # Handle operators
         if method_name[:8] == 'operator':
             operator = method_name[8:].strip()
-            if operator[:3] == 'new' or operator[:6] == 'delete':
+            if operator[:
+                        3] == 'new' or operator[:
+                                                6] == 'delete' or operator == '=':
                 continue
 
             methods.extend(generate_operator_methods(operator, method_nodes))
