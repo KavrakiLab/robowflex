@@ -260,7 +260,8 @@ def generate_class(class_node: Cursor,
         f'py::class_<{qualified_name}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
     ]
     # Constructors
-    class_output.extend(generate_constructors(class_node))
+    if not class_node.is_abstract_record():
+      class_output.extend(generate_constructors(class_node))
 
     # Methods
     class_output.extend(generate_methods(class_node, qualified_name))
