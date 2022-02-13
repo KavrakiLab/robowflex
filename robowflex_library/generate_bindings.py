@@ -65,11 +65,11 @@ def to_snake_case(camel_name: str) -> str:
     return snake_name.lower()
 
 
-def generate_function_pointer_signature(ns_name: str,
+def generate_function_pointer_signature(qualified_name: str,
                                         function_node: Cursor,
                                         is_static: bool = False,
                                         class_node: Cursor = None) -> str:
-    signature = f'{function_node.type.get_result().spelling} ({ns_name + "::" + class_node.spelling + "::*" if class_node and not is_static else "*"})('
+    signature = f'{function_node.type.get_result().spelling} ({qualified_name + "::*" if class_node and not is_static else "*"})('
     for typ in function_node.type.argument_types():
         signature += f'{typ.get_canonical().spelling}, '
 
@@ -82,15 +82,15 @@ def generate_function_pointer_signature(ns_name: str,
 
 def generate_overloads(name: str,
                        nodes: Iterable[Cursor],
-                       ns_name: str,
+                       qualified_name: str,
                        class_node: Cursor = None) -> List[str]:
     overloads = []
     for function_node in nodes:
         is_static = function_node.is_static_method()
         function_pointer_signature = generate_function_pointer_signature(
-            ns_name, function_node, is_static, class_node)
+            qualified_name, function_node, is_static, class_node)
         overloads.append(
-            f'{".def_static" if is_static else ".def"}("{name}", static_cast<{function_pointer_signature}>(&{ns_name}::{class_node.spelling + "::" if class_node else ""}{function_node.spelling}))'
+            f'{".def_static" if is_static else ".def"}("{name}", static_cast<{function_pointer_signature}>(&{qualified_name}::{function_node.spelling}))'
         )
 
     return overloads
@@ -167,7 +167,7 @@ def generate_constructors(class_node: Cursor) -> List[str]:
     return constructors
 
 
-def generate_methods(class_node: Cursor, ns_name: str) -> List[str]:
+def generate_methods(class_node: Cursor, qualified_name: str) -> List[str]:
     class_method_nodes = defaultdict(list)
     for method_node in get_exposed_methods(class_node):
         class_method_nodes[to_snake_case(
@@ -184,17 +184,17 @@ def generate_methods(class_node: Cursor, ns_name: str) -> List[str]:
             methods.extend(generate_operator_methods(operator, method_nodes))
         elif len(method_nodes) > 1:
             methods.extend(
-                generate_overloads(method_name, method_nodes, ns_name,
+                generate_overloads(method_name, method_nodes, qualified_name,
                                    class_node))
         else:
             methods.append(
-                f'{".def_static" if method_nodes[0].is_static_method() else ".def"}("{method_name}", &{ns_name}::{class_node.spelling}::{method_nodes[0].spelling})'
+                f'{".def_static" if method_nodes[0].is_static_method() else ".def"}("{method_name}", &{qualified_name}::{method_nodes[0].spelling})'
             )
 
     return methods
 
 
-def generate_fields(class_node: Cursor, ns_name: str) -> List[str]:
+def generate_fields(class_node: Cursor, qualified_name: str) -> List[str]:
     fields = []
     # Instance fields
     for field_node in get_exposed_fields(class_node):
@@ -203,7 +203,7 @@ def generate_fields(class_node: Cursor, ns_name: str) -> List[str]:
             field_binder = '.def_readonly'
 
         fields.append(
-            f'{field_binder}("{to_snake_case(field_node.spelling)}", &{ns_name}::{class_node.spelling}::{field_node.spelling})'
+            f'{field_binder}("{to_snake_case(field_node.spelling)}", &{qualified_name}::{field_node.spelling})'
         )
 
     # Static variables
@@ -213,7 +213,7 @@ def generate_fields(class_node: Cursor, ns_name: str) -> List[str]:
             var_binder = '.def_readonly_static'
 
         fields.append(
-            f'{var_binder}("{to_snake_case(static_var_node.spelling)}", &{ns_name}::{class_node.spelling}::{static_var_node.spelling})'
+            f'{var_binder}("{to_snake_case(static_var_node.spelling)}", &{qualified_name}::{static_var_node.spelling})'
         )
 
     return fields
@@ -251,31 +251,36 @@ def generate_class(class_node: Cursor,
     if pointer_type_name in pointer_names:
         pointer_string = f', {ns_name}::{pointer_type_name}'
 
+    qualified_name = f'{ns_name}::{parent_class + "::" if parent_class else ""}{class_node.spelling}'
     class_output = [
-        f'// Bindings for class {ns_name}::{class_node.spelling}',
-        f'py::class_<{ns_name}::{class_node.spelling}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
+        f'// Bindings for class {qualified_name}',
+        f'py::class_<{qualified_name}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
     ]
     # Constructors
     class_output.extend(generate_constructors(class_node))
 
     # Methods
-    class_output.extend(generate_methods(class_node, ns_name))
+    class_output.extend(generate_methods(class_node, qualified_name))
 
     # Fields
-    class_output.extend(generate_fields(class_node, ns_name))
+    class_output.extend(generate_fields(class_node, qualified_name))
 
     # Nested types
     nested_output = []
     for nested_type_node in get_nested_types(class_node):
         nested_output.extend(
-            generate_class(nested_type_node, ns_name, class_node.spelling))
+        # NOTE: If we ever have doubly-nested classes, this could be wrong - would need to pass
+        # qualified_name instead
+            generate_class(nested_type_node, ns_name, pointer_names,
+                           class_node.spelling))
 
     if nested_output:
         class_output[
-            1] = f'py::class_<{ns_name}::{class_node.spelling}> py_{class_node.spelling}(m, "{class_node.spelling}");'
+            1] = f'py::class_<{qualified_name}{superclass_string}{pointer_string}> py_{class_node.spelling}({parent_object}, "{class_node.spelling}");'
         class_output[2] = f'py_{class_node.spelling}{class_output[2]}'
 
     class_output.append(';')
+    class_output.extend(nested_output)
     return class_output
 
 
