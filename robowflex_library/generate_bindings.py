@@ -161,7 +161,7 @@ def generate_constructors(class_node: Cursor) -> List[str]:
             class_node.get_children(),
         [CursorKind.CONSTRUCTOR]):    # type: ignore
         constructors.append(
-            f".def(py::init<{', '.join([typ.spelling for typ in constructor_node.type.argument_types()])}>())"
+            f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
         )
 
     return constructors
@@ -309,6 +309,7 @@ def bind_classes(top_level_node: Cursor) -> List[str]:
     return output
 
 
+# TODO Templates
 def bind_functions(top_level_node: Cursor) -> List[str]:
     output = []
     for ns in get_namespaces(top_level_node):
