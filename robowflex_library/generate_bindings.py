@@ -96,6 +96,34 @@ def generate_overloads(name: str,
     return overloads
 
 
+def get_base_type_name(typ: Type) -> str:
+    type_name_chunks = typ.spelling.split(' ')
+    # Check for const and reference
+    return ' '.join(chunk if chunk not in ['const', '&'] else ''
+                    for chunk in type_name_chunks).strip()
+
+
+def generate_operator_methods(operator: str,
+                              nodes: Iterable[Cursor]) -> List[str]:
+    methods = []
+    for method_node in nodes:
+        argument_type_names = [
+            get_base_type_name(typ)
+            for typ in method_node.type.argument_types()
+        ]
+        if len(argument_type_names) >= 2:
+            print(method_node.spelling, argument_type_names)
+
+        assert (len(argument_type_names) < 2)
+        if len(argument_type_names) == 0:
+            methods.append(f'.def({operator}py::self)')
+        else:
+            methods.append(
+                f'.def(py::self {operator} {argument_type_names[0]}())')
+
+    return methods
+
+
 def is_exposed(node: Cursor) -> bool:
     return node.access_specifier == AccessSpecifier.PUBLIC    # type: ignore
 
@@ -147,7 +175,14 @@ def generate_methods(class_node: Cursor, ns_name: str) -> List[str]:
 
     methods = []
     for method_name, method_nodes in class_method_nodes.items():
-        if len(method_nodes) > 1:
+        # Handle operators
+        if method_name[:8] == 'operator':
+            operator = method_name[8:].strip()
+            if operator[:3] == 'new' or operator[:6] == 'delete':
+                continue
+
+            methods.extend(generate_operator_methods(operator, method_nodes))
+        elif len(method_nodes) > 1:
             methods.extend(
                 generate_overloads(method_name, method_nodes, ns_name,
                                    class_node))
