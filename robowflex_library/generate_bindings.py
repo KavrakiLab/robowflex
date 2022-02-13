@@ -217,7 +217,7 @@ def generate_class(class_node: Cursor,
         pointer_string = f', {ns_name}::{pointer_type_name}'
 
     class_output = [
-        f'// Bindings for class {ns_name}',
+        f'// Bindings for class {ns_name}::{class_node.spelling}',
         f'py::class_<{ns_name}::{class_node.spelling}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
     ]
     # Constructors
