@@ -67,12 +67,16 @@ def to_snake_case(camel_name: str) -> str:
 
 def generate_function_pointer_signature(ns_name: str,
                                         function_node: Cursor,
+                                        is_static: bool = False,
                                         class_node: Cursor = None) -> str:
-    signature = f'{function_node.type.get_result().spelling} ({ns_name + "::" + class_node.spelling + "::*" if class_node else "*"})('
+    signature = f'{function_node.type.get_result().spelling} ({ns_name + "::" + class_node.spelling + "::*" if class_node and not is_static else "*"})('
     for typ in function_node.type.argument_types():
-        signature += f'{typ.spelling}, '
+        signature += f'{typ.get_canonical().spelling}, '
 
     signature = signature[:-2] + ')'
+    if function_node.is_const_method():
+        signature += ' const'
+
     return signature
 
 
@@ -82,10 +86,11 @@ def generate_overloads(name: str,
                        class_node: Cursor = None) -> List[str]:
     overloads = []
     for function_node in nodes:
+        is_static = function_node.is_static_method()
         function_pointer_signature = generate_function_pointer_signature(
-            ns_name, function_node, class_node)
+            ns_name, function_node, is_static, class_node)
         overloads.append(
-            f'.def("{name}", static_cast<{function_pointer_signature}>(&{ns_name}::{class_node.spelling + "::" if class_node else ""}{function_node.spelling}))'
+            f'{".def_static" if is_static else ".def"}("{name}", static_cast<{function_pointer_signature}>(&{ns_name}::{class_node.spelling + "::" if class_node else ""}{function_node.spelling}))'
         )
 
     return overloads
@@ -148,7 +153,7 @@ def generate_methods(class_node: Cursor, ns_name: str) -> List[str]:
                                    class_node))
         else:
             methods.append(
-                f'.def("{method_name}", &{ns_name}::{class_node.spelling}::{method_nodes[0].spelling})'
+                f'{".def_static" if method_nodes[0].is_static_method() else ".def"}("{method_name}", &{ns_name}::{class_node.spelling}::{method_nodes[0].spelling})'
             )
 
     return methods
