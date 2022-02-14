@@ -90,8 +90,14 @@ def generate_overloads(name: str,
         is_static = function_node.is_static_method()
         function_pointer_signature = generate_function_pointer_signature(
             qualified_name, function_node, is_static, class_node)
+        if is_static:
+            # NOTE: This is a gross hack but seems necessary given limitations of pybind11
+            overload_name = f'{name}_static'
+        else:
+            overload_name = name
+
         overloads.append(
-            f'{".def_static" if is_static else ".def"}("{name}", static_cast<{function_pointer_signature}>(&{qualified_name}::{function_node.spelling}))'
+            f'{".def_static" if is_static else ".def"}("{overload_name}", static_cast<{function_pointer_signature}>(&{qualified_name}::{function_node.spelling}))'
         )
 
     return overloads
