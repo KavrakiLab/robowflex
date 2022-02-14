@@ -312,12 +312,9 @@ def generate_class(class_node: Cursor,
         superclasses.append(superclass_node.type.spelling)
 
     superclass_string = ''
-    pointer_string = ''
-    pointer_type_name = f'{class_node.spelling}Ptr'
-    if pointer_type_name in pointer_names:
-        pointer_string = f', {ns_name}::{pointer_type_name}'
-
     qualified_name = f'{ns_name}::{parent_class + "::" if parent_class else ""}{class_node.spelling}'
+    # NOTE: We assume that everything uses shared_ptr as its holder type for simplicity
+    pointer_string = f', std::shared_ptr<{qualified_name}>'
     class_output = [f'// Bindings for class {qualified_name}']
     filtered_superclasses = [
         superclass for superclass in superclasses if superclass[:5] != 'std::'
