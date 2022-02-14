@@ -1,6 +1,7 @@
 import argparse
 import re
 from collections import defaultdict
+from dataclasses import dataclass
 from itertools import repeat
 from pathlib import Path
 from typing import Dict, Iterable, List, Set, Tuple
@@ -156,6 +157,17 @@ def get_exposed_methods(class_node: Cursor) -> List[Cursor]:
 # TODO: Maybe export constants?
 
 
+@dataclass
+class Binding:
+    name: str
+    is_class: bool
+    dependencies: List[str]
+    body: List[str]
+
+    def __repr__(self) -> str:
+        return f'Binding(name={self.name}, is_class={self.is_class}, dependencies={self.dependencies})'
+
+
 def generate_constructor_wrapper(qualified_name: str,
                                  argument_types: List[Type]) -> str:
     '''Generate an anonymous wrapper for constructors taking double-pointer arguments.'''
@@ -168,8 +180,15 @@ def generate_constructor_wrapper(qualified_name: str,
         canonical_typ = typ.get_canonical()
         pointee_type = canonical_typ.get_pointee().get_pointee()
         if pointee_type.kind != TypeKind.INVALID:    # type: ignore
-            modified_arg_types.append(
-                f'std::vector<{canonical_typ.get_pointee().spelling}>')
+            # See pybind11 known limitation #1
+            if pointee_type.kind in (
+                    TypeKind.CHAR_U,    # type: ignore
+                    TypeKind.UCHAR):    # type: ignore
+                vec_elem_type = 'std::string'
+            else:
+                vec_elem_type = canonical_typ.get_pointee().spelling
+
+            modified_arg_types.append(f'std::vector<{vec_elem_type}>')
             modified_arg_indices.add(i)
         else:
             modified_arg_types.append(canonical_typ.spelling)
@@ -181,7 +200,8 @@ def generate_constructor_wrapper(qualified_name: str,
     ]
 
     invocation_expr = ', '.join(
-        arg_name if i not in modified_arg_indices else f'{arg_name}.data()'
+        arg_name if i not in
+        modified_arg_indices else f'convertVec({arg_name}).data()'
         for i, arg_name in enumerate(arg_names))
 
     return f'.def(py::init([]({", ".join(lambda_args)}) {{return {qualified_name}({invocation_expr});}}))'
@@ -271,7 +291,7 @@ def get_nested_types(class_node: Cursor) -> List[Cursor]:
 def generate_class(class_node: Cursor,
                    ns_name: str,
                    pointer_names: Set[str],
-                   parent_class: str = None) -> List[str]:
+                   parent_class: str = None) -> List[Binding]:
     # Handle forward declarations
     class_definition_node = class_node.get_definition()
     if class_definition_node is None or class_definition_node != class_node:
@@ -286,46 +306,62 @@ def generate_class(class_node: Cursor,
         superclasses.append(superclass_node.type.spelling)
 
     superclass_string = ''
-    if superclasses:
-        superclass_string = f', {",".join(superclasses)}'
-
     pointer_string = ''
     pointer_type_name = f'{class_node.spelling}Ptr'
     if pointer_type_name in pointer_names:
         pointer_string = f', {ns_name}::{pointer_type_name}'
 
     qualified_name = f'{ns_name}::{parent_class + "::" if parent_class else ""}{class_node.spelling}'
-    class_output = [
-        f'// Bindings for class {qualified_name}',
-        f'py::class_<{qualified_name}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
+    class_output = [f'// Bindings for class {qualified_name}']
+    filtered_superclasses = [
+        superclass for superclass in superclasses if superclass[:5] != 'std::'
     ]
-    # Constructors
-    if not class_node.is_abstract_record():
-        class_output.extend(generate_constructors(class_node, qualified_name))
+    if filtered_superclasses:
+        superclass_string = f', {",".join(filtered_superclasses)}'
 
-    # Methods
-    class_output.extend(generate_methods(class_node, qualified_name))
+    nested_output: List[Binding] = []
+    if 'std::exception' in superclasses:
+        class_output.append(
+            f'py::register_exception<{qualified_name}>({parent_object}, "{class_node.spelling}"{superclass_string})'
+        )
+    else:
+        class_output.append(
+            f'py::class_<{qualified_name}{superclass_string}{pointer_string}>({parent_object}, "{class_node.spelling}")'
+        )
+        # Constructors
+        if not class_node.is_abstract_record():
+            class_output.extend(
+                generate_constructors(class_node, qualified_name))
 
-    # Fields
-    class_output.extend(generate_fields(class_node, qualified_name))
+        # Methods
+        class_output.extend(generate_methods(class_node, qualified_name))
 
-    # Nested types
-    nested_output = []
-    for nested_type_node in get_nested_types(class_node):
-        nested_output.extend(
-        # NOTE: If we ever have doubly-nested classes, this could be wrong - would need to pass
-        # qualified_name instead
-            generate_class(nested_type_node, ns_name, pointer_names,
-                           class_node.spelling))
+        # Fields
+        class_output.extend(generate_fields(class_node, qualified_name))
 
-    if nested_output:
-        class_output[
-            1] = f'py::class_<{qualified_name}{superclass_string}{pointer_string}> py_{class_node.spelling}({parent_object}, "{class_node.spelling}");'
-        class_output[2] = f'py_{class_node.spelling}{class_output[2]}'
+        # Nested types
+        for nested_type_node in get_nested_types(class_node):
+            nested_output.extend(
+            # NOTE: If we ever have doubly-nested classes, this could be wrong - would need to pass
+            # qualified_name instead
+                generate_class(nested_type_node, ns_name, pointer_names,
+                               class_node.spelling))
+
+        if nested_output:
+            class_output[
+                1] = f'py::class_<{qualified_name}{superclass_string}{pointer_string}> py_{class_node.spelling}({parent_object}, "{class_node.spelling}");'
+            class_output[2] = f'py_{class_node.spelling}{class_output[2]}'
 
     class_output.append(';')
-    class_output.extend(nested_output)
-    return class_output
+    class_binding = Binding(qualified_name,
+                            True,
+                            dependencies = [],
+                            body = class_output)
+    class_binding.dependencies.extend(filtered_superclasses)
+    if parent_class:
+        class_binding.dependencies.append(f'{ns_name}::{parent_class}')
+
+    return [class_binding] + nested_output
 
 
 def get_namespaces(top_level_node: Cursor) -> List[Cursor]:
@@ -346,7 +382,7 @@ def get_pointer_defs(top_level_node: Cursor) -> Set[str]:
     }
 
 
-def bind_classes(top_level_node: Cursor) -> List[str]:
+def bind_classes(top_level_node: Cursor) -> List[Binding]:
     output = []
     for ns in get_namespaces(top_level_node):
         pointer_names = get_pointer_defs(ns)
@@ -359,8 +395,8 @@ def bind_classes(top_level_node: Cursor) -> List[str]:
 
 
 # TODO Templates
-def bind_functions(top_level_node: Cursor) -> List[str]:
-    output = []
+def bind_functions(top_level_node: Cursor) -> List[Binding]:
+    function_bindings = []
     for ns in get_namespaces(top_level_node):
         ns_functions: Dict[str, List[Cursor]] = defaultdict(list)
         # We do this in two stages to handle overloads
@@ -372,16 +408,26 @@ def bind_functions(top_level_node: Cursor) -> List[str]:
 
         for function_name, function_nodes in ns_functions.items():
             if len(function_nodes) > 1:
-                output.append('m')
-                output.extend(
+                function_body = ['m']
+                function_body.extend(
                     generate_overloads(function_name, function_nodes,
                                        ns.spelling))
-                output.append(';')
+                function_body.append(';')
+                function_bindings.append(
+                    Binding(name = function_name,
+                            is_class = False,
+                            dependencies = [],
+                            body = function_body))
             else:
-                output.append(
-                    f'm.def("{function_name}", &{ns.spelling}::{function_nodes[0].spelling});'
-                )
-    return output
+                function_bindings.append(
+                    Binding(
+                        name = function_name,
+                        is_class = False,
+                        dependencies = [],
+                        body = [
+                            f'm.def("{function_name}", &{ns.spelling}::{function_nodes[0].spelling});'
+                        ]))
+    return function_bindings
 
 
 def print_tree(root: Cursor, depth: int = 0):
@@ -390,22 +436,52 @@ def print_tree(root: Cursor, depth: int = 0):
         print_tree(child, depth + 1)
 
 
-def generate_bindings(header_path: Path,
-                      translation_unit: TranslationUnit) -> List[str]:
+def generate_bindings(translation_unit: TranslationUnit) -> List[Binding]:
     bindings = []
     for diagnostic in translation_unit.diagnostics:
         print(diagnostic.format())
 
     file_nodes = get_nodes_from_file(translation_unit.cursor.get_children(),
                                      translation_unit.spelling)
-    bindings.append(f'// Bindings for {header_path}')
     for node in file_nodes:
         bindings.extend(bind_classes(node))
         bindings.extend(bind_functions(node))
 
-    bindings.append(f'// End bindings for {header_path}')
-
     return bindings
+
+
+def toposort_bindings(bindings: List[Binding]) -> List[str]:
+    output: List[str] = []
+    class_bindings = [
+        binding for binding in bindings
+        if binding.is_class and binding.dependencies
+    ]
+    frontier = [
+        binding for binding in bindings
+        if binding.is_class and not binding.dependencies
+    ]
+
+    while frontier:
+        next_binding = frontier.pop()
+        output.extend(next_binding.body)
+        new_class_bindings = []
+        for binding in class_bindings:
+            if next_binding.name in binding.dependencies:
+                binding.dependencies.remove(next_binding.name)
+
+            if not binding.dependencies:
+                frontier.append(binding)
+            else:
+                new_class_bindings.append(binding)
+
+        class_bindings = new_class_bindings
+
+    for binding in filter(lambda b: not b.is_class, bindings):
+        output.extend(binding.body)
+
+    for foo in output:
+        assert not isinstance(foo, Binding), str(foo)
+    return output
 
 
 if __name__ == '__main__':
@@ -430,8 +506,21 @@ if __name__ == '__main__':
                             type = Path)
     args = arg_parser.parse_args()
     prefix = [
-        r'#include <pybind11/pybind11.h>',
-        r'#include <pybind11/operators.h>',
+        r'#include <pybind11/pybind11.h>', r'#include <pybind11/operators.h>',
+        r'''
+template <typename ElemT, typename ResultT=ElemT>
+std::vector<ResultT> convertVec(const std::vector<ElemT>& vec) {
+  return vec;
+}
+template<>
+std::vector<const char*> convertVec(const std::vector<std::string>& vec) {
+  std::vector<const char*> result;
+  result.reserve(vec.size());
+  for(const auto& str: vec) {
+    result.push_back(str.c_str());
+  }
+  return result;
+}'''
     ]
 
     body = []
@@ -441,17 +530,19 @@ if __name__ == '__main__':
                                          args.headers)
 
     print('Generating bindings...')
-    bodies = [
-        generate_bindings(header_path, translation_unit) for header_path,
-        translation_unit in zip(args.headers, translation_units)
-    ]
+    bindings = []
+    for tu in translation_units:
+        bindings.extend(generate_bindings(tu))
+
+    # Put in dependency order:
+    bodies = toposort_bindings(bindings)
 
     prefix.extend(f"#include <{header_path.relative_to('include')}>"
                   for header_path in args.headers)
     prefix.extend([
         'namespace py = pybind11;', f'PYBIND11_MODULE({args.module_name}, m) {{'
     ])
-    output = prefix + [line for body in bodies for line in body] + ['}']
+    output = prefix + bodies + ['}']
     print(f'Outputting bindings to {args.output_file}')
     with open(args.output_file, 'w') as output_file:
         output_file.writelines([
