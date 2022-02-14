@@ -7,7 +7,7 @@ from typing import Dict, Iterable, List, Set, Tuple
 
 import clang.cindex
 from clang.cindex import (AccessSpecifier, AvailabilityKind, Cursor, CursorKind,
-                          Index, TranslationUnit, Type)
+                          Index, TranslationUnit, Type, TypeKind)
 
 
 def load_data(compilation_database_file: Path,
@@ -153,17 +153,57 @@ def get_exposed_methods(class_node: Cursor) -> List[Cursor]:
 
 # TODO: Handle default arguments
 # TODO: Maybe generate keyword args?
+# TODO: Maybe export constants?
 
 
-def generate_constructors(class_node: Cursor) -> List[str]:
+def generate_constructor_wrapper(qualified_name: str,
+                                 argument_types: List[Type]) -> str:
+    '''Generate an anonymous wrapper for constructors taking double-pointer arguments.'''
+    # TODO: Could generalize this to wrap functions with double-pointer arguments, but I haven't found
+    # TODO: This whole function should be rewritten; it's messy and inefficient
+    # any in the codebase yet
+    modified_arg_types = []
+    modified_arg_indices = set()
+    for i, typ in enumerate(argument_types):
+        canonical_typ = typ.get_canonical()
+        pointee_type = canonical_typ.get_pointee().get_pointee()
+        if pointee_type.kind != TypeKind.INVALID:    # type: ignore
+            modified_arg_types.append(
+                f'std::vector<{canonical_typ.get_pointee().spelling}>')
+            modified_arg_indices.add(i)
+        else:
+            modified_arg_types.append(canonical_typ.spelling)
+
+    arg_names = [f'arg_{i}' for i in range(len(modified_arg_types))]
+    lambda_args = [
+        typ + ' ' + arg_name
+        for typ, arg_name in zip(modified_arg_types, arg_names)
+    ]
+
+    invocation_expr = ', '.join(
+        arg_name if i not in modified_arg_indices else f'{arg_name}.data()'
+        for i, arg_name in enumerate(arg_names))
+
+    return f'.def(py::init([]({", ".join(lambda_args)}) {{return {qualified_name}({invocation_expr});}}))'
+
+
+def generate_constructors(class_node: Cursor, qualified_name: str) -> List[str]:
     constructors = []
     for constructor_node in get_nodes_with_kind(
             class_node.get_children(),
         [CursorKind.CONSTRUCTOR]):    # type: ignore
         if constructor_node.availability != AvailabilityKind.NOT_AVAILABLE:    # type: ignore
-            constructors.append(
-                f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
-            )
+            # TODO: This could be cleaner
+            if any(typ.get_pointee().get_pointee().kind !=
+                   TypeKind.INVALID    # type: ignore
+                   for typ in constructor_node.type.argument_types()):
+                constructors.append(
+                    generate_constructor_wrapper(
+                        qualified_name, constructor_node.type.argument_types()))
+            else:
+                constructors.append(
+                    f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
+                )
 
     return constructors
 
@@ -261,7 +301,7 @@ def generate_class(class_node: Cursor,
     ]
     # Constructors
     if not class_node.is_abstract_record():
-      class_output.extend(generate_constructors(class_node))
+        class_output.extend(generate_constructors(class_node, qualified_name))
 
     # Methods
     class_output.extend(generate_methods(class_node, qualified_name))
