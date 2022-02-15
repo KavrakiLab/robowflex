@@ -169,8 +169,6 @@ namespace robowflex
                                                               const RobotPose &pose,
                                                               const GeometryConstPtr &geometry);
 
-        Eigen::Vector3d samplePositionConstraint(const moveit_msgs::PositionConstraint &pc);
-
         /** \brief Get an orientation constraint message.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The frame of pose and orientation.
