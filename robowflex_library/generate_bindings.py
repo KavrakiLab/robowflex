@@ -227,9 +227,15 @@ def generate_constructors(class_node: Cursor, qualified_name: str) -> List[str]:
                     generate_constructor_wrapper(
                         qualified_name, constructor_node.type.argument_types()))
             else:
+                constructor_type_string = ''
+                constructor_argument_types = [
+                    typ.get_canonical().spelling
+                    for typ in constructor_node.type.argument_types()
+                ]
+                if constructor_argument_types:
+                    constructor_type_string = f'<{", ".join(constructor_argument_types)}>'
                 constructors.append(
-                    f".def(py::init<{', '.join([typ.get_canonical().spelling for typ in constructor_node.type.argument_types()])}>())"
-                )
+                    f".def(py::init{constructor_type_string}())")
 
     return constructors
 
