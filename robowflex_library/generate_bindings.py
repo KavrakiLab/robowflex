@@ -210,7 +210,7 @@ def generate_constructor_wrapper(qualified_name: str,
         modified_arg_indices else f'convertVec({arg_name}).data()'
         for i, arg_name in enumerate(arg_names))
 
-    return f'.def(py::init([]({", ".join(lambda_args)}) {{return {qualified_name}({invocation_expr});}}))'
+    return f'.def(py::init([]({", ".join(lambda_args)}) {{return std::make_shared<{qualified_name}>({invocation_expr});}}))'
 
 
 def generate_constructors(class_node: Cursor, qualified_name: str) -> List[str]:
