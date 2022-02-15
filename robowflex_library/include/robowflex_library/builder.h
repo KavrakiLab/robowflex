@@ -276,6 +276,25 @@ namespace robowflex
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
+        /** \brief Callback function that returns true if configuration is valid for goal set, false
+         * otherwise.
+         */
+
+        using ConfigurationValidityCallback = std::function<bool(const robot_state::RobotState &)>;
+
+        /** \brief Override the goals of this motion request with precomputed goal configurations (from the
+         * specified regions).
+         *
+         *  That is, rather than a set of sampleable goal regions, the request will have \a n_samples goal
+         * configurations, all sampled from the prior goal regions.
+         *
+         *  \param[in] n_samples Number of samples to precompute.
+         *  \param[in] scene Scene to collision check against.
+         *  \param[in] callback If provided, will only keep samples that are valid according to callback.
+         */
+        void precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
+                                          const ConfigurationValidityCallback &callback = {});
+
         /** \brief Clears all goals.
          */
         void clearGoals();

@@ -1801,9 +1801,7 @@ namespace robowflex
             bool r = true;
             try
             {
-                r = !node.IsNull();
-                r = node;
-
+                r = not node.IsNull();
                 if (r)
                     try
                     {
