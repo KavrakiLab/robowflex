@@ -542,8 +542,13 @@ if __name__ == '__main__':
                             type = Path)
     args = arg_parser.parse_args()
     prefix = [
-        r'#include <pybind11/pybind11.h>', r'#include <pybind11/operators.h>',
-        r'''
+        r'''#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl_bind.h>
+#include <pybind11/cast.h>
+#include <pybind11/functional.h>''', r'''
 template <typename ElemT, typename ResultT=ElemT>
 std::vector<ResultT> convertVec(const std::vector<ElemT>& vec) {
   return vec;
