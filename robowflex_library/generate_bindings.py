@@ -516,8 +516,7 @@ def toposort_bindings(bindings: List[Binding]) -> List[str]:
     for binding in filter(lambda b: not b.is_class, bindings):
         output.extend(binding.body)
 
-    for foo in output:
-        assert not isinstance(foo, Binding), str(foo)
+    assert not class_bindings, f'Could not resolve all type dependencies! {class_bindings}'
     return output
 
 
