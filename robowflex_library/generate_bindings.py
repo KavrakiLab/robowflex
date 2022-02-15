@@ -8,7 +8,13 @@ from typing import Dict, Iterable, List, Set, Tuple
 
 import clang.cindex
 from clang.cindex import (AccessSpecifier, AvailabilityKind, Cursor, CursorKind,
-                          Index, TranslationUnit, Type, TypeKind)
+                          Index, SourceLocation, TranslationUnit, Type,
+                          TypeKind)
+
+
+def format_extent(extent) -> str:
+    start_loc: SourceLocation = extent.start
+    return f'{start_loc.file.name}: line {start_loc.line}'    # type: ignore
 
 
 def load_data(compilation_database_file: Path,
