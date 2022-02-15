@@ -385,11 +385,13 @@ def generate_class(class_node: Cursor,
 
 
 def get_namespaces(top_level_node: Cursor) -> List[Cursor]:
+    namespaces = []
     if top_level_node.kind == CursorKind.NAMESPACE:    # type: ignore
-        return [top_level_node]
-    else:
-        return get_nodes_with_kind(top_level_node.get_children(),
-                                   [CursorKind.NAMESPACE])    # type: ignore
+        namespaces.append(top_level_node)
+    namespaces.extend(
+        get_nodes_with_kind(top_level_node.get_children(),
+                            [CursorKind.NAMESPACE]))    # type: ignore
+    return namespaces
 
 
 def get_pointer_defs(top_level_node: Cursor) -> Set[str]:
