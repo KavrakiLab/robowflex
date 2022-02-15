@@ -360,7 +360,8 @@ def generate_class(class_node: Cursor,
         class_output.extend(generate_fields(class_node, qualified_name))
 
         # Nested types
-        for nested_type_node in get_nested_types(class_node):
+        for nested_type_node in filter(is_not_private,
+                                       get_nested_types(class_node)):
             nested_output.extend(
                 generate_class(nested_type_node, ns_name, pointer_names,
                                qualified_name))
