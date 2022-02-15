@@ -135,6 +135,10 @@ def is_exposed(node: Cursor) -> bool:
     return node.access_specifier == AccessSpecifier.PUBLIC    # type: ignore
 
 
+def is_not_private(node: Cursor) -> bool:
+    return node.access_specifier != AccessSpecifier.PRIVATE    # type: ignore
+
+
 # TODO: This could be more efficient if we called get_children once per class and iterated over it
 # multiple times, at the cost of threading that list through in the parameters
 # TODO: Could also improve efficiency with stronger preference for iterators over explicit lists
@@ -218,7 +222,9 @@ def generate_constructors(class_node: Cursor, qualified_name: str) -> List[str]:
     for constructor_node in get_nodes_with_kind(
             class_node.get_children(),
         [CursorKind.CONSTRUCTOR]):    # type: ignore
-        if constructor_node.availability != AvailabilityKind.NOT_AVAILABLE:    # type: ignore
+        if is_not_private(
+                constructor_node
+        ) and constructor_node.availability != AvailabilityKind.NOT_AVAILABLE:    # type: ignore
             # TODO: This could be cleaner
             if any(typ.get_pointee().get_pointee().kind !=
                    TypeKind.INVALID    # type: ignore
