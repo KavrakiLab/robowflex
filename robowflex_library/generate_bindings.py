@@ -312,10 +312,14 @@ def generate_class(class_node: Cursor,
                    parent_class: str = None) -> List[Binding]:
     # Handle forward declarations
     class_definition_node = class_node.get_definition()
+    qualified_name = f'{parent_class if parent_class else ns_name}::{class_node.spelling}'
     if class_definition_node is None or class_definition_node != class_node:
+        print(
+            f'{qualified_name} appears to be a forward declaration at {format_extent(class_node.extent)}'
+        )
         return []
 
-    parent_object = f'py_{parent_class}' if parent_class else 'm'
+    parent_object = f'py_{parent_class.replace("::", "_")}' if parent_class else 'm'
 
     superclasses = []
     for superclass_node in get_nodes_with_kind(
@@ -324,7 +328,8 @@ def generate_class(class_node: Cursor,
         superclasses.append(superclass_node.type.spelling)
 
     superclass_string = ''
-    qualified_name = f'{ns_name}::{parent_class + "::" if parent_class else ""}{class_node.spelling}'
+    print(
+        f'Processing {qualified_name} at {format_extent(class_node.extent)}...')
     # NOTE: We assume that everything uses shared_ptr as its holder type for simplicity
     pointer_string = f', std::shared_ptr<{qualified_name}>'
     class_output = [f'// Bindings for class {qualified_name}']
@@ -357,15 +362,14 @@ def generate_class(class_node: Cursor,
         # Nested types
         for nested_type_node in get_nested_types(class_node):
             nested_output.extend(
-            # NOTE: If we ever have doubly-nested classes, this could be wrong - would need to pass
-            # qualified_name instead
                 generate_class(nested_type_node, ns_name, pointer_names,
-                               class_node.spelling))
+                               qualified_name))
 
         if nested_output:
             class_output[
-                1] = f'py::class_<{qualified_name}{superclass_string}{pointer_string}> py_{class_node.spelling}({parent_object}, "{class_node.spelling}");'
-            class_output[2] = f'py_{class_node.spelling}{class_output[2]}'
+                1] = f'py::class_<{qualified_name}{superclass_string}{pointer_string}> py_{qualified_name.replace("::", "_")}({parent_object}, "{class_node.spelling}");'
+            class_output[
+                2] = f'py_{qualified_name.replace("::", "_")}{class_output[2]}'
 
     class_output.append(';')
     class_binding = Binding(qualified_name,
@@ -374,7 +378,7 @@ def generate_class(class_node: Cursor,
                             body = class_output)
     class_binding.dependencies.extend(filtered_superclasses)
     if parent_class:
-        class_binding.dependencies.append(f'{ns_name}::{parent_class}')
+        class_binding.dependencies.append(parent_class)
 
     return [class_binding] + nested_output
 
@@ -400,12 +404,22 @@ def get_pointer_defs(top_level_node: Cursor) -> Set[str]:
 def bind_classes(top_level_node: Cursor) -> List[Binding]:
     output = []
     for ns in get_namespaces(top_level_node):
+        # HACK: Only works for singly-nested namespaces
+        if ns.semantic_parent.kind == CursorKind.NAMESPACE:    # type: ignore
+            qualified_name = f'{ns.semantic_parent.spelling}::{ns.spelling}'
+        else:
+            qualified_name = ns.spelling
+
         pointer_names = get_pointer_defs(ns)
         for class_node in get_nodes_with_kind(
                 ns.get_children(),
-            [CursorKind.CLASS_DECL, CursorKind.STRUCT_DECL]):    # type: ignore
-            output.extend(generate_class(class_node, ns.spelling,
-                                         pointer_names))
+            [
+                CursorKind.CLASS_DECL,    # type: ignore
+                CursorKind.STRUCT_DECL    # type: ignore
+            ]):
+            print(class_node.spelling, class_node.access_specifier)
+            output.extend(
+                generate_class(class_node, qualified_name, pointer_names))
     return output
 
 
@@ -413,6 +427,11 @@ def bind_classes(top_level_node: Cursor) -> List[Binding]:
 def bind_functions(top_level_node: Cursor) -> List[Binding]:
     function_bindings = []
     for ns in get_namespaces(top_level_node):
+        # HACK: Only works for singly-nested namespaces
+        if ns.semantic_parent.kind == CursorKind.NAMESPACE:    # type: ignore
+            qualified_name = f'{ns.semantic_parent.spelling}::{ns.spelling}'
+        else:
+            qualified_name = ns.spelling
         ns_functions: Dict[str, List[Cursor]] = defaultdict(list)
         # We do this in two stages to handle overloads
         for function_node in get_nodes_with_kind(
@@ -426,7 +445,7 @@ def bind_functions(top_level_node: Cursor) -> List[Binding]:
                 function_body = ['m']
                 function_body.extend(
                     generate_overloads(function_name, function_nodes,
-                                       ns.spelling))
+                                       qualified_name))
                 function_body.append(';')
                 function_bindings.append(
                     Binding(name = function_name,
@@ -440,7 +459,7 @@ def bind_functions(top_level_node: Cursor) -> List[Binding]:
                         is_class = False,
                         dependencies = [],
                         body = [
-                            f'm.def("{function_name}", &{ns.spelling}::{function_nodes[0].spelling});'
+                            f'm.def("{function_name}", &{qualified_name}::{function_nodes[0].spelling});'
                         ]))
     return function_bindings
 
