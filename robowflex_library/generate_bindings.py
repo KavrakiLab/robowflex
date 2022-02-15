@@ -194,7 +194,7 @@ def generate_constructor_wrapper(qualified_name: str,
             else:
                 vec_elem_type = canonical_typ.get_pointee().spelling
 
-            modified_arg_types.append(f'std::vector<{vec_elem_type}>')
+            modified_arg_types.append(f'const std::vector<{vec_elem_type}>&')
             modified_arg_indices.add(i)
         else:
             modified_arg_types.append(canonical_typ.spelling)
