@@ -432,6 +432,11 @@ bool Scene::hasObject(const std::string &name) const
     return world->hasObject(name);
 }
 
+bool Scene::detachObject(const std::string &name)
+{
+    return detachObject(getCurrentState(), name);
+}
+
 bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
 {
     incrementVersion();
