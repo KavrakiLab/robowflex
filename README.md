@@ -7,10 +7,9 @@ If you use Robowflex, please use the following citation for the [associated pape
  archiveprefix = {arXiv},
  author = {Zachary Kingston and Lydia E. Kavraki},
  eprint = {2103.12826},
- journal = {IEEE Robotics and Automation Letters},
- note = {Under Review},
- primaryclass = {cs.RO},
- title = {Robowflex: Robot Motion Planning with MoveIt Made Easy},
+ primaryclass = {cs.RO}, 
+ journal={arXiv preprint arXiv:2103.12826},
+ title = {{Robowflex}: Robot Motion Planning with {MoveIt} Made Easy},
  year = {2021}
 }
 ```
