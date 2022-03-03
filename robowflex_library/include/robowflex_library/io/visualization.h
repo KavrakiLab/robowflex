@@ -71,9 +71,19 @@ namespace robowflex
                                   const moveit::core::RobotState &start);
 
             /** \brief Updates the trajectory being visualized to a list of trajectories.
+             *  \param[in] trajectories Vector of MoveIt! robot trajectories to visualize.
+             */
+            void updateTrajectories(const std::vector<robot_trajectory::RobotTrajectoryPtr> &trajectories);
+
+            /** \brief Updates the trajectory being visualized to a list of trajectories.
              *  \param[in] responses Planning responses to visualize.
              */
             void updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses);
+
+            /** \brief Updates the trajectory being visualized to a list of trajectories.
+             *  \param[in] responses Vector of robowflex trajectories to visualize.
+             */
+            void updateTrajectories(const std::vector<TrajectoryPtr> &trajectories);
 
             /** \} */
 
@@ -192,6 +202,13 @@ namespace robowflex
              *  \param[in] request Request to add goal of as a marker.
              */
             void addGoalMarker(const std::string &name, const MotionRequestBuilder &request);
+
+            /** \brief Adds the current goal of the motion plan request  as a
+             * set of markers in the marker array.
+             *  \param[in] name Name of the marker(s).
+             *  \param[in] request Request to add goal of as a marker.
+             */
+            void addGoalMarker(const std::string &name, const moveit_msgs::MotionPlanRequest &request);
 
             /** \brief Removes all markers that were added through addMarker().
              */

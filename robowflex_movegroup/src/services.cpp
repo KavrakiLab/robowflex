@@ -143,7 +143,8 @@ bool MoveGroupHelper::pullState(RobotPtr robot)
 {
     moveit_msgs::GetPlanningScene::Request request;
     moveit_msgs::GetPlanningScene::Response response;
-    request.components.components = moveit_msgs::PlanningSceneComponents::ROBOT_STATE;
+    request.components.components = moveit_msgs::PlanningSceneComponents::ROBOT_STATE |
+                                    moveit_msgs::PlanningSceneComponents::ROBOT_STATE_ATTACHED_OBJECTS;
 
     if (gpsc_.call(request, response))
     {

@@ -66,6 +66,9 @@ planning_interface::MotionPlanResponse OMPL::OMPLInterfacePlanner::plan(
     if (not ss_)
         return response;
 
+    if (pre_plan_callback_)
+        pre_plan_callback_(context_, scene, request);
+
     context_->solve(response);
     return response;
 }
@@ -140,4 +143,18 @@ ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup()
 std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
 {
     return configs_;
+}
+
+ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
+{
+    if (!interface_)
+    {
+        RBX_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
+    }
+    return *interface_;
+}
+
+void OMPL::OMPLInterfacePlanner::setPrePlanCallback(const PrePlanCallback &prePlanCallback)
+{
+    pre_plan_callback_ = prePlanCallback;
 }

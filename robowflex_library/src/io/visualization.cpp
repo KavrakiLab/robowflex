@@ -92,27 +92,23 @@ void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
     trajectory_pub_.publish(out);
 }
 
-void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses)
+void IO::RVIZHelper::updateTrajectories(const std::vector<robot_trajectory::RobotTrajectoryPtr> &trajectories)
 {
     moveit_msgs::DisplayTrajectory out;
     out.model_id = robot_->getModelName();
 
     bool set = false;
-    for (const auto &response : responses)
+    for (const auto &traj : trajectories)
     {
         if (!set)
         {
-            moveit::core::robotStateToRobotStateMsg(response.trajectory_->getFirstWayPoint(),
-                                                    out.trajectory_start);
+            moveit::core::robotStateToRobotStateMsg(traj->getFirstWayPoint(), out.trajectory_start);
             set = true;
         }
 
-        if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
-        {
-            moveit_msgs::RobotTrajectory msg;
-            response.trajectory_->getRobotTrajectoryMsg(msg);
-            out.trajectory.push_back(msg);
-        }
+        moveit_msgs::RobotTrajectory msg;
+        traj->getRobotTrajectoryMsg(msg);
+        out.trajectory.push_back(msg);
     }
 
     if (trajectory_pub_.getNumSubscribers() < 1)
@@ -125,6 +121,27 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::Mo
     }
 
     trajectory_pub_.publish(out);
+}
+
+void IO::RVIZHelper::updateTrajectories(const std::vector<planning_interface::MotionPlanResponse> &responses)
+{
+    auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
+
+    for (const auto &response : responses)
+        if (response.error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
+            moveit_trajectories.push_back(response.trajectory_);
+
+    updateTrajectories(moveit_trajectories);
+}
+
+void IO::RVIZHelper::updateTrajectories(const std::vector<TrajectoryPtr> &trajectories)
+{
+    auto moveit_trajectories = std::vector<robot_trajectory::RobotTrajectoryPtr>();
+
+    for (const auto &traj : trajectories)
+        moveit_trajectories.push_back(traj->getTrajectory());
+
+    updateTrajectories(moveit_trajectories);
 }
 
 void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
@@ -305,9 +322,9 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
     addMarker(marker, name);
 }
 
-void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
+void IO::RVIZHelper::addGoalMarker(const std::string &name, const moveit_msgs::MotionPlanRequest &request)
 {
-    const auto &goals = request.getRequestConst().goal_constraints;
+    const auto &goals = request.goal_constraints;
 
     // Iterate over each goal (an "or"-ing together of different constraints)
     for (const auto &goal : goals)
@@ -321,7 +338,15 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
             const auto &base_frame = pg.header.frame_id;
 
             // Get global transform of position constraint
-            RobotPose pose = robot_->getLinkTF(pg.header.frame_id);
+            RobotPose pose;
+            if (base_frame == robot_->getModelConst()->getModelFrame())
+            {
+                pose.setIdentity();
+            }
+            else
+            {
+                pose = robot_->getLinkTF(pg.header.frame_id);
+            }
             pose.translate(TF::vectorMsgToEigen(pg.target_point_offset));
 
             // Iterate over all position primitives and their poses
@@ -351,7 +376,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
                     // Arrow display frame.
                     RobotPose qframe = RobotPose::Identity();
                     qframe.translate(frame.translation());  // Place arrows at the origin
-                                                            // of the position volume
+                    // of the position volume
 
                     Eigen::Vector3d scale = {0.1, 0.008, 0.003};  // A nice default size of arrow
 
@@ -390,6 +415,11 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestB
             // }
         }
     }
+}
+
+void IO::RVIZHelper::addGoalMarker(const std::string &name, const MotionRequestBuilder &request)
+{
+    addGoalMarker(name, request.getRequestConst());
 }
 
 void IO::RVIZHelper::removeAllMarkers()

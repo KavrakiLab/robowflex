@@ -124,7 +124,7 @@ namespace robowflex
          *  \return Chosen element.
          */
         template <typename Type>
-        Type &uniformSample(std::vector<Type> vector)
+        Type &uniformSample(std::vector<Type> &vector)
         {
             return *uniformSample(vector.begin(), vector.end());
         }

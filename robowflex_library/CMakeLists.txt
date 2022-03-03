@@ -85,6 +85,7 @@ list(APPEND SOURCES
   src/trajectory.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp
+  src/detail/cob4.cpp
   )
 
 list(APPEND INCLUDES
@@ -136,6 +137,9 @@ add_script(resources_visualization)
 add_script(plugin_io)
 add_script(baxter_multi_target)
 add_script(shadowhand_ik)
+add_script(cob4_test)
+add_script(cob4_visualization)
+add_script(cob4_multi_target)
 
 ##
 ## Tests
