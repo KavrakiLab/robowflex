@@ -247,6 +247,26 @@ std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
     }
 }
 
+std::pair<bool, std::vector<YAML::Node>> IO::loadAllFromFileToYAML(const std::string &path)
+{
+    std::vector<YAML::Node> file;
+    const std::string full_path = resolvePath(path);
+    if (full_path.empty())
+        return std::make_pair(false, file);
+
+    if (!isExtension(full_path, "yml") && !isExtension(full_path, "yaml"))
+        return std::make_pair(false, file);
+
+    try
+    {
+        return std::make_pair(true, YAML::LoadAllFromFile(full_path));
+    }
+    catch (std::exception &e)
+    {
+        return std::make_pair(false, file);
+    }
+}
+
 bool IO::YAMLToFile(const YAML::Node &node, const std::string &file)
 {
     YAML::Emitter out;
