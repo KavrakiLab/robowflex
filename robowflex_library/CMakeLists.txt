@@ -146,6 +146,7 @@ add_script(cob4_multi_target)
 ##
 
 add_test_script(robot_scene)
+add_test_script(yaml)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts
