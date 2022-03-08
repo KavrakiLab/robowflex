@@ -1798,10 +1798,9 @@ namespace robowflex
     {
         bool isNode(const YAML::Node &node)
         {
-            bool r = true;
             try
             {
-                r = not node.IsNull();
+                bool r = node.IsDefined() and not node.IsNull();
                 if (r)
                     try
                     {
@@ -1810,13 +1809,13 @@ namespace robowflex
                     catch (std::exception &e)
                     {
                     }
+
+                return r;
             }
             catch (YAML::InvalidNode &e)
             {
                 return false;
             }
-
-            return r;
         }
 
         moveit_msgs::RobotState robotStateFromNode(const YAML::Node &node)
