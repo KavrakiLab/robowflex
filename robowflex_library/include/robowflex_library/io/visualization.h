@@ -8,6 +8,7 @@
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/tf.h>
+#include <sensor_msgs/PointCloud2.h>
 
 namespace robowflex
 {
@@ -117,6 +118,11 @@ namespace robowflex
              *  \param[in] scene Scene to visualize. If null, removes scene by publishing empty message.
              */
             void updateScene(const SceneConstPtr &scene);
+
+            /** \brief Updates the pointcloud being visualized.
+             *  \param[in] msg Pointcloud msg to visualize.
+             */
+            void updatePCD(const sensor_msgs::PointCloud2 &msg);
 
             /** \} */
 
@@ -244,11 +250,13 @@ namespace robowflex
             ros::Publisher marker_pub_;      ///< Marker publisher.
             ros::Publisher trajectory_pub_;  ///< Trajectory publisher.
             ros::Publisher scene_pub_;       ///< Scene publisher.
+            ros::Publisher pcd_pub_;         ///< Pointcloud publisher.
             ros::Publisher state_pub_;       ///< State publisher.
 
             std::multimap<std::string, visualization_msgs::Marker> markers_;  ///< Markers to publish.
         };
     }  // namespace IO
+
 }  // namespace robowflex
 
 #endif
