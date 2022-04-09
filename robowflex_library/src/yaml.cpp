@@ -841,7 +841,7 @@ namespace YAML
         {
             node["primitives"] = rhs.primitives;
 
-#if MOVEIT_VERSION >= MOVEIT_VERSION_CHECK(1, 1, 6)
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             node["primitive_poses"].push_back(rhs.pose);
 #else
             node["primitive_poses"] = rhs.primitive_poses;
@@ -852,7 +852,7 @@ namespace YAML
         {
             node["meshes"] = rhs.meshes;
             node["mesh_poses"] = rhs.mesh_poses;
-#if MOVEIT_VERSION >= MOVEIT_VERSION_CHECK(1, 1, 6)
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             node["mesh_poses"].push_back(rhs.pose);
 #else
             node["mesh_poses"] = rhs.mesh_poses;
@@ -903,7 +903,7 @@ namespace YAML
         if (IO::isNode(node["primitives"]))
         {
             rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
-#if MOVEIT_VERSION >= MOVEIT_VERSION_CHECK(1, 1, 6)
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             rhs.pose = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>()[0];
 #else
             rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
@@ -913,7 +913,7 @@ namespace YAML
         if (IO::isNode(node["meshes"]))
         {
             rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
-#if MOVEIT_VERSION >= MOVEIT_VERSION_CHECK(1, 1, 6)
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             rhs.pose = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>()[0];
 #else
             rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
