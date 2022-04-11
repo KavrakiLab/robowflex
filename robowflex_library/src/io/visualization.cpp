@@ -50,6 +50,7 @@ IO::RVIZHelper::RVIZHelper(const RobotConstPtr &robot, const std::string &name)
     trajectory_pub_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("trajectory", 1);
     state_pub_ = nh_.advertise<moveit_msgs::DisplayRobotState>("state", 1);
     scene_pub_ = nh_.advertise<moveit_msgs::PlanningScene>("scene", 1);
+    pcd_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("pcd", 1);
     marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/visualization_marker_array", 100);
 }
 
@@ -487,6 +488,20 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
     }
 
     scene_pub_.publish(to_pub);
+}
+
+void IO::RVIZHelper::updatePCD(const sensor_msgs::PointCloud2 &msg)
+{
+    if (pcd_pub_.getNumSubscribers() < 1)
+    {
+        RBX_INFO("Waiting for pcd subscribers...");
+
+        ros::WallDuration pause(0.1);
+        while (pcd_pub_.getNumSubscribers() < 1)
+            pause.sleep();
+    }
+
+    pcd_pub_.publish(msg);
 }
 
 void IO::RVIZHelper::updateMarkers()
