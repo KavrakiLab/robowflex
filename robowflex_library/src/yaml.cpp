@@ -883,6 +883,7 @@ namespace YAML
     bool convert<moveit_msgs::CollisionObject>::decode(const Node &node, moveit_msgs::CollisionObject &rhs)
     {
         RobotPose pose = TF::identity();
+        geometry_msgs::Pose pose_msg = TF::poseEigenToMsg(pose);
         rhs = moveit_msgs::CollisionObject();
 
         if (IO::isNode(node["header"]))
@@ -895,13 +896,13 @@ namespace YAML
 
         if (IO::isNode(node["pose"]))
         {
-            const auto &pose_msg = node["pose"].as<geometry_msgs::Pose>();
+            pose_msg = node["pose"].as<geometry_msgs::Pose>();
             pose = TF::poseMsgToEigen(pose_msg);
+        }
 
 #if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
-            rhs.pose = pose_msg;
+        rhs.pose = pose_msg;
 #endif
-        }
 
         if (IO::isNode(node["type"]))
             rhs.type = node["type"].as<object_recognition_msgs::ObjectType>();
