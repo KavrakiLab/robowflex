@@ -914,7 +914,7 @@ namespace YAML
             // If loading a newer format, add pose to include offset
 #if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             for (auto &primitive_pose : rhs.primitive_poses)
-                pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(primitive_pose));
+                primitive_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(primitive_pose));
 #endif
         }
 
@@ -926,7 +926,7 @@ namespace YAML
             // If loading a newer format, add pose to include offset
 #if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
             for (auto &mesh_pose : rhs.mesh_poses)
-                pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(mesh_pose));
+                mesh_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(mesh_pose));
 #endif
         }
 
@@ -934,6 +934,12 @@ namespace YAML
         {
             rhs.planes = node["planes"].as<std::vector<shape_msgs::Plane>>();
             rhs.plane_poses = node["plane_poses"].as<std::vector<geometry_msgs::Pose>>();
+
+            // If loading a newer format, add pose to include offset
+#if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+            for (auto &plane_pose : rhs.plane_poses)
+                plane_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(plane_pose));
+#endif
         }
 
         if (IO::isNode(node["operation"]))
