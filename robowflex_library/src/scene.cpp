@@ -272,7 +272,13 @@ RobotPose Scene::getObjectPose(const std::string &name) const
     const auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
+    {
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+        return obj->pose_ * obj->shape_poses_[0];
+#else
         return obj->shape_poses_[0];
+#endif
+    }
 
     return RobotPose::Identity();
 }

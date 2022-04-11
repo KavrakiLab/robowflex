@@ -12,6 +12,7 @@
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/tf.h>
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/yaml.h>
@@ -834,6 +835,10 @@ namespace YAML
 
         node["id"] = rhs.id;
 
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+        node["pose"] = rhs.pose;
+#endif
+
         if (!rhs.type.key.empty())
             node["type"] = rhs.type;
 
@@ -877,6 +882,8 @@ namespace YAML
 
     bool convert<moveit_msgs::CollisionObject>::decode(const Node &node, moveit_msgs::CollisionObject &rhs)
     {
+        RobotPose pose = TF::identity();
+        geometry_msgs::Pose pose_msg = TF::poseEigenToMsg(pose);
         rhs = moveit_msgs::CollisionObject();
 
         if (IO::isNode(node["header"]))
@@ -887,6 +894,16 @@ namespace YAML
         if (IO::isNode(node["id"]))
             rhs.id = node["id"].as<std::string>();
 
+        if (IO::isNode(node["pose"]))
+        {
+            pose_msg = node["pose"].as<geometry_msgs::Pose>();
+            pose = TF::poseMsgToEigen(pose_msg);
+        }
+
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+        rhs.pose = pose_msg;
+#endif
+
         if (IO::isNode(node["type"]))
             rhs.type = node["type"].as<object_recognition_msgs::ObjectType>();
 
@@ -894,18 +911,36 @@ namespace YAML
         {
             rhs.primitives = node["primitives"].as<std::vector<shape_msgs::SolidPrimitive>>();
             rhs.primitive_poses = node["primitive_poses"].as<std::vector<geometry_msgs::Pose>>();
+
+            // If loading a newer format, add pose to include offset
+#if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+            for (auto &primitive_pose : rhs.primitive_poses)
+                primitive_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(primitive_pose));
+#endif
         }
 
         if (IO::isNode(node["meshes"]))
         {
             rhs.meshes = node["meshes"].as<std::vector<shape_msgs::Mesh>>();
             rhs.mesh_poses = node["mesh_poses"].as<std::vector<geometry_msgs::Pose>>();
+
+            // If loading a newer format, add pose to include offset
+#if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+            for (auto &mesh_pose : rhs.mesh_poses)
+                mesh_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(mesh_pose));
+#endif
         }
 
         if (IO::isNode(node["planes"]))
         {
             rhs.planes = node["planes"].as<std::vector<shape_msgs::Plane>>();
             rhs.plane_poses = node["plane_poses"].as<std::vector<geometry_msgs::Pose>>();
+
+            // If loading a newer format, add pose to include offset
+#if ROBOWFLEX_MOVEIT_VERSION < ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+            for (auto &plane_pose : rhs.plane_poses)
+                plane_pose = TF::poseEigenToMsg(pose * TF::poseMsgToEigen(plane_pose));
+#endif
         }
 
         if (IO::isNode(node["operation"]))
