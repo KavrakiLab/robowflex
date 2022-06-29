@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(robowflex)
+cmake_minimum_required(VERSION 2.8...3.10)
+project(robowflex
+  VERSION 1.3
+)
+
 find_package(catkin REQUIRED)
 catkin_metapackage()
