@@ -19,7 +19,7 @@ using namespace robowflex;
  * displayed in RViz.
  */
 
-static const std::string GROUP = "stretch_arm";
+static const std::string GROUP = "mobile_base_manipulator";
 
 int main(int argc, char **argv)
 {
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     // Create the default Stretch robot.
     auto stretch = std::make_shared<StretchRobot>();
-    stretch->initialize();
+    stretch->initialize(true);
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by
     // default.
@@ -46,22 +46,53 @@ int main(int argc, char **argv)
     // Create the default planner for the Stretch.
     auto planner = std::make_shared<OMPL::StretchOMPLPipelinePlanner>(stretch, "default");
     planner->initialize();
-
-    // Create a motion planning request.
-    MotionRequestBuilder request(planner, GROUP);
-    stretch->setGroupState(GROUP, {0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0});  // home
-    request.setStartConfiguration(stretch->getScratchState());
-
+    
+//     stretch->setBasePose(1.0, 0.0, 0.0);
+    
     // Visualize the scene (start state) in RViz.
+    scene->getCurrentState() = *stretch->getScratchState();
     rviz.updateScene(scene);
     ROS_INFO("Visualizing start state");
     std::cin.get();
+    
+    // Create a motion planning request.
+    MotionRequestBuilder request(planner, GROUP);
+    stretch->setGroupState(GROUP, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0});  // home
+    
+    std::cout << "Number of dofs of this group " << stretch->getScratchState()->getJointModelGroup(GROUP)->getVariableCount() << std::endl;
+    for (const auto &name : stretch->getScratchState()->getJointModelGroup(GROUP)->getActiveJointModelNames())
+        std::cout << name << std::endl;
+    
+    const auto &solver = stretch->getScratchState()->getJointModelGroup(GROUP)->getSolverInstance();
+    if (solver)
+        std::cout << "Pointer is not null!" << std::endl;
+    
+    auto frames = solver->getTipFrame();
+    std::cout << frames << std::endl;
+    
+    std::cin.get();
+    
+    // Set start configuration.
+    request.setStartConfiguration(stretch->getScratchState());
 
     // Create IK query.
     auto query =
-        Robot::IKQuery(GROUP, "link_wrist_yaw", *stretch->getScratchState(), Eigen::Vector3d{0, 0.23, -0.71});
+        Robot::IKQuery(GROUP, "link_wrist_yaw", *stretch->getScratchState(), Eigen::Vector3d{-0.2, 0.23, -0.71});
     query.scene = scene;
-    stretch->setFromIK(query);
+    auto tips(query.tips);
+    std::cout << "Number of tips " << tips.size() << ", tip: " << tips[0] << std::endl;
+//     std::cout << stretch->getSolverTipFrames(GROUP)[0] << std::endl;
+    std::cout << stretch->getSolverTipFrames("stretch_arm")[0] << std::endl;
+    
+    std::cin.get();
+    
+    if (not stretch->setFromIK(query))
+    {
+        RBX_ERROR("IK solution not found");
+        return 1;
+    }
+    
+    // Set goal configuration.
     request.setGoalConfiguration(stretch->getScratchState());
 
     // Visualize the goal state in RViz.

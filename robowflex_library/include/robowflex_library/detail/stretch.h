@@ -34,7 +34,7 @@ namespace robowflex
         /** \brief Initialize the robot with stretch_arm, stretch_gripper and stretch_head kinematics.
          *  \return True on success, false on failure.
          */
-        bool initialize();
+        bool initialize(bool addVirtual = true);
 
         /** \brief Points the Stretch's head to a point in the world frame.
          *  \param[in] point The point to look at.
@@ -48,6 +48,8 @@ namespace robowflex
         /** \brief Closes the Stretch's gripper.
          */
         void closeGripper();
+        
+        void setBasePose(double x, double y, double theta);
 
     private:
         static const std::string DEFAULT_URDF;        ///< Default URDF

@@ -350,6 +350,8 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
+    for (const auto &g : groups)
+        std::cout << g << std::endl;
     if (groups.empty())
     {
         RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
@@ -379,6 +381,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 
     for (const auto &name : load_names)
     {
+        std::cout << name << std::endl;
         // Check if kinematics have already been loaded for this group.
         if (imap_.find(name) != imap_.end())
             continue;
@@ -387,7 +390,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
             RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
-            return false;
+            continue;
         }
 
         robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
@@ -866,6 +869,8 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
         // Sample new target poses from regions.
         query.sampleRegions(targets);
 
+        std::cout << "Number of tips " << tips.size() << ", number of targets " << targets.size() << std::endl;
+        
 #if ROBOWFLEX_AT_LEAST_MELODIC
         // Multi-tip IK: Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.

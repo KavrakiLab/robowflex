@@ -2,14 +2,10 @@ name: (noname)
 robot_state:
   joint_state:
     position: [0, 0, 0, 0, 0, 0, 0.1, 0, 0, 0, 0, 0]
-    header:
-      frame_id: base_link
     name: [joint_left_wheel, joint_head_pan, joint_head_tilt, joint_lift, joint_arm_l3, joint_arm_l2, joint_arm_l1, joint_arm_l0, joint_wrist_yaw, joint_gripper_finger_left, joint_gripper_finger_right, joint_right_wheel]
 robot_model_name: stretch
 fixed_frame_transforms:
-  - header:
-      frame_id: base_link
-    child_frame_id: base_link
+  - child_frame_id: world
     transform:
       translation: [0, 0, 0]
       rotation: [0, 0, 0, 1]
@@ -20,7 +16,7 @@ world:
         - resource: "package://robowflex_resources/objects/cafe_table.dae"
           dimensions: [0.025, 0.025, 0.025]
       mesh_poses:
-        - position: [0, -1.0, -0.08]
+        - position: [0, -1.05, -0.08]
           orientation: [0, 0, 0, 1]
     - id: Cube1
       primitives:

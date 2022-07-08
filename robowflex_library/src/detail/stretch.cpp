@@ -33,8 +33,11 @@ StretchRobot::StretchRobot() : Robot("stretch")
 {
 }
 
-bool StretchRobot::initialize()
+bool StretchRobot::initialize(bool addVirtual)
 {
+    if (addVirtual)
+        setSRDFPostProcessAddPlanarJoint("base_joint");
+    
     bool success = false;
 
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
@@ -52,6 +55,8 @@ bool StretchRobot::initialize()
     loadKinematics("stretch_arm");
     loadKinematics("stretch_gripper");
     loadKinematics("stretch_head");
+//     loadKinematics("mobile_base");
+    loadKinematics("mobile_base_manipulator");
 
     StretchRobot::openGripper();
 
@@ -87,6 +92,21 @@ void StretchRobot::closeGripper()
                                                   {"joint_gripper_finger_right", 0.0}};
 
     Robot::setState(angles);
+}
+
+void StretchRobot::setBasePose(double x, double y, double theta)
+{
+    if (hasJoint("base_joint/x") && hasJoint("base_joint/y") && hasJoint("base_joint/theta"))
+    {
+        std::cout << "H" << std::endl;
+        const std::map<std::string, double> pose = {
+            {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
+
+        scratch_->setVariablePositions(pose);
+        scratch_->update();
+    }
+    else
+        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::StretchOMPLPipelinePlanner::StretchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)
