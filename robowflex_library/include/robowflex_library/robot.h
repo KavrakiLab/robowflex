@@ -190,6 +190,14 @@ namespace robowflex
          */
         void setSRDFPostProcessAddFloatingJoint(const std::string &name);
 
+        /** \brief Adds a planning group with name \name and members \members, where each element is a pair
+         * that contains the type of group (first) and its name (second).
+         *  \param[in] name Name for new joint.
+         *  \param[in] members Members (type, name) that make up the planning group.
+         */
+        void setSRDFPostProcessAddJointGroup(const std::string &name,
+                                             const std::vector<std::pair<std::string, std::string>> &members);
+
         /** \brief Loads the kinematics plugin for a joint group and its subgroups. No kinematics are loaded
          * by default.
          *  \param[in] group Joint group name to load.

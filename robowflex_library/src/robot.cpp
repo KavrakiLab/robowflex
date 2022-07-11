@@ -350,8 +350,6 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
     robot_model::SolverAllocatorFn allocator = kinematics_->getLoaderFunction(loader_->getSRDF());
 
     const auto &groups = kinematics_->getKnownGroups();
-    for (const auto &g : groups)
-        std::cout << g << std::endl;
     if (groups.empty())
     {
         RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
@@ -381,7 +379,6 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 
     for (const auto &name : load_names)
     {
-        std::cout << name << std::endl;
         // Check if kinematics have already been loaded for this group.
         if (imap_.find(name) != imap_.end())
             continue;
@@ -447,6 +444,27 @@ void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
         virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
 
         doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+        return true;
+    });
+}
+
+void Robot::setSRDFPostProcessAddJointGroup(const std::string &name,
+                                            const std::vector<std::pair<std::string, std::string>> &members)
+{
+    setSRDFPostProcessFunction([&name, &members](tinyxml2::XMLDocument &doc) -> bool {
+        tinyxml2::XMLElement *group_element = doc.NewElement("group");
+        group_element->SetAttribute("name", name.c_str());
+
+        for (const auto &member : members)
+        {
+            tinyxml2::XMLElement *member_element = doc.NewElement(member.first.c_str());
+            member_element->SetAttribute("name", member.second.c_str());
+
+            group_element->FirstChildElement(member.first.c_str())->InsertFirstChild(member_element);
+        }
+
+        doc.FirstChildElement("robot")->InsertFirstChild(group_element);
 
         return true;
     });
@@ -869,8 +887,6 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
         // Sample new target poses from regions.
         query.sampleRegions(targets);
 
-        std::cout << "Number of tips " << tips.size() << ", number of targets " << targets.size() << std::endl;
-        
 #if ROBOWFLEX_AT_LEAST_MELODIC
         // Multi-tip IK: Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
