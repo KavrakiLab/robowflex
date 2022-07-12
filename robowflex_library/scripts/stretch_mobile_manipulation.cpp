@@ -28,6 +28,10 @@ int main(int argc, char **argv)
     auto stretch = std::make_shared<StretchRobot>();
     // Initialize the robot with the addBaseManip flag set.
     stretch->initialize(false, true);
+    // Set the turning radius for the mobile base;
+    auto radius = 0.5 * (stretch->getLinkTF("link_left_wheel").translation() - stretch->getLinkTF("link_right_wheel").translation()).norm();
+    auto base_model = static_cast<moveit::core::PlanarJointModel *>(stretch->getModel()->getJointModel("base_joint"));
+    base_model->setTurningRadius(radius);
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(stretch);
