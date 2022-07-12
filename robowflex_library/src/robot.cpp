@@ -452,7 +452,7 @@ void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
 void Robot::setSRDFPostProcessAddGroup(const std::string &name,
                                        const std::vector<std::pair<std::string, std::string>> &members)
 {
-    setSRDFPostProcessFunction([&name, &members](tinyxml2::XMLDocument &doc) -> bool {
+    setSRDFPostProcessFunction([&, name, members](tinyxml2::XMLDocument &doc) -> bool {
         tinyxml2::XMLElement *group_element = doc.NewElement("group");
         group_element->SetAttribute("name", name.c_str());
 
