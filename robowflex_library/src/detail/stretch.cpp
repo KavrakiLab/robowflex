@@ -33,11 +33,17 @@ StretchRobot::StretchRobot() : Robot("stretch")
 {
 }
 
-bool StretchRobot::initialize(bool addVirtual)
+bool StretchRobot::initialize(bool addVirtual, bool addBaseManip)
 {
-    if (addVirtual)
+    if (addBaseManip)
+    {
+        const std::string &mob_base_manip = "mobile_base_manipulator";
+        setSRDFPostProcessAddMobileManipulatorGroup("mobile_base", "stretch_arm", mob_base_manip);
+        setKinematicsPostProcessAddBaseManipulatorPlugin(mob_base_manip);
+    }
+    else if (addVirtual)
         setSRDFPostProcessAddPlanarJoint("base_joint");
-    
+
     bool success = false;
 
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
@@ -54,13 +60,26 @@ bool StretchRobot::initialize(bool addVirtual)
 
     loadKinematics("stretch_arm");
     loadKinematics("stretch_gripper");
-    loadKinematics("stretch_head");
-//     loadKinematics("mobile_base");
-    loadKinematics("mobile_base_manipulator");
+    if (addBaseManip)
+        loadKinematics("mobile_base_manipulator");
 
     StretchRobot::openGripper();
 
     return success;
+}
+
+void StretchRobot::setBasePose(double x, double y, double theta)
+{
+    if (hasJoint("base_joint/x") && hasJoint("base_joint/y") && hasJoint("base_joint/theta"))
+    {
+        const std::map<std::string, double> pose = {
+            {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
+
+        scratch_->setVariablePositions(pose);
+        scratch_->update();
+    }
+    else
+        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 void StretchRobot::pointHead(const Eigen::Vector3d &point)
@@ -92,21 +111,6 @@ void StretchRobot::closeGripper()
                                                   {"joint_gripper_finger_right", 0.0}};
 
     Robot::setState(angles);
-}
-
-void StretchRobot::setBasePose(double x, double y, double theta)
-{
-    if (hasJoint("base_joint/x") && hasJoint("base_joint/y") && hasJoint("base_joint/theta"))
-    {
-        std::cout << "H" << std::endl;
-        const std::map<std::string, double> pose = {
-            {"base_joint/x", x}, {"base_joint/y", y}, {"base_joint/theta", theta}};
-
-        scratch_->setVariablePositions(pose);
-        scratch_->update();
-    }
-    else
-        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::StretchOMPLPipelinePlanner::StretchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

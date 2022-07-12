@@ -31,10 +31,22 @@ namespace robowflex
          */
         StretchRobot();
 
-        /** \brief Initialize the robot with stretch_arm, stretch_gripper and stretch_head kinematics.
+        /** \brief Initialize the robot.
+         *  \param[in] addVirtual Whether a virtual joint for the base should be added to the srdf descrition
+         * or not.
+         *  \param[in] addBaseManip Whether a base + manipulator group should be added to the srdf
+         * representation or not. If set, two groups will be added, one for the base and one for the mobile
+         * base manipulator.
          *  \return True on success, false on failure.
          */
-        bool initialize(bool addVirtual = true);
+        bool initialize(bool addVirtual = true, bool addBaseManip = false);
+
+        /** \brief Sets the base pose of the Stretch robot (a virtual planar joint)
+         *  \param[in] x The x position.
+         *  \param[in] y The y position.
+         *  \param[in] theta The angle.
+         */
+        void setBasePose(double x, double y, double theta);
 
         /** \brief Points the Stretch's head to a point in the world frame.
          *  \param[in] point The point to look at.
@@ -48,8 +60,6 @@ namespace robowflex
         /** \brief Closes the Stretch's gripper.
          */
         void closeGripper();
-        
-        void setBasePose(double x, double y, double theta);
 
     private:
         static const std::string DEFAULT_URDF;        ///< Default URDF

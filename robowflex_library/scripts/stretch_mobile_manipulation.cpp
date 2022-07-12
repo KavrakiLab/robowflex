@@ -12,11 +12,9 @@
 
 using namespace robowflex;
 
-/* \file stretch_visualization.cpp
- * A simple script that demonstrates how to use RViz with Robowflex with the
- * Stretch robot. See https://kavrakilab.github.io/robowflex/rviz.html for how to
- * use RViz visualization. Here, the scene, start/goal states, and motion plan
- * displayed in RViz.
+/* \file stretch_mobile_manipulation.cpp
+ * A simple script that demonstrates how to use the Stretch robot to plan using the mobile base and the
+ * manipulator with Robowflex. The scene, start/goal states, and motion plan are displayed in RViz.
  */
 
 static const std::string GROUP = "mobile_base_manipulator";
@@ -28,10 +26,10 @@ int main(int argc, char **argv)
 
     // Create the default Stretch robot.
     auto stretch = std::make_shared<StretchRobot>();
-    stretch->initialize(true);
+    // Initialize the robot with the addBaseManip flag set.
+    stretch->initialize(false, true);
 
-    // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by
-    // default.
+    // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(stretch);
     IO::RobotBroadcaster bc(stretch);
     bc.start();
@@ -46,52 +44,31 @@ int main(int argc, char **argv)
     // Create the default planner for the Stretch.
     auto planner = std::make_shared<OMPL::StretchOMPLPipelinePlanner>(stretch, "default");
     planner->initialize();
-    
-//     stretch->setBasePose(1.0, 0.0, 0.0);
-    
+
     // Visualize the scene (start state) in RViz.
     scene->getCurrentState() = *stretch->getScratchState();
     rviz.updateScene(scene);
-    ROS_INFO("Visualizing start state");
+    ROS_INFO("Visualizing start state. Press Enter to continue.");
     std::cin.get();
-    
+
     // Create a motion planning request.
     MotionRequestBuilder request(planner, GROUP);
     stretch->setGroupState(GROUP, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0});  // home
-    
-    std::cout << "Number of dofs of this group " << stretch->getScratchState()->getJointModelGroup(GROUP)->getVariableCount() << std::endl;
-    for (const auto &name : stretch->getScratchState()->getJointModelGroup(GROUP)->getActiveJointModelNames())
-        std::cout << name << std::endl;
-    
-    const auto &solver = stretch->getScratchState()->getJointModelGroup(GROUP)->getSolverInstance();
-    if (solver)
-        std::cout << "Pointer is not null!" << std::endl;
-    
-    auto frames = solver->getTipFrame();
-    std::cout << frames << std::endl;
-    
-    std::cin.get();
-    
+
     // Set start configuration.
     request.setStartConfiguration(stretch->getScratchState());
 
     // Create IK query.
-    auto query =
-        Robot::IKQuery(GROUP, "link_wrist_yaw", *stretch->getScratchState(), Eigen::Vector3d{-0.2, 0.23, -0.71});
+    auto query = Robot::IKQuery(GROUP, "link_wrist_yaw", *stretch->getScratchState(),
+                                Eigen::Vector3d{0.2, 0.23, -0.71});
     query.scene = scene;
-    auto tips(query.tips);
-    std::cout << "Number of tips " << tips.size() << ", tip: " << tips[0] << std::endl;
-//     std::cout << stretch->getSolverTipFrames(GROUP)[0] << std::endl;
-    std::cout << stretch->getSolverTipFrames("stretch_arm")[0] << std::endl;
-    
-    std::cin.get();
-    
+
     if (not stretch->setFromIK(query))
     {
         RBX_ERROR("IK solution not found");
         return 1;
     }
-    
+
     // Set goal configuration.
     request.setGoalConfiguration(stretch->getScratchState());
 

@@ -142,7 +142,7 @@ add_script(cob4_test)
 add_script(cob4_visualization)
 add_script(cob4_multi_target)
 add_script(stretch_test)
-add_script(stretch_visualization)
+add_script(stretch_mobile_manipulation)
 ##
 ## Tests
 ##
