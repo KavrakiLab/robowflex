@@ -72,6 +72,7 @@ namespace robowflex
         static const std::string RESOURCE_URDF;        ///< URDF from robowflex_resources
         static const std::string RESOURCE_SRDF;        ///< SRDF from robowflex_resources
         static const std::string RESOURCE_LIMITS;      ///< Limits from robowflex_resources
+        static const std::string RESOURCE_LIMITS_LOW;  ///< Lower limits from robowflex_resources
         static const std::string RESOURCE_KINEMATICS;  ///< kinematics from robowflex_resources
     };
 
