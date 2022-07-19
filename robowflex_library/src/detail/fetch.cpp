@@ -19,6 +19,8 @@ const std::string FetchRobot::RESOURCE_URDF{"package://robowflex_resources/fetch
 const std::string FetchRobot::RESOURCE_SRDF{"package://robowflex_resources/fetch/config/fetch.srdf"};
 const std::string FetchRobot::RESOURCE_LIMITS{"package://robowflex_resources/fetch/config/joint_limits.yaml"};
 const std::string  //
+    FetchRobot::RESOURCE_LIMITS_LOW{"package://robowflex_resources/fetch/config/joint_limits_low.yaml"};
+const std::string  //
     FetchRobot::RESOURCE_KINEMATICS{"package://robowflex_resources/fetch/config/kinematics.yaml"};
 const std::string  //
     OMPL::FetchOMPLPipelinePlanner::RESOURCE_CONFIG{"package://robowflex_resources/fetch/config/"
@@ -28,7 +30,7 @@ FetchRobot::FetchRobot() : Robot("fetch")
 {
 }
 
-bool FetchRobot::initialize(bool addVirtual)
+bool FetchRobot::initialize(bool addVirtual, bool use_low_limits)
 {
     if (addVirtual)
         setSRDFPostProcessAddPlanarJoint("base_joint");
@@ -36,7 +38,6 @@ bool FetchRobot::initialize(bool addVirtual)
     setURDFPostProcessFunction([this](tinyxml2::XMLDocument &doc) { return addCastersURDF(doc); });
 
     bool success = false;
-
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
     if (IO::resolvePackage(RESOURCE_URDF).empty() or IO::resolvePackage(RESOURCE_SRDF).empty())
     {
@@ -46,7 +47,11 @@ bool FetchRobot::initialize(bool addVirtual)
     else
     {
         RBX_INFO("Initializing Fetch with `robowflex_resources`");
-        success = Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS, RESOURCE_KINEMATICS);
+        if (use_low_limits)
+            success =
+                Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS_LOW, RESOURCE_KINEMATICS);
+        else
+            success = Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS, RESOURCE_KINEMATICS);
     }
 
     loadKinematics("arm");
