@@ -82,7 +82,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
             return false;
         }
 
-    initializeInternal();
+    initializeInternal(true, limits_file);
     return true;
 }
 
@@ -305,7 +305,7 @@ void Robot::updateXMLString(std::string &string, const PostProcessXMLFunction &f
     }
 }
 
-void Robot::initializeInternal(bool namespaced)
+void Robot::initializeInternal(bool namespaced, const std::string &limits_file)
 {
     const std::string &description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
 
@@ -321,6 +321,35 @@ void Robot::initializeInternal(bool namespaced)
     {
         RBX_INFO("Reloading model after URDF/SRDF post-process function...");
         loadRobotModel(description);
+    }
+
+    // Load the joint limits if the file is available.
+    const auto &yaml = IO::loadFileToYAML(limits_file);
+    if (yaml.first && IO::isNode(yaml.second["joint_limits"]))
+    {
+        const auto &node = yaml.second;
+        for (auto &jmodel : model_->getJointModels())
+        {
+            auto bounds = jmodel->getVariableBounds();
+            auto jnames = jmodel->getVariableNames();
+            auto joint_limits = jmodel->getVariableBoundsMsg();
+            for (auto &jlim : joint_limits)
+            {
+                auto name = jlim.joint_name;
+                if (!IO::isNode(node["joint_limits"][name]))
+                    continue;
+                if (IO::isNode(node["joint_limits"][name]["has_velocity_limits"]))
+                    jlim.has_velocity_limits = node["joint_limits"][name]["has_velocity_limits"].as<bool>();
+                if (IO::isNode(node["joint_limits"][name]["max_velocity"]))
+                    jlim.max_velocity = node["joint_limits"][name]["max_velocity"].as<double>();
+                if (IO::isNode(node["joint_limits"][name]["has_acceleration_limits"]))
+                    jlim.has_acceleration_limits =
+                        node["joint_limits"][name]["has_acceleration_limits"].as<bool>();
+                if (IO::isNode(node["joint_limits"][name]["max_acceleration"]))
+                    jlim.max_acceleration = node["joint_limits"][name]["max_acceleration"].as<double>();
+            }
+            jmodel->setVariableBounds(joint_limits);
+        }
     }
 
     // set strings on parameter server
@@ -421,32 +450,36 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 
 void Robot::setSRDFPostProcessAddPlanarJoint(const std::string &name)
 {
-    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
-        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
-        virtual_joint->SetAttribute("name", name.c_str());
-        virtual_joint->SetAttribute("type", "planar");
-        virtual_joint->SetAttribute("parent_frame", "world");
-        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+    setSRDFPostProcessFunction(
+        [&, name](tinyxml2::XMLDocument &doc) -> bool
+        {
+            tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+            virtual_joint->SetAttribute("name", name.c_str());
+            virtual_joint->SetAttribute("type", "planar");
+            virtual_joint->SetAttribute("parent_frame", "world");
+            virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
 
-        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+            doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
 
-        return true;
-    });
+            return true;
+        });
 }
 
 void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
 {
-    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
-        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
-        virtual_joint->SetAttribute("name", name.c_str());
-        virtual_joint->SetAttribute("type", "floating");
-        virtual_joint->SetAttribute("parent_frame", "world");
-        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+    setSRDFPostProcessFunction(
+        [&, name](tinyxml2::XMLDocument &doc) -> bool
+        {
+            tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+            virtual_joint->SetAttribute("name", name.c_str());
+            virtual_joint->SetAttribute("type", "floating");
+            virtual_joint->SetAttribute("parent_frame", "world");
+            virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
 
-        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+            doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
 
-        return true;
-    });
+            return true;
+        });
 }
 
 const std::string &Robot::getModelName() const
@@ -757,34 +790,37 @@ void Robot::IKQuery::addMetric(const Metric &metric_function)
 void Robot::IKQuery::addDistanceMetric(double weight)
 {
     addMetric([weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                       const kinematic_constraints::ConstraintEvaluationResult &result) {
-        return weight * result.distance;
-    });
+                       const kinematic_constraints::ConstraintEvaluationResult &result)
+              { return weight * result.distance; });
 }
 
 void Robot::IKQuery::addCenteringMetric(double weight)
 {
-    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                          const kinematic_constraints::ConstraintEvaluationResult &result) {
-        const auto &jmg = state.getJointModelGroup(group);
-        const auto &min = state.getMinDistanceToPositionBounds(jmg);
-        double extent = min.second->getMaximumExtent() / 2.;
-        return weight * (extent - min.first) / extent;
-    });
+    addMetric(
+        [&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                    const kinematic_constraints::ConstraintEvaluationResult &result)
+        {
+            const auto &jmg = state.getJointModelGroup(group);
+            const auto &min = state.getMinDistanceToPositionBounds(jmg);
+            double extent = min.second->getMaximumExtent() / 2.;
+            return weight * (extent - min.first) / extent;
+        });
 }
 
 void Robot::IKQuery::addClearanceMetric(double weight)
 {
-    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                          const kinematic_constraints::ConstraintEvaluationResult &result) {
-        if (scene)
+    addMetric(
+        [&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                    const kinematic_constraints::ConstraintEvaluationResult &result)
         {
-            double v = scene->distanceToCollision(state);
-            return weight * v;
-        }
+            if (scene)
+            {
+                double v = scene->distanceToCollision(state);
+                return weight * v;
+            }
 
-        return 0.;
-    });
+            return 0.;
+        });
 }
 
 bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const

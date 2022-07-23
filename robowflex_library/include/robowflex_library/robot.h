@@ -771,7 +771,7 @@ namespace robowflex
          *  \param[in] namespaced Whether or not the parameter server description is under the handler
          * namespace.
          */
-        void initializeInternal(bool namespaced = true);
+        void initializeInternal(bool namespaced = true, const std::string &limits_file = "");
 
         /** \brief Loads a robot model from the loaded information on the parameter server.
          *  \param[in] description Robot description on parameter server.
