@@ -12,6 +12,11 @@ namespace
     static std::normal_distribution<> NORMALDIST{0, 1};     ///< Normal distribution.
 }  // namespace
 
+void RNG::setSeed(unsigned int seed)
+{
+    GENERATOR.seed(seed);
+}
+
 double RNG::uniform01()
 {
     return UNIDIST(GENERATOR);

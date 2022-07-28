@@ -569,6 +569,26 @@ std::vector<double> Robot::getState() const
     return state;
 }
 
+moveit_msgs::RobotState Robot::getStateMsg() const
+{
+    moveit_msgs::RobotState message;
+    moveit::core::robotStateToRobotStateMsg(*scratch_, message);
+
+    return message;
+}
+
+void Robot::setStateMsgGroupState(moveit_msgs::RobotState &state, const std::string &group,
+                                  const std::vector<double> &positions) const
+{
+    robot_state::RobotState temp(getModelConst());
+    moveit::core::robotStateMsgToRobotState(state, temp);
+
+    auto *jmg = getModelConst()->getJointModelGroup(group);
+    temp.setJointGroupPositions(jmg, positions);
+
+    moveit::core::robotStateToRobotStateMsg(temp, state);
+}
+
 std::vector<std::string> Robot::getJointNames() const
 {
     return scratch_->getVariableNames();
