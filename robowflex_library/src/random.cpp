@@ -26,7 +26,7 @@ double RNG::uniformReal(double lower_bound, double upper_bound)
 int RNG::uniformInt(int lower_bound, int upper_bound)
 {
     auto r = (int)floor(uniformReal((double)lower_bound, (double)(upper_bound)));
-    return (r > upper_bound-1) ? upper_bound-1 : r;
+    return (r > upper_bound - 1) ? upper_bound - 1 : r;
 }
 
 bool RNG::uniformBool()
