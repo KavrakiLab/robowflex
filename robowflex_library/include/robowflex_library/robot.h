@@ -349,6 +349,19 @@ namespace robowflex
          */
         std::vector<double> getState() const;
 
+        /** \brief Get the current scratch state as a message.
+         *  \return The scratch state as a MoveIt message.
+         */
+        moveit_msgs::RobotState getStateMsg() const;
+
+        /** \brief Set the group state of a MoveIt RobotState message.
+         *  \param[out] state The state message to set.
+         *  \param[in] group Group in state to set.
+         *  \param[in] positions Positions to set group state to.
+         */
+        void setStateMsgGroupState(moveit_msgs::RobotState &state, const std::string &group,
+                                   const std::vector<double> &positions) const;
+
         /** \brief Gets the names of joints of the robot.
          *  \return A vector of joint names.
          */
