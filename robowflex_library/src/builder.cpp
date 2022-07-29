@@ -27,6 +27,11 @@ const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnectkConfigDefau
 MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot) : robot_(robot)
 {
     initialize();
+
+    robot_state::RobotState start_state(robot_->getModelConst());
+    start_state.setToDefaultValues();
+
+    moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
 MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot, const std::string &group_name,
@@ -190,12 +195,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     }
 
     incrementVersion();
-
-    robot_state::RobotState start_state(robot_->getModelConst());
-    start_state.setToDefaultValues();
-    start_state.setJointGroupPositions(jmg_, joints);
-
-    moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
+    robot_->setStateMsgGroupState(request_.start_state, request_.group_name, joints);
 }
 
 void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotState &state)

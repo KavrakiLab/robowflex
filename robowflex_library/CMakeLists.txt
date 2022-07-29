@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(robowflex_library)
+cmake_minimum_required(VERSION 3.1...3.10)
+project(robowflex_library
+  VERSION 1.3
+  LANGUAGES C CXX
+)
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 
