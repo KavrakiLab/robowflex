@@ -32,9 +32,10 @@ namespace robowflex
 
         /** \brief Initialize the robot with arm and arm_with_torso kinematics.
          *  \param[in] addVirtual flag to add virtual joint.
+         *  \param[in] use_low_limits flag to use lower joint limits.
          *  \return True on success, false on failure.
          */
-        bool initialize(bool addVirtual = true);
+        bool initialize(bool addVirtual = true, bool use_low_limits = false);
 
         /** \brief Inserts the caster links if they don't exist.
          *  \param[in] doc urdf description to be processed.
@@ -71,6 +72,7 @@ namespace robowflex
         static const std::string RESOURCE_URDF;        ///< URDF from robowflex_resources
         static const std::string RESOURCE_SRDF;        ///< SRDF from robowflex_resources
         static const std::string RESOURCE_LIMITS;      ///< Limits from robowflex_resources
+        static const std::string RESOURCE_LIMITS_LOW;  ///< Lower limits from robowflex_resources
         static const std::string RESOURCE_KINEMATICS;  ///< kinematics from robowflex_resources
     };
 

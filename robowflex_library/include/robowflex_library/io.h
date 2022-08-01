@@ -87,6 +87,13 @@ namespace robowflex
          */
         std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
 
+        /** \brief Loads a file with multiple documents to a vector of YAML nodes.
+         *  \param[in] path File to load.
+         *  \return A pair, where the first is true on success false on failure, and second is the vector of
+         * YAML nodes.
+         */
+        std::pair<bool, std::vector<YAML::Node>> loadAllFromFileToYAML(const std::string &path);
+
         /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
          *  \param[in] file File to create and open.

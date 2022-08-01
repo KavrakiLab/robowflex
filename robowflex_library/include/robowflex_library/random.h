@@ -14,6 +14,11 @@ namespace robowflex
      */
     namespace RNG
     {
+        /** \brief Set the random seed of the underlying generator.
+         *  \param[in] seed Seed to set in generator.
+         */
+        void setSeed(unsigned int seed);
+
         /** \brief Generate a random real in  [0,1).
          *  \return Sampled number.
          */
@@ -124,7 +129,7 @@ namespace robowflex
          *  \return Chosen element.
          */
         template <typename Type>
-        Type &uniformSample(std::vector<Type> vector)
+        Type &uniformSample(std::vector<Type> &vector)
         {
             return *uniformSample(vector.begin(), vector.end());
         }

@@ -1,10 +1,14 @@
 /* Author: Zachary Kingston */
 
+#include <moveit/constraint_samplers/constraint_sampler.h>
+#include <moveit/constraint_samplers/constraint_sampler_manager.h>
+#include <moveit/constraint_samplers/default_constraint_samplers.h>
 #include <moveit/kinematic_constraints/utils.h>
 #include <moveit/robot_state/conversions.h>
 
 #include <robowflex_library/builder.h>
 #include <robowflex_library/constants.h>
+#include <robowflex_library/random.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -23,6 +27,11 @@ const std::string MotionRequestBuilder::DEFAULT_CONFIG = "RRTConnectkConfigDefau
 MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot) : robot_(robot)
 {
     initialize();
+
+    robot_state::RobotState start_state(robot_->getModelConst());
+    start_state.setToDefaultValues();
+
+    moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
 }
 
 MotionRequestBuilder::MotionRequestBuilder(const RobotConstPtr &robot, const std::string &group_name,
@@ -186,12 +195,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     }
 
     incrementVersion();
-
-    robot_state::RobotState start_state(robot_->getModelConst());
-    start_state.setToDefaultValues();
-    start_state.setJointGroupPositions(jmg_, joints);
-
-    moveit::core::robotStateToRobotStateMsg(start_state, request_.start_state);
+    robot_->setStateMsgGroupState(request_.start_state, request_.group_name, joints);
 }
 
 void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotState &state)
@@ -403,6 +407,36 @@ void MotionRequestBuilder::setGoalRegion(const std::string &ee_name, const std::
 {
     clearGoals();
     addGoalRegion(ee_name, base_name, pose, geometry, orientation, tolerances);
+}
+
+void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, const ScenePtr &scene,
+                                                        const ConfigurationValidityCallback &callback)
+{
+    // Allocate samplers for each region
+    constraint_samplers::ConstraintSamplerManager manager;
+    std::vector<constraint_samplers::ConstraintSamplerPtr> samplers;
+    for (const auto &goal : request_.goal_constraints)
+    {
+        samplers.emplace_back(manager.selectSampler(scene->getSceneConst(), group_name_, goal));
+        samplers.back()->setGroupStateValidityCallback(scene->getGSVCF(false));
+    }
+
+    clearGoals();
+
+    // Clone start
+    robot_state::RobotState state = *robot_->getScratchStateConst();
+
+    // Sample n_samples to add to new request
+    std::size_t n = n_samples;
+    while (n)
+    {
+        auto sampler = RNG::uniformSample(samplers);
+        if (sampler->sample(state) and (not callback or callback(state)))
+        {
+            addGoalConfiguration(state);
+            n--;
+        }
+    }
 }
 
 void MotionRequestBuilder::clearGoals()

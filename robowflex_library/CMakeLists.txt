@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(robowflex_library)
+cmake_minimum_required(VERSION 3.1...3.10)
+project(robowflex_library
+  VERSION 1.3
+  LANGUAGES C CXX
+)
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 
@@ -146,6 +149,7 @@ add_script(cob4_multi_target)
 ##
 
 add_test_script(robot_scene)
+add_test_script(yaml)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston */
 
+#include <type_traits>
+
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
@@ -14,6 +16,10 @@
 #include <moveit/collision_detection/collision_plugin.h>
 #include <moveit/robot_state/conversions.h>
 #include <pluginlib/class_loader.h>
+
+// Macro to check for function existence
+#include <boost/tti/has_member_function.hpp>
+BOOST_TTI_HAS_MEMBER_FUNCTION(getPose)
 
 namespace robowflex
 {
@@ -90,6 +96,51 @@ namespace robowflex
 }  // namespace robowflex
 
 using namespace robowflex;
+
+// SFINAE to allocate moveit::core::AttachedBody used by Scene::attachObject()
+namespace
+{
+    // If pose is tracked by AttachedBody
+    // https://github.com/ros-planning/moveit/commit/d6a714d16320e6327c65c6f34c0e7addc1630a89#
+    // https://github.com/ros-planning/moveit/pull/2037
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const RobotPoseVector &shape_poses,                //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,                             //
+                     id,                             //
+                     Eigen::Isometry3d::Identity(),  //
+                     shapes,                         //
+                     shape_poses,                    //
+                     touch_links,                    //
+                     trajectory_msgs::JointTrajectory());
+    }
+
+    // If pose is NOT tracked by AttachedBody
+    template <typename T>
+    T *attachObjectHelper(
+        const moveit::core::LinkModel *ee,                 //
+        const std::string &id,                             //
+        const std::vector<shapes::ShapeConstPtr> &shapes,  //
+        const RobotPoseVector &shape_poses,                //
+        const std::set<std::string> &touch_links,          //
+        typename std::enable_if<
+            not has_member_function_getPose<const Eigen::Isometry3d &(T::*)() const>::value>::type *dummy = 0)
+    {
+        return new T(ee,           //
+                     id,           //
+                     shapes,       //
+                     shape_poses,  //
+                     touch_links,  //
+                     trajectory_msgs::JointTrajectory());
+    }
+}  // namespace
 
 Scene::Scene(const RobotConstPtr &robot)
   : loader_(new CollisionPluginLoader()), scene_(new planning_scene::PlanningScene(robot->getModelConst()))
@@ -221,7 +272,13 @@ RobotPose Scene::getObjectPose(const std::string &name) const
     const auto &world = scene_->getWorldNonConst();
     const auto &obj = world->getObject(name);
     if (obj)
+    {
+#if ROBOWFLEX_MOVEIT_VERSION >= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 6)
+        return obj->pose_ * obj->shape_poses_[0];
+#else
         return obj->shape_poses_[0];
+#endif
+    }
 
     return RobotPose::Identity();
 }
@@ -298,22 +355,7 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
     return success;
 }
 
-bool Scene::attachObject(const std::string &name)
-{
-    const auto &robot = getCurrentState().getRobotModel();
-    const auto &ee = robot->getEndEffectors();
-
-    // One end-effector
-    if (ee.size() == 1)
-    {
-        const auto &links = ee[0]->getLinkModelNames();
-        return attachObject(name, links[0], links);
-    }
-
-    return false;
-}
-
-bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+bool Scene::attachObjectToState(robot_state::RobotState &state, const std::string &name) const
 {
     const auto &robot = state.getRobotModel();
     const auto &ee = robot->getEndEffectors();
@@ -322,24 +364,16 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
     if (ee.size() == 1)
     {
         const auto &links = ee[0]->getLinkModelNames();
-        return attachObject(state, name, links[0], links);
+        return attachObjectToState(state, name, links[0], links);
     }
 
     return false;
 }
 
-bool Scene::attachObject(const std::string &name, const std::string &ee_link,
-                         const std::vector<std::string> &touch_links)
+bool Scene::attachObjectToState(robot_state::RobotState &state, const std::string &name,
+                                const std::string &ee_link, const std::vector<std::string> &touch_links) const
 {
-    return attachObject(getCurrentState(), name, ee_link, touch_links);
-}
-
-bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
-                         const std::vector<std::string> &touch_links)
-{
-    incrementVersion();
-
-    const auto &world = scene_->getWorldNonConst();
+    const auto &world = scene_->getWorld();
     if (!world->hasObject(name))
     {
         RBX_ERROR("World does not have object `%s`", name);
@@ -353,20 +387,49 @@ bool Scene::attachObject(robot_state::RobotState &state, const std::string &name
         return false;
     }
 
-    if (!world->removeObject(name))
-    {
-        RBX_ERROR("Could not remove object `%s`", name);
-        return false;
-    }
-
     const auto &tf = state.getGlobalLinkTransform(ee_link);
 
     RobotPoseVector poses;
     for (const auto &pose : obj->shape_poses_)
         poses.push_back(tf.inverse() * pose);
 
-    state.attachBody(name, obj->shapes_, poses, touch_links, ee_link);
+    std::set<std::string> touch_links_set(touch_links.begin(), touch_links.end());
+    auto *body = attachObjectHelper<moveit::core::AttachedBody>(state.getLinkModel(ee_link),  //
+                                                                name,                         //
+                                                                obj->shapes_,                 //
+                                                                poses,                        //
+                                                                touch_links_set);
+    state.attachBody(body);
+
     return true;
+}
+
+bool Scene::attachObject(const std::string &name)
+{
+    return attachObject(getCurrentState(), name);
+}
+
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name)
+{
+    if (attachObjectToState(state, name))
+    {
+        removeCollisionObject(name);
+        return true;
+    }
+
+    return false;
+}
+
+bool Scene::attachObject(robot_state::RobotState &state, const std::string &name, const std::string &ee_link,
+                         const std::vector<std::string> &touch_links)
+{
+    if (attachObjectToState(state, name, ee_link, touch_links))
+    {
+        removeCollisionObject(name);
+        return true;
+    }
+
+    return false;
 }
 
 bool Scene::hasObject(const std::string &name) const
@@ -418,35 +481,11 @@ double Scene::distanceToCollision(const robot_state::RobotState &state) const
     return scene_->distanceToCollision(state);
 }
 
-double Scene::distanceToObject(const robot_state::RobotState &state, const std::string &object) const
+double Scene::distanceACM(const robot_state::RobotState &state,
+                          const collision_detection::AllowedCollisionMatrix &acm) const
 {
-    if (not hasObject(object))
-    {
-        RBX_ERROR("World does not have object `%s`", object);
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-
     collision_detection::DistanceRequest req;
     collision_detection::DistanceResult res;
-
-    const auto &links = state.getRobotModel()->getLinkModelNames();
-    const auto &objs = getCollisionObjects();
-
-    collision_detection::AllowedCollisionMatrix acm;
-
-    // No self-collision distances
-    for (unsigned int i = 0; i < links.size(); ++i)
-        for (unsigned int j = i + 1; j < links.size(); ++j)
-            acm.setEntry(links[i], links[j], true);
-
-    // Ignore all other objects
-    for (const auto &link : links)
-        for (const auto &obj : objs)
-            acm.setEntry(link, obj, true);
-
-    // Enable collision to the object of interest
-    for (const auto &link : links)
-        acm.setEntry(link, object, false);
 
     req.acm = &acm;
 
@@ -458,11 +497,48 @@ double Scene::distanceToObject(const robot_state::RobotState &state, const std::
     return res.minimum_distance.distance;
 }
 
+void Scene::clearACM(collision_detection::AllowedCollisionMatrix &acm) const
+{
+    const auto &links = getCurrentStateConst().getRobotModel()->getLinkModelNames();
+    const auto &objs = getCollisionObjects();
+
+    // No self-collision distances
+    for (unsigned int i = 0; i < links.size(); ++i)
+        for (unsigned int j = i + 1; j < links.size(); ++j)
+            acm.setEntry(links[i], links[j], true);
+
+    // No obstacle collisions
+    for (unsigned int i = 0; i < objs.size(); ++i)
+        for (unsigned int j = i + 1; j < objs.size(); ++j)
+            acm.setEntry(objs[i], objs[j], true);
+
+    // Ignore all other objects
+    for (const auto &link : links)
+        for (const auto &obj : objs)
+            acm.setEntry(link, obj, true);
+}
+
+double Scene::distanceToObject(const robot_state::RobotState &state, const std::string &object) const
+{
+    if (not hasObject(object))
+    {
+        RBX_ERROR("World does not have object `%s`", object);
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    collision_detection::AllowedCollisionMatrix acm;
+    clearACM(acm);
+
+    // Enable collision to the object of interest
+    for (const auto &link : getCurrentStateConst().getRobotModel()->getLinkModelNames())
+        acm.setEntry(link, object, false);
+
+    return distanceACM(state, acm);
+}
+
 double Scene::distanceBetweenObjects(const std::string &one, const std::string &two) const
 {
-#if ROBOWFLEX_MOVEIT_VERSION <= ROBOWFLEX_MOVEIT_VERSION_COMPUTE(1, 1, 0)
-    // Early terminate if they are the same
-    if (one == two)
+    if (one == two)  // Early terminate if they are the same
         return 0.;
 
     if (not hasObject(one))
@@ -477,27 +553,15 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    const auto &cw = scene_->getCollisionWorld();
+    robot_state::RobotState copy = getCurrentStateConst();
+    attachObjectToState(copy, one);
 
-    collision_detection::DistanceRequest req;
-    collision_detection::DistanceResult res;
-
-    const auto &objs = getCollisionObjects();
-
-    // Allow collisions between all other objects
-    collision_detection::AllowedCollisionMatrix acm(objs, true);
-    req.acm = &acm;
-
-    // But disable them for the two we care about
+    collision_detection::AllowedCollisionMatrix acm;
+    clearACM(acm);
+    acm.setEntry(one, one, true);
     acm.setEntry(one, two, false);
 
-    cw->distanceWorld(req, res, *cw);
-    return res.minimum_distance.distance;
-
-#else
-    throw Exception(1, "Not Implemented");
-
-#endif
+    return distanceACM(copy, acm);
 }
 
 moveit::core::GroupStateValidityCallbackFn Scene::getGSVCF(bool verbose) const
