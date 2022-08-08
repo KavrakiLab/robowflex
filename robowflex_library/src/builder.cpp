@@ -548,7 +548,10 @@ bool MotionRequestBuilder::toYAMLFile(const std::string &file) const
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
     incrementVersion();
-    return IO::fromYAMLFile(request_, file);
+
+    bool success = IO::fromYAMLFile(request_, file);
+    setPlanningGroup(request_.group_name);
+    return success;
 }
 
 const RobotConstPtr &MotionRequestBuilder::getRobot() const
