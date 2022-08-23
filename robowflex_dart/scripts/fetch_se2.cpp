@@ -15,7 +15,7 @@
 #include <robowflex_dart/acm.h>
 
 #include <ompl/geometric/SimpleSetup.h>
-#include <ompl/geometric/planners/rrt/RRTConnect.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
 
 using namespace robowflex;
 
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     auto scene = std::make_shared<darts::Structure>("object");
     scene->addGround(-0.01, 10);
 
-    unsigned int nobs = 100;
+    unsigned int nobs = 20;
 
     for (int i = 0; i < nobs; ++i)
     {
@@ -68,18 +68,18 @@ int main(int argc, char **argv)
     builder.addGroup("fetch", "observation");
 
     builder.setStartConfiguration({
-        -5, -5, 0., 0., 0.,  //
+        -5, -5, 1.57, 0., 0.,  //
     });
 
     builder.initialize();
 
     auto goal = builder.getGoalConfiguration({
-        5, 5, 0, 0., 0.,  //
+        5, 5, -1.57, 0., 0.,  //
     });
 
     builder.setGoal(goal);
 
-    auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info);
+    auto rrt = std::make_shared<ompl::geometric::RRTstar>(builder.info);
     builder.ss->setPlanner(rrt);
 
     builder.setup();
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 
     darts::Window window(world);
     window.run([&] {
-        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+        ompl::base::PlannerStatus solved = builder.ss->solve(5.0);
 
         if (solved)
         {
