@@ -140,8 +140,7 @@ void StateSpace::addGroupFromJoints(const std::string &group_name,
                 low[2] = -constants::pi * cyclic;
                 high[2] = constants::pi * cyclic;
 
-                auto j = std::make_shared<RnJoint>(this, planar, 3, 0, low, high);
-                addJoint(group_name, j);
+                addJoint(group_name, std::make_shared<RnJoint>(this, planar, 3, 0, low, high));
             }
             else
             {

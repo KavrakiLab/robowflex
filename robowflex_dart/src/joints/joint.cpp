@@ -32,14 +32,9 @@ Joint::Joint(StateSpace *space,         //
     {
         unsigned int j = startIndex_ + i;
         if (j >= joint->getNumDofs())
-        {
-            // SE3EZ_ERROR("Invalid joint specification. Start %1%, DoF %2%, but max %3%", startIndex_,
-            // numDof_,
-            //             joint->getNumDofs());
             throw std::runtime_error("Invalid joint");
-        }
 
-        auto *dof = joint->getDof(i);
+        auto *dof = joint->getDof(j);
         indices_.emplace_back(dof->getIndexInSkeleton());
         dofs_.emplace_back(dof->getName());
     }
