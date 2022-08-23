@@ -121,6 +121,43 @@ void StateSpace::addGroupFromJoints(const std::string &group_name,
             auto limits = dof->getPositionLimits();
             addJoint(group_name, std::make_shared<RnJoint>(this, prismatic, limits.first, limits.second));
         }
+        else if (type == "PlanarJoint")
+        {
+            // Assume XY plane for now
+            auto *planar = static_cast<dart::dynamics::PlanarJoint *>(joint);
+            if (cyclic)
+            {
+                Eigen::Vector3d low;
+                Eigen::Vector3d high;
+
+                // XY limits
+                for (std::size_t i = 0; i < 2; ++i)
+                {
+                    low[i] = world_->getWorkspaceLowConst()[i];
+                    high[i] = world_->getWorkspaceHighConst()[i];
+                }
+
+                low[2] = -constants::pi * cyclic;
+                high[2] = constants::pi * cyclic;
+
+                auto j = std::make_shared<RnJoint>(this, planar, 3, 0, low, high);
+                addJoint(group_name, j);
+            }
+            else
+            {
+                Eigen::Vector2d low;
+                Eigen::Vector2d high;
+
+                for (std::size_t i = 0; i < 2; ++i)
+                {
+                    low[i] = world_->getWorkspaceLowConst()[i];
+                    high[i] = world_->getWorkspaceHighConst()[i];
+                }
+
+                addJoint(group_name, std::make_shared<RnJoint>(this, planar, 2, 0, low, high));
+                addJoint(group_name, std::make_shared<SO2Joint>(this, planar, 2));
+            }
+        }
         else if (type == "FreeJoint")
         {
             auto *free = static_cast<dart::dynamics::FreeJoint *>(joint);

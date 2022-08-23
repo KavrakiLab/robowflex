@@ -275,6 +275,20 @@ void Structure::setDof(unsigned int index, double value)
     skeleton_->getDof(index)->setPosition(value);
 }
 
+std::vector<std::string> Structure::getJointNames() const
+{
+    std::vector<std::string> names;
+    for (const auto *joint : skeleton_->getJoints())
+        names.emplace_back(joint->getName());
+
+    return names;
+}
+
+dart::dynamics::Joint *Structure::getJoint(const std::string &joint_name) const
+{
+    return skeleton_->getJoint(joint_name);
+}
+
 dart::dynamics::BodyNode *Structure::getFrame(const std::string &name) const
 {
     return skeleton_->getBodyNode(name);

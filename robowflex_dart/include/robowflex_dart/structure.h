@@ -117,6 +117,7 @@ namespace robowflex
              */
             void dumpGraphViz(std::ostream &out, bool standalone = true);
 
+
             /** \} */
 
             /** \name Getting and Setting Configurations
@@ -149,6 +150,17 @@ namespace robowflex
 
             /** \name Modifying Frames
                 \{ */
+
+            /** \brief Get the joint names for this structure.
+             *  \return The names of all the joints in this structure.
+             */
+            std::vector<std::string> getJointNames() const;
+
+            /** \brief Get a reference to the joint in the structure.
+             *  \param[in] joint_name Name of the joint to retrieve.
+             *  \return The joint if it exists, nullptr otherwise.
+             */
+            dart::dynamics::Joint *getJoint(const std::string &joint_name) const;
 
             /** \brief Get a body node within the structure.
              *  \param[in] name Name of the node to retrieve.

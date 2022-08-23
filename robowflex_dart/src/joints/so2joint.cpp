@@ -13,8 +13,8 @@ using namespace robowflex::darts;
 ///
 
 SO2Joint::SO2Joint(StateSpace *space,  //
-                   dart::dynamics::Joint *joint)
-  : Joint(space, joint, 1)
+                   dart::dynamics::Joint *joint, unsigned int index)
+  : Joint(space, joint, 1, index, 1)
 {
     space_->addDimension(-constants::pi, constants::pi);
 }

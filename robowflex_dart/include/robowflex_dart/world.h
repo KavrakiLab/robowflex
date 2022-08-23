@@ -222,8 +222,8 @@ namespace robowflex
 
             dart::simulation::WorldPtr world_;  ///< Underlying world.
 
-            Eigen::Vector3d low_{-1, -1, -1};  ///< Lower workspace bounds.
-            Eigen::Vector3d high_{1, 1, 1};    ///< Upper workspace bounds.
+            Eigen::Vector3d low_{-5, -5, -5};  ///< Lower workspace bounds.
+            Eigen::Vector3d high_{5, 5, 5};    ///< Upper workspace bounds.
 
             std::map<std::string, RobotPtr> robots_;          ///< Robots in world.
             std::map<std::string, StructurePtr> structures_;  ///< Structures in world.
