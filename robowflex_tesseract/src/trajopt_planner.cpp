@@ -209,7 +209,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     if (request.goal_constraints.size() != 1)
     {
         XROS_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
-                  request.goal_constraints.size());
+                   request.goal_constraints.size());
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return res;
     }
@@ -421,7 +421,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
 TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
                                                    const robot_state::RobotStatePtr &start_state)
 {
-    throw std::runtime_error("You need to implement virtual method TrajOptPlanner::plan() in your derived class");
+    throw std::runtime_error("You need to implement virtual method TrajOptPlanner::plan() in your derived "
+                             "class");
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const

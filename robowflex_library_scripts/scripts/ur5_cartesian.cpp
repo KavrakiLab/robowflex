@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     for (const auto &direction : directions)
     {
         XROS_INFO("Moving end-effector in direction [%1%, %2%, %3%]",  //
-                 direction[0], direction[1], direction[2]);
+                  direction[0], direction[1], direction[2]);
 
         // Visualize the scene.
         scene->getCurrentState() = *ur5->getScratchState();

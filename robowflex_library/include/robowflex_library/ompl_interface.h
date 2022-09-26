@@ -121,7 +121,7 @@ namespace robowflex
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
             bool interpolate_;  ///< Whether or not planner should interpolate solutions.
 
-            mutable std::size_t last_scene_hash_;      ///< Hash of last scene.
+            mutable std::size_t last_scene_hash_;    ///< Hash of last scene.
             mutable std::size_t last_request_hash_;  ///< Hash of last request.
 
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.

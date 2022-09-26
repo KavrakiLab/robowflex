@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
     XROS_INFO("Visualizing goal state");
     XROS_INFO("Press Enter to run the planner with a time bound but returning as soon as it finds the first "
-             "feasible solution");
+              "feasible solution");
     std::cin.ignore();
 
     // Run the planner potentially more than once and make it return when it finds a feasible solution or when

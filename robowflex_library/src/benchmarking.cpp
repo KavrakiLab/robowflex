@@ -443,7 +443,7 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                 }
 
                 XROS_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
-                         id, info.query->name, info.index, info.trial + 1, trials_);
+                          id, info.query->name, info.index, info.trial + 1, trials_);
 
                 // If override, use global time. Else use query time.
                 double time_remaining =
@@ -500,7 +500,7 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     if (timeout_)
                     {
                         time_remaining -= data->time;
-                        XROS_INFO(                                                                           //
+                        XROS_INFO(                                                                          //
                             "[Thread %1%] Running Query %3% `%2%` till timeout, %4% seconds remaining...",  //
                             id, info.query->name, info.index, time_remaining);
                         timeout_trial++;
@@ -510,9 +510,9 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                 }
 
                 XROS_INFO("[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
-                         id, info.query->name, info.index,                                           //
-                         info.trial + 1, trials_,                                                    //
-                         completed_queries, total_queries);
+                          id, info.query->name, info.index,                                           //
+                          info.trial + 1, trials_,                                                    //
+                          completed_queries, total_queries);
             }
         }));
 

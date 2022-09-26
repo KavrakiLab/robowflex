@@ -3,9 +3,9 @@
 #ifndef ROBOWFLEX_IO_
 #define ROBOWFLEX_IO_
 
-#include <string>         // for std::string
-#include <utility>        // for std::pair
-#include <fstream>        // for std::ofstream
+#include <string>   // for std::string
+#include <utility>  // for std::pair
+#include <fstream>  // for std::ofstream
 
 #include <boost/date_time.hpp>  // for date operations
 

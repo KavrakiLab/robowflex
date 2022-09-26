@@ -302,9 +302,9 @@ double World::distanceToCollision() const
     const auto &body_node2 = shape_node2->getBodyNodePtr();
 
     XROS_INFO("Distance B1:%s:%s -> B2:%s:%s = %d",           //
-             shape_node1->getName(), body_node1->getName(),  //
-             shape_node2->getName(), body_node2->getName(),  //
-             d);
+              shape_node1->getName(), body_node1->getName(),  //
+              shape_node2->getName(), body_node2->getName(),  //
+              d);
 
     return d;
 }

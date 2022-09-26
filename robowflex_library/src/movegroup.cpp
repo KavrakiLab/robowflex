@@ -126,7 +126,7 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
     if (value == 0)
     {
         XROS_ERROR("Trajectory is not parameterized and cannot be executed!  did you use "
-                  "Trajectory::computeTimeParameterization?");
+                   "Trajectory::computeTimeParameterization?");
         return false;
     }
 
