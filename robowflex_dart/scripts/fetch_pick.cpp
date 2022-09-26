@@ -6,7 +6,7 @@
 
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -95,11 +95,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            RBX_INFO("Found solution!");
+            XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            RBX_WARN("No solution found");
+            XROS_WARN("No solution found");
     };
 
     const auto &plan_to_grasp = [&]() {
@@ -139,11 +139,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            RBX_INFO("Found solution!");
+            XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            RBX_WARN("No solution found");
+            XROS_WARN("No solution found");
     };
 
     const auto &plan_to_place = [&]() {
@@ -174,11 +174,11 @@ int main(int argc, char **argv)
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         if (solved)
         {
-            RBX_INFO("Found solution!");
+            XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            RBX_WARN("No solution found");
+            XROS_WARN("No solution found");
     };
 
     window.run([&] {

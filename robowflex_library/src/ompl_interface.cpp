@@ -111,14 +111,14 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 
     if (not force and ss_ and same_scene and same_request)
     {
-        RBX_INFO("Reusing Cached Context!");
+        XROS_INFO("Reusing Cached Context!");
         return;
     }
 
     context_ = getPlanningContext(scene, request);
     if (not context_)
     {
-        RBX_ERROR("Context was not set!");
+        XROS_ERROR("Context was not set!");
         ss_ = nullptr;
         return;
     }
@@ -133,7 +133,7 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
     last_scene_hash_ = scene_hash;
     last_request_hash_ = request_hash;
 
-    RBX_INFO("Refreshed Context!");
+    XROS_INFO("Refreshed Context!");
 }
 
 ompl::geometric::SimpleSetupPtr OMPL::OMPLInterfacePlanner::getLastSimpleSetup() const
@@ -150,7 +150,7 @@ ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
 {
     if (!interface_)
     {
-        RBX_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
+        XROS_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
     }
     return *interface_;
 }

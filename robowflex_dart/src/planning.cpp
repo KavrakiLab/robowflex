@@ -9,7 +9,7 @@
 
 #include <moveit_msgs/MotionPlanRequest.h>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/tf.h>
 
 #include <robowflex_dart/planning.h>
@@ -310,13 +310,13 @@ TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
 
     if (not msg.constraint_region.meshes.empty())
     {
-        RBX_ERROR("Invalid Position Constraint");
+        XROS_ERROR("Invalid Position Constraint");
         return nullptr;
     }
 
     if (msg.constraint_region.primitives.size() != 1)
     {
-        RBX_ERROR("Invalid Position Constraint");
+        XROS_ERROR("Invalid Position Constraint");
         return nullptr;
     }
 

@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/util.h>
 
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     ROS ros(argc, argv);
 
     if (argc != 2)
-        RBX_FATAL("Specify robot to load as an argument "
+        XROS_FATAL("Specify robot to load as an argument "
                   "(e.g., `rosrun robowflex_library resources_visualization <robot>`). "
                   "Can be {baxter, ur5, panda, fetch, yumi, shadowhand}.");
 
@@ -93,12 +93,12 @@ int main(int argc, char **argv)
     else if (name == "shadowhand")
         robot->initialize(SHADOWHAND[0], SHADOWHAND[1], SHADOWHAND[2], SHADOWHAND[3]);
     else
-        RBX_FATAL("Unknown robot. Can be {baxter, ur5, panda, fetch, yumi, shadowhand}.");
+        XROS_FATAL("Unknown robot. Can be {baxter, ur5, panda, fetch, yumi, shadowhand}.");
 
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(robot);
 
-    RBX_INFO("Press enter to exit.");
+    XROS_INFO("Press enter to exit.");
     std::cin.ignore();
 
     return 0;

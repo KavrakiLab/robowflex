@@ -52,33 +52,33 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
 {
     if (loader_)
     {
-        RBX_ERROR("Already initialized!");
+        XROS_ERROR("Already initialized!");
         return false;
     }
 
     if (not loadURDFFile(urdf_file))
     {
-        RBX_ERROR("Failed to load URDF!");
+        XROS_ERROR("Failed to load URDF!");
         return false;
     }
 
     if (not loadSRDFFile(srdf_file))
     {
-        RBX_ERROR("Failed to load SRDF!");
+        XROS_ERROR("Failed to load SRDF!");
         return false;
     }
 
     if (not limits_file.empty())
         if (not loadYAMLFile(ROBOT_DESCRIPTION + ROBOT_PLANNING, limits_file, limits_function_))
         {
-            RBX_ERROR("Failed to load joint limits!");
+            XROS_ERROR("Failed to load joint limits!");
             return false;
         }
 
     if (not kinematics_file.empty())
         if (not initializeKinematics(kinematics_file))
         {
-            RBX_ERROR("Failed to load kinematics!");
+            XROS_ERROR("Failed to load kinematics!");
             return false;
         }
 
@@ -90,14 +90,14 @@ bool Robot::initializeFromYAML(const std::string &config_file)
 {
     if (loader_)
     {
-        RBX_ERROR("Already initialized!");
+        XROS_ERROR("Already initialized!");
         return false;
     }
 
     const auto &yaml = IO::loadFileToYAML(config_file);
     if (not yaml.first)
     {
-        RBX_ERROR("Failed to load YAML file `%s`.", config_file);
+        XROS_ERROR("Failed to load YAML file `%s`.", config_file);
         return false;
     }
 
@@ -109,7 +109,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
         urdf_file = node["urdf"].as<std::string>();
     else
     {
-        RBX_ERROR("No URDF entry in YAML file `%s`!", config_file);
+        XROS_ERROR("No URDF entry in YAML file `%s`!", config_file);
         return false;
     }
 
@@ -118,7 +118,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
     if (IO::isNode(node["srdf"]))
         srdf_file = node["srdf"].as<std::string>();
     else
-        RBX_WARN("No SRDF entry in YAML!");
+        XROS_WARN("No SRDF entry in YAML!");
 
     // Joint limits
     std::string limits_file;
@@ -126,14 +126,14 @@ bool Robot::initializeFromYAML(const std::string &config_file)
     {
         if (srdf_file.empty())
         {
-            RBX_ERROR("Cannot provide joint limits without SRDF in YAML file `%s`!", config_file);
+            XROS_ERROR("Cannot provide joint limits without SRDF in YAML file `%s`!", config_file);
             return false;
         }
 
         limits_file = node["limits"].as<std::string>();
     }
     else
-        RBX_WARN("No joint limits provided!");
+        XROS_WARN("No joint limits provided!");
 
     // Kinematics plugins
     std::string kinematics_file;
@@ -141,14 +141,14 @@ bool Robot::initializeFromYAML(const std::string &config_file)
     {
         if (srdf_file.empty())
         {
-            RBX_ERROR("Cannot provide kinematics without SRDF in YAML file `%s`!", config_file);
+            XROS_ERROR("Cannot provide kinematics without SRDF in YAML file `%s`!", config_file);
             return false;
         }
 
         kinematics_file = node["kinematics"].as<std::string>();
     }
     else
-        RBX_WARN("No kinematics plugins provided!");
+        XROS_WARN("No kinematics plugins provided!");
 
     // Initialize robot
     bool r;
@@ -166,7 +166,7 @@ bool Robot::initializeFromYAML(const std::string &config_file)
             setState(robot_state);
         }
         else
-            RBX_WARN("No default state provided!");
+            XROS_WARN("No default state provided!");
     }
 
     return r;
@@ -176,7 +176,7 @@ bool Robot::initialize(const std::string &urdf_file)
 {
     if (loader_)
     {
-        RBX_ERROR("Already initialized!");
+        XROS_ERROR("Already initialized!");
         return false;
     }
 
@@ -200,7 +200,7 @@ bool Robot::initializeKinematics(const std::string &kinematics_file)
 {
     if (kinematics_)
     {
-        RBX_ERROR("Already loaded kinematics!");
+        XROS_ERROR("Already loaded kinematics!");
         return false;
     }
 
@@ -252,7 +252,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
     const auto &yaml = IO::loadFileToYAML(file);
     if (!yaml.first)
     {
-        RBX_ERROR("Failed to load YAML file `%s`.", file);
+        XROS_ERROR("Failed to load YAML file `%s`.", file);
         return false;
     }
 
@@ -261,7 +261,7 @@ bool Robot::loadYAMLFile(const std::string &name, const std::string &file,
         YAML::Node copy = yaml.second;
         if (!function(copy))
         {
-            RBX_ERROR("Failed to process YAML file `%s`.", file);
+            XROS_ERROR("Failed to process YAML file `%s`.", file);
             return false;
         }
 
@@ -278,7 +278,7 @@ std::string Robot::loadXMLFile(const std::string &file)
     std::string string = IO::loadXMLToString(file);
     if (string.empty())
     {
-        RBX_ERROR("Failed to load XML file `%s`.", file);
+        XROS_ERROR("Failed to load XML file `%s`.", file);
         return "";
     }
 
@@ -294,7 +294,7 @@ void Robot::updateXMLString(std::string &string, const PostProcessXMLFunction &f
 
         if (not function(doc))
         {
-            RBX_ERROR("Failed to process XML string `%s`.", string);
+            XROS_ERROR("Failed to process XML string `%s`.", string);
             return;
         }
 
@@ -319,7 +319,7 @@ void Robot::initializeInternal(bool namespaced)
     // If either function was called, reload robot.
     if (urdf_function_ or srdf_function_)
     {
-        RBX_INFO("Reloading model after URDF/SRDF post-process function...");
+        XROS_INFO("Reloading model after URDF/SRDF post-process function...");
         loadRobotModel(description);
     }
 
@@ -352,13 +352,13 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
     const auto &groups = kinematics_->getKnownGroups();
     if (groups.empty())
     {
-        RBX_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
+        XROS_ERROR("No kinematics plugins defined. Fill and load kinematics.yaml!");
         return false;
     }
 
     if (!model_->hasJointModelGroup(group_name))
     {
-        RBX_ERROR("No JMG defined for `%s`!", group_name);
+        XROS_ERROR("No JMG defined for `%s`!", group_name);
         return false;
     }
 
@@ -386,7 +386,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
         if (!model_->hasJointModelGroup(name) ||
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
-            RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
+            XROS_ERROR("No JMG or Kinematics defined for `%s`!", name);
             return false;
         }
 
@@ -400,18 +400,18 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
                 imap_[name] = allocator;
             else
             {
-                RBX_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
+                XROS_ERROR("Kinematics solver %s does not support joint group %s.  Error: %s",
                           typeid(*solver).name(), name, error_msg);
                 return false;
             }
         }
         else
         {
-            RBX_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
+            XROS_ERROR("Kinematics solver could not be instantiated for joint group `%s`.", name);
             return false;
         }
 
-        RBX_INFO("Loaded Kinematics Solver for  `%s`", name);
+        XROS_INFO("Loaded Kinematics Solver for  `%s`", name);
         jmg->setDefaultIKTimeout(timeout[name]);
     }
 
@@ -905,7 +905,7 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
         if (query.validate)
         {
             if (query.verbose)
-                RBX_INFO("Constraint Distance: %1%", result.distance);
+                XROS_INFO("Constraint Distance: %1%", result.distance);
 
             bool no_collision = (query.scene) ? not query.scene->checkCollision(state).collision : true;
 
@@ -920,12 +920,12 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
             double v = query.getMetricValue(state, result);
 
             if (query.verbose)
-                RBX_INFO("State Metric Value: %1%", v);
+                XROS_INFO("State Metric Value: %1%", v);
 
             if (v < best_value)
             {
                 if (query.verbose)
-                    RBX_INFO("State is current best!");
+                    XROS_INFO("State is current best!");
 
                 best_value = v;
                 *best = state;

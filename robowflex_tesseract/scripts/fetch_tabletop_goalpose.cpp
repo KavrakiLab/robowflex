@@ -1,7 +1,7 @@
 /* Author: Carlos Quintero Pena*/
 
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
@@ -57,8 +57,8 @@ int main(int argc, char **argv)
     rviz->updateScene(scene);
     rviz->visualizeState(start_state);
 
-    RBX_INFO("Visualizing start state");
-    RBX_INFO("Press Enter to continue");
+    XROS_INFO("Visualizing start state");
+    XROS_INFO("Press Enter to continue");
     std::cin.ignore();
 
     // Do motion planning using a goal pose for the end effector.
@@ -68,8 +68,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(planner->getTrajectory()->getLastWayPointPtr());
 
-    RBX_INFO("Visualizing end state");
-    RBX_INFO("Press Enter to exit");
+    XROS_INFO("Visualizing end state");
+    XROS_INFO("Press Enter to exit");
     std::cin.ignore();
 
     return 0;

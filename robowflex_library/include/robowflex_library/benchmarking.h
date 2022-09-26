@@ -590,6 +590,29 @@ namespace robowflex
     private:
         const std::string prefix_;  ///< Log file prefix.
     };
+
+    /** \brief Helper class to plot a real metric as a box plot using GNUPlot from benchmarking data.
+     */
+    class GNUPlotPlanDataSetOutputter : public PlanDataSetOutputter
+    {
+    public:
+        /** \brief Constructor.
+         */
+        GNUPlotPlanDataSetOutputter(const std::string &metric);
+
+        /** \brief Destructor.
+         */
+        ~GNUPlotPlanDataSetOutputter() override;
+
+        /** \brief Visualize results.
+         *  \param[in] results Results to visualize.
+         */
+        void dump(const PlanDataSet &results) override;
+
+    private:
+        const std::string metric_;
+        GNUPlotHelper helper_;
+    };
 }  // namespace robowflex
 
 #endif

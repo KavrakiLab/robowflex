@@ -1,6 +1,6 @@
 /* Author: Juan D. Hernandez */
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/cob4.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     IO::RobotBroadcaster bc(cob4);
     bc.start();
 
-    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Load kinematics for the COB4 robot.
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     rviz.addTransformMarker("pose_right", "base_link", goal_pose_right);
     rviz.updateMarkers();
 
-    RBX_INFO("Scene and Goal displayed for the right arm! Press enter to plan...");
+    XROS_INFO("Scene and Goal displayed for the right arm! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
     rviz.visualizeCurrentState();
 
-    RBX_INFO("Press enter to continue with the left arm.");
+    XROS_INFO("Press enter to continue with the left arm.");
 
     // Sets the Cob4's base pose.
     cob4->pointHead({0.4, 0.26, 0.79});
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     rviz.addTransformMarker("pose_left", "base_link", goal_pose_left);
     rviz.updateMarkers();
 
-    RBX_INFO("Scene and Goal displayed for the left arm! Press enter to plan...");
+    XROS_INFO("Scene and Goal displayed for the left arm! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
 
     rviz.visualizeCurrentState();
 
-    RBX_INFO("Press enter to remove goal and scene.");
+    XROS_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
     // Clean up RViz.
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
     rviz.updateMarkers();
     rviz.removeScene();
 
-    RBX_INFO("Press enter to exit.");
+    XROS_INFO("Press enter to exit.");
     std::cin.get();
 
     return 0;

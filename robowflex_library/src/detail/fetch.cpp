@@ -41,12 +41,12 @@ bool FetchRobot::initialize(bool addVirtual, bool use_low_limits)
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
     if (IO::resolvePackage(RESOURCE_URDF).empty() or IO::resolvePackage(RESOURCE_SRDF).empty())
     {
-        RBX_INFO("Initializing Fetch with `fetch_{description, moveit_config}`");
+        XROS_INFO("Initializing Fetch with `fetch_{description, moveit_config}`");
         success = Robot::initialize(DEFAULT_URDF, DEFAULT_SRDF, DEFAULT_LIMITS, DEFAULT_KINEMATICS);
     }
     else
     {
-        RBX_INFO("Initializing Fetch with `robowflex_resources`");
+        XROS_INFO("Initializing Fetch with `robowflex_resources`");
         if (use_low_limits)
             success =
                 Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS_LOW, RESOURCE_KINEMATICS);
@@ -135,7 +135,7 @@ void FetchRobot::setBasePose(double x, double y, double theta)
         scratch_->update();
     }
     else
-        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
+        XROS_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::FetchOMPLPipelinePlanner::FetchOMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

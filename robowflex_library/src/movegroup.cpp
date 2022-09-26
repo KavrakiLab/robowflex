@@ -8,7 +8,7 @@
 
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/yaml.h>
 
@@ -28,7 +28,7 @@ bool MoveGroupHelper::Action::fromYAMLFile(const std::string &filename)
 
     if (!file.first)
     {
-        RBX_WARN("Failed to open file %s!", filename);
+        XROS_WARN("Failed to open file %s!", filename);
         return false;
     }
 
@@ -81,18 +81,18 @@ MoveGroupHelper::MoveGroupHelper(const std::string &move_group)
   , eac_(nh_, EXECUTE, true)
   , robot_(std::make_shared<ParamRobot>())
 {
-    RBX_INFO("Waiting for %s to connect...", EXECUTE);
+    XROS_INFO("Waiting for %s to connect...", EXECUTE);
     eac_.waitForServer();
-    RBX_INFO("%s connected!", EXECUTE);
-    RBX_INFO("Waiting for %s to connect...", GET_SCENE);
+    XROS_INFO("%s connected!", EXECUTE);
+    XROS_INFO("Waiting for %s to connect...", GET_SCENE);
     gpsc_.waitForExistence();
-    RBX_INFO("%s connected!", GET_SCENE);
-    RBX_INFO("Waiting for %s to connect...", APPLY_SCENE);
+    XROS_INFO("%s connected!", GET_SCENE);
+    XROS_INFO("Waiting for %s to connect...", APPLY_SCENE);
     apsc_.waitForExistence();
-    RBX_INFO("%s connected!", APPLY_SCENE);
-    RBX_INFO("Waiting for %s to connect...", CLEAR_OCTOMAP);
+    XROS_INFO("%s connected!", APPLY_SCENE);
+    XROS_INFO("Waiting for %s to connect...", CLEAR_OCTOMAP);
     co_.waitForExistence();
-    RBX_INFO("%s connected!", CLEAR_OCTOMAP);
+    XROS_INFO("%s connected!", CLEAR_OCTOMAP);
 }
 
 MoveGroupHelper::~MoveGroupHelper()
@@ -125,7 +125,7 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
 
     if (value == 0)
     {
-        RBX_ERROR("Trajectory is not parameterized and cannot be executed!  did you use "
+        XROS_ERROR("Trajectory is not parameterized and cannot be executed!  did you use "
                   "Trajectory::computeTimeParameterization?");
         return false;
     }
@@ -134,7 +134,7 @@ bool MoveGroupHelper::executeTrajectory(const robot_trajectory::RobotTrajectory 
 
     eac_.sendGoal(goal);
     if (!eac_.waitForResult())
-        RBX_INFO("ExecuteTrajectory action returned early");
+        XROS_INFO("ExecuteTrajectory action returned early");
 
     return eac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
@@ -199,7 +199,7 @@ bool MoveGroupHelper::clearOctomap()
 void MoveGroupHelper::moveGroupGoalCallback(const moveit_msgs::MoveGroupActionGoal &msg)
 {
     const std::string &id = msg.goal_id.id;
-    RBX_DEBUG("Intercepted request goal ID: `%s`", id);
+    XROS_DEBUG("Intercepted request goal ID: `%s`", id);
 
     Action action;
     action.scene.reset(new Scene(robot_));
@@ -217,11 +217,11 @@ void MoveGroupHelper::moveGroupResultCallback(const moveit_msgs::MoveGroupAction
     auto request = requests_.find(id);
     if (request == requests_.end())
     {
-        RBX_WARN("Intercepted unknown request response ID: `%s`", id);
+        XROS_WARN("Intercepted unknown request response ID: `%s`", id);
         return;
     }
 
-    RBX_DEBUG("Intercepted request response ID: `%s`", id);
+    XROS_DEBUG("Intercepted request response ID: `%s`", id);
 
     Action &action = request->second;
     action.id = id;

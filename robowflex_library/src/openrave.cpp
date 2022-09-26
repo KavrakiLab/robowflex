@@ -16,7 +16,7 @@
 #include <robowflex_library/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/openrave.h>
 #include <robowflex_library/tf.h>
 
@@ -88,7 +88,7 @@ namespace
     {
         if (not elem)
         {
-            RBX_ERROR("Ran into element that does not exist!");
+            XROS_ERROR("Ran into element that does not exist!");
             return false;
         }
 
@@ -104,7 +104,7 @@ namespace
             tinyxml2::XMLDocument doc;
             if (!doc.LoadFile(full_path.c_str()))
             {
-                RBX_ERROR("Cannot load file %s", full_path);
+                XROS_ERROR("Cannot load file %s", full_path);
                 return false;
             }
 
@@ -124,7 +124,7 @@ namespace
                 tinyxml2::XMLElement *geom = getFirstChild(body_elem, "Geom");
                 if (not geom)
                 {
-                    RBX_ERROR("Malformed File: No Geom attribute?");
+                    XROS_ERROR("Malformed File: No Geom attribute?");
                     return false;
                 }
 
@@ -139,7 +139,7 @@ namespace
                 const char *geom_type = geom->Attribute("type");
                 if (not geom_type)
                 {
-                    RBX_ERROR("Malformed File: No type attribute in geom element");
+                    XROS_ERROR("Malformed File: No type attribute in geom element");
                     return false;
                 }
 
@@ -165,7 +165,7 @@ namespace
                                 load_struct.directory_stack.top() + "/" + std::string(data->GetText());
                         else
                         {
-                            RBX_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
+                            XROS_ERROR("Malformed File: No Data or Render Elements inside a trimesh Geom.");
                             return false;
                         }
                     }
@@ -180,7 +180,7 @@ namespace
                     tinyxml2::XMLElement *extents_elem = getFirstChild(geom, "extents_elem");
                     if (not extents_elem)
                     {
-                        RBX_ERROR("Malformed File: No extents_elem in a box geometry.");
+                        XROS_ERROR("Malformed File: No extents_elem in a box geometry.");
                         return false;
                     }
 
@@ -220,7 +220,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
     tinyxml2::XMLDocument doc;
     if (!doc.LoadFile(IO::resolvePath(file).c_str()))
     {
-        RBX_ERROR("Cannot load file %s", file);
+        XROS_ERROR("Cannot load file %s", file);
         return false;
     }
 
@@ -234,7 +234,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
     auto *elem = getFirstChild(env);
     if (not elem)
     {
-        RBX_ERROR("There is no/an empty environment element in this openrave scene.");
+        XROS_ERROR("There is no/an empty environment element in this openrave scene.");
         return false;
     }
 
@@ -247,7 +247,7 @@ bool openrave::fromXMLFile(moveit_msgs::PlanningScene &planning_scene, const std
                 return false;
         }
         else
-            RBX_INFO("Ignoring elements of value %s", p_key);
+            XROS_INFO("Ignoring elements of value %s", p_key);
     }
 
     if (not load_struct.coll_objects.empty())

@@ -21,7 +21,7 @@ include(HelperFunctions)
 find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(TinyXML2 REQUIRED)
-find_package(Eigen3 REQUIRED)
+# find_package(Eigen3 REQUIRED)
 find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 ##
@@ -69,39 +69,35 @@ catkin_package(
 ##
 
 list(APPEND SOURCES
-  src/planning.cpp
-  src/builder.cpp
-  src/scene.cpp
-  src/robot.cpp
-  src/geometry.cpp
+  src/core/planning.cpp
+  src/core/builder.cpp
+  src/core/scene.cpp
+  src/core/robot.cpp
+  src/core/geometry.cpp
+  src/core/trajectory.cpp
+  src/core/ompl_interface.cpp
+  src/core/ompl_trajectory.cpp
+
   src/benchmarking.cpp
   src/util.cpp
   src/io.cpp
-  src/log.cpp
+  src/roslog.cpp
   src/openrave.cpp
-  src/io/visualization.cpp
-  src/io/colormap.cpp
-  src/io/broadcaster.cpp
-  src/io/hdf5.cpp
-  src/io/gnuplot.cpp
-  src/pool.cpp
+  src/visualization.cpp
+  src/broadcaster.cpp
   src/tf.cpp
-  src/random.cpp
   src/yaml.cpp
-  src/trajectory.cpp
-  src/ompl_interface.cpp
-  src/ompl_trajectory.cpp
   src/movegroup.cpp
-  src/detail/ur5.cpp
-  src/detail/fetch.cpp
-  src/detail/cob4.cpp
+  src/robots/ur5.cpp
+  src/robots/fetch.cpp
+  src/robots/cob4.cpp
   )
 
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
+  # ${EIGEN3_INCLUDE_DIRS}
   ${TINYXML2_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   yaml-cpp

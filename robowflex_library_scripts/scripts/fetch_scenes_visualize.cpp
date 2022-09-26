@@ -4,7 +4,7 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     // Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(fetch);
 
-    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     const int start = 1;
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
         auto scene = std::make_shared<Scene>(fetch);
         if (not scene->fromYAMLFile(scene_file))
         {
-            RBX_ERROR("Failed to read file: %s for scene", scene_file);
+            XROS_ERROR("Failed to read file: %s for scene", scene_file);
             continue;
         }
 
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
         if (not request->fromYAMLFile(request_file))
         {
-            RBX_ERROR("Failed to read file: %s for request", request_file);
+            XROS_ERROR("Failed to read file: %s for request", request_file);
             continue;
         }
 
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
         rviz.updateScene(scene);
         rviz.updateMarkers();
 
-        RBX_INFO("Scene displayed! Press enter to plan...");
+        XROS_INFO("Scene displayed! Press enter to plan...");
         std::cin.get();
 
         // Do motion planning!
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
         // Publish the trajectory to a topic to display in RViz
         rviz.updateTrajectory(res);
 
-        RBX_INFO("Press enter to remove the scene.");
+        XROS_INFO("Press enter to remove the scene.");
         std::cin.get();
 
         rviz.removeScene();

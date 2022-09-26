@@ -43,9 +43,9 @@ PlanData result;
 
 // Run and profile the plan.
 if (profiler.profilePlan(planner, scene, request->getRequest(), options, result))
-    RBX_INFO("Planning success!");
+    XROS_INFO("Planning success!");
 else
-    RBX_ERROR("Planning failure!");
+    XROS_ERROR("Planning failure!");
     
 // ... look at results here ...
 ```

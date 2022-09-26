@@ -40,12 +40,12 @@ bool Cob4Robot::initialize()
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
     if (IO::resolvePackage(RESOURCE_URDF).empty() or IO::resolvePackage(RESOURCE_SRDF).empty())
     {
-        RBX_INFO("Initializing Cob4 with `cob4_{description, moveit_config}`");
+        XROS_INFO("Initializing Cob4 with `cob4_{description, moveit_config}`");
         success = Robot::initialize(DEFAULT_URDF, DEFAULT_SRDF, DEFAULT_LIMITS, DEFAULT_KINEMATICS);
     }
     else
     {
-        RBX_INFO("Initializing Cob4 with `robowflex_resources`");
+        XROS_INFO("Initializing Cob4 with `robowflex_resources`");
         success = Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS, RESOURCE_KINEMATICS);
     }
 
@@ -130,7 +130,7 @@ void Cob4Robot::setBasePose(double x, double y, double theta)
         scratch_->update();
     }
     else
-        RBX_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
+        XROS_WARN("base_joint does not exist, cannot move base! You need to set addVirtual to true");
 }
 
 OMPL::Cob4OMPLPipelinePlanner::Cob4OMPLPipelinePlanner(const RobotPtr &robot, const std::string &name)

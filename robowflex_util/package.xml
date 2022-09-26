@@ -14,9 +14,9 @@
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>pkg-config</buildtool_depend>
 
+  <depend>eigen</depend>
   <!-- <depend>boost</depend>
        <depend>yaml-cpp</depend>
        <depend>tinyxml2</depend>
-       <depend>eigen</depend>
        <depend>hdf5</depend> -->
 </package>

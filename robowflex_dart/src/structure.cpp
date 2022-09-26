@@ -11,7 +11,7 @@
 
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/scene.h>
 
 #include <robowflex_dart/acm.h>
@@ -315,7 +315,7 @@ void Structure::setJointParentTransform(const std::string &name, const RobotPose
 {
     auto *joint = skeleton_->getJoint(name);
     if (joint == nullptr)
-        RBX_ERROR("Cannot find joint named %s to set TF!", name);
+        XROS_ERROR("Cannot find joint named %s to set TF!", name);
 
     joint->setTransformFromParentBodyNode(tf);
 }

@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
@@ -79,11 +79,11 @@ int main(int /*argc*/, char ** /*argv*/)
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             if (solved)
             {
-                RBX_INFO("Found solution!");
+                XROS_INFO("Found solution!");
                 window.animatePath(builder, builder.getSolutionPath());
             }
             else
-                RBX_WARN("No solution found");
+                XROS_WARN("No solution found");
 
             builder.ss->clear();
         }

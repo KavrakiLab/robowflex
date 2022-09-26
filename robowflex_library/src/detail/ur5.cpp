@@ -43,12 +43,12 @@ bool UR5Robot::initialize()
     // First attempt the `robowflex_resources` package, then attempt the "actual" resource files.
     if (IO::resolvePackage(RESOURCE_URDF).empty() or IO::resolvePackage(RESOURCE_SRDF).empty())
     {
-        RBX_INFO("Initializing UR5 with `ur_description`");
+        XROS_INFO("Initializing UR5 with `ur_description`");
         success = Robot::initialize(DEFAULT_URDF, DEFAULT_SRDF, DEFAULT_LIMITS, DEFAULT_KINEMATICS);
     }
     else
     {
-        RBX_INFO("Initializing UR5 with `robowflex_resources`");
+        XROS_INFO("Initializing UR5 with `robowflex_resources`");
         success = Robot::initialize(RESOURCE_URDF, RESOURCE_SRDF, RESOURCE_LIMITS, RESOURCE_KINEMATICS);
     }
 

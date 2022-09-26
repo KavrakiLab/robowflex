@@ -86,7 +86,7 @@ void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)
 
     if (rname != pname)
     {
-        RBX_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname, pname);
+        XROS_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname, pname);
         throw Exception(1, "Invalid planner!");
     }
 
@@ -106,7 +106,7 @@ void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
     }
     else
     {
-        RBX_ERROR("Joint group `%s` does not exist in robot!", group_name);
+        XROS_ERROR("Joint group `%s` does not exist in robot!", group_name);
         throw Exception(1, "Invalid joint group name!");
     }
 }
@@ -115,7 +115,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 {
     if (not planner_)
     {
-        RBX_INFO("No planner set! Using requested config `%s`", requested_config);
+        XROS_INFO("No planner set! Using requested config `%s`", requested_config);
         request_.planner_id = requested_config;
         return true;
     }
@@ -138,7 +138,7 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 
 
     request_.planner_id = *found;
-    RBX_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config, request_.planner_id);
+    XROS_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config, request_.planner_id);
     return true;
 }
 
@@ -165,13 +165,13 @@ bool MotionRequestBuilder::swapStartWithGoal()
 {
     if (request_.goal_constraints.size() != 1)
     {
-        RBX_ERROR("Multiple goal constraints exist, cannot swap start with goal");
+        XROS_ERROR("Multiple goal constraints exist, cannot swap start with goal");
         return false;
     }
 
     if (request_.goal_constraints[0].joint_constraints.empty())
     {
-        RBX_ERROR("No joint goal is specified, cannot swap start with goal");
+        XROS_ERROR("No joint goal is specified, cannot swap start with goal");
         return false;
     }
 
@@ -188,7 +188,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
 {
     if (not jmg_)
     {
-        RBX_ERROR("No planning group set!");
+        XROS_ERROR("No planning group set!");
         throw Exception(1, "No planning group set!");
     }
 
@@ -231,7 +231,7 @@ void MotionRequestBuilder::addGoalConfiguration(const std::vector<double> &joint
 {
     if (not jmg_)
     {
-        RBX_ERROR("No planning group set!");
+        XROS_ERROR("No planning group set!");
         throw Exception(1, "No planning group set!");
     }
 
@@ -252,7 +252,7 @@ void MotionRequestBuilder::addGoalConfiguration(const robot_state::RobotState &s
 {
     if (not jmg_)
     {
-        RBX_ERROR("No planning group set!");
+        XROS_ERROR("No planning group set!");
         throw Exception(1, "No planning group set!");
     }
 
@@ -263,19 +263,19 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
 {
     if (not jmg_)
     {
-        RBX_ERROR("No planning group set!");
+        XROS_ERROR("No planning group set!");
         throw Exception(1, "No planning group set!");
     }
 
     if (group_name_ != query.group)
     {
-        RBX_ERROR("Planning group in IK query `%1%` not the same as request `%2%`", query.group, group_name_);
+        XROS_ERROR("Planning group in IK query `%1%` not the same as request `%2%`", query.group, group_name_);
         throw Exception(1, "Mismatched query groups!");
     }
 
     if (query.regions.size() > 1)
     {
-        RBX_ERROR("Cannot set goal request from IK query with multiple targets!");
+        XROS_ERROR("Cannot set goal request from IK query with multiple targets!");
         throw Exception(1, "Tried to set goal from multi-target request!");
     }
 
@@ -285,7 +285,7 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
         const auto &tips = robot_->getSolverTipFrames(group_name_);
         if (tips.empty() or tips.size() > 1)
         {
-            RBX_ERROR("Unable to find tip frame for request.");
+            XROS_ERROR("Unable to find tip frame for request.");
             throw Exception(1, "Unable to find tip frame for request.");
         }
 
@@ -295,7 +295,7 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
     const std::string &base = robot_->getSolverBaseFrame(group_name_);
     if (base.empty())
     {
-        RBX_ERROR("Failed to get base frame for request.");
+        XROS_ERROR("Failed to get base frame for request.");
         throw Exception(1, "Unable to find base frame for request.");
     }
 
@@ -498,14 +498,14 @@ robot_state::RobotStatePtr MotionRequestBuilder::getGoalConfiguration() const
 
     if (request_.goal_constraints.size() != 1)
     {
-        RBX_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
+        XROS_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
                   request_.goal_constraints.size());
         return goal_state;
     }
 
     if (request_.goal_constraints[0].joint_constraints.empty())
     {
-        RBX_ERROR("No joint constraints specified, returning default goal");
+        XROS_ERROR("No joint constraints specified, returning default goal");
         return goal_state;
     }
 

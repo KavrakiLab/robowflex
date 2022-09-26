@@ -1,9 +1,10 @@
 /* Author: Zachary Kingston */
 
-#include <array>    // for std::array
-#include <cstdlib>  // for std::getenv
-#include <memory>   // for std::shared_ptr
-#include <regex>    // for std::regex
+#include <array>          // for std::array
+#include <cstdlib>        // for std::getenv
+#include <memory>         // for std::shared_ptr
+#include <regex>          // for std::regex
+#include <unordered_map>  // for std::hash
 #include <thread>
 
 #include <boost/asio/ip/host_name.hpp>                        // for hostname
@@ -18,7 +19,7 @@
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 
@@ -31,7 +32,7 @@ namespace
         const char *home = std::getenv("HOME");
         if (home == nullptr)
         {
-            RBX_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
+            XROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
             return in;
         }
 
@@ -101,7 +102,7 @@ std::string IO::resolvePackage(const std::string &path)
         const std::string package = ros::package::getPath(package_name);
         if (package.empty())
         {
-            RBX_WARN("Package `%s` does not exist.", package_name);
+            XROS_WARN("Package `%s` does not exist.", package_name);
             return "";
         }
 
@@ -140,7 +141,7 @@ std::string IO::resolvePath(const std::string &path)
 
     if (!boost::filesystem::exists(file))
     {
-        RBX_WARN("File `%s` does not exist.", path);
+        XROS_WARN("File `%s` does not exist.", path);
         return "";
     }
 
@@ -185,7 +186,7 @@ std::string IO::runCommand(const std::string &cmd)
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
     if (!pipe)
     {
-        RBX_ERROR("Failed to run command `%s`!", cmd);
+        XROS_ERROR("Failed to run command `%s`!", cmd);
         return "";
     }
 

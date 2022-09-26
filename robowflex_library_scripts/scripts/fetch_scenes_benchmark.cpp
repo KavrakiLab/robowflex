@@ -4,7 +4,7 @@
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
         auto scene = std::make_shared<Scene>(fetch);
         if (not scene->fromYAMLFile(scene_file))
         {
-            RBX_ERROR("Failed to read file: %s for scene", scene_file);
+            XROS_ERROR("Failed to read file: %s for scene", scene_file);
             continue;
         }
 
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
         if (not request->fromYAMLFile(request_file))
         {
-            RBX_ERROR("Failed to read file: %s for request", request_file);
+            XROS_ERROR("Failed to read file: %s for request", request_file);
             continue;
         }
 

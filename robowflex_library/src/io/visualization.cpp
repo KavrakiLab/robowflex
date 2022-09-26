@@ -83,7 +83,7 @@ void IO::RVIZHelper::updateTrajectory(const moveit_msgs::RobotTrajectory &traj,
 
     if (trajectory_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for Trajectory subscribers...");
+        XROS_INFO("Waiting for Trajectory subscribers...");
 
         ros::WallDuration pause(0.1);
         while (trajectory_pub_.getNumSubscribers() < 1)
@@ -114,7 +114,7 @@ void IO::RVIZHelper::updateTrajectories(const std::vector<robot_trajectory::Robo
 
     if (trajectory_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for Trajectory subscribers...");
+        XROS_INFO("Waiting for Trajectory subscribers...");
 
         ros::WallDuration pause(0.1);
         while (trajectory_pub_.getNumSubscribers() < 1)
@@ -149,7 +149,7 @@ void IO::RVIZHelper::visualizeState(const robot_state::RobotStatePtr &state)
 {
     if (state_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for State subscribers...");
+        XROS_INFO("Waiting for State subscribers...");
 
         ros::WallDuration pause(0.1);
         while (state_pub_.getNumSubscribers() < 1)
@@ -314,7 +314,7 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             break;
 
         default:
-            RBX_ERROR("Unsupported geometry for marker.");
+            XROS_ERROR("Unsupported geometry for marker.");
             return;
     };
 
@@ -473,7 +473,7 @@ void IO::RVIZHelper::updateScene(const SceneConstPtr &scene)
 {
     if (scene_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for Scene subscribers...");
+        XROS_INFO("Waiting for Scene subscribers...");
 
         ros::WallDuration pause(0.1);
         while (scene_pub_.getNumSubscribers() < 1)
@@ -494,7 +494,7 @@ void IO::RVIZHelper::updatePCD(const sensor_msgs::PointCloud2 &msg)
 {
     if (pcd_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for pcd subscribers...");
+        XROS_INFO("Waiting for pcd subscribers...");
 
         ros::WallDuration pause(0.1);
         while (pcd_pub_.getNumSubscribers() < 1)
@@ -522,7 +522,7 @@ void IO::RVIZHelper::updateMarkers()
 
     if (marker_pub_.getNumSubscribers() < 1)
     {
-        RBX_INFO("Waiting for MarkerArray subscribers...");
+        XROS_INFO("Waiting for MarkerArray subscribers...");
 
         ros::WallDuration pause(0.1);
         while (marker_pub_.getNumSubscribers() < 1)

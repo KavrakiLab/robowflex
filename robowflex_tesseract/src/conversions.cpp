@@ -4,7 +4,7 @@
 #include <moveit/robot_state/conversions.h>
 
 // Robowflex
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 
 // Tesseract
 #include <tesseract_ros/ros_tesseract_utils.h>
@@ -114,7 +114,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
         return true;
     }
 
-    RBX_ERROR("Tesseract environment not initialized");
+    XROS_ERROR("Tesseract environment not initialized");
 
     return false;
 }

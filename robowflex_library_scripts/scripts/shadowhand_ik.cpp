@@ -4,7 +4,7 @@
 
 // Robowflex
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
     // Visualize desired grasp state.
     rviz.visualizeCurrentState();
-    RBX_INFO("Desired Grasp Displayed, Press Enter to Continue...");
+    XROS_INFO("Desired Grasp Displayed, Press Enter to Continue...");
     std::cin.ignore();
 
     // Extract poses of the tip links.
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     // Visualize starting state and goal markers.
     rviz.visualizeCurrentState();
     rviz.updateMarkers();
-    RBX_INFO("Initial State and Goal Displayed, Press Enter to Continue...");
+    XROS_INFO("Initial State and Goal Displayed, Press Enter to Continue...");
     std::cin.ignore();
 
     // Configure query for shadowhand
@@ -98,11 +98,11 @@ int main(int argc, char **argv)
     query.addClearanceMetric(0.01);  // Distance of robot to collision
 
     if (not shadowhand->setFromIK(query))
-        RBX_ERROR("IK query failed!");
+        XROS_ERROR("IK query failed!");
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
-    RBX_INFO("Solution to IK is visualized. Press enter to exit...");
+    XROS_INFO("Solution to IK is visualized. Press enter to exit...");
     std::cin.ignore();
 
     rviz.removeAllMarkers();

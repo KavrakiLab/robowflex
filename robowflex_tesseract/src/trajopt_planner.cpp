@@ -5,7 +5,7 @@
 #include <moveit_msgs/MoveItErrorCodes.h>
 
 // Robowflex
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/util.h>
@@ -36,14 +36,14 @@ bool TrajOptPlanner::initialize(const std::string &manip)
 
     if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
     {
-        RBX_ERROR("Error loading robot %s", robot_->getName());
+        XROS_ERROR("Error loading robot %s", robot_->getName());
         return false;
     }
 
     // Check if manipulator was correctly loaded.
     if (!env_->hasManipulator(manip_))
     {
-        RBX_ERROR("No manipulator found in KDL environment");
+        XROS_ERROR("No manipulator found in KDL environment");
         return false;
     }
 
@@ -63,18 +63,18 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
 
     if (!robot_->getModelConst()->hasLinkModel(base_link))
     {
-        RBX_ERROR("%s does not exist in robot description", base_link);
+        XROS_ERROR("%s does not exist in robot description", base_link);
         return false;
     }
 
     if (!robot_->getModelConst()->hasLinkModel(tip_link))
     {
-        RBX_ERROR("%s does not exist in robot description", tip_link);
+        XROS_ERROR("%s does not exist in robot description", tip_link);
         return false;
     }
 
     if (options.verbose)
-        RBX_INFO("Adding manipulator %s from %s to %s", manip_, base_link, tip_link);
+        XROS_INFO("Adding manipulator %s from %s to %s", manip_, base_link, tip_link);
 
     TiXmlDocument srdf_doc;
     srdf_doc.Parse(robot_->getSRDFString().c_str());
@@ -94,14 +94,14 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
 
     if (!env_->init(robot_->getURDF(), srdf))
     {
-        RBX_ERROR("Error loading robot %s", robot_->getName());
+        XROS_ERROR("Error loading robot %s", robot_->getName());
         return false;
     }
 
     // Check if manipulator was correctly loaded.
     if (!env_->hasManipulator(manip_))
     {
-        RBX_ERROR("No manipulator found in KDL environment");
+        XROS_ERROR("No manipulator found in KDL environment");
         return false;
     }
 
@@ -128,7 +128,7 @@ void TrajOptPlanner::setInitType(const InitInfo::Type &init_type)
     if (init_type != InitInfo::Type::GIVEN_TRAJ)
         init_type_ = init_type;
     else
-        RBX_ERROR("init type can only be set to GIVEN_TRAJ calling the setInitialTrajectory() function");
+        XROS_ERROR("init type can only be set to GIVEN_TRAJ calling the setInitialTrajectory() function");
 }
 
 const robot_trajectory::RobotTrajectoryPtr &TrajOptPlanner::getTrajectory() const
@@ -208,14 +208,14 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     auto goal_state = robot_->allocState();
     if (request.goal_constraints.size() != 1)
     {
-        RBX_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
+        XROS_ERROR("Ambiguous goal, %lu goal goal_constraints exist, returning default goal",
                   request.goal_constraints.size());
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return res;
     }
     if (request.goal_constraints[0].joint_constraints.empty())
     {
-        RBX_ERROR("No joint constraints specified, returning default goal");
+        XROS_ERROR("No joint constraints specified, returning default goal");
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return res;
     }
@@ -285,7 +285,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
-        RBX_ERROR("Straight line interpolation can not be done with a goal_pose.");
+        XROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
         return PlannerResult(false, false);
     }
 
@@ -294,7 +294,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        XROS_ERROR("Link %s is not part of robot manipulator", link);
         return PlannerResult(false, false);
     }
 
@@ -335,7 +335,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
-        RBX_ERROR("Straight line interpolation can not be done with a goal_pose.");
+        XROS_ERROR("Straight line interpolation can not be done with a goal_pose.");
         return PlannerResult(false, false);
     }
 
@@ -344,7 +344,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        XROS_ERROR("Link %s is not part of robot manipulator", link);
         return PlannerResult(false, false);
     }
 
@@ -379,7 +379,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
 {
     if (init_type_ == InitInfo::Type::JOINT_INTERPOLATED)
     {
-        RBX_ERROR("Straight line interpolation can not be done with a start_pose or a goal_pose");
+        XROS_ERROR("Straight line interpolation can not be done with a start_pose or a goal_pose");
         return PlannerResult(false, false);
     }
 
@@ -389,7 +389,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     auto goal_it = std::find(begin_it, end_it, goal_link);
     if ((start_it == end_it) or (goal_it == end_it))
     {
-        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link, goal_link);
+        XROS_ERROR("Given links %s or %s are not part of robot manipulator", start_link, goal_link);
         return PlannerResult(false, false);
     }
 
@@ -459,7 +459,7 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
         pci->init_info.data = initial_trajectory_;
 
     if (options.verbose)
-        RBX_INFO("TrajOpt initialization: %d", init_type_);
+        XROS_INFO("TrajOpt initialization: %d", init_type_);
 }
 
 void TrajOptPlanner::addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
@@ -682,13 +682,13 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
     // Print status
     if (options.verbose)
     {
-        RBX_INFO("OPTIMIZATION STATUS: %s", sco::statusToString(opt.results().status));
-        RBX_INFO("TOTAL PLANNING TIME: %.3f", time_);
-        RBX_INFO("COST: %.3f", best_cost);
-        RBX_INFO("COLLISION STATUS: %s", (planner_result.second) ? "COLLISION FREE" : "IN COLLISION");
+        XROS_INFO("OPTIMIZATION STATUS: %s", sco::statusToString(opt.results().status));
+        XROS_INFO("TOTAL PLANNING TIME: %.3f", time_);
+        XROS_INFO("COST: %.3f", best_cost);
+        XROS_INFO("COLLISION STATUS: %s", (planner_result.second) ? "COLLISION FREE" : "IN COLLISION");
 
         if (planner_result.first)
-            RBX_INFO("\n%s", tesseract_trajectory_);
+            XROS_INFO("\n%s", tesseract_trajectory_);
     }
 
     // Write optimization results in file.

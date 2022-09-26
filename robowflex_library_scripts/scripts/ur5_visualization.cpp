@@ -4,7 +4,7 @@
 #include <robowflex_library/detail/ur5.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     // Create an RViz visualization helper. Publishes all topics and parameter under `/robowflex` by default.
     IO::RVIZHelper rviz(ur5);
 
-    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Load a scene from a YAML file.
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     rviz.addGoalMarker("goal", request);
     rviz.updateMarkers();
 
-    RBX_INFO("Scene and Goal displayed! Press enter to plan...");
+    XROS_INFO("Scene and Goal displayed! Press enter to plan...");
     std::cin.get();
 
     // Do motion planning!
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     // Publish the trajectory to a topic to display in RViz
     rviz.updateTrajectory(res);
 
-    RBX_INFO("Press enter to remove goal and scene.");
+    XROS_INFO("Press enter to remove goal and scene.");
     std::cin.get();
 
     rviz.removeMarker("goal");
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
     rviz.removeScene();
 
-    RBX_INFO("Press enter to exit.");
+    XROS_INFO("Press enter to exit.");
     std::cin.get();
 
     return 0;

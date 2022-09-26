@@ -1,7 +1,7 @@
 /* Author: Carlos Quintero Pena*/
 
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
@@ -53,8 +53,8 @@ int main(int argc, char **argv)
     rviz->updateScene(scene);
     rviz->visualizeState(request->getStartConfiguration());
 
-    RBX_INFO("Visualizing start state");
-    RBX_INFO("Press Enter to run the planner and returning its first solution");
+    XROS_INFO("Visualizing start state");
+    XROS_INFO("Press Enter to run the planner and returning its first solution");
     std::cin.ignore();
 
     // Run the planner just once.
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    RBX_INFO("Visualizing goal state");
-    RBX_INFO("Press Enter to run the planner with a time bound but returning as soon as it finds the first "
+    XROS_INFO("Visualizing goal state");
+    XROS_INFO("Press Enter to run the planner with a time bound but returning as soon as it finds the first "
              "feasible solution");
     std::cin.ignore();
 
@@ -88,8 +88,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    RBX_INFO("Visualizing goal state");
-    RBX_INFO("Press Enter to run the planner for the whole time budget");
+    XROS_INFO("Visualizing goal state");
+    XROS_INFO("Press Enter to run the planner for the whole time budget");
     std::cin.ignore();
 
     // Run the planner for the whole time budget.
@@ -106,8 +106,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    RBX_INFO("Visualizing goal state");
-    RBX_INFO("Press Enter to finish");
+    XROS_INFO("Visualizing goal state");
+    XROS_INFO("Press Enter to finish");
     std::cin.ignore();
 
     return 0;

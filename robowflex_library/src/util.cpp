@@ -4,7 +4,7 @@
 #include <ros/init.h>
 #include <ros/master.h>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
 
@@ -26,9 +26,9 @@ namespace
     void shutdown(int sig)
     {
         if (sig)
-            RBX_INFO("Shutting down with signal %s.", strsignal(sig));
+            XROS_INFO("Shutting down with signal %s.", strsignal(sig));
         else
-            RBX_INFO("Shutting down.");
+            XROS_INFO("Shutting down.");
 
         if (SPINNER)
             SPINNER->stop();
@@ -48,9 +48,9 @@ namespace
     {
         if (!ros::master::check())
         {
-            RBX_ERROR("rosmaster is not running!");
+            XROS_ERROR("rosmaster is not running!");
 #if IS_BOOST_164
-            RBX_WARN("Booting rosmaster...");
+            XROS_WARN("Booting rosmaster...");
             ROSCORE = boost::process::child("rosmaster",                                     //
                                             boost::process::std_in.close(),                  //
                                             boost::process::std_out > boost::process::null,  //

@@ -2,7 +2,7 @@
 
 #include <boost/date_time.hpp>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/util.h>
 
 #include <robowflex_library/movegroup.h>
@@ -25,7 +25,7 @@ void callback(movegroup::MoveGroupHelper::Action &action)
     const std::string filename = "~/movegroup_record/" + to_iso_string(time.toBoost()) + ".yml";
     action.toYAMLFile(filename);
 
-    RBX_INFO("Wrote YAML for Request ID `%s` to file `%s`", action.id, filename);
+    XROS_INFO("Wrote YAML for Request ID `%s` to file `%s`", action.id, filename);
 }
 
 int main(int argc, char **argv)

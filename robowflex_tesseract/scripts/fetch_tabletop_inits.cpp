@@ -1,7 +1,7 @@
 /* Author: Carlos Quintero Pena*/
 
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
@@ -51,8 +51,8 @@ int main(int argc, char **argv)
     rviz->updateScene(scene);
     rviz->visualizeState(request->getStartConfiguration());
 
-    RBX_INFO("Visualizing start state");
-    RBX_INFO("Press Enter to try to plan with STATIONARY initialization");
+    XROS_INFO("Visualizing start state");
+    XROS_INFO("Press Enter to try to plan with STATIONARY initialization");
     std::cin.ignore();
 
     // Initialize all waypoints at the start state. This is the default initialization.
@@ -65,8 +65,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    RBX_INFO("Visualizing goal state");
-    RBX_INFO("Press Enter to try to plan with JOINT_INTERPOLATED initialization");
+    XROS_INFO("Visualizing goal state");
+    XROS_INFO("Press Enter to try to plan with JOINT_INTERPOLATED initialization");
     std::cin.ignore();
 
     // Initialize using a straight-line between start and goal in C-Space.
@@ -79,8 +79,8 @@ int main(int argc, char **argv)
 
     rviz->visualizeState(request->getGoalConfiguration());
 
-    RBX_INFO("Visualizing goal state");
-    RBX_INFO("Press Enter to exit");
+    XROS_INFO("Visualizing goal state");
+    XROS_INFO("Press Enter to exit");
     std::cin.ignore();
 
     return 0;

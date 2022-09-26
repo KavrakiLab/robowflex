@@ -9,43 +9,6 @@
 
 namespace robowflex
 {
-    /** \brief Exception that contains a message and an error code.
-     */
-    class Exception : public std::exception
-    {
-    public:
-        /** \brief Constructor.
-         *  \param[in] value Error code.
-         *  \param[in] message Error message.
-         */
-        Exception(int value, const std::string &message) : value_(value), message_(message)
-        {
-        }
-
-        /** \brief Get error code.
-         */
-        int getValue() const
-        {
-            return value_;
-        }
-
-        /** \brief Get error message.
-         */
-        const std::string &getMessage() const
-        {
-            return message_;
-        }
-
-        virtual const char *what() const throw()
-        {
-            return message_.c_str();
-        }
-
-    protected:
-        const int value_;            ///< Error code.
-        const std::string message_;  ///< Error message.
-    };
-
     /** \brief RAII-pattern for starting up ROS.
      */
     class ROS

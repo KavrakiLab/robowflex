@@ -147,7 +147,7 @@ void Trajectory::interpolate(unsigned int count)
         }
     }
 
-    RBX_INFO("Added %d extra states in the trajectory", added);
+    XROS_INFO("Added %d extra states in the trajectory", added);
     return;
 
 #endif

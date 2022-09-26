@@ -9,7 +9,7 @@
 
 #include <ros/package.h>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/macros.h>
 
 #include <pluginlib/class_loader.hpp>
@@ -59,7 +59,7 @@ namespace robowflex
             {
                 if (ros::package::getPath(package).empty())
                 {
-                    RBX_ERROR("Package `%s` does not exist.", package);
+                    XROS_ERROR("Package `%s` does not exist.", package);
                     return nullptr;
                 }
 
@@ -72,7 +72,7 @@ namespace robowflex
                 }
                 catch (pluginlib::LibraryLoadException &e)
                 {
-                    RBX_ERROR("Failed to library: %s", e.what());
+                    XROS_ERROR("Failed to library: %s", e.what());
                     return nullptr;
                 }
             }
@@ -127,7 +127,7 @@ namespace robowflex
                     loader = std::dynamic_pointer_cast<Loader<T>>(cached->second);
                 else
                 {
-                    RBX_INFO("Creating Class Loader for type `%s` from package `%s`!", type, package);
+                    XROS_INFO("Creating Class Loader for type `%s` from package `%s`!", type, package);
 
                     loader.reset(new pluginlib::ClassLoader<T>(package, type));
                     loaders_[key] = std::static_pointer_cast<BaseLoader>(loader);

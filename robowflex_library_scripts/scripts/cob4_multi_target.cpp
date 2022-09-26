@@ -2,7 +2,7 @@
 
 // Robowflex
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/cob4.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/planning.h>
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     IO::RVIZHelper rviz(cob4);
     rviz.visualizeCurrentState();
     rviz.updateScene(scene);
-    RBX_INFO("Care-O-Bot4 with both_arms folded is visualized. Press enter to continue...");
+    XROS_INFO("Care-O-Bot4 with both_arms folded is visualized. Press enter to continue...");
     std::cin.ignore();
 
     // Create the default planner for the COB4.
@@ -70,20 +70,20 @@ int main(int argc, char **argv)
     rviz.addTransformMarker("pose_right", "base_link", goal_pose_right);
     rviz.addTransformMarker("pose_left", "base_link", goal_pose_left);
     rviz.updateMarkers();
-    RBX_INFO("Target IK poses are visualized. Press enter to continue...");
+    XROS_INFO("Target IK poses are visualized. Press enter to continue...");
     std::cin.ignore();
 
     Robot::IKQuery query(BOTH_ARMS, {goal_pose_left, goal_pose_right}, {LEFT_EE, RIGHT_EE});
     if (not cob4->setFromIK(query))
     {
-        RBX_ERROR("IK query failed!");
+        XROS_ERROR("IK query failed!");
         return 1;
     }
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
     request_both_arms.setGoalConfiguration(cob4->getScratchState());
-    RBX_INFO("Solution to IK is visualized and set as goal for both_arms! Press enter to plan...");
+    XROS_INFO("Solution to IK is visualized and set as goal for both_arms! Press enter to plan...");
     std::cin.ignore();
 
     // Do motion planning!
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
     rviz.visualizeCurrentState();
 
-    RBX_INFO("Trajectory visualize. Press enter to exit.");
+    XROS_INFO("Trajectory visualize. Press enter to exit.");
     std::cin.get();
 
     return 0;

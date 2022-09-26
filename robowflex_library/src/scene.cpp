@@ -42,7 +42,7 @@ namespace robowflex
             }
             catch (pluginlib::PluginlibException &e)
             {
-                RBX_ERROR("Unable to construct collision plugin loader. Error: %s", e.what());
+                XROS_ERROR("Unable to construct collision plugin loader. Error: %s", e.what());
             }
         }
 
@@ -62,7 +62,7 @@ namespace robowflex
             }
             catch (pluginlib::PluginlibException &ex)
             {
-                RBX_ERROR("Exception while loading %s: %s", name, ex.what());
+                XROS_ERROR("Exception while loading %s: %s", name, ex.what());
             }
 
             return plugin;
@@ -252,7 +252,7 @@ GeometryPtr Scene::getObjectGeometry(const std::string &name) const
     if (obj)
         return std::make_shared<Geometry>(*obj->shapes_[0]);
 
-    RBX_WARN("Object %s does not exist in scene!", name);
+    XROS_WARN("Object %s does not exist in scene!", name);
     return nullptr;
 }
 
@@ -311,7 +311,7 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
     success = world->moveObject(name, transform);
 #endif
     if (not success)
-        RBX_ERROR("Failed to move object %s", name);
+        XROS_ERROR("Failed to move object %s", name);
 
     return success;
 }
@@ -329,7 +329,7 @@ bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 RobotPose Scene::getFramePose(const std::string &id) const
 {
     if (not scene_->knowsFrameTransform(id))
-        RBX_WARN("Frame %s in not present in the scene!", id);
+        XROS_WARN("Frame %s in not present in the scene!", id);
 
     return scene_->getFrameTransform(id);
 }
@@ -340,10 +340,10 @@ bool Scene::setCollisionDetector(const std::string &detector_name) const
     if (not loader_->activate(detector_name, scene_, true))
     {
         success = false;
-        RBX_WARN("Was not able to load collision detector plugin '%s'", detector_name);
+        XROS_WARN("Was not able to load collision detector plugin '%s'", detector_name);
     }
 
-    RBX_INFO("Using collision detector: %s", scene_->getActiveCollisionDetectorName());
+    XROS_INFO("Using collision detector: %s", scene_->getActiveCollisionDetectorName());
     return success;
 }
 
@@ -368,14 +368,14 @@ bool Scene::attachObjectToState(robot_state::RobotState &state, const std::strin
     const auto &world = scene_->getWorld();
     if (!world->hasObject(name))
     {
-        RBX_ERROR("World does not have object `%s`", name);
+        XROS_ERROR("World does not have object `%s`", name);
         return false;
     }
 
     const auto &obj = world->getObject(name);
     if (!obj)
     {
-        RBX_ERROR("Could not get object `%s`", name);
+        XROS_ERROR("Could not get object `%s`", name);
         return false;
     }
 
@@ -443,7 +443,7 @@ bool Scene::detachObject(robot_state::RobotState &state, const std::string &name
 
     if (!body)
     {
-        RBX_ERROR("Robot does not have attached object `%s`", name);
+        XROS_ERROR("Robot does not have attached object `%s`", name);
         return false;
     }
 
@@ -451,7 +451,7 @@ bool Scene::detachObject(robot_state::RobotState &state, const std::string &name
 
     if (not state.clearAttachedBody(name))
     {
-        RBX_ERROR("Could not detach object `%s`", name);
+        XROS_ERROR("Could not detach object `%s`", name);
         return false;
     }
 
@@ -513,7 +513,7 @@ double Scene::distanceToObject(const robot_state::RobotState &state, const std::
 {
     if (not hasObject(object))
     {
-        RBX_ERROR("World does not have object `%s`", object);
+        XROS_ERROR("World does not have object `%s`", object);
         return std::numeric_limits<double>::quiet_NaN();
     }
 
@@ -534,13 +534,13 @@ double Scene::distanceBetweenObjects(const std::string &one, const std::string &
 
     if (not hasObject(one))
     {
-        RBX_ERROR("World does not have object `%s`", one);
+        XROS_ERROR("World does not have object `%s`", one);
         return std::numeric_limits<double>::quiet_NaN();
     }
 
     if (not hasObject(two))
     {
-        RBX_ERROR("World does not have object `%s`", two);
+        XROS_ERROR("World does not have object `%s`", two);
         return std::numeric_limits<double>::quiet_NaN();
     }
 

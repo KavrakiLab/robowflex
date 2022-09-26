@@ -70,7 +70,7 @@ void IO::RobotBroadcaster::addStaticTransform(const std::string &name, const std
         static_.emplace(name, stf);
     }
     else
-        RBX_ERROR("Static transform %s already in map!", name);
+        XROS_ERROR("Static transform %s already in map!", name);
 }
 
 void IO::RobotBroadcaster::removeStaticTransform(const std::string &name)
@@ -79,7 +79,7 @@ void IO::RobotBroadcaster::removeStaticTransform(const std::string &name)
     if (it != static_.end())
         static_.erase(it);
     else
-        RBX_ERROR("Static transform %s does not exist in map!", name);
+        XROS_ERROR("Static transform %s does not exist in map!", name);
 }
 
 void IO::RobotBroadcaster::update()

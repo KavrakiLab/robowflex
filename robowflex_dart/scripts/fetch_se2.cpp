@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/random.h>
 
 #include <robowflex_dart/gui.h>
@@ -91,11 +91,11 @@ int main(int argc, char **argv)
 
         if (solved)
         {
-            RBX_INFO("Found solution!");
+            XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath(), 10);
         }
         else
-            RBX_WARN("No solution found");
+            XROS_WARN("No solution found");
     });
 
     return 0;

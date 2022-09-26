@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/detail/ur5.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/util.h>
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 
     if (not ur5->setFromIK(Robot::IKQuery("manipulator", goal_pose)))
     {
-        RBX_ERROR("IK Failed");
+        XROS_ERROR("IK Failed");
         return 1;
     }
 

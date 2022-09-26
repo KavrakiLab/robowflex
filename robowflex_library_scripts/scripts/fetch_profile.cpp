@@ -11,7 +11,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/io/gnuplot.h>
 #include <robowflex_library/io/visualization.h>
 
@@ -298,11 +298,11 @@ int main(int argc, char **argv)
                 rviz->updateTrajectory(*result.trajectory);
         }
 
-        RBX_INFO("Press Enter to Continue...");
+        XROS_INFO("Press Enter to Continue...");
         std::cin.ignore();
     }
 
-    RBX_INFO("Press Enter to Exit...");
+    XROS_INFO("Press Enter to Exit...");
     std::cin.ignore();
 
     return 0;

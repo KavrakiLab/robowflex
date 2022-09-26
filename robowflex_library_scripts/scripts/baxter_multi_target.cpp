@@ -2,7 +2,7 @@
 
 // Robowflex
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/util.h>
 
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     // Visualize the Baxter robot
     IO::RVIZHelper rviz(baxter);
     rviz.visualizeCurrentState();
-    RBX_INFO("Default robot state is visualized. Press enter to continue...");
+    XROS_INFO("Default robot state is visualized. Press enter to continue...");
     std::cin.ignore();
 
     // EE offset that makes the arm point upwards.
@@ -49,34 +49,34 @@ int main(int argc, char **argv)
     rviz.addTransformMarker("pose_right", "map", goal_pose_right);
     rviz.addTransformMarker("pose_left", "map", goal_pose_left);
     rviz.updateMarkers();
-    RBX_INFO("Target IK poses are visualized. Press enter to continue...");
+    XROS_INFO("Target IK poses are visualized. Press enter to continue...");
     std::cin.ignore();
 
     Robot::IKQuery query(BOTH_ARMS, {goal_pose_left, goal_pose_right}, {LEFT_EE, RIGHT_EE});
 
     if (not baxter->setFromIK(query))
     {
-        RBX_ERROR("IK query failed!");
+        XROS_ERROR("IK query failed!");
         return 1;
     }
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
 
-    RBX_INFO("Robot IK solution visualized,  Press enter to continue...");
+    XROS_INFO("Robot IK solution visualized,  Press enter to continue...");
     std::cin.ignore();
 
     query = Robot::IKQuery(LEFT_ARM, goal_pose_left);
     if (not baxter->setFromIK(query))
     {
-        RBX_ERROR("Single IK query failed!");
+        XROS_ERROR("Single IK query failed!");
         return 1;
     }
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
 
-    RBX_INFO("Robot left arm IK(ee:default) is visualized. Press enter to continue ...");
+    XROS_INFO("Robot left arm IK(ee:default) is visualized. Press enter to continue ...");
     std::cin.ignore();
 
     query = Robot::IKQuery(LEFT_ARM, {goal_pose_left}, {LEFT_EE});
@@ -86,13 +86,13 @@ int main(int argc, char **argv)
 
     if (not baxter->setFromIK(query))
     {
-        RBX_ERROR("Single Approximate IK query failed!");
+        XROS_ERROR("Single Approximate IK query failed!");
         return 1;
     }
 
     // Visualize resulting state.
     rviz.visualizeCurrentState();
-    RBX_INFO("Robot left arm IK(ee:left_gripper_base) is visualized. Press enter to exit...");
+    XROS_INFO("Robot left arm IK(ee:left_gripper_base) is visualized. Press enter to exit...");
     std::cin.ignore();
 
     return 0;

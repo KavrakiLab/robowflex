@@ -3,7 +3,7 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/detail/fetch.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
     // Create an RViz visualization helper
     IO::RVIZHelper rviz(fetch);
-    RBX_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Create an empty scene.

@@ -1,6 +1,6 @@
 /* Author: Juan D. Hernandez */
 
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/detail/cob4.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/geometry.h>

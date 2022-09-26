@@ -6,7 +6,6 @@
 #include <string>         // for std::string
 #include <utility>        // for std::pair
 #include <fstream>        // for std::ofstream
-#include <unordered_map>  // for hashing
 
 #include <boost/date_time.hpp>  // for date operations
 

@@ -108,7 +108,7 @@ SimpleCartesianPlanner::plan(const SceneConstPtr &scene, const planning_interfac
     planning_interface::MotionPlanResponse temp;
     if (request.goal_constraints.size() > 1)
     {
-        RBX_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
+        XROS_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
         temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return temp;
     }
@@ -116,14 +116,14 @@ SimpleCartesianPlanner::plan(const SceneConstPtr &scene, const planning_interfac
     const auto &goal = request.goal_constraints[0];
     if (not goal.joint_constraints.empty() or not goal.visibility_constraints.empty())
     {
-        RBX_ERROR("SimpleCartesianPlanner only supports pose goals!");
+        XROS_ERROR("SimpleCartesianPlanner only supports pose goals!");
         temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return temp;
     }
 
     if (goal.position_constraints.size() != 1 and goal.orientation_constraints.size() != 1)
     {
-        RBX_ERROR("SimpleCartesianPlanner requires single position and orientation constraint!");
+        XROS_ERROR("SimpleCartesianPlanner requires single position and orientation constraint!");
         temp.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return temp;
     }
@@ -149,7 +149,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
     planning_interface::MotionPlanResponse response;
     if (request.tips.size() > 1)
     {
-        RBX_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
+        XROS_ERROR("SimpleCartesianPlanner only supports queries with a single goal!");
         response.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
         return response;
     }
@@ -162,7 +162,7 @@ planning_interface::MotionPlanResponse SimpleCartesianPlanner::plan(const robot_
             tip = tips[0];
         else
         {
-            RBX_ERROR("Request needs tip frame name!");
+            XROS_ERROR("Request needs tip frame name!");
             response.error_code_.val = moveit_msgs::MoveItErrorCodes::INVALID_GOAL_CONSTRAINTS;
             return response;
         }
@@ -277,7 +277,7 @@ bool OMPL::loadOMPLConfig(IO::Handler &handler, const std::string &config_file,
     const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
-        RBX_ERROR("Failed to load planner configs.");
+        XROS_ERROR("Failed to load planner configs.");
         return false;
     }
 
@@ -391,7 +391,7 @@ bool opt::loadConfig(IO::Handler &handler, const std::string &config_file)
     const auto &config = IO::loadFileToYAML(config_file);
     if (!config.first)
     {
-        RBX_ERROR("Failed to load planner configs.");
+        XROS_ERROR("Failed to load planner configs.");
         return false;
     }
 

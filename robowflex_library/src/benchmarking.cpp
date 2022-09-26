@@ -13,10 +13,11 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/yaml.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
+#include <robowflex_util/gnuplot.h>
 
 using namespace robowflex;
 
@@ -442,7 +443,7 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     todo.pop();
                 }
 
-                RBX_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
+                XROS_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
                          id, info.query->name, info.index, info.trial + 1, trials_);
 
                 // If override, use global time. Else use query time.
@@ -500,7 +501,7 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                     if (timeout_)
                     {
                         time_remaining -= data->time;
-                        RBX_INFO(                                                                           //
+                        XROS_INFO(                                                                           //
                             "[Thread %1%] Running Query %3% `%2%` till timeout, %4% seconds remaining...",  //
                             id, info.query->name, info.index, time_remaining);
                         timeout_trial++;
@@ -509,7 +510,7 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
                         time_remaining = 0;
                 }
 
-                RBX_INFO("[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
+                XROS_INFO("[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
                          id, info.query->name, info.index,                                           //
                          info.trial + 1, trials_,                                                    //
                          completed_queries, total_queries);
@@ -734,4 +735,44 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
     }
 
     out.close();
+}
+
+//
+// GNUPlotPlanDataSetOutputter
+//
+
+GNUPlotPlanDataSetOutputter::GNUPlotPlanDataSetOutputter(const std::string &metric) : metric_(metric)
+{
+}
+
+GNUPlotPlanDataSetOutputter::~GNUPlotPlanDataSetOutputter()
+{
+}
+
+void GNUPlotPlanDataSetOutputter::dump(const PlanDataSet &results)
+{
+    GNUPlotHelper::BoxPlotOptions bpo;
+    bpo.instance = results.name;
+    bpo.title = log::format("\\\"%1%\\\" for Experiment \\\"%2%\\\"", metric_, results.name);
+    bpo.y.label = metric_;
+    bpo.y.min = 0.;
+
+    for (const auto &query : results.data)
+    {
+        const auto &name = query.first;
+        const auto &points = query.second;
+
+        std::vector<double> values;
+        for (const auto &run : points)
+        {
+            if (metric_ == "time")
+                values.emplace_back(run->time);
+            else
+                values.emplace_back(boost::get<double>(run->metrics[metric_]));
+        }
+
+        bpo.values.emplace(name, values);
+    }
+
+    helper_.boxplot(bpo);
 }

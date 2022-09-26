@@ -6,7 +6,7 @@
 #include <dart/dynamics/SimpleFrame.hpp>
 
 #include <robowflex_library/constants.h>
-#include <robowflex_library/log.h>
+#include <robowflex_library/roslog.h>
 #include <robowflex_library/tf.h>
 
 #include <robowflex_dart/robot.h>
@@ -693,7 +693,7 @@ bool TSR::solveWorld()
 {
     if (not ik_)
     {
-        RBX_ERROR("TSR: Solve called before initialize!");
+        XROS_ERROR("TSR: Solve called before initialize!");
         return false;
     }
 
@@ -1221,7 +1221,7 @@ void TSRSet::initialize()
     }
 
     updateSolver();
-    RBX_INFO("TSRSet: Initialized %d TSRs!", tsrs_.size());
+    XROS_INFO("TSRSet: Initialized %d TSRs!", tsrs_.size());
 }
 
 const std::vector<std::pair<std::size_t, std::size_t>> &TSRSet::getWorldIndices() const
