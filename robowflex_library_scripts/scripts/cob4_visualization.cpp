@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 
     // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(cob4);
-    scene->fromYAMLFile("package://robowflex_library/yaml/test_cob4.yml");
+    scene->fromYAMLFile("package://robowflex_library_scripts/yaml/test_cob4.yml");
 
     // Visualize the scene.
     rviz.visualizeCurrentState();

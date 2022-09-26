@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
     // Load a scene from a YAML file.
     auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library/yaml/test_fetch.yml");
+    scene->fromYAMLFile("package://robowflex_library_scripts/yaml/test_fetch.yml");
 
     // Visualize the scene in RViz.
     rviz.updateScene(scene);

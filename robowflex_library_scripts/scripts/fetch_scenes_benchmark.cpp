@@ -14,7 +14,7 @@ using namespace robowflex;
 /* \file fetch_scenes_benchmark.cpp
  * A script that demonstrates benchmarking over a number of scenes and planning
  * requests for the Fetch robot. A number of example scene and planning request
- * pairs are included in 'package://robowflex_library/yaml/fetch_scenes'. This
+ * pairs are included in 'package://robowflex_library_scripts/yaml/fetch_scenes'. This
  * script sets up benchmarking for all of these pairs. See
  * `fetch_scenes_visualize.cpp` to visualize these scenes.
  *
@@ -47,9 +47,9 @@ int main(int argc, char **argv)
     for (std::size_t i = start; i <= end; i++)
     {
         const auto &scene_file =
-            log::format("package://robowflex_library/yaml/fetch_scenes/scene_vicon%1$04d.yaml", i);
+            log::format("package://robowflex_library_scripts/yaml/fetch_scenes/scene_vicon%1$04d.yaml", i);
         const auto &request_file =
-            log::format("package://robowflex_library/yaml/fetch_scenes/request%1$04d.yaml", i);
+            log::format("package://robowflex_library_scripts/yaml/fetch_scenes/request%1$04d.yaml", i);
 
         // Create an empty Scene.
         auto scene = std::make_shared<Scene>(fetch);

@@ -228,11 +228,11 @@ int main(int argc, char **argv)
 
     // Load an example problem of reaching into a box.
     auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library/yaml/fetch_box/scene0001.yaml");
+    scene->fromYAMLFile("package://robowflex_library_scripts/yaml/fetch_box/scene0001.yaml");
 
     // Load the motion planning request and configure for profiling.
     auto request = std::make_shared<MotionRequestBuilder>(planner, GROUP);
-    request->fromYAMLFile("package://robowflex_library/yaml/fetch_box/request0001.yaml");
+    request->fromYAMLFile("package://robowflex_library_scripts/yaml/fetch_box/request0001.yaml");
     request->setAllowedPlanningTime(TIME);
     request->setNumPlanningAttempts(1);
     request->setConfig(planner_name);

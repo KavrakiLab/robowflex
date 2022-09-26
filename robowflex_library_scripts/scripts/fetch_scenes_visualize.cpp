@@ -13,7 +13,7 @@ using namespace robowflex;
 /* \file fetch_scenes_visualize.cpp
  * Visualizes a set of scenes and motion plans from requests in these scenes. A
  * number of example scene and planning request pairs are included in
- * 'package://robowflex_library/yaml/fetch_scenes'. See the associated
+ * 'package://robowflex_library_scripts/yaml/fetch_scenes'. See the associated
  * `fetch_scenes_benchmark.cpp` for benchmarking over these scenes. See
  * https://kavrakilab.github.io/robowflex/rviz.html for RViz visualization.
  */
@@ -46,8 +46,8 @@ int main(int argc, char **argv)
         const auto &index = std::string(4 - is.size(), '0') + is;
 
         const auto &scene_file =
-            "package://robowflex_library/yaml/fetch_scenes/scene_vicon" + index + ".yaml";
-        const auto &request_file = "package://robowflex_library/yaml/fetch_scenes/request" + index + ".yaml";
+            "package://robowflex_library_scripts/yaml/fetch_scenes/scene_vicon" + index + ".yaml";
+        const auto &request_file = "package://robowflex_library_scripts/yaml/fetch_scenes/request" + index + ".yaml";
 
         // Create an empty Scene.
         auto scene = std::make_shared<Scene>(fetch);
