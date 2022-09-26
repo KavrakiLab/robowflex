@@ -3,6 +3,7 @@
 #include <robowflex_library/macros.h>
 #include <robowflex_library/log.h>
 #include <robowflex_library/io.h>
+#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
@@ -102,10 +103,10 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
                                                 const planning_interface::MotionPlanRequest &request,
                                                 bool force) const
 {
-    const auto &scene_id = scene->getKey();
-    const auto &request_hash = IO::getMessageMD5(request);
+    const auto &scene_hash = IO::hashYAML(IO::toNode(scene->getMessage()));
+    const auto &request_hash = IO::hashYAML(IO::toNode(request));
 
-    bool same_scene = compareIDs(scene_id, last_scene_id_);
+    bool same_scene = scene_hash == last_scene_hash_;
     bool same_request = request_hash == last_request_hash_;
 
     if (not force and ss_ and same_scene and same_request)
@@ -129,7 +130,7 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 
     ss_ = context_->getOMPLSimpleSetup();
 
-    last_scene_id_ = scene_id;
+    last_scene_hash_ = scene_hash;
     last_request_hash_ = request_hash;
 
     RBX_INFO("Refreshed Context!");

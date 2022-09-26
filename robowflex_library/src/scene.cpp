@@ -158,7 +158,6 @@ Scene::Scene(const Scene &other) : loader_(new CollisionPluginLoader()), scene_(
 
 void Scene::operator=(const Scene &other)
 {
-    incrementVersion();
     scene_ = other.getSceneConst();
 }
 
@@ -177,7 +176,6 @@ const planning_scene::PlanningScenePtr &Scene::getSceneConst() const
 
 planning_scene::PlanningScenePtr &Scene::getScene()
 {
-    incrementVersion();
     return scene_;
 }
 
@@ -190,7 +188,6 @@ moveit_msgs::PlanningScene Scene::getMessage() const
 
 robot_state::RobotState &Scene::getCurrentState()
 {
-    incrementVersion();
     return scene_->getCurrentStateNonConst();
 }
 
@@ -201,7 +198,6 @@ const robot_state::RobotState &Scene::getCurrentStateConst() const
 
 collision_detection::AllowedCollisionMatrix &Scene::getACM()
 {
-    incrementVersion();
     return scene_->getAllowedCollisionMatrixNonConst();
 }
 
@@ -212,7 +208,6 @@ const collision_detection::AllowedCollisionMatrix &Scene::getACMConst() const
 
 void Scene::useMessage(const moveit_msgs::PlanningScene &msg, bool diff)
 {
-    incrementVersion();
 
     if (!diff)
         scene_->setPlanningSceneMsg(msg);
@@ -230,7 +225,6 @@ void Scene::fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg)
 void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
                                   const RobotPose &pose)
 {
-    incrementVersion();
 
     const auto &world = scene_->getWorldNonConst();
     if (world->hasObject(name))
@@ -310,7 +304,6 @@ bool Scene::moveAllObjectsGlobal(const RobotPose &transform)
 
 bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform)
 {
-    incrementVersion();
 
     bool success = false;
 #if ROBOWFLEX_AT_LEAST_KINETIC
@@ -325,7 +318,6 @@ bool Scene::moveObjectGlobal(const std::string &name, const RobotPose &transform
 
 bool Scene::moveObjectLocal(const std::string &name, const RobotPose &transform)
 {
-    incrementVersion();
 
     const auto pose = getObjectPose(name);
     const auto global_tf = pose * transform * pose.inverse();
@@ -445,7 +437,6 @@ bool Scene::detachObject(const std::string &name)
 
 bool Scene::detachObject(robot_state::RobotState &state, const std::string &name)
 {
-    incrementVersion();
 
     const auto &world = scene_->getWorldNonConst();
     const auto &body = state.getAttachedBody(name);

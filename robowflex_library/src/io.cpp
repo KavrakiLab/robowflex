@@ -375,6 +375,19 @@ void IO::threadSleep(double seconds)
     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(seconds * 1000)));
 }
 
+std::size_t IO::hashYAML(const YAML::Node &node)
+{
+    std::stringstream sout;
+    sout << node;
+
+    return hashString(sout.str());
+}
+
+std::size_t IO::hashString(const std::string &string)
+{
+    return std::hash<std::string>{}(string);
+}
+
 template <typename T>
 std::vector<T> IO::tokenize(const std::string &s, const std::string &separators)
 {

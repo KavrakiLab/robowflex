@@ -7,7 +7,6 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
-#include <robowflex_library/id.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 
@@ -30,7 +29,7 @@ namespace robowflex
 
     /** \brief A helper class to build motion planning requests for a robowflex::Planner
      */
-    class MotionRequestBuilder : public ID
+    class MotionRequestBuilder
     {
     public:
         /** \brief Constructor.

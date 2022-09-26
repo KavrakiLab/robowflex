@@ -136,7 +136,6 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
         std::min_element(matches.begin(), matches.end(),
                          [](const std::string &a, const std::string &b) { return a.size() < b.size(); });
 
-    incrementVersion();
 
     request_.planner_id = *found;
     RBX_INFO("Requested Config: `%s`: Using planning config `%s`", requested_config, request_.planner_id);
@@ -145,7 +144,6 @@ bool MotionRequestBuilder::setConfig(const std::string &requested_config)
 
 void MotionRequestBuilder::setWorkspaceBounds(const moveit_msgs::WorkspaceParameters &wp)
 {
-    incrementVersion();
     request_.workspace_parameters = wp;
 }
 
@@ -194,13 +192,11 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
         throw Exception(1, "No planning group set!");
     }
 
-    incrementVersion();
     robot_->setStateMsgGroupState(request_.start_state, request_.group_name, joints);
 }
 
 void MotionRequestBuilder::setStartConfiguration(const robot_state::RobotState &state)
 {
-    incrementVersion();
     moveit::core::robotStateToRobotStateMsg(state, request_.start_state);
 }
 
@@ -239,7 +235,6 @@ void MotionRequestBuilder::addGoalConfiguration(const std::vector<double> &joint
         throw Exception(1, "No planning group set!");
     }
 
-    incrementVersion();
 
     robot_state::RobotStatePtr state;
     state.reset(new robot_state::RobotState(robot_->getModelConst()));
@@ -261,7 +256,6 @@ void MotionRequestBuilder::addGoalConfiguration(const robot_state::RobotState &s
         throw Exception(1, "No planning group set!");
     }
 
-    incrementVersion();
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(state, jmg_));
 }
 
@@ -325,7 +319,6 @@ void MotionRequestBuilder::addGoalRegion(const std::string &ee_name, const std::
                                          const Eigen::Quaterniond &orientation,
                                          const Eigen::Vector3d &tolerances)
 {
-    incrementVersion();
 
     moveit_msgs::Constraints constraints;
 
@@ -441,19 +434,16 @@ void MotionRequestBuilder::precomputeGoalConfigurations(std::size_t n_samples, c
 
 void MotionRequestBuilder::clearGoals()
 {
-    incrementVersion();
     request_.goal_constraints.clear();
 }
 
 void MotionRequestBuilder::setAllowedPlanningTime(double allowed_planning_time)
 {
-    incrementVersion();
     request_.allowed_planning_time = allowed_planning_time;
 }
 
 void MotionRequestBuilder::setNumPlanningAttempts(unsigned int num_planning_attempts)
 {
-    incrementVersion();
     request_.num_planning_attempts = num_planning_attempts;
 }
 
@@ -469,7 +459,6 @@ void MotionRequestBuilder::addPathPoseConstraint(const std::string &ee_name, con
 void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name, const std::string &base_name,
                                                      const RobotPose &pose, const GeometryConstPtr &geometry)
 {
-    incrementVersion();
     request_.path_constraints.position_constraints.push_back(
         TF::getPositionConstraint(ee_name, base_name, pose, geometry));
 }
@@ -479,20 +468,17 @@ void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_na
                                                         const Eigen::Quaterniond &orientation,
                                                         const Eigen::Vector3d &tolerances)
 {
-    incrementVersion();
     request_.path_constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 }
 
 moveit_msgs::Constraints &MotionRequestBuilder::getPathConstraints()
 {
-    incrementVersion();
     return request_.path_constraints;
 }
 
 planning_interface::MotionPlanRequest &MotionRequestBuilder::getRequest()
 {
-    incrementVersion();
     return request_;
 }
 
@@ -547,7 +533,6 @@ bool MotionRequestBuilder::toYAMLFile(const std::string &file) const
 
 bool MotionRequestBuilder::fromYAMLFile(const std::string &file)
 {
-    incrementVersion();
 
     bool success = IO::fromYAMLFile(request_, file);
     setPlanningGroup(request_.group_name);

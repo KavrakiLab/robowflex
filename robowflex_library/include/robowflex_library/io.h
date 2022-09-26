@@ -3,9 +3,10 @@
 #ifndef ROBOWFLEX_IO_
 #define ROBOWFLEX_IO_
 
-#include <string>   // for std::string
-#include <utility>  // for std::pair
-#include <fstream>  // for std::ofstream
+#include <string>         // for std::string
+#include <utility>        // for std::pair
+#include <fstream>        // for std::ofstream
+#include <unordered_map>  // for hashing
 
 #include <boost/date_time.hpp>  // for date operations
 
@@ -150,6 +151,18 @@ namespace robowflex
          */
         void threadSleep(double seconds);
 
+        /** \brief Compute hash of a YAML node.
+         *  \param[in] node YAML to hash.
+         *  \return A hashed value of the node. Note: not cryptographically secure.
+         */
+        std::size_t hashYAML(const YAML::Node &node);
+
+        /** \brief Compute hash of string.
+         *  \param[in] string String to hash.
+         *  \return A hashed value of the string. Note: not cryptographically secure.
+         */
+        std::size_t hashString(const std::string &string);
+
         /** \brief Separates a \a string into casted tokens, based upon \a separators.
          *  \tparam The type of element to cast strings into.
          *  \param[in] string String to tokenize.
@@ -197,13 +210,29 @@ namespace robowflex
             return result.first;
         }
 
-        /** \brief Compute MD5 hash of message.
-         *  \param[in] msg Message to hash.
+        /** \brief Use YAML to compute a hash of message contents
+         *  \param[in] msg Message to dump.
+         *  \param[in] file File to dump message to.
          *  \tparam T Type of the message.
-         *  \return The hash of the message.
+         *  \return True on success, false on failure.
          */
         template <typename T>
-        std::string getMessageMD5(T &msg)
+        std::size_t messageToYAMLHash(const T &msg)
+        {
+            YAML::Node yaml;
+            yaml = msg;
+
+            return hashYAML(yaml);
+        }
+
+        /** \brief Compute MD5 hash of message type.
+         *  Note that this does not compute a hash over the contents of the message.
+         *  \param[in] msg Message of type to hash.
+         *  \tparam T Type of the message.
+         *  \return The hash of the message type.
+         */
+        template <typename T>
+        std::string getMessageMD5(const T &msg)
         {
             return ros::message_traits::md5sum<T>(msg);
         }

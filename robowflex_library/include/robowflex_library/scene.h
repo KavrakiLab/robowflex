@@ -16,7 +16,6 @@
 
 #include <robowflex_library/class_forward.h>
 #include <robowflex_library/adapter.h>
-#include <robowflex_library/id.h>
 
 namespace robowflex
 {
@@ -44,7 +43,7 @@ namespace robowflex
      * Information between this state and the Robot's scratch state are not synchronized, you must do this
      * manually.
      */
-    class Scene : public ID
+    class Scene
     {
     public:
         /** \brief Constructor.
