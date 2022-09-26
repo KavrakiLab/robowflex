@@ -680,15 +680,15 @@ Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionCon
             1, log::format("Link name mismatch in constraints, `%1%` != `%2%`", pc.link_name, oc.link_name));
 
     if (not TF::isVecZero(TF::vectorMsgToEigen(pc.target_point_offset)))
-        throw Exception(1, "target_point_offset in position constraint not supported.");
+        throw std::runtime_error("target_point_offset in position constraint not supported.");
 
     const auto &cr = pc.constraint_region;
 
     if (not cr.meshes.empty())
-        throw Exception(1, "Cannot specify mesh regions!");
+        throw std::runtime_error("Cannot specify mesh regions!");
 
     if (cr.primitives.size() > 1)
-        throw Exception(1, "Cannot specify more than one primitive!");
+        throw std::runtime_error("Cannot specify more than one primitive!");
 
     const auto &region = Geometry::makeSolidPrimitive(cr.primitives[0]);
     const auto &pose = TF::poseMsgToEigen(cr.primitive_poses[0]);
@@ -707,7 +707,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
   : group(group), scene(scene), verbose(verbose)
 {
     if (poses.size() != input_tips.size())
-        throw Exception(1, "Invalid multi-target IK query. poses != tips.");
+        throw std::runtime_error("Invalid multi-target IK query. poses != tips.");
 
     for (std::size_t i = 0; i < poses.size(); ++i)
         addRequest(input_tips[i],                              //
@@ -727,7 +727,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string>
         or poses.size() != regions.size()       //
         or poses.size() != orientations.size()  //
         or poses.size() != tolerances.size())
-        throw Exception(1, "Invalid multi-target IK query. Vectors are of different length.");
+        throw std::runtime_error("Invalid multi-target IK query. Vectors are of different length.");
 
     for (std::size_t i = 0; i < poses.size(); ++i)
         addRequest(input_tips[i], regions[i], poses[i], orientations[i], tolerances[i]);

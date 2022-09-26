@@ -87,7 +87,7 @@ void MotionRequestBuilder::setPlanner(const PlannerConstPtr &planner)
     if (rname != pname)
     {
         XROS_ERROR("Conflicting robots `%s` and `%s` in request builder!", rname, pname);
-        throw Exception(1, "Invalid planner!");
+        throw std::runtime_error("Invalid planner!");
     }
 
     planner_ = planner;
@@ -107,7 +107,7 @@ void MotionRequestBuilder::setPlanningGroup(const std::string &group_name)
     else
     {
         XROS_ERROR("Joint group `%s` does not exist in robot!", group_name);
-        throw Exception(1, "Invalid joint group name!");
+        throw std::runtime_error("Invalid joint group name!");
     }
 }
 
@@ -189,7 +189,7 @@ void MotionRequestBuilder::setStartConfiguration(const std::vector<double> &join
     if (not jmg_)
     {
         XROS_ERROR("No planning group set!");
-        throw Exception(1, "No planning group set!");
+        throw std::runtime_error("No planning group set!");
     }
 
     robot_->setStateMsgGroupState(request_.start_state, request_.group_name, joints);
@@ -232,7 +232,7 @@ void MotionRequestBuilder::addGoalConfiguration(const std::vector<double> &joint
     if (not jmg_)
     {
         XROS_ERROR("No planning group set!");
-        throw Exception(1, "No planning group set!");
+        throw std::runtime_error("No planning group set!");
     }
 
 
@@ -253,7 +253,7 @@ void MotionRequestBuilder::addGoalConfiguration(const robot_state::RobotState &s
     if (not jmg_)
     {
         XROS_ERROR("No planning group set!");
-        throw Exception(1, "No planning group set!");
+        throw std::runtime_error("No planning group set!");
     }
 
     request_.goal_constraints.push_back(kinematic_constraints::constructGoalConstraints(state, jmg_));
@@ -264,19 +264,19 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
     if (not jmg_)
     {
         XROS_ERROR("No planning group set!");
-        throw Exception(1, "No planning group set!");
+        throw std::runtime_error("No planning group set!");
     }
 
     if (group_name_ != query.group)
     {
         XROS_ERROR("Planning group in IK query `%1%` not the same as request `%2%`", query.group, group_name_);
-        throw Exception(1, "Mismatched query groups!");
+        throw std::runtime_error("Mismatched query groups!");
     }
 
     if (query.regions.size() > 1)
     {
         XROS_ERROR("Cannot set goal request from IK query with multiple targets!");
-        throw Exception(1, "Tried to set goal from multi-target request!");
+        throw std::runtime_error("Tried to set goal from multi-target request!");
     }
 
     std::string tip_to_use = query.tips[0];
@@ -286,7 +286,7 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
         if (tips.empty() or tips.size() > 1)
         {
             XROS_ERROR("Unable to find tip frame for request.");
-            throw Exception(1, "Unable to find tip frame for request.");
+            throw std::runtime_error("Unable to find tip frame for request.");
         }
 
         tip_to_use = tips[0];
@@ -296,7 +296,7 @@ void MotionRequestBuilder::addGoalFromIKQuery(const Robot::IKQuery &query)
     if (base.empty())
     {
         XROS_ERROR("Failed to get base frame for request.");
-        throw Exception(1, "Unable to find base frame for request.");
+        throw std::runtime_error("Unable to find base frame for request.");
     }
 
     addGoalRegion(tip_to_use, base, query.region_poses[0], query.regions[0], query.orientations[0],

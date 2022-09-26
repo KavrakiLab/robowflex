@@ -280,7 +280,7 @@ RobotPose Scene::getObjectPose(const std::string &name) const
 RobotPose Scene::getObjectGraspPose(const std::string &name, const RobotPose &offset) const
 {
     if (not hasObject(name))
-        throw Exception(1, log::format("Object `%1%` not in scene!", name));
+        throw std::runtime_error(log::format("Object `%1%` not in scene!", name));
 
     const auto model = getSceneConst()->getRobotModel();
     const auto rpose = getCurrentStateConst().getGlobalLinkTransform(model->getRootLinkName());

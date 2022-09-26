@@ -27,7 +27,7 @@ Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
         }
 
     if (i == MAX)
-        throw Exception(1, "Invalid type for geometry.");
+        throw std::runtime_error("Invalid type for geometry.");
 
     return type;
 }
@@ -35,7 +35,7 @@ Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
 const std::string &Geometry::ShapeType::toString(Type type)
 {
     if (type > MAX)
-        throw Exception(1, "Invalid type for geometry.");
+        throw std::runtime_error("Invalid type for geometry.");
 
     return STRINGS[type];
 }
@@ -153,7 +153,7 @@ Geometry::Geometry(const shapes::Shape &shape)
             break;
         }
         default:
-            throw Exception(1, "Invalid type for geometry.");
+            throw std::runtime_error("Invalid type for geometry.");
     }
 
     body_.reset(loadBody());
@@ -193,7 +193,7 @@ shapes::Shape *Geometry::loadShape() const
             else if (resource_.empty() && !vertices_.empty())
                 return shapes::createMeshFromVertices(vertices_);
             else
-                throw Exception(1, resource_.empty() ? "No vertices/resource specified for the mesh" :
+                throw std::runtime_error(resource_.empty() ? "No vertices/resource specified for the mesh" :
                                                        "Both vertices/resource specified for the mesh");
             break;
 

@@ -16,14 +16,14 @@ GNUPlotHelper::Instance::Instance()
 #if IS_BOOST_164
     auto path = bp::search_path("gnuplot");
     if (path.empty())
-        throw Exception(1, "GNUPlot not found, please install!");
+        throw std::runtime_error("GNUPlot not found, please install!");
 
     gnuplot_ = bp::child(bp::search_path("gnuplot"),  //"-persist",  //
                          bp::std_err > error_,        //
                          // bp::std_out > output_,                //
                          bp::std_in < input_);
 #else
-    throw Exception(1, "GNUPlot helper not supported, Boost 1.64 and above is required!");
+    throw std::runtime_error("GNUPlot helper not supported, Boost 1.64 and above is required!");
 #endif
 }
 

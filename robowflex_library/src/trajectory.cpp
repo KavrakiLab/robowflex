@@ -151,7 +151,7 @@ void Trajectory::interpolate(unsigned int count)
     return;
 
 #endif
-    throw Exception(1, "Not Implemented");
+    throw std::runtime_error("Not Implemented");
 }
 
 std::vector<std::vector<double>> Trajectory::vectorize() const

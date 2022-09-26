@@ -99,7 +99,7 @@ template <typename T>
 const T &IO::HDF5Data::get(const std::vector<hsize_t> &index) const
 {
     if (index.size() != (unsigned int)rank_)
-        throw Exception(1, "Index size must be the same as data rank!");
+        throw std::runtime_error("Index size must be the same as data rank!");
 
     const T *data = reinterpret_cast<const T *>(data_);
     unsigned int offset = 0;

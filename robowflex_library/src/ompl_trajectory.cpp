@@ -42,7 +42,7 @@ void OMPL::OMPLTrajectory::fromOMPLPath(const robot_state::RobotState &reference
         path.getSpaceInformation()->getStateSpace());
 
     if (not mbss)
-        throw Exception(1, "Failed to extract StateSpace from provided OMPL path!");
+        throw std::runtime_error("Failed to extract StateSpace from provided OMPL path!");
 
     moveit::core::RobotState ks = reference_state;
     for (std::size_t i = 0; i < path.getStateCount(); ++i)

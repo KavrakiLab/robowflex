@@ -146,7 +146,7 @@ const std::vector<std::string> &TrajOptPlanner::getEnvironmentLinks() const
     if (env_->checkInitialized())
         return env_->getLinkNames();
     else
-        throw Exception(1, "KDL environment not initialized with robot links!");
+        throw std::runtime_error("KDL environment not initialized with robot links!");
 }
 
 const std::vector<std::string> &TrajOptPlanner::getManipulatorLinks() const
@@ -154,7 +154,7 @@ const std::vector<std::string> &TrajOptPlanner::getManipulatorLinks() const
     if (env_->hasManipulator(manip_))
         return env_->getManipulator(manip_)->getLinkNames();
     else
-        throw Exception(1, "There is no loaded manipulator!");
+        throw std::runtime_error("There is no loaded manipulator!");
 }
 
 const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
@@ -162,7 +162,7 @@ const std::vector<std::string> &TrajOptPlanner::getManipulatorJoints() const
     if (env_->hasManipulator(manip_))
         return env_->getManipulator(manip_)->getJointNames();
     else
-        throw Exception(1, "There is no loaded manipulator!");
+        throw std::runtime_error("There is no loaded manipulator!");
 }
 
 double TrajOptPlanner::getPlanningTime() const
@@ -173,7 +173,7 @@ double TrajOptPlanner::getPlanningTime() const
 void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
 {
     if (!env_->hasManipulator(manip_))
-        throw Exception(1, "There is no loaded manipulator!");
+        throw std::runtime_error("There is no loaded manipulator!");
     else
     {
         const auto &joint_names = env_->getManipulator(manip_)->getJointNames();
@@ -181,7 +181,7 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
         {
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
             if (it == joint_names.end())
-                throw Exception(1, "One of the joints to be fixed does not exist");
+                throw std::runtime_error("One of the joints to be fixed does not exist");
             else
             {
                 int index = std::distance(joint_names.begin(), it);
@@ -421,7 +421,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
 TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
                                                    const robot_state::RobotStatePtr &start_state)
 {
-    throw Exception(1, "You need to implement virtual method TrajOptPlanner::plan() in your derived class");
+    throw std::runtime_error("You need to implement virtual method TrajOptPlanner::plan() in your derived class");
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const

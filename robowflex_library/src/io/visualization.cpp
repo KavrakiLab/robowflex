@@ -240,7 +240,7 @@ void IO::RVIZHelper::addLineMarker(const std::string &name, const std::vector<Ei
     marker.type = visualization_msgs::Marker::LINE_LIST;
 
     if (points.size() != colors.size())
-        throw Exception(1, "Mismatch between points and colors sizes!");
+        throw std::runtime_error("Mismatch between points and colors sizes!");
 
     for (std::size_t i = 0; i < points.size(); ++i)
     {

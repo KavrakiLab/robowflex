@@ -474,7 +474,7 @@ namespace
                     return XmlRpcValueCreator::createArray(values);
                 }
                 default:
-                    throw Exception(1, "Unknown non-scalar node type in YAML");
+                    throw std::runtime_error("Unknown non-scalar node type in YAML");
             }
         }
 
@@ -519,7 +519,7 @@ namespace
         {
         }
 
-        throw Exception(1, "Unknown node value in YAML");
+        throw std::runtime_error("Unknown node value in YAML");
     }
 }  // namespace
 
@@ -558,7 +558,7 @@ void IO::Handler::loadYAMLtoROS(const YAML::Node &node, const std::string &prefi
             break;
         }
         default:
-            throw Exception(1, "Unknown node type in YAML");
+            throw std::runtime_error("Unknown node type in YAML");
     }
 }
 
