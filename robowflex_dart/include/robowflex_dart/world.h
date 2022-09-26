@@ -11,7 +11,7 @@
 #include <dart/collision/CollisionGroup.hpp>
 #include <dart/simulation/World.hpp>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

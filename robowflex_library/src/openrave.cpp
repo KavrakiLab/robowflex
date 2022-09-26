@@ -13,7 +13,7 @@
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <robowflex_library/constants.h>
+#include <robowflex_util/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/roslog.h>

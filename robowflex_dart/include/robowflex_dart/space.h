@@ -5,7 +5,7 @@
 
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/joints.h>

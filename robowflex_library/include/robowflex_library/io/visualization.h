@@ -5,7 +5,7 @@
 
 #include <moveit/planning_interface/planning_interface.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/tf.h>
 #include <sensor_msgs/PointCloud2.h>

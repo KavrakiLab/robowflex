@@ -5,7 +5,7 @@
 
 #include <robowflex_library/scene.h>
 #include <robowflex_library/robot.h>
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <tesseract_ros/kdl/kdl_env.h>
 
 namespace robowflex

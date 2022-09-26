@@ -17,7 +17,6 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
-#include <robowflex_util/gnuplot.h>
 
 using namespace robowflex;
 
@@ -751,7 +750,7 @@ GNUPlotPlanDataSetOutputter::~GNUPlotPlanDataSetOutputter()
 
 void GNUPlotPlanDataSetOutputter::dump(const PlanDataSet &results)
 {
-    GNUPlotHelper::BoxPlotOptions bpo;
+    IO::GNUPlotHelper::BoxPlotOptions bpo;
     bpo.instance = results.name;
     bpo.title = log::format("\\\"%1%\\\" for Experiment \\\"%2%\\\"", metric_, results.name);
     bpo.y.label = metric_;

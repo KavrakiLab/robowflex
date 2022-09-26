@@ -13,7 +13,7 @@
 #include <dart/dynamics/WeldJoint.hpp>
 #include <dart/dynamics/Skeleton.hpp>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
 #include <robowflex_library/tf.h>
 

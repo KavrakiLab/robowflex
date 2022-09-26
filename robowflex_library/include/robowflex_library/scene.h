@@ -14,7 +14,7 @@
 #include <moveit/planning_scene/planning_scene.h>         // for planning_scene::PlanningScene
 #include <moveit/robot_state/robot_state.h>               // for robot_state::RobotState
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
 
 namespace robowflex

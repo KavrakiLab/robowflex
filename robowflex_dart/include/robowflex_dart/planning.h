@@ -12,7 +12,7 @@
 
 #include <moveit_msgs/MotionPlanRequest.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_dart/space.h>
 
 namespace robowflex

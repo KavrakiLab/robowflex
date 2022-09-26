@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_OMPL_TRAJECTORY
 #define ROBOWFLEX_OMPL_TRAJECTORY
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 // Moveit
 #include <moveit/robot_trajectory/robot_trajectory.h>

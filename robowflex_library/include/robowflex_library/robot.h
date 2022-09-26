@@ -24,9 +24,9 @@
 #include <moveit/robot_model_loader/robot_model_loader.h>
 #include <moveit/kinematic_constraints/kinematic_constraint.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
-#include <robowflex_library/constants.h>
+#include <robowflex_util/constants.h>
 #include <robowflex_library/io/handler.h>
 
 namespace robowflex

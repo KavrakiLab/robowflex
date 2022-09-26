@@ -9,7 +9,7 @@
 #include <dart/gui/osg/ImGuiWidget.hpp>
 #include <dart/gui/osg/osg.hpp>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
 
 #include <robowflex_dart/world.h>

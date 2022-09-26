@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_DART_IO_
 #define ROBOWFLEX_DART_IO_
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

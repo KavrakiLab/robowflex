@@ -5,7 +5,7 @@
 
 #include <thread>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
 #include <tf2_ros/transform_broadcaster.h>
 

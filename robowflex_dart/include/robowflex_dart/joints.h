@@ -11,7 +11,7 @@
 
 #include <ompl/util/RandomNumbers.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_TRAJOPT_PLANNER_
 #define ROBOWFLEX_TRAJOPT_PLANNER_
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/planning.h>
 #include <tesseract_planning/trajopt/trajopt_planner.h>

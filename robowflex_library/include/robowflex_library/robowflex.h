@@ -11,7 +11,7 @@ namespace robowflex
 {
 }
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/adapter.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/util.h>
@@ -24,7 +24,7 @@ namespace robowflex
 #include <robowflex_library/io/yaml.h>
 #include <robowflex_library/io/plugin.h>
 
-#include <robowflex_library/pool.h>
+#include <robowflex_util/pool.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/tf.h>
 #include <robowflex_library/scene.h>

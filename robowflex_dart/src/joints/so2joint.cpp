@@ -1,6 +1,6 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/constants.h>
+#include <robowflex_util/constants.h>
 
 #include <robowflex_dart/joints.h>
 #include <robowflex_dart/space.h>

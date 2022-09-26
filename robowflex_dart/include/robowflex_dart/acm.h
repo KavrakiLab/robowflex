@@ -8,7 +8,7 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/collision/CollisionFilter.hpp>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

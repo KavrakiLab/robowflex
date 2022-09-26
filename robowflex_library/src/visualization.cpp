@@ -12,13 +12,13 @@
 
 #include <robowflex_library/util.h>
 #include <robowflex_library/builder.h>
-#include <robowflex_library/constants.h>
+#include <robowflex_util/constants.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io/colormap.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>
-#include <robowflex_library/random.h>
+#include <robowflex_util/random.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>

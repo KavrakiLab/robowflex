@@ -15,7 +15,7 @@
 #include <moveit/robot_model/aabb.h>
 
 #include <robowflex_library/adapter.h>
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

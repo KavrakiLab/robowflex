@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/random.h>
+#include <robowflex_util/random.h>
 #include <robowflex_library/tf.h>
 
 using namespace robowflex;

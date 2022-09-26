@@ -16,9 +16,10 @@
 
 #include <moveit/planning_interface/planning_response.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/planning.h>
+#include <robowflex_util/gnuplot.h>
 
 namespace robowflex
 {

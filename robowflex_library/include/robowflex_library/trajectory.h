@@ -10,7 +10,7 @@
 #include <moveit/robot_trajectory/robot_trajectory.h>
 #include <moveit_msgs/RobotTrajectory.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 namespace robowflex
 {

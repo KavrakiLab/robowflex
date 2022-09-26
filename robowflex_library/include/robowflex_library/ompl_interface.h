@@ -5,7 +5,7 @@
 
 #include <moveit/ompl_interface/ompl_interface.h>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 #include <robowflex_library/planning.h>
 
 #include <functional>

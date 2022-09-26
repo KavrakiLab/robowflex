@@ -10,7 +10,7 @@
 #include <dart/collision/CollisionFilter.hpp>
 #include <dart/simulation/World.hpp>
 
-#include <robowflex_library/class_forward.h>
+#include <robowflex_util/class_forward.h>
 
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/structure.h>

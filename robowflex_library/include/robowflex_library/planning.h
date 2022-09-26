@@ -5,9 +5,9 @@
 
 #include <moveit/planning_pipeline/planning_pipeline.h>
 
-#include <robowflex_library/class_forward.h>
-#include <robowflex_library/constants.h>
-#include <robowflex_library/pool.h>
+#include <robowflex_util/class_forward.h>
+#include <robowflex_util/constants.h>
+#include <robowflex_util/pool.h>
 #include <robowflex_library/io/handler.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
