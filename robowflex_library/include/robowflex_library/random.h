@@ -120,7 +120,7 @@ namespace robowflex
         template <typename Iter>
         Iter uniformSample(Iter start, Iter end)
         {
-            std::advance(start, uniformInt(0, std::distance(start, end) - 1));
+            std::advance(start, uniformInt(0, std::distance(start, end)));
             return start;
         };
 
