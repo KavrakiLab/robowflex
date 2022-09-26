@@ -123,43 +123,6 @@ set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSI
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
 ##
-## Scripts
-##
-
-add_script(ur5_test)
-add_script(ur5_cylinder)
-add_script(ur5_benchmark)
-add_script(ur5_io)
-add_script(ur5_pool)
-add_script(ur5_visualization)
-add_script(ur5_ik)
-add_script(ur5_cartesian)
-add_script(fetch_test)
-add_script(fetch_chomp)
-add_script(fetch_scenes_visualize)
-add_script(fetch_scenes_benchmark)
-add_script(fetch_benchmark)
-add_script(fetch_visualization)
-add_script(fetch_cartesian)
-add_script(wam7_test)
-add_script(wam7_benchmark)
-add_script(resources_visualization)
-add_script(plugin_io)
-add_script(baxter_multi_target)
-add_script(shadowhand_ik)
-add_script(cob4_test)
-add_script(cob4_visualization)
-add_script(cob4_multi_target)
-
-add_script(ur5_ompl_interface)
-add_script(fetch_ompl_interface)
-add_script(fetch_ompl_benchmark)
-add_script(fetch_ompl_scenes_benchmark)
-add_script(fetch_profile)
-
-add_script(movegroup_record)
-
-##
 ## Tests
 ##
 
