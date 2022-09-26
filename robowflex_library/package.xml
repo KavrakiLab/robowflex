@@ -14,6 +14,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend>pkg-config</buildtool_depend>
 
+  <depend>robowflex_util</depend>
+
   <depend>boost</depend>
   <depend>yaml-cpp</depend>
   <depend>tinyxml2</depend>

@@ -18,37 +18,17 @@ include(HelperFunctions)
 ## Non-ROS libraries
 ##
 
-find_package(Boost REQUIRED filesystem)
-find_library(YAML yaml-cpp REQUIRED)
-find_package(TinyXML2 REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(HDF5 REQUIRED COMPONENTS C CXX)
+# find_package(Boost REQUIRED filesystem)
+# find_library(YAML yaml-cpp REQUIRED)
+# find_package(TinyXML2 REQUIRED)
+# find_package(Eigen3 REQUIRED)
+# find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 ##
 ## Catkin setup
 ##
 
 list(APPEND CATKIN_SOURCES
-  std_msgs
-  sensor_msgs
-  geometry_msgs
-  visualization_msgs
-  shape_msgs
-  octomap_msgs
-  trajectory_msgs
-  object_recognition_msgs
-  moveit_msgs
-
-  roscpp
-  rosbag
-  urdf
-  srdfdom
-  pluginlib
-  geometric_shapes
-  moveit_core
-  moveit_ros_planning
-  tf2_ros
-  xmlrpcpp
   )
 
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
@@ -65,48 +45,25 @@ catkin_package(
 ##
 
 list(APPEND SOURCES
-  src/planning.cpp
-  src/builder.cpp
-  src/scene.cpp
-  src/robot.cpp
-  src/geometry.cpp
-  src/benchmarking.cpp
-  src/util.cpp
-  src/id.cpp
-  src/io.cpp
-  src/log.cpp
-  src/openrave.cpp
-  src/io/visualization.cpp
-  src/io/colormap.cpp
-  src/io/broadcaster.cpp
-  src/io/hdf5.cpp
-  src/io/gnuplot.cpp
-  src/pool.cpp
-  src/tf.cpp
   src/random.cpp
-  src/yaml.cpp
-  src/trajectory.cpp
-  src/detail/ur5.cpp
-  src/detail/fetch.cpp
-  src/detail/cob4.cpp
   )
 
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-  ${TINYXML2_INCLUDE_DIRS}
-  ${HDF5_INCLUDE_DIRS}
-  yaml-cpp
+  # ${Boost_INCLUDE_DIRS}
+  # ${EIGEN3_INCLUDE_DIRS}
+  # ${TINYXML2_INCLUDE_DIRS}
+  # ${HDF5_INCLUDE_DIRS}
+  # yaml-cpp
   )
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${TINYXML2_LIBRARIES}
-  ${HDF5_LIBRARIES}
-  yaml-cpp
+  # ${Boost_LIBRARIES}
+  # ${TINYXML2_LIBRARIES}
+  # ${HDF5_LIBRARIES}
+  # yaml-cpp
   )
 
 include_directories(SYSTEM ${INCLUDES})

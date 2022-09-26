@@ -29,6 +29,8 @@ find_package(HDF5 REQUIRED COMPONENTS C CXX)
 ##
 
 list(APPEND CATKIN_SOURCES
+  robowflex_util
+
   std_msgs
   sensor_msgs
   geometry_msgs
