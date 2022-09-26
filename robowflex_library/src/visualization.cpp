@@ -14,7 +14,7 @@
 #include <robowflex_library/builder.h>
 #include <robowflex_util/constants.h>
 #include <robowflex_library/geometry.h>
-#include <robowflex_library/io/colormap.h>
+#include <robowflex_util/colormap.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>

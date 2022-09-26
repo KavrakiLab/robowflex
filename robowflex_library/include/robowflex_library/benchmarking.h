@@ -612,7 +612,7 @@ namespace robowflex
 
     private:
         const std::string metric_;
-        GNUPlotHelper helper_;
+        IO::GNUPlotHelper helper_;
     };
 }  // namespace robowflex
 

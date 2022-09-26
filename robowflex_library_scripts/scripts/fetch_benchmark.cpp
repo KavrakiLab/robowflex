@@ -7,7 +7,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
-#include <robowflex_library/io/gnuplot.h>
+#include <robowflex_util/gnuplot.h>
 
 using namespace robowflex;
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     experiment.addQuery("est", scene, planner, request->getRequest());
 
     // Use the post-query callback to visualize the data live.
-    IO::GNUPlotPlanDataSetOutputter plot("time");
+    GNUPlotPlanDataSetOutputter plot("time");
     experiment.setPostQueryCallback(
         [&](PlanDataSetPtr dataset, const PlanningQuery &) { plot.dump(*dataset); });
 
