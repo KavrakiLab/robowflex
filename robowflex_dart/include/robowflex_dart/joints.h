@@ -7,6 +7,7 @@
 #include <dart/dynamics/RevoluteJoint.hpp>
 #include <dart/dynamics/PrismaticJoint.hpp>
 #include <dart/dynamics/FreeJoint.hpp>
+#include <dart/dynamics/PlanarJoint.hpp>
 
 #include <ompl/util/RandomNumbers.h>
 
@@ -287,7 +288,7 @@ namespace robowflex
              *  \param[in] space State space.
              *  \param[in] joint Joint.
              */
-            SO2Joint(StateSpace *space, dart::dynamics::Joint *joint);
+            SO2Joint(StateSpace *space, dart::dynamics::Joint *joint, unsigned int index = 0);
 
             double distance(const Eigen::Ref<const Eigen::VectorXd> &a,
                             const Eigen::Ref<const Eigen::VectorXd> &b) const override;

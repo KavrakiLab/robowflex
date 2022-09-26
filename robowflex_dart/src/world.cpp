@@ -239,10 +239,49 @@ unsigned int World::getSkeletonIndex(dart::dynamics::SkeletonPtr skeleton) const
     return -1;
 }
 
-bool World::inCollision() const
+std::shared_ptr<dart::collision::BodyNodeCollisionFilter> World::getAllValidFilter() const
+{
+    auto filter = std::make_shared<dart::collision::BodyNodeCollisionFilter>();
+    for (unsigned int i = 0; i < world_->getNumSkeletons(); ++i)
+    {
+        const auto &si = world_->getSkeleton(i);
+
+        // Ignore collisions internally
+        for (unsigned int ii = 0; ii < si->getNumBodyNodes(); ++ii)
+            for (unsigned int ij = ii + 1; ij < si->getNumBodyNodes(); ++ij)
+                filter->addBodyNodePairToBlackList(si->getBodyNode(ii), si->getBodyNode(ij));
+
+        // Ignore collisions on other skeletons
+        for (unsigned int j = i + 1; j < world_->getNumSkeletons(); ++j)
+        {
+            const auto &sj = world_->getSkeleton(j);
+            for (unsigned int ii = 0; ii < si->getNumBodyNodes(); ++ii)
+                for (unsigned int jj = 0; jj < sj->getNumBodyNodes(); ++jj)
+                    filter->addBodyNodePairToBlackList(si->getBodyNode(ii), sj->getBodyNode(jj));
+        }
+    }
+
+    return filter;
+}
+
+std::shared_ptr<dart::collision::BodyNodeCollisionFilter> World::getDefaultFilter() const
+{
+    auto filter = std::make_shared<dart::collision::BodyNodeCollisionFilter>();
+    for (const auto &[name, robot] : robots_)
+        for (const auto &[b1, b2] : robot->getACM()->getDisabledPairs())
+            filter->addBodyNodePairToBlackList(robot->getFrame(b1), robot->getFrame(b2));
+
+    for (const auto &[name, structure] : structures_)
+        for (const auto &[b1, b2] : structure->getACM()->getDisabledPairs())
+            filter->addBodyNodePairToBlackList(structure->getFrame(b1), structure->getFrame(b2));
+
+    return filter;
+}
+
+bool World::inCollision(const std::shared_ptr<dart::collision::CollisionFilter> &filter) const
 {
     dart::collision::CollisionOption option;
-    option.collisionFilter = filter_;
+    option.collisionFilter = (filter) ? filter : filter_;
 
     return collider_->collide(all_.get(), option, nullptr);
 }

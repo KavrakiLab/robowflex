@@ -175,10 +175,22 @@ namespace robowflex
             /** \name Collisions
                 \{ */
 
+            /** \brief Get a collision filter that allows collisions between all body nodes. Useful for
+             *  constructing a custom filter to select one or a few objects.
+             *  \return A collision filter that considers no collisions.
+             */
+            std::shared_ptr<dart::collision::BodyNodeCollisionFilter> getAllValidFilter() const;
+
+            /** \brief Get a collision filter that is a copy of the default filter.
+             *  \return A copy of the default collision filter.
+             */
+            std::shared_ptr<dart::collision::BodyNodeCollisionFilter> getDefaultFilter() const;
+
             /** \brief Checks if world is currently in collision.
+             *  \param[in] filter Custom collision filter to use. If null, will use default collision filter.
              *  \return True if the world is currently in collision, false otherwise.
              */
-            bool inCollision() const;
+            bool inCollision(const std::shared_ptr<dart::collision::CollisionFilter> &filter = nullptr) const;
 
             /** \brief Gets the current signed distance to collision in the world.
              *  \return The signed distance to collision for the current state of the world.
@@ -222,8 +234,8 @@ namespace robowflex
 
             dart::simulation::WorldPtr world_;  ///< Underlying world.
 
-            Eigen::Vector3d low_{-1, -1, -1};  ///< Lower workspace bounds.
-            Eigen::Vector3d high_{1, 1, 1};    ///< Upper workspace bounds.
+            Eigen::Vector3d low_{-5, -5, -5};  ///< Lower workspace bounds.
+            Eigen::Vector3d high_{5, 5, 5};    ///< Upper workspace bounds.
 
             std::map<std::string, RobotPtr> robots_;          ///< Robots in world.
             std::map<std::string, StructurePtr> structures_;  ///< Structures in world.
