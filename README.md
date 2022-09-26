@@ -4,13 +4,11 @@ Documentation for this project can be read online at [GitHub pages](https://kavr
 If you use Robowflex, please use the following citation for the [associated paper](https://arxiv.org/pdf/2103.12826.pdf):
 ```bibtex
 @article{Kingston2021,
- archiveprefix = {arXiv},
- author = {Zachary Kingston and Lydia E. Kavraki},
- eprint = {2103.12826},
- primaryclass = {cs.RO}, 
- journal={arXiv preprint arXiv:2103.12826},
- title = {{Robowflex}: Robot Motion Planning with {MoveIt} Made Easy},
- year = {2021}
+  author = {Kingston, Zachary and Kavraki, Lydia E.},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title = {{Robowflex}: Robot Motion Planning with {MoveIt} Made Easy},
+  year = {2022},
+  month = {10}
 }
 ```
 
