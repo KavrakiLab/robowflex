@@ -1258,7 +1258,20 @@ namespace YAML
 
     bool convert<ros::Duration>::decode(const Node &node, ros::Duration &rhs)
     {
-        rhs.fromSec(node.as<double>());
+        if (node.Type() == NodeType::Scalar) {
+            rhs.fromSec(node.as<double>());
+            return true;
+        }
+        try
+        {
+            rhs.sec = node["sec"].as<int>();
+            rhs.nsec = node["nsec"].as<int>();
+        }
+        catch (YAML::InvalidNode &e)
+        {
+            rhs.sec = node["secs"].as<int>();
+            rhs.nsec = node["nsecs"].as<int>();
+        }
         return true;
     }
 
