@@ -15,9 +15,7 @@
 
   <exec_depend>robowflex_util</exec_depend>
   <exec_depend>robowflex_library</exec_depend>
-  <exec_depend>robowflex_ompl</exec_depend>
   <exec_depend>robowflex_tesseract</exec_depend>
-  <exec_depend>robowflex_movegroup</exec_depend>
   <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>robowflex_dart</exec_depend>
 
