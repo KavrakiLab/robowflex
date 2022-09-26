@@ -23,12 +23,4 @@ ADD ./CMakeModules CMakeModules
 # Main Library
 ADD ./robowflex_library robowflex_library
 RUN catkin build robowflex_library --start-with robowflex_library --limit-status-rate 0.001 --no-notify
-
-# OMPL Module
-ADD ./robowflex_ompl robowflex_ompl
-RUN catkin build robowflex_ompl --start-with robowflex_ompl --limit-status-rate 0.001 --no-notify
-
-# Movegroup Module
-ADD ./robowflex_movegroup robowflex_movegroup
-RUN catkin build robowflex_movegroup --start-with robowflex_movegroup --limit-status-rate 0.001 --no-notify
 WORKDIR /

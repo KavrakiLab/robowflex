@@ -39,12 +39,4 @@ ADD ./CMakeModules CMakeModules
 # Main Library
 ADD ./robowflex_library robowflex_library
 RUN catkin build robowflex_library --start-with robowflex_library $CAKTIN_BUILD_ARGS
-
-# OMPL Module
-ADD ./robowflex_ompl robowflex_ompl
-RUN catkin build robowflex_ompl --start-with robowflex_ompl $CAKTIN_BUILD_ARGS
-
-# Movegroup Module
-ADD ./robowflex_movegroup robowflex_movegroup
-RUN catkin build robowflex_movegroup --start-with robowflex_movegroup $CAKTIN_BUILD_ARGS
 WORKDIR /
