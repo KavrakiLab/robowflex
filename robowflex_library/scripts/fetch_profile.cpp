@@ -15,7 +15,7 @@
 #include <robowflex_library/io/gnuplot.h>
 #include <robowflex_library/io/visualization.h>
 
-#include <robowflex_ompl/ompl_interface.h>
+#include <robowflex_library/ompl_interface.h>
 
 using namespace robowflex;
 namespace po = boost::program_options;

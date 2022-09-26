@@ -10,7 +10,7 @@
 #include <robowflex_library/scene.h>
 #include <robowflex_library/util.h>
 
-#include <robowflex_ompl/ompl_interface.h>
+#include <robowflex_library/ompl_interface.h>
 
 using namespace robowflex;
 

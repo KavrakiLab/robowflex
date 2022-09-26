@@ -12,7 +12,7 @@
 #include <robowflex_library/trajectory.h>
 #include <robowflex_library/yaml.h>
 
-#include <robowflex_movegroup/services.h>
+#include <robowflex_library/movegroup.h>
 
 using namespace robowflex;
 using namespace robowflex::movegroup;

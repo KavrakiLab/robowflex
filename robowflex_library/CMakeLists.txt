@@ -41,6 +41,7 @@ list(APPEND CATKIN_SOURCES
   object_recognition_msgs
   moveit_msgs
 
+  actionlib
   roscpp
   rosbag
   urdf
@@ -49,6 +50,7 @@ list(APPEND CATKIN_SOURCES
   geometric_shapes
   moveit_core
   moveit_ros_planning
+  moveit_planners_ompl
   tf2_ros
   xmlrpcpp
   )
@@ -88,6 +90,9 @@ list(APPEND SOURCES
   src/random.cpp
   src/yaml.cpp
   src/trajectory.cpp
+  src/ompl_interface.cpp
+  src/ompl_trajectory.cpp
+  src/movegroup.cpp
   src/detail/ur5.cpp
   src/detail/fetch.cpp
   src/detail/cob4.cpp
@@ -145,6 +150,14 @@ add_script(shadowhand_ik)
 add_script(cob4_test)
 add_script(cob4_visualization)
 add_script(cob4_multi_target)
+
+add_script(ur5_ompl_interface)
+add_script(fetch_ompl_interface)
+add_script(fetch_ompl_benchmark)
+add_script(fetch_ompl_scenes_benchmark)
+add_script(fetch_profile)
+
+add_script(movegroup_record)
 
 ##
 ## Tests

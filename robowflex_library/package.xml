@@ -32,6 +32,7 @@
   <depend>object_recognition_msgs</depend>
   <depend>moveit_msgs</depend>
 
+  <depend>actionlib</depend>
   <depend>roscpp</depend>
   <depend>rosbag</depend>
   <depend>urdf</depend>
@@ -40,8 +41,10 @@
   <depend>geometric_shapes</depend>
   <depend>moveit_core</depend>
   <depend>moveit_ros_planning</depend>
+  <depend>moveit_planners_ompl</depend>
   <depend>tf2_ros</depend>
   <depend>xmlrpcpp</depend>
+
 
   <exec_depend>moveit_kinematics</exec_depend>
 </package>

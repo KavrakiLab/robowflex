@@ -6,7 +6,7 @@
 #include <robowflex_library/util.h>
 
 #include <moveit/ompl_interface/parameterization/model_based_state_space.h>
-#include <robowflex_ompl/ompl_trajectory.h>
+#include <robowflex_library/ompl_trajectory.h>
 
 using namespace robowflex;
 
