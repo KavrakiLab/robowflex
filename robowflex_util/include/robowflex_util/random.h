@@ -5,8 +5,7 @@
 
 #include <random>
 #include <robowflex_util/constants.h>
-
-#include <Eigen/Core>
+#include <robowflex_util/math.h>
 
 namespace robowflex
 {
@@ -111,6 +110,47 @@ namespace robowflex
          *  \return Sampled vector.
          */
         Eigen::Vector3d gaussianVec(const Eigen::Vector3d &stddev);
+
+        /** \brief Sample an orientation from a given \a orientation with XYZ Euler angle \a tolerances.
+         *  \param[in] orientation The desired mean orientation.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
+         *  \return The sampled orientation.
+         */
+        Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation,
+                                             const Eigen::Vector3d &tolerances);
+
+        /** \brief Sample an orientation within the XYZ Euler angle \a bounds.
+         *  \param[in] bounds XYZ Euler angle bounds about orientation.
+         *  \return The sampled orientation.
+         */
+        Eigen::Quaterniond sampleOrientationUniform(const Eigen::Vector3d &bounds);
+
+        /** \brief Sample a position within the given \a bounds using a uniform distribution.
+         *  \param[in] bounds The desired mean orientation.
+         *  \return The sampled position.
+         */
+        Eigen::Vector3d samplePositionUniform(const Eigen::Vector3d &bounds);
+
+        /** \brief Sample a position from a gaussian distribution with mean zero and given standard deviation
+         *  \param[in] stddev The desired standard deviation for the position.
+         *  \return The sampled position.
+         */
+        Eigen::Vector3d samplePositionGaussian(const Eigen::Vector3d &stddev);
+
+        /** \brief Sample a pose within the given position, orientation bounds.
+         *  \param[in] pos_bounds The desired position bounds.
+         *  \param[in] orn_bounds The desired orientation bounds.
+         *  \return The sampled pose.
+         */
+        RobotPose samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds);
+
+        /** \brief Sample a pose with gaussian sampling for the position with given variances and
+         *  uniform sampling for the orientation within the given bounds.
+         *  \param[in] pos_variances The desired position variances.
+         *  \param[in] orn_bounds The desired orientation bounds.
+         *  \return The sampled pose.
+         */
+        RobotPose samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds);
 
         /** \brief Choose a random element between \a start and \a end.
          *  \param[in] start Start iterator.

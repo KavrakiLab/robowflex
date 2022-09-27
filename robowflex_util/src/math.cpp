@@ -72,59 +72,10 @@ Eigen::Quaterniond TF::getPoseRotation(const RobotPose &pose)
     return Eigen::Quaterniond(pose.rotation());
 }
 
-Eigen::Quaterniond TF::sampleOrientation(const Eigen::Quaterniond &orientation,
-                                         const Eigen::Vector3d &tolerances)
-{
-    const auto vec = RNG::uniformVec(tolerances);
-    Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
-                                 * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
-                                 * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
-
-    return orientation * sampled;
-}
-
-Eigen::Quaterniond TF::sampleOrientationUniform(const Eigen::Vector3d &tolerances)
-{
-    const auto vec = RNG::uniformRPY(tolerances);
-    Eigen::Quaterniond sampled = Eigen::AngleAxisd(vec[0], Eigen::Vector3d::UnitX())    //
-                                 * Eigen::AngleAxisd(vec[1], Eigen::Vector3d::UnitY())  //
-                                 * Eigen::AngleAxisd(vec[2], Eigen::Vector3d::UnitZ());
-
-    return sampled;
-}
-
 Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, const Eigen::Vector3d &axis,
                                          double value)
 {
     return Eigen::AngleAxisd(value, axis) * orientation;
-}
-
-Eigen::Vector3d TF::samplePositionUniform(const Eigen::Vector3d &bounds)
-{
-    return RNG::uniformVec(bounds);
-}
-
-Eigen::Vector3d TF::samplePositionGaussian(const Eigen::Vector3d &stddev)
-{
-    return RNG::gaussianVec(stddev);
-}
-
-RobotPose TF::samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds)
-{
-    auto sampled = RobotPose::Identity();
-    sampled.translation() = samplePositionUniform(pos_bounds);
-    sampled.linear() = sampleOrientationUniform(orn_bounds).toRotationMatrix();
-
-    return sampled;
-}
-
-RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds)
-{
-    auto sampled = RobotPose::Identity();
-    sampled.translation() = samplePositionUniform(pos_variances);
-    sampled.linear() = sampleOrientationUniform(orn_bounds).toRotationMatrix();
-
-    return sampled;
 }
 
 double TF::angleNormalize(double v)
