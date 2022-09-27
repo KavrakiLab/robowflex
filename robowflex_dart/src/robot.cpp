@@ -8,7 +8,7 @@
 
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/io/filesystem.h>
-#include <robowflex_moveit/io/roslog.h>
+
 #include <robowflex_util/math.h>
 #include <robowflex_moveit/utility/conversions.h>
 
@@ -74,7 +74,7 @@ bool Robot::addNameToGroup(const std::string &group, const std::string &name)
 {
     if (not isGroup(group))
     {
-        XROS_DEBUG("Adding joint %1% to group %2%.", name, group);
+        // XROS_DEBUG("Adding joint %1% to group %2%.", name, group);
         groups_.emplace(group, std::vector<std::string>{name});
         return true;
     }
@@ -85,7 +85,7 @@ bool Robot::addNameToGroup(const std::string &group, const std::string &name)
         if (item == name)
             return false;
 
-    XROS_DEBUG("Adding joint %1% to group %2%.", name, group);
+    // XROS_DEBUG("Adding joint %1% to group %2%.", name, group);
     names.emplace_back(name);
     return true;
 }
@@ -95,7 +95,7 @@ bool Robot::addJointToGroup(const std::string &group, const std::string &joint_n
     const auto &joint = skeleton_->getJoint(joint_name);
     if (not joint)
     {
-        XROS_ERROR("Joint %1% not in skeleton.", joint_name);
+        // XROS_ERROR("Joint %1% not in skeleton.", joint_name);
         return false;
     }
 
@@ -111,14 +111,14 @@ bool Robot::addLinkToGroup(const std::string &group, const std::string &link_nam
     const auto &node = skeleton_->getBodyNode(link_name);
     if (not node)
     {
-        XROS_ERROR("Link %1% not in skeleton.", link_name);
+        // XROS_ERROR("Link %1% not in skeleton.", link_name);
         return false;
     }
 
     const auto &joint = node->getParentJoint();
     if (not joint)
     {
-        XROS_ERROR("Link %1% has no parent joint", link_name);
+        // XROS_ERROR("Link %1% has no parent joint", link_name);
         return false;
     }
 
@@ -138,7 +138,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
     auto *node = skeleton_->getBodyNode(tip);
     if (not node)
     {
-        XROS_ERROR("Tip link %1% not in skeleton.", tip);
+        // XROS_ERROR("Tip link %1% not in skeleton.", tip);
         return false;
     }
 
@@ -148,7 +148,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
         const auto &joint = node->getParentJoint();
         if (not joint)
         {
-            XROS_ERROR("Link %1% has no parent joint", node->getName());
+            // XROS_ERROR("Link %1% has no parent joint", node->getName());
             return false;
         }
 
@@ -160,7 +160,7 @@ bool Robot::addChainToGroup(const std::string &group, const std::string &tip, co
 
     if (not node)
     {
-        XROS_ERROR("Base link %1% not parent of tip link %2%", base, tip);
+        // XROS_ERROR("Base link %1% not parent of tip link %2%", base, tip);
         return false;
     }
 
@@ -175,7 +175,7 @@ bool Robot::addGroupToGroup(const std::string &group, const std::string &other)
 {
     if (not isGroup(other))
     {
-        XROS_ERROR("Group %1% does not exist", other);
+        // XROS_ERROR("Group %1% does not exist", other);
         return false;
     }
 
@@ -191,7 +191,7 @@ bool Robot::loadSRDF(const std::string &srdf)
     const auto &file = IO::getPackageFile(srdf);
     if (file.empty())
     {
-        XROS_ERROR("File %1% cannot be found!", srdf);
+        // XROS_ERROR("File %1% cannot be found!", srdf);
         return false;
     }
 
@@ -201,7 +201,7 @@ bool Robot::loadSRDF(const std::string &srdf)
     tinyxml2::XMLElement *root = doc.FirstChildElement();
     if (not root)
     {
-        XROS_ERROR("No child element in SRDF");
+        // XROS_ERROR("No child element in SRDF");
         return false;
     }
 
@@ -218,8 +218,8 @@ bool Robot::loadSRDF(const std::string &srdf)
         if (parent != "world")
         {
             pnode = skeleton_->getBodyNode(parent);
-            if (not pnode)
-                XROS_ERROR("Couldn't find %s for virtual joint!", parent);
+            // if (not pnode)
+            //     XROS_ERROR("Couldn't find %s for virtual joint!", parent);
         }
 
         auto *cnode = skeleton_->getBodyNode(child);

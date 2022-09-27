@@ -12,7 +12,7 @@
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/filesystem.h>
-#include <robowflex_moveit/io/roslog.h>
+
 #include <robowflex_util/math.h>
 
 #include <robowflex_dart/acm.h>
@@ -315,8 +315,8 @@ void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::st
 void Structure::setJointParentTransform(const std::string &name, const RobotPose &tf)
 {
     auto *joint = skeleton_->getJoint(name);
-    if (joint == nullptr)
-        XROS_ERROR("Cannot find joint named %s to set TF!", name);
+    // if (joint == nullptr)
+    //     XROS_ERROR("Cannot find joint named %s to set TF!", name);
 
     joint->setTransformFromParentBodyNode(tf);
 }

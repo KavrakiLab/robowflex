@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include <robowflex_moveit/io/roslog.h>
+
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
@@ -96,11 +96,11 @@ int main(int /*argc*/, char ** /*argv*/)
 
         if (solved)
         {
-            XROS_INFO("Found solution!");
+            // XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            XROS_WARN("No solution found");
+            // XROS_WARN("No solution found");
 
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
@@ -156,11 +156,11 @@ int main(int /*argc*/, char ** /*argv*/)
 
         if (solved)
         {
-            XROS_INFO("Found solution!");
+            // XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            XROS_WARN("No solution found");
+            // XROS_WARN("No solution found");
 
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
@@ -216,11 +216,11 @@ int main(int /*argc*/, char ** /*argv*/)
 
         if (solved)
         {
-            XROS_INFO("Found solution!");
+            // XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            XROS_WARN("No solution found");
+            // XROS_WARN("No solution found");
 
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
@@ -253,17 +253,17 @@ int main(int /*argc*/, char ** /*argv*/)
 
         if (solved)
         {
-            XROS_INFO("Found solution!");
+            // XROS_INFO("Found solution!");
             window.animatePath(builder, builder.getSolutionPath());
         }
         else
-            XROS_WARN("No solution found");
+            // XROS_WARN("No solution found");
 
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
 
     window.run([&]() {
-        XROS_INFO("Press enter");
+        // XROS_INFO("Press enter");
         std::cin.ignore();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));

@@ -2,7 +2,7 @@
 
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
-#include <robowflex_moveit/io/roslog.h>
+
 #include <robowflex_util/constants.h>
 
 #include <robowflex_dart/space.h>
@@ -67,7 +67,7 @@ void StateSpace::addGroup(const std::string &name, const std::string &group, std
     auto robot = world_->getRobot(name);
     if (not robot)
     {
-        XROS_ERROR("Robot %1% does not exist in world.", name);
+        // XROS_ERROR("Robot %1% does not exist in world.", name);
         throw std::runtime_error("Invalid robot");
     }
 
@@ -198,8 +198,8 @@ void StateSpace::addGroupFromJoints(const std::string &group_name,
                 addJoint(group_name, std::make_shared<SO3Joint>(this, free));
             }
         }
-        else
-            XROS_WARN("Unknown joint type %1%, skipping.", type);
+        // else
+            // XROS_WARN("Unknown joint type %1%, skipping.", type);
     }
 
     registerDefaultProjection(

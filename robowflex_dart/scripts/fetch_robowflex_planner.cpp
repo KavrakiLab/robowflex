@@ -5,7 +5,7 @@
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
-#include <robowflex_moveit/io/roslog.h>
+
 #include <robowflex_moveit/io/visualization.h>
 #include <robowflex_moveit/robots/fetch.h>
 
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
     // Create an RViz visualization helper
     IO::RVIZHelper rviz(fetch);
-    XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
+    // XROS_INFO("RViz Initialized! Press enter to continue (after your RViz is setup)...");
     std::cin.get();
 
     // Create an empty scene.
