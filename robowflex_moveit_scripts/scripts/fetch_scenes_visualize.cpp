@@ -47,7 +47,8 @@ int main(int argc, char **argv)
 
         const auto &scene_file =
             "package://robowflex_moveit_scripts/yaml/fetch_scenes/scene_vicon" + index + ".yaml";
-        const auto &request_file = "package://robowflex_moveit_scripts/yaml/fetch_scenes/request" + index + ".yaml";
+        const auto &request_file =
+            "package://robowflex_moveit_scripts/yaml/fetch_scenes/request" + index + ".yaml";
 
         // Create an empty Scene.
         auto scene = std::make_shared<Scene>(fetch);
