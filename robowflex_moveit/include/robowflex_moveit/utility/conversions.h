@@ -16,6 +16,7 @@
 #include <moveit_msgs/OrientationConstraint.h>
 
 #include <robowflex_util/class_forward.h>
+#include <robowflex_util/math.h>
 
 namespace robowflex
 {

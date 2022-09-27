@@ -5,9 +5,6 @@
 
 #include <string>
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
 #include <moveit_msgs/PlanningScene.h>
 
 #include <moveit/collision_detection/collision_matrix.h>  // for collision_detection::AllowedCollisionMatrix
@@ -15,7 +12,7 @@
 #include <moveit/robot_state/robot_state.h>               // for robot_state::RobotState
 
 #include <robowflex_util/class_forward.h>
-
+#include <robowflex_util/math.h>
 
 namespace robowflex
 {
