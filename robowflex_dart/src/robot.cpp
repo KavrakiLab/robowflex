@@ -6,9 +6,9 @@
 #include <dart/dynamics/DegreeOfFreedom.hpp>
 #include <dart/dynamics/Joint.hpp>
 
+#include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/io/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
-#include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/utility/tf.h>
 
 #include <robowflex_dart/acm.h>

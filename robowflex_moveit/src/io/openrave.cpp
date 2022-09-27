@@ -13,12 +13,12 @@
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <robowflex_util/constants.h>
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/io/filesystem.h>
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/openrave.h>
+#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/constants.h>
 
 using namespace robowflex;
 using namespace robowflex::openrave;

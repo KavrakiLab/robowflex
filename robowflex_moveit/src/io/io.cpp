@@ -4,12 +4,12 @@
 #include <cstdlib>        // for std::getenv
 #include <memory>         // for std::shared_ptr
 #include <regex>          // for std::regex
-#include <unordered_map>  // for std::hash
 #include <thread>
+#include <unordered_map>  // for std::hash
 
 #include <boost/asio/ip/host_name.hpp>                        // for hostname
-#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
 #include <boost/filesystem.hpp>                               // for filesystem paths
+#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>             // for UUID generation
 #include <boost/uuid/uuid_generators.hpp>  // for UUID generation

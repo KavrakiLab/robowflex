@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_moveit/io/filesystem.h>
 #include <robowflex_moveit/io/bag.h>
+#include <robowflex_moveit/io/filesystem.h>
 
 using namespace robowflex;
 

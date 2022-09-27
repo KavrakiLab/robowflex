@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
 #include <robowflex_moveit/core/geometry.h>
-#include <robowflex_util/random.h>
 #include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/random.h>
 
 using namespace robowflex;
 

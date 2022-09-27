@@ -5,9 +5,9 @@
 #include <dart/dynamics/InverseKinematics.hpp>
 #include <dart/dynamics/SimpleFrame.hpp>
 
-#include <robowflex_util/constants.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/constants.h>
 
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/space.h>

@@ -1,8 +1,8 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_moveit/io/filesystem.h>
-#include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/io/yaml_conversions.h>
+#include <robowflex_moveit/io/yaml_utils.h>
 
 using namespace robowflex;
 

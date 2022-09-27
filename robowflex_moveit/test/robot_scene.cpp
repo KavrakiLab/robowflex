@@ -2,12 +2,12 @@
 
 #include <gtest/gtest.h>
 
-#include <robowflex_moveit/robots/ur5.h>
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
-#include <robowflex_moveit/utility/tf.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/robots/ur5.h>
+#include <robowflex_moveit/utility/tf.h>
 
 using namespace robowflex;
 

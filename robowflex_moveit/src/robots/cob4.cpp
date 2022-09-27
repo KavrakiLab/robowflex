@@ -2,9 +2,9 @@
 
 #include <cmath>
 
+#include <robowflex_moveit/io/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/robots/cob4.h>
-#include <robowflex_moveit/io/filesystem.h>
 
 using namespace robowflex;
 
@@ -143,6 +143,5 @@ bool OMPL::Cob4OMPLPipelinePlanner::initialize(const Settings &settings,
 {
     if (IO::resolvePackage(RESOURCE_CONFIG).empty())
         return OMPLPipelinePlanner::initialize(DEFAULT_CONFIG, settings, DEFAULT_PLUGIN, adapters);
-    else
-        return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
+    return OMPLPipelinePlanner::initialize(RESOURCE_CONFIG, settings, DEFAULT_PLUGIN, adapters);
 }

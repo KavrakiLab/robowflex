@@ -2,9 +2,9 @@
 
 #include <sensor_msgs/JointState.h>
 
+#include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/io/broadcaster.h>
 #include <robowflex_moveit/io/roslog.h>
-#include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/utility/tf.h>
 
 using namespace robowflex;
