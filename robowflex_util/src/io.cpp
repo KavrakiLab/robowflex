@@ -1,26 +1,3 @@
-/* Author: Zachary Kingston */
-
-#include <array>          // for std::array
-#include <cstdlib>        // for std::getenv
-#include <memory>         // for std::shared_ptr
-#include <regex>          // for std::regex
-#include <unordered_map>  // for std::hash
-#include <thread>
-
-#include <boost/asio/ip/host_name.hpp>                        // for hostname
-#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
-#include <boost/filesystem.hpp>                               // for filesystem paths
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>             // for UUID generation
-#include <boost/uuid/uuid_generators.hpp>  // for UUID generation
-#include <boost/uuid/uuid_io.hpp>          // for UUID generation
-#include <ros/package.h>                   // for package resolving
-
-#include <robowflex_library/io.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/macros.h>
-#include <robowflex_library/util.h>
-
 using namespace robowflex;
 
 namespace
@@ -84,82 +61,6 @@ namespace
     }
 }  // namespace
 
-std::string IO::resolvePackage(const std::string &path)
-{
-    if (path.empty())
-        return "";
-
-    const std::string prefix = "package://";
-
-    boost::filesystem::path file;
-    if (isPrefix(prefix, path))
-    {
-        boost::filesystem::path subpath(path.substr(prefix.length(), path.length() - 1));
-        const std::string package_name = (*subpath.begin()).string();
-
-        const std::string package = ros::package::getPath(package_name);
-        if (package.empty())
-        {
-            XROS_WARN("Package `%s` does not exist.", package_name);
-            return "";
-        }
-
-        file = package;
-        for (auto it = ++subpath.begin(); it != subpath.end(); ++it)
-            file /= *it;
-    }
-    else
-        file = path;
-
-    return expandPath(file).string();
-}
-
-std::set<std::string> IO::findPackageURIs(const std::string &string)
-{
-    const std::regex re(R"(((package):?\/)\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)?)");
-
-    std::set<std::string> packages;
-
-    auto begin = std::sregex_iterator(string.begin(), string.end(), re);
-    auto end = std::sregex_iterator();
-
-    for (auto it = begin; it != end; ++it)
-    {
-        std::smatch sm = *it;
-        std::string smstr = sm.str(3);
-        packages.emplace(smstr);
-    }
-
-    return packages;
-}
-
-std::string IO::resolvePath(const std::string &path)
-{
-    boost::filesystem::path file = resolvePackage(path);
-
-    if (!boost::filesystem::exists(file))
-    {
-        XROS_WARN("File `%s` does not exist.", path);
-        return "";
-    }
-
-    return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
-}
-
-std::string IO::resolveParent(const std::string &path)
-{
-    boost::filesystem::path file = resolvePackage(path);
-    return file.parent_path().string();
-}
-
-std::string IO::makeFilepath(const std::string &directory, const std::string &filename)
-{
-    boost::filesystem::path dirpath = resolveParent(directory);
-    dirpath /= filename;
-
-    return dirpath.string();
-}
-
 std::string IO::loadFileToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
@@ -196,36 +97,6 @@ std::string IO::runCommand(const std::string &cmd)
 
     return result;
 }
-
-std::string IO::loadXacroToString(const std::string &path)
-{
-    const std::string full_path = resolvePath(path);
-    if (full_path.empty())
-        return "";
-
-    std::string cmd = "rosrun xacro xacro ";
-
-#if ROBOWFLEX_AT_LEAST_MELODIC
-#else
-    cmd += "--inorder ";
-#endif
-
-    cmd += full_path;
-    return runCommand(cmd);
-}
-
-std::string IO::loadXMLToString(const std::string &path)
-{
-    const std::string full_path = resolvePath(path);
-    if (full_path.empty())
-        return "";
-
-    if (isExtension(full_path, "xacro"))
-        return loadXacroToString(full_path);
-
-    return loadFileToString(full_path);
-}
-
 std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
 {
     YAML::Node file;

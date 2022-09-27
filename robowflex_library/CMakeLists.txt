@@ -88,6 +88,9 @@ list(APPEND SOURCES
   src/tf.cpp
   src/yaml.cpp
   src/movegroup.cpp
+  src/handler.cpp
+  src/bag.cpp
+
   src/robots/ur5.cpp
   src/robots/fetch.cpp
   src/robots/cob4.cpp
