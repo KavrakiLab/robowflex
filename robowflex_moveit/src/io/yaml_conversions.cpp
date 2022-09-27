@@ -16,6 +16,7 @@
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>
 #include <robowflex_moveit/utility/tf.h>
+#include <robowflex_moveit/utility/conversions.h>
 
 using namespace robowflex;
 

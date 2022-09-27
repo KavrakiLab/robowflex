@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_MOVEIT_TIME_
-#define ROBOWFLEX_MOVEIT_TIME_
+#ifndef ROBOWFLEX_TIME_
+#define ROBOWFLEX_TIME_
 
 #include <boost/date_time.hpp>  // for date operations
 

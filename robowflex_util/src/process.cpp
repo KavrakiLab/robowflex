@@ -3,8 +3,8 @@
 #include <boost/asio/ip/host_name.hpp>                        // for hostname
 #include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
 
-#include <robowflex_moveit/io/roslog.h>
-#include <robowflex_moveit/io/process.h>
+#include <robowflex_util/log.h>
+#include <robowflex_util/process.h>
 
 using namespace robowflex;
 
@@ -14,10 +14,7 @@ std::string IO::runCommand(const std::string &cmd)
     std::string result;
     std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
     if (!pipe)
-    {
-        XROS_ERROR("Failed to run command `%s`!", cmd);
-        return "";
-    }
+        throw std::runtime_error(log::format("Failed to run command `%s`!", cmd));
 
     while (!feof(pipe.get()))
     {

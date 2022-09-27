@@ -18,6 +18,7 @@
 #include <robowflex_moveit/io/openrave.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/utility/tf.h>
+#include <robowflex_moveit/utility/conversions.h>
 #include <robowflex_util/constants.h>
 
 using namespace robowflex;

@@ -18,11 +18,7 @@ include(HelperFunctions)
 ## Non-ROS libraries
 ##
 
-# find_package(Boost REQUIRED filesystem)
-# find_library(YAML yaml-cpp REQUIRED)
-# find_package(TinyXML2 REQUIRED)
 find_package(Eigen3 REQUIRED)
-# find_package(HDF5 REQUIRED COMPONENTS C CXX)
 
 ##
 ## Catkin setup
@@ -49,24 +45,19 @@ list(APPEND SOURCES
   src/pool.cpp
   src/colormap.cpp
   src/gnuplot.cpp
+  src/process.cpp
+  src/time.cpp
+  src/uid.cpp
   )
 
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  # ${Boost_INCLUDE_DIRS}
-  # ${TINYXML2_INCLUDE_DIRS}
-  # ${HDF5_INCLUDE_DIRS}
-  # yaml-cpp
   )
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
-  # ${Boost_LIBRARIES}
-  # ${TINYXML2_LIBRARIES}
-  # ${HDF5_LIBRARIES}
-  # yaml-cpp
   )
 
 include_directories(SYSTEM ${INCLUDES})

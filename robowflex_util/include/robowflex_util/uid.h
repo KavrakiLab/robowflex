@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_MOVEIT_UID_
-#define ROBOWFLEX_MOVEIT_UID_
+#ifndef ROBOWFLEX_UID_
+#define ROBOWFLEX_UID_
 
 #include <cstddef>
 #include <string>

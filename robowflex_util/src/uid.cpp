@@ -5,7 +5,7 @@
 #include <boost/uuid/uuid_generators.hpp>  // for UUID generation
 #include <boost/uuid/uuid_io.hpp>          // for UUID generation
 
-#include <robowflex_moveit/io/uid.h>
+#include <robowflex_util/uid.h>
 
 using namespace robowflex;
 
