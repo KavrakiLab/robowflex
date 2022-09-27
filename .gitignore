@@ -33,7 +33,7 @@
 *.exe
 *.out
 *.app
-core
+# core
 
 # Compile Commands
 *compile_commands.json
