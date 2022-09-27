@@ -1,13 +1,13 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_moveit/robots/fetch.h>
-#include <robowflex_moveit/io/visualization.h>
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/core/trajectory.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/io/visualization.h>
+#include <robowflex_moveit/robots/fetch.h>
 
 using namespace robowflex;
 

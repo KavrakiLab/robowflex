@@ -2,8 +2,8 @@
 
 #include <boost/date_time.hpp>
 
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
 
 #include <robowflex_moveit/io/movegroup.h>
 

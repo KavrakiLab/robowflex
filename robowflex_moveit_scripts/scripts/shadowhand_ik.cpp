@@ -3,12 +3,12 @@
 #include <sensor_msgs/JointState.h>
 
 // Robowflex
-#include <robowflex_moveit/io/visualization.h>
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/io/visualization.h>
 
 using namespace robowflex;
 
@@ -21,7 +21,7 @@ using namespace robowflex;
  */
 
 // Tip links of each of the shadowhand's fingers (from forefinger to thumb).
-const std::vector<std::string> tips = {"fftip", "mftip", "rftip", "lftip", "thtip"};
+const std::vector<std::string> TIPS = {"fftip", "mftip", "rftip", "lftip", "thtip"};
 
 int main(int argc, char **argv)
 {
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     // Extract poses of the tip links.
     RobotPoseVector poses;
-    for (const auto &tip : tips)
+    for (const auto &tip : TIPS)
     {
         auto pose = shadowhand->getLinkTF(tip);
         poses.emplace_back(pose);
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     std::cin.ignore();
 
     // Configure query for shadowhand
-    Robot::IKQuery query("all_fingers", poses, tips);
+    Robot::IKQuery query("all_fingers", poses, TIPS);
     query.scene = scene;
     query.verbose = true;  // If verbose is true, debugging output for constraints and collisions is output.
 

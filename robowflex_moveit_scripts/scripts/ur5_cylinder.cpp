@@ -1,12 +1,12 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_moveit/core/builder.h>
-#include <robowflex_moveit/robots/ur5.h>
 #include <robowflex_moveit/core/geometry.h>
-#include <robowflex_moveit/io/visualization.h>
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/io/visualization.h>
+#include <robowflex_moveit/robots/ur5.h>
 
 using namespace robowflex;
 

@@ -3,9 +3,9 @@
 
 #include <robowflex_moveit/core/benchmarking.h>
 #include <robowflex_moveit/core/builder.h>
-#include <robowflex_moveit/robots/fetch.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/robots/fetch.h>
 
 #include <robowflex_util/gnuplot.h>
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     // Use the post-query callback to visualize the data live.
     GNUPlotPlanDataSetOutputter plot("time");
     experiment.setPostQueryCallback(
-        [&](PlanDataSetPtr dataset, const PlanningQuery &) { plot.dump(*dataset); });
+        [&](const PlanDataSetPtr& dataset, const PlanningQuery &) { plot.dump(*dataset); });
 
     auto dataset = experiment.benchmark(4);
 

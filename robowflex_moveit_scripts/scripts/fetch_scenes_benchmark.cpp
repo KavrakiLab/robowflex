@@ -3,11 +3,11 @@
 // Robowflex
 #include <robowflex_moveit/core/benchmarking.h>
 #include <robowflex_moveit/core/builder.h>
-#include <robowflex_moveit/robots/fetch.h>
-#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/robots/fetch.h>
 
 using namespace robowflex;
 

@@ -1,16 +1,16 @@
 /* Author: Juan D. Hernandez */
 
-#include <robowflex_moveit/io/roslog.h>
-#include <robowflex_moveit/robots/cob4.h>
 #include <robowflex_moveit/core/builder.h>
 #include <robowflex_moveit/core/geometry.h>
-#include <robowflex_moveit/io/broadcaster.h>
-#include <robowflex_moveit/io/visualization.h>
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/core/trajectory.h>
+#include <robowflex_moveit/io/broadcaster.h>
 #include <robowflex_moveit/io/ros.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/io/visualization.h>
+#include <robowflex_moveit/robots/cob4.h>
 
 using namespace robowflex;
 
