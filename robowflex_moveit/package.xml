@@ -2,7 +2,7 @@
 <package format="2">
   <name>robowflex_moveit</name>
   <version>1.3.0</version>
-  <description>Core Robowflex Library</description>
+  <description>Core Robowflex library to interface with MoveIt</description>
 
   <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
   <author email="zak@rice.edu">Zachary Kingston</author>
@@ -19,8 +19,6 @@
   <depend>boost</depend>
   <depend>yaml-cpp</depend>
   <depend>tinyxml2</depend>
-  <depend>eigen</depend>
-  <depend>hdf5</depend>
 
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
@@ -44,7 +42,6 @@
   <depend>moveit_planners_ompl</depend>
   <depend>tf2_ros</depend>
   <depend>xmlrpcpp</depend>
-
 
   <exec_depend>moveit_kinematics</exec_depend>
 </package>

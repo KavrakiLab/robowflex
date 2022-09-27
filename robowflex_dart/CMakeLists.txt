@@ -22,24 +22,24 @@ find_package(DART 6 QUIET
 if (DART_LIBRARIES)
 
   find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
-  include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+  list(APPEND INCLUDES ${Boost_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${Boost_LIBRARIES})
 
   find_package(Eigen3 REQUIRED)
-  include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
+  list(APPEND INCLUDES ${EIGEN3_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${EIGEN3_LIBRARIES})
 
   find_package(ompl REQUIRED)
   if (ompl_LIBRARIES)
-    include_directories(SYSTEM ${ompl_INCLUDE_DIRS})
+    list(APPEND INCLUDES ${ompl_INCLUDE_DIRS})
     list(APPEND LIBRARIES ${ompl_LIBRARIES})
   else()
-    include_directories(SYSTEM ${OMPL_INCLUDE_DIRS})
+    list(APPEND INCLUDES ${OMPL_INCLUDE_DIRS})
     list(APPEND LIBRARIES ${OMPL_LIBRARIES})
   endif (ompl_LIBRARIES)
 
   find_package(TinyXML2 REQUIRED)
-  include_directories(SYSTEM ${TINYXML2_INCLUDE_DIRS})
+  list(APPEND INCLUDES ${TINYXML2_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${TINYXML2_LIBRARIES})
 
   find_package(Threads REQUIRED)
@@ -48,22 +48,20 @@ if (DART_LIBRARIES)
   include_directories(SYSTEM ${DART_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${DART_LIBRARIES})
 
-  find_package(catkin REQUIRED COMPONENTS
+  list(APPEND CATKIN_SOURCES
     robowflex_moveit
-    )
+  )
+
+  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
 
   catkin_package(
     LIBRARIES ${LIBRARY_NAME}
-    CATKIN_DEPENDS
-    robowflex_moveit
+    CATKIN_DEPENDS ${CATKIN_SOURCES}
     DEPENDS
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-    )
+  )
 
-  include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/include ${catkin_INCLUDE_DIRS})
-  link_directories(${catkin_LIBRARY_DIRS})
-
-  add_library(${LIBRARY_NAME}
+  list(APPEND SOURCES
     src/robot.cpp
     src/io.cpp
     src/space.cpp
@@ -73,15 +71,26 @@ if (DART_LIBRARIES)
     src/tsr.cpp
     src/planning.cpp
     src/gui.cpp
-    src/planner.cpp
     src/joints/joint.cpp
     src/joints/rnjoint.cpp
     src/joints/so2joint.cpp
     src/joints/so3joint.cpp
-    )
+  )
 
+  list(PREPEND INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${catkin_INCLUDE_DIRS}
+  )
+
+  list(PREPEND LIBRARIES
+    ${catkin_LIBRARIES}
+  )
+
+  include_directories(SYSTEM ${INCLUDES})
+  link_directories(${catkin_LIBRARY_DIRS})
+  add_library(${LIBRARY_NAME} ${SOURCES})
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-  target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
+  target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
   add_script(fetch_plan)
   add_script(fetch_pick)
@@ -90,7 +99,6 @@ if (DART_LIBRARIES)
   add_script(fetch_lift)
   add_script(fetch_se2)
   add_script(fetch_robowflex_plan)
-  add_script(fetch_robowflex_planner)
   add_script(gui_test)
   add_script(tsr_helper)
 

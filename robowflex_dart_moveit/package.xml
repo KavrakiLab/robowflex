@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>robowflex_dart_moveit</name>
+  <version>1.3.0</version>
+  <description>Conversions between Robowflex MoveIt and DART</description>
+
+  <maintainer email="zak@rice.edu">Zachary Kingston</maintainer>
+  <author email="zak@rice.edu">Zachary Kingston</author>
+
+  <license>BSD</license>
+  <url type="bugtracker">https://github.com/KavrakiLab/robowflex/issues</url>
+  <url type="repository">https://github.com/KavrakiLab/robowflex</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
+
+  <depend>robowflex_moveit</depend>
+  <depend>robowflex_dart</depend>
+</package>

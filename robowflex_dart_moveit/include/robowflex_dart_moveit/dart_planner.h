@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_DART_PLANNER_
-#define ROBOWFLEX_DART_PLANNER_
+#ifndef ROBOWFLEX_DART_MOVEIT_PLANNER_
+#define ROBOWFLEX_DART_MOVEIT_PLANNER_
 
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_dart/planning.h>

@@ -9,7 +9,7 @@
 #include <robowflex_moveit/io/visualization.h>
 #include <robowflex_moveit/robots/fetch.h>
 
-#include <robowflex_dart/planner.h>
+#include <robowflex_dart_moveit/dart_planner.h>
 
 using namespace robowflex;
 
