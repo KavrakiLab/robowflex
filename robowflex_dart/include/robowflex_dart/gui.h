@@ -10,7 +10,7 @@
 #include <dart/gui/osg/osg.hpp>
 
 #include <robowflex_util/class_forward.h>
-
+#include <robowflex_util/uid.h>
 
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>
@@ -39,11 +39,6 @@ namespace robowflex
 
         /** \class robowflex::darts::WindowWidgetConstPtr
             \brief A const shared pointer wrapper for robowflex::darts::WindowWidget. */
-
-        /** \brief Generate a unique identifier.
-         *  \return A random unique ID.
-         */
-        std::string generateUUID();
 
         /** \brief Viewer class.
          */
@@ -325,15 +320,15 @@ namespace robowflex
         class LinePlotElement : public ImGuiElement
         {
         public:
-            std::string id{"##" + generateUUID()};  ///< Unique ID.
-            std::string label{""};                  ///< Plot Label.
-            std::string units{""};                  ///< Plot Units.
-            bool show_min{false};                   ///< Display minimum value under plot.
-            bool show_max{false};                   ///< Display maximum value under plot.
-            bool show_avg{false};                   ///< Display average value under plot.
-            bool recent{true};                      ///< Display most recent value on plot.
-            std::size_t max_size{100};              ///< Maximum size of plot data.
-            Eigen::Vector3d color{1., 1., 1.};      ///< Color of plot.
+            std::string id{"##" + robowflex::IO::generateUUID()};  ///< Unique ID.
+            std::string label{""};                                 ///< Plot Label.
+            std::string units{""};                                 ///< Plot Units.
+            bool show_min{false};                                  ///< Display minimum value under plot.
+            bool show_max{false};                                  ///< Display maximum value under plot.
+            bool show_avg{false};                                  ///< Display average value under plot.
+            bool recent{true};                                     ///< Display most recent value on plot.
+            std::size_t max_size{100};                             ///< Maximum size of plot data.
+            Eigen::Vector3d color{1., 1., 1.};                     ///< Color of plot.
 
             /** \brief Add a point to the plot data.
              *  \param[in] x Point to add.

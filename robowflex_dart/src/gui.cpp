@@ -3,23 +3,11 @@
 #include <condition_variable>
 #include <mutex>
 
-#include <boost/uuid/uuid.hpp>             // for UUID generation
-#include <boost/uuid/uuid_generators.hpp>  // for UUID generation
-#include <boost/uuid/uuid_io.hpp>          // for UUID generationinclude <condition_variable>
-
 #include <robowflex_util/constants.h>
-
 #include <robowflex_dart/gui.h>
 
 namespace constants = robowflex::constants;
 using namespace robowflex::darts;
-
-std::string robowflex::darts::generateUUID()
-{
-    boost::uuids::random_generator gen;
-    boost::uuids::uuid u = gen();
-    return boost::lexical_cast<std::string>(u);
-}
 
 //
 // Viewer
