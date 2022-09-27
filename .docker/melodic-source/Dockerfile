@@ -37,6 +37,6 @@ WORKDIR /ws/src
 ADD ./CMakeModules CMakeModules
 
 # Main Library
-ADD ./robowflex_library robowflex_library
-RUN catkin build robowflex_library --start-with robowflex_library $CAKTIN_BUILD_ARGS
+ADD ./robowflex_moveit robowflex_moveit
+RUN catkin build robowflex_moveit --start-with robowflex_moveit $CAKTIN_BUILD_ARGS
 WORKDIR /

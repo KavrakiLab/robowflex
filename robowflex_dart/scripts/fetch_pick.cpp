@@ -4,14 +4,14 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
-#include <robowflex_library/core/builder.h>
-#include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/io/roslog.h>
-#include <robowflex_library/core/planning.h>
-#include <robowflex_library/core/robot.h>
-#include <robowflex_library/core/scene.h>
-#include <robowflex_library/utility/tf.h>
-#include <robowflex_library/io/ros.h>
+#include <robowflex_moveit/core/builder.h>
+#include <robowflex_moveit/robots/fetch.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/core/planning.h>
+#include <robowflex_moveit/core/robot.h>
+#include <robowflex_moveit/core/scene.h>
+#include <robowflex_moveit/utility/tf.h>
+#include <robowflex_moveit/io/ros.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/planning.h>
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     fetch->initialize();
 
     auto scene = std::make_shared<Scene>(fetch);
-    scene->fromYAMLFile("package://robowflex_library_scripts/yaml/test_fetch.yml");
+    scene->fromYAMLFile("package://robowflex_moveit_scripts/yaml/test_fetch.yml");
 
     //
     // Convert to Dart

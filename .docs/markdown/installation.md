@@ -56,5 +56,5 @@ After the workspace is built, source and run a demo:
 ```sh
 cd ~/rb_ws
 source ./devel/setup.bash
-rosrun robowflex_library fetch_test
+rosrun robowflex_moveit fetch_test
 ```

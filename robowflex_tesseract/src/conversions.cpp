@@ -4,7 +4,7 @@
 #include <moveit/robot_state/conversions.h>
 
 // Robowflex
-#include <robowflex_library/io/roslog.h>
+#include <robowflex_moveit/io/roslog.h>
 
 // Tesseract
 #include <tesseract_ros/ros_tesseract_utils.h>

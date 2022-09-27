@@ -10,7 +10,7 @@ For convenience, a helper class (`robowflex::darts::PlanBuilder`) makes it easy 
 
 There are a few example scripts to demonstrate the module, in the `scripts` directory.
 - `fetch_plan.cpp`: Plan for 1 to 4 Fetch robots. Demonstrates how to do multi-robot planning by cloning robots (`robowflex::darts::Robot::clone()`) and adding more groups to the planning group.
-- `fetch_robowflex_plan.cpp`: Constrained planning for a Fetch robot, where that Fetch robot is loaded via `robowflex_library` as a _MoveIt_ robot.
+- `fetch_robowflex_plan.cpp`: Constrained planning for a Fetch robot, where that Fetch robot is loaded via `robowflex_moveit` as a _MoveIt_ robot.
 
 # Installation Instructions
 

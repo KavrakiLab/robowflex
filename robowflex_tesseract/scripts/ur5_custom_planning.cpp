@@ -1,13 +1,13 @@
 /* Author: Carlos Quintero Pena */
 
-#include <robowflex_library/robots/ur5.h>
-#include <robowflex_library/io/visualization.h>
-#include <robowflex_library/io/roslog.h>
-#include <robowflex_library/core/planning.h>
-#include <robowflex_library/core/robot.h>
-#include <robowflex_library/core/scene.h>
-#include <robowflex_library/core/trajectory.h>
-#include <robowflex_library/io/ros.h>
+#include <robowflex_moveit/robots/ur5.h>
+#include <robowflex_moveit/io/visualization.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/core/planning.h>
+#include <robowflex_moveit/core/robot.h>
+#include <robowflex_moveit/core/scene.h>
+#include <robowflex_moveit/core/trajectory.h>
+#include <robowflex_moveit/io/ros.h>
 #include <robowflex_tesseract/conversions.h>
 #include <robowflex_tesseract/trajopt_planner.h>
 

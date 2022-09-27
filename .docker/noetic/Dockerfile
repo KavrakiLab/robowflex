@@ -25,8 +25,8 @@ WORKDIR /ws/src
 ADD ./CMakeModules CMakeModules
 
 # Main Library
-ADD ./robowflex_library robowflex_library
-RUN catkin build robowflex_library --start-with robowflex_library --limit-status-rate 0.001 --no-notify
+ADD ./robowflex_moveit robowflex_moveit
+RUN catkin build robowflex_moveit --start-with robowflex_moveit --limit-status-rate 0.001 --no-notify
 
 # DART Module
 ADD ./robowflex_dart robowflex_dart

@@ -20,7 +20,7 @@ macro(add_doc project)
   set(DOC_SOURCES "${DOC_SOURCES} ${ABS_FILENAME_SRC} ${ABS_FILENAME_PACKAGE} ${ABS_FILENAME_INCLUDE} ${ABS_FILENAME_SCRIPTS} ${ABS_FILENAME_README}")
 endmacro(add_doc)
 
-add_doc(robowflex_library)
+add_doc(robowflex_moveit)
 add_doc(robowflex_movegroup)
 add_doc(robowflex_ompl)
 add_doc(robowflex_tesseract)

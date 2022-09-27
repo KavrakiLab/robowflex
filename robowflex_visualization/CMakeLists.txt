@@ -4,7 +4,7 @@ project(robowflex_visualization
 )
 
 find_package(catkin QUIET COMPONENTS
-  robowflex_library
+  robowflex_moveit
   collada_urdf
 )
 
@@ -14,7 +14,7 @@ catkin_package(
   INCLUDE_DIRS
   LIBRARIES robowflex_visualization
   CATKIN_DEPENDS
-    robowflex_library
+    robowflex_moveit
     collada_urdf
   DEPENDS
 )

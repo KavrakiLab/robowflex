@@ -49,13 +49,13 @@ if (DART_LIBRARIES)
   list(APPEND LIBRARIES ${DART_LIBRARIES})
 
   find_package(catkin REQUIRED COMPONENTS
-    robowflex_library
+    robowflex_moveit
     )
 
   catkin_package(
     LIBRARIES ${LIBRARY_NAME}
     CATKIN_DEPENDS
-    robowflex_library
+    robowflex_moveit
     DEPENDS
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
     )

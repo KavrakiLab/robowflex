@@ -10,7 +10,7 @@
 #include <dart/gui/osg/osg.hpp>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_library/utility/adapter.h>
+#include <robowflex_moveit/utility/adapter.h>
 
 #include <robowflex_dart/world.h>
 #include <robowflex_dart/space.h>

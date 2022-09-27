@@ -1,5 +1,5 @@
 # Robowflex Visualization
-Visualize motion plans and robots in tandem with `robowflex_library` in [Blender](https://www.blender.org/).
+Visualize motion plans and robots in tandem with `robowflex_moveit` in [Blender](https://www.blender.org/).
 
 ## Requirements
 1. Blender must be installed with COLLADA loading support (`*.dae`).
@@ -16,7 +16,7 @@ All code for this library is within the `robowflex_visualization` folder.
 ## Usage
 
 1. Dump a trajectory to a YAML file via the `robowflex::Trajectory::toYAMLFile()` function.
-An example of this can be found in `robowflex_library/scripts/fetch_test.cpp`:
+An example of this can be found in `robowflex_moveit/scripts/fetch_test.cpp`:
 ```cpp
 ...
 // Generate a plan
@@ -28,7 +28,7 @@ trajectory.toYAMLFile("fetch_path.yml");
 ...
 ```
 
-Planning scenes can be edited manually by writing the YAML file (an example is in `robowflex_library/yaml/test.yml`), or by calling `robowflex::Scene::toYAMLFile()` on a loaded planning scene.
+Planning scenes can be edited manually by writing the YAML file (an example is in `robowflex_moveit/yaml/test.yml`), or by calling `robowflex::Scene::toYAMLFile()` on a loaded planning scene.
 
 2. Edit the provided file, `scripts/robowflex.py` to use your desired files.
 Note the loaded files for the trajectory and scene in the following script:
@@ -42,7 +42,7 @@ fetch = rv.robot.Robot("Fetch", "package://fetch_description/robots/fetch.urdf")
 fetch.animate_path("package://robowflex_visualization/yaml/fetch_path.yml")
 
 # Add a planning scene.
-scene = rv.scene.Scene("Scene", "package://robowflex_library/yaml/test_fetch.yml")
+scene = rv.scene.Scene("Scene", "package://robowflex_moveit/yaml/test_fetch.yml")
 ~~~
 
 
@@ -57,10 +57,10 @@ scene = rv.scene.Scene("Scene", "package://robowflex_library/yaml/test_fetch.yml
 
 ## Examples
 
-### `robowflex_library/scripts/fetch_test.cpp`
+### `robowflex_moveit/scripts/fetch_test.cpp`
 You can render still images of robots.
 <img style="width:100%;max-width:720px;" src="https://s3.amazonaws.com/zk-bucket/robowflex/fetch.png" />
 
-### `robowflex_library/scripts/ur5_test.cpp`
+### `robowflex_moveit/scripts/ur5_test.cpp`
 As well as full animations of motion plans.
 <img style="width:100%;max-width:720px;" src="https://s3.amazonaws.com/zk-bucket/robowflex/ur5.gif" />

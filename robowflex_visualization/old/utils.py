@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Simple functions you shouldn't have to worry about. Copied as much as possible from `robowflex_library`, and should
+'''Simple functions you shouldn't have to worry about. Copied as much as possible from `robowflex_moveit`, and should
 stay updated with that.
 
 '''

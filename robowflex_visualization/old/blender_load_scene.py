@@ -171,7 +171,7 @@ def add_planning_scene_world(world):
 
 
 def add_planning_scene(scenefile):
-    '''Reads in a scene yaml (output by robowflex_library) file and adds all collision objects to the blender scene.
+    '''Reads in a scene yaml (output by robowflex_moveit) file and adds all collision objects to the blender scene.
 
     '''
     scene = utils.read_yaml_data(scenefile)

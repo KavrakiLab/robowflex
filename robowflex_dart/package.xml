@@ -13,6 +13,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>robowflex_library</depend>
+  <depend>robowflex_moveit</depend>
   <depend>dartsim</depend>
 </package>

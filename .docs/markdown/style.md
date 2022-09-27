@@ -42,7 +42,7 @@ This is to minimize compile times and to untangle dependencies, which might get 
 
 To forward declare a class, use the class forwarding macro:
 ```cpp
-#include <robowflex_library/class_forward.h>
+#include <robowflex_moveit/class_forward.h>
 
 namespace robowflex
 {

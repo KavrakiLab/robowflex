@@ -1,13 +1,13 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/core/builder.h>
-#include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/io/visualization.h>
-#include <robowflex_library/io/roslog.h>
-#include <robowflex_library/core/planning.h>
-#include <robowflex_library/core/robot.h>
-#include <robowflex_library/core/scene.h>
-#include <robowflex_library/io/ros.h>
+#include <robowflex_moveit/core/builder.h>
+#include <robowflex_moveit/robots/fetch.h>
+#include <robowflex_moveit/io/visualization.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/core/planning.h>
+#include <robowflex_moveit/core/robot.h>
+#include <robowflex_moveit/core/scene.h>
+#include <robowflex_moveit/io/ros.h>
 
 #include <robowflex_dart/planner.h>
 

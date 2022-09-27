@@ -15,7 +15,7 @@ include(CompileOptions)
 include(HelperFunctions)
 
 list(APPEND CATKIN_DEPS
-  robowflex_library
+  robowflex_moveit
   tesseract_planning
   tesseract_ros
   )

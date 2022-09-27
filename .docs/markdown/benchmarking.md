@@ -8,7 +8,7 @@ All relevant classes are found in `benchmarking.h`.
 For the following documentation, assume we have loaded a Fetch robot and a basic scene and planner, such as this:
 ```cpp
 // ...
-#include <robowflex_library/benchmarking.h>
+#include <robowflex_moveit/benchmarking.h>
 #include <robowflex_ompl/ompl_interface.h>
 // ...
 
@@ -215,8 +215,8 @@ See [the OMPL documentation for benchmarking](http://ompl.kavrakilab.org/benchma
 The resulting database can be viewed online at [plannerarena.org](http://plannerarena.org/).
 
 For an in-depth example of how to use `robowflex::Experiment`, look at:
-- `robowflex_library/scripts/fetch_benchmark.cpp`.
-- `robowflex_library/scripts/fetch_scenes_benchmark.cpp`.
+- `robowflex_moveit/scripts/fetch_benchmark.cpp`.
+- `robowflex_moveit/scripts/fetch_scenes_benchmark.cpp`.
 - `robowflex_ompl/scripts/fetch_ompl_benchmark.cpp`.
 - `robowflex_ompl/scripts/fetch_ompl_scenes_benchmark.cpp`.
 

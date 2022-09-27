@@ -28,8 +28,8 @@ We also discuss how to add additional tutorials such as this document here.
 
 ## Source Code Documentation
 
-You can see the style of commenting all throughout `robowflex_library`.
-Any additional code added to `robowflex_library` or one of the optional modules should be fully documented.
+You can see the style of commenting all throughout `robowflex_moveit`.
+Any additional code added to `robowflex_moveit` or one of the optional modules should be fully documented.
 Generally, all documentation is done in the header files, with little to no high-level documentation in the source files.
 However, inline comments in methods are still encouraged, especially if there is some complex computation occuring.
 

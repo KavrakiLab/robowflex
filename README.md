@@ -33,9 +33,9 @@ The high-level goals of the project are as follows:
 | Melodic       | ![Build Melodic](https://github.com/KavrakiLab/robowflex/workflows/Build%20Melodic/badge.svg)                                                                                       |
 | Noetic        | [![Build Noetic](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml/badge.svg)](https://github.com/KavrakiLab/robowflex/actions/workflows/build-noetic.yml) |
 
-## robowflex_library
+## robowflex_moveit
 A library that simplifies using [_MoveIt_](https://github.com/ros-planning/moveit) in applications.
-Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in the `robowflex_library/scripts` directory.
+Examples of basic motion planning, benchmarking of planning requests, and input/output can be found in the `robowflex_moveit/scripts` directory.
 
 # Optional Robowflex Modules
 Robowflex also comes with many optional modules that provide specific auxiliary library support through the standard Robowflex interface.
@@ -126,7 +126,7 @@ After the workspace is built, source and run a demo:
 ```sh
 cd ~/rb_ws
 source ./devel/setup.bash
-rosrun robowflex_library fetch_test
+rosrun robowflex_moveit fetch_test
 ```
 
 ## Code Formatting

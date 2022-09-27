@@ -20,9 +20,9 @@
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 
-#include <robowflex_library/core/robot.h>
-#include <robowflex_library/core/scene.h>
-#include <robowflex_library/core/trajectory.h>
+#include <robowflex_moveit/core/robot.h>
+#include <robowflex_moveit/core/scene.h>
+#include <robowflex_moveit/core/trajectory.h>
 
 #include <robowflex_dart/planner.h>
 #include <robowflex_dart/robot.h>

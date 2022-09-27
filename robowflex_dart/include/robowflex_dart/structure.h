@@ -14,8 +14,8 @@
 #include <dart/dynamics/Skeleton.hpp>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_library/utility/adapter.h>
-#include <robowflex_library/utility/tf.h>
+#include <robowflex_moveit/utility/adapter.h>
+#include <robowflex_moveit/utility/tf.h>
 
 namespace robowflex
 {

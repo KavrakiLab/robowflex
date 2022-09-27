@@ -4,8 +4,8 @@
 #define ROBOWFLEX_TRAJOPT_PLANNER_
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_library/core/builder.h>
-#include <robowflex_library/core/planning.h>
+#include <robowflex_moveit/core/builder.h>
+#include <robowflex_moveit/core/planning.h>
 #include <tesseract_planning/trajopt/trajopt_planner.h>
 #include <tesseract_ros/kdl/kdl_env.h>
 

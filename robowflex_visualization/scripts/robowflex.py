@@ -30,7 +30,7 @@ fetch.add_keyframe("head_tilt_joint", 60)
 
 # Load a planning scene.
 scene = rv.scene.Scene("Scene",
-                       "package://robowflex_library/yaml/test_fetch.yml")
+                       "package://robowflex_moveit/yaml/test_fetch.yml")
 
 # Animate a simple motion plan.
 frame = fetch.animate_path(

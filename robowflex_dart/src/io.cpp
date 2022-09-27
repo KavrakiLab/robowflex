@@ -2,7 +2,7 @@
 
 #include <dart/utils/urdf/urdf.hpp>
 
-#include <robowflex_library/io/filesystem.h>
+#include <robowflex_moveit/io/filesystem.h>
 
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/robot.h>

@@ -4,7 +4,7 @@ cd "${0%/*}"
 source tidy-functions.sh
 
 cd ..
-generate-compile-commands robowflex_library
+generate-compile-commands robowflex_moveit
 check-tidy
 generate-compile-commands robowflex_ompl
 check-tidy

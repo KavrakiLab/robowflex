@@ -2,7 +2,7 @@
 
 A list of provided example scripts that demonstrate some of the functionality of Robowflex.
 
-## robowflex_library
+## robowflex_moveit
 
 There are many example scripts of how to do motion planning, benchmarking, input / output, and others using the core library.
 

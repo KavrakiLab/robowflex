@@ -9,10 +9,10 @@
 #include <dart/dynamics/BodyNode.hpp>
 #include <dart/dynamics/WeldJoint.hpp>
 
-#include <robowflex_library/core/geometry.h>
-#include <robowflex_library/io/filesystem.h>
-#include <robowflex_library/io/roslog.h>
-#include <robowflex_library/core/scene.h>
+#include <robowflex_moveit/core/geometry.h>
+#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/core/scene.h>
 
 #include <robowflex_dart/acm.h>
 #include <robowflex_dart/structure.h>

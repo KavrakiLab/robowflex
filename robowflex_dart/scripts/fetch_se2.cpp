@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include <robowflex_library/io/roslog.h>
+#include <robowflex_moveit/io/roslog.h>
 #include <robowflex_util/random.h>
 
 #include <robowflex_dart/gui.h>

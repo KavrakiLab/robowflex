@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 
-#include <robowflex_library/io/yaml_utils.h>
+#include <robowflex_moveit/io/yaml_utils.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>

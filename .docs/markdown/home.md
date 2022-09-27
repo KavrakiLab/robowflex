@@ -4,7 +4,7 @@ Making MoveIt Easy!
 An overview of what this project is can be found in the [design description](\ref design).
 Examples of basic motion planning, benchmarking of planning requests, input/output, and more can be found in [scripts](\ref scripts).
 
-## robowflex_library
+## robowflex_moveit
 A library that simplifies using [_MoveIt!_](https://github.com/ros-planning/moveit) in applications.
 This is the core library used by all other components in Robowflex.
 Take a look at the [design description](\ref design) for more information on the core library.

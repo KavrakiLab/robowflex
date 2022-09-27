@@ -14,7 +14,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>robowflex_util</exec_depend>
-  <exec_depend>robowflex_library</exec_depend>
+  <exec_depend>robowflex_moveit</exec_depend>
   <exec_depend>robowflex_tesseract</exec_depend>
   <exec_depend>robowflex_visualization</exec_depend>
   <exec_depend>robowflex_dart</exec_depend>

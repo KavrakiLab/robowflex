@@ -12,8 +12,8 @@ The high-level goals of the project are as follows:
 2. Provide access to all underlying capabilities of the libraries so users are not hampered by Robowflex in any way.
 3. Remain untied as possible to the greater ROS system, and support all distros from Kinetic onward.
 
-This document provides a high-level overview of the design and API of the `robowflex_library`, as well as some of the auxiliary components.
-Unless otherwise noted, the class or method will be in `robowflex_library`.
+This document provides a high-level overview of the design and API of the `robowflex_moveit`, as well as some of the auxiliary components.
+Unless otherwise noted, the class or method will be in `robowflex_moveit`.
 
 ## Components
 
