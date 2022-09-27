@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_DART_PLANNER_
 #define ROBOWFLEX_DART_PLANNER_
 
-#include <robowflex_library/planning.h>
+#include <robowflex_library/core/planning.h>
 #include <robowflex_dart/planning.h>
 
 namespace robowflex

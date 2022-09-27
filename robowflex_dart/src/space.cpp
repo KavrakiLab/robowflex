@@ -3,7 +3,7 @@
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
 #include <robowflex_util/constants.h>
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/roslog.h>
 
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/world.h>

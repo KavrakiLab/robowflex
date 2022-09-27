@@ -16,7 +16,7 @@
 #include <moveit_msgs/OrientationConstraint.h>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_library/adapter.h>
+#include <robowflex_library/utility/adapter.h>
 #include <robowflex_util/constants.h>
 
 namespace robowflex

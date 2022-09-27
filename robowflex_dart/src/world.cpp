@@ -5,7 +5,7 @@
 
 #include <dart/gui/osg/osg.hpp>
 
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/roslog.h>
 
 #include <robowflex_dart/acm.h>
 #include <robowflex_dart/robot.h>

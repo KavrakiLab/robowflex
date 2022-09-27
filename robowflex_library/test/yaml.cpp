@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <robowflex_library/io.h>
+#include <robowflex_library/io/filesystem.h>
 #include <robowflex_library/io/yaml_utils.h>
 #include <robowflex_library/io/yaml_conversions.h>
 

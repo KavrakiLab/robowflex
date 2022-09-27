@@ -1,11 +1,11 @@
 /* Author: Carlos Quintero Pena*/
 
-#include <robowflex_library/ros.h>
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/ros.h>
+#include <robowflex_library/io/roslog.h>
 #include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/io.h>
+#include <robowflex_library/io/filesystem.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/scene.h>
+#include <robowflex_library/core/scene.h>
 #include <robowflex_library/io/yaml_conversions.h>
 #include <robowflex_tesseract/trajopt_planner.h>
 

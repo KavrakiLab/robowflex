@@ -2,10 +2,10 @@
 
 #include <boost/date_time.hpp>
 
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/io/ros.h>
 
-#include <robowflex_library/movegroup.h>
+#include <robowflex_library/io/movegroup.h>
 
 using namespace robowflex;
 

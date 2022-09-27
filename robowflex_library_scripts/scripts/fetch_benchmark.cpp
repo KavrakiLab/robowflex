@@ -1,11 +1,11 @@
 /* Author: Zachary Kingston */
 /* Modified by: Juan D. Hernandez */
 
-#include <robowflex_library/benchmarking.h>
-#include <robowflex_library/builder.h>
+#include <robowflex_library/core/benchmarking.h>
+#include <robowflex_library/core/builder.h>
 #include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/io/ros.h>
 
 #include <robowflex_util/gnuplot.h>
 

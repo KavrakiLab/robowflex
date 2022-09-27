@@ -14,11 +14,11 @@
 #include <geometric_shapes/shape_operations.h>
 
 #include <robowflex_util/constants.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/io.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/openrave.h>
-#include <robowflex_library/tf.h>
+#include <robowflex_library/core/geometry.h>
+#include <robowflex_library/io/filesystem.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/io/openrave.h>
+#include <robowflex_library/utility/tf.h>
 
 using namespace robowflex;
 using namespace robowflex::openrave;

@@ -3,8 +3,8 @@
 #include <cmath>
 
 #include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/io.h>
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/filesystem.h>
+#include <robowflex_library/io/roslog.h>
 
 using namespace robowflex;
 

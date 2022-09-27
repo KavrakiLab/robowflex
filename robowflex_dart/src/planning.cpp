@@ -9,8 +9,8 @@
 
 #include <moveit_msgs/MotionPlanRequest.h>
 
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/tf.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/utility/tf.h>
 
 #include <robowflex_dart/planning.h>
 #include <robowflex_dart/tsr.h>

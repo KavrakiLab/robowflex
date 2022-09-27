@@ -5,11 +5,11 @@
 #include <moveit_msgs/MoveItErrorCodes.h>
 
 // Robowflex
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/ros.h>
-#include <robowflex_library/trajectory.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/io/ros.h>
+#include <robowflex_library/core/trajectory.h>
 
 // Tesseract
 #include <trajopt/file_write_callback.hpp>

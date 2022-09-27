@@ -7,7 +7,7 @@
 
 #include <robowflex_util/class_forward.h>
 #include <robowflex_util/colormap.h>
-#include <robowflex_library/tf.h>
+#include <robowflex_library/utility/tf.h>
 #include <sensor_msgs/PointCloud2.h>
 
 namespace robowflex

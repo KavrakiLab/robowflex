@@ -2,8 +2,8 @@
 
 #include <robowflex_library/robots/ur5.h>
 #include <robowflex_library/io/bag.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/io/ros.h>
 
 using namespace robowflex;
 

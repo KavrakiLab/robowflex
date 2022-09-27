@@ -3,7 +3,7 @@
 #ifndef ROBOWFLEX_IO_BAG_
 #define ROBOWFLEX_IO_BAG_
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/utility/macros.h>
 
 // clang-format off
 ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)

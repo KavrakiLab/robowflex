@@ -2,9 +2,9 @@
 
 #include <cmath>
 
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/roslog.h>
 #include <robowflex_library/robots/cob4.h>
-#include <robowflex_library/io.h>
+#include <robowflex_library/io/filesystem.h>
 
 using namespace robowflex;
 

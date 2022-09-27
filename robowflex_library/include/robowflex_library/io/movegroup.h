@@ -11,8 +11,8 @@
 
 #include <actionlib/client/simple_action_client.h>
 
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/scene.h>
 
 namespace robowflex
 {

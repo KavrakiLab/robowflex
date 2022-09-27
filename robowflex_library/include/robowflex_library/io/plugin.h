@@ -9,8 +9,8 @@
 
 #include <ros/package.h>
 
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/macros.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/utility/macros.h>
 
 #include <pluginlib/class_loader.hpp>
 

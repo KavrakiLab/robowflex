@@ -4,14 +4,14 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
-#include <robowflex_library/builder.h>
+#include <robowflex_library/core/builder.h>
 #include <robowflex_library/robots/fetch.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/planning.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/planning.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/utility/tf.h>
+#include <robowflex_library/io/ros.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/planning.h>

@@ -10,10 +10,10 @@
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/io.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/macros.h>
+#include <robowflex_library/core/geometry.h>
+#include <robowflex_library/io/filesystem.h>
+#include <robowflex_library/utility/tf.h>
+#include <robowflex_library/utility/macros.h>
 #include <robowflex_library/io/yaml_utils.h>
 #include <robowflex_library/io/yaml_conversions.h>
 

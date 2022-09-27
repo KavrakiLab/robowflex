@@ -6,13 +6,13 @@
 #include <moveit_msgs/GetPlanningScene.h>
 #include <std_srvs/Empty.h>
 
-#include <robowflex_library/io.h>
+#include <robowflex_library/io/filesystem.h>
 #include <robowflex_library/io/yaml_utils.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/trajectory.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/trajectory.h>
 #include <robowflex_library/io/yaml_conversions.h>
 
-#include <robowflex_library/movegroup.h>
+#include <robowflex_library/io/movegroup.h>
 
 using namespace robowflex;
 using namespace robowflex::movegroup;

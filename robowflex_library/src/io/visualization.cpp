@@ -10,18 +10,18 @@
 
 #include <moveit/robot_state/conversions.h>
 
-#include <robowflex_library/builder.h>
+#include <robowflex_library/core/builder.h>
 #include <robowflex_util/constants.h>
-#include <robowflex_library/geometry.h>
+#include <robowflex_library/core/geometry.h>
 #include <robowflex_util/colormap.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/planning.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/planning.h>
 #include <robowflex_util/random.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/trajectory.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/utility/tf.h>
+#include <robowflex_library/core/trajectory.h>
 
 using namespace robowflex;
 

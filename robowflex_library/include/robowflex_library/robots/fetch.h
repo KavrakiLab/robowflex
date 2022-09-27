@@ -3,8 +3,8 @@
 #ifndef ROBOWFLEX_FETCH_
 #define ROBOWFLEX_FETCH_
 
-#include <robowflex_library/planning.h>
-#include <robowflex_library/robot.h>
+#include <robowflex_library/core/planning.h>
+#include <robowflex_library/core/robot.h>
 
 namespace robowflex
 {

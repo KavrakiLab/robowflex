@@ -1,6 +1,6 @@
 /* Author: Zachary Kingston */
 
-#include <robowflex_library/roslog.h>
+#include <robowflex_library/io/roslog.h>
 
 using namespace robowflex;
 

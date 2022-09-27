@@ -63,7 +63,7 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <robowflex_library/macros.h>
+#include <robowflex_library/utility/macros.h>
 
 /** \cond IGNORE */
 namespace YAML

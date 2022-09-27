@@ -3,8 +3,8 @@
 #ifndef ROBOWFLEX_UR5_
 #define ROBOWFLEX_UR5_
 
-#include <robowflex_library/robot.h>
-#include <robowflex_library/planning.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/planning.h>
 
 namespace robowflex
 {

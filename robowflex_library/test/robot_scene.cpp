@@ -3,11 +3,11 @@
 #include <gtest/gtest.h>
 
 #include <robowflex_library/robots/ur5.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/tf.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/core/geometry.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/utility/tf.h>
+#include <robowflex_library/io/ros.h>
 
 using namespace robowflex;
 

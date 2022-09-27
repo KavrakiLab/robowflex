@@ -3,8 +3,8 @@
 #ifndef ROBOWFLEX_TESSERACT_CONVERSIONS_
 #define ROBOWFLEX_TESSERACT_CONVERSIONS_
 
-#include <robowflex_library/scene.h>
-#include <robowflex_library/robot.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/core/robot.h>
 #include <robowflex_util/class_forward.h>
 #include <tesseract_ros/kdl/kdl_env.h>
 

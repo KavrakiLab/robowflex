@@ -16,9 +16,9 @@
 #include <boost/uuid/uuid_io.hpp>          // for UUID generation
 #include <ros/package.h>                   // for package resolving
 
-#include <robowflex_library/io.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/macros.h>
+#include <robowflex_library/io/filesystem.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/utility/macros.h>
 
 using namespace robowflex;
 

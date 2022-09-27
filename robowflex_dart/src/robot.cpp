@@ -6,10 +6,10 @@
 #include <dart/dynamics/DegreeOfFreedom.hpp>
 #include <dart/dynamics/Joint.hpp>
 
-#include <robowflex_library/io.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/tf.h>
+#include <robowflex_library/io/filesystem.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/utility/tf.h>
 
 #include <robowflex_dart/acm.h>
 #include <robowflex_dart/io.h>

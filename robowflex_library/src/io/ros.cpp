@@ -4,9 +4,9 @@
 #include <ros/init.h>
 #include <ros/master.h>
 
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/macros.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/utility/macros.h>
+#include <robowflex_library/io/ros.h>
 
 #if IS_BOOST_164
 #include <boost/process.hpp>

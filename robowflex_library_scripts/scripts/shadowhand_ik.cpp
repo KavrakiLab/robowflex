@@ -4,11 +4,11 @@
 
 // Robowflex
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/geometry.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/scene.h>
-#include <robowflex_library/ros.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/geometry.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/core/scene.h>
+#include <robowflex_library/io/ros.h>
 
 using namespace robowflex;
 

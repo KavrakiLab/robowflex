@@ -3,9 +3,9 @@
 #include <sensor_msgs/JointState.h>
 
 #include <robowflex_library/io/broadcaster.h>
-#include <robowflex_library/roslog.h>
-#include <robowflex_library/robot.h>
-#include <robowflex_library/tf.h>
+#include <robowflex_library/io/roslog.h>
+#include <robowflex_library/core/robot.h>
+#include <robowflex_library/utility/tf.h>
 
 using namespace robowflex;
 
