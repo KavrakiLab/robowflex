@@ -18,7 +18,7 @@
 #include <robowflex_moveit/core/trajectory.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/visualization.h>
-#include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/math.h>
 #include <robowflex_moveit/utility/conversions.h>
 #include <robowflex_util/colormap.h>
 #include <robowflex_util/constants.h>

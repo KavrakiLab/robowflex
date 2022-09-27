@@ -11,7 +11,7 @@
 #include <robowflex_moveit/io/ros.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/robots/fetch.h>
-#include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/math.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/planning.h>

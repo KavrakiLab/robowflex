@@ -48,6 +48,7 @@ list(APPEND SOURCES
   src/process.cpp
   src/time.cpp
   src/uid.cpp
+  src/math.cpp
   )
 
 list(APPEND INCLUDES

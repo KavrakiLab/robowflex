@@ -6,7 +6,7 @@
 #include <moveit/planning_pipeline/planning_pipeline.h>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_moveit/utility/adapter.h>
+
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/robot.h>
 

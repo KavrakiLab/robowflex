@@ -25,7 +25,7 @@
 #include <moveit/kinematic_constraints/kinematic_constraint.h>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_moveit/utility/adapter.h>
+#include <robowflex_util/math.h>
 #include <robowflex_util/constants.h>
 #include <robowflex_moveit/io/handler.h>
 

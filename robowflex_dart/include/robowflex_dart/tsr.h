@@ -13,7 +13,7 @@
 #include <dart/dynamics/InverseKinematics.hpp>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_moveit/utility/adapter.h>
+
 
 namespace robowflex
 {

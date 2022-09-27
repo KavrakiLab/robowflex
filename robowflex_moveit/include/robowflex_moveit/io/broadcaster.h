@@ -6,7 +6,7 @@
 #include <thread>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_moveit/utility/adapter.h>
+
 #include <tf2_ros/transform_broadcaster.h>
 
 namespace robowflex

@@ -10,7 +10,7 @@
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>
-#include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/math.h>
 
 #include <moveit/collision_detection/collision_plugin.h>
 #include <moveit/robot_state/conversions.h>

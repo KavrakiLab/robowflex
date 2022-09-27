@@ -2,7 +2,7 @@
 
 #include <boost/tokenizer.hpp>
 
-#include <robowflex_moveit/utility/tf.h>
+#include <robowflex_util/math.h>
 #include <robowflex_util/random.h>
 
 using namespace robowflex;

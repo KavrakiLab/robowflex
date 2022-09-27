@@ -3,9 +3,6 @@
 #ifndef ROBOWFLEX_MOVEIT_GEOMETRY_
 #define ROBOWFLEX_MOVEIT_GEOMETRY_
 
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
 #include <geometric_shapes/shapes.h>
 #include <geometric_shapes/bodies.h>
 
@@ -14,8 +11,8 @@
 
 #include <moveit/robot_model/aabb.h>
 
-#include <robowflex_moveit/utility/adapter.h>
 #include <robowflex_util/class_forward.h>
+#include <robowflex_util/math.h>
 
 namespace robowflex
 {

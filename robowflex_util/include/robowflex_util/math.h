@@ -1,14 +1,34 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#ifndef ROBOWFLEX_MOVEIT_TF_
-#define ROBOWFLEX_MOVEIT_TF_
+#ifndef ROBOWFLEX_MATH_
+#define ROBOWFLEX_MATH_
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <robowflex_util/class_forward.h>
-#include <robowflex_moveit/utility/adapter.h>
 #include <robowflex_util/constants.h>
 
 namespace robowflex
 {
+    /** \brief A pose (point in SE(3)) used in various functions.
+     */
+    using RobotPose = Eigen::Isometry3d;
+
+    /** \brief A vector of poses.
+     */
+    using RobotPoseVector = std::vector<RobotPose, Eigen::aligned_allocator<RobotPose>>;
+
+    /** \brief Convert the Robowflex pose type to another transform type.
+     */
+    template <typename M>
+    M toMatrix(const RobotPose &pose)
+    {
+        M newpose;
+        newpose.matrix() = pose.matrix();
+        return newpose;
+    }
+
     /** \brief Collection of methods relating to transforms and transform math.
      */
     namespace TF
