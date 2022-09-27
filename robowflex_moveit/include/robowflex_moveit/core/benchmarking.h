@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_BENCHMARKING_
-#define ROBOWFLEX_BENCHMARKING_
+#ifndef ROBOWFLEX_MOVEIT_BENCHMARKING_
+#define ROBOWFLEX_MOVEIT_BENCHMARKING_
 
 #include <cstdint>
 #include <string>

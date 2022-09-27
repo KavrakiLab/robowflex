@@ -1,5 +1,5 @@
-#ifndef ROBOWFLEX_OPENRAVE_
-#define ROBOWFLEX_OPENRAVE_
+#ifndef ROBOWFLEX_MOVEIT_OPENRAVE_
+#define ROBOWFLEX_MOVEIT_OPENRAVE_
 
 #include <moveit_msgs/PlanningScene.h>
 

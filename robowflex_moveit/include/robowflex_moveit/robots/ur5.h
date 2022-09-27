@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_UR5_
-#define ROBOWFLEX_UR5_
+#ifndef ROBOWFLEX_MOVEIT_UR5_
+#define ROBOWFLEX_MOVEIT_UR5_
 
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/planning.h>

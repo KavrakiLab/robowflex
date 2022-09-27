@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#ifndef ROBOWFLEX_IO_VISUALIZATION_
-#define ROBOWFLEX_IO_VISUALIZATION_
+#ifndef ROBOWFLEX_MOVEIT_IO_VISUALIZATION_
+#define ROBOWFLEX_MOVEIT_IO_VISUALIZATION_
 
 #include <moveit/planning_interface/planning_interface.h>
 

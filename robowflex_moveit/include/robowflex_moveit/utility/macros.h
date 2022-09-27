@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_MACROS_
-#define ROBOWFLEX_MACROS_
+#ifndef ROBOWFLEX_MOVEIT_MACROS_
+#define ROBOWFLEX_MOVEIT_MACROS_
 
 #include <boost/version.hpp>  // for boost version macros
 
@@ -38,7 +38,7 @@
 #define ROBOWFLEX_AT_LEAST_NOETIC ROS_VERSION_MINIMUM(1, 15, 0)
 
 /** \def Tests if the ROS version is not further than Melodic */
-#define ROBOWFLEX_AT_MOST_MELODIC                                                                            \
+#define ROBOWFLEX_AT_MOST_MELODIC                                                                     \
     ROS_VERSION_GE(1, 15, 0, ROS_VERSION_MAJOR, ROS_VERSION_MINOR, ROS_VERSION_PATCH)
 
 /** \def Tests if boost is at least version 1.64 */
@@ -59,9 +59,9 @@
 ///
 
 /** \def Phrase MoveIt version as integer. */
-#define ROBOWFLEX_MOVEIT_VERSION_COMPUTE(major, minor, patch)                                                \
+#define ROBOWFLEX_MOVEIT_VERSION_COMPUTE(major, minor, patch)                                         \
     ((major * 100000u) + (minor * 1000u) + (patch * 1u))
-#define ROBOWFLEX_MOVEIT_VERSION                                                                             \
+#define ROBOWFLEX_MOVEIT_VERSION                                                                      \
     ROBOWFLEX_MOVEIT_VERSION_COMPUTE(MOVEIT_VERSION_MAJOR, MOVEIT_VERSION_MINOR, MOVEIT_VERSION_PATCH)
 
 ///
@@ -89,16 +89,16 @@
 #if defined(__clang__)
 #undef ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING
 #undef ROBOWFLEX_POP_CLANG
-#define ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING(warning)                                                        \
+#define ROBOWFLEX_PUSH_DISABLE_CLANG_WARNING(warning)                                                 \
     _Pragma("clang diagnostic push")                                                                         \
         _Pragma(ROBOWFLEX_PRAGMA_HELPER1(clang, ROBOWFLEX_PRAGMA_HELPER0(warning)))
 #define ROBOWFLEX_POP_CLANG _Pragma("GCC diagnostic pop")
 #elif defined __GNUC__
 #undef ROBOWFLEX_PUSH_DISABLE_GCC_WARNING
 #undef ROBOWFLEX_POP_GCC
-#define ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(warning)                                                          \
+#define ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(warning)                                                   \
     _Pragma("GCC diagnostic push") _Pragma(ROBOWFLEX_PRAGMA_HELPER1(GCC, ROBOWFLEX_PRAGMA_HELPER0(warning)))
-#define ROBOWFLEX_POP_GCC _Pragma("GCC diagnostic pop")
+#define ROBOWFLEX_MOVEIT_POP_GCC _Pragma("GCC diagnostic pop")
 #endif
 /** \endcond */
 

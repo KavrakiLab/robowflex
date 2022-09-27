@@ -80,7 +80,10 @@ list(APPEND SOURCES
   src/core/benchmarking.cpp
 
   src/io/ros.cpp
-  src/io/io.cpp
+  src/io/filesystem.cpp
+  src/io/process.cpp
+  src/io/time.cpp
+  src/io/uid.cpp
   src/io/roslog.cpp
   src/io/openrave.cpp
   src/io/visualization.cpp

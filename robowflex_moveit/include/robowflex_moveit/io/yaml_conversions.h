@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_YAML_
-#define ROBOWFLEX_YAML_
+#ifndef ROBOWFLEX_MOVEIT_YAML_
+#define ROBOWFLEX_MOVEIT_YAML_
 
 #include <ros/time.h>
 #include <ros/duration.h>

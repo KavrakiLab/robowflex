@@ -1,23 +1,17 @@
 /* Author: Zachary Kingston */
 
-#include <array>          // for std::array
-#include <cstdlib>        // for std::getenv
-#include <memory>         // for std::shared_ptr
-#include <regex>          // for std::regex
+#include <array>    // for std::array
+#include <cstdlib>  // for std::getenv
+#include <memory>   // for std::shared_ptr
+#include <regex>    // for std::regex
 #include <thread>
-#include <unordered_map>  // for std::hash
 
-#include <boost/asio/ip/host_name.hpp>                        // for hostname
-#include <boost/filesystem.hpp>                               // for filesystem paths
-#include <boost/interprocess/detail/os_thread_functions.hpp>  // for process / thread IDs
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>             // for UUID generation
-#include <boost/uuid/uuid_generators.hpp>  // for UUID generation
-#include <boost/uuid/uuid_io.hpp>          // for UUID generation
-#include <ros/package.h>                   // for package resolving
+#include <boost/filesystem.hpp>  // for filesystem paths
+#include <ros/package.h>         // for package resolving
 
 #include <robowflex_moveit/io/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
+#include <robowflex_moveit/io/process.h>
 #include <robowflex_moveit/utility/macros.h>
 
 using namespace robowflex;
@@ -176,26 +170,6 @@ std::string IO::loadFileToString(const std::string &path)
     return std::string(bytes.data(), size);
 }
 
-std::string IO::runCommand(const std::string &cmd)
-{
-    std::array<char, 128> buffer;
-    std::string result;
-    std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
-    if (!pipe)
-    {
-        XROS_ERROR("Failed to run command `%s`!", cmd);
-        return "";
-    }
-
-    while (!feof(pipe.get()))
-    {
-        if (fgets(buffer.data(), 128, pipe.get()) != nullptr)
-            result += buffer.data();
-    }
-
-    return result;
-}
-
 std::string IO::loadXacroToString(const std::string &path)
 {
     const std::string full_path = resolvePath(path);
@@ -223,18 +197,6 @@ std::string IO::loadXMLToString(const std::string &path)
         return loadXacroToString(full_path);
 
     return loadFileToString(full_path);
-}
-
-std::string IO::generateUUID()
-{
-    boost::uuids::random_generator gen;
-    boost::uuids::uuid u = gen();
-
-    std::string s = boost::lexical_cast<std::string>(u);
-
-    std::replace(s.begin(), s.end(), '-', '_');
-
-    return s;
 }
 
 void IO::createFile(std::ofstream &out, const std::string &file)
@@ -287,55 +249,3 @@ std::pair<bool, std::vector<std::string>> IO::listDirectory(const std::string &d
 
     return std::make_pair(true, contents);
 }
-
-std::string IO::getHostname()
-{
-    return boost::asio::ip::host_name();
-}
-
-std::size_t IO::getProcessID()
-{
-    return boost::interprocess::ipcdetail::get_current_process_id();
-}
-
-std::size_t IO::getThreadID()
-{
-    return boost::interprocess::ipcdetail::get_current_thread_id();
-}
-
-boost::posix_time::ptime IO::getDate()
-{
-    return boost::posix_time::microsec_clock::local_time();
-}
-
-double IO::getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish)
-{
-    auto duration = finish - start;
-    return duration.total_microseconds() / 1000000.;
-}
-
-void IO::threadSleep(double seconds)
-{
-    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(seconds * 1000)));
-}
-
-std::size_t IO::hashString(const std::string &string)
-{
-    return std::hash<std::string>{}(string);
-}
-
-template <typename T>
-std::vector<T> IO::tokenize(const std::string &s, const std::string &separators)
-{
-    boost::char_separator<char> seps(separators.c_str());
-    boost::tokenizer<boost::char_separator<char>> tokenizer(s, seps);
-
-    std::vector<T> values;
-    std::transform(tokenizer.begin(), tokenizer.end(), std::back_inserter(values),
-                   [](const std::string &s) { return boost::lexical_cast<T>(s); });
-
-    return std::vector<T>();
-}
-
-template std::vector<std::string> IO::tokenize(const std::string &, const std::string &);
-template std::vector<double> IO::tokenize(const std::string &, const std::string &);

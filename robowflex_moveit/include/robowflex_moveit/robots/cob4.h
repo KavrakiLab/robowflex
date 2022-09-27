@@ -1,7 +1,7 @@
 /* Author: Juan D. Hernandez */
 
-#ifndef ROBOWFLEX_COB4_
-#define ROBOWFLEX_COB4_
+#ifndef ROBOWFLEX_MOVEIT_COB4_
+#define ROBOWFLEX_MOVEIT_COB4_
 
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>

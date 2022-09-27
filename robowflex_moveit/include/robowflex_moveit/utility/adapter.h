@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_ADAPTER_
-#define ROBOWFLEX_ADAPTER_
+#ifndef ROBOWFLEX_MOVEIT_ADAPTER_
+#define ROBOWFLEX_MOVEIT_ADAPTER_
 
 #include <type_traits>
 

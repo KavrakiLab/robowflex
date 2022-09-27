@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_FETCH_
-#define ROBOWFLEX_FETCH_
+#ifndef ROBOWFLEX_MOVEIT_FETCH_
+#define ROBOWFLEX_MOVEIT_FETCH_
 
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>

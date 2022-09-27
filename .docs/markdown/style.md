@@ -28,8 +28,8 @@ All headers should have header blockers in all-caps and an author description at
 ```cpp
 /* Author: Code Writer */
 
-#ifndef ROBOWFLEX_<insert name here>_
-#define ROBOWFLEX_<insert name here>_
+#ifndef ROBOWFLEX_MOVEIT_<insert name here>_
+#define ROBOWFLEX_MOVEIT_<insert name here>_
 
 ... code goes here ...
 

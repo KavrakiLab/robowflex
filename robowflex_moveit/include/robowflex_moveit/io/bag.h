@@ -1,16 +1,10 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_IO_BAG_
-#define ROBOWFLEX_IO_BAG_
+#ifndef ROBOWFLEX_MOVEIT_IO_BAG_
+#define ROBOWFLEX_MOVEIT_IO_BAG_
 
 #include <robowflex_moveit/utility/macros.h>
-
-// clang-format off
-ROBOWFLEX_PUSH_DISABLE_GCC_WARNING(-Wcast-qual)
-// clang-format on
 #include <rosbag/bag.h>
-ROBOWFLEX_POP_GCC
-
 #include <rosbag/view.h>
 
 namespace robowflex

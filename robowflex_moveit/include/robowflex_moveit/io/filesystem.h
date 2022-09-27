@@ -1,16 +1,13 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_IO_
-#define ROBOWFLEX_IO_
+#ifndef ROBOWFLEX_MOVEIT_FILESYSTEM_
+#define ROBOWFLEX_MOVEIT_FILESYSTEM_
 
 #include <string>   // for std::string
 #include <utility>  // for std::pair
 #include <fstream>  // for std::ofstream
 #include <set>      // for std::set
-
-#include <boost/date_time.hpp>  // for date operations
-
-#include <ros/message_traits.h>  // for message operations
+#include <vector>   // for std::vector
 
 namespace robowflex
 {
@@ -18,11 +15,6 @@ namespace robowflex
      */
     namespace IO
     {
-        /** \brief Generates a UUID.
-         *  \return String of UUID.
-         */
-        std::string generateUUID();
-
         /** \brief Resolves `package://` URLs to their canonical form.
          *  The path does not need to exist, but the package does. Can be used to write new files in packages.
          *  \param[in] path Path to resolve.
@@ -81,12 +73,6 @@ namespace robowflex
          */
         std::string loadFileToString(const std::string &path);
 
-        /** \brief Runs a command \a cmd and returns stdout as a string.
-         *  \param[in] cmd Command to run.
-         *  \return Contents of stdout from \a cmd, or "" on failure.
-         */
-        std::string runCommand(const std::string &cmd);
-
         /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
          *  \param[in] file File to create and open.
@@ -110,65 +96,6 @@ namespace robowflex
          * first element will be true on success, false on failure. These filenames are absolute paths.
          */
         std::pair<bool, std::vector<std::string>> listDirectory(const std::string &directory);
-
-        /** \brief Get the hostname of the system.
-         *  \return String of the hostname.
-         */
-        std::string getHostname();
-
-        /** \brief Get the process ID of this process.
-         *  \return The process ID.
-         */
-        std::size_t getProcessID();
-
-        /** \brief Get the thread ID of the current thread.
-         *  \return The thread ID.
-         */
-        std::size_t getThreadID();
-
-        /** \brief Get the current time (up to milliseconds)
-         *  \return The time.
-         */
-        boost::posix_time::ptime getDate();
-
-        /** \brief Get a duration in seconds from two times.
-         *  \param[in] start The start time.
-         *  \param[in] finish The finish time.
-         *  \return The time in seconds.
-         */
-        double getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime finish);
-
-        /** \brief Put the current thread to sleep for a desired amount of seconds.
-         *  \param[in] seconds Seconds to sleep for.
-         */
-        void threadSleep(double seconds);
-
-        /** \brief Compute hash of string.
-         *  \param[in] string String to hash.
-         *  \return A hashed value of the string. Note: not cryptographically secure.
-         */
-        std::size_t hashString(const std::string &string);
-
-        /** \brief Separates a \a string into casted tokens, based upon \a separators.
-         *  \tparam The type of element to cast strings into.
-         *  \param[in] string String to tokenize.
-         *  \param[in] separators Separators to split string on.
-         *  \return The tokenized string.
-         */
-        template <typename T>
-        std::vector<T> tokenize(const std::string &string, const std::string &separators = " ");
-
-        /** \brief Compute MD5 hash of message type.
-         *  Note that this does not compute a hash over the contents of the message.
-         *  \param[in] msg Message of type to hash.
-         *  \tparam T Type of the message.
-         *  \return The hash of the message type.
-         */
-        template <typename T>
-        std::string getMessageMD5(const T &msg)
-        {
-            return ros::message_traits::md5sum<T>(msg);
-        }
     }  // namespace IO
 }  // namespace robowflex
 

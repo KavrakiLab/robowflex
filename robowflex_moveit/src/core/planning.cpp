@@ -10,7 +10,7 @@
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>
 
-#define ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR                                                                 \
+#define ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR                                                          \
     ROBOWFLEX_INCLUDE_EXISTS("moveit/robot_state/cartesian_interpolator.h")
 
 #if ROBOWFLEX_HAS_CARTESIAN_INTERPOLATOR

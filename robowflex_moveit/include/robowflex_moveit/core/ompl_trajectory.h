@@ -1,7 +1,7 @@
 /* Author: Constantinos Chamzas */
 
-#ifndef ROBOWFLEX_OMPL_TRAJECTORY
-#define ROBOWFLEX_OMPL_TRAJECTORY
+#ifndef ROBOWFLEX_MOVEIT_OMPL_TRAJECTORY
+#define ROBOWFLEX_MOVEIT_OMPL_TRAJECTORY
 
 #include <robowflex_util/class_forward.h>
 

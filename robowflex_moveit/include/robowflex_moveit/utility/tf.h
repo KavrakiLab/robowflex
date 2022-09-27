@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
-#ifndef ROBOWFLEX_TF_
-#define ROBOWFLEX_TF_
+#ifndef ROBOWFLEX_MOVEIT_TF_
+#define ROBOWFLEX_MOVEIT_TF_
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -273,6 +273,12 @@ namespace robowflex
          */
         bool isVecZero(const Eigen::Ref<const Eigen::VectorXd> &v, double tolerance = constants::eps);
 
+        /** \brief Split a string into a vector of doubles.
+         *  \param[in] s String to separate.
+         *  \param[in] separators Separators to split string on.
+         *  \return The vector of doubles contained in the string.
+         */
+        std::vector<double> stringToVec(const std::string &s, const std::string &separators = " ");
     }  // namespace TF
 }  // namespace robowflex
 

@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_GEOMETRY_
-#define ROBOWFLEX_GEOMETRY_
+#ifndef ROBOWFLEX_MOVEIT_GEOMETRY_
+#define ROBOWFLEX_MOVEIT_GEOMETRY_
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

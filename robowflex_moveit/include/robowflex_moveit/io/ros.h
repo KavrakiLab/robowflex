@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_ROS_
-#define ROBOWFLEX_ROS_
+#ifndef ROBOWFLEX_MOVEIT_ROS_
+#define ROBOWFLEX_MOVEIT_ROS_
 
 namespace robowflex
 {

@@ -56,13 +56,13 @@ namespace
         RobotPose tf = RobotPose::Identity();
         if (transElem)
         {
-            auto trans = IO::tokenize<double>(std::string(transElem->GetText()));
+            auto trans = TF::stringToVec(std::string(transElem->GetText()));
             tf.translation() = Eigen::Vector3d(trans[0], trans[1], trans[2]);
         }
 
         if (rotationElem)
         {
-            auto rot = IO::tokenize<double>(std::string(rotationElem->GetText()));
+            auto rot = TF::stringToVec(std::string(rotationElem->GetText()));
 
             Eigen::Vector3d axis(rot[0], rot[1], rot[2]);
             axis.normalize();
@@ -72,7 +72,7 @@ namespace
 
         if (quatElem)
         {
-            auto quat = IO::tokenize<double>(std::string(quatElem->GetText()));
+            auto quat = TF::stringToVec(std::string(quatElem->GetText()));
 
             Eigen::Quaterniond q(quat[0], quat[1], quat[2], quat[3]);
             q.normalize();
@@ -184,7 +184,7 @@ namespace
                         return false;
                     }
 
-                    auto extents = IO::tokenize<double>(extents_elem->GetText());
+                    auto extents = TF::stringToVec(extents_elem->GetText());
                     shapes::Shape *shape =
                         new shapes::Box(extents[0] * 2.0, extents[1] * 2.0, extents[2] * 2.0);
                     shapes::ShapeMsg msg;

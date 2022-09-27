@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_IO_HANDLER_
-#define ROBOWFLEX_IO_HANDLER_
+#ifndef ROBOWFLEX_MOVEIT_IO_HANDLER_
+#define ROBOWFLEX_MOVEIT_IO_HANDLER_
 
 #include <string>  // for std::string
 

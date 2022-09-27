@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_OMPL_
-#define ROBOWFLEX_OMPL_
+#ifndef ROBOWFLEX_MOVEIT_OMPL_
+#define ROBOWFLEX_MOVEIT_OMPL_
 
 #include <moveit/ompl_interface/ompl_interface.h>
 

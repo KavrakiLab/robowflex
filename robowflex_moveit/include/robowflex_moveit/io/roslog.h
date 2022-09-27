@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_ROSLOG_
-#define ROBOWFLEX_ROSLOG_
+#ifndef ROBOWFLEX_MOVEIT_ROSLOG_
+#define ROBOWFLEX_MOVEIT_ROSLOG_
 
 #include <robowflex_util/log.h>
 #include <ros/console.h>

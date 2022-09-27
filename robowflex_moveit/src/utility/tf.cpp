@@ -1,5 +1,7 @@
 /* Author: Zachary Kingston, Constantinos Chamzas */
 
+#include <boost/tokenizer.hpp>
+
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/utility/tf.h>
 #include <robowflex_util/random.h>
@@ -321,4 +323,16 @@ double TF::toRadians(double v)
 bool TF::isVecZero(const Eigen::Ref<const Eigen::VectorXd> &v, double tolerance)
 {
     return v.norm() < tolerance;
+}
+
+std::vector<double> TF::stringToVec(const std::string &s, const std::string &separators)
+{
+    boost::char_separator<char> seps(separators.c_str());
+    boost::tokenizer<boost::char_separator<char>> tokenizer(s, seps);
+
+    std::vector<double> values;
+    std::transform(tokenizer.begin(), tokenizer.end(), std::back_inserter(values),
+                   [](const std::string &s) { return boost::lexical_cast<double>(s); });
+
+    return std::vector<double>();
 }

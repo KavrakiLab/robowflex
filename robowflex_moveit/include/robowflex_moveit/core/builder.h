@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_BUILDER_
-#define ROBOWFLEX_BUILDER_
+#ifndef ROBOWFLEX_MOVEIT_BUILDER_
+#define ROBOWFLEX_MOVEIT_BUILDER_
 
 #include <moveit/planning_pipeline/planning_pipeline.h>
 

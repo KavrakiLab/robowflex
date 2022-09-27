@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_IO_YAML_
-#define ROBOWFLEX_IO_YAML_
+#ifndef ROBOWFLEX_MOVEIT_IO_YAML_
+#define ROBOWFLEX_MOVEIT_IO_YAML_
 
 #include <geometry_msgs/Pose.h>
 

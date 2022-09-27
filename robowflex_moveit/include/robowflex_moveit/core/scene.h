@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_SCENE_
-#define ROBOWFLEX_SCENE_
+#ifndef ROBOWFLEX_MOVEIT_SCENE_
+#define ROBOWFLEX_MOVEIT_SCENE_
 
 #include <string>
 

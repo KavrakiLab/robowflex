@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_ROBOT_
-#define ROBOWFLEX_ROBOT_
+#ifndef ROBOWFLEX_MOVEIT_ROBOT_
+#define ROBOWFLEX_MOVEIT_ROBOT_
 
 #include <string>  // for std::string
 #include <vector>  // for std::vector

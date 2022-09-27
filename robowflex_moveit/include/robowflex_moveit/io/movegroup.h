@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_MOVEGROUP_SERVICES_
-#define ROBOWFLEX_MOVEGROUP_SERVICES_
+#ifndef ROBOWFLEX_MOVEIT_MOVEGROUP_SERVICES_
+#define ROBOWFLEX_MOVEIT_MOVEGROUP_SERVICES_
 
 #include <ros/node_handle.h>
 

@@ -1,7 +1,7 @@
 /* Author: Constantinos Chamzas, Zachary Kingston */
 
-#ifndef ROBOWFLEX_TRAJECTORY_
-#define ROBOWFLEX_TRAJECTORY_
+#ifndef ROBOWFLEX_MOVEIT_TRAJECTORY_
+#define ROBOWFLEX_MOVEIT_TRAJECTORY_
 
 #include <tuple>
 #include <functional>

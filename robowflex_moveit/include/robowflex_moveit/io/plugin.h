@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_IO_PLUGIN_
-#define ROBOWFLEX_IO_PLUGIN_
+#ifndef ROBOWFLEX_MOVEIT_IO_PLUGIN_
+#define ROBOWFLEX_MOVEIT_IO_PLUGIN_
 
 #include <mutex>
 #include <memory>
