@@ -13,8 +13,9 @@
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>
-#include <robowflex_util/math.h>
 #include <robowflex_moveit/utility/conversions.h>
+#include <robowflex_util/math.h>
+#include <robowflex_util/random.h>
 
 using namespace robowflex;
 
@@ -794,7 +795,7 @@ bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const
     {
         pose = region_poses[index];
         pose.translate(point.second);
-        pose.rotate(TF::sampleOrientation(orientations[index], tolerances[index]));
+        pose.rotate(RNG::sampleOrientation(orientations[index], tolerances[index]));
     }
 
     return point.first;
