@@ -24,17 +24,16 @@ find_package(Eigen3 REQUIRED)
 ## Catkin setup
 ##
 
-list(APPEND CATKIN_SOURCES
-  )
+if (CATKIN_DEVEL_PREFIX)
+  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
 
-find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
-
-catkin_package(
-  LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS ${CATKIN_SOURCES}
-  DEPENDS
-  INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
+  catkin_package(
+    LIBRARIES ${LIBRARY_NAME}
+    CATKIN_DEPENDS ${CATKIN_SOURCES}
+    DEPENDS
+    INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
+endif()
 
 ##
 ## Library Creation
@@ -57,18 +56,12 @@ list(APPEND INCLUDES
   ${EIGEN3_INCLUDE_DIR}
   )
 
-list(APPEND LIBRARIES
-  ${catkin_LIBRARIES}
-  )
-
 include_directories(SYSTEM ${INCLUDES})
-link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
-##
-## Installation of programs, library, headers, and YAML used by scripts
-##
 
-install_library()
+if (CATKIN_DEVEL_PREFIX)
+  install_library()
+endif()
