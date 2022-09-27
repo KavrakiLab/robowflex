@@ -8,7 +8,7 @@
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 #include <robowflex_library/ompl_interface.h>
 

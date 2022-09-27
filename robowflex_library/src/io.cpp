@@ -19,7 +19,6 @@
 #include <robowflex_library/io.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/macros.h>
-#include <robowflex_library/util.h>
 
 using namespace robowflex;
 

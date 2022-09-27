@@ -10,7 +10,6 @@
 
 #include <moveit/robot_state/conversions.h>
 
-#include <robowflex_library/util.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_util/constants.h>
 #include <robowflex_library/geometry.h>

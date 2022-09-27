@@ -6,7 +6,7 @@
 
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/macros.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 #if IS_BOOST_164
 #include <boost/process.hpp>
@@ -96,9 +96,4 @@ std::vector<std::string> ROS::getArgs() const
 void ROS::wait() const
 {
     ros::waitForShutdown();
-}
-
-void robowflex::explode()
-{
-    raise(SIGSEGV);
 }

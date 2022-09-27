@@ -3,7 +3,7 @@
 #include <boost/date_time.hpp>
 
 #include <robowflex_library/roslog.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 #include <robowflex_library/movegroup.h>
 

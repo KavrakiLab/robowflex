@@ -79,7 +79,7 @@ list(APPEND SOURCES
   src/core/ompl_trajectory.cpp
 
   src/benchmarking.cpp
-  src/util.cpp
+  src/ros.cpp
   src/io.cpp
   src/roslog.cpp
   src/openrave.cpp

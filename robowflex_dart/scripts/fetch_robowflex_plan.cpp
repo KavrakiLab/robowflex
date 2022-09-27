@@ -10,7 +10,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/planning.h>

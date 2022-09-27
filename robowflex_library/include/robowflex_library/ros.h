@@ -1,11 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_UTIL_
-#define ROBOWFLEX_UTIL_
-
-#include <string>
-#include <vector>
-#include <exception>
+#ifndef ROBOWFLEX_ROS_
+#define ROBOWFLEX_ROS_
 
 namespace robowflex
 {
@@ -41,10 +37,6 @@ namespace robowflex
         int argc_;     ///< Argument count.
         char **argv_;  ///< Arguments.
     };
-
-    /** \brief Trigger a SEGSEGV.
-     */
-    void explode();
 }  // namespace robowflex
 
 #endif

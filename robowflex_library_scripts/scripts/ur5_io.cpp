@@ -3,7 +3,7 @@
 #include <robowflex_library/detail/ur5.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 using namespace robowflex;
 

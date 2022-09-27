@@ -8,7 +8,6 @@
 #include <moveit/version.h>
 
 #include <robowflex_library/macros.h>
-#include <robowflex_library/util.h>
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/io.h>

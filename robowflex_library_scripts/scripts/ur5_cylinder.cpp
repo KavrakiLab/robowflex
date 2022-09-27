@@ -6,7 +6,7 @@
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 using namespace robowflex;
 

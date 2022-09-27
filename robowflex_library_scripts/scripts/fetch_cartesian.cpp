@@ -7,7 +7,7 @@
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
-#include <robowflex_library/util.h>
+#include <robowflex_library/ros.h>
 
 using namespace robowflex;
 
