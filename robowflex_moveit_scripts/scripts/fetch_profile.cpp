@@ -35,7 +35,10 @@ static const double TIME = 60.0;
  */
 Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const std::string &field)
 {
-    return [&, field](const PlanData &result) {
+    return [&, field](const PlannerPtr &planner,                             //
+                      const SceneConstPtr &scene,                            //
+                      const planning_interface::MotionPlanRequest &request,  //
+                      const PlanData &result) {
         IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
         tso.instance = field;
         tso.title = "Live Profiling";
@@ -86,6 +89,7 @@ Profiler::ProgressCallbackAllocator getRVIZGraphVisualizationAllocator(IO::RVIZH
         const auto &op = ss->getPlanner();
 
         return [rviz, op](const PlannerPtr &planner,                             //
+                          const SceneConstPtr &scene,                            //
                           const planning_interface::MotionPlanRequest &request,  //
                           const PlanData &result) {
             const auto &robot = planner->getRobot();
@@ -150,10 +154,10 @@ Profiler::ProgressCallbackAllocator getRVIZGraphVisualizationAllocator(IO::RVIZH
 Profiler::ComputeMetricCallback getGoalDistanceCallback()
 {
     return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
               const PlanData &run) -> PlannerMetric {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
-
         const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();
         double distance = pdef->getSolutionDifference();
 

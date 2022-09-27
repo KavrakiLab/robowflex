@@ -18,6 +18,7 @@ static const std::string GROUP = "arm_with_torso";
 Profiler::ComputeMetricCallback getNumVerticesCallback()
 {
     return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
               const PlanData &run) -> PlannerMetric {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
@@ -33,6 +34,7 @@ Profiler::ComputeMetricCallback getNumVerticesCallback()
 Profiler::ComputeMetricCallback getGoalDistanceCallback()
 {
     return [](const PlannerPtr &planner,                             //
+              const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
               const PlanData &run) -> PlannerMetric {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
