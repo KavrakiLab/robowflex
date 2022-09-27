@@ -77,23 +77,25 @@ list(APPEND SOURCES
   src/core/trajectory.cpp
   src/core/ompl_interface.cpp
   src/core/ompl_trajectory.cpp
+  src/core/benchmarking.cpp
 
-  src/benchmarking.cpp
-  src/ros.cpp
-  src/io.cpp
-  src/roslog.cpp
-  src/openrave.cpp
-  src/visualization.cpp
-  src/broadcaster.cpp
-  src/tf.cpp
-  src/yaml.cpp
-  src/movegroup.cpp
-  src/handler.cpp
-  src/bag.cpp
+  src/io/ros.cpp
+  src/io/io.cpp
+  src/io/roslog.cpp
+  src/io/openrave.cpp
+  src/io/visualization.cpp
+  src/io/broadcaster.cpp
+  src/io/yaml_util.cpp
+  src/io/yaml_conversions.cpp
+  src/io/movegroup.cpp
+  src/io/handler.cpp
+  src/io/bag.cpp
 
   src/robots/ur5.cpp
   src/robots/fetch.cpp
   src/robots/cob4.cpp
+
+  src/tf.cpp
   )
 
 list(APPEND INCLUDES

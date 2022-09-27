@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_library/builder.h>
-#include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/robots/fetch.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>

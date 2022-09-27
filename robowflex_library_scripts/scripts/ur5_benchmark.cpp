@@ -2,7 +2,7 @@
 
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
-#include <robowflex_library/detail/ur5.h>
+#include <robowflex_library/robots/ur5.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/ros.h>

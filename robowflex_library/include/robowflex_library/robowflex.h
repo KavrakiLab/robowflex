@@ -14,13 +14,13 @@ namespace robowflex
 #include <robowflex_library/adapter.h>
 #include <robowflex_library/macros.h>
 #include <robowflex_library/ros.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml_conversions.h>
 
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/bag.h>
 #include <robowflex_library/io/handler.h>
 #include <robowflex_library/io/visualization.h>
-#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/io/yaml_utils.h>
 #include <robowflex_library/io/plugin.h>
 
 #include <robowflex_library/geometry.h>

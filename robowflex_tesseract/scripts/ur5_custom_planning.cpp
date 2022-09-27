@@ -1,6 +1,6 @@
 /* Author: Carlos Quintero Pena */
 
-#include <robowflex_library/detail/ur5.h>
+#include <robowflex_library/robots/ur5.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>

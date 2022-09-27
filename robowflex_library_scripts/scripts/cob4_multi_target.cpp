@@ -3,7 +3,7 @@
 // Robowflex
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/roslog.h>
-#include <robowflex_library/detail/cob4.h>
+#include <robowflex_library/robots/cob4.h>
 #include <robowflex_library/builder.h>
 #include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>

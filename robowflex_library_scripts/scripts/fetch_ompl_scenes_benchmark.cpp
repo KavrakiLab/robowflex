@@ -2,7 +2,7 @@
 
 #include <robowflex_library/benchmarking.h>
 #include <robowflex_library/builder.h>
-#include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/robots/fetch.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/planning.h>

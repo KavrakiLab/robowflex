@@ -74,14 +74,14 @@ namespace
     {
         return std::equal(lhs.rbegin(), lhs.rbegin() + std::min(lhs.size(), rhs.size()), rhs.rbegin());
     }
-
-    bool isExtension(const std::string &path_string, const std::string &extension)
-    {
-        boost::filesystem::path path(path_string);
-        const std::string last = boost::filesystem::extension(path);
-        return isSuffix(extension, last);
-    }
 }  // namespace
+
+bool IO::isExtension(const std::string &path_string, const std::string &extension)
+{
+    boost::filesystem::path path(path_string);
+    const std::string last = boost::filesystem::extension(path);
+    return isSuffix(extension, last);
+}
 
 std::string IO::resolvePackage(const std::string &path)
 {
@@ -225,60 +225,6 @@ std::string IO::loadXMLToString(const std::string &path)
     return loadFileToString(full_path);
 }
 
-std::pair<bool, YAML::Node> IO::loadFileToYAML(const std::string &path)
-{
-    YAML::Node file;
-    const std::string full_path = resolvePath(path);
-    if (full_path.empty())
-        return std::make_pair(false, file);
-
-    if (!isExtension(full_path, "yml") && !isExtension(full_path, "yaml"))
-        return std::make_pair(false, file);
-
-    try
-    {
-        return std::make_pair(true, YAML::LoadFile(full_path));
-    }
-    catch (std::exception &e)
-    {
-        return std::make_pair(false, file);
-    }
-}
-
-std::pair<bool, std::vector<YAML::Node>> IO::loadAllFromFileToYAML(const std::string &path)
-{
-    std::vector<YAML::Node> file;
-    const std::string full_path = resolvePath(path);
-    if (full_path.empty())
-        return std::make_pair(false, file);
-
-    if (!isExtension(full_path, "yml") && !isExtension(full_path, "yaml"))
-        return std::make_pair(false, file);
-
-    try
-    {
-        return std::make_pair(true, YAML::LoadAllFromFile(full_path));
-    }
-    catch (std::exception &e)
-    {
-        return std::make_pair(false, file);
-    }
-}
-
-bool IO::YAMLToFile(const YAML::Node &node, const std::string &file)
-{
-    YAML::Emitter out;
-    out << node;
-
-    std::ofstream fout;
-    IO::createFile(fout, file);
-
-    fout << out.c_str();
-    fout.close();
-
-    return true;
-}
-
 std::string IO::generateUUID()
 {
     boost::uuids::random_generator gen;
@@ -371,14 +317,6 @@ double IO::getSeconds(boost::posix_time::ptime start, boost::posix_time::ptime f
 void IO::threadSleep(double seconds)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(seconds * 1000)));
-}
-
-std::size_t IO::hashYAML(const YAML::Node &node)
-{
-    std::stringstream sout;
-    sout << node;
-
-    return hashString(sout.str());
 }
 
 std::size_t IO::hashString(const std::string &string)

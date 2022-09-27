@@ -2,11 +2,11 @@
 
 #include <robowflex_library/ros.h>
 #include <robowflex_library/roslog.h>
-#include <robowflex_library/detail/fetch.h>
+#include <robowflex_library/robots/fetch.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/io/visualization.h>
 #include <robowflex_library/scene.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml_conversions.h>
 #include <robowflex_tesseract/trajopt_planner.h>
 
 using namespace robowflex;

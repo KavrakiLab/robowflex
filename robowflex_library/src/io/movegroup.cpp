@@ -7,10 +7,10 @@
 #include <std_srvs/Empty.h>
 
 #include <robowflex_library/io.h>
-#include <robowflex_library/io/yaml.h>
+#include <robowflex_library/io/yaml_utils.h>
 #include <robowflex_library/roslog.h>
 #include <robowflex_library/trajectory.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml_conversions.h>
 
 #include <robowflex_library/movegroup.h>
 

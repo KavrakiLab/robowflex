@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <robowflex_library/detail/ur5.h>
+#include <robowflex_library/robots/ur5.h>
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>

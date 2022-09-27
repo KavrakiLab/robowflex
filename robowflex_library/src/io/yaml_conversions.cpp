@@ -13,9 +13,9 @@
 #include <robowflex_library/geometry.h>
 #include <robowflex_library/io.h>
 #include <robowflex_library/tf.h>
-#include <robowflex_library/io/yaml.h>
 #include <robowflex_library/macros.h>
-#include <robowflex_library/yaml.h>
+#include <robowflex_library/io/yaml_utils.h>
+#include <robowflex_library/io/yaml_conversions.h>
 
 using namespace robowflex;
 
@@ -1840,91 +1840,3 @@ namespace YAML
         return true;
     }
 }  // namespace YAML
-
-namespace robowflex
-{
-    namespace IO
-    {
-        bool isNode(const YAML::Node &node)
-        {
-            try
-            {
-                bool r = node.IsDefined() and not node.IsNull();
-                if (r)
-                    try
-                    {
-                        r = node.as<std::string>() != "~";
-                    }
-                    catch (std::exception &e)
-                    {
-                    }
-
-                return r;
-            }
-            catch (YAML::InvalidNode &e)
-            {
-                return false;
-            }
-        }
-
-        moveit_msgs::RobotState robotStateFromNode(const YAML::Node &node)
-        {
-            return node.as<moveit_msgs::RobotState>();
-        }
-
-        YAML::Node toNode(const geometry_msgs::Pose &msg)
-        {
-            YAML::Node node;
-            node = msg;
-            return node;
-        }
-
-        geometry_msgs::Pose poseFromNode(const YAML::Node &node)
-        {
-            return node.as<geometry_msgs::Pose>();
-        }
-
-        YAML::Node toNode(const moveit_msgs::PlanningScene &msg)
-        {
-            YAML::Node node;
-            node = msg;
-            return node;
-        }
-
-        YAML::Node toNode(const moveit_msgs::MotionPlanRequest &msg)
-        {
-            YAML::Node node;
-            node = msg;
-            return node;
-        }
-
-        YAML::Node toNode(const moveit_msgs::RobotTrajectory &msg)
-        {
-            YAML::Node node;
-            node = msg;
-            return node;
-        }
-
-        YAML::Node toNode(const moveit_msgs::RobotState &msg)
-        {
-            YAML::Node node;
-            node = msg;
-            return node;
-        }
-
-        bool fromYAMLFile(moveit_msgs::PlanningScene &msg, const std::string &file)
-        {
-            return IO::YAMLFileToMessage(msg, file);
-        }
-
-        bool fromYAMLFile(moveit_msgs::MotionPlanRequest &msg, const std::string &file)
-        {
-            return IO::YAMLFileToMessage(msg, file);
-        }
-
-        bool fromYAMLFile(moveit_msgs::RobotState &msg, const std::string &file)
-        {
-            return IO::YAMLFileToMessage(msg, file);
-        }
-    }  // namespace IO
-}  // namespace robowflex

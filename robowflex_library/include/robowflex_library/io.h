@@ -6,12 +6,11 @@
 #include <string>   // for std::string
 #include <utility>  // for std::pair
 #include <fstream>  // for std::ofstream
+#include <set>      // for std::set
 
 #include <boost/date_time.hpp>  // for date operations
 
 #include <ros/message_traits.h>  // for message operations
-
-#include <yaml-cpp/yaml.h>  // for YAML parsing
 
 namespace robowflex
 {
@@ -36,6 +35,13 @@ namespace robowflex
          *  \return List of package URIs.
          */
         std::set<std::string> findPackageURIs(const std::string &string);
+
+        /** \brief Checks if an extension is the file extension of a path.
+         *  \param[in] path_string Path to check extension on.
+         *  \param[in] extension Extension to check.
+         *  \return True if path is of the extension.
+         */
+        bool isExtension(const std::string &path_string, const std::string &extension);
 
         /** \brief Resolves `package://` URLs and relative file paths to their canonical form.
          *  \param[in] path Path to resolve.
@@ -80,19 +86,6 @@ namespace robowflex
          *  \return Contents of stdout from \a cmd, or "" on failure.
          */
         std::string runCommand(const std::string &cmd);
-
-        /** \brief Loads a file to a YAML node.
-         *  \param[in] path File to load.
-         *  \return A pair, where the first is true on success false on failure, and second is the YAML node.
-         */
-        std::pair<bool, YAML::Node> loadFileToYAML(const std::string &path);
-
-        /** \brief Loads a file with multiple documents to a vector of YAML nodes.
-         *  \param[in] path File to load.
-         *  \return A pair, where the first is true on success false on failure, and second is the vector of
-         * YAML nodes.
-         */
-        std::pair<bool, std::vector<YAML::Node>> loadAllFromFileToYAML(const std::string &path);
 
         /** \brief Creates a file and opens an output stream. Creates directories if they do not exist.
          *  \param[out] out Output stream to initialize.
@@ -150,12 +143,6 @@ namespace robowflex
          */
         void threadSleep(double seconds);
 
-        /** \brief Compute hash of a YAML node.
-         *  \param[in] node YAML to hash.
-         *  \return A hashed value of the node. Note: not cryptographically secure.
-         */
-        std::size_t hashYAML(const YAML::Node &node);
-
         /** \brief Compute hash of string.
          *  \param[in] string String to hash.
          *  \return A hashed value of the string. Note: not cryptographically secure.
@@ -170,59 +157,6 @@ namespace robowflex
          */
         template <typename T>
         std::vector<T> tokenize(const std::string &string, const std::string &separators = " ");
-
-        /** \brief Write the contents of a YAML node out to a potentially new file.
-         *  \param[in] node Node to write.
-         *  \param[in] file Filename to open.
-         *  \return True on success, false otherwise.
-         */
-        bool YAMLToFile(const YAML::Node &node, const std::string &file);
-
-        /** \brief Dump a message (or YAML convertable object) to a file.
-         *  \param[in] msg Message to dump.
-         *  \param[in] file File to dump message to.
-         *  \tparam T Type of the message.
-         *  \return True on success, false on failure.
-         */
-        template <typename T>
-        bool messageToYAMLFile(T &msg, const std::string &file)
-        {
-            YAML::Node yaml;
-            yaml = msg;
-
-            return YAMLToFile(yaml, file);
-        }
-
-        /** \brief Load a message (or YAML convertable object) from a file.
-         *  \param[out] msg Message to load into.
-         *  \param[in] file File to load message from.
-         *  \tparam T Type of the message.
-         *  \return True on success, false on failure.
-         */
-        template <typename T>
-        bool YAMLFileToMessage(T &msg, const std::string &file)
-        {
-            const auto &result = IO::loadFileToYAML(file);
-            if (result.first)
-                msg = result.second.as<T>();
-
-            return result.first;
-        }
-
-        /** \brief Use YAML to compute a hash of message contents
-         *  \param[in] msg Message to dump.
-         *  \param[in] file File to dump message to.
-         *  \tparam T Type of the message.
-         *  \return True on success, false on failure.
-         */
-        template <typename T>
-        std::size_t messageToYAMLHash(const T &msg)
-        {
-            YAML::Node yaml;
-            yaml = msg;
-
-            return hashYAML(yaml);
-        }
 
         /** \brief Compute MD5 hash of message type.
          *  Note that this does not compute a hash over the contents of the message.
