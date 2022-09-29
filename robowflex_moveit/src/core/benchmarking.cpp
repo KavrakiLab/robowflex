@@ -54,7 +54,7 @@ namespace
             return boost::lexical_cast<std::string>(boost::get<bool>(value));
         }
 
-        std::string operator()(const std::string& value) const
+        std::string operator()(const std::string &value) const
         {
             return boost::get<std::string>(value);
         }
@@ -681,7 +681,7 @@ void OMPLPlanDataSetOutputter::dump(const PlanDataSet &results)
                     return "BOOLEAN";
                 }
 
-                std::string operator()(const std::string& /* dummy */) const
+                std::string operator()(const std::string & /* dummy */) const
                 {
                     return "VARCHAR(128)";
                 }

@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     // Use the post-query callback to visualize the data live.
     GNUPlotPlanDataSetOutputter plot("time");
     experiment.setPostQueryCallback(
-        [&](const PlanDataSetPtr& dataset, const PlanningQuery &) { plot.dump(*dataset); });
+        [&](const PlanDataSetPtr &dataset, const PlanningQuery &) { plot.dump(*dataset); });
 
     auto dataset = experiment.benchmark(4);
 

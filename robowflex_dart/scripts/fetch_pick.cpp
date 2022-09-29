@@ -99,7 +99,7 @@ int main(int argc, char **argv)
             window.animatePath(builder, builder.getSolutionPath());
         }
         // else
-            // XROS_WARN("No solution found");
+        // XROS_WARN("No solution found");
     };
 
     const auto &plan_to_grasp = [&]() {
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
             window.animatePath(builder, builder.getSolutionPath());
         }
         // else
-            // XROS_WARN("No solution found");
+        // XROS_WARN("No solution found");
     };
 
     const auto &plan_to_place = [&]() {
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
             window.animatePath(builder, builder.getSolutionPath());
         }
         // else
-            // XROS_WARN("No solution found");
+        // XROS_WARN("No solution found");
     };
 
     window.run([&] {

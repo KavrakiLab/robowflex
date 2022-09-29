@@ -3,8 +3,6 @@
 #include <chrono>
 #include <thread>
 
-
-
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/io.h>
 #include <robowflex_dart/planning.h>
@@ -100,7 +98,7 @@ int main(int argc, char **argv)
             window.animatePath(builder, builder.getSolutionPath());
         }
         // else
-            // XROS_WARN("No solution found");
+        // XROS_WARN("No solution found");
     });
 
     return 0;

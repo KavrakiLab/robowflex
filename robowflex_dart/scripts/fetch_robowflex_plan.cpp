@@ -134,8 +134,8 @@ int main(int argc, char **argv)
                 // XROS_INFO("Found solution!");
                 window.animatePath(builder, builder.getSolutionPath());
             }
-            else
-                // XROS_WARN("No solution found");
+            // else
+            // XROS_WARN("No solution found");
 
             builder.ss->clear();
         }

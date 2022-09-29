@@ -2,7 +2,6 @@
 
 #include <ompl/base/spaces/RealVectorStateProjections.h>
 
-
 #include <robowflex_util/constants.h>
 
 #include <robowflex_dart/space.h>
@@ -199,7 +198,7 @@ void StateSpace::addGroupFromJoints(const std::string &group_name,
             }
         }
         // else
-            // XROS_WARN("Unknown joint type %1%, skipping.", type);
+        // XROS_WARN("Unknown joint type %1%, skipping.", type);
     }
 
     registerDefaultProjection(

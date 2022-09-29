@@ -19,7 +19,7 @@
 
 using namespace robowflex;
 
-int main(int  /*argc*/, char ** /*argv*/)
+int main(int /*argc*/, char ** /*argv*/)
 {
     auto world = std::make_shared<darts::World>();
 
@@ -95,7 +95,7 @@ int main(int  /*argc*/, char ** /*argv*/)
             window.animatePath(builder, builder.getSolutionPath(), 10);
         }
         // else
-            // XROS_WARN("No solution found");
+        // XROS_WARN("No solution found");
     });
 
     return 0;
