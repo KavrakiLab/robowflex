@@ -5,7 +5,6 @@
 #include <dart/dynamics/InverseKinematics.hpp>
 #include <dart/dynamics/SimpleFrame.hpp>
 
-
 #include <robowflex_util/math.h>
 #include <robowflex_util/constants.h>
 

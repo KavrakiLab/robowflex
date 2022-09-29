@@ -5,8 +5,6 @@
 
 #include <dart/gui/osg/osg.hpp>
 
-
-
 #include <robowflex_dart/acm.h>
 #include <robowflex_dart/robot.h>
 #include <robowflex_dart/world.h>
