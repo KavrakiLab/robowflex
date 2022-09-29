@@ -247,6 +247,7 @@ std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) c
 
     return std::make_pair(success, point);
 }
+
 bool Geometry::isMesh() const
 {
     return type_ == ShapeType::MESH;
