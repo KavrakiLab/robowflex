@@ -18,7 +18,6 @@ include(HelperFunctions)
 ## Non-ROS libraries
 ##
 
-find_package(Boost REQUIRED filesystem)
 find_library(YAML yaml-cpp REQUIRED)
 find_package(TinyXML2 REQUIRED)
 
@@ -99,14 +98,12 @@ list(APPEND SOURCES
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
   ${TINYXML2_INCLUDE_DIRS}
   yaml-cpp
   )
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${TINYXML2_LIBRARIES}
   yaml-cpp
   )

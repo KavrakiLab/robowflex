@@ -7,12 +7,11 @@
 #include <thread>
 
 #include <boost/filesystem.hpp>  // for filesystem paths
-#include <ros/package.h>         // for package resolving
 
-#include <robowflex_moveit/io/filesystem.h>
-#include <robowflex_moveit/io/roslog.h>
+#include <robowflex_util/log.h>
 #include <robowflex_util/process.h>
-#include <robowflex_moveit/utility/macros.h>
+#include <robowflex_util/macros.h>
+#include <robowflex_moveit/io/filesystem.h>
 
 using namespace robowflex;
 
@@ -22,10 +21,7 @@ namespace
     {
         const char *home = std::getenv("HOME");
         if (home == nullptr)
-        {
-            XROS_WARN("HOME Environment variable is not set! Cannot resolve ~ in path.");
             return in;
-        }
 
         boost::filesystem::path out;
         for (const auto &p : in)
@@ -77,6 +73,7 @@ bool IO::isExtension(const std::string &path_string, const std::string &extensio
     return isSuffix(extension, last);
 }
 
+#include <iostream>
 std::string IO::resolvePackage(const std::string &path)
 {
     if (path.empty())
@@ -90,12 +87,13 @@ std::string IO::resolvePackage(const std::string &path)
         boost::filesystem::path subpath(path.substr(prefix.length(), path.length() - 1));
         const std::string package_name = (*subpath.begin()).string();
 
-        const std::string package = ros::package::getPath(package_name);
-        if (package.empty())
-        {
-            XROS_WARN("Package `%s` does not exist.", package_name);
+        std::string package = IO::runCommand(log::format("rospack find %1%", package_name));
+
+        // Remove new lines.
+        package.erase(std::remove(package.begin(), package.end(), '\n'), package.cend());
+
+        if (isPrefix("[rospack] Error", package))
             return "";
-        }
 
         file = package;
         for (auto it = ++subpath.begin(); it != subpath.end(); ++it)
@@ -104,6 +102,7 @@ std::string IO::resolvePackage(const std::string &path)
     else
         file = path;
 
+    std::cout << expandPath(file).string() << std::endl;
     return expandPath(file).string();
 }
 
@@ -131,10 +130,7 @@ std::string IO::resolvePath(const std::string &path)
     boost::filesystem::path file = resolvePackage(path);
 
     if (!boost::filesystem::exists(file))
-    {
-        XROS_WARN("File `%s` does not exist.", path);
         return "";
-    }
 
     return boost::filesystem::canonical(boost::filesystem::absolute(file)).string();
 }

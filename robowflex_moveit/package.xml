@@ -16,7 +16,6 @@
 
   <depend>robowflex_util</depend>
 
-  <depend>boost</depend>
   <depend>yaml-cpp</depend>
   <depend>tinyxml2</depend>
 

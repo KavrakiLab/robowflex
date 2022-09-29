@@ -18,7 +18,20 @@ include(HelperFunctions)
 ## Non-ROS libraries
 ##
 
+find_package(Boost REQUIRED filesystem)
 find_package(Eigen3 REQUIRED)
+
+execute_process(
+  COMMAND rosversion -s roscpp
+  COMMAND cut -d "." -f 2 -s
+  OUTPUT_VARIABLE ROS_VERSION_NUMBER
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+configure_file(
+  ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}/macros.h.in
+  ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}/macros.h
+)
 
 ##
 ## Catkin setup
@@ -53,14 +66,19 @@ list(APPEND SOURCES
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  )
+)
+
+list(APPEND LIBRARIES
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
 
 include_directories(SYSTEM ${INCLUDES})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
 target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
-
 
 if (CATKIN_DEVEL_PREFIX)
   install_library()
