@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
-#ifndef ROBOWFLEX_MOVEIT_FILESYSTEM_
-#define ROBOWFLEX_MOVEIT_FILESYSTEM_
+#ifndef ROBOWFLEX_FILESYSTEM_
+#define ROBOWFLEX_FILESYSTEM_
 
 #include <string>   // for std::string
 #include <utility>  // for std::pair
