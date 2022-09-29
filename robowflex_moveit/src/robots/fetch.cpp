@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/robots/fetch.h>
 

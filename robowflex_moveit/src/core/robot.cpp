@@ -9,7 +9,7 @@
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>

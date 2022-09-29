@@ -11,7 +11,7 @@
 #include <robowflex_util/log.h>
 #include <robowflex_util/process.h>
 #include <robowflex_util/macros.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 
 using namespace robowflex;
 

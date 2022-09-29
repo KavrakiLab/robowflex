@@ -77,7 +77,6 @@ list(APPEND SOURCES
   src/core/benchmarking.cpp
 
   src/io/ros.cpp
-  src/io/filesystem.cpp
   src/io/roslog.cpp
   src/io/openrave.cpp
   src/io/visualization.cpp

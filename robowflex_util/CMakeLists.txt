@@ -53,6 +53,7 @@ endif()
 ##
 
 list(APPEND SOURCES
+  src/filesystem.cpp
   src/random.cpp
   src/pool.cpp
   src/colormap.cpp

@@ -11,7 +11,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <robowflex_moveit/core/geometry.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/yaml_conversions.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>

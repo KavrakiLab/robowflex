@@ -1,7 +1,7 @@
 /* Author: Zachary Kingston */
 
 #include <robowflex_util/uid.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/handler.h>
 
 using namespace robowflex;

@@ -12,7 +12,7 @@
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/core/trajectory.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_util/time.h>
 #include <robowflex_util/process.h>
 #include <robowflex_moveit/io/roslog.h>

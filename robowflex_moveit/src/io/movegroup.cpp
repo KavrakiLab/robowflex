@@ -7,7 +7,7 @@
 #include <std_srvs/Empty.h>
 
 #include <robowflex_moveit/core/trajectory.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/yaml_conversions.h>
 #include <robowflex_moveit/io/yaml_utils.h>

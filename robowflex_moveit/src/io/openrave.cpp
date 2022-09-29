@@ -14,7 +14,7 @@
 #include <geometric_shapes/shape_operations.h>
 
 #include <robowflex_moveit/core/geometry.h>
-#include <robowflex_moveit/io/filesystem.h>
+#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/openrave.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_util/math.h>
