@@ -35,11 +35,11 @@ int main(int argc, char **argv)
     shadowhand->setState({"kuka_arm_1_joint", "kuka_arm_3_joint", "kuka_arm_5_joint"}, {1, 2, 1});
 
     auto scene = std::make_shared<Scene>(shadowhand);
-    scene->updateCollisionObject("rod_1", Geometry::makeCylinder(0.1, 1),
+    scene->updateCollisionObject("rod_1", MoveItGeometry::makeCylinder(0.1, 1),
                                  TF::createPoseXYZ(0, 0, 0.5, constants::pi / 2, 0, 0));
-    scene->updateCollisionObject("rod_2", Geometry::makeCylinder(0.1, 1),
+    scene->updateCollisionObject("rod_2", MoveItGeometry::makeCylinder(0.1, 1),
                                  TF::createPoseXYZ(-0.2, 0.2, 0.5, 0, 0, 0));
-    scene->updateCollisionObject("rod_3", Geometry::makeCylinder(0.01, 0.25),
+    scene->updateCollisionObject("rod_3", MoveItGeometry::makeCylinder(0.01, 0.25),
                                  TF::createPoseXYZ(0, -0.04, 0.95, 0, constants::pi / 2, 0));
 
     // Save initial state.

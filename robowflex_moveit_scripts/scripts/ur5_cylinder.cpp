@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     RobotPose pose = RobotPose::Identity();
     pose.translate(Eigen::Vector3d{-0.268, -0.826, 1.313});
 
-    auto cylinder = Geometry::makeCylinder(0.025, 0.1);
+    auto cylinder = MoveItGeometry::makeCylinder(0.025, 0.1);
 
     // Create an empty scene.
     auto scene = std::make_shared<Scene>(ur5);
