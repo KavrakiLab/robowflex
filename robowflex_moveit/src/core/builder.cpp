@@ -11,10 +11,11 @@
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
-#include <robowflex_util/filesystem.h>
 #include <robowflex_moveit/io/roslog.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/conversions.h>
+
+#include <robowflex_util/filesystem.h>
 #include <robowflex_util/constants.h>
 #include <robowflex_util/random.h>
 
@@ -319,7 +320,8 @@ void MotionRequestBuilder::addGoalRegion(const std::string &ee_name, const std::
 {
     moveit_msgs::Constraints constraints;
 
-    constraints.position_constraints.push_back(TF::getPositionConstraint(ee_name, base_name, pose, geometry));
+    constraints.position_constraints.push_back(
+        TF::getPositionConstraint(ee_name, base_name, pose, std::make_shared<MoveItGeometry>(*geometry)));
     constraints.orientation_constraints.push_back(
         TF::getOrientationConstraint(ee_name, base_name, orientation, tolerances));
 
@@ -457,7 +459,7 @@ void MotionRequestBuilder::addPathPositionConstraint(const std::string &ee_name,
                                                      const RobotPose &pose, const GeometryConstPtr &geometry)
 {
     request_.path_constraints.position_constraints.push_back(
-        TF::getPositionConstraint(ee_name, base_name, pose, geometry));
+        TF::getPositionConstraint(ee_name, base_name, pose, std::make_shared<MoveItGeometry>(*geometry)));
 }
 
 void MotionRequestBuilder::addPathOrientationConstraint(const std::string &ee_name,

@@ -9,6 +9,10 @@ namespace robowflex
 {
     namespace color
     {
+        /** \brief Colormap function type.
+         */
+        using ColorMap = std::function<void(double, Eigen::Ref<Eigen::Vector4d>)>;
+
         /** \brief Maps a scalar s in [0, 1] to the Viridis colormap.
          *  \param[in] s Scalar to map.
          *  \param[out] color Output color.

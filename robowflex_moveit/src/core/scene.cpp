@@ -221,7 +221,7 @@ void Scene::fixCollisionObjectFrame(moveit_msgs::PlanningScene &msg)
             co.header.frame_id = scene_->getRobotModel()->getRootLinkName();
 }
 
-void Scene::updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
+void Scene::updateCollisionObject(const std::string &name, const MoveItGeometryConstPtr &geometry,
                                   const RobotPose &pose)
 {
     const auto &world = scene_->getWorldNonConst();
@@ -242,13 +242,13 @@ std::vector<std::string> Scene::getCollisionObjects() const
     return world->getObjectIds();
 }
 
-GeometryPtr Scene::getObjectGeometry(const std::string &name) const
+MoveItGeometryPtr Scene::getObjectGeometry(const std::string &name) const
 {
     const auto &world = scene_->getWorld();
 
     const auto &obj = world->getObject(name);
     if (obj)
-        return std::make_shared<Geometry>(*obj->shapes_[0]);
+        return std::make_shared<MoveItGeometry>(*obj->shapes_[0]);
 
     XROS_WARN("Object %s does not exist in scene!", name);
     return nullptr;

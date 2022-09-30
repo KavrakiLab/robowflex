@@ -20,6 +20,68 @@
 
 using namespace robowflex::darts;
 
+namespace
+{
+    aiScene *createMeshFromGeometry(const robowflex::Geometry &geometry)
+    {
+        const auto &verts = geometry.getVertices();
+
+        auto *mesh = new aiMesh;
+        mesh->mMaterialIndex = (unsigned int)(-1);
+
+        std::size_t nv = verts.size();
+
+        mesh->mNumVertices = nv;
+
+        mesh->mVertices = new aiVector3D[nv];
+        mesh->mNormals = new aiVector3D[nv];
+        mesh->mColors[0] = new aiColor4D[nv];
+
+        const aiVector3D fnormal(1.0f, 0.0f, 0.0f);
+        const aiColor4D color(geometry.getColor()[0],  //
+                              geometry.getColor()[1],  //
+                              geometry.getColor()[2],  //
+                              geometry.getColor()[3]);
+
+        aiVector3D vertex;
+        for (std::size_t i = 0; i < nv; i++)
+        {
+            vertex.Set(verts[i][0], verts[i][1], verts[i][2]);
+
+            mesh->mVertices[i] = vertex;
+            mesh->mNormals[i] = fnormal;
+            mesh->mColors[0][i] = color;
+        }
+
+        mesh->mNumFaces = nv / 3;
+        mesh->mFaces = new aiFace[mesh->mNumFaces];
+
+        // Faces
+        for (std::size_t i = 0; i < nv / 3; i++)
+        {
+            aiFace *fface = &mesh->mFaces[i];
+            fface->mNumIndices = 3;
+            fface->mIndices = new unsigned int[3];
+            fface->mIndices[0] = 3 * i;
+            fface->mIndices[1] = 3 * i + 1;
+            fface->mIndices[2] = 3 * i + 2;
+        }
+
+        auto *node = new aiNode;
+        node->mNumMeshes = 1;
+        node->mMeshes = new unsigned int[1];
+        node->mMeshes[0] = 0;
+
+        auto *scene = new aiScene;
+        scene->mNumMeshes = 1;
+        scene->mMeshes = new aiMesh *[1];
+        scene->mMeshes[0] = mesh;
+        scene->mRootNode = node;
+
+        return scene;
+    }
+}  // namespace
+
 ///
 /// Structure
 ///
@@ -55,7 +117,7 @@ Structure::Structure(const std::string &name, const SceneConstPtr &scene) : Stru
 
         auto pair = addFreeFrame(joint, shape, root);
         setJointParentTransform(object, pose);
-        setColor(pair.second, dart::Color::Blue(0.2));
+        setColor(pair.second, geometry->getColor());
     }
 
     const auto &acm = scene->getACMConst();
@@ -390,31 +452,23 @@ std::shared_ptr<dart::dynamics::SphereShape> robowflex::darts::makeSphere(double
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeMesh(const GeometryPtr &geometry)
 {
-    std::string uri = geometry->getResource();
-    Eigen::Vector3d dimensions = geometry->getDimensions();
-
-    if (uri.empty())
+    const auto &file = geometry->getResource();
+    if (file.empty())
     {
-        const auto &temp_file_name = ".robowflex_tmp.stl";
+        aiScene *aiscene = createMeshFromGeometry(*geometry);
+        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+        mesh->setColorMode(dart::dynamics::MeshShape::MATERIAL_COLOR);
 
-        auto shape = std::dynamic_pointer_cast<shapes::Mesh>(geometry->getShape());
-
-        std::vector<char> buffer;
-        shapes::writeSTLBinary(shape.get(), buffer);
-
-        std::ofstream out;
-        out.open(temp_file_name, std::ofstream::out | std::ofstream::binary);
-        out.write(buffer.data(), buffer.size());
-        out.close();
-
-        uri = temp_file_name;
+        return mesh;
     }
+    else
+    {
+        const auto &aiscene = dart::dynamics::MeshShape::loadMesh(file);
+        auto mesh = std::make_shared<dart::dynamics::MeshShape>(geometry->getDimensions(), aiscene);
+        mesh->setColorMode(dart::dynamics::MeshShape::MATERIAL_COLOR);
 
-    const auto &file = robowflex::IO::resolvePackage(uri);
-    const auto &aiscene = dart::dynamics::MeshShape::loadMesh(file);
-
-    auto mesh = std::make_shared<dart::dynamics::MeshShape>(dimensions, aiscene);
-    return mesh;
+        return mesh;
+    }
 }
 
 std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(double low, double high,
@@ -543,7 +597,7 @@ std::shared_ptr<dart::dynamics::MeshShape> robowflex::darts::makeArcsegment(doub
     scene->mRootNode = node;
 
     auto shape = std::make_shared<dart::dynamics::MeshShape>(Eigen::Vector3d::Ones(), scene);
-    shape->setColorMode(dart::dynamics::MeshShape::SHAPE_COLOR);
+    shape->setColorMode(dart::dynamics::MeshShape::MATERIAL_COLOR);
 
     return shape;
 }

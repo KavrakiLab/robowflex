@@ -21,7 +21,7 @@
 namespace robowflex
 {
     /** \cond IGNORE */
-    ROBOWFLEX_CLASS_FORWARD(Geometry);
+    ROBOWFLEX_CLASS_FORWARD(MoveItGeometry);
     /* \endcond */
 
     namespace TF
@@ -80,7 +80,7 @@ namespace robowflex
          *  \return Bounding volume message for \a geometry at \a pose.
          */
         moveit_msgs::BoundingVolume getBoundingVolume(const RobotPose &pose,
-                                                      const GeometryConstPtr &geometry);
+                                                      const MoveItGeometryConstPtr &geometry);
 
         /** \brief Get a position constraint message.
          *  \param[in] ee_name The name of the end-effector link.
@@ -92,7 +92,7 @@ namespace robowflex
         moveit_msgs::PositionConstraint getPositionConstraint(const std::string &ee_name,
                                                               const std::string &base_name,
                                                               const RobotPose &pose,
-                                                              const GeometryConstPtr &geometry);
+                                                              const MoveItGeometryConstPtr &geometry);
 
         Eigen::Vector3d samplePositionConstraint(const moveit_msgs::PositionConstraint &pc);
 

@@ -98,7 +98,7 @@ if (DART_LIBRARIES)
   # add_script(fetch_bimanual)
   # add_script(fetch_lift)
   # add_script(fetch_se2)
-  # add_script(fetch_robowflex_plan)
+  add_script(fetch_robowflex_plan)
   # add_script(gui_test)
   # add_script(tsr_helper)
 

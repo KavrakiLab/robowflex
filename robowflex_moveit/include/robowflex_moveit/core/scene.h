@@ -18,7 +18,7 @@ namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Robot);
-    ROBOWFLEX_CLASS_FORWARD(Geometry);
+    ROBOWFLEX_CLASS_FORWARD(MoveItGeometry);
     /** \endcond */
 
     /** \cond IGNORE */
@@ -124,7 +124,7 @@ namespace robowflex
          *  \param[in] geometry Geometry of object.
          *  \param[in] pose Pose of object.
          */
-        void updateCollisionObject(const std::string &name, const GeometryConstPtr &geometry,
+        void updateCollisionObject(const std::string &name, const MoveItGeometryConstPtr &geometry,
                                    const RobotPose &pose);
 
         /** \brief Returns true if the object \e name is in the scene.
@@ -143,7 +143,7 @@ namespace robowflex
          *  \param[in] name Name of the object to extract.
          *  \return A representation of the collision object as a Geometry.
          */
-        GeometryPtr getObjectGeometry(const std::string &name) const;
+        MoveItGeometryPtr getObjectGeometry(const std::string &name) const;
 
         /** \brief Removes an object from the planning scene.
          *  \param[in] name Name of object to remove.

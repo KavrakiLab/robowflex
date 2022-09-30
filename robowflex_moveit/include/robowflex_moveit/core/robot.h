@@ -33,7 +33,7 @@ namespace robowflex
 {
     /** \cond IGNORE */
     ROBOWFLEX_CLASS_FORWARD(Scene);
-    ROBOWFLEX_CLASS_FORWARD(Geometry);
+    ROBOWFLEX_CLASS_FORWARD(MoveItGeometry);
     /** \endcond */
 
     /** \cond IGNORE */
@@ -364,7 +364,7 @@ namespace robowflex
 
         /** \brief Robot IK Query options.
          *  IK queries in Robowflex consist of:
-         *   a) A position specified by some geometric region (a robowflex::Geometry) at a pose.
+         *   a) A position specified by some geometric region (a robowflex::MoveItGeometry) at a pose.
          *   b) An orientation specified by some base orientation with allowable deviations specified by
          *      tolerances on the XYZ Euler axes.
          *  It is recommended to use the provided constructors to specify a query, or to use the addRequest()
@@ -390,7 +390,7 @@ namespace robowflex
 
             std::string group;                             ///< Target joint group to do IK for.
             std::vector<std::string> tips;                 ///< List of end-effectors.
-            std::vector<GeometryConstPtr> regions;         ///< Regions to sample target positions from.
+            std::vector<MoveItGeometryConstPtr> regions;   ///< Regions to sample target positions from.
             RobotPoseVector region_poses;                  ///< Poses of regions.
             std::vector<Eigen::Quaterniond> orientations;  ///< Target orientations.
             EigenSTL::vector_Vector3d tolerances;          ///< XYZ Euler orientation tolerances.
@@ -506,7 +506,7 @@ namespace robowflex
              *  \param[in] verbose If true, will give verbose collision checking output.
              */
             IKQuery(const std::string &group,                                        //
-                    const GeometryConstPtr &region,                                  //
+                    const MoveItGeometryConstPtr &region,                                  //
                     const RobotPose &pose,                                           //
                     const Eigen::Quaterniond &orientation,                           //
                     const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance,  //
@@ -571,7 +571,7 @@ namespace robowflex
              */
             IKQuery(const std::string &group,                             //
                     const std::vector<std::string> &input_tips,           //
-                    const std::vector<GeometryConstPtr> &regions,         //
+                    const std::vector<MoveItGeometryConstPtr> &regions,   //
                     const RobotPoseVector &poses,                         //
                     const std::vector<Eigen::Quaterniond> &orientations,  //
                     const EigenSTL::vector_Vector3d &tolerances,          //
@@ -590,8 +590,8 @@ namespace robowflex
              *  \param[in] orientation Mean orientation.
              *  \param[in] tolerances Tolerance about \a orientation.
              */
-            void addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
-                            const Eigen::Quaterniond &orientation,
+            void addRequest(const std::string &tip, const MoveItGeometryConstPtr &region,
+                            const RobotPose &pose, const Eigen::Quaterniond &orientation,
                             const Eigen::Vector3d &tolerance = constants::ik_vec_tolerance);
 
             /** \brief Set a scene to use for collision checking for this IK request.

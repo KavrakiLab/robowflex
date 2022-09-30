@@ -62,6 +62,7 @@ list(APPEND SOURCES
   src/time.cpp
   src/uid.cpp
   src/math.cpp
+  src/geometry.cpp
   )
 
 list(APPEND INCLUDES

@@ -170,7 +170,7 @@ namespace
                             return false;
                         }
                     }
-                    auto mesh = Geometry::makeMesh(resource_path, dimensions);
+                    auto mesh = MoveItGeometry::makeMesh(resource_path, dimensions);
 
                     coll_obj.meshes.push_back(mesh->getMeshMsg());
                     coll_obj.mesh_poses.push_back(pose_msg);

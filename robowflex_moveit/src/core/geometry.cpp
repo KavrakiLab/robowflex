@@ -2,69 +2,39 @@
 
 #include <geometric_shapes/shape_operations.h>
 
-#include <robowflex_moveit/core/geometry.h>
+#include <moveit/robot_model/aabb.h>
+
 #include <robowflex_util/filesystem.h>
+#include <robowflex_moveit/core/geometry.h>
 
 using namespace robowflex;
 
-const unsigned int Geometry::ShapeType::MAX = (unsigned int)Geometry::ShapeType::MESH + 1;
-const std::vector<std::string> Geometry::ShapeType::STRINGS({"box", "sphere", "cylinder", "cone", "mesh"});
-
-Geometry::ShapeType::Type Geometry::ShapeType::toType(const std::string &str)
+MoveItGeometryPtr MoveItGeometry::makeSphere(double radius)
 {
-    std::string lower(str);
-    std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-
-    Type type;
-
-    unsigned int i = 0;
-    for (; i < MAX; ++i)
-        if (STRINGS[i].compare(lower) == 0)
-        {
-            type = (Type)i;
-            break;
-        }
-
-    if (i == MAX)
-        throw std::runtime_error("Invalid type for geometry.");
-
-    return type;
+    return std::make_shared<MoveItGeometry>(ShapeType::SPHERE, Eigen::Vector3d(radius, 0, 0));
 }
 
-const std::string &Geometry::ShapeType::toString(Type type)
+MoveItGeometryPtr MoveItGeometry::makeBox(double x, double y, double z)
 {
-    if (type > MAX)
-        throw std::runtime_error("Invalid type for geometry.");
-
-    return STRINGS[type];
+    return std::make_shared<MoveItGeometry>(ShapeType::BOX, Eigen::Vector3d(x, y, z));
 }
 
-GeometryPtr Geometry::makeSphere(double radius)
-{
-    return std::make_shared<Geometry>(ShapeType::SPHERE, Eigen::Vector3d(radius, 0, 0));
-}
-
-GeometryPtr Geometry::makeBox(double x, double y, double z)
-{
-    return std::make_shared<Geometry>(ShapeType::BOX, Eigen::Vector3d(x, y, z));
-}
-
-GeometryPtr Geometry::makeBox(const Eigen::Vector3d &dimensions)
+MoveItGeometryPtr MoveItGeometry::makeBox(const Eigen::Vector3d &dimensions)
 {
     return makeBox(dimensions[0], dimensions[1], dimensions[2]);
 }
 
-GeometryPtr Geometry::makeCylinder(double radius, double length)
+MoveItGeometryPtr MoveItGeometry::makeCylinder(double radius, double length)
 {
-    return std::make_shared<Geometry>(ShapeType::CYLINDER, Eigen::Vector3d(radius, length, 0));
+    return std::make_shared<MoveItGeometry>(ShapeType::CYLINDER, Eigen::Vector3d(radius, length, 0));
 }
 
-GeometryPtr Geometry::makeCone(double radius, double length)
+MoveItGeometryPtr MoveItGeometry::makeCone(double radius, double length)
 {
-    return std::make_shared<Geometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
+    return std::make_shared<MoveItGeometry>(ShapeType::CONE, Eigen::Vector3d(radius, length, 0));
 }
 
-GeometryPtr Geometry::makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg)
+MoveItGeometryPtr MoveItGeometry::makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg)
 {
     using sm = shape_msgs::SolidPrimitive;
 
@@ -87,86 +57,110 @@ GeometryPtr Geometry::makeSolidPrimitive(const shape_msgs::SolidPrimitive &msg)
     }
 }
 
-GeometryPtr Geometry::makeMesh(const std::string &resource, const Eigen::Vector3d &scale)
+MoveItGeometryPtr MoveItGeometry::makeMesh(const std::string &resource, const Eigen::Vector3d &scale)
 {
-    return std::make_shared<Geometry>(ShapeType::MESH, scale, resource);
+    return std::make_shared<MoveItGeometry>(ShapeType::MESH, scale, resource);
 }
 
-GeometryPtr Geometry::makeMesh(const EigenSTL::vector_Vector3d &vertices)
+MoveItGeometryPtr MoveItGeometry::makeMesh(const std::vector<Eigen::Vector3d> &vertices)
 {
-    return std::make_shared<Geometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
+    return std::make_shared<MoveItGeometry>(ShapeType::MESH, Eigen::Vector3d::Ones(), "", vertices);
 }
 
-Geometry::Geometry(ShapeType::Type type, const Eigen::Vector3d &dimensions, const std::string &resource,
-                   const EigenSTL::vector_Vector3d &vertices)
-  : type_(type)
-  , dimensions_(dimensions)
-  , vertices_(vertices)
-  , resource_((resource.empty()) ? "" : IO::resolvePath(resource))
-  , shape_(loadShape())
-  , body_(loadBody())
+MoveItGeometry::MoveItGeometry(ShapeType::Type type, const Eigen::Vector3d &dimensions,
+                               const std::string &resource, const std::vector<Eigen::Vector3d> &vertices)
+  : Geometry(type, dimensions, resource, vertices), shape_(loadShape()), body_(loadBody())
 {
 }
 
-Geometry::Geometry(const shapes::Shape &shape)
+MoveItGeometry::MoveItGeometry(const Geometry &geo)
+  : MoveItGeometry(geo.getType(), geo.getDimensions(), geo.getResource(), geo.getVertices())
 {
-    switch (shape.type)
-    {
-        case shapes::ShapeType::BOX:
-        {
-            type_ = ShapeType::BOX;
-            const auto &box = static_cast<const shapes::Box &>(shape);
-            dimensions_ = Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
-            shape_.reset(loadShape());
-            break;
-        }
-        case shapes::ShapeType::SPHERE:
-        {
-            type_ = ShapeType::SPHERE;
-            const auto &sphere = static_cast<const shapes::Sphere &>(shape);
-            dimensions_ = Eigen::Vector3d{sphere.radius, 0, 0};
-            shape_.reset(loadShape());
-            break;
-        }
-        case shapes::ShapeType::CYLINDER:
-        {
-            type_ = ShapeType::CYLINDER;
-            const auto &cylinder = static_cast<const shapes::Cylinder &>(shape);
-            dimensions_ = Eigen::Vector3d{cylinder.radius, cylinder.length, 0};
-            shape_.reset(loadShape());
-            break;
-        }
-        case shapes::ShapeType::CONE:
-        {
-            type_ = ShapeType::CONE;
-            const auto &cone = static_cast<const shapes::Cone &>(shape);
-            dimensions_ = Eigen::Vector3d{cone.radius, cone.length, 0};
-            shape_.reset(loadShape());
-            break;
-        }
-        case shapes::ShapeType::MESH:
-        {
-            type_ = ShapeType::MESH;
+}
+
+MoveItGeometry::MoveItGeometry(const shapes::Shape &shape)
+  : Geometry(  //
+        [&shape] {
+            switch (shape.type)
+            {
+                case shapes::ShapeType::BOX:
+                    return ShapeType::BOX;
+                case shapes::ShapeType::SPHERE:
+                    return ShapeType::SPHERE;
+                case shapes::ShapeType::CYLINDER:
+                    return ShapeType::CYLINDER;
+                case shapes::ShapeType::CONE:
+                    return ShapeType::CONE;
+                case shapes::ShapeType::MESH:
+                    return ShapeType::MESH;
+                default:
+                    throw std::runtime_error("Invalid type for geometry.");
+            }
+        }(),
+        [&shape] {
+            switch (shape.type)
+            {
+                case shapes::ShapeType::BOX:
+                {
+                    const auto &box = static_cast<const shapes::Box &>(shape);
+                    return Eigen::Vector3d{box.size[0], box.size[1], box.size[2]};
+                }
+                case shapes::ShapeType::SPHERE:
+                {
+                    const auto &sphere = static_cast<const shapes::Sphere &>(shape);
+                    return Eigen::Vector3d{sphere.radius, 0, 0};
+                }
+                case shapes::ShapeType::CYLINDER:
+                {
+                    const auto &cylinder = static_cast<const shapes::Cylinder &>(shape);
+                    return Eigen::Vector3d{cylinder.radius, cylinder.length, 0};
+                }
+                case shapes::ShapeType::CONE:
+                {
+                    const auto &cone = static_cast<const shapes::Cone &>(shape);
+                    return Eigen::Vector3d{cone.radius, cone.length, 0};
+                }
+                case shapes::ShapeType::MESH:
+                    return Eigen::Vector3d{1., 1., 1.};
+                default:
+                    throw std::runtime_error("Invalid type for geometry.");
+            }
+        }(),
+        "",
+        [&shape]() {
+            if (shape.type != shapes::ShapeType::MESH)
+                return std::vector<Eigen::Vector3d>{};
+
             const auto &mesh = static_cast<const shapes::Mesh &>(shape);
-            shape_.reset(mesh.clone());
-            break;
-        }
-        default:
-            throw std::runtime_error("Invalid type for geometry.");
-    }
 
-    body_.reset(loadBody());
-}
+            std::vector<Eigen::Vector3d> vertices;
 
-Geometry::Geometry(const shape_msgs::SolidPrimitive &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
+            for (std::size_t i = 0; i < mesh.triangle_count; ++i)
+            {
+                unsigned int *triangle = &mesh.triangles[3 * i];
+                for (std::size_t j = 0; j < 3; ++j)
+                {
+                    double *vertex = &mesh.vertices[3 * triangle[j]];
+                    vertices.emplace_back(vertex[0], vertex[1], vertex[2]);
+                }
+            }
+
+            return vertices;
+        }())
 {
 }
 
-Geometry::Geometry(const shape_msgs::Mesh &msg) : Geometry(*shapes::constructShapeFromMsg(msg))
+MoveItGeometry::MoveItGeometry(const shape_msgs::SolidPrimitive &msg)
+  : MoveItGeometry(*shapes::constructShapeFromMsg(msg))
 {
 }
 
-shapes::Shape *Geometry::loadShape() const
+MoveItGeometry::MoveItGeometry(const shape_msgs::Mesh &msg)
+  : MoveItGeometry(*shapes::constructShapeFromMsg(msg))
+{
+}
+
+shapes::Shape *MoveItGeometry::loadShape() const
 {
     switch (type_)
     {
@@ -189,11 +183,17 @@ shapes::Shape *Geometry::loadShape() const
         case ShapeType::MESH:
             if (!resource_.empty() && vertices_.empty())
                 return shapes::createMeshFromResource("file://" + resource_, dimensions_);
+
             else if (resource_.empty() && !vertices_.empty())
-                return shapes::createMeshFromVertices(vertices_);
+            {
+                EigenSTL::vector_Vector3d vertices_tmp(vertices_.begin(), vertices_.end());
+                return shapes::createMeshFromVertices(vertices_tmp);
+            }
             else
-                throw std::runtime_error(resource_.empty() ? "No vertices/resource specified for the mesh" :
-                                                             "Both vertices/resource specified for the mesh");
+                throw std::runtime_error(                                //
+                    resource_.empty() ?                                  //
+                        "No vertices/resource specified for the mesh" :  //
+                        "Both vertices/resource specified for the mesh");
             break;
 
         default:
@@ -203,7 +203,7 @@ shapes::Shape *Geometry::loadShape() const
     return nullptr;
 }
 
-bodies::Body *Geometry::loadBody() const
+bodies::Body *MoveItGeometry::loadBody() const
 {
     switch (type_)
     {
@@ -231,12 +231,12 @@ bodies::Body *Geometry::loadBody() const
     return nullptr;
 }
 
-bool Geometry::contains(const Eigen::Vector3d &point) const
+bool MoveItGeometry::contains(const Eigen::Vector3d &point) const
 {
     return body_->containsPoint(point[0], point[1], point[2]);
 }
 
-std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) const
+std::pair<bool, Eigen::Vector3d> MoveItGeometry::sample(const unsigned int attempts) const
 {
     bool success;
     Eigen::Vector3d point;
@@ -248,12 +248,7 @@ std::pair<bool, Eigen::Vector3d> Geometry::sample(const unsigned int attempts) c
     return std::make_pair(success, point);
 }
 
-bool Geometry::isMesh() const
-{
-    return type_ == ShapeType::MESH;
-}
-
-const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
+const shape_msgs::SolidPrimitive MoveItGeometry::getSolidMsg() const
 {
     shapes::ShapeMsg msg;
     if (!isMesh())
@@ -262,7 +257,7 @@ const shape_msgs::SolidPrimitive Geometry::getSolidMsg() const
     return boost::get<shape_msgs::SolidPrimitive>(msg);
 }
 
-const shape_msgs::Mesh Geometry::getMeshMsg() const
+const shape_msgs::Mesh MoveItGeometry::getMeshMsg() const
 {
     shapes::ShapeMsg msg;
     if (isMesh())
@@ -271,37 +266,17 @@ const shape_msgs::Mesh Geometry::getMeshMsg() const
     return boost::get<shape_msgs::Mesh>(msg);
 }
 
-const shapes::ShapePtr &Geometry::getShape() const
+const shapes::ShapePtr &MoveItGeometry::getShape() const
 {
     return shape_;
 }
 
-const bodies::BodyPtr &Geometry::getBody() const
+const bodies::BodyPtr &MoveItGeometry::getBody() const
 {
     return body_;
 }
 
-Geometry::ShapeType::Type Geometry::getType() const
-{
-    return type_;
-}
-
-const std::string &Geometry::getResource() const
-{
-    return resource_;
-}
-
-const EigenSTL::vector_Vector3d &Geometry::getVertices() const
-{
-    return vertices_;
-}
-
-const Eigen::Vector3d &Geometry::getDimensions() const
-{
-    return dimensions_;
-}
-
-Eigen::AlignedBox3d Geometry::getAABB(const RobotPose &pose) const
+Eigen::AlignedBox3d MoveItGeometry::getAABB(const RobotPose &pose) const
 {
     moveit::core::AABB aabb;
 

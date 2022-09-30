@@ -302,14 +302,11 @@ void IO::RVIZHelper::addGeometryMarker(const std::string &name, const GeometryCo
             }
             else if (!geometry->getVertices().empty())
             {
-                auto msg = geometry->getMeshMsg();
                 marker.type = visualization_msgs::Marker::TRIANGLE_LIST;
-                for (std::size_t i = 0; i < msg.triangles.size(); ++i)
-                {
-                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[0]]);
-                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[1]]);
-                    marker.points.push_back(msg.vertices[msg.triangles[i].vertex_indices[2]]);
-                }
+                const auto &vertices = geometry->getVertices();
+
+                for (std::size_t i = 0; i < vertices.size(); ++i)
+                    marker.points.emplace_back(TF::pointEigenToMsg(vertices[i]));
             }
             break;
 
@@ -362,7 +359,7 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const moveit_msgs::M
                 auto frame = pose * TF::poseMsgToEigen(solid_pose);
 
                 // Add geometry marker associated with this solid primitive
-                addGeometryMarker(name, Geometry::makeSolidPrimitive(solid), base_frame, frame, color);
+                addGeometryMarker(name, MoveItGeometry::makeSolidPrimitive(solid), base_frame, frame, color);
 
                 // Iterate over all orientation constraints for the same link as the
                 // position constraint

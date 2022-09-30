@@ -73,7 +73,6 @@ bool IO::isExtension(const std::string &path_string, const std::string &extensio
     return isSuffix(extension, last);
 }
 
-#include <iostream>
 std::string IO::resolvePackage(const std::string &path)
 {
     if (path.empty())
@@ -102,7 +101,6 @@ std::string IO::resolvePackage(const std::string &path)
     else
         file = path;
 
-    std::cout << expandPath(file).string() << std::endl;
     return expandPath(file).string();
 }
 

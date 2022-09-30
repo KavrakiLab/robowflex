@@ -638,7 +638,7 @@ Robot::IKQuery::IKQuery(const std::string &group,   //
 {
     const auto &pose = scene->getObjectGraspPose(object, offset);
     addRequest("",                                     //
-               Geometry::makeBox(tolerances),          //
+               MoveItGeometry::makeBox(tolerances),          //
                TF::createPoseXYZ(pose.translation()),  //
                Eigen::Quaterniond(pose.rotation()));
 }
@@ -657,14 +657,14 @@ Robot::IKQuery::IKQuery(const std::string &group,                               
                         const Eigen::Vector3d &position, const Eigen::Quaterniond &orientation,  //
                         double radius, const Eigen::Vector3d &tolerance)
   : IKQuery(group,                         //
-            Geometry::makeSphere(radius),  //
+            MoveItGeometry::makeSphere(radius),  //
             TF::createPoseXYZ(position),   //
             orientation,                   //
             tolerance)
 {
 }
 
-Robot::IKQuery::IKQuery(const std::string &group, const GeometryConstPtr &region, const RobotPose &pose,
+Robot::IKQuery::IKQuery(const std::string &group, const MoveItGeometryConstPtr &region, const RobotPose &pose,
                         const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance,
                         const ScenePtr &scene, bool verbose)
   : group(group), scene(scene), verbose(verbose)
@@ -691,7 +691,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const moveit_msgs::PositionCon
     if (cr.primitives.size() > 1)
         throw std::runtime_error("Cannot specify more than one primitive!");
 
-    const auto &region = Geometry::makeSolidPrimitive(cr.primitives[0]);
+    const auto &region = MoveItGeometry::makeSolidPrimitive(cr.primitives[0]);
     const auto &pose = TF::poseMsgToEigen(cr.primitive_poses[0]);
 
     const auto &rotation = TF::quaternionMsgToEigen(oc.orientation);
@@ -712,14 +712,14 @@ Robot::IKQuery::IKQuery(const std::string &group, const RobotPoseVector &poses,
 
     for (std::size_t i = 0; i < poses.size(); ++i)
         addRequest(input_tips[i],                              //
-                   Geometry::makeSphere(radius),               //
+                   MoveItGeometry::makeSphere(radius),               //
                    TF::createPoseXYZ(poses[i].translation()),  //
                    Eigen::Quaterniond{poses[i].rotation()},    //
                    tolerance);
 }
 
 Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string> &input_tips,
-                        const std::vector<GeometryConstPtr> &regions, const RobotPoseVector &poses,
+                        const std::vector<MoveItGeometryConstPtr> &regions, const RobotPoseVector &poses,
                         const std::vector<Eigen::Quaterniond> &orientations,
                         const EigenSTL::vector_Vector3d &tolerances, const ScenePtr &scene, bool verbose)
   : group(group), scene(scene), verbose(verbose)
@@ -734,7 +734,7 @@ Robot::IKQuery::IKQuery(const std::string &group, const std::vector<std::string>
         addRequest(input_tips[i], regions[i], poses[i], orientations[i], tolerances[i]);
 }
 
-void Robot::IKQuery::addRequest(const std::string &tip, const GeometryConstPtr &region, const RobotPose &pose,
+void Robot::IKQuery::addRequest(const std::string &tip, const MoveItGeometryConstPtr &region, const RobotPose &pose,
                                 const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerance)
 {
     tips.emplace_back(tip);

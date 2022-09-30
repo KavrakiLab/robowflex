@@ -10,12 +10,13 @@
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
-#include <robowflex_moveit/core/geometry.h>
 #include <robowflex_util/filesystem.h>
+#include <robowflex_util/math.h>
+
+#include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/io/yaml_conversions.h>
 #include <robowflex_moveit/io/yaml_utils.h>
 #include <robowflex_moveit/utility/macros.h>
-#include <robowflex_util/math.h>
 #include <robowflex_moveit/utility/conversions.h>
 
 using namespace robowflex;
@@ -1321,7 +1322,7 @@ namespace YAML
                 dimensions = load;
             }
 
-            Geometry mesh(Geometry::ShapeType::Type::MESH, dimensions, resource);
+            MoveItGeometry mesh(Geometry::ShapeType::Type::MESH, dimensions, resource);
             rhs = mesh.getMeshMsg();
         }
         else

@@ -83,7 +83,7 @@ geometry_msgs::Quaternion TF::quaternionEigenToMsg(const Eigen::Quaterniond &qua
     return msg;
 }
 
-moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const GeometryConstPtr &geometry)
+moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const MoveItGeometryConstPtr &geometry)
 {
     moveit_msgs::BoundingVolume bv;
 
@@ -103,7 +103,7 @@ moveit_msgs::BoundingVolume TF::getBoundingVolume(const RobotPose &pose, const G
 
 moveit_msgs::PositionConstraint TF::getPositionConstraint(const std::string &ee_name,
                                                           const std::string &base_name, const RobotPose &pose,
-                                                          const GeometryConstPtr &geometry)
+                                                          const MoveItGeometryConstPtr &geometry)
 {
     moveit_msgs::PositionConstraint constraint;
 
