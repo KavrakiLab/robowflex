@@ -3,9 +3,6 @@
 #ifndef ROBOWFLEX_DART_ROBOT_
 #define ROBOWFLEX_DART_ROBOT_
 
-#include <moveit/robot_state/conversions.h>
-#include <moveit/robot_state/robot_state.h>
-
 #include <dart/dynamics/Skeleton.hpp>
 #include <dart/collision/CollisionFilter.hpp>
 #include <dart/simulation/World.hpp>
@@ -17,11 +14,6 @@
 
 namespace robowflex
 {
-    /** \cond IGNORE */
-    ROBOWFLEX_CLASS_FORWARD(Robot)
-    ROBOWFLEX_CLASS_FORWARD(Scene)
-    /** \endcond */
-
     namespace darts
     {
         /** \cond IGNORE */
@@ -56,11 +48,6 @@ namespace robowflex
              */
             Robot(const std::string &name);
 
-            /** \brief Convert a robowflex::Robot into a Dart robot.
-             *  \param[in] robot Robot to convert.
-             */
-            Robot(robowflex::RobotPtr robot);
-
             /** \brief Convert a robowflex::Scene into a Dart robot.
              *  \param[in] name Name of the robot.
              *  \param[in] scene Scene to convert.
@@ -89,55 +76,6 @@ namespace robowflex
              *  \return True on success, false on failure.
              */
             bool loadSRDF(const std::string &srdf);
-
-            /** \} */
-
-            /** \name State Operations
-                \{ */
-
-            /** \brief Set the current state of this robot from a MoveIt message.
-             *  \param[in] msg Message to set state to.
-             */
-            void setStateFromMoveItMsg(const moveit_msgs::RobotState &msg);
-
-            /** \brief Set a MoveIt message from the current state of this robot.
-             *  \param[out] msg Message to set.
-             */
-            void setMoveItMsgFromState(moveit_msgs::RobotState &msg) const;
-
-            /** \brief Set the current state of this robot from a MoveIt robot state.
-             *  \param[in] state MoveIt state to set state to.
-             */
-            void setStateFromMoveItState(const robot_state::RobotState &state);
-
-            /** \brief Set a MoveIt robot state from the current state of this robot.
-             *  \param[out] state MoveIt state to set state to.
-             */
-            void setMoveItStateFromState(robot_state::RobotState &state) const;
-
-            /** \brief Set the state using a MoveIt Joint Group.
-             *  \param[in] jmg Name of joint group.
-             *  \param[in] joints Value of Joint Group to set.
-             */
-            void setStateFromMoveItJMG(const std::string &jmg, const std::vector<double> &joints);
-
-            /** \brief Set the state using a MoveIt Joint Group.
-             *  \param[in] jmg Name of joint group.
-             *  \param[in] vec Value of Joint Group to set.
-             */
-            void setStateFromMoveItJMG(const std::string &jmg, const Eigen::Ref<const Eigen::VectorXd> &vec);
-
-            /** \brief Set a MoveIt Joint Group state from the current state of the robot.
-             *  \param[in] jmg Name of joint group.
-             *  \param[out] joints Joint values to set.
-             */
-            void setMoveItJMGFromState(const std::string &jmg, std::vector<double> &joints) const;
-
-            /** \brief Set a MoveIt Joint Group state from the current state of the robot.
-             *  \param[in] jmg Name of joint group.
-             *  \param[out] vec Joint values to set.
-             */
-            void setMoveItJMGFromState(const std::string &jmg, Eigen::Ref<Eigen::VectorXd> vec) const;
 
             /** \} */
 
@@ -302,8 +240,6 @@ namespace robowflex
                                                                                           ///< names to map of
                                                                                           ///< named states.
             std::map<std::string, std::vector<std::size_t>> group_indices_;  ///< Indices of group joints.
-
-            robowflex::RobotPtr robot_{nullptr};  ///< Robowflex robot.
         };
 
         /** \brief Load a robot from a URDF and SRDF (i.e., a MoveIt enabled robot).
