@@ -14,13 +14,11 @@
 #include <dart/dynamics/Skeleton.hpp>
 
 #include <robowflex_util/class_forward.h>
-
 #include <robowflex_util/math.h>
 
 namespace robowflex
 {
     /** \cond IGNORE */
-    ROBOWFLEX_CLASS_FORWARD(Scene)
     ROBOWFLEX_CLASS_FORWARD(Geometry)
     /** \endcond */
 
@@ -59,12 +57,6 @@ namespace robowflex
              *  \param[in] name Name of the structure.
              */
             Structure(const std::string &name);
-
-            /** \brief Copy a MoveIt (robowflex::Scene) into a structure.
-             *  \param[in] name Name of the structure.
-             *  \param[in] scene Scene to copy.
-             */
-            Structure(const std::string &name, const SceneConstPtr &scene);
 
             /** \brief Destructor.
              */

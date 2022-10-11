@@ -20,14 +20,13 @@ namespace robowflex
         ROBOWFLEX_CLASS_FORWARD(Robot)
         /** \endcond */
 
-        /** \class robowflex::darts::TSRGoalPtr
-            \brief A shared pointer wrapper for robowflex::darts::TSRGoal. */
+        /** \class robowflex::darts::RobotPtr
+            \brief A shared pointer wrapper for robowflex::darts::Robot. */
 
-        /** \class robowflex::darts::TSRGoalConstPtr
-            \brief A const shared pointer wrapper for robowflex::darts::TSRGoal. */
+        /** \class robowflex::darts::RobotConstPtr
+            \brief A const shared pointer wrapper for robowflex::darts::Robot. */
 
-        /** \brief A sampleable goal region for OMPL for a set of TSRs.
-         *  Samples goals in a separate thread using a clone of the world.
+        /** \brief A representation of a robot with controllable joints.
          */
         class Robot : public Structure
         {
@@ -47,12 +46,6 @@ namespace robowflex
              *  \param[in] name Name of the robot.
              */
             Robot(const std::string &name);
-
-            /** \brief Convert a robowflex::Scene into a Dart robot.
-             *  \param[in] name Name of the robot.
-             *  \param[in] scene Scene to convert.
-             */
-            Robot(const std::string &name, const ScenePtr &scene);
 
             /** \brief Clone this robot with a new name.
              *  \param[in] newName Name for cloned robot.

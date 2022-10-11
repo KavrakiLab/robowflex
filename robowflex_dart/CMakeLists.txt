@@ -20,7 +20,6 @@ find_package(DART 6 QUIET
   CONFIG)
 
 if (DART_LIBRARIES)
-
   find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
   list(APPEND INCLUDES ${Boost_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${Boost_LIBRARIES})
@@ -49,7 +48,7 @@ if (DART_LIBRARIES)
   list(APPEND LIBRARIES ${DART_LIBRARIES})
 
   list(APPEND CATKIN_SOURCES
-    robowflex_moveit
+    robowflex_util
   )
 
   find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
