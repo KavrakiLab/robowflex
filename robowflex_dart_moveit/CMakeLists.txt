@@ -34,6 +34,9 @@ catkin_package(
 
 list(APPEND SOURCES
   src/dart_planner.cpp
+  src/planning_conversions.cpp
+  src/robot_conversions.cpp
+  src/scene_conversions.cpp
 )
 
 list(APPEND INCLUDES
@@ -55,7 +58,8 @@ target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 ## Scripts
 ##
 
-add_script(fetch_robowflex_planner)
+add_script(fetch_dart_planner)
+add_script(fetch_dart_moveit_pick)
 
 ##
 ## Installation of programs, library, headers, and YAML used by scripts

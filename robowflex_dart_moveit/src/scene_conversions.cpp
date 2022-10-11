@@ -1,15 +1,26 @@
+/* Author: Zachary Kingston */
+
 #include <robowflex_moveit/core/geometry.h>
 #include <robowflex_moveit/core/scene.h>
 
-Structure::Structure(const std::string &name, const SceneConstPtr &scene) : Structure(name)
+#include <robowflex_dart/acm.h>
+
+#include <robowflex_dart_moveit/scene_conversions.h>
+
+using namespace robowflex::darts;
+
+StructurePtr conversions::fromMoveItScene(const std::string &name, const robowflex::SceneConstPtr &scene)
 {
+    auto structure = std::make_shared<Structure>(name);
+    auto &skeleton = structure->getSkeleton();
+
     dart::dynamics::WeldJoint::Properties properties;
     dart::dynamics::BodyNode::Properties node;
 
     node.mName = properties.mName = "root";
     properties.mT_ParentBodyToJoint = robowflex::TF::identity();
     const auto &pair =
-        skeleton_->createJointAndBodyNodePair<dart::dynamics::WeldJoint>(nullptr, properties, node);
+        skeleton->createJointAndBodyNodePair<dart::dynamics::WeldJoint>(nullptr, properties, node);
     const auto &root = pair.second;
 
     const auto &objects = scene->getCollisionObjects();
@@ -24,23 +35,27 @@ Structure::Structure(const std::string &name, const SceneConstPtr &scene) : Stru
 
         auto shape = makeGeometry(geometry);
 
-        auto pair = addFreeFrame(joint, shape, root);
-        setJointParentTransform(object, pose);
+        auto pair = structure->addFreeFrame(joint, shape, root);
+        structure->setJointParentTransform(object, pose);
         setColor(pair.second, geometry->getColor());
     }
 
-    const auto &acm = scene->getACMConst();
+    const auto &scene_acm = scene->getACMConst();
     std::vector<std::string> names;
-    acm.getAllEntryNames(names);
+    scene_acm.getAllEntryNames(names);
+
+    auto acm = structure->getACM();
 
     collision_detection::AllowedCollision::Type type;
     for (const auto &name1 : names)
         for (const auto &name2 : names)
-            if (acm.getEntry(name1, name2, type))
+            if (scene_acm.getEntry(name1, name2, type))
             {
                 if (type == collision_detection::AllowedCollision::NEVER)
-                    acm_->enableCollision(name1, name2);
+                    acm->enableCollision(name1, name2);
                 else if (type == collision_detection::AllowedCollision::ALWAYS)
-                    acm_->disableCollision(name1, name2);
+                    acm->disableCollision(name1, name2);
             }
+
+    return structure;
 }

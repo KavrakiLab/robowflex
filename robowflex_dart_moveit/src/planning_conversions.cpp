@@ -1,10 +1,16 @@
+/* Author: Zachary Kingston */
 
-
-#include <moveit_msgs/MotionPlanRequest.h>
 #include <robowflex_moveit/utility/conversions.h>
 
-void PlanBuilder::getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanRequest &msg)
+#include <robowflex_dart_moveit/planning_conversions.h>
+
+using namespace robowflex::darts;
+
+void conversions::getWorkspaceBoundsFromMessage(PlanBuilder &builder,
+                                                const moveit_msgs::MotionPlanRequest &msg)
 {
+    auto &world = builder.world;
+
     const auto &mic = msg.workspace_parameters.min_corner;
     world->getWorkspaceLow()[0] = mic.x;
     world->getWorkspaceLow()[1] = mic.y;
@@ -16,7 +22,7 @@ void PlanBuilder::getWorkspaceBoundsFromMessage(const moveit_msgs::MotionPlanReq
     world->getWorkspaceHigh()[2] = mac.z;
 }
 
-void PlanBuilder::getGroupFromMessage(const std::string &robot_name,
+void conversions::getGroupFromMessage(PlanBuilder &builder, const std::string &robot_name,
                                       const moveit_msgs::MotionPlanRequest &msg)
 {
     bool cyclic = false;
@@ -24,13 +30,15 @@ void PlanBuilder::getGroupFromMessage(const std::string &robot_name,
         not msg.path_constraints.orientation_constraints.empty())
         cyclic = true;
 
-    addGroup(robot_name, msg.group_name, cyclic ? 2 : 0);
+    builder.addGroup(robot_name, msg.group_name, cyclic ? 2 : 0);
 }
 
-void PlanBuilder::getStartFromMessage(const std::string &robot_name,
+void conversions::getStartFromMessage(PlanBuilder &builder, const std::string &robot_name,
                                       const moveit_msgs::MotionPlanRequest &msg)
 {
+    auto &world = builder.world;
     auto robot = world->getRobot(robot_name);
+
     for (std::size_t i = 0; i < msg.start_state.joint_state.name.size(); ++i)
     {
         std::string name = msg.start_state.joint_state.name[i];
@@ -39,12 +47,14 @@ void PlanBuilder::getStartFromMessage(const std::string &robot_name,
         robot->setJoint(name, value);
     }
 
-    setStartConfigurationFromWorld();
+    builder.setStartConfigurationFromWorld();
 }
 
-JointRegionGoalPtr
-PlanBuilder::fromJointConstraints(const std::vector<moveit_msgs::JointConstraint> &msgs) const
+JointRegionGoalPtr conversions::fromJointConstraints(PlanBuilder &builder,
+                                                     const std::vector<moveit_msgs::JointConstraint> &msgs)
 {
+    auto &rspace = builder.rspace;
+
     std::size_t n = rspace->getDimension();
     Eigen::VectorXd lower(n);
     Eigen::VectorXd upper(n);
@@ -56,11 +66,11 @@ PlanBuilder::fromJointConstraints(const std::vector<moveit_msgs::JointConstraint
         joint->getSpaceVars(upper)[0] = msg.position + msg.tolerance_above;
     }
 
-    return std::make_shared<JointRegionGoal>(*this, lower, upper);
+    return std::make_shared<JointRegionGoal>(builder, lower, upper);
 }
 
-TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
-                                           const moveit_msgs::PositionConstraint &msg) const
+TSRPtr conversions::fromPositionConstraint(WorldPtr &world, const std::string &robot_name,
+                                           const moveit_msgs::PositionConstraint &msg)
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -102,8 +112,8 @@ TSRPtr PlanBuilder::fromPositionConstraint(const std::string &robot_name,
     return std::make_shared<TSR>(world, spec);
 }
 
-TSRPtr PlanBuilder::fromOrientationConstraint(const std::string &robot_name,
-                                              const moveit_msgs::OrientationConstraint &msg) const
+TSRPtr conversions::fromOrientationConstraint(WorldPtr &world, const std::string &robot_name,
+                                              const moveit_msgs::OrientationConstraint &msg)
 {
     TSR::Specification spec;
     spec.setFrame(robot_name, msg.link_name);
@@ -119,42 +129,42 @@ TSRPtr PlanBuilder::fromOrientationConstraint(const std::string &robot_name,
     return std::make_shared<TSR>(world, spec);
 }
 
-void PlanBuilder::getPathConstraintsFromMessage(const std::string &robot_name,
+void conversions::getPathConstraintsFromMessage(PlanBuilder &builder, const std::string &robot_name,
                                                 const moveit_msgs::MotionPlanRequest &msg)
 {
     for (const auto &constraint : msg.path_constraints.position_constraints)
-        addConstraint(fromPositionConstraint(robot_name, constraint));
+        builder.addConstraint(fromPositionConstraint(builder.world, robot_name, constraint));
     for (const auto &constraint : msg.path_constraints.orientation_constraints)
-        addConstraint(fromOrientationConstraint(robot_name, constraint));
+        builder.addConstraint(fromOrientationConstraint(builder.world, robot_name, constraint));
 }
 
-ompl::base::GoalPtr PlanBuilder::getGoalFromMessage(const std::string &robot_name,
+ompl::base::GoalPtr conversions::getGoalFromMessage(PlanBuilder &builder, const std::string &robot_name,
                                                     const moveit_msgs::MotionPlanRequest &msg)
 {
     // TODO get other goals as well
     std::vector<TSRPtr> tsrs;
     for (const auto &constraint : msg.goal_constraints[0].position_constraints)
-        tsrs.emplace_back(fromPositionConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromPositionConstraint(builder.world, robot_name, constraint));
     for (const auto &constraint : msg.goal_constraints[0].orientation_constraints)
-        tsrs.emplace_back(fromOrientationConstraint(robot_name, constraint));
+        tsrs.emplace_back(fromOrientationConstraint(builder.world, robot_name, constraint));
 
     if (tsrs.empty())
-        return fromJointConstraints(msg.goal_constraints[0].joint_constraints);
+        return fromJointConstraints(builder, msg.goal_constraints[0].joint_constraints);
 
-    return getGoalTSR(tsrs);
+    return builder.getGoalTSR(tsrs);
 }
 
-ompl::base::GoalPtr PlanBuilder::fromMessage(const std::string &robot_name,
+ompl::base::GoalPtr conversions::fromMessage(PlanBuilder &builder, const std::string &robot_name,
                                              const moveit_msgs::MotionPlanRequest &msg)
 {
-    getWorkspaceBoundsFromMessage(msg);
-    getGroupFromMessage(robot_name, msg);
-    getStartFromMessage(robot_name, msg);
-    getPathConstraintsFromMessage(robot_name, msg);
-    initialize();
+    getWorkspaceBoundsFromMessage(builder, msg);
+    getGroupFromMessage(builder, robot_name, msg);
+    getStartFromMessage(builder, robot_name, msg);
+    getPathConstraintsFromMessage(builder, robot_name, msg);
+    builder.initialize();
 
-    auto goal = getGoalFromMessage(robot_name, msg);
-    setGoal(goal);
+    auto goal = getGoalFromMessage(builder, robot_name, msg);
+    builder.setGoal(goal);
 
     return goal;
 }

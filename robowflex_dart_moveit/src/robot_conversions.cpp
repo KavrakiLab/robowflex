@@ -1,9 +1,20 @@
-Robot::Robot(const std::string &name, const ScenePtr &scene) : Structure(name, scene)
-{
-}
+/* Author: Zachary Kingston */
 
-Robot::Robot(robowflex::RobotPtr robot) : Structure(robot->getName()), robot_(robot)
+#include <moveit/robot_state/conversions.h>
+
+#include <robowflex_util/filesystem.h>
+#include <robowflex_util/math.h>
+
+#include <robowflex_moveit/utility/conversions.h>
+
+#include <robowflex_dart_moveit/robot_conversions.h>
+
+using namespace robowflex::darts;
+
+RobotPtr conversions::fromMoveItRobot(const robowflex::RobotConstPtr &robot)
 {
+    auto drobot = std::make_shared<darts::Robot>(robot->getName());
+
     std::ofstream urdf_file;
     std::string urdf_filename = robowflex::IO::createTempFile(urdf_file);
 
@@ -16,21 +27,24 @@ Robot::Robot(robowflex::RobotPtr robot) : Structure(robot->getName()), robot_(ro
     srdf_file << robot->getSRDFString();
     srdf_file.close();
 
-    loadURDF(urdf_filename);
-    loadSRDF(srdf_filename);
+    drobot->loadURDF(urdf_filename);
+    drobot->loadSRDF(srdf_filename);
 
     robowflex::IO::deleteFile(urdf_filename);
     robowflex::IO::deleteFile(srdf_filename);
+
+    return drobot;
 }
 
-void Robot::setStateFromMoveItMsg(const moveit_msgs::RobotState &msg)
+void conversions::setStateFromMoveItMsg(darts::RobotPtr &robot, const moveit_msgs::RobotState &msg)
 {
     for (std::size_t i = 0; i < msg.joint_state.name.size(); ++i)
-        setJoint(msg.joint_state.name[i], msg.joint_state.position[i]);
+        robot->setJoint(msg.joint_state.name[i], msg.joint_state.position[i]);
 
+    auto &skeleton = robot->getSkeleton();
     for (std::size_t i = 0; i < msg.multi_dof_joint_state.joint_names.size(); ++i)
     {
-        auto *joint = skeleton_->getJoint(msg.multi_dof_joint_state.joint_names[i]);
+        auto *joint = skeleton->getJoint(msg.multi_dof_joint_state.joint_names[i]);
         auto *j = static_cast<dart::dynamics::FreeJoint *>(joint);
 
         auto tfmsg = msg.multi_dof_joint_state.transforms[i];
@@ -43,19 +57,20 @@ void Robot::setStateFromMoveItMsg(const moveit_msgs::RobotState &msg)
     }
 }
 
-void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
+void conversions::setMoveItMsgFromState(const darts::RobotConstPtr &robot, moveit_msgs::RobotState &msg)
 {
     msg = moveit_msgs::RobotState();
 
-    for (std::size_t i = 0; i < skeleton_->getNumJoints(); ++i)
+    const auto &skeleton = robot->getSkeletonConst();
+    for (std::size_t i = 0; i < skeleton->getNumJoints(); ++i)
     {
-        auto *joint = skeleton_->getJoint(i);
+        auto *joint = skeleton->getJoint(i);
 
         // ignore fixed joints
         if (joint->getNumDofs() == 0)
             continue;
 
-        auto *j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
+        const auto *j = dynamic_cast<dart::dynamics::FreeJoint *>(joint);
         if (j)
         {
             msg.multi_dof_joint_state.joint_names.push_back(joint->getName());
@@ -75,54 +90,46 @@ void Robot::setMoveItMsgFromState(moveit_msgs::RobotState &msg) const
     }
 }
 
-void Robot::setStateFromMoveItState(const robot_state::RobotState &state)
+void conversions::setStateFromMoveItState(darts::RobotPtr &robot, const robot_state::RobotState &state)
 {
     moveit_msgs::RobotState msg;
     moveit::core::robotStateToRobotStateMsg(state, msg);
-    setStateFromMoveItMsg(msg);
+    setStateFromMoveItMsg(robot, msg);
 }
 
-void Robot::setMoveItStateFromState(robot_state::RobotState &state) const
+void conversions::setMoveItStateFromState(const darts::RobotConstPtr &robot, robot_state::RobotState &state)
 {
     moveit_msgs::RobotState msg;
-    setMoveItMsgFromState(msg);
+    setMoveItMsgFromState(robot, msg);
     moveit::core::robotStateMsgToRobotState(msg, state);
 }
 
-void Robot::setStateFromMoveItJMG(const std::string &jmg, const std::vector<double> &joints)
+void conversions::setStateFromMoveItJMG(darts::RobotPtr &robot, robot_state::RobotState &scratch,
+                                        const std::string &jmg, const std::vector<double> &joints)
 {
-    if (not robot_)
-        return;
-
-    setMoveItStateFromState(*robot_->getScratchState());             // copy current state
-    robot_->getScratchState()->setJointGroupPositions(jmg, joints);  // set only JMG state
-    setStateFromMoveItState(*robot_->getScratchState());             // copy back
+    setMoveItStateFromState(robot, scratch);      // copy current state
+    scratch.setJointGroupPositions(jmg, joints);  // set only JMG state
+    setStateFromMoveItState(robot, scratch);      // copy back
 }
 
-void Robot::setStateFromMoveItJMG(const std::string &jmg, const Eigen::Ref<const Eigen::VectorXd> &vec)
+void conversions::setStateFromMoveItJMG(darts::RobotPtr &robot, robot_state::RobotState &scratch,
+                                        const std::string &jmg, const Eigen::Ref<const Eigen::VectorXd> &vec)
 {
-    if (not robot_)
-        return;
-
-    setMoveItStateFromState(*robot_->getScratchState());                 // copy current state
-    robot_->getScratchState()->setJointGroupPositions(jmg, vec.data());  // set only JMG state
-    setStateFromMoveItState(*robot_->getScratchState());                 // copy back
+    setMoveItStateFromState(robot, scratch);          // copy current state
+    scratch.setJointGroupPositions(jmg, vec.data());  // set only JMG state
+    setStateFromMoveItState(robot, scratch);          // copy back
 }
 
-void Robot::setMoveItJMGFromState(const std::string &jmg, std::vector<double> &joints) const
+void conversions::setMoveItJMGFromState(const darts::RobotConstPtr &robot, robot_state::RobotState &scratch,
+                                        const std::string &jmg, std::vector<double> &joints)
 {
-    if (not robot_)
-        return;
-
-    setMoveItStateFromState(*robot_->getScratchState());              // copy current state
-    robot_->getScratchState()->copyJointGroupPositions(jmg, joints);  // copy JMG state
+    setMoveItStateFromState(robot, scratch);       // copy current state
+    scratch.copyJointGroupPositions(jmg, joints);  // copy JMG state
 }
 
-void Robot::setMoveItJMGFromState(const std::string &jmg, Eigen::Ref<Eigen::VectorXd> vec) const
+void conversions::setMoveItJMGFromState(const darts::RobotConstPtr &robot, robot_state::RobotState &scratch,
+                                        const std::string &jmg, Eigen::Ref<Eigen::VectorXd> vec)
 {
-    if (not robot_)
-        return;
-
-    setMoveItStateFromState(*robot_->getScratchState());                  // copy current state
-    robot_->getScratchState()->copyJointGroupPositions(jmg, vec.data());  // copy JMG state
+    setMoveItStateFromState(robot, scratch);           // copy current state
+    scratch.copyJointGroupPositions(jmg, vec.data());  // copy JMG state
 }

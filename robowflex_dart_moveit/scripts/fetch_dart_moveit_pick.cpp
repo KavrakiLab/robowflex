@@ -4,14 +4,14 @@
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTConnect.h>
 
+#include <robowflex_util/math.h>
+
 #include <robowflex_moveit/core/builder.h>
 #include <robowflex_moveit/core/planning.h>
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
-
 #include <robowflex_moveit/robots/fetch.h>
-#include <robowflex_util/math.h>
 
 #include <robowflex_dart/gui.h>
 #include <robowflex_dart/planning.h>
@@ -19,6 +19,10 @@
 #include <robowflex_dart/space.h>
 #include <robowflex_dart/tsr.h>
 #include <robowflex_dart/world.h>
+
+#include <robowflex_dart_moveit/planning_conversions.h>
+#include <robowflex_dart_moveit/scene_conversions.h>
+#include <robowflex_dart_moveit/robot_conversions.h>
 
 using namespace robowflex;
 
@@ -42,9 +46,9 @@ int main(int argc, char **argv)
     //
     // Convert to Dart
     //
-    auto fetch_dart = std::make_shared<darts::Robot>(fetch);
+    auto fetch_dart = darts::conversions::fromMoveItRobot(fetch);
     auto fetch_name = fetch_dart->getName();
-    auto scene_dart = std::make_shared<darts::Structure>("scene", scene);
+    auto scene_dart = darts::conversions::fromMoveItScene("scene", scene);
 
     // Setup world
     auto world = std::make_shared<darts::World>();

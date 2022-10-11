@@ -29,12 +29,15 @@
 #include <robowflex_dart/world.h>
 
 #include <robowflex_dart_moveit/dart_planner.h>
+#include <robowflex_dart_moveit/planning_conversions.h>
+#include <robowflex_dart_moveit/scene_conversions.h>
+#include <robowflex_dart_moveit/robot_conversions.h>
 
 using namespace robowflex::darts;
 
 DARTPlanner::DARTPlanner(const robowflex::RobotPtr &robot, const std::string &name)
   : robowflex::Planner(robot, name)
-  , dart_robot_(std::make_shared<Robot>(robot))
+  , dart_robot_(conversions::fromMoveItRobot(robot))
   , world_(std::make_shared<World>())
 {
     world_->addRobot(dart_robot_);
@@ -85,11 +88,11 @@ void DARTPlanner::preRun(const robowflex::SceneConstPtr &scene,
 
     // convert scene representation
     scene_ = scene;
-    dart_scene_ = std::make_shared<Structure>("scene", scene);
+    dart_scene_ = conversions::fromMoveItScene("scene", scene);
     world_->addStructure(dart_scene_);
 
     // setup planning request and get desired goal
-    goal_ = builder->fromMessage(robot_->getName(), request);
+    goal_ = conversions::fromMessage(*builder, robot_->getName(), request);
 
     // find and setup planner
     auto it = planner_allocators_.find(request.planner_id);
@@ -144,7 +147,7 @@ planning_interface::MotionPlanResponse DARTPlanner::plan(const robowflex::SceneC
 
         // copy over world state to moveit state
         auto ms = robot_->allocState();
-        dart_robot_->setMoveItStateFromState(*ms);
+        conversions::setMoveItStateFromState(dart_robot_, *ms);
 
         response.trajectory_->addSuffixWayPoint(ms, 0);
     }
