@@ -13,11 +13,6 @@ namespace
     }
 }  // namespace
 
-std::string log::formatRecurse(boost::format &f)
-{
-    return boost::str(f);
-}
-
 void log::showUpToFatal()
 {
     setLoggerLevel(ros::console::levels::Fatal);

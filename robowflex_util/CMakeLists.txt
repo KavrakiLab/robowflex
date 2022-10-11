@@ -18,7 +18,7 @@ include(HelperFunctions)
 ## Non-ROS libraries
 ##
 
-find_package(Boost REQUIRED filesystem)
+find_package(Boost REQUIRED filesystem system)
 find_package(Eigen3 REQUIRED)
 
 execute_process(
@@ -63,6 +63,7 @@ list(APPEND SOURCES
   src/uid.cpp
   src/math.cpp
   src/geometry.cpp
+  src/log.cpp
   )
 
 list(APPEND INCLUDES

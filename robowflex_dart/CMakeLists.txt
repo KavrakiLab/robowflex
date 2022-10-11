@@ -20,14 +20,6 @@ find_package(DART 6 QUIET
   CONFIG)
 
 if (DART_LIBRARIES)
-  find_package(Boost REQUIRED COMPONENTS filesystem system program_options)
-  list(APPEND INCLUDES ${Boost_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${Boost_LIBRARIES})
-
-  find_package(Eigen3 REQUIRED)
-  list(APPEND INCLUDES ${EIGEN3_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${EIGEN3_LIBRARIES})
-
   find_package(ompl REQUIRED)
   if (ompl_LIBRARIES)
     list(APPEND INCLUDES ${ompl_INCLUDE_DIRS})
@@ -86,12 +78,11 @@ if (DART_LIBRARIES)
   )
 
   include_directories(SYSTEM ${INCLUDES})
-  link_directories(${catkin_LIBRARY_DIRS})
   add_library(${LIBRARY_NAME} ${SOURCES})
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
-  # add_script(fetch_plan)
+  add_script(fetch_plan)
   # add_script(fetch_pick)
   # add_script(fetch_ik)
   # add_script(fetch_bimanual)
