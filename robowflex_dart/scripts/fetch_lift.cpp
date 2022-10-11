@@ -26,9 +26,9 @@ int main(int /*argc*/, char ** /*argv*/)
     // Load and setup the fetches
     //
     auto world = std::make_shared<darts::World>();
-    auto fetch1 = darts::loadMoveItRobot("fetch1",                                         //
-                                         "package://fetch_description/robots/fetch.urdf",  //
-                                         "package://fetch_moveit_config/config/fetch.srdf");
+    auto fetch1 = darts::loadMoveItRobot("fetch1",                                                 //
+                                         "package://robowflex_resources/fetch/robots/fetch.urdf",  //
+                                         "package://robowflex_resources/fetch/config/fetch.srdf");
     auto fetch2 = fetch1->cloneRobot("fetch2");
     fetch2->setDof(2, -1.57);
     fetch2->setDof(3, radius);

@@ -9,8 +9,8 @@
 #include <robowflex_moveit/core/robot.h>
 #include <robowflex_moveit/core/scene.h>
 #include <robowflex_moveit/io/ros.h>
-#include <robowflex_moveit/robots/fetch.h>
 
+#include <robowflex_moveit/robots/fetch.h>
 #include <robowflex_util/math.h>
 
 #include <robowflex_dart/gui.h>
