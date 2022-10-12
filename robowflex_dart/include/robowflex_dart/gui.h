@@ -50,8 +50,6 @@ namespace robowflex
              */
             Viewer(const WorldPtr &world);
 
-            void updateTraversal() override;
-
         private:
             WorldPtr world_;  ///< World.
         };

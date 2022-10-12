@@ -15,11 +15,33 @@ include(CompileOptions)
 include(HelperFunctions)
 
 find_package(DART 6 QUIET
-  COMPONENTS utils utils-urdf gui-osg
-  OPTIONAL_COMPONENTS
-  CONFIG)
+  COMPONENTS utils utils-urdf gui-osg)
 
 if (DART_LIBRARIES)
+  list(APPEND CATKIN_SOURCES
+    robowflex_util
+  )
+
+  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
+
+  catkin_package(
+    LIBRARIES ${LIBRARY_NAME}
+    CATKIN_DEPENDS ${CATKIN_SOURCES}
+    DEPENDS
+    INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
+  )
+
+  list(APPEND INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${catkin_INCLUDE_DIRS}
+  )
+
+  list(APPEND LIBRARIES ${catkin_LIBRARIES})
+
+  ## External Deps
+  list(APPEND INCLUDES ${DART_INCLUDE_DIRS})
+  list(APPEND LIBRARIES ${DART_LIBRARIES})
+
   find_package(ompl REQUIRED)
   if (ompl_LIBRARIES)
     list(APPEND INCLUDES ${ompl_INCLUDE_DIRS})
@@ -33,24 +55,6 @@ if (DART_LIBRARIES)
   list(APPEND INCLUDES ${TINYXML2_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${TINYXML2_LIBRARIES})
 
-  find_package(Threads REQUIRED)
-  list(APPEND LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-
-  include_directories(SYSTEM ${DART_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${DART_LIBRARIES})
-
-  list(APPEND CATKIN_SOURCES
-    robowflex_util
-  )
-
-  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
-
-  catkin_package(
-    LIBRARIES ${LIBRARY_NAME}
-    CATKIN_DEPENDS ${CATKIN_SOURCES}
-    DEPENDS
-    INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-  )
 
   list(APPEND SOURCES
     src/robot.cpp
@@ -68,19 +72,10 @@ if (DART_LIBRARIES)
     src/joints/so3joint.cpp
   )
 
-  list(PREPEND INCLUDES
-    ${CMAKE_CURRENT_LIST_DIR}/include
-    ${catkin_INCLUDE_DIRS}
-  )
-
-  list(PREPEND LIBRARIES
-    ${catkin_LIBRARIES}
-  )
-
   include_directories(SYSTEM ${INCLUDES})
   add_library(${LIBRARY_NAME} ${SOURCES})
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-  target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
+  target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 
   add_script(fetch_plan)
   add_script(fetch_ik)

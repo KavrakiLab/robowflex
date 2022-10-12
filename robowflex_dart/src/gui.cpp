@@ -18,13 +18,6 @@ Viewer::Viewer(const WorldPtr &world)
 {
 }
 
-void Viewer::updateTraversal()
-{
-    // world_->lock();
-    osgViewer::Viewer::updateTraversal();
-    // world_->unlock();
-}
-
 //
 // Window::InteractiveOptions
 //

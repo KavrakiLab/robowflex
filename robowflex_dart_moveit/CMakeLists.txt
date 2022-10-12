@@ -32,13 +32,6 @@ catkin_package(
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-list(APPEND SOURCES
-  src/dart_planner.cpp
-  src/planning_conversions.cpp
-  src/robot_conversions.cpp
-  src/scene_conversions.cpp
-)
-
 list(APPEND INCLUDES
   ${CMAKE_CURRENT_LIST_DIR}/include
   ${catkin_INCLUDE_DIRS}
@@ -46,6 +39,13 @@ list(APPEND INCLUDES
 
 list(APPEND LIBRARIES
   ${catkin_LIBRARIES}
+)
+
+list(APPEND SOURCES
+  src/dart_planner.cpp
+  src/planning_conversions.cpp
+  src/robot_conversions.cpp
+  src/scene_conversions.cpp
 )
 
 include_directories(SYSTEM ${INCLUDES})

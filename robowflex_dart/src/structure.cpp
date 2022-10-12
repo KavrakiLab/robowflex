@@ -322,8 +322,7 @@ void Structure::reparentFreeFrame(dart::dynamics::BodyNode *child, const std::st
 
     dart::dynamics::FreeJoint::Properties joint;
     joint.mName = child->getName();
-    auto *jt = child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
-
+    child->moveTo<dart::dynamics::FreeJoint>(skeleton_, frame, joint);
     setJointParentTransform(joint.mName, tf);
 }
 

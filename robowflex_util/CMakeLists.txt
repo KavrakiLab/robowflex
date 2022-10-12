@@ -81,7 +81,7 @@ list(APPEND LIBRARIES
 include_directories(SYSTEM ${INCLUDES})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 
 if (CATKIN_DEVEL_PREFIX)
   install_library()

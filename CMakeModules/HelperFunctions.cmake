@@ -20,7 +20,7 @@ endmacro(install_tests)
 macro(add_script script_name)
   list(APPEND SCRIPTS ${script_name})
   add_executable(${script_name} scripts/${script_name}.cpp)
-  target_link_libraries(${script_name} ${LIBRARY_NAME} ${catkin_LIBRARIES})
+  target_link_libraries(${script_name} PRIVATE ${LIBRARY_NAME} ${LIBRARIES})
 endmacro(add_script)
 
 # Install scripts added via `add_script` to the install directory.
