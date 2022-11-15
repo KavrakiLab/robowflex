@@ -14,56 +14,63 @@ set(CMAKE_MODULE_PATH
 include(CompileOptions)
 include(HelperFunctions)
 
-##
-## Catkin setup
-##
+
+find_package(DART 6 QUIET
+  COMPONENTS utils utils-urdf gui-osg)
+if (DART_LIBRARIES)
 
 list(APPEND CATKIN_SOURCES
-  robowflex_moveit
-  robowflex_dart
+    robowflex_moveit
+    robowflex_dart
+    )
+
+  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
+
+  catkin_package(
+    LIBRARIES ${LIBRARY_NAME}
+    CATKIN_DEPENDS ${CATKIN_SOURCES}
+    DEPENDS
+    INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
-find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
+  list(APPEND INCLUDES ${DART_INCLUDE_DIRS})
+  list(APPEND LIBRARIES ${DART_LIBRARIES})
 
-catkin_package(
-  LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS ${CATKIN_SOURCES}
-  DEPENDS
-  INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
-)
+  list(APPEND INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/include
+    ${catkin_INCLUDE_DIRS}
+  )
 
-list(APPEND INCLUDES
-  ${CMAKE_CURRENT_LIST_DIR}/include
-  ${catkin_INCLUDE_DIRS}
-)
+  list(APPEND LIBRARIES
+    ${catkin_LIBRARIES}
+  )
 
-list(APPEND LIBRARIES
-  ${catkin_LIBRARIES}
-)
+  list(APPEND SOURCES
+    src/dart_planner.cpp
+    src/planning_conversions.cpp
+    src/robot_conversions.cpp
+    src/scene_conversions.cpp
+  )
 
-list(APPEND SOURCES
-  src/dart_planner.cpp
-  src/planning_conversions.cpp
-  src/robot_conversions.cpp
-  src/scene_conversions.cpp
-)
+  include_directories(SYSTEM ${INCLUDES})
+  link_directories(${catkin_LIBRARY_DIRS})
+  add_library(${LIBRARY_NAME} ${SOURCES})
+  set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+  target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 
-include_directories(SYSTEM ${INCLUDES})
-link_directories(${catkin_LIBRARY_DIRS})
-add_library(${LIBRARY_NAME} ${SOURCES})
-set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
+  ##
+  ## Scripts
+  ##
 
-##
-## Scripts
-##
+  add_script(fetch_dart_planner)
+  add_script(fetch_dart_moveit_pick)
 
-add_script(fetch_dart_planner)
-add_script(fetch_dart_moveit_pick)
+  ##
+  ## Installation of programs, library, headers, and YAML used by scripts
+  ##
 
-##
-## Installation of programs, library, headers, and YAML used by scripts
-##
-
-install_scripts()
-install_library()
+  install_scripts()
+  install_library()
+else()
+  message("`DART` not found, not compiling robowflex_dart_moveit library or executables.")
+endif()

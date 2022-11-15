@@ -26,7 +26,6 @@ catkin_package(
   CATKIN_DEPENDS ${CATKIN_SOURCES}
 )
 
-
 list(APPEND INCLUDES
   ${catkin_INCLUDE_DIRS}
 )

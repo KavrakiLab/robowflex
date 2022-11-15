@@ -17,6 +17,7 @@ include(HelperFunctions)
 find_package(DART 6 QUIET
   COMPONENTS utils utils-urdf gui-osg)
 
+
 if (DART_LIBRARIES)
   list(APPEND CATKIN_SOURCES
     robowflex_util
@@ -55,7 +56,6 @@ if (DART_LIBRARIES)
   list(APPEND INCLUDES ${TINYXML2_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${TINYXML2_LIBRARIES})
 
-
   list(APPEND SOURCES
     src/robot.cpp
     src/io.cpp
@@ -72,8 +72,8 @@ if (DART_LIBRARIES)
     src/joints/so3joint.cpp
   )
 
-  include_directories(SYSTEM ${INCLUDES})
   add_library(${LIBRARY_NAME} ${SOURCES})
+  target_include_directories(${LIBRARY_NAME} PUBLIC ${INCLUDES})
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
   target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
 

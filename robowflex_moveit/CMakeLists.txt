@@ -57,7 +57,7 @@ find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
 catkin_package(
   LIBRARIES ${LIBRARY_NAME}
   CATKIN_DEPENDS ${CATKIN_SOURCES}
-  DEPENDS
+  DEPENDS tinyxml2 yaml-cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 
@@ -111,7 +111,7 @@ include_directories(SYSTEM ${INCLUDES})
 link_directories(${catkin_LIBRARY_DIRS})
 add_library(${LIBRARY_NAME} ${SOURCES})
 set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-target_link_libraries(${LIBRARY_NAME} PUBLIC ${LIBRARIES})
+target_link_libraries(${LIBRARY_NAME} ${LIBRARIES})
 
 ##
 ## Tests
@@ -124,6 +124,6 @@ add_test_script(yaml)
 ## Installation of programs, library, headers, and YAML used by scripts
 ##
 
-install_scripts()
+# install_scripts()
 install_library()
 install_directory(yaml)

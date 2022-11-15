@@ -14,5 +14,5 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>robowflex_util</depend>
-  <depend>DART</depend>
+  <depend>dartsim</depend>
 </package>

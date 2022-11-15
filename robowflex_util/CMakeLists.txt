@@ -38,12 +38,11 @@ configure_file(
 ##
 
 if (CATKIN_DEVEL_PREFIX)
-  find_package(catkin REQUIRED COMPONENTS ${CATKIN_SOURCES})
+  find_package(catkin REQUIRED)
 
   catkin_package(
     LIBRARIES ${LIBRARY_NAME}
-    CATKIN_DEPENDS ${CATKIN_SOURCES}
-    DEPENDS
+    DEPENDS boost eigen3
     INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include
   )
 endif()

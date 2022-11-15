@@ -43,7 +43,7 @@ sudo apt-get install \
   libboost-regex-dev \
   libboost-system-dev \
   libopenscenegraph-dev \
-  libnlopt-dev \
+  libnlopt-cxx-dev \
   coinor-libipopt-dev \
   libbullet-dev \
   libode-dev \
