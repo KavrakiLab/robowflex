@@ -45,9 +45,9 @@ int main(int argc, char **argv)
     auto scene = std::make_shared<darts::Structure>("object");
     scene->addGround(-0.01, 10);
 
-    unsigned int nobs = 20;
+    size_t nobs = 20;
 
-    for (int i = 0; i < nobs; ++i)
+    for (size_t i = 0; i < nobs; ++i)
     {
         dart::dynamics::WeldJoint::Properties box_joint;
         box_joint.mName = log::format("box%1%", i);
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
         scene->addWeldedFrame(box_joint, darts::makeBox(0.5, 0.5, 1));
     }
 
-    for (int i = 0; i < nobs; ++i)
-        for (int j = i + 1; j < nobs; ++j)
+    for (size_t i = 0; i < nobs; ++i)
+        for (size_t j = i + 1; j < nobs; ++j)
             scene->getACM()->disableCollision(log::format("box%1%", i), log::format("box%1%", j));
 
     world->addStructure(scene);
