@@ -2,7 +2,6 @@
 
 // MoveIt
 #include <moveit/robot_state/conversions.h>
-#include <moveit_msgs/MoveItErrorCodes.h>
 
 // Robowflex
 #include <robowflex_library/log.h>
@@ -26,7 +25,8 @@ TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_n
 {
 }
 
-bool TrajOptPlanner::initialize(const std::string &manip)
+bool TrajOptPlanner::initialize(const std::string &manip, const std::string &base_link,
+                                const std::string &tip_link)
 {
     // Save manipulator name.
     manip_ = manip;
@@ -34,68 +34,53 @@ bool TrajOptPlanner::initialize(const std::string &manip)
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
 
-    if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
+    // If base_link and tip_link are provided, create a tmp srdf with manip to initialize env
+    if ((base_link != "") and (tip_link != ""))
     {
-        RBX_ERROR("Error loading robot %s", robot_->getName());
-        return false;
+        if (!robot_->getModelConst()->hasLinkModel(base_link))
+        {
+            RBX_ERROR("%s does not exist in robot description", base_link.c_str());
+            return false;
+        }
+        if (!robot_->getModelConst()->hasLinkModel(tip_link))
+        {
+            RBX_ERROR("%s does not exist in robot description", tip_link.c_str());
+            return false;
+        }
+
+        if (options.verbose)
+            RBX_INFO("Adding manipulator %s from %s to %s", manip.c_str(), base_link.c_str(),
+                     tip_link.c_str());
+
+        tinyxml2::XMLDocument srdf_doc;
+        srdf_doc.Parse(robot_->getSRDFString().c_str());
+
+        auto *group_element = srdf_doc.NewElement("group");
+        group_element->SetAttribute("name", manip.c_str());
+        srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
+
+        auto *chain_element = srdf_doc.NewElement("chain");
+        chain_element->SetAttribute("base_link", base_link.c_str());
+        chain_element->SetAttribute("tip_link", tip_link.c_str());
+        group_element->LinkEndChild(chain_element);
+
+        srdf::ModelSharedPtr srdf;
+        srdf.reset(new srdf::Model());
+        srdf->initXml(*(robot_->getURDF()), &srdf_doc);
+
+        if (!env_->init(robot_->getURDF(), srdf))
+        {
+            RBX_ERROR("Error loading robot %s", robot_->getName().c_str());
+            return false;
+        }
     }
-
-    // Check if manipulator was correctly loaded.
-    if (!env_->hasManipulator(manip_))
+    else
     {
-        RBX_ERROR("No manipulator found in KDL environment");
-        return false;
-    }
-
-    // Initialize trajectory.
-    trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
-
-    return true;
-}
-
-bool TrajOptPlanner::initialize(const std::string &base_link, const std::string &tip_link)
-{
-    // Save manipulator name.
-    manip_ = "manipulator";
-
-    // Start KDL environment with the robot information.
-    env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
-
-    if (!robot_->getModelConst()->hasLinkModel(base_link))
-    {
-        RBX_ERROR("%s does not exist in robot description", base_link);
-        return false;
-    }
-
-    if (!robot_->getModelConst()->hasLinkModel(tip_link))
-    {
-        RBX_ERROR("%s does not exist in robot description", tip_link);
-        return false;
-    }
-
-    if (options.verbose)
-        RBX_INFO("Adding manipulator %s from %s to %s", manip_, base_link, tip_link);
-
-    TiXmlDocument srdf_doc;
-    srdf_doc.Parse(robot_->getSRDFString().c_str());
-
-    auto *group_element = new TiXmlElement("group");
-    group_element->SetAttribute("name", manip_.c_str());
-    srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
-
-    auto *chain_element = new TiXmlElement("chain");
-    chain_element->SetAttribute("base_link", base_link.c_str());
-    chain_element->SetAttribute("tip_link", tip_link.c_str());
-    group_element->LinkEndChild(chain_element);
-
-    srdf::ModelSharedPtr srdf;
-    srdf.reset(new srdf::Model());
-    srdf->initXml(*(robot_->getURDF()), &srdf_doc);
-
-    if (!env_->init(robot_->getURDF(), srdf))
-    {
-        RBX_ERROR("Error loading robot %s", robot_->getName());
-        return false;
+        if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
+        {
+            RBX_ERROR("Error loading robot %s", robot_->getName().c_str());
+            return false;
+        }
     }
 
     // Check if manipulator was correctly loaded.
@@ -173,15 +158,19 @@ double TrajOptPlanner::getPlanningTime() const
 void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
 {
     if (!env_->hasManipulator(manip_))
+    {
         throw Exception(1, "There is no loaded manipulator!");
+    }
     else
     {
-        const auto &joint_names = env_->getManipulator(manip_)->getJointNames();
+        auto joint_names = env_->getManipulator(manip_)->getJointNames();
         for (const auto &name : joints)
         {
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
             if (it == joint_names.end())
-                throw Exception(1, "One of the joints to be fixed does not exist");
+            {
+                throw Exception(1, "Joint to be fixed does not exist");
+            }
             else
             {
                 int index = std::distance(joint_names.begin(), it);
@@ -200,6 +189,9 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     auto start_state = robot_->allocState();
     moveit::core::robotStateMsgToRobotState(request.start_state, *start_state);
     start_state->update(true);
+
+    // Use the start state as reference state to build trajectory_.
+    ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
 
     // Use the start state as reference state to build trajectory_.
     ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
@@ -229,17 +221,13 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->setVariablePositions(variable_map);
     goal_state->update(true);
 
-    // If planner runs until timeout, use the allowed_planning_time from the request.
-    if (!options.return_first_sol)
-        options.max_planning_time = request.allowed_planning_time;
-
     // Plan.
     auto result = plan(scene, start_state, goal_state);
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     if (result.first and result.second)
     {
-        res.planning_time_ = time_;
         res.trajectory_ = trajectory_;
+        res.planning_time_ = time_;
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
     }
 
@@ -260,14 +248,12 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
 
-        // Add velocity cost.
-        addVelocityCost(pci);
-
         // Add start state.
         addStartState(start_state, pci);
 
         // Add collision costs to all waypoints in the trajectory.
         options.default_safety_margin_coeffs = options.joint_state_safety_margin_coeffs;
+
         addCollisionAvoidance(pci);
 
         // Add goal state.
@@ -294,25 +280,16 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        RBX_ERROR("Link %s is not part of robot manipulator", link.c_str());
         return PlannerResult(false, false);
     }
-
-    // Use the start state as reference state to build trajectory_.
-    ref_state_ = std::make_shared<robot_state::RobotState>(*start_state);
 
     // Create the tesseract environment from the scene.
     if (hypercube::sceneToTesseractEnv(scene, env_))
     {
-        // Attach bodies to KDL env.
-        hypercube::addAttachedBodiesToTesseractEnv(ref_state_, env_);
-
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
-
-        // Add velocity cost.
-        addVelocityCost(pci);
 
         // Add start state
         addStartState(start_state, pci);
@@ -344,7 +321,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        RBX_ERROR("Link %s is not part of robot manipulator", link.c_str());
         return PlannerResult(false, false);
     }
 
@@ -354,9 +331,6 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
         // Fill in the problem construction info and initialization.
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
-
-        // Add velocity cost.
-        addVelocityCost(pci);
 
         // Add start state
         addStartState(start_state, pci);
@@ -389,7 +363,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     auto goal_it = std::find(begin_it, end_it, goal_link);
     if ((start_it == end_it) or (goal_it == end_it))
     {
-        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link, goal_link);
+        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link.c_str(),
+                  goal_link.c_str());
         return PlannerResult(false, false);
     }
 
@@ -399,9 +374,6 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
         // Fill in the problem construction info and initialization
         auto pci = std::make_shared<ProblemConstructionInfo>(env_);
         problemConstructionInfo(pci);
-
-        // Add velocity cost.
-        addVelocityCost(pci);
 
         // Add start_pose for start_link.
         addStartPose(start_pose, start_link, pci);
@@ -416,12 +388,6 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     }
 
     return PlannerResult(false, false);
-}
-
-TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
-                                                   const robot_state::RobotStatePtr &start_state)
-{
-    throw Exception(1, "You need to implement virtual method TrajOptPlanner::plan() in your derived class");
 }
 
 std::vector<std::string> TrajOptPlanner::getPlannerConfigs() const
@@ -460,19 +426,6 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
 
     if (options.verbose)
         RBX_INFO("TrajOpt initialization: %d", init_type_);
-}
-
-void TrajOptPlanner::addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
-{
-    // Add joint velocity cost (without time) to penalize longer paths.
-    auto jv = std::make_shared<JointVelTermInfo>();
-    jv->targets = std::vector<double>(pci->kin->numJoints(), 0.0);
-    jv->coeffs = std::vector<double>(pci->kin->numJoints(), options.joint_vel_coeffs);
-    jv->term_type = TT_COST;
-    jv->first_step = 0;
-    jv->last_step = options.num_waypoints - 1;
-    jv->name = "joint_velocity_cost";
-    pci->cost_infos.push_back(jv);
 }
 
 void TrajOptPlanner::addCollisionAvoidance(std::shared_ptr<ProblemConstructionInfo> pci) const

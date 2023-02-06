@@ -8,6 +8,7 @@
 #include <robowflex_library/planning.h>
 #include <tesseract_planning/trajopt/trajopt_planner.h>
 #include <tesseract_ros/kdl/kdl_env.h>
+#include <trajopt/collision_terms.hpp>
 
 namespace robowflex
 {
@@ -37,7 +38,7 @@ namespace robowflex
          */
         struct Options
         {
-            sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};  ///< Optimizer to use.
+            sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};  ///< Optimizer to use
             bool perturb_init_traj{false};  ///< Whether the initial trajectory should be randomly perturbed
                                             ///< or not.
             double noise_init_traj{0.09};   ///< Max and (negative) min amount of uniform noise added to each
@@ -99,6 +100,7 @@ namespace robowflex
          *  \param[in] robot Robot to plan for.
          *  \param[in] group_name Name of the (joint) group to plan for.
          *  \param[in] name Name of planner.
+         *  \param[in] manip Name of the (chain) group to plan for.
          */
         TrajOptPlanner(const RobotPtr &robot, const std::string &group_name,
                        const std::string &name = "trajopt");
@@ -108,15 +110,8 @@ namespace robowflex
          *  \param[in] manip Name of chain group with all the links of the manipulator.
          *  \return True if initialization succeded.
          */
-        bool initialize(const std::string &manip);
-
-        /** \brief Initialize planner. All links between \a base_link and \a tip_link will be added to
-         *  the manipulator.
-         *  \param[in] base_link Base link of the \a manip.
-         *  \param[in] tip_link Tip link of the \a manip.
-         *  \return True if initialization succeded.
-         */
-        bool initialize(const std::string &base_link, const std::string &tip_link);
+        bool initialize(const std::string &manip, const std::string &base_link = "",
+                        const std::string &tip_link = "");
 
         /** \name Set and get TrajOpt parameters
             \{*/
@@ -146,8 +141,7 @@ namespace robowflex
          */
         const robot_trajectory::RobotTrajectoryPtr &getTrajectory() const;
 
-        /** \brief Get the trajectory that resulted in the last call to plan() in Tesseract
-         *  format.
+        /** \brief Get the trajectory that resulted in the last call to plan() in Tesseract format.
          *  \return Last trajectory computed using plan().
          */
         const trajopt::TrajArray &getTesseractTrajectory() const;
