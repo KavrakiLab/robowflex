@@ -110,8 +110,15 @@ namespace robowflex
          *  \param[in] manip Name of chain group with all the links of the manipulator.
          *  \return True if initialization succeded.
          */
-        bool initialize(const std::string &manip, const std::string &base_link = "",
-                        const std::string &tip_link = "");
+        bool initialize(const std::string &manip);
+
+        /** \brief Initialize planner. All links between \a base_link and \a tip_link will be added to
+         *  the manipulator.
+         *  \param[in] base_link Base link of the \a manip.
+         *  \param[in] tip_link Tip link of the \a manip.
+         *  \return True if initialization succeded.
+         */
+        bool initialize(const std::string &base_link, const std::string &tip_link);
 
         /** \name Set and get TrajOpt parameters
             \{*/

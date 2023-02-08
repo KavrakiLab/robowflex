@@ -42,7 +42,7 @@ int main(int argc, char **argv)
     planner->initialize("torso_lift_link", "gripper_link");
 
     // Set planner parameters.
-    planner->options.num_waypoints = 10;       // Select number of waypoints in trajectory.
+    planner->options.num_waypoints = 10;  // Select number of waypoints in trajectory.
     planner->options.joint_vel_coeffs = 20.0;  // Set weights for velocity costs.
 
     // Load request.
@@ -63,9 +63,13 @@ int main(int argc, char **argv)
 
     // Do motion planning using a goal pose for the end effector.
     auto result = planner->plan(scene, start_state, goal_ee_pose, ee);
-    if (result.first)
-        rviz->updateTrajectory(planner->getTrajectory());
+    if (not result.first)
+    {
+        RBX_INFO("Trajectory could not be found");
+        return 0;
+    }
 
+    rviz->updateTrajectory(planner->getTrajectory());
     rviz->visualizeState(planner->getTrajectory()->getLastWayPointPtr());
 
     RBX_INFO("Visualizing end state");
