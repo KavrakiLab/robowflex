@@ -273,7 +273,7 @@ class Robot:
                     self.set_joint_tf(name, tf, interpolate or i > 0)
                     self.add_keyframe(name, frame)
 
-        return last_frame
+        return math.ceil(last_frame)
 
     ## @brief Sets the robot's state from a file with a moveit_msgs::RobotState
     #
