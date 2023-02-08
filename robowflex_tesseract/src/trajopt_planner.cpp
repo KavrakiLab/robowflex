@@ -221,6 +221,9 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->setVariablePositions(variable_map);
     goal_state->update(true);
 
+    if (!options.return_first_sol)
+        options.max_planning_time = request.allowed_planning_time;
+
     // Plan.
     auto result = plan(scene, start_state, goal_state);
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
