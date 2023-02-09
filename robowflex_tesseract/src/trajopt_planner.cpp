@@ -232,6 +232,7 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     goal_state->setVariablePositions(variable_map);
     goal_state->update(true);
 
+    // If planner runs until timeout, use the allowed_planning_time from the request.
     if (!options.return_first_sol)
         options.max_planning_time = request.allowed_planning_time;
 
@@ -240,8 +241,8 @@ TrajOptPlanner::plan(const SceneConstPtr &scene, const planning_interface::Motio
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
     if (result.first and result.second)
     {
-        res.trajectory_ = trajectory_;
         res.planning_time_ = time_;
+        res.trajectory_ = trajectory_;
         res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
     }
 
@@ -643,6 +644,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         double time = (ros::Time::now() - tStart).toSec();
         total_time += time;
         time_ = total_time;
+
         if (opt.results().status == sco::OptStatus::OPT_CONVERGED)
         {
             // Optimization problem converged.

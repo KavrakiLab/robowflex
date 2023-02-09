@@ -8,7 +8,6 @@
 #include <robowflex_library/planning.h>
 #include <tesseract_planning/trajopt/trajopt_planner.h>
 #include <tesseract_ros/kdl/kdl_env.h>
-#include <trajopt/collision_terms.hpp>
 
 namespace robowflex
 {
@@ -38,7 +37,7 @@ namespace robowflex
          */
         struct Options
         {
-            sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};  ///< Optimizer to use
+            sco::ModelType backend_optimizer{sco::ModelType::AUTO_SOLVER};  ///< Optimizer to use.
             bool perturb_init_traj{false};  ///< Whether the initial trajectory should be randomly perturbed
                                             ///< or not.
             double noise_init_traj{0.09};   ///< Max and (negative) min amount of uniform noise added to each
@@ -100,7 +99,6 @@ namespace robowflex
          *  \param[in] robot Robot to plan for.
          *  \param[in] group_name Name of the (joint) group to plan for.
          *  \param[in] name Name of planner.
-         *  \param[in] manip Name of the (chain) group to plan for.
          */
         TrajOptPlanner(const RobotPtr &robot, const std::string &group_name,
                        const std::string &name = "trajopt");
