@@ -124,7 +124,7 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         template <typename P, typename... Args>
-        bool initialize(Args &&... args)
+        bool initialize(Args &&...args)
         {
             for (unsigned int i = 0; i < pool_.getThreadCount(); ++i)
             {

@@ -58,50 +58,52 @@ int main(int argc, char **argv)
     }
 
     darts::Window window(world);
-    window.run([&] {
-        darts::PlanBuilder builder(world);
-        builder.addGroup("fetch1", "arm_with_torso");
-        if (nfetch > 1)
-            builder.addGroup("fetch2", "arm_with_torso");
-        if (nfetch > 2)
-            builder.addGroup("fetch3", "arm_with_torso");
-        if (nfetch > 3)
-            builder.addGroup("fetch4", "arm_with_torso");
-
-        builder.setStartConfiguration({
-            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
-            0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
-        });
-
-        builder.initialize();
-
-        auto goal = builder.getGoalConfiguration({
-            0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
-            0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-            0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-            0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
-        });
-        builder.setGoal(goal);
-
-        auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
-        rrt->setRange(1.);
-        builder.ss->setPlanner(rrt);
-
-        builder.setup();
-        builder.ss->print();
-
-        ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
-
-        if (solved)
+    window.run(
+        [&]
         {
-            RBX_INFO("Found solution!");
-            window.animatePath(builder, builder.getSolutionPath());
-        }
-        else
-            RBX_WARN("No solution found");
-    });
+            darts::PlanBuilder builder(world);
+            builder.addGroup("fetch1", "arm_with_torso");
+            if (nfetch > 1)
+                builder.addGroup("fetch2", "arm_with_torso");
+            if (nfetch > 2)
+                builder.addGroup("fetch3", "arm_with_torso");
+            if (nfetch > 3)
+                builder.addGroup("fetch4", "arm_with_torso");
+
+            builder.setStartConfiguration({
+                0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+                0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+                0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,  //
+                0.05, 1.32, 1.40, -0.2, 1.72, 0.0, 1.66, 0.0,
+            });
+
+            builder.initialize();
+
+            auto goal = builder.getGoalConfiguration({
+                0.0,  0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,
+                0.13, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+                0.38, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+                0.26, 0.501, 1.281, -2.272, 2.243, -2.774, 0.976, -2.007,  //
+            });
+            builder.setGoal(goal);
+
+            auto rrt = std::make_shared<ompl::geometric::RRTConnect>(builder.info, true);
+            rrt->setRange(1.);
+            builder.ss->setPlanner(rrt);
+
+            builder.setup();
+            builder.ss->print();
+
+            ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+
+            if (solved)
+            {
+                RBX_INFO("Found solution!");
+                window.animatePath(builder, builder.getSolutionPath());
+            }
+            else
+                RBX_WARN("No solution found");
+        });
 
     return 0;
 }

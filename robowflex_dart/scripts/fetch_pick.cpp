@@ -56,7 +56,8 @@ int main(int argc, char **argv)
 
     darts::Window window(world);
 
-    const auto &plan_to_pick = [&]() {
+    const auto &plan_to_pick = [&]()
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
 
@@ -102,7 +103,8 @@ int main(int argc, char **argv)
             RBX_WARN("No solution found");
     };
 
-    const auto &plan_to_grasp = [&]() {
+    const auto &plan_to_grasp = [&]()
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
         builder.setStartConfigurationFromWorld();
@@ -146,7 +148,8 @@ int main(int argc, char **argv)
             RBX_WARN("No solution found");
     };
 
-    const auto &plan_to_place = [&]() {
+    const auto &plan_to_place = [&]()
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup(fetch_name, GROUP);
         builder.setStartConfigurationFromWorld();
@@ -181,18 +184,20 @@ int main(int argc, char **argv)
             RBX_WARN("No solution found");
     };
 
-    window.run([&] {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        plan_to_pick();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        plan_to_grasp();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    window.run(
+        [&]
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            plan_to_pick();
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            plan_to_grasp();
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-        auto *cube = scene_dart->getFrame("Cube3");
-        fetch_dart->reparentFreeFrame(cube, "wrist_roll_link");
+            auto *cube = scene_dart->getFrame("Cube3");
+            fetch_dart->reparentFreeFrame(cube, "wrist_roll_link");
 
-        plan_to_place();
-    });
+            plan_to_place();
+        });
 
     return 0;
 }

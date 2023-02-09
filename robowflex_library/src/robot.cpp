@@ -421,32 +421,36 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
 
 void Robot::setSRDFPostProcessAddPlanarJoint(const std::string &name)
 {
-    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
-        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
-        virtual_joint->SetAttribute("name", name.c_str());
-        virtual_joint->SetAttribute("type", "planar");
-        virtual_joint->SetAttribute("parent_frame", "world");
-        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+    setSRDFPostProcessFunction(
+        [&, name](tinyxml2::XMLDocument &doc) -> bool
+        {
+            tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+            virtual_joint->SetAttribute("name", name.c_str());
+            virtual_joint->SetAttribute("type", "planar");
+            virtual_joint->SetAttribute("parent_frame", "world");
+            virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
 
-        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+            doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
 
-        return true;
-    });
+            return true;
+        });
 }
 
 void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
 {
-    setSRDFPostProcessFunction([&, name](tinyxml2::XMLDocument &doc) -> bool {
-        tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
-        virtual_joint->SetAttribute("name", name.c_str());
-        virtual_joint->SetAttribute("type", "floating");
-        virtual_joint->SetAttribute("parent_frame", "world");
-        virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+    setSRDFPostProcessFunction(
+        [&, name](tinyxml2::XMLDocument &doc) -> bool
+        {
+            tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+            virtual_joint->SetAttribute("name", name.c_str());
+            virtual_joint->SetAttribute("type", "floating");
+            virtual_joint->SetAttribute("parent_frame", "world");
+            virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
 
-        doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+            doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
 
-        return true;
-    });
+            return true;
+        });
 }
 
 const std::string &Robot::getModelName() const
@@ -757,34 +761,37 @@ void Robot::IKQuery::addMetric(const Metric &metric_function)
 void Robot::IKQuery::addDistanceMetric(double weight)
 {
     addMetric([weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                       const kinematic_constraints::ConstraintEvaluationResult &result) {
-        return weight * result.distance;
-    });
+                       const kinematic_constraints::ConstraintEvaluationResult &result)
+              { return weight * result.distance; });
 }
 
 void Robot::IKQuery::addCenteringMetric(double weight)
 {
-    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                          const kinematic_constraints::ConstraintEvaluationResult &result) {
-        const auto &jmg = state.getJointModelGroup(group);
-        const auto &min = state.getMinDistanceToPositionBounds(jmg);
-        double extent = min.second->getMaximumExtent() / 2.;
-        return weight * (extent - min.first) / extent;
-    });
+    addMetric(
+        [&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                    const kinematic_constraints::ConstraintEvaluationResult &result)
+        {
+            const auto &jmg = state.getJointModelGroup(group);
+            const auto &min = state.getMinDistanceToPositionBounds(jmg);
+            double extent = min.second->getMaximumExtent() / 2.;
+            return weight * (extent - min.first) / extent;
+        });
 }
 
 void Robot::IKQuery::addClearanceMetric(double weight)
 {
-    addMetric([&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
-                          const kinematic_constraints::ConstraintEvaluationResult &result) {
-        if (scene)
+    addMetric(
+        [&, weight](const robot_state::RobotState &state, const SceneConstPtr &scene,
+                    const kinematic_constraints::ConstraintEvaluationResult &result)
         {
-            double v = scene->distanceToCollision(state);
-            return weight * v;
-        }
+            if (scene)
+            {
+                double v = scene->distanceToCollision(state);
+                return weight * v;
+            }
 
-        return 0.;
-    });
+            return 0.;
+        });
 }
 
 bool Robot::IKQuery::sampleRegion(RobotPose &pose, std::size_t index) const

@@ -38,7 +38,8 @@ Profiler::ProgressCallback getGNUPlotCallback(IO::GNUPlotHelper &plotter, const 
     return [&, field](const PlannerPtr &planner,                             //
                       const SceneConstPtr &scene,                            //
                       const planning_interface::MotionPlanRequest &request,  //
-                      const PlanData &result) {
+                      const PlanData &result)
+    {
         IO::GNUPlotHelper::TimeSeriesOptions tso;  // Plotting options for time series data
         tso.instance = field;
         tso.title = "Live Profiling";
@@ -60,13 +61,15 @@ Profiler::ProgressPropertyAllocator getNumVerticesAllocator()
 {
     return [](const PlannerPtr &planner,   //
               const SceneConstPtr &scene,  //
-              const planning_interface::MotionPlanRequest &request) -> Planner::ProgressProperty {
+              const planning_interface::MotionPlanRequest &request) -> Planner::ProgressProperty
+    {
         // Extract OMPL level information
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
         const auto &ss = ompl_planner->getLastSimpleSetup();
         const auto &op = ss->getPlanner();
 
-        return [op] {
+        return [op]
+        {
             ompl::base::PlannerData pd(op->getSpaceInformation());
             op->getPlannerData(pd);
 
@@ -82,7 +85,8 @@ Profiler::ProgressCallbackAllocator getRVIZGraphVisualizationAllocator(IO::RVIZH
 {
     return [rviz](const PlannerPtr &planner,   //
                   const SceneConstPtr &scene,  //
-                  const planning_interface::MotionPlanRequest &request) -> Profiler::ProgressCallback {
+                  const planning_interface::MotionPlanRequest &request) -> Profiler::ProgressCallback
+    {
         // Extract OMPL level information
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
         const auto &ss = ompl_planner->getLastSimpleSetup();
@@ -91,7 +95,8 @@ Profiler::ProgressCallbackAllocator getRVIZGraphVisualizationAllocator(IO::RVIZH
         return [rviz, op](const PlannerPtr &planner,                             //
                           const SceneConstPtr &scene,                            //
                           const planning_interface::MotionPlanRequest &request,  //
-                          const PlanData &result) {
+                          const PlanData &result)
+        {
             const auto &robot = planner->getRobot();
             const auto &ss = op->getSpaceInformation()->getStateSpace();
 
@@ -156,7 +161,8 @@ Profiler::ComputeMetricCallback getGoalDistanceCallback()
     return [](const PlannerPtr &planner,                             //
               const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
-              const PlanData &run) -> PlannerMetric {
+              const PlanData &run) -> PlannerMetric
+    {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
 
         const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();

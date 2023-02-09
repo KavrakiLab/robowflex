@@ -45,7 +45,7 @@ namespace robowflex
          *  \return String of formatted arguments.
          */
         template <class T, class... Args>
-        std::string formatRecurse(boost::format &f, T &&t, Args &&... args)
+        std::string formatRecurse(boost::format &f, T &&t, Args &&...args)
         {
             return formatRecurse(f % std::forward<T>(t), std::forward<Args>(args)...);
         }
@@ -57,7 +57,7 @@ namespace robowflex
          *  \return String of formatted arguments.
          */
         template <typename... Args>
-        std::string format(const std::string &fmt, Args &&... args)
+        std::string format(const std::string &fmt, Args &&...args)
         {
             boost::format f(fmt);
             return formatRecurse(f, std::forward<Args>(args)...);

@@ -37,19 +37,21 @@ IO::RobotBroadcaster::~RobotBroadcaster()
 void IO::RobotBroadcaster::start()
 {
     active_ = true;
-    thread_.reset(new std::thread([&]() {
-        done_ = false;
-
-        while (active_)
+    thread_.reset(new std::thread(
+        [&]()
         {
-            update();
+            done_ = false;
 
-            ros::WallDuration pause(1. / rate_);
-            pause.sleep();
-        }
+            while (active_)
+            {
+                update();
 
-        done_ = true;
-    }));
+                ros::WallDuration pause(1. / rate_);
+                pause.sleep();
+            }
+
+            done_ = true;
+        }));
 }
 
 void IO::RobotBroadcaster::stop()

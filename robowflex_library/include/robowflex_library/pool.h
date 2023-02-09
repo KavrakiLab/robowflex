@@ -129,7 +129,7 @@ namespace robowflex
              *  \tparam Args Types of the function arguments.
              */
             template <typename... Args>
-            Job(const std::function<RT(Args...)> &&function, Args &&... args)
+            Job(const std::function<RT(Args...)> &&function, Args &&...args)
               : function_(std::bind(function, args...)), task_(function_), future_(task_.get_future())
             {
             }
@@ -206,7 +206,7 @@ namespace robowflex
          *  which results in no execution of the function by the queue.
          */
         template <typename RT, typename... Args>
-        std::shared_ptr<Job<RT>> submit(const std::function<RT(Args...)> &&function, Args &&... args) const
+        std::shared_ptr<Job<RT>> submit(const std::function<RT(Args...)> &&function, Args &&...args) const
         {
             auto job = std::make_shared<Job<RT>>(std::forward<const std::function<RT(Args...)>>(function),
                                                  std::forward<Args>(args)...);

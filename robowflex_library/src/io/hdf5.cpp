@@ -20,19 +20,23 @@ IO::HDF5Data::HDF5Data(const T &location, const std::string &name)
   , space_(dataset_.getSpace())
   , type_(dataset_.getTypeClass())
   , rank_(space_.getSimpleExtentNdims())
-  , dims_([&] {
-      auto *dims = new hsize_t[rank_];
-      space_.getSimpleExtentDims(dims);
-      return dims;
-  }())
-  , data_([&] {
-      const auto &properties = getDataProperties();
-      void *data = std::malloc(std::get<1>(properties) *  //
-                               std::accumulate(dims_, dims_ + rank_, 1, std::multiplies<hsize_t>()));
+  , dims_(
+        [&]
+        {
+            auto *dims = new hsize_t[rank_];
+            space_.getSimpleExtentDims(dims);
+            return dims;
+        }())
+  , data_(
+        [&]
+        {
+            const auto &properties = getDataProperties();
+            void *data = std::malloc(std::get<1>(properties) *  //
+                                     std::accumulate(dims_, dims_ + rank_, 1, std::multiplies<hsize_t>()));
 
-      dataset_.read(data, std::get<0>(properties), space_, space_);
-      return data;
-  }())
+            dataset_.read(data, std::get<0>(properties), space_, space_);
+            return data;
+        }())
 {
 }
 
