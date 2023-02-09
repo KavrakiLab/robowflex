@@ -117,7 +117,6 @@ namespace robowflex
              */
             void dumpGraphViz(std::ostream &out, bool standalone = true);
 
-
             /** \} */
 
             /** \name Getting and Setting Configurations
