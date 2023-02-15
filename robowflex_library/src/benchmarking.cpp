@@ -429,103 +429,100 @@ PlanDataSetPtr Experiment::benchmark(std::size_t n_threads) const
     std::size_t total_queries = todo.size();
 
     for (std::size_t i = 0; i < n_threads; ++i)
-        threads.emplace_back(
-            std::make_shared<std::thread>(
-                [&]()
+        threads.emplace_back(std::make_shared<std::thread>(
+            [&]()
+            {
+                std::size_t id = IO::getThreadID();
+                while (true)
                 {
-                    std::size_t id = IO::getThreadID();
-                    while (true)
+                    ThreadInfo info;
+
                     {
-                        ThreadInfo info;
+                        std::unique_lock<std::mutex> lock(mutex);
+                        if (todo.empty())  // All done, exit.
+                            return;
+
+                        info = todo.front();
+                        todo.pop();
+                    }
+
+                    RBX_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
+                             id, info.query->name, info.index, info.trial + 1, trials_);
+
+                    // If override, use global time. Else use query time.
+                    double time_remaining =
+                        (override_planning_time_) ? allowed_time_ : info.query->request.allowed_planning_time;
+
+                    std::size_t timeout_trial = 0;
+                    while (time_remaining > 0.)
+                    {
+                        planning_interface::MotionPlanRequest request = info.query->request;
+                        request.allowed_planning_time = time_remaining;
+
+                        if (enforce_single_thread_)
+                            request.num_planning_attempts = 1;
+
+                        // Call pre-run callbacks
+                        info.query->planner->preRun(info.query->scene, request);
+
+                        if (pre_callback_)
+                            pre_callback_(*info.query);
+
+                        // Profile query
+                        auto data = std::make_shared<PlanData>();
+                        profiler_.profilePlan(info.query->planner,  //
+                                              info.query->scene,    //
+                                              request,              //
+                                              options_,             //
+                                              *data);
+
+                        // Add experiment specific metrics
+                        data->metrics.emplace("query_trial", (int)info.trial);
+                        data->metrics.emplace("query_index", (int)info.index);
+                        data->metrics.emplace("query_timeout_trial", (int)timeout_trial);
+                        data->metrics.emplace("query_start_time",
+                                              IO::getSeconds(dataset->start, data->start));
+                        data->metrics.emplace("query_finish_time",
+                                              IO::getSeconds(dataset->start, data->finish));
+
+                        data->query.name =
+                            log::format("%1%:%2%:%3%", info.query->name, info.trial, info.index);
+
+                        if (timeout_)
+                            data->query.name = data->query.name + log::format(":%4%", timeout_trial);
+
+                        if (post_callback_)
+                            post_callback_(*data, *info.query);
 
                         {
                             std::unique_lock<std::mutex> lock(mutex);
-                            if (todo.empty())  // All done, exit.
-                                return;
 
-                            info = todo.front();
-                            todo.pop();
+                            dataset->addDataPoint(info.query->name, data);
+                            completed_queries++;
+
+                            if (complete_callback_)
+                                complete_callback_(dataset, *info.query);
                         }
 
-                        RBX_INFO("[Thread %1%] Running Query %3% `%2%` Trial [%4%/%5%]",  //
-                                 id, info.query->name, info.index, info.trial + 1, trials_);
-
-                        // If override, use global time. Else use query time.
-                        double time_remaining = (override_planning_time_) ?
-                                                    allowed_time_ :
-                                                    info.query->request.allowed_planning_time;
-
-                        std::size_t timeout_trial = 0;
-                        while (time_remaining > 0.)
+                        if (timeout_)
                         {
-                            planning_interface::MotionPlanRequest request = info.query->request;
-                            request.allowed_planning_time = time_remaining;
-
-                            if (enforce_single_thread_)
-                                request.num_planning_attempts = 1;
-
-                            // Call pre-run callbacks
-                            info.query->planner->preRun(info.query->scene, request);
-
-                            if (pre_callback_)
-                                pre_callback_(*info.query);
-
-                            // Profile query
-                            auto data = std::make_shared<PlanData>();
-                            profiler_.profilePlan(info.query->planner,  //
-                                                  info.query->scene,    //
-                                                  request,              //
-                                                  options_,             //
-                                                  *data);
-
-                            // Add experiment specific metrics
-                            data->metrics.emplace("query_trial", (int)info.trial);
-                            data->metrics.emplace("query_index", (int)info.index);
-                            data->metrics.emplace("query_timeout_trial", (int)timeout_trial);
-                            data->metrics.emplace("query_start_time",
-                                                  IO::getSeconds(dataset->start, data->start));
-                            data->metrics.emplace("query_finish_time",
-                                                  IO::getSeconds(dataset->start, data->finish));
-
-                            data->query.name =
-                                log::format("%1%:%2%:%3%", info.query->name, info.trial, info.index);
-
-                            if (timeout_)
-                                data->query.name = data->query.name + log::format(":%4%", timeout_trial);
-
-                            if (post_callback_)
-                                post_callback_(*data, *info.query);
-
-                            {
-                                std::unique_lock<std::mutex> lock(mutex);
-
-                                dataset->addDataPoint(info.query->name, data);
-                                completed_queries++;
-
-                                if (complete_callback_)
-                                    complete_callback_(dataset, *info.query);
-                            }
-
-                            if (timeout_)
-                            {
-                                time_remaining -= data->time;
-                                RBX_INFO(            //
-                                    "[Thread %1%] Running Query %3% `%2%` till timeout, %4% seconds "
-                                    "remaining...",  //
-                                    id, info.query->name, info.index, time_remaining);
-                                timeout_trial++;
-                            }
-                            else
-                                time_remaining = 0;
+                            time_remaining -= data->time;
+                            RBX_INFO(            //
+                                "[Thread %1%] Running Query %3% `%2%` till timeout, %4% seconds "
+                                "remaining...",  //
+                                id, info.query->name, info.index, time_remaining);
+                            timeout_trial++;
                         }
-
-                        RBX_INFO(
-                            "[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
-                            id, info.query->name, info.index,                                           //
-                            info.trial + 1, trials_,                                                    //
-                            completed_queries, total_queries);
+                        else
+                            time_remaining = 0;
                     }
-                }));
+
+                    RBX_INFO("[Thread %1%] Completed Query %3% `%2%` Trial [%4%/%5%] Total: [%6%/%7%]",  //
+                             id, info.query->name, info.index,                                           //
+                             info.trial + 1, trials_,                                                    //
+                             completed_queries, total_queries);
+                }
+            }));
 
     for (const auto &thread : threads)
         thread->join();
