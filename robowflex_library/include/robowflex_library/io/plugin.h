@@ -139,7 +139,7 @@ namespace robowflex
             std::mutex mutex_;                                                      ///< Class loading mutex
             std::map<std::pair<std::string, std::string>, BaseLoaderPtr> loaders_;  ///< Cached loaders
         };
-    }  // namespace IO
+    }                                                                               // namespace IO
 }  // namespace robowflex
 
 #endif

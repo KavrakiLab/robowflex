@@ -62,23 +62,25 @@ PoolPlanner::PoolPlanner(const RobotPtr &robot, unsigned int n, const std::strin
 std::shared_ptr<Pool::Job<planning_interface::MotionPlanResponse>>
 PoolPlanner::submit(const SceneConstPtr &scene, const planning_interface::MotionPlanRequest &request)
 {
-    return pool_.submit(make_function([&] {
-        std::unique_lock<std::mutex> lock(mutex_);
-        cv_.wait(lock, [&] { return !planners_.empty(); });
+    return pool_.submit(make_function(
+        [&]
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            cv_.wait(lock, [&] { return !planners_.empty(); });
 
-        auto planner = planners_.front();
-        planners_.pop();
+            auto planner = planners_.front();
+            planners_.pop();
 
-        lock.unlock();
+            lock.unlock();
 
-        auto result = planner->plan(scene, request);
+            auto result = planner->plan(scene, request);
 
-        lock.lock();
-        planners_.emplace(planner);
-        cv_.notify_one();
+            lock.lock();
+            planners_.emplace(planner);
+            cv_.notify_one();
 
-        return result;
-    }));
+            return result;
+        }));
 }
 
 planning_interface::MotionPlanResponse PoolPlanner::plan(const SceneConstPtr &scene,

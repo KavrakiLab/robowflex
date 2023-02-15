@@ -87,7 +87,7 @@ namespace robowflex
             const std::string file_;  ///< File opened.
             rosbag::Bag bag_;         ///< `rosbag` opened.
         };
-    }  // namespace IO
+    }                                 // namespace IO
 }  // namespace robowflex
 
 #endif

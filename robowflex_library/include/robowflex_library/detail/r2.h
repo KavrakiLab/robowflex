@@ -87,7 +87,7 @@ namespace robowflex
             static const std::string CONFIG;  ///< Default planning configuration.
             static const std::string PLUGIN;  ///< Default planning plugin.
         };
-    }  // namespace OMPL
+    }                                         // namespace OMPL
 }  // namespace robowflex
 
 #endif

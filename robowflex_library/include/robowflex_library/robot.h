@@ -787,11 +787,11 @@ namespace robowflex
 
         /** \} */
 
-        const std::string name_;  ///< Robot name.
-        IO::Handler handler_;     ///< IO handler (namespaced with \a name_)
+        const std::string name_;                       ///< Robot name.
+        IO::Handler handler_;                          ///< IO handler (namespaced with \a name_)
 
-        std::string urdf_;  ///< The URDF as a string.
-        std::string srdf_;  ///< The SRDF as a string.
+        std::string urdf_;                             ///< The URDF as a string.
+        std::string srdf_;                             ///< The SRDF as a string.
 
         PostProcessXMLFunction urdf_function_;         ///< URDF post-processing function.
         PostProcessXMLFunction srdf_function_;         ///< SRDF post-processing function.
@@ -803,7 +803,7 @@ namespace robowflex
         std::map<std::string, robot_model::SolverAllocatorFn> imap_;      ///< Kinematic solver allocator map.
         kinematics_plugin_loader::KinematicsPluginLoaderPtr kinematics_;  ///< Kinematic plugin loader.
 
-        robot_state::RobotStatePtr scratch_;  ///< Scratch robot state.
+        robot_state::RobotStatePtr scratch_;                              ///< Scratch robot state.
     };
 
     /** \cond IGNORE */

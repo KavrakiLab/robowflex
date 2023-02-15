@@ -68,26 +68,28 @@ int main(int /*argc*/, char ** /*argv*/)
     builder.setup();
     builder.ss->print();
 
-    window.run([&]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        while (true)
+    window.run(
+        [&]()
         {
-            goal->startSampling();
-            ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
-            goal->stopSampling();
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            if (solved)
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+            while (true)
             {
-                RBX_INFO("Found solution!");
-                window.animatePath(builder, builder.getSolutionPath());
-            }
-            else
-                RBX_WARN("No solution found");
+                goal->startSampling();
+                ompl::base::PlannerStatus solved = builder.ss->solve(30.0);
+                goal->stopSampling();
 
-            builder.ss->clear();
-        }
-    });
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                if (solved)
+                {
+                    RBX_INFO("Found solution!");
+                    window.animatePath(builder, builder.getSolutionPath());
+                }
+                else
+                    RBX_WARN("No solution found");
+
+                builder.ss->clear();
+            }
+        });
 
     return 0;
 }

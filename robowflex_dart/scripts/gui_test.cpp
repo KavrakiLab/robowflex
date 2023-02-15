@@ -50,7 +50,8 @@ int main(int /*argc*/, char ** /*argv*/)
     options_ik.thickness = 1;
     options_ik.pose = fetch1->getFrame("wrist_roll_link")->getWorldTransform();
 
-    options_ik.callback = [&](const auto &frame) {
+    options_ik.callback = [&](const auto &frame)
+    {
         auto &spec = ik_tsr->getSpecification();
         spec.setPose(frame->getWorldTransform());
         ik_tsr->updatePose();
@@ -82,7 +83,8 @@ int main(int /*argc*/, char ** /*argv*/)
     options_look.planar[1] = false;
     options_look.planar[2] = false;
 
-    options_look.callback = [&](const auto &frame) {
+    options_look.callback = [&](const auto &frame)
+    {
         auto &spec = look_tsr->getSpecification();
         spec.setPose(frame->getWorldTransform());
         look_tsr->updatePose();
@@ -99,28 +101,33 @@ int main(int /*argc*/, char ** /*argv*/)
     // Pick / Place Button
     bool picked = false;
     auto *cube = scene->getFrame("box");
-    window.getWidget()->addButton("Pick/Place", [&] {
-        if (not picked)
-            fetch1->reparentFreeFrame(cube, "wrist_roll_link");
-        else
-            scene->reparentFreeFrame(cube);
+    window.getWidget()->addButton("Pick/Place",
+                                  [&]
+                                  {
+                                      if (not picked)
+                                          fetch1->reparentFreeFrame(cube, "wrist_roll_link");
+                                      else
+                                          scene->reparentFreeFrame(cube);
 
-        picked = not picked;
-    });
+                                      picked = not picked;
+                                  });
 
     // Setup reset button
     window.getWidget()->addText("Press button to reset robot state!");
-    window.getWidget()->addButton("Reset", [&] {
-        // do it a few times since the IK tries to update
-        for (std::size_t i = 0; i < 3; ++i)
-        {
-            fetch1->getSkeleton()->setState(start);
-            ik_ret.target->setTransform(fetch1->getFrame("wrist_roll_link")->getWorldTransform());
-            auto tf = fetch1->getFrame("head_camera_link")->getWorldTransform();
-            tf.translation()[1] += 0.5;
-            look_ret.target->setTransform(tf);
-        }
-    });
+    window.getWidget()->addButton("Reset",
+                                  [&]
+                                  {
+                                      // do it a few times since the IK tries to update
+                                      for (std::size_t i = 0; i < 3; ++i)
+                                      {
+                                          fetch1->getSkeleton()->setState(start);
+                                          ik_ret.target->setTransform(
+                                              fetch1->getFrame("wrist_roll_link")->getWorldTransform());
+                                          auto tf = fetch1->getFrame("head_camera_link")->getWorldTransform();
+                                          tf.translation()[1] += 0.5;
+                                          look_ret.target->setTransform(tf);
+                                      }
+                                  });
 
     window.run();
     return 0;

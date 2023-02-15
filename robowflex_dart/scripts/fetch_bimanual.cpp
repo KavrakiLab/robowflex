@@ -38,7 +38,8 @@ int main(int /*argc*/, char ** /*argv*/)
     //
     // Initial goal - touch fingertips
     //
-    const auto &touch = [&] {
+    const auto &touch = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -87,7 +88,8 @@ int main(int /*argc*/, char ** /*argv*/)
         return solved;
     };
 
-    const auto &dance = [&] {
+    const auto &dance = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -132,16 +134,18 @@ int main(int /*argc*/, char ** /*argv*/)
         return solved;
     };
 
-    window.run([&]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        while (true)
+    window.run(
+        [&]()
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            while (true)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-            auto solved = touch();
-            if (solved)
-                dance();
-        }
-    });
+                auto solved = touch();
+                if (solved)
+                    dance();
+            }
+        });
     return 0;
 }

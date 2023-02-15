@@ -20,7 +20,8 @@ Profiler::ComputeMetricCallback getNumVerticesCallback()
     return [](const PlannerPtr &planner,                             //
               const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
-              const PlanData &run) -> PlannerMetric {
+              const PlanData &run) -> PlannerMetric
+    {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
         const auto &op = ompl_planner->getLastSimpleSetup()->getPlanner();
 
@@ -36,7 +37,8 @@ Profiler::ComputeMetricCallback getGoalDistanceCallback()
     return [](const PlannerPtr &planner,                             //
               const SceneConstPtr &scene,                            //
               const planning_interface::MotionPlanRequest &request,  //
-              const PlanData &run) -> PlannerMetric {
+              const PlanData &run) -> PlannerMetric
+    {
         const auto &ompl_planner = std::dynamic_pointer_cast<const OMPL::OMPLInterfacePlanner>(planner);
 
         const auto &pdef = ompl_planner->getLastSimpleSetup()->getProblemDefinition();

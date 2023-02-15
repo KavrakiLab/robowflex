@@ -5,9 +5,9 @@
 
 #include <boost/version.hpp>  // for boost version macros
 
-#include <moveit/version.h>  // for MoveIt version macros
+#include <moveit/version.h>   // for MoveIt version macros
 
-#include <ros/common.h>  // for ROS version macros
+#include <ros/common.h>       // for ROS version macros
 
 /** \file */
 

@@ -232,10 +232,10 @@ namespace robowflex
              */
             void removeSkeletonCollider(const std::string &name, const dart::dynamics::SkeletonPtr &skeleton);
 
-            dart::simulation::WorldPtr world_;  ///< Underlying world.
+            dart::simulation::WorldPtr world_;                ///< Underlying world.
 
-            Eigen::Vector3d low_{-5, -5, -5};  ///< Lower workspace bounds.
-            Eigen::Vector3d high_{5, 5, 5};    ///< Upper workspace bounds.
+            Eigen::Vector3d low_{-5, -5, -5};                 ///< Lower workspace bounds.
+            Eigen::Vector3d high_{5, 5, 5};                   ///< Upper workspace bounds.
 
             std::map<std::string, RobotPtr> robots_;          ///< Robots in world.
             std::map<std::string, StructurePtr> structures_;  ///< Structures in world.
@@ -258,9 +258,9 @@ namespace robowflex
             dart::collision::CollisionDetectorPtr collider_;                     ///< Collision checker.
             const std::string name_;                                             ///< Name of world.
 
-            std::recursive_mutex mutex_;  ///< Internal lock.
+            std::recursive_mutex mutex_;                                         ///< Internal lock.
         };
-    }  // namespace darts
+    }                                                                            // namespace darts
 }  // namespace robowflex
 
 #endif

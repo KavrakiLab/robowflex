@@ -202,20 +202,20 @@ namespace robowflex
             /** \} */
 
         protected:
-            StateSpace *space_;  ///< State space this joint is for.
-            ompl::RNG &rng_;     ///< Random number generator.
+            StateSpace *space_;                 ///< State space this joint is for.
+            ompl::RNG &rng_;                    ///< Random number generator.
 
             std::vector<std::size_t> indices_;  ///< Indices this joint corresponds to.
             std::vector<std::string> dofs_;     ///< Controlled DoF names.
 
-            unsigned int skelIndex_;   ///< Index of skeleton.
-            unsigned int jointIndex_;  ///< Index of joint.
+            unsigned int skelIndex_;            ///< Index of skeleton.
+            unsigned int jointIndex_;           ///< Index of joint.
 
-            unsigned int startInSpace_;  ///< Start index in space configuration.
-            unsigned int sizeInSpace_;   ///< Size of joint in space configuration.
+            unsigned int startInSpace_;         ///< Start index in space configuration.
+            unsigned int sizeInSpace_;          ///< Size of joint in space configuration.
 
-            unsigned int startIndex_;  ///< Start index in joint.
-            unsigned int numDof_;      ///< Number of DoF this joint controls.
+            unsigned int startIndex_;           ///< Start index in joint.
+            unsigned int numDof_;               ///< Number of DoF this joint controls.
         };
 
         /** \brief A real vector joint of \a n dimensions.

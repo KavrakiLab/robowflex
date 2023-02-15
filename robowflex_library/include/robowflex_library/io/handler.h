@@ -3,9 +3,9 @@
 #ifndef ROBOWFLEX_IO_HANDLER_
 #define ROBOWFLEX_IO_HANDLER_
 
-#include <string>  // for std::string
+#include <string>             // for std::string
 
-#include <yaml-cpp/yaml.h>  // for YAML::Node
+#include <yaml-cpp/yaml.h>    // for YAML::Node
 
 #include <ros/node_handle.h>  // for ros::NodeHandle
 
@@ -89,15 +89,15 @@ namespace robowflex
             const std::string &getNamespace() const;
 
         private:
-            static const std::string UUID;  ///< UUID of handler.
+            static const std::string UUID;     ///< UUID of handler.
 
-            const std::string name_;       ///< Name of handler.
-            const std::string namespace_;  ///< Full namespace of handler.
-            ros::NodeHandle nh_;           ///< ROS node handle.
+            const std::string name_;           ///< Name of handler.
+            const std::string namespace_;      ///< Full namespace of handler.
+            ros::NodeHandle nh_;               ///< ROS node handle.
 
             std::vector<std::string> params_;  ///< Set parameter keys.
         };
-    }  // namespace IO
+    }                                          // namespace IO
 }  // namespace robowflex
 
 #endif

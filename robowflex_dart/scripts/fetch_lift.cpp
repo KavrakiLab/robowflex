@@ -56,7 +56,8 @@ int main(int /*argc*/, char ** /*argv*/)
     //
     // Touch the box
     //
-    const auto &touch = [&] {
+    const auto &touch = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -108,7 +109,8 @@ int main(int /*argc*/, char ** /*argv*/)
     //
     // Lift the box
     //
-    const auto &lift = [&] {
+    const auto &lift = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -168,7 +170,8 @@ int main(int /*argc*/, char ** /*argv*/)
     //
     // Lower the box
     //
-    const auto &lower = [&] {
+    const auto &lower = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -228,7 +231,8 @@ int main(int /*argc*/, char ** /*argv*/)
     //
     // Tuck the Fetch's arms
     //
-    const auto &tuck = [&] {
+    const auto &tuck = [&]
+    {
         darts::PlanBuilder builder(world);
         builder.addGroup("fetch1", "arm_with_torso");
         builder.addGroup("fetch2", "arm_with_torso");
@@ -262,30 +266,32 @@ int main(int /*argc*/, char ** /*argv*/)
         return solved == ompl::base::PlannerStatus::EXACT_SOLUTION;
     };
 
-    window.run([&]() {
-        RBX_INFO("Press enter");
-        std::cin.ignore();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-        while (true)
+    window.run(
+        [&]()
         {
-            if (touch())
+            RBX_INFO("Press enter");
+            std::cin.ignore();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+            while (true)
             {
-                auto *cube = scene->getFrame("box");
-                fetch1->reparentFreeFrame(cube, "wrist_roll_link");
-                if (lift())
+                if (touch())
                 {
-                    if (lower())
+                    auto *cube = scene->getFrame("box");
+                    fetch1->reparentFreeFrame(cube, "wrist_roll_link");
+                    if (lift())
                     {
-                        scene->reparentFreeFrame(cube);
-                        if (not tuck())
-                            break;
+                        if (lower())
+                        {
+                            scene->reparentFreeFrame(cube);
+                            if (not tuck())
+                                break;
+                        }
                     }
                 }
             }
-        }
-    });
+        });
 
     return 0;
 }

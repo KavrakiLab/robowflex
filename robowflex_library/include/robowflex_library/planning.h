@@ -124,7 +124,7 @@ namespace robowflex
          *  \return True on success, false on failure.
          */
         template <typename P, typename... Args>
-        bool initialize(Args &&... args)
+        bool initialize(Args &&...args)
         {
             for (unsigned int i = 0; i < pool_.getThreadCount(); ++i)
             {
@@ -160,7 +160,7 @@ namespace robowflex
         std::vector<std::string> getPlannerConfigs() const override;
 
     private:
-        Pool pool_;  ///< Thread pool
+        Pool pool_;                        ///< Thread pool
 
         std::queue<PlannerPtr> planners_;  ///< Motion planners
         std::mutex mutex_;                 ///< Planner mutex
@@ -369,7 +369,7 @@ namespace robowflex
             std::vector<std::string> configs_;  ///< Planning configurations loaded from \a config_file in
                                                 ///< initialize()
         };
-    }  // namespace OMPL
+    }                                           // namespace OMPL
 
     namespace opt
     {
@@ -527,7 +527,7 @@ namespace robowflex
             static const std::string DEFAULT_PLUGIN;                 ///< The default TrajOpt plugin.
             static const std::vector<std::string> DEFAULT_ADAPTERS;  ///< The default planning adapters.
         };
-    }  // namespace opt
+    }                                                                // namespace opt
 }  // namespace robowflex
 
 #endif

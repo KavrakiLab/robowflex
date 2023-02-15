@@ -59,7 +59,7 @@ int main(int argc, char **argv)
                                  pose, cylinder,      //
                                  0.15, 0.04, 16);     //
 
-    rviz.addGoalMarker("goal", request);  // Visualize the grasping regions
+    rviz.addGoalMarker("goal", request);              // Visualize the grasping regions
     rviz.updateMarkers();
 
     RBX_INFO("Scene and Goal displayed! Press enter to plan...");

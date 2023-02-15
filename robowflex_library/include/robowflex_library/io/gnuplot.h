@@ -47,8 +47,8 @@ namespace robowflex
                 std::string title;       ///< Title of the plot.
                 std::string mode{"qt"};  ///< Terminal mode for GNUPlot
 
-                Axis x;  ///< X-axis parameters.
-                Axis y;  ///< Y-axis parameters.
+                Axis x;                  ///< X-axis parameters.
+                Axis y;                  ///< Y-axis parameters.
             };
 
             /** \brief Configure a plot using common options.

@@ -118,19 +118,19 @@ namespace robowflex
             actionlib::SimpleActionClient<moveit_msgs::ExecuteTrajectoryAction> eac_;  ///< Execute trajectory
                                                                                        ///< client.
 
-            ResultCallback callback_;  ///< Callback function for move group results.
+            ResultCallback callback_;                 ///< Callback function for move group results.
 
             std::map<std::string, Action> requests_;  ///< Move group requests
 
-            RobotPtr robot_;  ///< Robot on the parameter server used by move group.
+            RobotPtr robot_;                          ///< Robot on the parameter server used by move group.
 
-            static const std::string MOVE_GROUP;     ///< Name of move_group namespace.
-            static const std::string GET_SCENE;      ///< Name of get scene service.
-            static const std::string APPLY_SCENE;    ///< Name of apply scene service.
-            static const std::string CLEAR_OCTOMAP;  ///< Name of clear octomap service.
-            static const std::string EXECUTE;        ///< Name of execute trajectory service.
+            static const std::string MOVE_GROUP;      ///< Name of move_group namespace.
+            static const std::string GET_SCENE;       ///< Name of get scene service.
+            static const std::string APPLY_SCENE;     ///< Name of apply scene service.
+            static const std::string CLEAR_OCTOMAP;   ///< Name of clear octomap service.
+            static const std::string EXECUTE;         ///< Name of execute trajectory service.
         };
-    }  // namespace movegroup
+    }                                                 // namespace movegroup
 }  // namespace robowflex
 
 #endif

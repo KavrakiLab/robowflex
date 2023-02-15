@@ -389,8 +389,8 @@ void IO::RVIZHelper::addGoalMarker(const std::string &name, const moveit_msgs::M
                     const auto tolerances = {og.absolute_x_axis_tolerance,  //
                                              og.absolute_y_axis_tolerance,  //
                                              og.absolute_z_axis_tolerance};
-                    const auto axes = {Eigen::Vector3d::UnitX(),  //
-                                       Eigen::Vector3d::UnitY(),  //
+                    const auto axes = {Eigen::Vector3d::UnitX(),            //
+                                       Eigen::Vector3d::UnitY(),            //
                                        Eigen::Vector3d::UnitZ()};
                     for (const auto &angles : boost::combine(tolerances, axes))
                     {

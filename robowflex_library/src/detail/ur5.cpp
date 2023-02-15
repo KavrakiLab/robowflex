@@ -6,28 +6,28 @@
 
 using namespace robowflex;
 
-const std::string  //
+const std::string                                                          //
     UR5Robot::DEFAULT_URDF{"package://ur_description/urdf/ur5_robotiq_robot_limited.urdf.xacro"};
-const std::string  //
+const std::string                                                          //
     UR5Robot::DEFAULT_SRDF{"package://ur5_robotiq85_moveit_config/config/ur5_robotiq85.srdf"};
-const std::string  //
+const std::string                                                          //
     UR5Robot::DEFAULT_LIMITS{"package://ur5_robotiq85_moveit_config/config/joint_limits.yaml"};
-const std::string  //
+const std::string                                                          //
     UR5Robot::DEFAULT_KINEMATICS{"package://ur5_robotiq85_moveit_config/config/kinematics.yaml"};
-const std::string  //
+const std::string                                                          //
     OMPL::UR5OMPLPipelinePlanner::DEFAULT_CONFIG{
         "package://ur5_robotiq85_moveit_config/config/ompl_planning.yaml"  //
     };
 
-const std::string  //
+const std::string                                                         //
     UR5Robot::RESOURCE_URDF{"package://robowflex_resources/ur/robots/ur5_robotiq_robot_limited.urdf.xacro"};
-const std::string  //
+const std::string                                                         //
     UR5Robot::RESOURCE_SRDF{"package://robowflex_resources/ur/config/ur5/ur5_robotiq85.srdf.xacro"};
-const std::string  //
+const std::string                                                         //
     UR5Robot::RESOURCE_LIMITS{"package://robowflex_resources/ur/config/ur5/joint_limits.yaml"};
-const std::string  //
+const std::string                                                         //
     UR5Robot::RESOURCE_KINEMATICS{"package://robowflex_resources/ur/config/ur5/kinematics.yaml"};
-const std::string  //
+const std::string                                                         //
     OMPL::UR5OMPLPipelinePlanner::RESOURCE_CONFIG{
         "package://robowflex_resources/ur/config/ur5/ompl_planning.yaml"  //
     };

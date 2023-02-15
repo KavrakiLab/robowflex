@@ -86,17 +86,19 @@ int main(int argc, char **argv)
     builder.ss->print();
 
     darts::Window window(world);
-    window.run([&] {
-        ompl::base::PlannerStatus solved = builder.ss->solve(5.0);
-
-        if (solved)
+    window.run(
+        [&]
         {
-            RBX_INFO("Found solution!");
-            window.animatePath(builder, builder.getSolutionPath(), 10);
-        }
-        else
-            RBX_WARN("No solution found");
-    });
+            ompl::base::PlannerStatus solved = builder.ss->solve(5.0);
+
+            if (solved)
+            {
+                RBX_INFO("Found solution!");
+                window.animatePath(builder, builder.getSolutionPath(), 10);
+            }
+            else
+                RBX_WARN("No solution found");
+        });
 
     return 0;
 }
