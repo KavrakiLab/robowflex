@@ -354,7 +354,7 @@ def read_YAML_data(file_name):
         logging.warn('Cannot open {}'.format(file_name))
         return None
     with open(full_name) as input_file:
-        return yaml.load(input_file.read())
+        return yaml.load(input_file.read(), Loader=yaml.SafeLoader)
 
 
 def remove_doubles(item, threshold = 0.0001):
