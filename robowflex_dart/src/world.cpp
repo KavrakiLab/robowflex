@@ -350,3 +350,18 @@ void World::unlock()
 {
     mutex_.unlock();
 }
+
+std::shared_ptr<dart::collision::CollisionGroup> World::getSelfCollisionGroup(const std::string &name) const
+{
+    return collision_.at(name).self;
+}
+
+std::shared_ptr<dart::collision::CollisionGroup> World::getOtherCollisionGroup(const std::string &name) const
+{
+    return collision_.at(name).others;
+}
+
+World::CollisionInfo World::getCollisionInfo(const std::string &name) const
+{
+    return collision_.at(name);
+}
