@@ -219,6 +219,40 @@ namespace robowflex
              */
             void openOSGViewer();
 
+            /** \brief Get the collision detector for this world.
+             *  \return A pointer to the world's collision detector.
+             */
+            dart::collision::CollisionDetectorPtr getCollider() const;
+
+            /** \brief Get the self-collision group for a skeleton in this world.
+             *  \param[in] name The name of the skeleton.
+             *  \return A pointer to the self-collision group for the skeleton.
+             */
+            std::shared_ptr<dart::collision::CollisionGroup>
+            getSelfCollisionGroup(const std::string &name) const;
+
+            /** \brief Get the group for everything other than a given skeleton in this world.
+             *  \param[in] name The name of the skeleton.
+             *  \return A pointer to the other-collision group for the skeleton.
+             */
+            std::shared_ptr<dart::collision::CollisionGroup>
+            getOtherCollisionGroup(const std::string &name) const;
+
+            /** \brief Collision filter information.
+             */
+            struct CollisionInfo
+            {
+                std::shared_ptr<dart::collision::CollisionGroup> self;    ///< All nodes belonging to a
+                                                                          ///< skeleton.
+                std::shared_ptr<dart::collision::CollisionGroup> others;  ///< All other nodes in world.
+            };
+
+            /** \brief Get the collision info (self and other collision groups) for a skeleton in this
+             * world. \param[in] name The name of the skeleton. \return A struct containing pointers to
+             * the skeleton's self and other collision groups.
+             */
+            CollisionInfo getCollisionInfo(const std::string &name) const;
+
         private:
             /** \brief Add a new collision filter (ACM) for a skeleton.
              *  \param[in] name Name for collision filter.
@@ -240,17 +274,9 @@ namespace robowflex
             std::map<std::string, RobotPtr> robots_;          ///< Robots in world.
             std::map<std::string, StructurePtr> structures_;  ///< Structures in world.
 
-            /** \brief Collision filter information.
-             */
-            struct CollisionInfo
-            {
-                std::shared_ptr<dart::collision::CollisionGroup> self;    ///< All nodes belonging to a
-                                                                          ///< skeleton.
-                std::shared_ptr<dart::collision::CollisionGroup> others;  ///< All other nodes in world.
-            };
-
             dart::collision::CollisionGroupPtr all_;          ///< All collision groups in world.
-            std::map<std::string, CollisionInfo> collision_;  ///< Map of skeleton names to collision filters.
+            std::map<std::string, CollisionInfo> collision_;  ///< Map of skeleton names to collision
+                                                              ///< filters.
 
             std::shared_ptr<dart::collision::CompositeCollisionFilter> filter_;  ///< Composite collision
                                                                                  ///< filter of skeleton
