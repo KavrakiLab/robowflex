@@ -248,10 +248,18 @@ namespace robowflex
             };
 
             /** \brief Get the collision info (self and other collision groups) for a skeleton in this
-             * world. \param[in] name The name of the skeleton. \return A struct containing pointers to
-             * the skeleton's self and other collision groups.
+             * world.
+             * \param[in] name The name of the skeleton.
+             * \return A struct containing pointers to the skeleton's self and other collision groups.
              */
             CollisionInfo getCollisionInfo(const std::string &name) const;
+
+            /** \brief Get the current world collision filter (composite of all skeleton filters).
+             * This is more efficient than constructing a new filter from
+             * robowflex::darts::World::getDefaultFilter() or robowflex::darts::World::getAllValidFilter().
+             * \return A pointer to the current world collision filter.
+             */
+            std::shared_ptr<const dart::collision::CompositeCollisionFilter> getWorldCollisionFilter() const;
 
         private:
             /** \brief Add a new collision filter (ACM) for a skeleton.
