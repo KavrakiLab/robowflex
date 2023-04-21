@@ -248,8 +248,9 @@ namespace robowflex
             };
 
             /** \brief Get the collision info (self and other collision groups) for a skeleton in this
-             * world. \param[in] name The name of the skeleton. \return A struct containing pointers to
-             * the skeleton's self and other collision groups.
+             * world.
+             * \param[in] name The name of the skeleton.
+             * \return A struct containing pointers to the skeleton's self and other collision groups.
              */
             CollisionInfo getCollisionInfo(const std::string &name) const;
 
