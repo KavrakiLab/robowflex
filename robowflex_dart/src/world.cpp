@@ -365,3 +365,14 @@ World::CollisionInfo World::getCollisionInfo(const std::string &name) const
 {
     return collision_.at(name);
 }
+
+std::shared_ptr<const dart::collision::CompositeCollisionFilter>
+robowflex::darts::World::getWorldCollisionFilter() const
+{
+    if (filter_ == nullptr)
+    {
+        throw std::runtime_error("World collision filter is not initialized!");
+    }
+
+    return filter_;
+}

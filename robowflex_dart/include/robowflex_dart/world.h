@@ -253,6 +253,13 @@ namespace robowflex
              */
             CollisionInfo getCollisionInfo(const std::string &name) const;
 
+            /** \brief Get the current world collision filter (composite of all skeleton filters).
+             * This is more efficient than constructing a new filter from
+             * robowflex::darts::World::getDefaultFilter() or robowflex::darts::World::getAllValidFilter().
+             * \return A pointer to the current world collision filter.
+             */
+            std::shared_ptr<const dart::collision::CompositeCollisionFilter> getWorldCollisionFilter() const;
+
         private:
             /** \brief Add a new collision filter (ACM) for a skeleton.
              *  \param[in] name Name for collision filter.
