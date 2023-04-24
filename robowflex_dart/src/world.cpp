@@ -366,8 +366,7 @@ World::CollisionInfo World::getCollisionInfo(const std::string &name) const
     return collision_.at(name);
 }
 
-std::shared_ptr<const dart::collision::CompositeCollisionFilter>
-robowflex::darts::World::getWorldCollisionFilter() const
+std::shared_ptr<dart::collision::CompositeCollisionFilter> &robowflex::darts::World::getWorldCollisionFilter()
 {
     if (filter_ == nullptr)
     {

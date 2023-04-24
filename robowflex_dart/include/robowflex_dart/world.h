@@ -259,7 +259,7 @@ namespace robowflex
              * robowflex::darts::World::getDefaultFilter() or robowflex::darts::World::getAllValidFilter().
              * \return A pointer to the current world collision filter.
              */
-            std::shared_ptr<const dart::collision::CompositeCollisionFilter> getWorldCollisionFilter() const;
+            std::shared_ptr<dart::collision::CompositeCollisionFilter> &getWorldCollisionFilter();
 
         private:
             /** \brief Add a new collision filter (ACM) for a skeleton.
