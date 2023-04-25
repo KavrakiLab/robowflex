@@ -119,6 +119,11 @@ namespace robowflex
              */
             StructurePtr getStructure(const std::string &name);
 
+            /** \brief Get the set of structures in the world.
+             *  \return A constant reference to the set of structures.
+             */
+            const std::map<std::string, StructurePtr> &getStructures();
+
             /** \} */
 
             /** \name Getters and Setters

@@ -193,6 +193,11 @@ StructurePtr World::getStructure(const std::string &name)
     return nullptr;
 }
 
+const std::map<std::string, StructurePtr> &World::getStructures()
+{
+    return structures_;
+}
+
 std::pair<Eigen::Vector3d, Eigen::Vector3d> World::getWorkspaceBounds() const
 {
     return std::make_pair(low_, high_);
