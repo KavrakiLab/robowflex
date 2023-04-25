@@ -137,7 +137,7 @@ void World::removeRobot(const std::string &name)
     }
 }
 
-void World::removeRobot(RobotPtr robot)
+void World::removeRobot(const RobotPtr &robot)
 {
     removeRobot(robot->getName());
 }
@@ -179,7 +179,7 @@ void World::removeStructure(const std::string &name)
     }
 }
 
-void World::removeStructure(StructurePtr structure)
+void World::removeStructure(const StructurePtr &structure)
 {
     removeStructure(structure->getName());
 }

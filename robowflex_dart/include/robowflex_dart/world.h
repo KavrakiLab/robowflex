@@ -90,7 +90,7 @@ namespace robowflex
             /** \brief Remove a robot from the world.
              *  \param[in] robot Robot to remove.
              */
-            void removeRobot(RobotPtr robot);
+            void removeRobot(const RobotPtr &robot);
 
             /** \brief Get a robot in the world.
              *  \param[in] name Name of robot to get.
@@ -111,7 +111,7 @@ namespace robowflex
             /** \brief Remove a structure from the world.
              *  \param[in] structure Structure to remove.
              */
-            void removeStructure(StructurePtr structure);
+            void removeStructure(const StructurePtr &structure);
 
             /** \brief Get a structure in the world.
              *  \param[in] name Name of structure to get.
