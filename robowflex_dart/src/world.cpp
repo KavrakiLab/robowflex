@@ -151,6 +151,15 @@ RobotPtr World::getRobot(const std::string &name)
     return nullptr;
 }
 
+RobotConstPtr World::getRobotConst(const std::string &name) const
+{
+    auto it = robots_.find(name);
+    if (it != robots_.end())
+        return it->second;
+
+    return nullptr;
+}
+
 void World::addStructure(StructurePtr structure)
 {
     auto it = structures_.find(structure->getName());
@@ -185,6 +194,15 @@ void World::removeStructure(const StructurePtr &structure)
 }
 
 StructurePtr World::getStructure(const std::string &name)
+{
+    auto it = structures_.find(name);
+    if (it != structures_.end())
+        return it->second;
+
+    return nullptr;
+}
+
+StructureConstPtr World::getStructureConst(const std::string &name) const
 {
     auto it = structures_.find(name);
     if (it != structures_.end())
