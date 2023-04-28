@@ -98,6 +98,12 @@ namespace robowflex
              */
             RobotPtr getRobot(const std::string &name);
 
+            /** \brief Get a robot in the world.
+             *  \param[in] name Name of robot to get.
+             *  \return The robot, or nullptr if non-existent.
+             */
+            RobotConstPtr getRobotConst(const std::string &name) const;
+
             /** \brief Add a structure to the world.
              *  \param[in] structure Structure to add.
              */
@@ -118,6 +124,12 @@ namespace robowflex
              *  \return The structure, or nullptr if non-existent.
              */
             StructurePtr getStructure(const std::string &name);
+
+            /** \brief Get a structure in the world.
+             *  \param[in] name Name of structure to get.
+             *  \return The structure, or nullptr if non-existent.
+             */
+            StructureConstPtr getStructureConst(const std::string &name) const;
 
             /** \brief Get the set of structures in the world.
              *  \return A constant reference to the set of structures.
@@ -173,7 +185,7 @@ namespace robowflex
              *  \param[in] skeleton The skeleton to get the index of.
              *  \return The index of a skeleton in the world.
              */
-            unsigned int getSkeletonIndex(dart::dynamics::SkeletonPtr skeleton) const;
+            unsigned int getSkeletonIndex(const dart::dynamics::SkeletonPtr &skeleton) const;
 
             /** \} */
 
