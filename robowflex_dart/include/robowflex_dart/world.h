@@ -185,7 +185,7 @@ namespace robowflex
              *  \param[in] skeleton The skeleton to get the index of.
              *  \return The index of a skeleton in the world.
              */
-            unsigned int getSkeletonIndex(dart::dynamics::SkeletonPtr skeleton) const;
+            unsigned int getSkeletonIndex(const dart::dynamics::SkeletonPtr &skeleton) const;
 
             /** \} */
 

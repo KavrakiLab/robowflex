@@ -251,7 +251,7 @@ const dart::simulation::WorldPtr &World::getSimConst() const
     return world_;
 }
 
-unsigned int World::getSkeletonIndex(dart::dynamics::SkeletonPtr skeleton) const
+unsigned int World::getSkeletonIndex(const dart::dynamics::SkeletonPtr &skeleton) const
 {
     for (unsigned int i = 0; i < world_->getNumSkeletons(); ++i)
     {
