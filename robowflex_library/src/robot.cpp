@@ -632,8 +632,9 @@ Robot::IKQuery::IKQuery(const std::string &group,   //
                         const RobotPose &offset,    //
                         const ScenePtr &scene,      //
                         const std::string &object,  //
-                        const Eigen::Vector3d &tolerances)
-  : group(group)
+                        const Eigen::Vector3d &tolerances,
+                        bool verbose)
+  : group(group), scene(scene), verbose(verbose)
 {
     const auto &pose = scene->getObjectGraspPose(object, offset);
     addRequest("",                                     //
