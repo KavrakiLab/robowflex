@@ -862,69 +862,76 @@ bool Robot::setFromIK(const IKQuery &query)
 bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) const
 {
     // copy query for unconstness
-    std::vector<std::string> tips(query.tips);
+    IKQuery query_copy(query);
 
-    if (tips[0].empty())
-        tips = getSolverTipFrames(query.group);
+    // If there are no tips in the query,
+    // we use the tip frame from the original query group
+    if (query_copy.tips[0].empty())
+        query_copy.tips = getSolverTipFrames(query.group);
 
-    const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query.group);
-    const auto &gsvcf =
-        (query.scene) ? query.scene->getGSVCF(query.verbose) : moveit::core::GroupStateValidityCallbackFn{};
+    const robot_model::JointModelGroup *jmg = model_->getJointModelGroup(query_copy.group);
+    const auto &gsvcf = (query_copy.scene) ? query_copy.scene->getGSVCF(query_copy.verbose) :
+                                             moveit::core::GroupStateValidityCallbackFn{};
 
-    bool evaluate = not query.metrics.empty() or query.validate;
+    bool evaluate = not query_copy.metrics.empty() or query_copy.validate;
     kinematic_constraints::ConstraintEvaluationResult result;
-    const auto &constraints = (evaluate) ? query.getAsConstraints(*this) : nullptr;
+
+    const auto &constraints = (evaluate) ? query_copy.getAsConstraints(*this) : nullptr;
 
     // Best state if evaluating metrics.
-    auto best = (query.metrics.empty()) ? nullptr : std::make_shared<robot_state::RobotState>(state);
+    auto best = (query_copy.metrics.empty()) ? nullptr : std::make_shared<robot_state::RobotState>(state);
     double best_value = constants::inf;
 
     bool success = false;
     RobotPoseVector targets;
-    for (std::size_t i = 0; i < query.attempts and not success; ++i)
+    for (std::size_t i = 0; i < query_copy.attempts and not success; ++i)
     {
         // Sample new target poses from regions.
-        query.sampleRegions(targets);
+        query_copy.sampleRegions(targets);
 
 #if ROBOWFLEX_AT_LEAST_MELODIC
         // Multi-tip IK: Will delegate automatically to RobotState::setFromIKSubgroups() if the kinematics
         // solver doesn't support multi-tip queries.
-        success = state.setFromIK(jmg, targets, tips, query.timeout, gsvcf, query.options);
+        success =
+            state.setFromIK(jmg, targets, query_copy.tips, query_copy.timeout, gsvcf, query_copy.options);
 #else
         // attempts was a prior field that was deprecated in melodic
-        success = state.setFromIK(jmg, targets, tips, 1, query.timeout, gsvcf, query.options);
+        success =
+            state.setFromIK(jmg, targets, query_copy.tips, 1, query_copy.timeout, gsvcf, query_copy.options);
 #endif
 
         if (evaluate)
         {
             state.update();
-            result = constraints->decide(state, query.verbose);
+            result = constraints->decide(state, query_copy.verbose);
         }
 
         // Externally validate result
-        if (query.validate)
+        if (query_copy.validate)
         {
-            if (query.verbose)
+            if (query_copy.verbose)
                 RBX_INFO("Constraint Distance: %1%", result.distance);
 
-            bool no_collision = (query.scene) ? not query.scene->checkCollision(state).collision : true;
+            bool no_collision =
+                (query_copy.scene) ? not query_copy.scene->checkCollision(state).collision : true;
 
             success =             //
                 no_collision and  //
-                ((query.valid_distance > 0.) ? result.distance <= query.valid_distance : result.satisfied);
+                ((query_copy.valid_distance > 0.) ? result.distance <= query_copy.valid_distance :
+                                                    result.satisfied);
         }
 
         // If success, evaluate state for metrics.
-        if (success and not query.metrics.empty())
+        if (success and not query_copy.metrics.empty())
         {
-            double v = query.getMetricValue(state, result);
+            double v = query_copy.getMetricValue(state, result);
 
-            if (query.verbose)
+            if (query_copy.verbose)
                 RBX_INFO("State Metric Value: %1%", v);
 
             if (v < best_value)
             {
-                if (query.verbose)
+                if (query_copy.verbose)
                     RBX_INFO("State is current best!");
 
                 best_value = v;
@@ -934,7 +941,7 @@ bool Robot::setFromIK(const IKQuery &query, robot_state::RobotState &state) cons
             success = false;
         }
 
-        if (query.random_restart and not success)
+        if (query_copy.random_restart and not success)
             state.setToRandomPositions(jmg);
     }
 
