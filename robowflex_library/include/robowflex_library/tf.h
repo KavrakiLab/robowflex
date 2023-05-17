@@ -191,11 +191,11 @@ namespace robowflex
         Eigen::Quaterniond sampleOrientation(const Eigen::Quaterniond &orientation,
                                              const Eigen::Vector3d &tolerances);
 
-        /** \brief Sample an orientation within the XYZ Euler angle \a bounds.
-         *  \param[in] bounds XYZ Euler angle bounds about orientation.
+        /** \brief Sample an orientation within the XYZ Euler angle \a tolerances.
+         *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          *  \return The sampled orientation.
          */
-        Eigen::Quaterniond sampleOrientationUniform(const Eigen::Vector3d &bounds);
+        Eigen::Quaterniond sampleOrientationUniform(const Eigen::Vector3d &tolerances);
 
         /** \brief Offset an orientation by a rotation about an axis.
          *  \param[in] orientation Orientation to offset.
@@ -225,13 +225,13 @@ namespace robowflex
          */
         RobotPose samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::Vector3d &orn_bounds);
 
-        /** \brief Sample a pose with gaussian sampling for the position with given variances and
+        /** \brief Sample a pose with gaussian sampling for the position with given standard deviations and
          *  uniform sampling for the orientation within the given bounds.
-         *  \param[in] pos_variances The desired position variances.
+         *  \param[in] pos_stddev The desired position standard deviations.
          *  \param[in] orn_bounds The desired orientation bounds.
          *  \return The sampled pose.
          */
-        RobotPose samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds);
+        RobotPose samplePoseGaussian(const Eigen::Vector3d &pos_stddev, const Eigen::Vector3d &orn_bounds);
 
         /** \brief Decode a message as a transform.
          *  \param[in] tf Transform message.
