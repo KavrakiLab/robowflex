@@ -253,7 +253,7 @@ RobotPose TF::samplePoseUniform(const Eigen::Vector3d &pos_bounds, const Eigen::
 RobotPose TF::samplePoseGaussian(const Eigen::Vector3d &pos_variances, const Eigen::Vector3d &orn_bounds)
 {
     auto sampled = RobotPose::Identity();
-    sampled.translation() = samplePositionUniform(pos_variances);
+    sampled.translation() = samplePositionGaussian(pos_variances);
     sampled.linear() = sampleOrientationUniform(orn_bounds).toRotationMatrix();
 
     return sampled;
