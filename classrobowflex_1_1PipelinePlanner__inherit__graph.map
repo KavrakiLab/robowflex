@@ -1,0 +1,11 @@
+<map id="robowflex::PipelinePlanner" name="robowflex::PipelinePlanner">
+<area shape="rect" id="node1" title="A motion planner that uses the MoveIt! planning pipeline to load a planner plugin." alt="" coords="196,175,391,202"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1OMPL_1_1OMPLPipelinePlanner.html" title="A robowflex::PipelinePlanner that uses the MoveIt! default OMPL planning pipeline." alt="" coords="439,103,667,144"/>
+<area shape="rect" id="node8" href="$classrobowflex_1_1opt_1_1CHOMPPipelinePlanner.html" title="A robowflex::PipelinePlanner that uses the MoveIt! CHOMP planning pipeline." alt="" coords="441,168,665,209"/>
+<area shape="rect" id="node9" href="$classrobowflex_1_1opt_1_1TrajOptPipelinePlanner.html" title="A robowflex::PipelinePlanner that uses the MoveIt! TrajOpt planning pipeline." alt="" coords="442,233,663,275"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm." alt="" coords="5,175,148,202"/>
+<area shape="rect" id="node4" href="$classrobowflex_1_1OMPL_1_1Cob4OMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for Cob4." alt="" coords="715,5,977,47"/>
+<area shape="rect" id="node5" href="$classrobowflex_1_1OMPL_1_1FetchOMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for Fetch." alt="" coords="715,71,977,112"/>
+<area shape="rect" id="node6" href="$classrobowflex_1_1OMPL_1_1R2OMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for R2 (R2C6 full)." alt="" coords="723,136,969,177"/>
+<area shape="rect" id="node7" href="$classrobowflex_1_1OMPL_1_1UR5OMPLPipelinePlanner.html" title="Convenience class for the default motion planning pipeline for UR5." alt="" coords="719,201,973,243"/>
+</map>

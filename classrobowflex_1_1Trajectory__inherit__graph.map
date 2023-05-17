@@ -1,0 +1,4 @@
+<map id="robowflex::Trajectory" name="robowflex::Trajectory">
+<area shape="rect" id="node1" title="The Trajectory class is a wrapper around MoveIt!&#39;s robot_trajectory::RobotTrajectory,..." alt="" coords="45,5,204,32"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1OMPL_1_1OMPLTrajectory.html" title="OMPLTrajectory provides OMPL path utilities to the Trajectory class." alt="" coords="5,80,244,107"/>
+</map>

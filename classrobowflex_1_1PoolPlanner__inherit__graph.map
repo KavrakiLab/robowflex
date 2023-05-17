@@ -1,0 +1,4 @@
+<map id="robowflex::PoolPlanner" name="robowflex::PoolPlanner">
+<area shape="rect" id="node1" title="A thread pool of planners P to service requests in a multi&#45;threaded environment simultaneously." alt="" coords="5,80,176,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm." alt="" coords="19,5,162,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="robowflex::SimpleCartesianPlanner" name="robowflex::SimpleCartesianPlanner">
+<area shape="rect" id="node1" title="A simple motion planner that uses interpolation of the end&#45;effector in Cartesian space to find a path..." alt="" coords="5,80,207,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm." alt="" coords="35,5,177,32"/>
+</map>

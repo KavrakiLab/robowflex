@@ -1,0 +1,4 @@
+<map id="robowflex::OMPLPlanDataSetOutputter" name="robowflex::OMPLPlanDataSetOutputter">
+<area shape="rect" id="node1" title="Benchmark outputter that saves results into OMPL benchmarking log files. If ompl_benchmark_statistics..." alt="" coords="18,80,229,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1PlanDataSetOutputter.html" title="An abstract class for outputting benchmark results." alt="" coords="5,5,241,32"/>
+</map>

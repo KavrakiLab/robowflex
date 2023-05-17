@@ -1,0 +1,4 @@
+<map id="robowflex::ParamRobot" name="robowflex::ParamRobot">
+<area shape="rect" id="node1" title="Loads information about a robot from the parameter server." alt="" coords="5,80,179,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state." alt="" coords="26,5,158,32"/>
+</map>

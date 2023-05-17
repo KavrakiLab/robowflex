@@ -1,0 +1,4 @@
+<map id="robowflex::darts::RnJoint" name="robowflex::darts::RnJoint">
+<area shape="rect" id="node1" title="A real vector joint of n dimensions." alt="" coords="5,80,187,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1darts_1_1Joint.html" title="Abstract controllable joint for robowflex::darts::StateSpace." alt="" coords="14,5,178,32"/>
+</map>

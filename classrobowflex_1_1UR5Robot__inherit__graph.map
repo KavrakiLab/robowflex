@@ -1,0 +1,4 @@
+<map id="robowflex::UR5Robot" name="robowflex::UR5Robot">
+<area shape="rect" id="node1" title="Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell) Will ..." alt="" coords="5,80,164,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state." alt="" coords="19,5,151,32"/>
+</map>

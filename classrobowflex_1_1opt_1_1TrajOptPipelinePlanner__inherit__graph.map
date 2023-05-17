@@ -1,0 +1,5 @@
+<map id="robowflex::opt::TrajOptPipelinePlanner" name="robowflex::opt::TrajOptPipelinePlanner">
+<area shape="rect" id="node1" title="A robowflex::PipelinePlanner that uses the MoveIt! TrajOpt planning pipeline." alt="" coords="5,155,227,196"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1PipelinePlanner.html" title="A motion planner that uses the MoveIt! planning pipeline to load a planner plugin." alt="" coords="19,80,213,107"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm." alt="" coords="45,5,187,32"/>
+</map>

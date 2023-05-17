@@ -1,0 +1,4 @@
+<map id="robowflex::JSONPlanDataSetOutputter" name="robowflex::JSONPlanDataSetOutputter">
+<area shape="rect" id="node1" title="A benchmark outputter for storing data in a single JSON file." alt="" coords="20,80,227,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1PlanDataSetOutputter.html" title="An abstract class for outputting benchmark results." alt="" coords="5,5,241,32"/>
+</map>

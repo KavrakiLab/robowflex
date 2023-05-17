@@ -1,0 +1,4 @@
+<map id="robowflex::IO::GNUPlotPlanDataSetOutputter" name="robowflex::IO::GNUPlotPlanDataSetOutputter">
+<area shape="rect" id="node1" title="Helper class to plot a real metric as a box plot using GNUPlot from benchmarking data." alt="" coords="24,80,223,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1PlanDataSetOutputter.html" title="An abstract class for outputting benchmark results." alt="" coords="5,5,241,32"/>
+</map>

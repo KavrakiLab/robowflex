@@ -1,0 +1,4 @@
+<map id="robowflex::Pool::Joblet" name="robowflex::Pool::Joblet">
+<area shape="rect" id="node1" title="Interface class for Pool::Job so template parameters are not needed for the queue." alt="" coords="5,5,172,32"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Pool_1_1Job.html" title="A job that returns RT." alt="" coords="13,80,164,121"/>
+</map>

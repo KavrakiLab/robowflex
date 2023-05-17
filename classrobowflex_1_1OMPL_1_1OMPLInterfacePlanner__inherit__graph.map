@@ -1,0 +1,4 @@
+<map id="robowflex::OMPL::OMPLInterfacePlanner" name="robowflex::OMPL::OMPLInterfacePlanner">
+<area shape="rect" id="node1" title="A planner that directly uses MoveIt!&#39;s OMPL planning interface." alt="" coords="5,80,240,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Planner.html" title="An abstract interface to a motion planning algorithm." alt="" coords="51,5,194,32"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="robowflex::darts::Widget" name="robowflex::darts::Widget">
+<area shape="rect" id="node1" title="Abstract class for IMGUI Widget." alt="" coords="253,78,435,105"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1darts_1_1TSREditWidget.html" title="IMGUI widget to design TSRs." alt="" coords="488,5,673,47"/>
+<area shape="rect" id="node4" href="$classrobowflex_1_1darts_1_1TSRSolveWidget.html" title="Class for solving a set of TSRs." alt="" coords="483,71,679,112"/>
+<area shape="rect" id="node5" href="$classrobowflex_1_1darts_1_1WindowWidget.html" title="IMGUI widget to add interactive GUI elements programmatically." alt="" coords="487,136,674,177"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,78,205,105"/>
+</map>

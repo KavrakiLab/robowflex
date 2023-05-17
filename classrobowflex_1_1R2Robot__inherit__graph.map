@@ -1,0 +1,4 @@
+<map id="robowflex::R2Robot" name="robowflex::R2Robot">
+<area shape="rect" id="node1" title="Convenience class that describes the default setup for R2 (R2C6 full)." alt="" coords="5,80,155,107"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state." alt="" coords="14,5,146,32"/>
+</map>

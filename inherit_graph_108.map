@@ -1,0 +1,8 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classrobowflex_1_1Robot.html" title="Loads information about a robot and maintains information about a robot&#39;s state." alt="" coords="5,107,137,133"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1Cob4Robot.html" title="Convenience class that describes the default setup for Care&#45;O&#45;Bot4. Will first attempt to load config..." alt="" coords="189,5,355,32"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1FetchRobot.html" title="Convenience class that describes the default setup for Fetch. Will first attempt to load configuratio..." alt="" coords="189,56,355,83"/>
+<area shape="rect" id="node4" href="$classrobowflex_1_1ParamRobot.html" title="Loads information about a robot from the parameter server." alt="" coords="185,107,359,133"/>
+<area shape="rect" id="node5" href="$classrobowflex_1_1R2Robot.html" title="Convenience class that describes the default setup for R2 (R2C6 full)." alt="" coords="197,157,347,184"/>
+<area shape="rect" id="node6" href="$classrobowflex_1_1UR5Robot.html" title="Convenience class that describes the default setup for UR5 (with robotiq gripper and load cell) Will ..." alt="" coords="193,208,351,235"/>
+</map>

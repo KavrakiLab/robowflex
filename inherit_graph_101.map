@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classrobowflex_1_1PlanDataSetOutputter.html" title="An abstract class for outputting benchmark results." alt="" coords="5,111,241,138"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1IO_1_1GNUPlotPlanDataSetOutputter.html" title="Helper class to plot a real metric as a box plot using GNUPlot from benchmarking data." alt="" coords="295,5,494,47"/>
+<area shape="rect" id="node3" href="$classrobowflex_1_1JSONPlanDataSetOutputter.html" title="A benchmark outputter for storing data in a single JSON file." alt="" coords="291,71,498,112"/>
+<area shape="rect" id="node4" href="$classrobowflex_1_1OMPLPlanDataSetOutputter.html" title="Benchmark outputter that saves results into OMPL benchmarking log files. If ompl_benchmark_statistics..." alt="" coords="289,136,500,177"/>
+<area shape="rect" id="node5" href="$classrobowflex_1_1TrajectoryPlanDataSetOutputter.html" title="Benchmark outputter that saves each trajectory from each run to a rosbag file." alt="" coords="301,201,488,243"/>
+</map>

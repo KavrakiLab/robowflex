@@ -1,0 +1,4 @@
+<map id="robowflex::darts::CheckboxElement" name="robowflex::darts::CheckboxElement">
+<area shape="rect" id="node1" title="A checkbox element that modifies a boolean." alt="" coords="20,80,219,121"/>
+<area shape="rect" id="node2" href="$classrobowflex_1_1darts_1_1ImGuiElement.html" title="Abstract GUI element." alt="" coords="5,5,233,32"/>
+</map>
