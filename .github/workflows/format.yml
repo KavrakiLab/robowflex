@@ -1,0 +1,27 @@
+name: Clang Format
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+    branches: [ master ]
+
+jobs:
+  jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DoozyX/clang-format-lint-action@v0.14
+      with:
+        source: '.'
+        exclude: './docs'
+        extensions: 'h,cpp,c,cc,hh,hpp'
+        clangFormatVersion: 14
+        inplace: True
+    - uses: EndBug/add-and-commit@v9
+      with:
+        author_name: clang-format bot
+        author_email: clangformat@kavrakilab.org # Fake email
+        message: 'Format with clang-format'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
