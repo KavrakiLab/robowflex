@@ -3,8 +3,10 @@
 #ifndef ROBOWFLEX_DART_ROBOT_
 #define ROBOWFLEX_DART_ROBOT_
 
+#ifndef ROBOWFLEX_DART_ONLY
 #include <moveit/robot_state/conversions.h>
 #include <moveit/robot_state/robot_state.h>
+#endif
 
 #include <dart/dynamics/Skeleton.hpp>
 #include <dart/collision/CollisionFilter.hpp>
@@ -95,6 +97,7 @@ namespace robowflex
             /** \name State Operations
                 \{ */
 
+#ifndef ROBOWFLEX_DART_ONLY
             /** \brief Set the current state of this robot from a MoveIt message.
              *  \param[in] msg Message to set state to.
              */
@@ -139,6 +142,7 @@ namespace robowflex
              */
             void setMoveItJMGFromState(const std::string &jmg, Eigen::Ref<Eigen::VectorXd> vec) const;
 
+#endif
             /** \} */
 
             /** \name Group Operations

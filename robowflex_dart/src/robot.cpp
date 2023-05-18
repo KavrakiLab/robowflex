@@ -461,6 +461,7 @@ void Robot::setNamedGroupState(const std::string &group, const std::string &name
         it->second = q;
 }
 
+#ifndef ROBOWFLEX_DART_ONLY
 void Robot::setStateFromMoveItMsg(const moveit_msgs::RobotState &msg)
 {
     for (std::size_t i = 0; i < msg.joint_state.name.size(); ++i)
@@ -564,6 +565,7 @@ void Robot::setMoveItJMGFromState(const std::string &jmg, Eigen::Ref<Eigen::Vect
     setMoveItStateFromState(*robot_->getScratchState());                  // copy current state
     robot_->getScratchState()->copyJointGroupPositions(jmg, vec.data());  // copy JMG state
 }
+#endif
 
 void Robot::processGroup(const std::string &group)
 {
