@@ -1,3 +1,9 @@
+/* Author: Zachary Kingston */
+
+#include <ompl/geometric/PathSimplifier.h>
+#include <ompl/base/objectives/PathLengthOptimizationObjective.h>
+#include <ompl/base/objectives/MaximizeMinClearanceObjective.h>
+
 #include <moveit/ompl_interface/model_based_planning_context.h>
 
 #include <robowflex_library/macros.h>
@@ -128,6 +134,43 @@ void OMPL::OMPLInterfacePlanner::refreshContext(const SceneConstPtr &scene,
 #endif
 
     ss_ = context_->getOMPLSimpleSetup();
+    const auto &si = ss_->getSpaceInformation();
+
+    // Set desired default optimization objective
+    ompl::base::OptimizationObjectivePtr obj;
+    switch (objective_)
+    {
+        case CUSTOM:
+            obj = custom_objective_(si);
+            break;
+
+        case MAX_MIN_CLEARANCE:
+        {
+            auto pl_obj = std::make_shared<ompl::base::PathLengthOptimizationObjective>(si);
+            auto cl_obj = std::make_shared<ompl::base::MaximizeMinClearanceObjective>(si);
+
+            auto multi_obj = std::make_shared<ompl::base::MultiOptimizationObjective>(si);
+            multi_obj->addObjective(pl_obj, 1. - clearance_objective_weight_);
+            multi_obj->addObjective(cl_obj, clearance_objective_weight_);
+            multi_obj->lock();
+
+            obj = multi_obj;
+            break;
+        }
+        case PATH_LENGTH:
+        default:
+            obj = std::make_shared<ompl::base::PathLengthOptimizationObjective>(si);
+            break;
+    }
+
+    // Set optimization objective in problem definition
+    auto pdef = ss_->getProblemDefinition();
+    pdef->setOptimizationObjective(obj);
+
+    // Set objective in path simplifier
+    if (use_objective_simplifier_)
+        ss_->getPathSimplifier() =
+            std::make_shared<ompl::geometric::PathSimplifier>(si, pdef->getGoal(), obj);
 
     last_scene_id_ = scene_id;
     last_request_hash_ = request_hash;
@@ -148,13 +191,47 @@ std::vector<std::string> OMPL::OMPLInterfacePlanner::getPlannerConfigs() const
 ompl_interface::OMPLInterface &OMPL::OMPLInterfacePlanner::getInterface() const
 {
     if (!interface_)
-    {
         RBX_WARN("Interface is not initialized before call to OMPLInterfacePlanner::initialize.");
-    }
+
     return *interface_;
 }
 
 void OMPL::OMPLInterfacePlanner::setPrePlanCallback(const PrePlanCallback &prePlanCallback)
 {
     pre_plan_callback_ = prePlanCallback;
+}
+
+void OMPL::OMPLInterfacePlanner::setHybridize(bool hybridize)
+{
+    hybridize_ = hybridize;
+}
+
+void OMPL::OMPLInterfacePlanner::setInterpolate(bool interpolate)
+{
+    interpolate_ = interpolate;
+}
+
+void OMPL::OMPLInterfacePlanner::usePathLengthObjective()
+{
+    objective_ = PATH_LENGTH;
+}
+
+void OMPL::OMPLInterfacePlanner::setObjectiveSimplifier(bool use_objective)
+{
+    use_objective_simplifier_ = use_objective;
+}
+
+void OMPL::OMPLInterfacePlanner::useMaxMinClearanceObjective(double weight)
+{
+    if (weight > 1. or weight < 0.)
+        throw std::runtime_error("Weight must be [0, 1]");
+
+    objective_ = MAX_MIN_CLEARANCE;
+    clearance_objective_weight_ = weight;
+}
+
+void OMPL::OMPLInterfacePlanner::useCustomObjective(const OptimizationObjectiveAllocator &allocator)
+{
+    objective_ = CUSTOM;
+    custom_objective_ = allocator;
 }

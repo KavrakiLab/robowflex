@@ -314,6 +314,7 @@ namespace robowflex
             bool simplify_solutions;                ///< Whether or not planner should simplify solutions.
             bool hybridize_solutions;               ///< Whether or not planner should hybridize solutions.
             bool interpolate_solutions;             ///< Whether or not planner should interpolate solutions.
+            bool multi_query_planning_enabled;      ///< Whether or not to simultaneously plan.
             bool use_constraints_approximations;    ///< Absolute silliness.
             bool display_random_valid_states;       ///< N/A, defunct.
             std::string link_for_exploration_tree;  ///< N/A, defunct.

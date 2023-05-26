@@ -29,11 +29,13 @@ int main(int argc, char **argv)
 
     // Setup a benchmarking request for the joint and pose motion plan requests.
     Profiler::Options options;
-    options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH;
-    Experiment experiment("fetch_scenes", options, 30.0, 2);
+    options.metrics = Profiler::WAYPOINTS | Profiler::CORRECT | Profiler::LENGTH | Profiler::CLEARANCE;
+
+    Experiment experiment("fetch_scenes", options, 30.0, 10);
+    experiment.enableMultipleRequests();  // Enable multiple requests for hybridization
 
     const std::size_t start = 1;
-    const std::size_t end = 10;
+    const std::size_t end = 3;
     for (std::size_t i = start; i <= end; i++)
     {
         const auto &scene_file =
@@ -50,21 +52,28 @@ int main(int argc, char **argv)
         }
 
         // Create the default planner for the Fetch.
-        auto planner = std::make_shared<OMPL::FetchOMPLPipelinePlanner>(fetch);
-        planner->initialize();
+        auto default_planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "default");
+        default_planner->initialize("package://robowflex_resources/fetch/config/ompl_planning.yaml");
+
+        auto clearance_planner = std::make_shared<OMPL::OMPLInterfacePlanner>(fetch, "clearance");
+        clearance_planner->initialize("package://robowflex_resources/fetch/config/ompl_planning.yaml");
+        // clearance_planner->setHybridize(true);
+        clearance_planner->useMaxMinClearanceObjective();
 
         // Create an empty motion planning request.
-        auto request = std::make_shared<robowflex::MotionRequestBuilder>(planner, GROUP);
+        auto request = std::make_shared<robowflex::MotionRequestBuilder>(fetch, GROUP);
         if (not request->fromYAMLFile(request_file))
         {
             RBX_ERROR("Failed to read file: %s for request", request_file);
             continue;
         }
 
-        request->setConfig("PRMstar");
+        request->setNumPlanningAttempts(4);
+        request->setConfig("RRTConnectkConfigDefault");
 
         // Add request
-        experiment.addQuery(log::format("scene%1$04d", i), scene, planner, request);
+        experiment.addQuery("scene_default", scene, default_planner, request);
+        experiment.addQuery("scene_clearance", scene, clearance_planner, request);
     }
 
     auto dataset = experiment.benchmark(1);
