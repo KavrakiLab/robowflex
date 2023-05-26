@@ -117,7 +117,6 @@ namespace robowflex
              */
             void dumpGraphViz(std::ostream &out, bool standalone = true);
 
-
             /** \} */
 
             /** \name Getting and Setting Configurations
@@ -250,13 +249,16 @@ namespace robowflex
 
             /** \} */
 
-        protected:
+            /** \name Constructing shapes
+                \{ */
             /** \brief Create a shape node on a body.
              *  \param[in,out] body Body to add shape node to.
              *  \param[in] shape Shape to add to body.
              */
             void createShapeNode(dart::dynamics::BodyNode *body, const dart::dynamics::ShapePtr &shape);
+            /** \} */
 
+        protected:
             const std::string name_{"robot"};                ///< Name of the structure.
             dart::dynamics::SkeletonPtr skeleton_{nullptr};  ///< Underlying skeleton.
             ACMPtr acm_;                                     ///< ACM for structure.
