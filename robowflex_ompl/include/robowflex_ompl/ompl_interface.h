@@ -30,6 +30,15 @@ namespace robowflex
             \brief A const shared pointer wrapper for robowflex::OMPL::OMPLInterfacePlanner. */
 
         /** \brief A planner that directly uses \a MoveIt!'s OMPL planning interface.
+         *
+         * The underlying planning context used is created through
+         * refreshContext(). Any function that uses the context will call this
+         * function internally, using the provided scene and request. If the scene
+         * and request are the same as the previous call, the previous simple
+         * setup will be used in these functions. This is not supported on
+         * Kinetic. As a result, this planner can only be used in a single thread.
+         * This is to provide * access to the underlying OMPL representation so
+         * that it may be * modified by users through getLastSimpleSetup().
          */
         class OMPLInterfacePlanner : public Planner
         {
@@ -121,8 +130,8 @@ namespace robowflex
             bool hybridize_;    ///< Whether or not planner should hybridize solutions.
             bool interpolate_;  ///< Whether or not planner should interpolate solutions.
 
-            mutable ID::Key last_scene_id_{ID::getNullKey()};  ///< ID of last scene.
-            mutable std::string last_request_hash_;            ///< Hash of last request.
+            mutable ID::Key last_scene_id_{ID::getNullKey()};          ///< ID of last scene.
+            mutable moveit_msgs::MotionPlanRequest previous_request_;  ///< Previous request.
 
             mutable ompl_interface::ModelBasedPlanningContextPtr context_;  ///< Last context.
             mutable ompl::geometric::SimpleSetupPtr ss_;  ///< Last OMPL simple setup used for
