@@ -178,13 +178,31 @@ namespace robowflex
                            const GeometryConstPtr &geometry, const Eigen::Quaterniond &orientation,
                            const Eigen::Vector3d &tolerances);
 
-        /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a ee_name.
-         * The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly rotated
-         * about \a axis. The desired \a orientation is also rotated about the axis and set for each copy.
-         *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
-         *  \param[in] pose The pose of the frame to be rotated about.
-         *  \param[in] geometry The geometry describing the position constraint.
+        /** \brief Adds a joint constraint to a specific goal region.
+         *  Creates a joint constraint for \a joint_name at \a position between the bounds specified by \a
+         *  tolerances and adds it to the goal region indexed by \a goal_idx from \a orientation and XYZ Euler
+         *  angle tolerances \a tolerances.
+         *  \param[in] goal_idx The index of the goal region to add this joint constraint to.
+         *  \param[in] joint_name The string name of the joint to constrain.
+         *  \param[in] position The joint value to constrain to.
+         *  \param[in] tolerances A 2D vector of the upper bound and lower bound from \a position.
+         */
+        void addJointConstraintToGoal(int goal_idx, const std::string &joint_name, float position,
+                                      const Eigen::Vector2d &tolerances);
+
+        /** \brief Adds a MoveIt! joint constraint to a specific goal region.
+         *  Adds a MoveIt! joint constraint to the goal region indexed by \a goal_idx.
+         *  \param[in] goal_idx The index of the goal region to add this joint constraint to.
+         *  \param[in] joint_constraint The MoveIt! joint constraint to add.
+         */
+        void addJointConstraintToGoal(int goal_idx, moveit_msgs::JointConstraint joint_constraint);
+
+        /** \brief Tiles some \a geometry around a \a pose in \a base_name for the end-effector \a
+         *  ee_name. The \a geometry is placed at \a offset from \a pose, and \a n copies are placed evenly
+         *  rotated about \a axis. The desired \a orientation is also rotated about the axis and set for
+         *  each copy. \param[in] ee_name The name of the end-effector link. \param[in] base_name The name
+         *  of the frame of reference of \a pose and \a orientation. \param[in] pose The pose of the frame
+         *  to be rotated about. \param[in] geometry The geometry describing the position constraint.
          *  \param[in] orientation The desired orientation.
          *  \param[in] tolerances XYZ Euler angle tolerances about orientation.
          *  \param[in] offset Offset of the goal \a geometry from \a pose.
@@ -196,15 +214,15 @@ namespace robowflex
                                const Eigen::Quaterniond &orientation, const Eigen::Vector3d &tolerances,
                                const RobotPose &offset, const Eigen::Vector3d &axis, unsigned int n);
 
-        /** \brief Adds a set of regions to grasp a cylinder from the side. This function assumes the X-axis
-         * of the end-effector frame \a ee_name points "forward" for grasping.
-         *  \param[in] ee_name The name of the end-effector link.
-         *  \param[in] base_name The name of the frame of reference of \a pose.
-         *  \param[in] pose The pose of the frame to be rotated about.
-         *  \param[in] cylinder The cylinder to grasp.
-         *  \param[in] distance The distance from the cylinder to place the regions.
-         *  \param[in] depth The depth of boxes to create.
-         *  \param[in] n The number of regions to create.
+        /** \brief Adds a set of regions to grasp a cylinder from the side. This function assumes the
+         * X-axis of the end-effector frame \a ee_name points "forward" for grasping.
+         * \param[in] ee_name The name of the end-effector link.
+         * \param[in] base_name The name of the frame of reference of \a pose.
+         * \param[in] pose The pose of the frame to be rotated about.
+         * \param[in] cylinder The cylinder to grasp.
+         * \param[in] distance The distance from the cylinder to place the regions.
+         * \param[in] depth The depth of boxes to create.
+         * \param[in] n The number of regions to create.
          */
         void addCylinderSideGrasp(const std::string &ee_name, const std::string &base_name,
                                   const RobotPose &pose, const GeometryConstPtr &cylinder, double distance,
@@ -245,8 +263,8 @@ namespace robowflex
                          double tolerance = 0.001);
 
         /** \brief Set a goal region for an end-effector \a ee_name.
-         *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
-         *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
+         *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation
+         *  constraint from \a orientation and XYZ Euler angle tolerances \a tolerances.
          *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
@@ -287,9 +305,9 @@ namespace robowflex
             \{ */
 
         /** \brief Set a pose constraint on the path.
-         *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation constraint
-         *  from \a orientation and XYZ Euler angle tolerances \a tolerances.
-         * \param[in] ee_name The name of the end-effector link.
+         *  Sets the position constraint from \a geometry at a pose \a pose, and the orientation
+         *  constraint from \a orientation and XYZ Euler angle tolerances \a tolerances.
+         *  \param[in] ee_name The name of the end-effector link.
          *  \param[in] base_name The name of the frame of reference of \a pose and \a orientation.
          *  \param[in] pose The pose of \a geometry in \a base_frame.
          *  \param[in] geometry The geometry describing the position constraint.
@@ -328,9 +346,9 @@ namespace robowflex
 
         /** \brief Set the planning configuration to use for the motion planning request.
          *  Attempts to match \a requested_config with the planner configuration offered by \a planner_
-         *  that is the shortest configuration that contains \a requested_config as a substring. For example,
-         *  specifying `RRTConnect` will match `RRTConnectkConfigDefault`, and specifying `RRT` will match
-         *  `RRTkConfigDefault` and not `RRTConnectkConfigDefault`.
+         *  that is the shortest configuration that contains \a requested_config as a substring. For
+         *  example, specifying `RRTConnect` will match `RRTConnectkConfigDefault`, and specifying `RRT`
+         *  will match `RRTkConfigDefault` and not `RRTConnectkConfigDefault`.
          *  \param[in] requested_config The planner config to find and use.
          *  \return True if the \a requested_config is found, false otherwise.
          */

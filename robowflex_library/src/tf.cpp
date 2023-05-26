@@ -231,6 +231,20 @@ Eigen::Quaterniond TF::offsetOrientation(const Eigen::Quaterniond &orientation, 
     return Eigen::AngleAxisd(value, axis) * orientation;
 }
 
+moveit_msgs::JointConstraint TF::getJointConstraint(const std::string &joint_name, float position,
+                                                    const Eigen::Vector2d &tolerances)
+{
+    moveit_msgs::JointConstraint constraint;
+
+    constraint.joint_name = joint_name;
+    constraint.position = position;
+    constraint.tolerance_above = tolerances[0];
+    constraint.tolerance_below = tolerances[1];
+    constraint.weight = 1;
+
+    return constraint;
+}
+
 Eigen::Vector3d TF::samplePositionUniform(const Eigen::Vector3d &bounds)
 {
     return RNG::uniformVec(bounds);
