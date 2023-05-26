@@ -190,6 +190,34 @@ namespace robowflex
          */
         void setSRDFPostProcessAddFloatingJoint(const std::string &name);
 
+        /** \brief Adds a planning group with name \name and members \members, where each element is a pair
+         * that contains the type (joint, link, group, etc) and its name.
+         *  \param[in] name Name of new group.
+         *  \param[in] members Members (type, name) that make up the planning group.
+         */
+        void setSRDFPostProcessAddGroup(const std::string &name,
+                                        const std::vector<std::pair<std::string, std::string>> &members);
+
+        /** \brief Adds a mobile manipulator group composed of one group for the mobile base and another one
+         * for the manipulator.
+         *  \param[in] base_group Name to be given to the mobile base group.
+         *  \param[in] manip_group Name of the existing manipulator group.
+         *  \param[in] base_manip_group Name to be given to
+         * the mobile base manipulator group.
+         */
+        void setSRDFPostProcessAddMobileManipulatorGroup(const std::string &base_group,
+                                                         const std::string &manip_group,
+                                                         const std::string &base_manip_group);
+
+        /** \brief Adds a mobile manipulator solver plugin to the kinematics configuration description.
+         *  \param[in] base_manip_group Name of the base manipulator group.
+         *  \param[in] search_resolution Search resolution parameter for the kinematics solver.
+         *  \param[in] timeout Timeout parameter for the kinematics solver.
+         */
+        void setKinematicsPostProcessAddBaseManipulatorPlugin(const std::string &base_manip_group,
+                                                              double search_resolution = 0.005,
+                                                              double timeout = 0.1);
+
         /** \brief Loads the kinematics plugin for a joint group and its subgroups. No kinematics are loaded
          * by default.
          *  \param[in] group Joint group name to load.

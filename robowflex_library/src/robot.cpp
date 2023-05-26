@@ -387,7 +387,7 @@ bool Robot::loadKinematics(const std::string &group_name, bool load_subgroups)
             std::find(groups.begin(), groups.end(), name) == groups.end())
         {
             RBX_ERROR("No JMG or Kinematics defined for `%s`!", name);
-            return false;
+            continue;
         }
 
         robot_model::JointModelGroup *jmg = model_->getJointModelGroup(name);
@@ -447,6 +447,82 @@ void Robot::setSRDFPostProcessAddFloatingJoint(const std::string &name)
 
         return true;
     });
+}
+
+void Robot::setSRDFPostProcessAddGroup(const std::string &name,
+                                       const std::vector<std::pair<std::string, std::string>> &members)
+{
+    setSRDFPostProcessFunction([&, name, members](tinyxml2::XMLDocument &doc) -> bool {
+        tinyxml2::XMLElement *group_element = doc.NewElement("group");
+        group_element->SetAttribute("name", name.c_str());
+
+        for (const auto &member : members)
+        {
+            tinyxml2::XMLElement *member_element = doc.NewElement(member.first.c_str());
+            member_element->SetAttribute("name", member.second.c_str());
+
+            group_element->InsertFirstChild(member_element);
+        }
+
+        doc.FirstChildElement("robot")->InsertFirstChild(group_element);
+
+        return true;
+    });
+}
+
+void Robot::setSRDFPostProcessAddMobileManipulatorGroup(const std::string &base_group,
+                                                        const std::string &manip_group,
+                                                        const std::string &base_manip_group)
+{
+    setSRDFPostProcessFunction(
+        [&, base_group, manip_group, base_manip_group](tinyxml2::XMLDocument &doc) -> bool {
+            // Add mobile base joint.
+            const std::string &base_joint_name = "base_joint";
+            tinyxml2::XMLElement *virtual_joint = doc.NewElement("virtual_joint");
+            virtual_joint->SetAttribute("name", base_joint_name.c_str());
+            virtual_joint->SetAttribute("type", "planar");
+            virtual_joint->SetAttribute("parent_frame", "world");
+            virtual_joint->SetAttribute("child_link", model_->getRootLink()->getName().c_str());
+            doc.FirstChildElement("robot")->InsertFirstChild(virtual_joint);
+
+            // Add mobile base group using the created joint.
+            tinyxml2::XMLElement *group_base = doc.NewElement("group");
+            group_base->SetAttribute("name", base_group.c_str());
+            tinyxml2::XMLElement *base_joint = doc.NewElement("joint");
+            base_joint->SetAttribute("name", base_joint_name.c_str());
+            group_base->InsertFirstChild(base_joint);
+            doc.FirstChildElement("robot")->InsertFirstChild(group_base);
+
+            // Add mobile base manipulator group.
+            tinyxml2::XMLElement *base_manip = doc.NewElement("group");
+            base_manip->SetAttribute("name", base_manip_group.c_str());
+            tinyxml2::XMLElement *manip = doc.NewElement("group");
+            manip->SetAttribute("name", manip_group.c_str());
+            base_manip->InsertFirstChild(manip);
+            tinyxml2::XMLElement *base = doc.NewElement("group");
+            base->SetAttribute("name", base_group.c_str());
+            base_manip->InsertFirstChild(base);
+            doc.FirstChildElement("robot")->InsertFirstChild(base_manip);
+
+            return true;
+        });
+}
+
+void Robot::setKinematicsPostProcessAddBaseManipulatorPlugin(const std::string &base_manip_group,
+                                                             double search_resolution, double timeout)
+{
+    setKinematicsPostProcessFunction(
+        [&, base_manip_group, search_resolution, timeout](YAML::Node &node) -> bool {
+            YAML::Node ks_node;
+            ks_node["kinematics_solver"] = "base_manipulator_kinematics_plugin/"
+                                           "BaseManipulatorKinematicsPlugin";
+            ks_node["kinematics_solver_search_resolution"] = search_resolution;
+            ks_node["kinematics_solver_timeout"] = timeout;
+
+            node[base_manip_group.c_str()] = ks_node;
+
+            return true;
+        });
 }
 
 const std::string &Robot::getModelName() const
