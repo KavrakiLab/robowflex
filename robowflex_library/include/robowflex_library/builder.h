@@ -434,16 +434,16 @@ namespace robowflex
         /** \} */
 
     private:
-        const RobotConstPtr robot_;  ///< The robot to build the request for.
+        const RobotConstPtr robot_;                      ///< The robot to build the request for.
 
-        PlannerConstPtr planner_;                     ///< The planner to build the request for.
-        std::string group_name_;                      ///< The group to plan for.
-        robot_model::JointModelGroup *jmg_{nullptr};  ///< The joint model group of the robot (from \a
-                                                      ///< group_name_)
+        PlannerConstPtr planner_;                        ///< The planner to build the request for.
+        std::string group_name_;                         ///< The group to plan for.
+        robot_model::JointModelGroup *jmg_{nullptr};     ///< The joint model group of the robot (from \a
+                                                         ///< group_name_)
 
         planning_interface::MotionPlanRequest request_;  ///< The build request.
 
-        static const std::string DEFAULT_CONFIG;  ///< Default planner configuration to use
+        static const std::string DEFAULT_CONFIG;         ///< Default planner configuration to use
     };
 }  // namespace robowflex
 

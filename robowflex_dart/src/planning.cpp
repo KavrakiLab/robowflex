@@ -110,11 +110,13 @@ TSRGoal::TSRGoal(const PlanBuilder &builder, TSRPtr tsr)
 }
 
 TSRGoal::TSRGoal(const PlanBuilder &builder, const std::vector<TSRPtr> &tsrs)
-  : TSRGoal(builder.info, builder.world, [&] {
-      std::vector<TSRPtr> temp = builder.path_constraints;
-      temp.insert(temp.end(), tsrs.begin(), tsrs.end());
-      return temp;
-  }())
+  : TSRGoal(builder.info, builder.world,
+            [&]
+            {
+                std::vector<TSRPtr> temp = builder.path_constraints;
+                temp.insert(temp.end(), tsrs.begin(), tsrs.end());
+                return temp;
+            }())
 {
 }
 
@@ -582,21 +584,24 @@ void PlanBuilder::setStateValidityChecker()
     if (ss)
     {
         // ss->setStateValidityChecker(std::make_shared<WorldValidityChecker>(info, 1));
-        ss->setStateValidityChecker([&](const ompl::base::State *state) -> bool {
-            const auto &as = toStateConst(state);
+        ss->setStateValidityChecker(
+            [&](const ompl::base::State *state) -> bool
+            {
+                const auto &as = toStateConst(state);
 
-            world->lock();
-            rspace->setWorldState(world, as);
-            bool r = not world->inCollision();
-            world->unlock();
-            return r;
-        });
+                world->lock();
+                rspace->setWorldState(world, as);
+                bool r = not world->inCollision();
+                world->unlock();
+                return r;
+            });
     }
 }
 
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 {
-    return [&](const ompl::base::State *state) -> bool {
+    return [&](const ompl::base::State *state) -> bool
+    {
         const auto &as = fromUnconstrainedStateConst(state);
 
         world->lock();
@@ -609,7 +614,8 @@ ompl::base::StateValidityCheckerFn PlanBuilder::getSVCUnconstrained()
 
 ompl::base::StateValidityCheckerFn PlanBuilder::getSVCConstrained()
 {
-    return [&](const ompl::base::State *state) -> bool {
+    return [&](const ompl::base::State *state) -> bool
+    {
         const auto &as = fromConstrainedStateConst(state);
 
         world->lock();

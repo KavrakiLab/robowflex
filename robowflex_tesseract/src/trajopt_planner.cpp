@@ -2,7 +2,6 @@
 
 // MoveIt
 #include <moveit/robot_state/conversions.h>
-#include <moveit_msgs/MoveItErrorCodes.h>
 
 // Robowflex
 #include <robowflex_library/log.h>
@@ -76,14 +75,14 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
     if (options.verbose)
         RBX_INFO("Adding manipulator %s from %s to %s", manip_, base_link, tip_link);
 
-    TiXmlDocument srdf_doc;
+    tinyxml2::XMLDocument srdf_doc;
     srdf_doc.Parse(robot_->getSRDFString().c_str());
 
-    auto *group_element = new TiXmlElement("group");
+    auto *group_element = srdf_doc.NewElement("group");
     group_element->SetAttribute("name", manip_.c_str());
     srdf_doc.FirstChildElement("robot")->LinkEndChild(group_element);
 
-    auto *chain_element = new TiXmlElement("chain");
+    auto *chain_element = srdf_doc.NewElement("chain");
     chain_element->SetAttribute("base_link", base_link.c_str());
     chain_element->SetAttribute("tip_link", tip_link.c_str());
     group_element->LinkEndChild(chain_element);
@@ -173,15 +172,19 @@ double TrajOptPlanner::getPlanningTime() const
 void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
 {
     if (!env_->hasManipulator(manip_))
+    {
         throw Exception(1, "There is no loaded manipulator!");
+    }
     else
     {
-        const auto &joint_names = env_->getManipulator(manip_)->getJointNames();
+        auto joint_names = env_->getManipulator(manip_)->getJointNames();
         for (const auto &name : joints)
         {
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
             if (it == joint_names.end())
-                throw Exception(1, "One of the joints to be fixed does not exist");
+            {
+                throw Exception(1, "Joint to be fixed does not exist");
+            }
             else
             {
                 int index = std::distance(joint_names.begin(), it);
@@ -268,6 +271,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
 
         // Add collision costs to all waypoints in the trajectory.
         options.default_safety_margin_coeffs = options.joint_state_safety_margin_coeffs;
+
         addCollisionAvoidance(pci);
 
         // Add goal state.
@@ -294,7 +298,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        RBX_ERROR("Link %s is not part of robot manipulator", link.c_str());
         return PlannerResult(false, false);
     }
 
@@ -344,7 +348,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene,
     auto link_it = std::find(begin_it, end_it, link);
     if (link_it == end_it)
     {
-        RBX_ERROR("Link %s is not part of robot manipulator", link);
+        RBX_ERROR("Link %s is not part of robot manipulator", link.c_str());
         return PlannerResult(false, false);
     }
 
@@ -389,7 +393,8 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::plan(const SceneConstPtr &scene, c
     auto goal_it = std::find(begin_it, end_it, goal_link);
     if ((start_it == end_it) or (goal_it == end_it))
     {
-        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link, goal_link);
+        RBX_ERROR("Given links %s or %s are not part of robot manipulator", start_link.c_str(),
+                  goal_link.c_str());
         return PlannerResult(false, false);
     }
 

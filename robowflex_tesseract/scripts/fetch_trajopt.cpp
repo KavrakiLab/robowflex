@@ -1,8 +1,7 @@
 /* Author: Carlos Quintero Pena */
 
-#include <robowflex_library/builder.h>
+#include <robowflex_library/log.h>
 #include <robowflex_library/detail/fetch.h>
-#include <robowflex_library/planning.h>
 #include <robowflex_library/robot.h>
 #include <robowflex_library/scene.h>
 #include <robowflex_library/trajectory.h>
@@ -33,7 +32,11 @@ int main(int argc, char **argv)
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize("torso_lift_link", "gripper_link");
+    if (not planner->initialize("torso_lift_link", "gripper_link"))
+    {
+        RBX_ERROR("Planner could not be initialized");
+        return 1;
+    }
     planner->options.num_waypoints = 3;
 
     // Create a motion planning request with a pose goal.

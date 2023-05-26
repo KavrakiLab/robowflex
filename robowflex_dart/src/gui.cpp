@@ -131,14 +131,16 @@ Window::InteractiveReturn Window::createInteractiveMarker(const InteractiveOptio
     r.dnd->setObstructable(options.obstructable);
 
     auto callback = options.callback;
-    r.signal = r.target->onTransformUpdated.connect([callback](const dart::dynamics::Entity *entity) {
-        if (entity)
+    r.signal = r.target->onTransformUpdated.connect(
+        [callback](const dart::dynamics::Entity *entity)
         {
-            const auto *cast = dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity);
-            if (cast and callback)
-                callback(cast);
-        }
-    });
+            if (entity)
+            {
+                const auto *cast = dynamic_cast<const dart::gui::osg::InteractiveFrame *>(entity);
+                if (cast and callback)
+                    callback(cast);
+            }
+        });
 
     return r;
 }
@@ -149,10 +151,12 @@ Window::DnDReturn Window::enableNodeDragNDrop(dart::dynamics::BodyNode *node, co
     auto *dnd = viewer_.enableDragAndDrop(node, true, true);
     r.dnd = dnd;
 
-    r.signal = node->onTransformUpdated.connect([dnd, callback](const dart::dynamics::Entity *entity) {
-        if (dnd->isMoving())
-            callback(dynamic_cast<const dart::dynamics::BodyNode *>(entity));
-    });
+    r.signal = node->onTransformUpdated.connect(
+        [dnd, callback](const dart::dynamics::Entity *entity)
+        {
+            if (dnd->isMoving())
+                callback(dynamic_cast<const dart::dynamics::BodyNode *>(entity));
+        });
 
     return r;
 }
@@ -170,29 +174,31 @@ void Window::animatePath(const StateSpacePtr &space, const ompl::geometric::Path
         animation_->join();
         animation_.reset();
     }
-    auto thread = std::make_shared<std::thread>([&] {
-        std::size_t n = path.getStateCount();
-        std::size_t i = times;
-
-        std::unique_lock<std::mutex> lk(m);
-        while ((times == 0) ? true : i--)
+    auto thread = std::make_shared<std::thread>(
+        [&]
         {
-            space->setWorldState(world_, path.getState(0));
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::size_t n = path.getStateCount();
+            std::size_t i = times;
 
-            for (std::size_t j = 0; j < n; ++j)
+            std::unique_lock<std::mutex> lk(m);
+            while ((times == 0) ? true : i--)
             {
-                space->setWorldState(world_, path.getState(j));
+                space->setWorldState(world_, path.getState(0));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-                std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
+                for (std::size_t j = 0; j < n; ++j)
+                {
+                    space->setWorldState(world_, path.getState(j));
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds((unsigned int)(1000 / fps)));
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-
-        active = false;
-        cv.notify_one();
-    });
+            active = false;
+            cv.notify_one();
+        });
 
     animation_ = thread;
 

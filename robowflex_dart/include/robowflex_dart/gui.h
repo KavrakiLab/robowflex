@@ -91,8 +91,8 @@ namespace robowflex
                 InteractiveCallback callback{};                         ///< Callback function on motion.
                 dart::dynamics::Frame *parent{dart::dynamics::Frame::World()};  ///< Parent frame.
                 double size{0.2};                                               ///< Size of marker.
-                double thickness{2.};      ///< Thickness of marker arrows.
-                bool obstructable{false};  ///< Is this frame obstructable?
+                double thickness{2.};                ///< Thickness of marker arrows.
+                bool obstructable{false};            ///< Is this frame obstructable?
 
                 bool linear[3]{true, true, true};    ///< Linear position controls enabled.
                 bool rotation[3]{true, true, true};  ///< Rotation ring controls enabled.
@@ -203,14 +203,14 @@ namespace robowflex
             const WorldPtr &getWorldConst() const;
 
         private:
-            WorldPtr world_;                  ///< World to visualize.
-            WindowWidgetPtr widget_;          ///< IMGUI widget.
-            std::vector<WidgetPtr> widgets_;  ///< Other widgets;
+            WorldPtr world_;                                   ///< World to visualize.
+            WindowWidgetPtr widget_;                           ///< IMGUI widget.
+            std::vector<WidgetPtr> widgets_;                   ///< Other widgets;
 
             std::shared_ptr<std::thread> animation_{nullptr};  ///< Animation thread.
 
-            ::osg::ref_ptr<Window> node_;  ///< OSG Node.
-            Viewer viewer_;                ///< Viewer
+            ::osg::ref_ptr<Window> node_;                      ///< OSG Node.
+            Viewer viewer_;                                    ///< Viewer
         };
 
         /** \brief Abstract class for IMGUI Widget.
@@ -531,21 +531,21 @@ namespace robowflex
             const double rotation_alpha_{0.6};   ///< Rotation bound alpha.
             const double rotation_width_{0.05};  ///< Rotation bound width.
 
-            const float max_position_{5.0f};  ///< Max position value.
-            const float drag_step_{0.01f};    ///< Slider drag amount.
+            const float max_position_{5.0f};     ///< Max position value.
+            const float drag_step_{0.01f};       ///< Slider drag amount.
 
-            float position_[3];  ///< GUI frame position.
-            float rotation_[3];  ///< GUI frame rotation.
+            float position_[3];                  ///< GUI frame position.
+            float rotation_[3];                  ///< GUI frame rotation.
 
-            float xp_[2];  ///< GUI X position bounds.
-            float yp_[2];  ///< GUI Y position bounds.
-            float zp_[2];  ///< GUI Z position bounds.
+            float xp_[2];                        ///< GUI X position bounds.
+            float yp_[2];                        ///< GUI Y position bounds.
+            float zp_[2];                        ///< GUI Z position bounds.
 
-            float xr_[2];  ///< GUI X orientation bounds.
-            float yr_[2];  ///< GUI Y orientation bounds.
-            float zr_[2];  ///< GUI Z orientation bounds.
+            float xr_[2];                        ///< GUI X orientation bounds.
+            float yr_[2];                        ///< GUI Y orientation bounds.
+            float zr_[2];                        ///< GUI Z orientation bounds.
 
-            float inner_radius{0.2};  ///< GUI Rotation bound inner radius.
+            float inner_radius{0.2};             ///< GUI Rotation bound inner radius.
 
             /** \} */
         };
@@ -587,16 +587,16 @@ namespace robowflex
             const int max_iteration_{200};       ///< Max iteration value.
             const float drag_tolerance_{0.01f};  ///< Slider drag for tolerance.
 
-            bool track_tsr_{false};     ///< Track the TSR by solving IK.
-            bool use_gradient_{false};  ///< Use gradient solving instead of built-in.
-            bool need_solve_{false};    ///< A solve is requested.
+            bool track_tsr_{false};              ///< Track the TSR by solving IK.
+            bool use_gradient_{false};           ///< Use gradient solving instead of built-in.
+            bool need_solve_{false};             ///< A solve is requested.
 
-            float step_;       ///< GUI gradient step size.
-            float limit_;      ///< GUI gradient limit.
-            float damping_;    ///< GUI SVD damping.
-            float tolerance_;  ///< GUI solver tolerance
-            int maxIter_;      ///< GUI maximum allowed iterations.
-            int item_{0};      ///< GUI solver.
+            float step_;                         ///< GUI gradient step size.
+            float limit_;                        ///< GUI gradient limit.
+            float damping_;                      ///< GUI SVD damping.
+            float tolerance_;                    ///< GUI solver tolerance
+            int maxIter_;                        ///< GUI maximum allowed iterations.
+            int item_{0};                        ///< GUI solver.
 
             /** \} */
 

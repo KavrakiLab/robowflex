@@ -63,9 +63,13 @@ int main(int argc, char **argv)
 
     // Do motion planning using a goal pose for the end effector.
     auto result = planner->plan(scene, start_state, goal_ee_pose, ee);
-    if (result.first)
-        rviz->updateTrajectory(planner->getTrajectory());
+    if (not result.first)
+    {
+        RBX_INFO("Trajectory could not be found");
+        return 0;
+    }
 
+    rviz->updateTrajectory(planner->getTrajectory());
     rviz->visualizeState(planner->getTrajectory()->getLastWayPointPtr());
 
     RBX_INFO("Visualizing end state");

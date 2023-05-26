@@ -245,17 +245,17 @@ namespace robowflex
                             const RobotPose &pose, const Eigen::Vector4d &color,
                             const Eigen::Vector3d &scale) const;
 
-            RobotConstPtr robot_;            ///< Robot being visualized.
-            ros::NodeHandle nh_;             ///< Handle for publishing.
-            ros::Publisher marker_pub_;      ///< Marker publisher.
-            ros::Publisher trajectory_pub_;  ///< Trajectory publisher.
-            ros::Publisher scene_pub_;       ///< Scene publisher.
-            ros::Publisher pcd_pub_;         ///< Pointcloud publisher.
-            ros::Publisher state_pub_;       ///< State publisher.
+            RobotConstPtr robot_;                                             ///< Robot being visualized.
+            ros::NodeHandle nh_;                                              ///< Handle for publishing.
+            ros::Publisher marker_pub_;                                       ///< Marker publisher.
+            ros::Publisher trajectory_pub_;                                   ///< Trajectory publisher.
+            ros::Publisher scene_pub_;                                        ///< Scene publisher.
+            ros::Publisher pcd_pub_;                                          ///< Pointcloud publisher.
+            ros::Publisher state_pub_;                                        ///< State publisher.
 
             std::multimap<std::string, visualization_msgs::Marker> markers_;  ///< Markers to publish.
         };
-    }  // namespace IO
+    }                                                                         // namespace IO
 
 }  // namespace robowflex
 

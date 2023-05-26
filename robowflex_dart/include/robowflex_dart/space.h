@@ -254,21 +254,21 @@ namespace robowflex
             void addJoint(const std::string &group_name, const JointPtr &joint);
             void addJointToGroup(const std::string &group_name, const JointPtr &joint);
 
-            WorldPtr world_;  ///< World to use for planning.
+            WorldPtr world_;                              ///< World to use for planning.
 
             std::set<dart::dynamics::Joint *> jointset_;  ///< Set of joints used in planning.
             std::vector<std::size_t> indices_;            ///< Vector of indices for planning.
 
-            bool metric_{true};  ///< Is this space all Rn?
+            bool metric_{true};                           ///< Is this space all Rn?
 
-            std::vector<JointPtr> joints_;  ///< Vector of all joints used in planning.
+            std::vector<JointPtr> joints_;                ///< Vector of all joints used in planning.
 
-            ompl::RNG rng_;  ///< Random number generator.
+            ompl::RNG rng_;                               ///< Random number generator.
 
             std::map<std::string, std::vector<JointPtr>> group_joints_;  ///< Joints belonging to a group.
             std::map<std::string, std::size_t> group_dimension_;         ///< Dimension of the group.
         };
-    }  // namespace darts
+    }                                                                    // namespace darts
 }  // namespace robowflex
 
 #endif

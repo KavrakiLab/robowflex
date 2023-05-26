@@ -77,11 +77,11 @@ namespace robowflex
             const H5::DataSet dataset_;  ///< Dataset being read from.
             const H5::DataSpace space_;  ///< Size of the dataset.
 
-            const H5T_class_t type_;  ///< Type of the dataset.
-            const int rank_;          ///< Rank of the dataset.
-            const hsize_t *dims_;     ///< Dimensions of the dataset (rank_ dimensions)
+            const H5T_class_t type_;     ///< Type of the dataset.
+            const int rank_;             ///< Rank of the dataset.
+            const hsize_t *dims_;        ///< Dimensions of the dataset (rank_ dimensions)
 
-            const void *data_;  ///< Data itself.
+            const void *data_;           ///< Data itself.
         };
 
         /** \brief An HDF5 File loaded into memory.
@@ -133,7 +133,7 @@ namespace robowflex
             const H5::H5File file_;  ///< The loaded HDF5 file.
             Node data_;              ///< A recursive map of loaded data.
         };
-    }  // namespace IO
+    }                                // namespace IO
 }  // namespace robowflex
 
 #endif

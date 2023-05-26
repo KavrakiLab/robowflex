@@ -487,14 +487,14 @@ namespace robowflex
         std::size_t trials_;      ///< Number of trials to run each query for.
         bool timeout_;  ///< If true, will re-run planners on queries until total time taken has exceeded the
                         ///< allotted time.
-        bool enforce_single_thread_{true};   ///< If true, will request each planner to only use a single
-                                             ///< thread.
-        bool override_planning_time_{true};  ///< If true, will override request planning time with global
-                                             ///< allowed time.
+        bool enforce_single_thread_{true};     ///< If true, will request each planner to only use a single
+                                               ///< thread.
+        bool override_planning_time_{true};    ///< If true, will override request planning time with global
+                                               ///< allowed time.
 
-        Profiler::Options options_;           ///< Options for profiler.
-        Profiler profiler_;                   ///< Profiler to use for extracting data.
-        std::vector<PlanningQuery> queries_;  ///< Queries to test.
+        Profiler::Options options_;            ///< Options for profiler.
+        Profiler profiler_;                    ///< Profiler to use for extracting data.
+        std::vector<PlanningQuery> queries_;   ///< Queries to test.
 
         PreRunCallback pre_callback_;          ///< Pre-run callback.
         PostRunCallback post_callback_;        ///< Post-run callback.

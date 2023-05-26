@@ -146,8 +146,7 @@ namespace robowflex
          */
         const robot_trajectory::RobotTrajectoryPtr &getTrajectory() const;
 
-        /** \brief Get the trajectory that resulted in the last call to plan() in Tesseract
-         *  format.
+        /** \brief Get the trajectory that resulted in the last call to plan() in Tesseract format.
          *  \return Last trajectory computed using plan().
          */
         const trajopt::TrajArray &getTesseractTrajectory() const;

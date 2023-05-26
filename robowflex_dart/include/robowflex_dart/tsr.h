@@ -83,7 +83,7 @@ namespace robowflex
                     std::string frame{magic::ROOT_FRAME};  ///< Name of base frame.
                 } base;                                    ///< Base frame.
 
-                RobotPose pose{RobotPose::Identity()};  ///< Pose of TSR.
+                RobotPose pose{RobotPose::Identity()};     ///< Pose of TSR.
 
                 struct
                 {
@@ -689,8 +689,8 @@ namespace robowflex
              */
             void computeBijection();
 
-            WorldPtr world_;      ///< Underlying world.
-            Specification spec_;  ///< TSR specification.
+            WorldPtr world_;                    ///< Underlying world.
+            Specification spec_;                ///< TSR specification.
 
             std::size_t skel_index_;            ///< Index of controlled skeleton.
             std::vector<std::size_t> indices_;  ///< Controlled indices.
@@ -983,20 +983,20 @@ namespace robowflex
             WorldPtr world_;                      ///< World to use.
             std::set<std::size_t> skel_indices_;  ///< All skeleton indices used by members of the set.
 
-            bool qr_{false};        ///< If true, use QR in gradient solve. Else, SVD.
-            bool damped_{true};     ///< If true, use damped SVD.
-            double step_{1.0};      ///< Step scaling in gradient.
-            double limit_{1.};      ///< Step size limit.
-            double damping_{1e-8};  ///< Damping factor.
+            bool qr_{false};                      ///< If true, use QR in gradient solve. Else, SVD.
+            bool damped_{true};                   ///< If true, use damped SVD.
+            double step_{1.0};                    ///< Step scaling in gradient.
+            double limit_{1.};                    ///< Step size limit.
+            double damping_{1e-8};                ///< Damping factor.
             double tolerance_{magic::DEFAULT_IK_TOLERANCE};  ///< Tolerance for solving.
             std::size_t maxIter_{50};                        ///< Maximum iterations to use for solving.
 
-            std::vector<TSRPtr> tsrs_;     ///< Set of TSRs
-            std::vector<double> weights_;  ///< Weights on TSRs
-            std::size_t dimension_{0};     ///< Total error dimension of set.
+            std::vector<TSRPtr> tsrs_;                       ///< Set of TSRs
+            std::vector<double> weights_;                    ///< Weights on TSRs
+            std::size_t dimension_{0};                       ///< Total error dimension of set.
 
-            Eigen::VectorXd upper_;  ///< Upper bounds on world configuration.
-            Eigen::VectorXd lower_;  ///< Lower bounds on world configuration.
+            Eigen::VectorXd upper_;                          ///< Upper bounds on world configuration.
+            Eigen::VectorXd lower_;                          ///< Lower bounds on world configuration.
         };
 
         /** \cond IGNORE */
@@ -1058,7 +1058,7 @@ namespace robowflex
             StateSpacePtr space_;  ///< Robot state space.
             TSRSetPtr tsr_;        ///< Set of TSR constraints.
         };
-    }  // namespace darts
+    }                              // namespace darts
 }  // namespace robowflex
 
 #endif

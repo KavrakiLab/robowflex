@@ -83,7 +83,7 @@ namespace robowflex
 
             std::map<std::string, StaticTransform> static_;  ///< Static transforms.
         };
-    }  // namespace IO
+    }                                                        // namespace IO
 }  // namespace robowflex
 
 #endif

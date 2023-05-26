@@ -411,10 +411,10 @@ namespace robowflex
             ompl::geometric::SimpleSetupPtr ss{nullptr};     ///< Simple Setup.
             WorldPtr world;                                  ///< World used for planning.
 
-            std::vector<TSRPtr> path_constraints;  ///< Path Constraints.
-            TSRConstraintPtr constraint{nullptr};  ///< OMPL Constraint for Path Constraints.
+            std::vector<TSRPtr> path_constraints;            ///< Path Constraints.
+            TSRConstraintPtr constraint{nullptr};            ///< OMPL Constraint for Path Constraints.
 
-            Eigen::VectorXd start;  ///< Start configuration.
+            Eigen::VectorXd start;                           ///< Start configuration.
 
             /** \brief Hyperparameter options.
              */

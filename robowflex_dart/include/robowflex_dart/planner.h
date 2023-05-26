@@ -69,9 +69,10 @@ namespace robowflex
              *  \return Allocated planner.
              */
             template <typename T, typename... Args>
-            PlannerAllocator makePlanner(Args &&... args)
+            PlannerAllocator makePlanner(Args &&...args)
             {
-                return [&]() -> ompl::base::PlannerPtr {
+                return [&]() -> ompl::base::PlannerPtr
+                {
                     if (builder)
                     {
                         auto p = std::make_shared<T>(builder->info, std::forward<Args>(args)...);
@@ -94,7 +95,7 @@ namespace robowflex
             WorldPtr world_;            ///< DART world containing robot and scene.
             ompl::base::GoalPtr goal_;  ///< Current motion planning goal.
         };
-    }  // namespace darts
+    }                                   // namespace darts
 }  // namespace robowflex
 
 #endif

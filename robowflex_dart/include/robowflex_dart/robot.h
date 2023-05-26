@@ -303,7 +303,7 @@ namespace robowflex
                                                                                           ///< named states.
             std::map<std::string, std::vector<std::size_t>> group_indices_;  ///< Indices of group joints.
 
-            robowflex::RobotPtr robot_{nullptr};  ///< Robowflex robot.
+            robowflex::RobotPtr robot_{nullptr};                             ///< Robowflex robot.
         };
 
         /** \brief Load a robot from a URDF and SRDF (i.e., a MoveIt enabled robot).

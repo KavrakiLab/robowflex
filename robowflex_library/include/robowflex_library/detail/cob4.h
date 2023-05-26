@@ -72,10 +72,10 @@ namespace robowflex
         void closeRightGripper();
 
     private:
-        static const std::string DEFAULT_URDF;        ///< Default URDF
-        static const std::string DEFAULT_SRDF;        ///< Default SRDF
-        static const std::string DEFAULT_LIMITS;      ///< Default Limits
-        static const std::string DEFAULT_KINEMATICS;  ///< Default kinematics
+        static const std::string DEFAULT_URDF;         ///< Default URDF
+        static const std::string DEFAULT_SRDF;         ///< Default SRDF
+        static const std::string DEFAULT_LIMITS;       ///< Default Limits
+        static const std::string DEFAULT_KINEMATICS;   ///< Default kinematics
 
         static const std::string RESOURCE_URDF;        ///< URDF from robowflex_resources
         static const std::string RESOURCE_SRDF;        ///< SRDF from robowflex_resources
@@ -118,7 +118,7 @@ namespace robowflex
             static const std::string DEFAULT_CONFIG;   ///< Default planning configuration.
             static const std::string RESOURCE_CONFIG;  ///< Planning configuration from robowflex_resources.
         };
-    }  // namespace OMPL
+    }                                                  // namespace OMPL
 }  // namespace robowflex
 
 #endif

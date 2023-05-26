@@ -15,7 +15,7 @@
 using namespace robowflex;
 
 bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
-                                    tesseract::tesseract_ros::KDLEnvPtr env)
+                                    tesseract::tesseract_ros::KDLEnvPtr &env)
 {
     if (env->checkInitialized())
     {
@@ -120,7 +120,7 @@ bool hypercube::sceneToTesseractEnv(const robowflex::SceneConstPtr &scene,
 }
 
 bool hypercube::addAttachedBodiesToTesseractEnv(const robot_state::RobotStatePtr &state,
-                                                tesseract::tesseract_ros::KDLEnvPtr env)
+                                                tesseract::tesseract_ros::KDLEnvPtr &env)
 {
     moveit_msgs::RobotState state_msg;
     moveit::core::robotStateToRobotStateMsg(*state, state_msg);
@@ -216,7 +216,7 @@ void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesser
                                               const robot_state::RobotStatePtr &ref_state,
                                               const std::string &manip,
                                               const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                              robot_trajectory::RobotTrajectoryPtr trajectory)
+                                              robot_trajectory::RobotTrajectoryPtr &trajectory)
 {
     const robot_state::RobotState &copy = *ref_state;
     trajectory->clear();
