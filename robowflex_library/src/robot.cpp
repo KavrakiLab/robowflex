@@ -82,7 +82,7 @@ bool Robot::initialize(const std::string &urdf_file, const std::string &srdf_fil
             return false;
         }
 
-    initializeInternal();
+    initializeInternal(true, limits_file);
     return true;
 }
 
@@ -305,7 +305,7 @@ void Robot::updateXMLString(std::string &string, const PostProcessXMLFunction &f
     }
 }
 
-void Robot::initializeInternal(bool namespaced)
+void Robot::initializeInternal(bool namespaced, const std::string &limits_file)
 {
     const std::string &description = ((namespaced) ? handler_.getNamespace() : "") + "/" + ROBOT_DESCRIPTION;
 
@@ -321,6 +321,35 @@ void Robot::initializeInternal(bool namespaced)
     {
         RBX_INFO("Reloading model after URDF/SRDF post-process function...");
         loadRobotModel(description);
+    }
+
+    // Load the joint limits if the file is available.
+    const auto &yaml = IO::loadFileToYAML(limits_file);
+    if (yaml.first && IO::isNode(yaml.second["joint_limits"]))
+    {
+        const auto &node = yaml.second;
+        for (auto &jmodel : model_->getJointModels())
+        {
+            auto bounds = jmodel->getVariableBounds();
+            auto jnames = jmodel->getVariableNames();
+            auto joint_limits = jmodel->getVariableBoundsMsg();
+            for (auto &jlim : joint_limits)
+            {
+                auto name = jlim.joint_name;
+                if (!IO::isNode(node["joint_limits"][name]))
+                    continue;
+                if (IO::isNode(node["joint_limits"][name]["has_velocity_limits"]))
+                    jlim.has_velocity_limits = node["joint_limits"][name]["has_velocity_limits"].as<bool>();
+                if (IO::isNode(node["joint_limits"][name]["max_velocity"]))
+                    jlim.max_velocity = node["joint_limits"][name]["max_velocity"].as<double>();
+                if (IO::isNode(node["joint_limits"][name]["has_acceleration_limits"]))
+                    jlim.has_acceleration_limits =
+                        node["joint_limits"][name]["has_acceleration_limits"].as<bool>();
+                if (IO::isNode(node["joint_limits"][name]["max_acceleration"]))
+                    jlim.max_acceleration = node["joint_limits"][name]["max_acceleration"].as<double>();
+            }
+            jmodel->setVariableBounds(joint_limits);
+        }
     }
 
     // set strings on parameter server
