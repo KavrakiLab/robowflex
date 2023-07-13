@@ -203,13 +203,28 @@ void hypercube::manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &
 {
     // Initialize it with the env state (includes both group and non-group joints).
     const auto &joint_values = env->getCurrentJointValues();
-    std::vector<double> tmp_current_values(joint_values.data(), joint_values.data() + joint_values.size());
-    robot_state->setVariablePositions(env->getJointNames(), tmp_current_values);
+    std::vector<double> tmp_joint_values(joint_values.data(), joint_values.data() + joint_values.size());
+    robot_state->setVariablePositions(env->getJointNames(), tmp_joint_values);
+
+    if (env->getMobileBaseEnabled())
+    {
+        const auto &base_joint_values = env->getCurrentBaseJointValues();
+        std::vector<double> tmp_base_values(base_joint_values.data(), base_joint_values.data() + base_joint_values.size());
+        robot_state->setVariablePositions(base_joint_names, tmp_base_values);
+    }
 
     // Set (only) group joints from tesseract waypoint.
     const auto &joint_manip_names = env->getManipulator(manip)->getJointNames();
-    std::vector<double> tmp_group_values(manip_state.data(), manip_state.data() + manip_state.size());
+    const auto &manip_joint_values = manip_state.segment(3, env->getManipulator(manip)->numJoints());
+    std::vector<double> tmp_group_values(manip_joint_values.data(), manip_joint_values.data() + manip_joint_values.size());
     robot_state->setVariablePositions(joint_manip_names, tmp_group_values);
+
+    if (env->getMobileBaseEnabled())
+    {
+        const auto &base_joint_values = manip_state.segment(0, 3);
+        std::vector<double> tmp_base_values(base_joint_values.data(), base_joint_values.data() + base_joint_values.size());
+        robot_state->setVariablePositions(base_joint_names, tmp_base_values);
+    }
 }
 
 void hypercube::manipTesseractTrajToRobotTraj(const tesseract::TrajArray &tesseract_traj,
@@ -242,11 +257,19 @@ void hypercube::robotTrajToManipTesseractTraj(const robot_trajectory::RobotTraje
     trajectory.resize(0, 0);
     trajectory.resize(robot_traj->getWayPointCount(), robot_traj->getGroup()->getVariableCount());
 
+    std::vector<std::string> manip_joint_names;
+
+    if (env->getMobileBaseEnabled())
+        manip_joint_names.insert(manip_joint_names.end(), base_joint_names.begin(), base_joint_names.end());
+
+    const auto &kin_joint_names = env->getManipulator(manip)->getJointNames();
+    manip_joint_names.insert(manip_joint_names.end(), kin_joint_names.begin(), kin_joint_names.end());
+
     for (unsigned int i = 0; i < robot_traj->getWayPointCount(); ++i)
     {
         // Transform each traj waypoint to tesseract manip state.
         std::vector<double> manip_joint_values;
-        robotStateToManipState(robot_traj->getWayPointPtr(i), env->getManipulator(manip)->getJointNames(),
+        robotStateToManipState(robot_traj->getWayPointPtr(i), manip_joint_names,
                                manip_joint_values);
 
         // Push manip state to manip tesseract trajectory .

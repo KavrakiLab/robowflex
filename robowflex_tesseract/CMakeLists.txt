@@ -38,6 +38,7 @@ if (tesseract_planning_DIR)
   add_library(${LIBRARY_NAME}
     src/conversions.cpp
     src/trajopt_planner.cpp
+    src/stretch.cpp
     )
 
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
@@ -49,6 +50,7 @@ if (tesseract_planning_DIR)
   add_script(fetch_tabletop_planning_time)
   add_script(fetch_trajopt)
   add_script(ur5_custom_planning)
+  add_script(stretch_goalstate)
 
   install_scripts()
   install_tests()

@@ -78,6 +78,7 @@ namespace robowflex
                                            const tesseract::tesseract_ros::KDLEnvPtr &env,
                                            tesseract::TrajArray &trajectory);
 
+        const std::vector<std::string> &base_joint_names={"base_joint/x", "base_joint/y", "base_joint/theta"};
     }  // namespace hypercube
 }  // namespace robowflex
 

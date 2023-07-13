@@ -106,17 +106,19 @@ namespace robowflex
         /** \brief Initialize planner. The user must specify a chain group defined in the robot's srdf
          *  that contains all the links of the manipulator.
          *  \param[in] manip Name of chain group with all the links of the manipulator.
+         *  \param[in] enable_mobile_base Whether to enable planning with a mobile base or not.
          *  \return True if initialization succeded.
          */
-        bool initialize(const std::string &manip);
+        bool initialize(const std::string &manip, bool enable_mobile_base = false);
 
         /** \brief Initialize planner. All links between \a base_link and \a tip_link will be added to
          *  the manipulator.
          *  \param[in] base_link Base link of the \a manip.
          *  \param[in] tip_link Tip link of the \a manip.
+         *  \param[in] enable_mobile_base Whether to enable planning with a mobile base or not.
          *  \return True if initialization succeded.
          */
-        bool initialize(const std::string &base_link, const std::string &tip_link);
+        bool initialize(const std::string &base_link, const std::string &tip_link, bool enable_mobile_base = false);
 
         /** \name Set and get TrajOpt parameters
             \{*/
@@ -365,6 +367,8 @@ namespace robowflex
         std::vector<int> fixed_joints_;  ///< List of joints that need to be fixed, indexed in the order they
                                          ///< appear in the manipulator.
         robot_state::RobotStatePtr ref_state_;  ///< Reference state to build moveit trajectory waypoints.
+        int dof_{0};                    ///< Actual dof. This includes the joints for the base if that is the case.
+        std::vector<std::string> base_joint_names_{"base_joint/x", "base_joint/y", "base_joint/theta"};
     };
 }  // namespace robowflex
 

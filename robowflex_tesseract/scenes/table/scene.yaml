@@ -17,7 +17,7 @@ world:
           dimensions: [0.25, 0.25, 0.25]
       primitive_poses:
         - position: [0.76, 8.433902659017084e-06, 0.839018812904158]
-          orientation: [-3.19427086946521e-05, -3.248814443275678e-06, 1.21284567499891e-06, 0.9999999994838188]
+          orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_bottom
@@ -26,7 +26,7 @@ world:
           dimensions: [0.9, 1.7, 0.04]
       primitive_poses:
         - position: [1.049999494385826, 1.51702591216964e-06, 0.2452286235913045]
-          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+          orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_leg_left_back
@@ -35,7 +35,7 @@ world:
           dimensions: [0.05, 0.05, 0.7]
       primitive_poses:
         - position: [1.499997371966598, 0.8500025284426187, 0.3452295774036421]
-          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+          orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_leg_left_front
@@ -44,7 +44,7 @@ world:
           dimensions: [0.05, 0.05, 0.7]
       primitive_poses:
         - position: [0.5999973719694124, 0.8500003459478829, 0.3452290268504982]
-          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+          orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_leg_right_back
@@ -53,7 +53,7 @@ world:
           dimensions: [0.05, 0.05, 0.7]
       primitive_poses:
         - position: [1.500001494457485, -0.8499974715518412, 0.3452282203320098]
-          orientation: [3.991390862408021e-07, -3.058623738022737e-07, 1.212497197604013e-06, 0.9999999999991385]
+          orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_leg_right_front

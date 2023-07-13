@@ -25,13 +25,15 @@ TrajOptPlanner::TrajOptPlanner(const RobotPtr &robot, const std::string &group_n
 {
 }
 
-bool TrajOptPlanner::initialize(const std::string &manip)
+bool TrajOptPlanner::initialize(const std::string &manip, bool enable_mobile_base)
 {
     // Save manipulator name.
     manip_ = manip;
 
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
+    if (enable_mobile_base)
+        env_->enableMobileBase();
 
     if (!env_->init(robot_->getURDF(), robot_->getSRDF()))
     {
@@ -48,17 +50,20 @@ bool TrajOptPlanner::initialize(const std::string &manip)
 
     // Initialize trajectory.
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+    dof_ = env_->getManipulator(manip_)->numJoints() + (enable_mobile_base ? 3 : 0);
 
     return true;
 }
 
-bool TrajOptPlanner::initialize(const std::string &base_link, const std::string &tip_link)
+bool TrajOptPlanner::initialize(const std::string &base_link, const std::string &tip_link, bool enable_mobile_base)
 {
     // Save manipulator name.
     manip_ = "manipulator";
 
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
+    if (enable_mobile_base)
+        env_->enableMobileBase();
 
     if (!robot_->getModelConst()->hasLinkModel(base_link))
     {
@@ -106,6 +111,7 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
 
     // Initialize trajectory.
     trajectory_ = std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
+    dof_ = env_->getManipulator(manip_)->numJoints() + (enable_mobile_base ? 3 : 0);
 
     return true;
 }
@@ -180,14 +186,27 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
         auto joint_names = env_->getManipulator(manip_)->getJointNames();
         for (const auto &name : joints)
         {
+            int index = 0;
+            std::vector<std::string>::iterator base_it;
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
-            if (it == joint_names.end())
+
+            if (env_->getMobileBaseEnabled())
+            {
+                index += 3;
+                base_it = std::find(base_joint_names_.begin(), base_joint_names_.end(), name);
+            }
+
+            if ((it == joint_names.end()) and (base_it == base_joint_names_.end()))
             {
                 throw Exception(1, "Joint to be fixed does not exist");
             }
             else
             {
-                int index = std::distance(joint_names.begin(), it);
+                if ((it == joint_names.end()) and env_->getMobileBaseEnabled())
+                    index = std::distance(base_joint_names_.begin(), base_it);
+                else
+                    index += std::distance(joint_names.begin(), it);
+
                 fixed_joints_.push_back(index);
             }
         }
@@ -469,10 +488,14 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
 
 void TrajOptPlanner::addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
 {
+    std::vector<double> coeffs(dof_, options.joint_vel_coeffs);
+    if (env_->getMobileBaseEnabled())//TODO: Revisit this
+        coeffs[2] = 0.0;
+
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<JointVelTermInfo>();
-    jv->targets = std::vector<double>(pci->kin->numJoints(), 0.0);
-    jv->coeffs = std::vector<double>(pci->kin->numJoints(), options.joint_vel_coeffs);
+    jv->targets = std::vector<double>(dof_, 0.0);
+    jv->coeffs = coeffs;
     jv->term_type = TT_COST;
     jv->first_step = 0;
     jv->last_step = options.num_waypoints - 1;
@@ -547,7 +570,13 @@ void TrajOptPlanner::addGoalState(const MotionRequestBuilderPtr &request,
 void TrajOptPlanner::addGoalState(const robot_state::RobotStatePtr &goal_state,
                                   std::shared_ptr<ProblemConstructionInfo> pci) const
 {
-    const auto &manip_joint_names = env_->getManipulator(manip_)->getJointNames();
+    std::vector<std::string> manip_joint_names;
+
+    if (env_->getMobileBaseEnabled())
+        manip_joint_names.insert(manip_joint_names.end(), base_joint_names_.begin(), base_joint_names_.end());
+
+    const auto &kin_joint_names = env_->getManipulator(manip_)->getJointNames();
+    manip_joint_names.insert(manip_joint_names.end(), kin_joint_names.begin(), kin_joint_names.end());
 
     // Transform (robot) goal_state to manip state.
     std::vector<double> goal_state_values;
@@ -563,7 +592,7 @@ void TrajOptPlanner::addGoalState(const std::vector<double> goal_state,
     auto joint_pos_constraint = std::make_shared<JointPosTermInfo>();
     joint_pos_constraint->term_type = TT_CNT;
     joint_pos_constraint->name = "goal_state_cnt";
-    joint_pos_constraint->coeffs = std::vector<double>(pci->kin->numJoints(), options.joint_pos_cnt_coeffs);
+    joint_pos_constraint->coeffs = std::vector<double>(dof_, options.joint_pos_cnt_coeffs);
     joint_pos_constraint->targets = goal_state;
     joint_pos_constraint->first_step = options.num_waypoints - 1;
     joint_pos_constraint->last_step = options.num_waypoints - 1;
@@ -625,7 +654,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
         {
             // Perturb all waypoints but start and goal.
             int rows = options.num_waypoints - 2;
-            int cols = pci->kin->numJoints();
+            int cols = dof_;
             double noise = options.noise_init_traj;
 
             init_trajectory.block(1, 0, rows, cols) += (Eigen::MatrixXd::Constant(rows, cols, -noise) +
@@ -675,6 +704,13 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
                 // Solution is collision-free.
                 planner_result.second = true;
             }
+            // else if (opt.results().total_cost < best_cost)
+            // {
+            //     // Clear current trajectory.
+            //     trajectory_->clear();
+            //     trajectory_ = current_traj;
+            //     tesseract_trajectory_ = tss_current_traj;
+            // }
         }
 
         if (options.return_first_sol or
