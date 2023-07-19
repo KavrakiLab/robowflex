@@ -28,6 +28,7 @@ int main(int argc, char **argv)
     // Create the default Fetch robot.
     auto fetch = std::make_shared<FetchRobot>();
     fetch->initialize(false);
+    std::cout << "Aca" << std::endl;
     const auto &ee = fetch->getModel()->getEndEffectors()[0]->getLinkModelNames()[0];
 
     // Load tabletop scene.
@@ -39,7 +40,9 @@ int main(int argc, char **argv)
 
     // Create a TrajOpt planner for Fetch.
     auto planner = std::make_shared<TrajOptPlanner>(fetch, GROUP);
-    planner->initialize("torso_lift_link", "gripper_link");
+    std::cout << "Aca2" << std::endl;
+    planner->initialize("torso_lift_link", "gripper_link", false);
+    std::cout << "Aca3" << std::endl;
 
     // Set planner parameters.
     planner->options.num_waypoints = 10;       // Select number of waypoints in trajectory.

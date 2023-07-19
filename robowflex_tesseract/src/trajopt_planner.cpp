@@ -32,6 +32,7 @@ bool TrajOptPlanner::initialize(const std::string &manip, bool enable_mobile_bas
 
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
+    //TODO: put this back
     if (enable_mobile_base)
         env_->enableMobileBase();
 
@@ -62,6 +63,7 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
 
     // Start KDL environment with the robot information.
     env_ = std::make_shared<tesseract::tesseract_ros::KDLEnv>();
+    //TODO: put this back
     if (enable_mobile_base)
         env_->enableMobileBase();
 
@@ -118,7 +120,7 @@ bool TrajOptPlanner::initialize(const std::string &base_link, const std::string 
 
 void TrajOptPlanner::setInitialTrajectory(const robot_trajectory::RobotTrajectoryPtr &init_trajectory)
 {
-    hypercube::robotTrajToManipTesseractTraj(init_trajectory, manip_, env_, initial_trajectory_);
+    hypercube::robotTrajToManipTesseractTraj(init_trajectory, manip_, env_, initial_trajectory_, base_joint_names_);
     init_type_ = InitInfo::Type::GIVEN_TRAJ;
 }
 
@@ -190,6 +192,7 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
             std::vector<std::string>::iterator base_it;
             auto it = std::find(joint_names.begin(), joint_names.end(), name);
 
+            //TODO: put this back
             if (env_->getMobileBaseEnabled())
             {
                 index += 3;
@@ -202,6 +205,7 @@ void TrajOptPlanner::fixJoints(const std::vector<std::string> &joints)
             }
             else
             {
+                //TODO: put this back
                 if ((it == joint_names.end()) and env_->getMobileBaseEnabled())
                     index = std::distance(base_joint_names_.begin(), base_it);
                 else
@@ -489,8 +493,8 @@ void TrajOptPlanner::problemConstructionInfo(std::shared_ptr<ProblemConstruction
 void TrajOptPlanner::addVelocityCost(std::shared_ptr<trajopt::ProblemConstructionInfo> pci) const
 {
     std::vector<double> coeffs(dof_, options.joint_vel_coeffs);
-    if (env_->getMobileBaseEnabled())//TODO: Revisit this
-        coeffs[2] = 0.0;
+    // if (env_->getMobileBaseEnabled())//TODO: Revisit this
+    //     coeffs[2] = 0.0;
 
     // Add joint velocity cost (without time) to penalize longer paths.
     auto jv = std::make_shared<JointVelTermInfo>();
@@ -572,6 +576,7 @@ void TrajOptPlanner::addGoalState(const robot_state::RobotStatePtr &goal_state,
 {
     std::vector<std::string> manip_joint_names;
 
+    // TODO; put this back
     if (env_->getMobileBaseEnabled())
         manip_joint_names.insert(manip_joint_names.end(), base_joint_names_.begin(), base_joint_names_.end());
 
@@ -684,7 +689,7 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
             auto current_traj =
                 std::make_shared<robot_trajectory::RobotTrajectory>(robot_->getModelConst(), group_);
             hypercube::manipTesseractTrajToRobotTraj(tss_current_traj, ref_state_, manip_, env_,
-                                                     current_traj);
+                                                     current_traj, base_joint_names_);
             auto const &ct = std::make_shared<Trajectory>(current_traj);
             bool is_ct_collision_free = ct->isCollisionFree(scene);
 
@@ -704,13 +709,13 @@ TrajOptPlanner::PlannerResult TrajOptPlanner::solve(const SceneConstPtr &scene,
                 // Solution is collision-free.
                 planner_result.second = true;
             }
-            // else if (opt.results().total_cost < best_cost)
-            // {
-            //     // Clear current trajectory.
-            //     trajectory_->clear();
-            //     trajectory_ = current_traj;
-            //     tesseract_trajectory_ = tss_current_traj;
-            // }
+            else if (opt.results().total_cost < best_cost)
+            {
+                // Clear current trajectory.
+                trajectory_->clear();
+                trajectory_ = current_traj;
+                tesseract_trajectory_ = tss_current_traj;
+            }
         }
 
         if (options.return_first_sol or

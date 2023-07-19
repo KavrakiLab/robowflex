@@ -9,15 +9,15 @@ world:
       primitive_poses:
         - position: [0.55, 0.2997994722263027, 0.7893448398657438]
           orientation: [0.001353898394225947, -0.001413108676048193, 1.86736507787716e-05, 0.9999980848653174]
-    - header:
-        frame_id: base_link
-      id: Cube
-      primitives:
-        - type: box
-          dimensions: [0.25, 0.25, 0.25]
-      primitive_poses:
-        - position: [0.76, 8.433902659017084e-06, 0.839018812904158]
-          orientation: [0, 0, 0, 1]
+    # - header:
+    #     frame_id: base_link
+    #   id: Cube
+    #   primitives:
+    #     - type: box
+    #       dimensions: [0.25, 0.25, 0.25]
+    #   primitive_poses:
+    #     - position: [0.76, 8.433902659017084e-06, 0.839018812904158]
+    #       orientation: [0, 0, 0, 1]
     - header:
         frame_id: base_link
       id: table_bottom

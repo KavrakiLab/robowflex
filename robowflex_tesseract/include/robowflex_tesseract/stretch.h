@@ -60,7 +60,7 @@ namespace robowflex
          * base manipulator.
          *  \return True on success, false on failure.
          */
-        bool initialize(bool addVirtual = true, bool addBaseManip = false);
+        bool initialize(bool addVirtual = true, bool addBaseManip = false, const std::string &mob_base_manip="mobile_base_manipulator", const std::string &manip="stretch_arm");
 
         /** \brief Sets the base pose of the Stretch robot (a virtual planar joint)
          *  \param[in] x The x position.

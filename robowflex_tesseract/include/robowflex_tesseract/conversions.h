@@ -52,7 +52,8 @@ namespace robowflex
          */
         void manipStateToRobotState(const Eigen::Ref<const Eigen::VectorXd> &manip_state,
                                     const std::string &manip, const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                    robot_state::RobotStatePtr robot_state);
+                                    robot_state::RobotStatePtr robot_state,
+                                    std::vector<std::string> base_joint_names);
 
         /** \brief Transform a tesseract trajectory to a robot \a trajectory.
          *  \param[in] tesseract_traj Tesseract trajectory to transform.
@@ -65,7 +66,8 @@ namespace robowflex
                                            const robot_state::RobotStatePtr &ref_state,
                                            const std::string &manip,
                                            const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                           robot_trajectory::RobotTrajectoryPtr &trajectory);
+                                           robot_trajectory::RobotTrajectoryPtr &trajectory,
+                                           std::vector<std::string> base_joint_names);
 
         /** \brief Transform a \a robot_trajectory to a tesseract manipulator \a trajectory.
          *  \param[in] robot_traj Robot Trajectory to transform.
@@ -76,9 +78,10 @@ namespace robowflex
         void robotTrajToManipTesseractTraj(const robot_trajectory::RobotTrajectoryPtr &robot_traj,
                                            const std::string &manip,
                                            const tesseract::tesseract_ros::KDLEnvPtr &env,
-                                           tesseract::TrajArray &trajectory);
+                                           tesseract::TrajArray &trajectory,
+                                           std::vector<std::string> base_joint_names);
 
-        const std::vector<std::string> &base_joint_names={"base_joint/x", "base_joint/y", "base_joint/theta"};
+        // std::vector<std::string> base_joint_names={"base_joint/x", "base_joint/y", "base_joint/theta"};
     }  // namespace hypercube
 }  // namespace robowflex
 

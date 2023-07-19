@@ -97,13 +97,13 @@ void StretchRobot::setKinematicsPostProcessAddBaseManipulatorPlugin(const std::s
         });
 }
 
-bool StretchRobot::initialize(bool addVirtual, bool addBaseManip)
+bool StretchRobot::initialize(bool addVirtual, bool addBaseManip, const std::string &mob_base_manip, const std::string &manip)
 {
     if (addBaseManip)
     {
-        const std::string &mob_base_manip = "mobile_base_manipulator";
+        // const std::string &mob_base_manip = "mobile_base_manipulator";
         const std::string &mobile_base = "mobile_base";
-        setSRDFPostProcessAddMobileManipulatorGroup(mobile_base, "stretch_arm", mob_base_manip);
+        setSRDFPostProcessAddMobileManipulatorGroup(mobile_base, manip, mob_base_manip);
         setKinematicsPostProcessAddBaseManipulatorPlugin(mobile_base, mob_base_manip);
     }
     else if (addVirtual)
@@ -154,8 +154,14 @@ void StretchRobot::pointHead(const Eigen::Vector3d &point)
     const RobotPose point_tilt = getLinkTF("link_head_tilt").inverse() * point_pose;
 
     const double pan = atan2(point_pan.translation().y(), point_pan.translation().x());
-    const double tilt = -atan2(point_tilt.translation().z(),
+    // const double tilt = -atan2(point_tilt.translation().z(),
+                               // hypot(point_tilt.translation().x(), point_tilt.translation().y()));
+    // const double tilt = atan2(point_tilt.translation().z(),
+                               // hypot(point_tilt.translation().x(), point_tilt.translation().y()));
+
+    const double tilt = atan2(point_tilt.translation().z(),
                                hypot(point_tilt.translation().x(), point_tilt.translation().y()));
+    std::cout << "pan inside " << pan << ", tilt inside: " << tilt << std::endl;
 
     const std::map<std::string, double> angles = {{"joint_head_pan", pan}, {"joint_head_tilt", tilt}};
 

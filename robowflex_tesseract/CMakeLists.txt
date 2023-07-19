@@ -51,6 +51,7 @@ if (tesseract_planning_DIR)
   add_script(fetch_trajopt)
   add_script(ur5_custom_planning)
   add_script(stretch_goalstate)
+  add_script(stretch_viewplanner)
 
   install_scripts()
   install_tests()
