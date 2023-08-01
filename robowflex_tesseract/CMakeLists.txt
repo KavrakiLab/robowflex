@@ -39,6 +39,7 @@ if (tesseract_planning_DIR)
     src/conversions.cpp
     src/trajopt_planner.cpp
     src/stretch.cpp
+    src/utils.cpp
     )
 
   set_target_properties(${LIBRARY_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})

@@ -130,6 +130,9 @@ bool StretchRobot::initialize(bool addVirtual, bool addBaseManip, const std::str
 
     StretchRobot::openGripper();
 
+    // Lift up the arm to avoid self-collisions.
+    setState(std::map<std::string, double>{{"joint_lift", 0.2}});
+
     return success;
 }
 
